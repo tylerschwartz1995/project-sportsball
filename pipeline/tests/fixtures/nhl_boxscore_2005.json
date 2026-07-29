@@ -1,0 +1,131 @@
+{
+  "id": 2005020001,
+  "season": 20052006,
+  "gameType": 2,
+  "gameDate": "2005-10-05",
+  "gameState": "OFF",
+  "awayTeam": {
+    "id": 8,
+    "abbrev": "MTL",
+    "commonName": {"default": "Canadiens"},
+    "score": 2,
+    "sog": 21
+  },
+  "homeTeam": {
+    "id": 6,
+    "abbrev": "BOS",
+    "commonName": {"default": "Bruins"},
+    "score": 1,
+    "sog": 30
+  },
+  "playerByGameStats": {
+    "awayTeam": {
+      "forwards": [
+        {
+          "playerId": 8459442,
+          "name": {"default": "S. Koivu"},
+          "sweaterNumber": 11,
+          "position": "C",
+          "goals": 0,
+          "assists": 1,
+          "points": 1,
+          "plusMinus": 0,
+          "pim": 0,
+          "hits": 0,
+          "powerPlayGoals": 0,
+          "sog": 2,
+          "faceoffWinningPctg": 0.375,
+          "blockedShots": 0,
+          "giveaways": 0,
+          "takeaways": 0,
+          "shifts": 18,
+          "toi": "17:12"
+        }
+      ],
+      "defense": [],
+      "goalies": [
+        {
+          "playerId": 8460535,
+          "name": {"default": "J. Theodore"},
+          "sweaterNumber": 60,
+          "position": "G",
+          "starter": true,
+          "decision": "W",
+          "goalsAgainst": 1,
+          "shotsAgainst": 30,
+          "saves": 29,
+          "savePctg": 0.966667,
+          "evenStrengthGoalsAgainst": 1,
+          "evenStrengthShotsAgainst": "17/18",
+          "powerPlayGoalsAgainst": 0,
+          "powerPlayShotsAgainst": "12/12",
+          "shorthandedGoalsAgainst": 0,
+          "shorthandedShotsAgainst": "0/0",
+          "pim": 0,
+          "toi": "59:51"
+        },
+        {
+          "playerId": 8471186,
+          "name": {"default": "Y. Danis"},
+          "sweaterNumber": 35,
+          "position": "G",
+          "starter": false
+        }
+      ]
+    },
+    "homeTeam": {
+      "forwards": [
+        {
+          "playerId": 8462209,
+          "name": {"default": "P. Axelsson"},
+          "sweaterNumber": 11,
+          "position": "L",
+          "goals": 0,
+          "assists": 0,
+          "points": 0,
+          "plusMinus": 0,
+          "pim": 0,
+          "hits": 0,
+          "powerPlayGoals": 0,
+          "sog": 1,
+          "faceoffWinningPctg": 0.0,
+          "blockedShots": 1,
+          "giveaways": 0,
+          "takeaways": 1,
+          "shifts": 19,
+          "toi": "15:23"
+        }
+      ],
+      "defense": [],
+      "goalies": [
+        {
+          "playerId": 8467453,
+          "name": {"default": "A. Raycroft"},
+          "sweaterNumber": 1,
+          "position": "G",
+          "starter": true,
+          "decision": "L",
+          "goalsAgainst": 2,
+          "shotsAgainst": 21,
+          "saves": 19,
+          "savePctg": 0.904762,
+          "evenStrengthGoalsAgainst": 1,
+          "evenStrengthShotsAgainst": "13/14",
+          "powerPlayGoalsAgainst": 1,
+          "powerPlayShotsAgainst": "3/4",
+          "shorthandedGoalsAgainst": 0,
+          "shorthandedShotsAgainst": "3/3",
+          "pim": 0,
+          "toi": "59:36"
+        },
+        {
+          "playerId": 8470084,
+          "name": {"default": "H. Toivonen"},
+          "sweaterNumber": 35,
+          "position": "G",
+          "starter": false
+        }
+      ]
+    }
+  }
+}

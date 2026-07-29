@@ -6,8 +6,10 @@ from typing import Any
 
 from sqlalchemy import (
     BigInteger,
+    Boolean,
     Date,
     DateTime,
+    Float,
     ForeignKey,
     Integer,
     SmallInteger,
@@ -120,3 +122,90 @@ class ScheduleBackfillCheckpoint(Base):
         server_default=func.now(),
         onupdate=func.now(),
     )
+
+
+class Player(Base):
+    """A canonical player with an NHL source identifier."""
+
+    __tablename__ = "players"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    nhl_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True)
+    display_name: Mapped[str] = mapped_column(String(100))
+    position: Mapped[str | None] = mapped_column(String(10))
+
+
+class TeamGameStats(Base):
+    """Traditional team totals from one NHL box score."""
+
+    __tablename__ = "team_game_stats"
+    __table_args__ = (UniqueConstraint("game_id", "team_id", name="uq_team_game_stats_game_team"),)
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id"), index=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    is_home: Mapped[bool] = mapped_column(Boolean)
+    score: Mapped[int] = mapped_column(SmallInteger)
+    shots_on_goal: Mapped[int | None] = mapped_column(SmallInteger)
+
+
+class PlayerGameStats(Base):
+    """Traditional skater totals from one NHL box score."""
+
+    __tablename__ = "player_game_stats"
+    __table_args__ = (
+        UniqueConstraint("game_id", "player_id", name="uq_player_game_stats_game_player"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id"), index=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    sweater_number: Mapped[int | None] = mapped_column(SmallInteger)
+    position: Mapped[str] = mapped_column(String(10))
+    goals: Mapped[int] = mapped_column(SmallInteger)
+    assists: Mapped[int] = mapped_column(SmallInteger)
+    points: Mapped[int] = mapped_column(SmallInteger)
+    plus_minus: Mapped[int] = mapped_column(SmallInteger)
+    penalty_minutes: Mapped[int] = mapped_column(SmallInteger)
+    hits: Mapped[int] = mapped_column(SmallInteger)
+    power_play_goals: Mapped[int] = mapped_column(SmallInteger)
+    shots_on_goal: Mapped[int] = mapped_column(SmallInteger)
+    faceoff_win_percentage: Mapped[float | None] = mapped_column(Float)
+    blocked_shots: Mapped[int] = mapped_column(SmallInteger)
+    giveaways: Mapped[int] = mapped_column(SmallInteger)
+    takeaways: Mapped[int] = mapped_column(SmallInteger)
+    shifts: Mapped[int] = mapped_column(SmallInteger)
+    time_on_ice_seconds: Mapped[int] = mapped_column(Integer)
+
+
+class GoalieGameStats(Base):
+    """Traditional goalie totals and strength splits from one box score."""
+
+    __tablename__ = "goalie_game_stats"
+    __table_args__ = (
+        UniqueConstraint("game_id", "player_id", name="uq_goalie_game_stats_game_player"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id"), index=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    sweater_number: Mapped[int | None] = mapped_column(SmallInteger)
+    starter: Mapped[bool] = mapped_column(Boolean)
+    decision: Mapped[str | None] = mapped_column(String(10))
+    goals_against: Mapped[int] = mapped_column(SmallInteger)
+    shots_against: Mapped[int] = mapped_column(SmallInteger)
+    saves: Mapped[int] = mapped_column(SmallInteger)
+    save_percentage: Mapped[float | None] = mapped_column(Float)
+    even_strength_goals_against: Mapped[int] = mapped_column(SmallInteger)
+    even_strength_saves: Mapped[int] = mapped_column(SmallInteger)
+    even_strength_shots_against: Mapped[int] = mapped_column(SmallInteger)
+    power_play_goals_against: Mapped[int] = mapped_column(SmallInteger)
+    power_play_saves: Mapped[int] = mapped_column(SmallInteger)
+    power_play_shots_against: Mapped[int] = mapped_column(SmallInteger)
+    shorthanded_goals_against: Mapped[int] = mapped_column(SmallInteger)
+    shorthanded_saves: Mapped[int] = mapped_column(SmallInteger)
+    shorthanded_shots_against: Mapped[int] = mapped_column(SmallInteger)
+    penalty_minutes: Mapped[int] = mapped_column(SmallInteger)
+    time_on_ice_seconds: Mapped[int | None] = mapped_column(Integer)

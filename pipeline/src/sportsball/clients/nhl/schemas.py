@@ -59,3 +59,87 @@ class ScheduleResponse(NhlModel):
         alias="regularSeasonEndDate",
     )
     playoff_end_date: date | None = Field(default=None, alias="playoffEndDate")
+
+
+class BoxscoreTeam(NhlModel):
+    """Team fields embedded in a game-center box score."""
+
+    id: int
+    abbrev: str
+    common_name: LocalizedName = Field(alias="commonName")
+    score: int
+    shots_on_goal: int | None = Field(default=None, alias="sog")
+
+
+class BoxscoreSkater(NhlModel):
+    """Traditional skater statistics exposed by NHL game center."""
+
+    player_id: int = Field(alias="playerId")
+    name: LocalizedName
+    sweater_number: int | None = Field(default=None, alias="sweaterNumber")
+    position: str
+    goals: int
+    assists: int
+    points: int
+    plus_minus: int = Field(alias="plusMinus")
+    penalty_minutes: int = Field(alias="pim")
+    hits: int
+    power_play_goals: int = Field(alias="powerPlayGoals")
+    shots_on_goal: int = Field(alias="sog")
+    faceoff_win_percentage: float | None = Field(alias="faceoffWinningPctg")
+    blocked_shots: int = Field(alias="blockedShots")
+    giveaways: int
+    takeaways: int
+    shifts: int
+    time_on_ice: str = Field(alias="toi")
+
+
+class BoxscoreGoalie(NhlModel):
+    """Traditional goalie statistics exposed by NHL game center."""
+
+    player_id: int = Field(alias="playerId")
+    name: LocalizedName
+    sweater_number: int | None = Field(default=None, alias="sweaterNumber")
+    position: str
+    starter: bool = False
+    decision: str | None = None
+    goals_against: int = Field(default=0, alias="goalsAgainst")
+    shots_against: int = Field(default=0, alias="shotsAgainst")
+    saves: int = 0
+    save_percentage: float | None = Field(default=None, alias="savePctg")
+    even_strength_goals_against: int = Field(default=0, alias="evenStrengthGoalsAgainst")
+    even_strength_shots: str = Field(default="0/0", alias="evenStrengthShotsAgainst")
+    power_play_goals_against: int = Field(default=0, alias="powerPlayGoalsAgainst")
+    power_play_shots: str = Field(default="0/0", alias="powerPlayShotsAgainst")
+    shorthanded_goals_against: int = Field(default=0, alias="shorthandedGoalsAgainst")
+    shorthanded_shots: str = Field(default="0/0", alias="shorthandedShotsAgainst")
+    penalty_minutes: int = Field(default=0, alias="pim")
+    time_on_ice: str | None = Field(default=None, alias="toi")
+
+
+class BoxscoreTeamPlayers(NhlModel):
+    """Players grouped by lineup role for one team."""
+
+    forwards: list[BoxscoreSkater] = Field(default_factory=list)
+    defense: list[BoxscoreSkater] = Field(default_factory=list)
+    goalies: list[BoxscoreGoalie] = Field(default_factory=list)
+
+
+class BoxscorePlayers(NhlModel):
+    """Both teams' player statistics."""
+
+    away_team: BoxscoreTeamPlayers = Field(alias="awayTeam")
+    home_team: BoxscoreTeamPlayers = Field(alias="homeTeam")
+
+
+class BoxscoreResponse(NhlModel):
+    """Validated subset of an NHL game-center box score."""
+
+    id: int
+    season: int
+    game_type: int = Field(alias="gameType")
+    game_date: date = Field(alias="gameDate")
+    game_state: str = Field(alias="gameState")
+    away_team: BoxscoreTeam = Field(alias="awayTeam")
+    home_team: BoxscoreTeam = Field(alias="homeTeam")
+    player_stats: BoxscorePlayers = Field(alias="playerByGameStats")
