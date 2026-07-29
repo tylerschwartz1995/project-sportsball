@@ -14,6 +14,7 @@ from sportsball.clients.nhl.schemas import (
     PlayByPlayResponse,
     PlayerProfileResponse,
     ScheduleResponse,
+    StandingsResponse,
 )
 
 DEFAULT_BASE_URL = "https://api-web.nhle.com/v1"
@@ -53,6 +54,15 @@ class PlayerProfileFetch:
     """Validated player profile together with its original source payload."""
 
     profile: PlayerProfileResponse
+    payload: dict[str, Any]
+    checksum: str
+
+
+@dataclass(frozen=True)
+class StandingsFetch:
+    """Validated official standings together with the source payload."""
+
+    standings: StandingsResponse
     payload: dict[str, Any]
     checksum: str
 
@@ -123,6 +133,16 @@ class NhlClient:
         payload: dict[str, Any] = response.json()
         return PlayerProfileFetch(
             profile=PlayerProfileResponse.model_validate(payload),
+            payload=payload,
+            checksum=hashlib.sha256(response.content).hexdigest(),
+        )
+
+    def fetch_standings(self, snapshot_date: date) -> StandingsFetch:
+        """Return validated official standings for one date."""
+        response = self._get(f"/standings/{snapshot_date.isoformat()}")
+        payload: dict[str, Any] = response.json()
+        return StandingsFetch(
+            standings=StandingsResponse.model_validate(payload),
             payload=payload,
             checksum=hashlib.sha256(response.content).hexdigest(),
         )

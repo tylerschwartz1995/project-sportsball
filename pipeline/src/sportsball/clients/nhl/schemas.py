@@ -61,6 +61,46 @@ class ScheduleResponse(NhlModel):
     playoff_end_date: date | None = Field(default=None, alias="playoffEndDate")
 
 
+class StandingsTeam(NhlModel):
+    """One team's official NHL standings row for a snapshot date."""
+
+    season_id: int = Field(alias="seasonId")
+    game_type_id: int = Field(alias="gameTypeId")
+    date: date
+    team_name: LocalizedName = Field(alias="teamName")
+    team_common_name: LocalizedName = Field(alias="teamCommonName")
+    team_abbrev: LocalizedName = Field(alias="teamAbbrev")
+    place_name: LocalizedName = Field(alias="placeName")
+    conference_name: str | None = Field(default=None, alias="conferenceName")
+    division_name: str | None = Field(default=None, alias="divisionName")
+    games_played: int = Field(alias="gamesPlayed")
+    wins: int
+    losses: int
+    ties: int = 0
+    ot_losses: int = Field(default=0, alias="otLosses")
+    points: int
+    regulation_wins: int = Field(default=0, alias="regulationWins")
+    regulation_plus_ot_wins: int = Field(default=0, alias="regulationPlusOtWins")
+    shootout_wins: int = Field(default=0, alias="shootoutWins")
+    shootout_losses: int = Field(default=0, alias="shootoutLosses")
+    goals_for: int = Field(alias="goalFor")
+    goals_against: int = Field(alias="goalAgainst")
+    goal_differential: int = Field(alias="goalDifferential")
+    point_percentage: float = Field(alias="pointPctg")
+    win_percentage: float = Field(alias="winPctg")
+    league_sequence: int = Field(alias="leagueSequence")
+    conference_sequence: int | None = Field(default=None, alias="conferenceSequence")
+    division_sequence: int | None = Field(default=None, alias="divisionSequence")
+    wildcard_sequence: int | None = Field(default=None, alias="wildcardSequence")
+    clinch_indicator: str | None = Field(default=None, alias="clinchIndicator")
+
+
+class StandingsResponse(NhlModel):
+    """Validated official standings snapshot from the NHL."""
+
+    standings: list[StandingsTeam]
+
+
 class BoxscoreTeam(NhlModel):
     """Team fields embedded in a game-center box score."""
 
