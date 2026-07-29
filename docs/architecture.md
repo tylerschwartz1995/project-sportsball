@@ -85,6 +85,96 @@ This point-in-time design is required to prevent future game results or revised
 statistics from leaking into historical training examples. SQL remains a
 storage and retrieval tool rather than the feature-engineering language.
 
+### Ingestion package layout
+
+Ingestion orchestration will remain separate from source clients,
+normalization, and persistence:
+
+```text
+pipeline/
+├── pyproject.toml
+├── src/sportsball/
+│   ├── clients/
+│   │   ├── nhl/
+│   │   │   ├── client.py
+│   │   │   ├── endpoints.py
+│   │   │   ├── schemas.py
+│   │   │   └── exceptions.py
+│   │   └── moneypuck/
+│   │       ├── client.py
+│   │       ├── downloads.py
+│   │       ├── schemas.py
+│   │       └── exceptions.py
+│   ├── ingestion/
+│   │   ├── orchestration/
+│   │   │   ├── daily_update.py
+│   │   │   ├── historical_backfill.py
+│   │   │   ├── recent_corrections.py
+│   │   │   └── advanced_stats.py
+│   │   ├── extractors/
+│   │   │   ├── schedules.py
+│   │   │   ├── standings.py
+│   │   │   ├── rosters.py
+│   │   │   ├── boxscores.py
+│   │   │   ├── play_by_play.py
+│   │   │   └── moneypuck.py
+│   │   ├── raw/
+│   │   │   ├── repository.py
+│   │   │   ├── checksum.py
+│   │   │   └── metadata.py
+│   │   ├── validation/
+│   │   │   ├── payloads.py
+│   │   │   ├── completeness.py
+│   │   │   └── reconciliation.py
+│   │   ├── state/
+│   │   │   ├── runs.py
+│   │   │   ├── checkpoints.py
+│   │   │   └── locks.py
+│   │   └── config.py
+│   ├── normalization/
+│   │   ├── teams.py
+│   │   ├── players.py
+│   │   ├── games.py
+│   │   ├── events.py
+│   │   ├── standings.py
+│   │   └── advanced_stats.py
+│   ├── persistence/
+│   │   ├── database.py
+│   │   ├── repositories/
+│   │   └── unit_of_work.py
+│   └── jobs/
+│       ├── ingest_daily.py
+│       ├── backfill_season.py
+│       ├── refresh_game.py
+│       └── ingest_moneypuck.py
+└── tests/
+    ├── unit/
+    ├── integration/
+    ├── contract/
+    └── fixtures/
+```
+
+The execution path is:
+
+```text
+job -> orchestration -> source client -> raw payload storage -> validation
+    -> normalization -> database transaction -> checkpoint and audit result
+```
+
+Responsibilities are intentionally narrow:
+
+- `clients` implements provider communication, schemas, and provider errors.
+- `extractors` decides which source records a job needs.
+- `raw` preserves original payloads, checksums, and provenance.
+- `validation` checks payload shape, completeness, and source reconciliation.
+- `normalization` maps provider records to the canonical domain model.
+- `persistence` centralizes database transactions and repository operations.
+- `state` makes jobs observable, resumable, locked, and safe to rerun.
+- `jobs` contains thin command-line entry points for people and schedulers.
+
+Generic `utils` and `helpers` packages will be avoided. Shared code must have a
+specific domain or infrastructure responsibility.
+
 ### Scheduling and monitoring
 
 Daily jobs will be scheduled by the eventual hosting platform. Every run will
