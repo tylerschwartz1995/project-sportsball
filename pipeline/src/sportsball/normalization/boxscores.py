@@ -70,6 +70,7 @@ GOALIE_GAME_SCHEMA = {
 class NormalizedBoxscore:
     """Relational frames produced from one box score."""
 
+    last_period_type: str
     team_games: pl.DataFrame
     skater_games: pl.DataFrame
     goalie_games: pl.DataFrame
@@ -77,6 +78,8 @@ class NormalizedBoxscore:
 
 def boxscore_frames(boxscore: BoxscoreResponse) -> NormalizedBoxscore:
     """Flatten a validated box score into team, skater, and goalie frames."""
+    if boxscore.game_outcome.last_period_type not in {"REG", "OT", "SO"}:
+        raise ValueError(f"unsupported last period type {boxscore.game_outcome.last_period_type!r}")
     team_rows = [
         {
             "source_game_id": boxscore.id,
@@ -103,6 +106,7 @@ def boxscore_frames(boxscore: BoxscoreResponse) -> NormalizedBoxscore:
         goalie_rows.extend(_goalie_rows(boxscore.id, team_id, players))
 
     return NormalizedBoxscore(
+        last_period_type=boxscore.game_outcome.last_period_type,
         team_games=pl.DataFrame(team_rows, schema=TEAM_GAME_SCHEMA),
         skater_games=pl.DataFrame(skater_rows, schema=SKATER_GAME_SCHEMA),
         goalie_games=pl.DataFrame(goalie_rows, schema=GOALIE_GAME_SCHEMA),

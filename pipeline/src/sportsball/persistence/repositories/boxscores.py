@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import Any
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
@@ -48,6 +48,11 @@ class BoxscoreRepository:
         if game_id is None:
             raise ValueError(f"game {source_game_id} must be ingested before its box score")
 
+        self._session.execute(
+            update(Game)
+            .where(Game.id == game_id)
+            .values(last_period_type=normalized.last_period_type)
+        )
         self._upsert_teams(team_rows)
         team_ids = self._team_ids(team_rows)
         player_rows = self._player_rows(skater_rows, goalie_rows)

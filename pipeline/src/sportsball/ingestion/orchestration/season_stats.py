@@ -163,6 +163,7 @@ def _load_game_stats(
             Game.id.label("game_id"),
             Game.season_id,
             Game.game_type,
+            Game.last_period_type,
             TeamGameStats.team_id,
             TeamGameStats.score,
             TeamGameStats.shots_on_goal,
@@ -195,3 +196,13 @@ def _reconcile(
         raise ValueError("team aggregate reconciliation failed: game counts changed")
     if teams["wins"].sum() != teams["losses"].sum():
         raise ValueError("team aggregate reconciliation failed: wins and losses differ")
+    if teams.filter(
+        pl.col("wins")
+        != pl.col("regulation_wins") + pl.col("overtime_wins") + pl.col("shootout_wins")
+    ).height:
+        raise ValueError("team aggregate reconciliation failed: win types do not sum")
+    if teams.filter(
+        pl.col("losses")
+        != pl.col("regulation_losses") + pl.col("overtime_losses") + pl.col("shootout_losses")
+    ).height:
+        raise ValueError("team aggregate reconciliation failed: loss types do not sum")

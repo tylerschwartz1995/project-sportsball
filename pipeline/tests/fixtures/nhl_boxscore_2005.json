@@ -4,6 +4,7 @@
   "gameType": 2,
   "gameDate": "2005-10-05",
   "gameState": "OFF",
+  "gameOutcome": {"lastPeriodType": "OT"},
   "awayTeam": {
     "id": 8,
     "abbrev": "MTL",

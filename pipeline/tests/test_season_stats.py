@@ -96,10 +96,10 @@ def test_team_totals_pair_each_game_with_its_opponent() -> None:
     result = team_season_stats_frame(
         pl.DataFrame(
             [
-                _team_row(game_id=1, team_id=10, score=4, shots=30),
-                _team_row(game_id=1, team_id=20, score=2, shots=25),
-                _team_row(game_id=2, team_id=10, score=1, shots=20),
-                _team_row(game_id=2, team_id=20, score=3, shots=27),
+                _team_row(game_id=1, team_id=10, score=4, shots=30, last_period_type="REG"),
+                _team_row(game_id=1, team_id=20, score=2, shots=25, last_period_type="REG"),
+                _team_row(game_id=2, team_id=10, score=1, shots=20, last_period_type="OT"),
+                _team_row(game_id=2, team_id=20, score=3, shots=27, last_period_type="OT"),
             ]
         )
     ).to_dicts()
@@ -112,6 +112,13 @@ def test_team_totals_pair_each_game_with_its_opponent() -> None:
             "games_played": 2,
             "wins": 1,
             "losses": 1,
+            "regulation_wins": 1,
+            "overtime_wins": 0,
+            "shootout_wins": 0,
+            "regulation_losses": 0,
+            "overtime_losses": 1,
+            "shootout_losses": 0,
+            "standings_points": 3,
             "goals_for": 5,
             "goals_against": 5,
             "shots_for": 50,
@@ -124,6 +131,13 @@ def test_team_totals_pair_each_game_with_its_opponent() -> None:
             "games_played": 2,
             "wins": 1,
             "losses": 1,
+            "regulation_wins": 0,
+            "overtime_wins": 1,
+            "shootout_wins": 0,
+            "regulation_losses": 1,
+            "overtime_losses": 0,
+            "shootout_losses": 0,
+            "standings_points": 2,
             "goals_for": 5,
             "goals_against": 5,
             "shots_for": 52,
@@ -134,7 +148,41 @@ def test_team_totals_pair_each_game_with_its_opponent() -> None:
 
 def test_team_totals_reject_incomplete_game_pair() -> None:
     with pytest.raises(ValueError, match="exactly two"):
-        team_season_stats_frame(pl.DataFrame([_team_row(game_id=1, team_id=10, score=4, shots=30)]))
+        team_season_stats_frame(
+            pl.DataFrame(
+                [
+                    _team_row(
+                        game_id=1,
+                        team_id=10,
+                        score=4,
+                        shots=30,
+                        last_period_type="REG",
+                    )
+                ]
+            )
+        )
+
+
+def test_team_totals_reject_missing_outcome() -> None:
+    rows = [
+        _team_row(
+            game_id=1,
+            team_id=10,
+            score=4,
+            shots=30,
+            last_period_type=None,
+        ),
+        _team_row(
+            game_id=1,
+            team_id=20,
+            score=2,
+            shots=25,
+            last_period_type=None,
+        ),
+    ]
+
+    with pytest.raises(ValueError, match="REG, OT, or SO"):
+        team_season_stats_frame(pl.DataFrame(rows))
 
 
 def _skater_row(
@@ -199,11 +247,19 @@ def _goalie_row(
     }
 
 
-def _team_row(*, game_id: int, team_id: int, score: int, shots: int) -> dict[str, int]:
+def _team_row(
+    *,
+    game_id: int,
+    team_id: int,
+    score: int,
+    shots: int,
+    last_period_type: str | None,
+) -> dict[str, int | str | None]:
     return {
         "game_id": game_id,
         "season_id": 20252026,
         "game_type": 2,
+        "last_period_type": last_period_type,
         "team_id": team_id,
         "score": score,
         "shots_on_goal": shots,

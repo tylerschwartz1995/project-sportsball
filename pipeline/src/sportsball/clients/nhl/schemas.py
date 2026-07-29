@@ -132,6 +132,12 @@ class BoxscorePlayers(NhlModel):
     home_team: BoxscoreTeamPlayers = Field(alias="homeTeam")
 
 
+class BoxscoreGameOutcome(NhlModel):
+    """Provider classification of the period in which a game ended."""
+
+    last_period_type: str = Field(alias="lastPeriodType")
+
+
 class BoxscoreResponse(NhlModel):
     """Validated subset of an NHL game-center box score."""
 
@@ -140,6 +146,7 @@ class BoxscoreResponse(NhlModel):
     game_type: int = Field(alias="gameType")
     game_date: date = Field(alias="gameDate")
     game_state: str = Field(alias="gameState")
+    game_outcome: BoxscoreGameOutcome = Field(alias="gameOutcome")
     away_team: BoxscoreTeam = Field(alias="awayTeam")
     home_team: BoxscoreTeam = Field(alias="homeTeam")
     player_stats: BoxscorePlayers = Field(alias="playerByGameStats")

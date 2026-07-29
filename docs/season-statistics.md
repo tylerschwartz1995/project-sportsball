@@ -7,6 +7,7 @@ recalculating an entire season on every page request.
 Run an inclusive range:
 
 ```bash
+uv run --project pipeline sportsball backfill-game-outcomes 20052006 20252026
 uv run --project pipeline sportsball build-season-stats 20052006 20252026
 ```
 
@@ -33,13 +34,24 @@ percentages.
 
 ## Teams
 
-`team_season_stats` contains game counts, wins, losses, goals, and shots. Wins and losses
-come from comparing the two team records in each final box score. Overtime and shootout
-losses are not yet separated because the current canonical game facts do not retain the
-ending type; adding that field is tracked as a future enhancement.
+`team_season_stats` contains game counts, wins, losses, goals, and shots. The canonical
+game's `last_period_type` retains the NHL's `REG`, `OT`, or `SO` ending classification.
+That supports separate regulation, overtime, and shootout wins and losses.
+
+For regular-season standings, `standings_points` awards two points for every win and one
+point for every overtime or shootout loss. The same outcome columns are populated for
+playoff aggregates for analytical consistency, but standings points are not used to rank
+playoff teams.
+
+`wins` and `losses` are analytical totals across every ending type. In an NHL standings
+display, `regulation_losses` is the displayed `L`; adding `overtime_losses` and
+`shootout_losses` gives the displayed `OTL`. Regulation-plus-overtime wins (`ROW`) comes
+from adding `regulation_wins` and `overtime_wins`. The individual fields are retained so
+historical tie-breaking rules can be applied explicitly.
 
 ## Refresh behavior
 
 The build is idempotent. Within one database transaction it replaces only the requested
 seasons, leaving other seasons untouched. Every run is recorded in `ingestion_runs`, and
-the job reconciles skater points, goalie decisions, and team game outcomes before writing.
+the job reconciles skater points, goalie decisions, team game outcomes, and outcome
+breakdowns before writing.
