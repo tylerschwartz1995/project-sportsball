@@ -1,0 +1,27 @@
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+.venv/
+venv/
+
+# Build and test output
+.next/
+dist/
+build/
+coverage/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+
+# Logs
+*.log
+
