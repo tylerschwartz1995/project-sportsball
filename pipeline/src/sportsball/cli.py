@@ -7,6 +7,7 @@ import typer
 from sportsball.clients.nhl.client import NhlClient
 from sportsball.ingestion.orchestration.boxscore_backfill import backfill_boxscores
 from sportsball.ingestion.orchestration.boxscores import ingest_boxscore
+from sportsball.ingestion.orchestration.game_outcomes import backfill_game_outcomes
 from sportsball.ingestion.orchestration.multi_season_backfill import (
     SeasonBackfillSummary,
     backfill_season_range,
@@ -157,6 +158,20 @@ def build_season_stats_command(start_season: int, end_season: int) -> None:
         f"run={result.run_id} seasons={result.start_season}-{result.end_season} "
         f"skaters={result.skaters_processed} goalies={result.goalies_processed} "
         f"teams={result.teams_processed} total={result.records_processed}"
+    )
+
+
+@app.command("backfill-game-outcomes")
+def backfill_game_outcomes_command(start_season: int, end_season: int) -> None:
+    """Backfill game ending types from retained NHL boxscore payloads."""
+    try:
+        result = backfill_game_outcomes(start_season, end_season)
+    except ValueError as error:
+        raise typer.BadParameter(str(error)) from error
+
+    typer.echo(
+        f"run={result.run_id} seasons={result.start_season}-{result.end_season} "
+        f"games_processed={result.games_processed}"
     )
 
 

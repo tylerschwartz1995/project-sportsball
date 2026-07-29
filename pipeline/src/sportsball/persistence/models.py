@@ -7,6 +7,7 @@ from typing import Any
 from sqlalchemy import (
     BigInteger,
     Boolean,
+    CheckConstraint,
     Date,
     DateTime,
     Float,
@@ -135,6 +136,12 @@ class Game(Base):
     """A scheduled NHL game."""
 
     __tablename__ = "games"
+    __table_args__ = (
+        CheckConstraint(
+            "last_period_type IS NULL OR last_period_type IN ('REG', 'OT', 'SO')",
+            name="ck_games_last_period_type",
+        ),
+    )
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
     nhl_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True)
@@ -143,6 +150,7 @@ class Game(Base):
     game_date: Mapped[date] = mapped_column(Date, index=True)
     start_time_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     state: Mapped[str] = mapped_column(String(20))
+    last_period_type: Mapped[str | None] = mapped_column(String(10))
     away_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
     home_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
 
@@ -379,6 +387,13 @@ class TeamSeasonStats(Base):
     games_played: Mapped[int] = mapped_column(SmallInteger)
     wins: Mapped[int] = mapped_column(SmallInteger)
     losses: Mapped[int] = mapped_column(SmallInteger)
+    regulation_wins: Mapped[int] = mapped_column(SmallInteger)
+    overtime_wins: Mapped[int] = mapped_column(SmallInteger)
+    shootout_wins: Mapped[int] = mapped_column(SmallInteger)
+    regulation_losses: Mapped[int] = mapped_column(SmallInteger)
+    overtime_losses: Mapped[int] = mapped_column(SmallInteger)
+    shootout_losses: Mapped[int] = mapped_column(SmallInteger)
+    standings_points: Mapped[int] = mapped_column(SmallInteger)
     goals_for: Mapped[int] = mapped_column(Integer)
     goals_against: Mapped[int] = mapped_column(Integer)
     shots_for: Mapped[int] = mapped_column(Integer)

@@ -58,6 +58,10 @@ The initial team-game slice stores final score and shots on goal. Further team
 totals will be added only where the NHL exposes an authoritative value or where
 the sum of player rows has a documented definition.
 
+The parent `games` row stores the provider's final-period classification (`REG`,
+`OT`, or `SO`). This preserves whether each team-game result ended in regulation,
+overtime, or a shootout without duplicating the game-level value on both team rows.
+
 ## Coverage notes
 
 The traditional fields above were verified against both a 2005–06 game and a

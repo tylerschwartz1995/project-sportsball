@@ -4,6 +4,7 @@
   "gameType": 2,
   "gameDate": "2025-10-07",
   "gameState": "OFF",
+  "gameOutcome": {"lastPeriodType": "REG"},
   "awayTeam": {
     "id": 16,
     "abbrev": "CHI",

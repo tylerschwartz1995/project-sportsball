@@ -112,6 +112,12 @@ def goalie_season_stats_frame(game_stats: pl.DataFrame) -> pl.DataFrame:
 
 def team_season_stats_frame(game_stats: pl.DataFrame) -> pl.DataFrame:
     """Aggregate each team's results using its opponent's same-game record."""
+    invalid_outcomes = game_stats.filter(
+        ~pl.col("last_period_type").is_in(["REG", "OT", "SO"]).fill_null(False)
+    )
+    if invalid_outcomes.height:
+        raise ValueError("team game rows must have a REG, OT, or SO outcome")
+
     opponent_stats = game_stats.select(
         "game_id",
         pl.col("team_id").alias("opponent_team_id"),
@@ -124,16 +130,57 @@ def team_season_stats_frame(game_stats: pl.DataFrame) -> pl.DataFrame:
     if paired.height != game_stats.height:
         raise ValueError("each game must have exactly two distinct team-stat rows")
 
+    aggregated = paired.group_by("season_id", "game_type", "team_id").agg(
+        pl.len().alias("games_played"),
+        (pl.col("score") > pl.col("opponent_score")).sum().alias("wins"),
+        (pl.col("score") < pl.col("opponent_score")).sum().alias("losses"),
+        ((pl.col("score") > pl.col("opponent_score")) & (pl.col("last_period_type") == "REG"))
+        .sum()
+        .alias("regulation_wins"),
+        ((pl.col("score") > pl.col("opponent_score")) & (pl.col("last_period_type") == "OT"))
+        .sum()
+        .alias("overtime_wins"),
+        ((pl.col("score") > pl.col("opponent_score")) & (pl.col("last_period_type") == "SO"))
+        .sum()
+        .alias("shootout_wins"),
+        ((pl.col("score") < pl.col("opponent_score")) & (pl.col("last_period_type") == "REG"))
+        .sum()
+        .alias("regulation_losses"),
+        ((pl.col("score") < pl.col("opponent_score")) & (pl.col("last_period_type") == "OT"))
+        .sum()
+        .alias("overtime_losses"),
+        ((pl.col("score") < pl.col("opponent_score")) & (pl.col("last_period_type") == "SO"))
+        .sum()
+        .alias("shootout_losses"),
+        pl.col("score").sum().alias("goals_for"),
+        pl.col("opponent_score").sum().alias("goals_against"),
+        pl.col("shots_on_goal").sum().alias("shots_for"),
+        pl.col("opponent_shots_on_goal").sum().alias("shots_against"),
+    )
     return (
-        paired.group_by("season_id", "game_type", "team_id")
-        .agg(
-            pl.len().alias("games_played"),
-            (pl.col("score") > pl.col("opponent_score")).sum().alias("wins"),
-            (pl.col("score") < pl.col("opponent_score")).sum().alias("losses"),
-            pl.col("score").sum().alias("goals_for"),
-            pl.col("opponent_score").sum().alias("goals_against"),
-            pl.col("shots_on_goal").sum().alias("shots_for"),
-            pl.col("opponent_shots_on_goal").sum().alias("shots_against"),
+        aggregated.with_columns(
+            (pl.col("wins") * 2 + pl.col("overtime_losses") + pl.col("shootout_losses")).alias(
+                "standings_points"
+            )
+        )
+        .select(
+            "season_id",
+            "game_type",
+            "team_id",
+            "games_played",
+            "wins",
+            "losses",
+            "regulation_wins",
+            "overtime_wins",
+            "shootout_wins",
+            "regulation_losses",
+            "overtime_losses",
+            "shootout_losses",
+            "standings_points",
+            "goals_for",
+            "goals_against",
+            "shots_for",
+            "shots_against",
         )
         .sort("season_id", "game_type", "team_id")
     )

@@ -107,6 +107,7 @@ def _create_game_facts() -> None:
             game_date=date(2097, 10, 1),
             start_time_utc=datetime(2097, 10, 2, tzinfo=UTC),
             state="OFF",
+            last_period_type="REG",
             away_team_id=teams[0].id,
             home_team_id=teams[1].id,
         )

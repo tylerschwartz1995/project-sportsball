@@ -57,6 +57,7 @@ def test_boxscore_ingestion_is_idempotent() -> None:
             game_pk = session.scalar(select(Game.id).where(Game.nhl_id == TEST_GAME_ID))
             player_pks = select(Player.id).where(Player.nhl_id.in_(TEST_PLAYER_IDS))
             assert game_pk is not None
+            assert session.scalar(select(Game.last_period_type).where(Game.id == game_pk)) == "REG"
             assert (
                 session.scalar(
                     select(func.count())
