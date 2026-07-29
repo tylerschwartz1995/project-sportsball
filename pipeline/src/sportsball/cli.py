@@ -12,6 +12,10 @@ from sportsball.ingestion.orchestration.multi_season_backfill import (
     SeasonBackfillSummary,
     backfill_season_range,
 )
+from sportsball.ingestion.orchestration.play_by_play import ingest_play_by_play
+from sportsball.ingestion.orchestration.play_by_play_backfill import (
+    backfill_play_by_play,
+)
 from sportsball.ingestion.orchestration.schedules import ingest_schedule_date
 from sportsball.ingestion.orchestration.season_backfill import backfill_season_schedule
 from sportsball.ingestion.orchestration.season_stats import build_season_stats
@@ -70,6 +74,19 @@ def ingest_game_boxscore(game_id: int) -> None:
 
 
 @app.command()
+def ingest_game_play_by_play(game_id: int) -> None:
+    """Ingest one stored NHL game's normalized event timeline."""
+    with NhlClient() as client:
+        result = ingest_play_by_play(game_id, client)
+
+    typer.echo(
+        f"run={result.run_id} game={result.game_id} "
+        f"events_processed={result.events_processed} "
+        f"participants_processed={result.participants_processed}"
+    )
+
+
+@app.command()
 def backfill_game_boxscores(
     start_season: int,
     end_season: int,
@@ -85,6 +102,47 @@ def backfill_game_boxscores(
                 client,
                 max_games=max_games,
                 retry_failed=retry_failed,
+            )
+        except ValueError as error:
+            raise typer.BadParameter(str(error)) from error
+
+    typer.echo(
+        f"seasons={result.start_season}-{result.end_season} "
+        f"attempted={result.attempted_this_run} completed={result.completed_games}/"
+        f"{result.total_games} pending={result.pending_games} "
+        f"failed={result.failed_games}"
+    )
+    for failure in result.failures:
+        typer.echo(f"  game={failure.game_id} error={failure.error_message}", err=True)
+    if result.failed_games and result.pending_games == 0:
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def backfill_game_play_by_play(
+    start_season: int,
+    end_season: int,
+    max_games: int | None = None,
+    retry_failed: bool = False,
+) -> None:
+    """Backfill missing event timelines across a stored season range."""
+    attempted = 0
+
+    def echo_progress(game_id: int, status: str) -> None:
+        nonlocal attempted
+        attempted += 1
+        if attempted % 100 == 0 or status == "failed":
+            typer.echo(f"progress attempted={attempted} game={game_id} status={status}")
+
+    with NhlClient() as client:
+        try:
+            result = backfill_play_by_play(
+                start_season,
+                end_season,
+                client,
+                max_games=max_games,
+                retry_failed=retry_failed,
+                on_game_complete=echo_progress,
             )
         except ValueError as error:
             raise typer.BadParameter(str(error)) from error
