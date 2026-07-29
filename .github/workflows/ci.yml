@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  pipeline:
+    name: Python pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.12.0"
+          working-directory: pipeline
+          enable-cache: true
+
+      - name: Sync pipeline
+        run: uv sync --project pipeline --locked
+
+      - name: Lint
+        run: |
+          uv run --project pipeline --frozen ruff check pipeline/src pipeline/tests database/migrations
+          uv run --project pipeline --frozen ruff format --check pipeline/src pipeline/tests database/migrations
+
+      - name: Type check
+        run: uv run --project pipeline --frozen pyright pipeline/src pipeline/tests
+
+      - name: Test
+        run: uv run --project pipeline --frozen pytest pipeline/tests
+
+  web:
+    name: Web application
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --prefix apps/web
+
+      - name: Lint
+        run: npm run lint --prefix apps/web
+
+      - name: Type check
+        run: npm run typecheck --prefix apps/web
+
+      - name: Build
+        run: npm run build --prefix apps/web

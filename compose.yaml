@@ -1,0 +1,23 @@
+name: sportsball
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sportsball}
+      POSTGRES_USER: ${POSTGRES_USER:-sportsball}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sportsball}
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U ${POSTGRES_USER:-sportsball} -d ${POSTGRES_DB:-sportsball}
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql
+
+volumes:
+  postgres-data:

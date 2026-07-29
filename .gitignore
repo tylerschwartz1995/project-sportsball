@@ -25,3 +25,7 @@ __pycache__/
 # Logs
 *.log
 
+# Local data and generated model artifacts
+data/raw/
+data/processed/
+models/

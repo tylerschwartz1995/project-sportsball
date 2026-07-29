@@ -70,8 +70,10 @@ source fetch -> raw payload -> validation -> normalization -> database upsert
 
 Feature pipelines will be ordinary versioned Python modules with unit tests.
 They will read timestamped observations from PostgreSQL, calculate features
-with Python dataframe and numerical libraries, and write versioned feature
-records back to PostgreSQL or training artifacts to object storage.
+primarily with Polars and numerical libraries, and write versioned feature
+records back to PostgreSQL or training artifacts to object storage. Pandas
+will only be introduced at compatibility boundaries where a modelling or
+visualization library requires it.
 
 Every feature row must record:
 
@@ -200,7 +202,9 @@ project-sportsball/
 ├── apps/
 │   └── web/                   # TypeScript website and read-only application API
 ├── pipeline/
+│   ├── .python-version        # Python version selected by uv
 │   ├── pyproject.toml         # Python package and tool configuration
+│   ├── uv.lock                # Cross-platform locked Python dependencies
 │   ├── src/sportsball/
 │   │   ├── clients/           # NHL and MoneyPuck source adapters
 │   │   ├── ingestion/         # Fetching, raw storage, retries, and audit records
@@ -231,6 +235,7 @@ fixtures needed by tests.
 ### Dependency direction
 
 - `pipeline` owns all source-specific and analytical logic.
+- Polars is the default dataframe engine throughout `pipeline`.
 - `database` defines storage independently of any one data source.
 - `contracts` defines the stable shapes consumed by `apps/web`.
 - `apps/web` never imports Python internals or calls upstream data sources.

@@ -3,7 +3,8 @@
 ## Milestone 1: foundation
 
 - Create the monorepo package layout.
-- Select the web framework and Python dataframe/tooling stack.
+- Use Next.js with TypeScript for the web application.
+- Use uv for Python environments and dependency locking, and Polars for dataframe processing.
 - Add local PostgreSQL development configuration.
 - Define migrations for seasons, teams, players, and games.
 - Add formatting, linting, tests, and continuous integration.

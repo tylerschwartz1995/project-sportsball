@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sportsball-pipeline"
+version = "0.1.0"
+description = "NHL data ingestion, analytics, and modelling pipeline"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "alembic>=1.18,<2",
+  "httpx>=0.28,<1",
+  "polars>=1.30,<2",
+  "psycopg[binary]>=3.2,<4",
+  "pydantic>=2.13,<3",
+  "pydantic-settings>=2.12,<3",
+  "sqlalchemy>=2.0.40,<3",
+  "typer>=0.16,<1",
+]
+
+[dependency-groups]
+dev = [
+  "pyright>=1.1.400,<2",
+  "pytest>=9,<10",
+  "pytest-cov>=7,<8",
+  "ruff>=0.15,<1",
+]
+
+[project.scripts]
+sportsball = "sportsball.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sportsball"]
+
+[tool.uv]
+required-version = ">=0.12,<0.13"
+
+[tool.pyright]
+include = ["src", "tests"]
+pythonVersion = "3.13"
+typeCheckingMode = "strict"
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
