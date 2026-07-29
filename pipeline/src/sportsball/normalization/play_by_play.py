@@ -1,5 +1,6 @@
 """Normalize NHL play-by-play responses into typed Polars frames."""
 
+import re
 from dataclasses import dataclass
 
 import polars as pl
@@ -19,6 +20,8 @@ EVENT_SCHEMA = {
     "sort_order": pl.Int64,
     "period_number": pl.Int64,
     "period_type": pl.String,
+    "time_in_period": pl.String,
+    "time_remaining": pl.String,
     "time_in_period_seconds": pl.Int64,
     "time_remaining_seconds": pl.Int64,
     "situation_code": pl.String,
@@ -97,6 +100,8 @@ def play_by_play_frames(response: PlayByPlayResponse) -> NormalizedPlayByPlay:
                 "sort_order": event.sort_order,
                 "period_number": event.period_descriptor.number,
                 "period_type": event.period_descriptor.period_type,
+                "time_in_period": event.time_in_period,
+                "time_remaining": event.time_remaining,
                 "time_in_period_seconds": _clock_seconds(event.time_in_period),
                 "time_remaining_seconds": _clock_seconds(event.time_remaining),
                 "situation_code": event.situation_code,
@@ -148,8 +153,10 @@ def _participant_rows(
     ]
 
 
-def _clock_seconds(value: str) -> int:
+def _clock_seconds(value: str) -> int | None:
+    if re.fullmatch(r"\d+:\d{2}", value) is None:
+        return None
     minutes, seconds = value.split(":", maxsplit=1)
     if not 0 <= int(seconds) < 60:
-        raise ValueError(f"invalid NHL event clock {value!r}")
+        return None
     return int(minutes) * 60 + int(seconds)

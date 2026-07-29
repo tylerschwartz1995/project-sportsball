@@ -28,7 +28,7 @@ Each `game_events` row stores:
 
 - source event ID and chronological sort order;
 - period number and type;
-- elapsed and remaining period time as integer seconds;
+- exact source clock strings plus parsed integer seconds when valid;
 - event type and optional situation code;
 - event-owning team;
 - optional rink coordinates, zone, and shot type;
@@ -51,6 +51,10 @@ The NHL feed is much sparser in the earliest seasons. A representative 2005–06
 contains goals, penalties, and shots but no event coordinates. Modern games include a
 broader event timeline, situation codes, and rink locations. Missing historical fields
 remain `null`; they are never converted to zero or inferred.
+
+Malformed historical clocks are preserved exactly in their raw clock columns. Their
+parsed-seconds columns remain `null`, allowing event order to fall back to the authoritative
+source sort order without inventing a time.
 
 The backfill is idempotent. A successful refresh replaces one game's normalized event
 snapshot in a transaction, while raw responses remain checksum-versioned for provenance.
