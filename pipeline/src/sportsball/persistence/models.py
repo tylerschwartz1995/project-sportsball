@@ -133,6 +133,52 @@ class TeamTransition(Base):
     source_url: Mapped[str] = mapped_column(String(500))
 
 
+class OfficialStandingsSnapshot(Base):
+    """One team's NHL-published standings totals and ranks on a date."""
+
+    __tablename__ = "official_standings_snapshots"
+    __table_args__ = (
+        UniqueConstraint(
+            "snapshot_date",
+            "team_id",
+            name="uq_official_standings_snapshot_date_team",
+        ),
+        Index(
+            "ix_official_standings_season_date",
+            "season_id",
+            "snapshot_date",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    snapshot_date: Mapped[date] = mapped_column(Date)
+    season_id: Mapped[int] = mapped_column(ForeignKey("seasons.id"))
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"))
+    game_type: Mapped[int] = mapped_column(SmallInteger)
+    conference_name: Mapped[str | None] = mapped_column(String(50))
+    division_name: Mapped[str | None] = mapped_column(String(50))
+    games_played: Mapped[int] = mapped_column(SmallInteger)
+    wins: Mapped[int] = mapped_column(SmallInteger)
+    losses: Mapped[int] = mapped_column(SmallInteger)
+    ties: Mapped[int] = mapped_column(SmallInteger)
+    overtime_losses: Mapped[int] = mapped_column(SmallInteger)
+    points: Mapped[int] = mapped_column(SmallInteger)
+    regulation_wins: Mapped[int] = mapped_column(SmallInteger)
+    regulation_plus_overtime_wins: Mapped[int] = mapped_column(SmallInteger)
+    shootout_wins: Mapped[int] = mapped_column(SmallInteger)
+    shootout_losses: Mapped[int] = mapped_column(SmallInteger)
+    goals_for: Mapped[int] = mapped_column(SmallInteger)
+    goals_against: Mapped[int] = mapped_column(SmallInteger)
+    goal_differential: Mapped[int] = mapped_column(SmallInteger)
+    point_percentage: Mapped[float] = mapped_column(Float)
+    win_percentage: Mapped[float] = mapped_column(Float)
+    league_rank: Mapped[int] = mapped_column(SmallInteger)
+    conference_rank: Mapped[int | None] = mapped_column(SmallInteger)
+    division_rank: Mapped[int | None] = mapped_column(SmallInteger)
+    wildcard_rank: Mapped[int | None] = mapped_column(SmallInteger)
+    clinch_indicator: Mapped[str | None] = mapped_column(String(10))
+
+
 class Game(Base):
     """A scheduled NHL game."""
 

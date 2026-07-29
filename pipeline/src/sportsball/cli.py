@@ -23,6 +23,10 @@ from sportsball.ingestion.orchestration.player_profiles import ingest_player_pro
 from sportsball.ingestion.orchestration.schedules import ingest_schedule_date
 from sportsball.ingestion.orchestration.season_backfill import backfill_season_schedule
 from sportsball.ingestion.orchestration.season_stats import build_season_stats
+from sportsball.ingestion.orchestration.standings import ingest_standings
+from sportsball.ingestion.orchestration.standings_backfill import (
+    backfill_final_standings,
+)
 from sportsball.normalization.games import schedule_games_frame
 
 app = typer.Typer(no_args_is_help=True)
@@ -96,6 +100,54 @@ def ingest_player(player_id: int) -> None:
     with NhlClient() as client:
         result = ingest_player_profile(player_id, client)
     typer.echo(f"run={result.run_id} player={result.player_id}")
+
+
+@app.command()
+def ingest_official_standings(snapshot_date: str) -> None:
+    """Ingest the NHL-published standings snapshot for one date."""
+    try:
+        parsed_date = date.fromisoformat(snapshot_date)
+    except ValueError as error:
+        raise typer.BadParameter("expected an ISO date in YYYY-MM-DD format") from error
+    with NhlClient() as client:
+        result = ingest_standings(parsed_date, client)
+    typer.echo(
+        f"run={result.run_id} date={result.snapshot_date.isoformat()} "
+        f"season={result.season_id} teams_processed={result.teams_processed}"
+    )
+
+
+@app.command()
+def backfill_official_standings(
+    start_season: int,
+    end_season: int,
+    max_seasons: int | None = None,
+) -> None:
+    """Backfill missing NHL-published final regular-season standings."""
+    with NhlClient() as client:
+        try:
+            result = backfill_final_standings(
+                start_season,
+                end_season,
+                client,
+                max_seasons=max_seasons,
+            )
+        except ValueError as error:
+            raise typer.BadParameter(str(error)) from error
+    typer.echo(
+        f"seasons={result.start_season}-{result.end_season} "
+        f"attempted={result.attempted_this_run} "
+        f"completed={result.completed_seasons}/{result.total_seasons} "
+        f"failed={len(result.failures)}"
+    )
+    for failure in result.failures:
+        typer.echo(
+            f"  season={failure.season_id} date={failure.snapshot_date} "
+            f"error={failure.error_message}",
+            err=True,
+        )
+    if result.failures:
+        raise typer.Exit(code=1)
 
 
 @app.command()

@@ -36,6 +36,10 @@ do not include shot coordinates.
 Play-by-play normalization and its resumable historical backfill are documented
 in [Play-by-play ingestion](play-by-play.md).
 
+Official dated standings are retained separately from Python-derived team
+season aggregates. Historical final-snapshot behavior and team mapping are
+documented in [Official NHL standings](official-standings.md).
+
 These endpoints are not treated as a stable, supported public API. The
 ingestion layer must therefore:
 
