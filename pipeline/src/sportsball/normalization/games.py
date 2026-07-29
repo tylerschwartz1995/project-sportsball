@@ -13,8 +13,10 @@ SCHEDULE_SCHEMA = {
     "state": pl.String,
     "away_team_id": pl.Int64,
     "away_team_abbrev": pl.String,
+    "away_team_name": pl.String,
     "home_team_id": pl.Int64,
     "home_team_abbrev": pl.String,
+    "home_team_name": pl.String,
 }
 
 
@@ -30,8 +32,10 @@ def schedule_games_frame(schedule: ScheduleResponse) -> pl.DataFrame:
             "state": game.game_state,
             "away_team_id": game.away_team.id,
             "away_team_abbrev": game.away_team.abbrev,
+            "away_team_name": game.away_team.common_name.default,
             "home_team_id": game.home_team.id,
             "home_team_abbrev": game.home_team.abbrev,
+            "home_team_name": game.home_team.common_name.default,
         }
         for day in schedule.game_week
         for game in day.games

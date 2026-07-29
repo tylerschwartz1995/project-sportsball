@@ -13,6 +13,23 @@ jobs:
   pipeline:
     name: Python pipeline
     runs-on: ubuntu-latest
+    env:
+      SPORTSBALL_DATABASE_URL: postgresql+psycopg://sportsball:sportsball@localhost:5432/sportsball_test
+      SPORTSBALL_RUN_DATABASE_TESTS: "1"
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: sportsball_test
+          POSTGRES_USER: sportsball
+          POSTGRES_PASSWORD: sportsball
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sportsball -d sportsball_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -34,6 +51,9 @@ jobs:
 
       - name: Type check
         run: uv run --project pipeline --frozen pyright pipeline/src pipeline/tests
+
+      - name: Apply database migrations
+        run: uv run --project pipeline --frozen alembic --config database/alembic.ini upgrade head
 
       - name: Test
         run: uv run --project pipeline --frozen pytest pipeline/tests

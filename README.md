@@ -49,6 +49,15 @@ uv run --project pipeline --frozen alembic \
   --config database/alembic.ini upgrade head
 ```
 
+Ingest an NHL schedule request anchored to a historical date:
+
+```bash
+uv run --project pipeline --frozen sportsball ingest-schedule 2005-10-05
+```
+
+The job retains the source payload and checksum, records an audited ingestion
+run, and idempotently upserts seasons, teams, and games.
+
 Run the Python checks:
 
 ```bash

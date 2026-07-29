@@ -1,10 +1,20 @@
-"""Initial ingestion audit models."""
+"""Canonical hockey and ingestion audit models."""
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime
 from typing import Any
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, String, Text, UniqueConstraint
+from sqlalchemy import (
+    BigInteger,
+    Date,
+    DateTime,
+    ForeignKey,
+    Integer,
+    SmallInteger,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.sql import func
@@ -26,6 +36,7 @@ class IngestionRun(Base):
     started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     error_message: Mapped[str | None] = mapped_column(Text)
+    records_processed: Mapped[int] = mapped_column(Integer, default=0)
 
 
 class SourcePayload(Base):
@@ -53,3 +64,40 @@ class SourcePayload(Base):
     checksum: Mapped[str] = mapped_column(String(64))
     payload: Mapped[dict[str, Any]] = mapped_column(JSONB)
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Season(Base):
+    """An NHL season identified by the provider's eight-digit season key."""
+
+    __tablename__ = "seasons"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    start_year: Mapped[int] = mapped_column(SmallInteger)
+    end_year: Mapped[int] = mapped_column(SmallInteger)
+
+
+class Team(Base):
+    """A canonical team with its stable NHL source identifier."""
+
+    __tablename__ = "teams"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    nhl_id: Mapped[int] = mapped_column(Integer, unique=True, index=True)
+    abbreviation: Mapped[str] = mapped_column(String(10), index=True)
+    name: Mapped[str] = mapped_column(String(100))
+
+
+class Game(Base):
+    """A scheduled NHL game."""
+
+    __tablename__ = "games"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    nhl_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True)
+    season_id: Mapped[int] = mapped_column(ForeignKey("seasons.id"), index=True)
+    game_type: Mapped[int] = mapped_column(SmallInteger)
+    game_date: Mapped[date] = mapped_column(Date, index=True)
+    start_time_utc: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    state: Mapped[str] = mapped_column(String(20))
+    away_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    home_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
