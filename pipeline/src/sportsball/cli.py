@@ -16,6 +16,10 @@ from sportsball.ingestion.orchestration.play_by_play import ingest_play_by_play
 from sportsball.ingestion.orchestration.play_by_play_backfill import (
     backfill_play_by_play,
 )
+from sportsball.ingestion.orchestration.player_profile_backfill import (
+    backfill_player_profiles,
+)
+from sportsball.ingestion.orchestration.player_profiles import ingest_player_profile
 from sportsball.ingestion.orchestration.schedules import ingest_schedule_date
 from sportsball.ingestion.orchestration.season_backfill import backfill_season_schedule
 from sportsball.ingestion.orchestration.season_stats import build_season_stats
@@ -84,6 +88,14 @@ def ingest_game_play_by_play(game_id: int) -> None:
         f"events_processed={result.events_processed} "
         f"participants_processed={result.participants_processed}"
     )
+
+
+@app.command()
+def ingest_player(player_id: int) -> None:
+    """Ingest one canonical NHL player's landing profile."""
+    with NhlClient() as client:
+        result = ingest_player_profile(player_id, client)
+    typer.echo(f"run={result.run_id} player={result.player_id}")
 
 
 @app.command()
@@ -156,6 +168,44 @@ def backfill_game_play_by_play(
     for failure in result.failures:
         typer.echo(f"  game={failure.game_id} error={failure.error_message}", err=True)
     if result.failed_games and result.pending_games == 0:
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def backfill_players(
+    max_players: int | None = None,
+    retry_failed: bool = False,
+) -> None:
+    """Backfill missing profiles for all canonical players."""
+    attempted = 0
+
+    def echo_progress(player_id: int, status: str) -> None:
+        nonlocal attempted
+        attempted += 1
+        if attempted % 100 == 0 or status == "failed":
+            typer.echo(f"progress attempted={attempted} player={player_id} status={status}")
+
+    with NhlClient() as client:
+        try:
+            result = backfill_player_profiles(
+                client,
+                max_players=max_players,
+                retry_failed=retry_failed,
+                on_player_complete=echo_progress,
+            )
+        except ValueError as error:
+            raise typer.BadParameter(str(error)) from error
+    typer.echo(
+        f"attempted={result.attempted_this_run} "
+        f"completed={result.completed_players}/{result.total_players} "
+        f"pending={result.pending_players} failed={result.failed_players}"
+    )
+    for failure in result.failures:
+        typer.echo(
+            f"  player={failure.player_id} error={failure.error_message}",
+            err=True,
+        )
+    if result.failed_players and result.pending_players == 0:
         raise typer.Exit(code=1)
 
 

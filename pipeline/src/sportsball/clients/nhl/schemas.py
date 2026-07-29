@@ -233,3 +233,40 @@ class PlayByPlayResponse(NhlModel):
     game_state: str = Field(alias="gameState")
     roster_spots: list[PlayByPlayRosterSpot] = Field(alias="rosterSpots")
     plays: list[PlayByPlayEvent]
+
+
+class PlayerDraftDetails(NhlModel):
+    """Draft fields exposed on an NHL player landing response."""
+
+    year: int
+    team_abbrev: str = Field(alias="teamAbbrev")
+    round: int
+    pick_in_round: int = Field(alias="pickInRound")
+    overall_pick: int = Field(alias="overallPick")
+
+
+class PlayerProfileResponse(NhlModel):
+    """Validated canonical identity fields from an NHL player landing page."""
+
+    player_id: int = Field(alias="playerId")
+    first_name: LocalizedName = Field(alias="firstName")
+    last_name: LocalizedName = Field(alias="lastName")
+    birth_date: date | None = Field(default=None, alias="birthDate")
+    birth_city: LocalizedName | None = Field(default=None, alias="birthCity")
+    birth_state_province: LocalizedName | None = Field(
+        default=None,
+        alias="birthStateProvince",
+    )
+    birth_country: str | None = Field(default=None, alias="birthCountry")
+    height_in_inches: int | None = Field(default=None, alias="heightInInches")
+    weight_in_pounds: int | None = Field(default=None, alias="weightInPounds")
+    shoots_catches: str | None = Field(default=None, alias="shootsCatches")
+    position: str | None = None
+    is_active: bool | None = Field(default=None, alias="isActive")
+    current_team_id: int | None = Field(default=None, alias="currentTeamId")
+    sweater_number: int | None = Field(default=None, alias="sweaterNumber")
+    player_slug: str | None = Field(default=None, alias="playerSlug")
+    draft_details: PlayerDraftDetails | None = Field(
+        default=None,
+        alias="draftDetails",
+    )

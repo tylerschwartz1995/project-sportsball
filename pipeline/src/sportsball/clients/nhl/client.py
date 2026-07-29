@@ -12,6 +12,7 @@ import httpx
 from sportsball.clients.nhl.schemas import (
     BoxscoreResponse,
     PlayByPlayResponse,
+    PlayerProfileResponse,
     ScheduleResponse,
 )
 
@@ -43,6 +44,15 @@ class PlayByPlayFetch:
     """Validated play-by-play together with its original source payload."""
 
     play_by_play: PlayByPlayResponse
+    payload: dict[str, Any]
+    checksum: str
+
+
+@dataclass(frozen=True)
+class PlayerProfileFetch:
+    """Validated player profile together with its original source payload."""
+
+    profile: PlayerProfileResponse
     payload: dict[str, Any]
     checksum: str
 
@@ -103,6 +113,16 @@ class NhlClient:
         payload: dict[str, Any] = response.json()
         return PlayByPlayFetch(
             play_by_play=PlayByPlayResponse.model_validate(payload),
+            payload=payload,
+            checksum=hashlib.sha256(response.content).hexdigest(),
+        )
+
+    def fetch_player_profile(self, player_id: int) -> PlayerProfileFetch:
+        """Return a validated player landing response and source payload."""
+        response = self._get(f"/player/{player_id}/landing")
+        payload: dict[str, Any] = response.json()
+        return PlayerProfileFetch(
+            profile=PlayerProfileResponse.model_validate(payload),
             payload=payload,
             checksum=hashlib.sha256(response.content).hexdigest(),
         )

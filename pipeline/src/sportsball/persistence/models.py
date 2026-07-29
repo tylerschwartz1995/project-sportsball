@@ -226,6 +226,46 @@ class Player(Base):
     nhl_id: Mapped[int] = mapped_column(BigInteger, unique=True, index=True)
     display_name: Mapped[str] = mapped_column(String(100))
     position: Mapped[str | None] = mapped_column(String(10))
+    first_name: Mapped[str | None] = mapped_column(String(100))
+    last_name: Mapped[str | None] = mapped_column(String(100))
+    birth_date: Mapped[date | None] = mapped_column(Date)
+    birth_city: Mapped[str | None] = mapped_column(String(100))
+    birth_state_province: Mapped[str | None] = mapped_column(String(100))
+    birth_country: Mapped[str | None] = mapped_column(String(10))
+    height_in_inches: Mapped[int | None] = mapped_column(SmallInteger)
+    weight_in_pounds: Mapped[int | None] = mapped_column(SmallInteger)
+    shoots_catches: Mapped[str | None] = mapped_column(String(2))
+    is_active: Mapped[bool | None] = mapped_column(Boolean)
+    current_team_id: Mapped[int | None] = mapped_column(ForeignKey("teams.id"))
+    sweater_number: Mapped[int | None] = mapped_column(SmallInteger)
+    player_slug: Mapped[str | None] = mapped_column(String(150))
+    draft_year: Mapped[int | None] = mapped_column(SmallInteger)
+    draft_team_abbrev: Mapped[str | None] = mapped_column(String(10))
+    draft_round: Mapped[int | None] = mapped_column(SmallInteger)
+    draft_pick_in_round: Mapped[int | None] = mapped_column(SmallInteger)
+    draft_overall_pick: Mapped[int | None] = mapped_column(SmallInteger)
+    profile_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class PlayerProfileBackfillPlayer(Base):
+    """Durable processing state for one player's profile import."""
+
+    __tablename__ = "player_profile_backfill_players"
+
+    player_id: Mapped[int] = mapped_column(
+        ForeignKey("players.id"),
+        primary_key=True,
+        autoincrement=False,
+    )
+    status: Mapped[str] = mapped_column(String(20))
+    attempt_count: Mapped[int] = mapped_column(Integer, default=0)
+    error_message: Mapped[str | None] = mapped_column(Text)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
 
 
 class TeamGameStats(Base):
