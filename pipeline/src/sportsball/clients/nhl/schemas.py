@@ -285,6 +285,46 @@ class PlayerDraftDetails(NhlModel):
     overall_pick: int = Field(alias="overallPick")
 
 
+class PlayerSeasonTotal(NhlModel):
+    """One NHL landing-page team split for a player's season."""
+
+    season: int
+    game_type_id: int = Field(alias="gameTypeId")
+    league_abbrev: str = Field(alias="leagueAbbrev")
+    team_name: LocalizedName = Field(alias="teamName")
+    sequence: int
+    games_played: int = Field(default=0, alias="gamesPlayed")
+    goals: int | None = None
+    assists: int | None = None
+    points: int | None = None
+    penalty_minutes: int | None = Field(default=None, alias="pim")
+    plus_minus: int | None = Field(default=None, alias="plusMinus")
+    average_time_on_ice: str | None = Field(default=None, alias="avgToi")
+    faceoff_win_percentage: float | None = Field(
+        default=None,
+        alias="faceoffWinningPctg",
+    )
+    game_winning_goals: int | None = Field(default=None, alias="gameWinningGoals")
+    overtime_goals: int | None = Field(default=None, alias="otGoals")
+    power_play_goals: int | None = Field(default=None, alias="powerPlayGoals")
+    power_play_points: int | None = Field(default=None, alias="powerPlayPoints")
+    shorthanded_goals: int | None = Field(default=None, alias="shorthandedGoals")
+    shorthanded_points: int | None = Field(default=None, alias="shorthandedPoints")
+    shots: int | None = None
+    shooting_percentage: float | None = Field(default=None, alias="shootingPctg")
+    games_started: int | None = Field(default=None, alias="gamesStarted")
+    wins: int | None = None
+    losses: int | None = None
+    ties: int | None = None
+    overtime_losses: int | None = Field(default=None, alias="otLosses")
+    goals_against: int | None = Field(default=None, alias="goalsAgainst")
+    goals_against_average: float | None = Field(default=None, alias="goalsAgainstAvg")
+    shots_against: int | None = Field(default=None, alias="shotsAgainst")
+    save_percentage: float | None = Field(default=None, alias="savePctg")
+    shutouts: int | None = None
+    time_on_ice: str | None = Field(default=None, alias="timeOnIce")
+
+
 class PlayerProfileResponse(NhlModel):
     """Validated canonical identity fields from an NHL player landing page."""
 
@@ -309,4 +349,8 @@ class PlayerProfileResponse(NhlModel):
     draft_details: PlayerDraftDetails | None = Field(
         default=None,
         alias="draftDetails",
+    )
+    season_totals: list[PlayerSeasonTotal] = Field(
+        default_factory=list,
+        alias="seasonTotals",
     )

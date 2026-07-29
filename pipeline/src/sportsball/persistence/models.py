@@ -551,6 +551,84 @@ class GoalieSeasonStats(Base):
     )
 
 
+class OfficialSkaterSeasonStats(Base):
+    """NHL-published skater team split for one season and game type."""
+
+    __tablename__ = "official_skater_season_stats"
+    __table_args__ = (
+        UniqueConstraint(
+            "season_id",
+            "game_type",
+            "player_id",
+            "sequence",
+            name="uq_official_skater_season_player_sequence",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    season_id: Mapped[int] = mapped_column(ForeignKey("seasons.id"), index=True)
+    game_type: Mapped[int] = mapped_column(SmallInteger, index=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    sequence: Mapped[int] = mapped_column(SmallInteger)
+    games_played: Mapped[int] = mapped_column(SmallInteger)
+    goals: Mapped[int | None] = mapped_column(SmallInteger)
+    assists: Mapped[int | None] = mapped_column(SmallInteger)
+    points: Mapped[int | None] = mapped_column(SmallInteger)
+    penalty_minutes: Mapped[int | None] = mapped_column(Integer)
+    plus_minus: Mapped[int | None] = mapped_column(SmallInteger)
+    average_time_on_ice: Mapped[str | None] = mapped_column(String(10))
+    average_time_on_ice_seconds: Mapped[int | None] = mapped_column(Integer)
+    faceoff_win_percentage: Mapped[float | None] = mapped_column(Float)
+    game_winning_goals: Mapped[int | None] = mapped_column(SmallInteger)
+    overtime_goals: Mapped[int | None] = mapped_column(SmallInteger)
+    power_play_goals: Mapped[int | None] = mapped_column(SmallInteger)
+    power_play_points: Mapped[int | None] = mapped_column(SmallInteger)
+    shorthanded_goals: Mapped[int | None] = mapped_column(SmallInteger)
+    shorthanded_points: Mapped[int | None] = mapped_column(SmallInteger)
+    shots: Mapped[int | None] = mapped_column(Integer)
+    shooting_percentage: Mapped[float | None] = mapped_column(Float)
+
+
+class OfficialGoalieSeasonStats(Base):
+    """NHL-published goalie team split for one season and game type."""
+
+    __tablename__ = "official_goalie_season_stats"
+    __table_args__ = (
+        UniqueConstraint(
+            "season_id",
+            "game_type",
+            "player_id",
+            "sequence",
+            name="uq_official_goalie_season_player_sequence",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    season_id: Mapped[int] = mapped_column(ForeignKey("seasons.id"), index=True)
+    game_type: Mapped[int] = mapped_column(SmallInteger, index=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    sequence: Mapped[int] = mapped_column(SmallInteger)
+    games_played: Mapped[int] = mapped_column(SmallInteger)
+    games_started: Mapped[int | None] = mapped_column(SmallInteger)
+    wins: Mapped[int | None] = mapped_column(SmallInteger)
+    losses: Mapped[int | None] = mapped_column(SmallInteger)
+    ties: Mapped[int | None] = mapped_column(SmallInteger)
+    overtime_losses: Mapped[int | None] = mapped_column(SmallInteger)
+    goals: Mapped[int | None] = mapped_column(SmallInteger)
+    assists: Mapped[int | None] = mapped_column(SmallInteger)
+    points: Mapped[int | None] = mapped_column(SmallInteger)
+    penalty_minutes: Mapped[int | None] = mapped_column(Integer)
+    time_on_ice: Mapped[str | None] = mapped_column(String(15))
+    time_on_ice_seconds: Mapped[int | None] = mapped_column(Integer)
+    goals_against: Mapped[int | None] = mapped_column(Integer)
+    goals_against_average: Mapped[float | None] = mapped_column(Float)
+    shots_against: Mapped[int | None] = mapped_column(Integer)
+    save_percentage: Mapped[float | None] = mapped_column(Float)
+    shutouts: Mapped[int | None] = mapped_column(SmallInteger)
+
+
 class TeamSeasonStats(Base):
     """Polars-derived team results for one season and game type."""
 

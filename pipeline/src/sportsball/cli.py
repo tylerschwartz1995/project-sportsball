@@ -12,6 +12,9 @@ from sportsball.ingestion.orchestration.multi_season_backfill import (
     SeasonBackfillSummary,
     backfill_season_range,
 )
+from sportsball.ingestion.orchestration.official_player_seasons import (
+    build_official_player_seasons,
+)
 from sportsball.ingestion.orchestration.play_by_play import ingest_play_by_play
 from sportsball.ingestion.orchestration.play_by_play_backfill import (
     backfill_play_by_play,
@@ -318,6 +321,23 @@ def build_season_stats_command(start_season: int, end_season: int) -> None:
         f"run={result.run_id} seasons={result.start_season}-{result.end_season} "
         f"skaters={result.skaters_processed} goalies={result.goalies_processed} "
         f"teams={result.teams_processed} total={result.records_processed}"
+    )
+
+
+@app.command("build-official-player-season-stats")
+def build_official_player_season_stats_command(
+    start_season: int,
+    end_season: int,
+) -> None:
+    """Materialize NHL-published player team splits from retained profiles."""
+    try:
+        result = build_official_player_seasons(start_season, end_season)
+    except ValueError as error:
+        raise typer.BadParameter(str(error)) from error
+    typer.echo(
+        f"run={result.run_id} seasons={result.start_season}-{result.end_season} "
+        f"skaters={result.skaters_processed} goalies={result.goalies_processed} "
+        f"total={result.records_processed}"
     )
 
 
