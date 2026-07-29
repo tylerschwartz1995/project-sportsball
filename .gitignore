@@ -7,7 +7,6 @@
 node_modules/
 .venv/
 venv/
-.conda/
 
 # Build and test output
 .next/
@@ -30,4 +29,3 @@ __pycache__/
 data/raw/
 data/processed/
 models/
-

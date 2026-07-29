@@ -1,31 +1,31 @@
-CONDA_ENV := sportsball
-PYTHON := conda run --name $(CONDA_ENV) python
-PYTHON_BIN = $(shell $(PYTHON) -c "import sys; print(sys.executable)")
+UV := uv
 PYTHON_PATHS := pipeline/src pipeline/tests database/migrations
 
-.PHONY: env pipeline-install pipeline-format pipeline-lint pipeline-typecheck
+.PHONY: env pipeline-sync pipeline-lock pipeline-format pipeline-lint pipeline-typecheck
 .PHONY: pipeline-test pipeline-check db-up db-down db-migrate web-install
 .PHONY: web-dev web-check
 
-env:
-	conda env update --file environment.yml --prune
+env: pipeline-sync
 
-pipeline-install:
-	$(PYTHON) -m pip install -e "pipeline[dev]"
+pipeline-sync:
+	$(UV) sync --project pipeline --locked
+
+pipeline-lock:
+	$(UV) lock --project pipeline
 
 pipeline-format:
-	$(PYTHON) -m ruff check --fix $(PYTHON_PATHS)
-	$(PYTHON) -m ruff format $(PYTHON_PATHS)
+	$(UV) run --project pipeline --frozen ruff check --fix $(PYTHON_PATHS)
+	$(UV) run --project pipeline --frozen ruff format $(PYTHON_PATHS)
 
 pipeline-lint:
-	$(PYTHON) -m ruff check $(PYTHON_PATHS)
-	$(PYTHON) -m ruff format --check $(PYTHON_PATHS)
+	$(UV) run --project pipeline --frozen ruff check $(PYTHON_PATHS)
+	$(UV) run --project pipeline --frozen ruff format --check $(PYTHON_PATHS)
 
 pipeline-typecheck:
-	$(PYTHON) -m pyright --pythonpath "$(PYTHON_BIN)" pipeline/src pipeline/tests
+	$(UV) run --project pipeline --frozen pyright pipeline/src pipeline/tests
 
 pipeline-test:
-	$(PYTHON) -m pytest pipeline/tests
+	$(UV) run --project pipeline --frozen pytest pipeline/tests
 
 pipeline-check: pipeline-lint pipeline-typecheck pipeline-test
 
@@ -36,7 +36,7 @@ db-down:
 	docker compose down
 
 db-migrate:
-	$(PYTHON) -m alembic --config database/alembic.ini upgrade head
+	$(UV) run --project pipeline --frozen alembic --config database/alembic.ini upgrade head
 
 web-install:
 	npm install --prefix apps/web

@@ -18,7 +18,7 @@ dependencies = [
   "typer>=0.16,<1",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
   "pyright>=1.1.400,<2",
   "pytest>=9,<10",
@@ -31,6 +31,9 @@ sportsball = "sportsball.cli:app"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/sportsball"]
+
+[tool.uv]
+required-version = ">=0.12,<0.13"
 
 [tool.pyright]
 include = ["src", "tests"]

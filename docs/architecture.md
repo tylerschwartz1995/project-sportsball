@@ -201,9 +201,10 @@ evolve together:
 project-sportsball/
 ├── apps/
 │   └── web/                   # TypeScript website and read-only application API
-├── environment.yml            # Reproducible Conda Python environment
 ├── pipeline/
+│   ├── .python-version        # Python version selected by uv
 │   ├── pyproject.toml         # Python package and tool configuration
+│   ├── uv.lock                # Cross-platform locked Python dependencies
 │   ├── src/sportsball/
 │   │   ├── clients/           # NHL and MoneyPuck source adapters
 │   │   ├── ingestion/         # Fetching, raw storage, retries, and audit records

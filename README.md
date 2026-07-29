@@ -26,22 +26,26 @@ web application.
 
 Prerequisites:
 
-- Conda
+- [uv](https://docs.astral.sh/uv/getting-started/installation/)
 - Docker Desktop with Docker Compose
 - Node.js and npm
 
-Create the Python environment and install the pipeline:
+Create the project-local Python environment and install the locked dependencies:
 
 ```bash
-conda env create --file environment.yml
-conda run --name sportsball python -m pip install -e "pipeline[dev]"
+make env
 ```
+
+uv creates the environment at `pipeline/.venv`. To change dependencies, use
+`uv add --project pipeline <package>` for runtime packages or
+`uv add --project pipeline --dev <package>` for development tools, then commit
+both `pipeline/pyproject.toml` and `pipeline/uv.lock`.
 
 Start PostgreSQL and apply migrations:
 
 ```bash
 docker compose up --detach postgres
-conda run --name sportsball python -m alembic \
+uv run --project pipeline --frozen alembic \
   --config database/alembic.ini upgrade head
 ```
 
