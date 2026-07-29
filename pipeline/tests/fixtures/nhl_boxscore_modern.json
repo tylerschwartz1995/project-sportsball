@@ -1,0 +1,115 @@
+{
+  "id": 2025020001,
+  "season": 20252026,
+  "gameType": 2,
+  "gameDate": "2025-10-07",
+  "gameState": "OFF",
+  "awayTeam": {
+    "id": 16,
+    "abbrev": "CHI",
+    "commonName": {"default": "Blackhawks"},
+    "score": 2,
+    "sog": 19
+  },
+  "homeTeam": {
+    "id": 13,
+    "abbrev": "FLA",
+    "commonName": {"default": "Panthers"},
+    "score": 3,
+    "sog": 37
+  },
+  "playerByGameStats": {
+    "awayTeam": {
+      "forwards": [
+        {
+          "playerId": 8477987,
+          "name": {"default": "R. Donato"},
+          "sweaterNumber": 8,
+          "position": "C",
+          "goals": 0,
+          "assists": 0,
+          "points": 0,
+          "plusMinus": 0,
+          "pim": 0,
+          "hits": 3,
+          "powerPlayGoals": 0,
+          "sog": 1,
+          "faceoffWinningPctg": 0.0,
+          "blockedShots": 0,
+          "giveaways": 0,
+          "takeaways": 0,
+          "shifts": 23,
+          "toi": "16:00"
+        }
+      ],
+      "defense": [],
+      "goalies": [
+        {
+          "playerId": 8481519,
+          "name": {"default": "S. Knight"},
+          "sweaterNumber": 30,
+          "position": "G",
+          "starter": true,
+          "decision": "L",
+          "goalsAgainst": 3,
+          "shotsAgainst": 37,
+          "saves": 34,
+          "savePctg": 0.918919,
+          "evenStrengthGoalsAgainst": 2,
+          "evenStrengthShotsAgainst": "29/31",
+          "powerPlayGoalsAgainst": 1,
+          "powerPlayShotsAgainst": "4/5",
+          "shorthandedGoalsAgainst": 0,
+          "shorthandedShotsAgainst": "1/1",
+          "pim": 0,
+          "toi": "59:04"
+        }
+      ]
+    },
+    "homeTeam": {
+      "forwards": [
+        {
+          "playerId": 8477935,
+          "name": {"default": "S. Bennett"},
+          "sweaterNumber": 9,
+          "position": "C",
+          "goals": 0,
+          "assists": 0,
+          "points": 0,
+          "plusMinus": -1,
+          "pim": 0,
+          "hits": 1,
+          "powerPlayGoals": 0,
+          "sog": 4,
+          "faceoffWinningPctg": 0.555556,
+          "blockedShots": 0,
+          "giveaways": 0,
+          "takeaways": 1,
+          "shifts": 26,
+          "toi": "19:15"
+        }
+      ],
+      "defense": [],
+      "goalies": [
+        {
+          "playerId": 8480193,
+          "name": {"default": "D. Tarasov"},
+          "sweaterNumber": 40,
+          "position": "G",
+          "starter": false,
+          "goalsAgainst": 0,
+          "shotsAgainst": 0,
+          "saves": 0,
+          "evenStrengthGoalsAgainst": 0,
+          "evenStrengthShotsAgainst": "0/0",
+          "powerPlayGoalsAgainst": 0,
+          "powerPlayShotsAgainst": "0/0",
+          "shorthandedGoalsAgainst": 0,
+          "shorthandedShotsAgainst": "0/0",
+          "pim": 0,
+          "toi": "00:00"
+        }
+      ]
+    }
+  }
+}

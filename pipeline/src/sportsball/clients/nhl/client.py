@@ -9,7 +9,7 @@ from typing import Any, Self
 
 import httpx
 
-from sportsball.clients.nhl.schemas import ScheduleResponse
+from sportsball.clients.nhl.schemas import BoxscoreResponse, ScheduleResponse
 
 DEFAULT_BASE_URL = "https://api-web.nhle.com/v1"
 DEFAULT_USER_AGENT = "sportsball/0.1 (+https://github.com/tylerschwartz1995/project-sportsball)"
@@ -21,6 +21,15 @@ class ScheduleFetch:
     """A validated schedule together with its original source payload."""
 
     schedule: ScheduleResponse
+    payload: dict[str, Any]
+    checksum: str
+
+
+@dataclass(frozen=True)
+class BoxscoreFetch:
+    """A validated box score together with its original source payload."""
+
+    boxscore: BoxscoreResponse
     payload: dict[str, Any]
     checksum: str
 
@@ -61,6 +70,16 @@ class NhlClient:
         payload: dict[str, Any] = response.json()
         return ScheduleFetch(
             schedule=ScheduleResponse.model_validate(payload),
+            payload=payload,
+            checksum=hashlib.sha256(response.content).hexdigest(),
+        )
+
+    def fetch_boxscore(self, game_id: int) -> BoxscoreFetch:
+        """Return a validated game-center box score and decoded source payload."""
+        response = self._get(f"/gamecenter/{game_id}/boxscore")
+        payload: dict[str, Any] = response.json()
+        return BoxscoreFetch(
+            boxscore=BoxscoreResponse.model_validate(payload),
             payload=payload,
             checksum=hashlib.sha256(response.content).hexdigest(),
         )

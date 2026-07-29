@@ -79,6 +79,16 @@ Completed seasons are reconciled and skipped without making another NHL
 request. Failures are reported per season without discarding progress made by
 the remaining range. Use `--max-seasons N` for a bounded invocation.
 
+Ingest traditional team, skater, and goalie statistics for a completed game:
+
+```bash
+uv run --project pipeline --frozen sportsball \
+  ingest-game-boxscore 2005020001
+```
+
+The game must already exist in the schedule index. The original box score is
+retained, and canonical player and game-stat records are updated idempotently.
+
 Run the Python checks:
 
 ```bash
@@ -100,3 +110,4 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 - [Data sources and coverage](docs/data-sources.md)
 - [Initial architecture](docs/architecture.md)
 - [Implementation roadmap](docs/roadmap.md)
+- [Player statistics data dictionary](docs/player-statistics.md)

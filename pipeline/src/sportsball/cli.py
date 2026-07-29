@@ -5,6 +5,7 @@ from datetime import date
 import typer
 
 from sportsball.clients.nhl.client import NhlClient
+from sportsball.ingestion.orchestration.boxscores import ingest_boxscore
 from sportsball.ingestion.orchestration.multi_season_backfill import (
     SeasonBackfillSummary,
     backfill_season_range,
@@ -49,6 +50,19 @@ def ingest_schedule(game_date: str) -> None:
     typer.echo(
         f"run={result.run_id} date={result.game_date.isoformat()} "
         f"games_processed={result.games_processed}"
+    )
+
+
+@app.command()
+def ingest_game_boxscore(game_id: int) -> None:
+    """Ingest one stored NHL game's box score and player statistics."""
+    with NhlClient() as client:
+        result = ingest_boxscore(game_id, client)
+
+    typer.echo(
+        f"run={result.run_id} game={result.game_id} "
+        f"skaters_processed={result.skaters_processed} "
+        f"goalies_processed={result.goalies_processed}"
     )
 
 
