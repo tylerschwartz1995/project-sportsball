@@ -21,3 +21,8 @@ The second stage will add predictive modelling for team and player performance.
 Initial project setup. Data sources, architecture, and implementation details
 will be documented as they are selected.
 
+## Planning
+
+- [Data sources and coverage](docs/data-sources.md)
+- [Initial architecture](docs/architecture.md)
+- [Implementation roadmap](docs/roadmap.md)
