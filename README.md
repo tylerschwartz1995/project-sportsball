@@ -116,3 +116,4 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 - [Player profile ingestion](docs/player-profiles.md)
 - [Official NHL standings snapshots](docs/official-standings.md)
 - [Official player season statistics](docs/official-player-season-stats.md)
+- [MoneyPuck season-summary ingestion](docs/moneypuck-season-ingestion.md)

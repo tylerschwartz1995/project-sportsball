@@ -14,6 +14,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    LargeBinary,
     SmallInteger,
     String,
     Text,
@@ -67,6 +68,36 @@ class SourcePayload(Base):
     source_key: Mapped[str] = mapped_column(String(200))
     checksum: Mapped[str] = mapped_column(String(64))
     payload: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class SourceArtifact(Base):
+    """Original downloaded file with provenance, checksum, and bytes."""
+
+    __tablename__ = "source_artifacts"
+    __table_args__ = (
+        UniqueConstraint(
+            "provider",
+            "resource_type",
+            "source_key",
+            "checksum",
+            name="uq_source_artifact_identity",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    ingestion_run_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("ingestion_runs.id"),
+    )
+    provider: Mapped[str] = mapped_column(String(50))
+    resource_type: Mapped[str] = mapped_column(String(100))
+    source_key: Mapped[str] = mapped_column(String(200))
+    source_url: Mapped[str] = mapped_column(String(500))
+    checksum: Mapped[str] = mapped_column(String(64))
+    content_type: Mapped[str | None] = mapped_column(String(100))
+    content_length: Mapped[int] = mapped_column(BigInteger)
+    content: Mapped[bytes] = mapped_column(LargeBinary)
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
@@ -300,6 +331,27 @@ class PlayerProfileBackfillPlayer(Base):
 
     player_id: Mapped[int] = mapped_column(
         ForeignKey("players.id"),
+        primary_key=True,
+        autoincrement=False,
+    )
+    status: Mapped[str] = mapped_column(String(20))
+    attempt_count: Mapped[int] = mapped_column(Integer, default=0)
+    error_message: Mapped[str | None] = mapped_column(Text)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+
+class MoneyPuckSeasonBackfill(Base):
+    """Durable processing state for one MoneyPuck season summary."""
+
+    __tablename__ = "moneypuck_season_backfills"
+
+    season_id: Mapped[int] = mapped_column(
+        ForeignKey("seasons.id"),
         primary_key=True,
         autoincrement=False,
     )
@@ -627,6 +679,114 @@ class OfficialGoalieSeasonStats(Base):
     shots_against: Mapped[int | None] = mapped_column(Integer)
     save_percentage: Mapped[float | None] = mapped_column(Float)
     shutouts: Mapped[int | None] = mapped_column(SmallInteger)
+
+
+class MoneyPuckSkaterSeasonStats(Base):
+    """MoneyPuck skater metrics for one team, season, and situation."""
+
+    __tablename__ = "moneypuck_skater_season_stats"
+    __table_args__ = (
+        UniqueConstraint(
+            "season_id",
+            "player_id",
+            "team_id",
+            "situation",
+            name="uq_moneypuck_skater_season_player_team_situation",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    season_id: Mapped[int] = mapped_column(ForeignKey("seasons.id"), index=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    situation: Mapped[str] = mapped_column(String(20), index=True)
+    name: Mapped[str] = mapped_column(String(100))
+    position: Mapped[str | None] = mapped_column(String(10))
+    games_played: Mapped[int] = mapped_column(SmallInteger)
+    ice_time_seconds: Mapped[float] = mapped_column(Float)
+    shifts: Mapped[float | None] = mapped_column(Float)
+    game_score: Mapped[float | None] = mapped_column(Float)
+    on_ice_x_goals_percentage: Mapped[float | None] = mapped_column(Float)
+    off_ice_x_goals_percentage: Mapped[float | None] = mapped_column(Float)
+    on_ice_corsi_percentage: Mapped[float | None] = mapped_column(Float)
+    off_ice_corsi_percentage: Mapped[float | None] = mapped_column(Float)
+    on_ice_fenwick_percentage: Mapped[float | None] = mapped_column(Float)
+    off_ice_fenwick_percentage: Mapped[float | None] = mapped_column(Float)
+    individual_x_goals: Mapped[float | None] = mapped_column(Float)
+    individual_goals: Mapped[float | None] = mapped_column(Float)
+    individual_points: Mapped[float | None] = mapped_column(Float)
+    individual_shot_attempts: Mapped[float | None] = mapped_column(Float)
+    on_ice_x_goals_for: Mapped[float | None] = mapped_column(Float)
+    on_ice_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    on_ice_goals_for: Mapped[float | None] = mapped_column(Float)
+    on_ice_goals_against: Mapped[float | None] = mapped_column(Float)
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+
+class MoneyPuckGoalieSeasonStats(Base):
+    """MoneyPuck goalie metrics for one team, season, and situation."""
+
+    __tablename__ = "moneypuck_goalie_season_stats"
+    __table_args__ = (
+        UniqueConstraint(
+            "season_id",
+            "player_id",
+            "team_id",
+            "situation",
+            name="uq_moneypuck_goalie_season_player_team_situation",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    season_id: Mapped[int] = mapped_column(ForeignKey("seasons.id"), index=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    situation: Mapped[str] = mapped_column(String(20), index=True)
+    name: Mapped[str] = mapped_column(String(100))
+    games_played: Mapped[int] = mapped_column(SmallInteger)
+    ice_time_seconds: Mapped[float] = mapped_column(Float)
+    expected_goals_against: Mapped[float | None] = mapped_column(Float)
+    goals_against: Mapped[float | None] = mapped_column(Float)
+    unblocked_shot_attempts_against: Mapped[float | None] = mapped_column(Float)
+    expected_rebounds: Mapped[float | None] = mapped_column(Float)
+    rebounds: Mapped[float | None] = mapped_column(Float)
+    expected_freezes: Mapped[float | None] = mapped_column(Float)
+    freezes: Mapped[float | None] = mapped_column(Float)
+    expected_shots_on_goal_against: Mapped[float | None] = mapped_column(Float)
+    shots_on_goal_against: Mapped[float | None] = mapped_column(Float)
+    flurry_adjusted_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+
+class MoneyPuckTeamSeasonStats(Base):
+    """MoneyPuck team metrics for one season and situation."""
+
+    __tablename__ = "moneypuck_team_season_stats"
+    __table_args__ = (
+        UniqueConstraint(
+            "season_id",
+            "team_id",
+            "situation",
+            name="uq_moneypuck_team_season_team_situation",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    season_id: Mapped[int] = mapped_column(ForeignKey("seasons.id"), index=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    situation: Mapped[str] = mapped_column(String(20), index=True)
+    games_played: Mapped[int] = mapped_column(SmallInteger)
+    ice_time_seconds: Mapped[float] = mapped_column(Float)
+    x_goals_percentage: Mapped[float | None] = mapped_column(Float)
+    corsi_percentage: Mapped[float | None] = mapped_column(Float)
+    fenwick_percentage: Mapped[float | None] = mapped_column(Float)
+    x_goals_for: Mapped[float | None] = mapped_column(Float)
+    x_goals_against: Mapped[float | None] = mapped_column(Float)
+    goals_for: Mapped[float | None] = mapped_column(Float)
+    goals_against: Mapped[float | None] = mapped_column(Float)
+    shot_attempts_for: Mapped[float | None] = mapped_column(Float)
+    shot_attempts_against: Mapped[float | None] = mapped_column(Float)
+    metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
 
 
 class TeamSeasonStats(Base):
