@@ -53,11 +53,6 @@ class PlayByPlayRepository:
             int(row["source_player_id"]) for row in [*roster_rows, *participant_rows]
         }
         player_ids = self._player_ids(source_player_ids)
-        missing_players = source_player_ids - player_ids.keys()
-        if missing_players:
-            raise ValueError(
-                f"event participants missing player identities: {sorted(missing_players)}"
-            )
         team_ids = self._team_ids(event_rows)
 
         self._session.execute(delete(GameEvent).where(GameEvent.game_id == game_id))
@@ -163,7 +158,8 @@ class PlayByPlayRepository:
                 [
                     {
                         "game_event_id": event_ids[int(row["source_event_id"])],
-                        "player_id": player_ids[int(row["source_player_id"])],
+                        "source_player_id": int(row["source_player_id"]),
+                        "player_id": player_ids.get(int(row["source_player_id"])),
                         "role": row["role"],
                     }
                     for row in rows

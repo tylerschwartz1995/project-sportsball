@@ -57,7 +57,7 @@ def test_play_by_play_ingestion_is_idempotent() -> None:
         run_ids.extend([first.run_id, second.run_id])
 
         assert first.events_processed == 4
-        assert first.participants_processed == 8
+        assert first.participants_processed == 9
         assert second.events_processed == 4
 
         with session_scope() as session:
@@ -76,8 +76,13 @@ def test_play_by_play_ingestion_is_idempotent() -> None:
                     .select_from(GameEventPlayer)
                     .where(GameEventPlayer.game_event_id.in_(event_ids))
                 )
-                == 8
+                == 9
             )
+            unmapped = session.scalar(
+                select(GameEventPlayer).where(GameEventPlayer.source_player_id == 999999999)
+            )
+            assert unmapped is not None
+            assert unmapped.player_id is None
             assert (
                 session.scalar(
                     select(func.count())
@@ -92,7 +97,7 @@ def test_play_by_play_ingestion_is_idempotent() -> None:
             runs = session.scalars(select(IngestionRun).where(IngestionRun.id.in_(run_ids))).all()
             assert len(runs) == 2
             assert all(run.status == "succeeded" for run in runs)
-            assert all(run.records_processed == 12 for run in runs)
+            assert all(run.records_processed == 13 for run in runs)
     finally:
         _clean_up(run_ids)
 
@@ -185,6 +190,7 @@ def _play_by_play_payload() -> dict[str, Any]:
             details["eventOwnerTeamId"] = team_mapping[details["eventOwnerTeamId"]]
         for field in player_fields & details.keys():
             details[field] = player_mapping[details[field]]
+    payload["plays"][-1]["details"]["servedByPlayerId"] = 999999999
     return payload
 
 

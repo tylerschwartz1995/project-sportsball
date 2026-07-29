@@ -45,6 +45,11 @@ fields that are not required for statistical queries.
 roles include scorer, primary and secondary assister, shooter, goalie in net, blocker,
 hitter, hittee, faceoff winner and loser, and players who committed or drew a penalty.
 
+Every role retains the provider's player ID. The canonical player foreign key is nullable
+because a small number of historical feeds reference an ID absent from both the game
+roster and NHL player endpoint. Those references remain queryable without creating a
+fictional player record.
+
 ## Historical coverage
 
 The NHL feed is much sparser in the earliest seasons. A representative 2005–06 game

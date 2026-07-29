@@ -400,9 +400,9 @@ class GameEventPlayer(Base):
     __table_args__ = (
         UniqueConstraint(
             "game_event_id",
-            "player_id",
+            "source_player_id",
             "role",
-            name="uq_game_event_players_event_player_role",
+            name="uq_game_event_players_event_source_player_role",
         ),
         Index(
             "ix_game_event_players_player_role",
@@ -415,7 +415,8 @@ class GameEventPlayer(Base):
     game_event_id: Mapped[int] = mapped_column(
         ForeignKey("game_events.id", ondelete="CASCADE"),
     )
-    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"))
+    source_player_id: Mapped[int] = mapped_column(BigInteger)
+    player_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"))
     role: Mapped[str] = mapped_column(String(30))
 
 
