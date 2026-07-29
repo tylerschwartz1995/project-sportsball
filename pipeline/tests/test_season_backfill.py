@@ -20,6 +20,7 @@ from sportsball.persistence.models import (
     Season,
     SourcePayload,
     Team,
+    TeamSeason,
 )
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "nhl_schedule.json"
@@ -123,6 +124,7 @@ def _clean_up_backfill_records() -> None:
         if run_ids:
             session.execute(delete(IngestionRun).where(IngestionRun.id.in_(run_ids)))
         session.execute(delete(Game).where(Game.nhl_id.in_(TEST_GAME_IDS)))
+        session.execute(delete(TeamSeason).where(TeamSeason.season_id == TEST_SEASON_ID))
         session.execute(delete(Team).where(Team.nhl_id.in_(TEST_TEAM_IDS)))
         session.execute(delete(Season).where(Season.id == TEST_SEASON_ID))
         session.execute(

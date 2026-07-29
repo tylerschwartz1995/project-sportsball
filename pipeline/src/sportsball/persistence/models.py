@@ -78,15 +78,57 @@ class Season(Base):
     end_year: Mapped[int] = mapped_column(SmallInteger)
 
 
+class Franchise(Base):
+    """A stable NHL lineage spanning team relocations and renames."""
+
+    __tablename__ = "franchises"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=False)
+    current_name: Mapped[str] = mapped_column(String(100))
+
+
 class Team(Base):
-    """A canonical team with its stable NHL source identifier."""
+    """One NHL source team identity belonging to a franchise lineage."""
 
     __tablename__ = "teams"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     nhl_id: Mapped[int] = mapped_column(Integer, unique=True, index=True)
+    franchise_id: Mapped[int | None] = mapped_column(
+        ForeignKey("franchises.id"),
+        index=True,
+    )
     abbreviation: Mapped[str] = mapped_column(String(10), index=True)
     name: Mapped[str] = mapped_column(String(100))
+
+
+class TeamSeason(Base):
+    """The name and abbreviation a team used in a particular season."""
+
+    __tablename__ = "team_seasons"
+    __table_args__ = (UniqueConstraint("team_id", "season_id", name="uq_team_seasons_team_season"),)
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    season_id: Mapped[int] = mapped_column(ForeignKey("seasons.id"), index=True)
+    abbreviation: Mapped[str] = mapped_column(String(10))
+    place_name: Mapped[str | None] = mapped_column(String(100))
+    common_name: Mapped[str] = mapped_column(String(100))
+    full_name: Mapped[str] = mapped_column(String(200))
+
+
+class TeamTransition(Base):
+    """An expansion, relocation, rebrand, or asset transfer between identities."""
+
+    __tablename__ = "team_transitions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    from_team_id: Mapped[int | None] = mapped_column(ForeignKey("teams.id"))
+    to_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"))
+    effective_season_id: Mapped[int] = mapped_column(Integer, index=True)
+    transition_type: Mapped[str] = mapped_column(String(30))
+    notes: Mapped[str] = mapped_column(Text)
+    source_url: Mapped[str] = mapped_column(String(500))
 
 
 class Game(Base):

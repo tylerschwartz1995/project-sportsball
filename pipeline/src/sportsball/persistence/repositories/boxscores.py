@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import Any
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
@@ -16,6 +16,7 @@ from sportsball.persistence.models import (
     Team,
     TeamGameStats,
 )
+from sportsball.reference.team_identities import team_identity
 
 
 @dataclass(frozen=True)
@@ -70,6 +71,11 @@ class BoxscoreRepository:
                 [
                     {
                         "nhl_id": row["source_team_id"],
+                        "franchise_id": (
+                            identity.franchise_id
+                            if (identity := team_identity(int(row["source_team_id"])))
+                            else None
+                        ),
                         "abbreviation": row["team_abbrev"],
                         "name": row["team_name"],
                     }
@@ -78,6 +84,10 @@ class BoxscoreRepository:
             ).on_conflict_do_update(
                 index_elements=[Team.nhl_id],
                 set_={
+                    "franchise_id": func.coalesce(
+                        team_insert.excluded.franchise_id,
+                        Team.franchise_id,
+                    ),
                     "abbreviation": team_insert.excluded.abbreviation,
                     "name": team_insert.excluded.name,
                 },
