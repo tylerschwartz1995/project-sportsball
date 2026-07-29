@@ -111,3 +111,4 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 - [Initial architecture](docs/architecture.md)
 - [Implementation roadmap](docs/roadmap.md)
 - [Player statistics data dictionary](docs/player-statistics.md)
+- [Season-statistics definitions and refresh behavior](docs/season-statistics.md)

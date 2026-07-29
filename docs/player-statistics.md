@@ -8,8 +8,9 @@
 - Treat box-score names as source display names. Full player identity and
   biographical enrichment will come from the NHL player-profile endpoint.
 - Persist time on ice as integer seconds and percentages as decimal fractions.
-- Build season totals with Polars from game-level facts, then reconcile them
-  against NHL-published season totals.
+- Build season totals with Polars from game-level facts and materialize them in
+  PostgreSQL. See [Season statistics](season-statistics.md) for their grain,
+  definitions, and reconciliation rules.
 
 ## Skater game statistics
 
