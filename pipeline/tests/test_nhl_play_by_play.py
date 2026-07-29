@@ -77,6 +77,18 @@ def test_modern_events_preserve_location_and_penalty_context() -> None:
     assert penalty["penalty_duration_minutes"] == 2
 
 
+def test_malformed_historical_clock_is_retained_without_inference() -> None:
+    response = PlayByPlayResponse.model_validate_json(
+        (FIXTURE_DIR / "nhl_play_by_play_2005.json").read_bytes()
+    )
+    response.plays[0].time_remaining = "0-10:0-11"
+
+    event = play_by_play_frames(response).events.row(0, named=True)
+
+    assert event["time_remaining"] == "0-10:0-11"
+    assert event["time_remaining_seconds"] is None
+
+
 def test_client_requests_expected_play_by_play_endpoint() -> None:
     fixture = (FIXTURE_DIR / "nhl_play_by_play_modern.json").read_bytes()
 
