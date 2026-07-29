@@ -82,3 +82,36 @@ def test_schedule_ingestion_is_idempotent() -> None:
                 session.execute(delete(IngestionRun).where(IngestionRun.id.in_(run_ids)))
             session.execute(delete(Game).where(Game.nhl_id == 2025020600))
             session.execute(delete(Season).where(Season.id == 20252026))
+
+
+def test_schedule_ingestion_can_filter_game_types() -> None:
+    payload = FIXTURE_PATH.read_bytes().replace(b'"gameType": 2', b'"gameType": 9')
+
+    client = NhlClient(
+        client=httpx.Client(
+            base_url="https://example.test/v1",
+            transport=httpx.MockTransport(lambda _request: httpx.Response(200, content=payload)),
+        )
+    )
+
+    result = ingest_schedule_date(date(2026, 1, 2), client, game_types={2, 3})
+
+    try:
+        assert result.games_processed == 0
+        with session_scope() as session:
+            assert (
+                session.scalar(
+                    select(func.count()).select_from(Game).where(Game.nhl_id == 2025020600)
+                )
+                == 0
+            )
+    finally:
+        with session_scope() as session:
+            run_ids = session.scalars(
+                select(SourcePayload.ingestion_run_id).where(
+                    SourcePayload.source_key == "2026-01-02"
+                )
+            ).all()
+            session.execute(delete(SourcePayload).where(SourcePayload.source_key == "2026-01-02"))
+            if run_ids:
+                session.execute(delete(IngestionRun).where(IngestionRun.id.in_(run_ids)))

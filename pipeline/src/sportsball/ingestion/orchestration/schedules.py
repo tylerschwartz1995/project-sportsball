@@ -1,6 +1,7 @@
 """Audited ingestion of one NHL schedule date."""
 
 import uuid
+from collections.abc import Collection
 from dataclasses import dataclass
 from datetime import UTC, date, datetime
 
@@ -21,9 +22,15 @@ class ScheduleIngestionResult:
     run_id: uuid.UUID
     game_date: date
     games_processed: int
+    next_start_date: date | None
 
 
-def ingest_schedule_date(game_date: date, client: NhlClient) -> ScheduleIngestionResult:
+def ingest_schedule_date(
+    game_date: date,
+    client: NhlClient,
+    *,
+    game_types: Collection[int] | None = None,
+) -> ScheduleIngestionResult:
     """Fetch, audit, normalize, and idempotently persist one schedule date."""
     with session_scope() as session:
         run = IngestionRun(
@@ -38,6 +45,8 @@ def ingest_schedule_date(game_date: date, client: NhlClient) -> ScheduleIngestio
     try:
         fetched = client.fetch_schedule(game_date)
         frame = schedule_games_frame(fetched.schedule)
+        if game_types is not None:
+            frame = frame.filter(frame["game_type"].is_in(game_types))
 
         with session_scope() as session:
             payload_insert = insert(SourcePayload)
@@ -80,4 +89,5 @@ def ingest_schedule_date(game_date: date, client: NhlClient) -> ScheduleIngestio
         run_id=run_id,
         game_date=game_date,
         games_processed=result.games,
+        next_start_date=fetched.schedule.next_start_date,
     )

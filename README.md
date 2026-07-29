@@ -58,6 +58,16 @@ uv run --project pipeline --frozen sportsball ingest-schedule 2005-10-05
 The job retains the source payload and checksum, records an audited ingestion
 run, and idempotently upserts seasons, teams, and games.
 
+Run or resume a complete regular-season and playoff schedule backfill:
+
+```bash
+uv run --project pipeline --frozen sportsball backfill-season 20052006
+```
+
+Use `--max-requests N` to process a bounded number of weekly pages. Progress is
+checkpointed after every committed page, so running the command again resumes
+from the next unfinished date.
+
 Run the Python checks:
 
 ```bash

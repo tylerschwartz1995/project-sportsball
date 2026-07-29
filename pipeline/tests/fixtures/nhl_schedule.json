@@ -1,5 +1,9 @@
 {
   "numberOfGames": 1,
+  "nextStartDate": "2026-01-09",
+  "regularSeasonStartDate": "2026-01-02",
+  "regularSeasonEndDate": "2026-04-16",
+  "playoffEndDate": "2026-06-22",
   "gameWeek": [
     {
       "date": "2026-01-02",

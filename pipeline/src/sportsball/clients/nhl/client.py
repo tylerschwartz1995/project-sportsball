@@ -1,6 +1,7 @@
 """Rate-conscious client for NHL web endpoints."""
 
 import hashlib
+import time
 from dataclasses import dataclass
 from datetime import date
 from types import TracebackType
@@ -12,6 +13,7 @@ from sportsball.clients.nhl.schemas import ScheduleResponse
 
 DEFAULT_BASE_URL = "https://api-web.nhle.com/v1"
 DEFAULT_USER_AGENT = "sportsball/0.1 (+https://github.com/tylerschwartz1995/project-sportsball)"
+TRANSIENT_STATUS_CODES = {408, 429, 500, 502, 503, 504}
 
 
 @dataclass(frozen=True)
@@ -31,6 +33,9 @@ class NhlClient:
         *,
         base_url: str = DEFAULT_BASE_URL,
         client: httpx.Client | None = None,
+        request_interval_seconds: float = 0.25,
+        max_retries: int = 3,
+        retry_backoff_seconds: float = 0.5,
     ) -> None:
         self._owns_client = client is None
         self._client = client or httpx.Client(
@@ -41,6 +46,10 @@ class NhlClient:
             },
             timeout=httpx.Timeout(30),
         )
+        self._request_interval_seconds = request_interval_seconds
+        self._max_retries = max_retries
+        self._retry_backoff_seconds = retry_backoff_seconds
+        self._last_request_at: float | None = None
 
     def get_schedule(self, game_date: date) -> ScheduleResponse:
         """Return the validated NHL schedule for a calendar date."""
@@ -48,14 +57,42 @@ class NhlClient:
 
     def fetch_schedule(self, game_date: date) -> ScheduleFetch:
         """Return a validated schedule and the exact decoded source payload."""
-        response = self._client.get(f"/schedule/{game_date.isoformat()}")
-        response.raise_for_status()
+        response = self._get(f"/schedule/{game_date.isoformat()}")
         payload: dict[str, Any] = response.json()
         return ScheduleFetch(
             schedule=ScheduleResponse.model_validate(payload),
             payload=payload,
             checksum=hashlib.sha256(response.content).hexdigest(),
         )
+
+    def _get(self, path: str) -> httpx.Response:
+        """GET one NHL resource with throttling and transient retries."""
+        for attempt in range(self._max_retries + 1):
+            self._throttle()
+            try:
+                response = self._client.get(path)
+            except httpx.TransportError:
+                if attempt == self._max_retries:
+                    raise
+            else:
+                if response.status_code not in TRANSIENT_STATUS_CODES:
+                    response.raise_for_status()
+                    return response
+                if attempt == self._max_retries:
+                    response.raise_for_status()
+
+            time.sleep(self._retry_backoff_seconds * (2**attempt))
+
+        raise RuntimeError("NHL request retry loop exited unexpectedly")
+
+    def _throttle(self) -> None:
+        """Keep request starts separated by the configured minimum interval."""
+        now = time.monotonic()
+        if self._last_request_at is not None:
+            remaining = self._request_interval_seconds - (now - self._last_request_at)
+            if remaining > 0:
+                time.sleep(remaining)
+        self._last_request_at = time.monotonic()
 
     def close(self) -> None:
         """Close an internally managed HTTP connection pool."""
