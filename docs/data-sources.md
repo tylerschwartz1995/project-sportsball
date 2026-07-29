@@ -33,6 +33,9 @@ Schedules, box scores, and play-by-play were verified for a 2005–06 game.
 Early play-by-play is less detailed than modern data; for example, some events
 do not include shot coordinates.
 
+Play-by-play normalization and its resumable historical backfill are documented
+in [Play-by-play ingestion](play-by-play.md).
+
 These endpoints are not treated as a stable, supported public API. The
 ingestion layer must therefore:
 
@@ -87,4 +90,3 @@ zero.
 - Treat older completed games as immutable unless a repair job is requested.
 - Record source, source timestamp, fetched timestamp, checksum, and importer
   version for every raw payload.
-

@@ -150,3 +150,86 @@ class BoxscoreResponse(NhlModel):
     away_team: BoxscoreTeam = Field(alias="awayTeam")
     home_team: BoxscoreTeam = Field(alias="homeTeam")
     player_stats: BoxscorePlayers = Field(alias="playerByGameStats")
+
+
+class PeriodDescriptor(NhlModel):
+    """Period identity embedded in an NHL game event."""
+
+    number: int
+    period_type: str = Field(alias="periodType")
+    max_regulation_periods: int = Field(alias="maxRegulationPeriods")
+
+
+class PlayByPlayDetails(NhlModel):
+    """Known optional fields from event-specific NHL details."""
+
+    event_owner_team_id: int | None = Field(default=None, alias="eventOwnerTeamId")
+    x_coord: int | None = Field(default=None, alias="xCoord")
+    y_coord: int | None = Field(default=None, alias="yCoord")
+    zone_code: str | None = Field(default=None, alias="zoneCode")
+    shot_type: str | None = Field(default=None, alias="shotType")
+    reason: str | None = None
+    secondary_reason: str | None = Field(default=None, alias="secondaryReason")
+    type_code: str | None = Field(default=None, alias="typeCode")
+    desc_key: str | None = Field(default=None, alias="descKey")
+    duration: int | None = None
+    goal_in_game: int | None = Field(default=None, alias="goalInGame")
+    away_score: int | None = Field(default=None, alias="awayScore")
+    home_score: int | None = Field(default=None, alias="homeScore")
+    away_sog: int | None = Field(default=None, alias="awaySOG")
+    home_sog: int | None = Field(default=None, alias="homeSOG")
+    scoring_player_id: int | None = Field(default=None, alias="scoringPlayerId")
+    assist1_player_id: int | None = Field(default=None, alias="assist1PlayerId")
+    assist2_player_id: int | None = Field(default=None, alias="assist2PlayerId")
+    shooting_player_id: int | None = Field(default=None, alias="shootingPlayerId")
+    goalie_in_net_id: int | None = Field(default=None, alias="goalieInNetId")
+    blocking_player_id: int | None = Field(default=None, alias="blockingPlayerId")
+    committed_by_player_id: int | None = Field(default=None, alias="committedByPlayerId")
+    drawn_by_player_id: int | None = Field(default=None, alias="drawnByPlayerId")
+    served_by_player_id: int | None = Field(default=None, alias="servedByPlayerId")
+    hitting_player_id: int | None = Field(default=None, alias="hittingPlayerId")
+    hittee_player_id: int | None = Field(default=None, alias="hitteePlayerId")
+    winning_player_id: int | None = Field(default=None, alias="winningPlayerId")
+    losing_player_id: int | None = Field(default=None, alias="losingPlayerId")
+    player_id: int | None = Field(default=None, alias="playerId")
+
+
+class PlayByPlayEvent(NhlModel):
+    """One validated event in chronological game order."""
+
+    event_id: int = Field(alias="eventId")
+    period_descriptor: PeriodDescriptor = Field(alias="periodDescriptor")
+    time_in_period: str = Field(alias="timeInPeriod")
+    time_remaining: str = Field(alias="timeRemaining")
+    situation_code: str | None = Field(default=None, alias="situationCode")
+    home_team_defending_side: str | None = Field(
+        default=None,
+        alias="homeTeamDefendingSide",
+    )
+    type_code: int = Field(alias="typeCode")
+    type_desc_key: str = Field(alias="typeDescKey")
+    sort_order: int = Field(alias="sortOrder")
+    details: PlayByPlayDetails = Field(default_factory=PlayByPlayDetails)
+
+
+class PlayByPlayRosterSpot(NhlModel):
+    """Player identity fields embedded in a play-by-play response."""
+
+    team_id: int = Field(alias="teamId")
+    player_id: int = Field(alias="playerId")
+    first_name: LocalizedName = Field(alias="firstName")
+    last_name: LocalizedName = Field(alias="lastName")
+    sweater_number: int | None = Field(default=None, alias="sweaterNumber")
+    position_code: str | None = Field(default=None, alias="positionCode")
+
+
+class PlayByPlayResponse(NhlModel):
+    """Validated subset of an NHL game-center play-by-play response."""
+
+    id: int
+    season: int
+    game_type: int = Field(alias="gameType")
+    game_date: date = Field(alias="gameDate")
+    game_state: str = Field(alias="gameState")
+    roster_spots: list[PlayByPlayRosterSpot] = Field(alias="rosterSpots")
+    plays: list[PlayByPlayEvent]

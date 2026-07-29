@@ -12,6 +12,7 @@ from sqlalchemy import (
     DateTime,
     Float,
     ForeignKey,
+    Index,
     Integer,
     SmallInteger,
     String,
@@ -195,6 +196,27 @@ class BoxscoreBackfillGame(Base):
     )
 
 
+class PlayByPlayBackfillGame(Base):
+    """Durable processing state for one game's historical event import."""
+
+    __tablename__ = "play_by_play_backfill_games"
+
+    game_id: Mapped[int] = mapped_column(
+        ForeignKey("games.id"),
+        primary_key=True,
+        autoincrement=False,
+    )
+    status: Mapped[str] = mapped_column(String(20))
+    attempt_count: Mapped[int] = mapped_column(Integer, default=0)
+    error_message: Mapped[str | None] = mapped_column(Text)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+
 class Player(Base):
     """A canonical player with an NHL source identifier."""
 
@@ -280,6 +302,79 @@ class GoalieGameStats(Base):
     shorthanded_shots_against: Mapped[int] = mapped_column(SmallInteger)
     penalty_minutes: Mapped[int] = mapped_column(SmallInteger)
     time_on_ice_seconds: Mapped[int | None] = mapped_column(Integer)
+
+
+class GameEvent(Base):
+    """One chronologically ordered event from an NHL play-by-play feed."""
+
+    __tablename__ = "game_events"
+    __table_args__ = (
+        UniqueConstraint(
+            "game_id",
+            "source_event_id",
+            name="uq_game_events_game_source_event",
+        ),
+        Index("ix_game_events_game_sort_order", "game_id", "sort_order"),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    game_id: Mapped[int] = mapped_column(
+        ForeignKey("games.id", ondelete="CASCADE"),
+    )
+    source_event_id: Mapped[int] = mapped_column(BigInteger)
+    sort_order: Mapped[int] = mapped_column(Integer)
+    period_number: Mapped[int] = mapped_column(SmallInteger)
+    period_type: Mapped[str] = mapped_column(String(10))
+    time_in_period_seconds: Mapped[int] = mapped_column(SmallInteger)
+    time_remaining_seconds: Mapped[int] = mapped_column(SmallInteger)
+    situation_code: Mapped[str | None] = mapped_column(String(10))
+    home_team_defending_side: Mapped[str | None] = mapped_column(String(10))
+    type_code: Mapped[int] = mapped_column(SmallInteger)
+    type_desc_key: Mapped[str] = mapped_column(String(50), index=True)
+    event_owner_team_id: Mapped[int | None] = mapped_column(
+        ForeignKey("teams.id"),
+        index=True,
+    )
+    x_coord: Mapped[int | None] = mapped_column(SmallInteger)
+    y_coord: Mapped[int | None] = mapped_column(SmallInteger)
+    zone_code: Mapped[str | None] = mapped_column(String(5))
+    shot_type: Mapped[str | None] = mapped_column(String(30))
+    reason: Mapped[str | None] = mapped_column(String(100))
+    secondary_reason: Mapped[str | None] = mapped_column(String(100))
+    penalty_type_code: Mapped[str | None] = mapped_column(String(10))
+    penalty_desc_key: Mapped[str | None] = mapped_column(String(100))
+    penalty_duration_minutes: Mapped[int | None] = mapped_column(SmallInteger)
+    goal_in_game: Mapped[int | None] = mapped_column(SmallInteger)
+    away_score: Mapped[int | None] = mapped_column(SmallInteger)
+    home_score: Mapped[int | None] = mapped_column(SmallInteger)
+    away_sog: Mapped[int | None] = mapped_column(SmallInteger)
+    home_sog: Mapped[int | None] = mapped_column(SmallInteger)
+
+
+class GameEventPlayer(Base):
+    """A player's semantic role in one normalized game event."""
+
+    __tablename__ = "game_event_players"
+    __table_args__ = (
+        UniqueConstraint(
+            "game_event_id",
+            "player_id",
+            "role",
+            name="uq_game_event_players_event_player_role",
+        ),
+        Index(
+            "ix_game_event_players_player_role",
+            "player_id",
+            "role",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    game_event_id: Mapped[int] = mapped_column(
+        ForeignKey("game_events.id", ondelete="CASCADE"),
+    )
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"))
+    role: Mapped[str] = mapped_column(String(30))
 
 
 class SkaterSeasonStats(Base):

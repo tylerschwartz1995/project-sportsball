@@ -1,0 +1,146 @@
+{
+  "id": 2025020001,
+  "season": 20252026,
+  "gameType": 2,
+  "gameDate": "2025-10-07",
+  "gameState": "OFF",
+  "rosterSpots": [
+    {
+      "teamId": 16,
+      "playerId": 8483493,
+      "firstName": {"default": "Frank"},
+      "lastName": {"default": "Nazar"},
+      "sweaterNumber": 91,
+      "positionCode": "C"
+    },
+    {
+      "teamId": 16,
+      "playerId": 8477479,
+      "firstName": {"default": "Connor"},
+      "lastName": {"default": "Murphy"},
+      "sweaterNumber": 5,
+      "positionCode": "D"
+    },
+    {
+      "teamId": 16,
+      "playerId": 8476882,
+      "firstName": {"default": "Andre"},
+      "lastName": {"default": "Burakovsky"},
+      "sweaterNumber": 95,
+      "positionCode": "L"
+    },
+    {
+      "teamId": 13,
+      "playerId": 8475683,
+      "firstName": {"default": "Sergei"},
+      "lastName": {"default": "Bobrovsky"},
+      "sweaterNumber": 72,
+      "positionCode": "G"
+    },
+    {
+      "teamId": 13,
+      "playerId": 8482113,
+      "firstName": {"default": "Test"},
+      "lastName": {"default": "Opponent"},
+      "sweaterNumber": 10,
+      "positionCode": "C"
+    }
+  ],
+  "plays": [
+    {
+      "eventId": 52,
+      "periodDescriptor": {
+        "number": 1,
+        "periodType": "REG",
+        "maxRegulationPeriods": 3
+      },
+      "timeInPeriod": "00:00",
+      "timeRemaining": "20:00",
+      "situationCode": "1551",
+      "homeTeamDefendingSide": "right",
+      "typeCode": 520,
+      "typeDescKey": "period-start",
+      "sortOrder": 8
+    },
+    {
+      "eventId": 71,
+      "periodDescriptor": {
+        "number": 1,
+        "periodType": "REG",
+        "maxRegulationPeriods": 3
+      },
+      "timeInPeriod": "01:16",
+      "timeRemaining": "18:44",
+      "situationCode": "1551",
+      "homeTeamDefendingSide": "right",
+      "typeCode": 506,
+      "typeDescKey": "shot-on-goal",
+      "sortOrder": 29,
+      "details": {
+        "xCoord": -58,
+        "yCoord": -22,
+        "zoneCode": "O",
+        "shotType": "wrist",
+        "shootingPlayerId": 8483493,
+        "goalieInNetId": 8475683,
+        "eventOwnerTeamId": 16,
+        "awaySOG": 1,
+        "homeSOG": 0
+      }
+    },
+    {
+      "eventId": 258,
+      "periodDescriptor": {
+        "number": 1,
+        "periodType": "REG",
+        "maxRegulationPeriods": 3
+      },
+      "timeInPeriod": "10:03",
+      "timeRemaining": "09:57",
+      "situationCode": "1551",
+      "homeTeamDefendingSide": "right",
+      "typeCode": 505,
+      "typeDescKey": "goal",
+      "sortOrder": 166,
+      "details": {
+        "xCoord": 66,
+        "yCoord": -1,
+        "zoneCode": "O",
+        "shotType": "snap",
+        "scoringPlayerId": 8483493,
+        "assist1PlayerId": 8477479,
+        "assist2PlayerId": 8476882,
+        "eventOwnerTeamId": 16,
+        "goalieInNetId": 8475683,
+        "awayScore": 1,
+        "homeScore": 0
+      }
+    },
+    {
+      "eventId": 218,
+      "periodDescriptor": {
+        "number": 1,
+        "periodType": "REG",
+        "maxRegulationPeriods": 3
+      },
+      "timeInPeriod": "06:58",
+      "timeRemaining": "13:02",
+      "situationCode": "1551",
+      "homeTeamDefendingSide": "right",
+      "typeCode": 509,
+      "typeDescKey": "penalty",
+      "sortOrder": 125,
+      "details": {
+        "xCoord": 2,
+        "yCoord": 2,
+        "zoneCode": "N",
+        "typeCode": "MIN",
+        "descKey": "slashing",
+        "duration": 2,
+        "committedByPlayerId": 8483493,
+        "drawnByPlayerId": 8482113,
+        "eventOwnerTeamId": 16
+      }
+    }
+  ]
+}

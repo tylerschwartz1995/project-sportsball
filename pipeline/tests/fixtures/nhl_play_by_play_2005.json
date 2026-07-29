@@ -1,0 +1,115 @@
+{
+  "id": 2005020001,
+  "season": 20052006,
+  "gameType": 2,
+  "gameDate": "2005-10-05",
+  "gameState": "OFF",
+  "rosterSpots": [
+    {
+      "teamId": 6,
+      "playerId": 8460535,
+      "firstName": {"default": "Jose"},
+      "lastName": {"default": "Theodore"},
+      "sweaterNumber": 60,
+      "positionCode": "G"
+    },
+    {
+      "teamId": 8,
+      "playerId": 8464998,
+      "firstName": {"default": "Michael"},
+      "lastName": {"default": "Ryder"},
+      "sweaterNumber": 73,
+      "positionCode": "R"
+    },
+    {
+      "teamId": 8,
+      "playerId": 8460105,
+      "firstName": {"default": "Saku"},
+      "lastName": {"default": "Koivu"},
+      "sweaterNumber": 11,
+      "positionCode": "C"
+    },
+    {
+      "teamId": 8,
+      "playerId": 8459430,
+      "firstName": {"default": "Alexei"},
+      "lastName": {"default": "Kovalev"},
+      "sweaterNumber": 27,
+      "positionCode": "R"
+    },
+    {
+      "teamId": 8,
+      "playerId": 8469460,
+      "firstName": {"default": "Test"},
+      "lastName": {"default": "Defender"},
+      "sweaterNumber": 2,
+      "positionCode": "D"
+    }
+  ],
+  "plays": [
+    {
+      "eventId": 10797008,
+      "periodDescriptor": {
+        "number": 1,
+        "periodType": "REG",
+        "maxRegulationPeriods": 3
+      },
+      "timeInPeriod": "00:41",
+      "timeRemaining": "19:19",
+      "typeCode": 506,
+      "typeDescKey": "shot-on-goal",
+      "sortOrder": 1,
+      "details": {
+        "shotType": "wrist",
+        "shootingPlayerId": 8464998,
+        "goalieInNetId": 8460535,
+        "eventOwnerTeamId": 8,
+        "awaySOG": 1,
+        "homeSOG": 0
+      }
+    },
+    {
+      "eventId": 10088561,
+      "periodDescriptor": {
+        "number": 1,
+        "periodType": "REG",
+        "maxRegulationPeriods": 3
+      },
+      "timeInPeriod": "10:50",
+      "timeRemaining": "09:10",
+      "typeCode": 505,
+      "typeDescKey": "goal",
+      "sortOrder": 10,
+      "details": {
+        "shotType": "snap",
+        "scoringPlayerId": 8464998,
+        "assist1PlayerId": 8460105,
+        "assist2PlayerId": 8459430,
+        "eventOwnerTeamId": 8,
+        "goalieInNetId": 8460535,
+        "awayScore": 1,
+        "homeScore": 0
+      }
+    },
+    {
+      "eventId": 11691482,
+      "periodDescriptor": {
+        "number": 1,
+        "periodType": "REG",
+        "maxRegulationPeriods": 3
+      },
+      "timeInPeriod": "05:49",
+      "timeRemaining": "14:11",
+      "typeCode": 509,
+      "typeDescKey": "penalty",
+      "sortOrder": 6,
+      "details": {
+        "typeCode": "MIN",
+        "descKey": "interference",
+        "duration": 2,
+        "committedByPlayerId": 8469460,
+        "eventOwnerTeamId": 8
+      }
+    }
+  ]
+}
