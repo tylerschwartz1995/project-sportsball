@@ -2,7 +2,8 @@
 
 ## Milestone 1: foundation
 
-- Select the web framework and package layout.
+- Create the monorepo package layout.
+- Select the web framework and Python dataframe/tooling stack.
 - Add local PostgreSQL development configuration.
 - Define migrations for seasons, teams, players, and games.
 - Add formatting, linting, tests, and continuous integration.
@@ -40,8 +41,8 @@
 ## Milestone 6: predictive modelling
 
 - Define prediction targets without leaking future information.
+- Build point-in-time Python feature pipelines.
 - Create versioned training datasets and time-based evaluations.
 - Establish simple baseline models.
 - Add team, game, and player models only after baseline validation.
 - Track prediction timestamps, model versions, and realized outcomes.
-
