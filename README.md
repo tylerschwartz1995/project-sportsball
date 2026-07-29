@@ -68,6 +68,17 @@ Use `--max-requests N` to process a bounded number of weekly pages. Progress is
 checkpointed after every committed page, so running the command again resumes
 from the next unfinished date.
 
+Backfill and reconcile an inclusive range of seasons:
+
+```bash
+uv run --project pipeline --frozen sportsball \
+  backfill-seasons 20052006 20252026
+```
+
+Completed seasons are reconciled and skipped without making another NHL
+request. Failures are reported per season without discarding progress made by
+the remaining range. Use `--max-seasons N` for a bounded invocation.
+
 Run the Python checks:
 
 ```bash

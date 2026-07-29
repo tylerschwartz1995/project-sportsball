@@ -1,8 +1,10 @@
 """PostgreSQL integration test for idempotent schedule ingestion."""
 
+import json
 import os
 from datetime import date
 from pathlib import Path
+from typing import Any
 
 import httpx
 import pytest
@@ -14,6 +16,10 @@ from sportsball.persistence.database import session_scope
 from sportsball.persistence.models import Game, IngestionRun, Season, SourcePayload, Team
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "nhl_schedule.json"
+TEST_DATE = date(2097, 1, 2)
+TEST_SEASON_ID = 20962097
+TEST_GAME_ID = 2096020600
+TEST_TEAM_IDS = [806, 810]
 
 pytestmark = pytest.mark.skipif(
     os.getenv("SPORTSBALL_RUN_DATABASE_TESTS") != "1",
@@ -22,7 +28,7 @@ pytestmark = pytest.mark.skipif(
 
 
 def test_schedule_ingestion_is_idempotent() -> None:
-    fixture = FIXTURE_PATH.read_bytes()
+    fixture = json.dumps(_schedule_payload()).encode()
 
     def handler(_request: httpx.Request) -> httpx.Response:
         return httpx.Response(200, content=fixture)
@@ -36,26 +42,26 @@ def test_schedule_ingestion_is_idempotent() -> None:
     run_ids = []
 
     try:
-        first = ingest_schedule_date(date(2026, 1, 2), client)
-        second = ingest_schedule_date(date(2026, 1, 2), client)
+        first = ingest_schedule_date(TEST_DATE, client)
+        second = ingest_schedule_date(TEST_DATE, client)
         run_ids.extend([first.run_id, second.run_id])
 
         with session_scope() as session:
             assert (
                 session.scalar(
-                    select(func.count()).select_from(Game).where(Game.nhl_id == 2025020600)
+                    select(func.count()).select_from(Game).where(Game.nhl_id == TEST_GAME_ID)
                 )
                 == 1
             )
             assert (
                 session.scalar(
-                    select(func.count()).select_from(Team).where(Team.nhl_id.in_([6, 10]))
+                    select(func.count()).select_from(Team).where(Team.nhl_id.in_(TEST_TEAM_IDS))
                 )
                 == 2
             )
             assert (
                 session.scalar(
-                    select(func.count()).select_from(Season).where(Season.id == 20252026)
+                    select(func.count()).select_from(Season).where(Season.id == TEST_SEASON_ID)
                 )
                 == 1
             )
@@ -66,7 +72,7 @@ def test_schedule_ingestion_is_idempotent() -> None:
                     .where(
                         SourcePayload.provider == "nhl",
                         SourcePayload.resource_type == "schedule",
-                        SourcePayload.source_key == "2026-01-02",
+                        SourcePayload.source_key == TEST_DATE.isoformat(),
                     )
                 )
                 == 1
@@ -77,15 +83,18 @@ def test_schedule_ingestion_is_idempotent() -> None:
             assert all(run.records_processed == 1 for run in runs)
     finally:
         with session_scope() as session:
-            session.execute(delete(SourcePayload).where(SourcePayload.source_key == "2026-01-02"))
+            session.execute(
+                delete(SourcePayload).where(SourcePayload.source_key == TEST_DATE.isoformat())
+            )
             if run_ids:
                 session.execute(delete(IngestionRun).where(IngestionRun.id.in_(run_ids)))
-            session.execute(delete(Game).where(Game.nhl_id == 2025020600))
-            session.execute(delete(Season).where(Season.id == 20252026))
+            session.execute(delete(Game).where(Game.nhl_id == TEST_GAME_ID))
+            session.execute(delete(Team).where(Team.nhl_id.in_(TEST_TEAM_IDS)))
+            session.execute(delete(Season).where(Season.id == TEST_SEASON_ID))
 
 
 def test_schedule_ingestion_can_filter_game_types() -> None:
-    payload = FIXTURE_PATH.read_bytes().replace(b'"gameType": 2', b'"gameType": 9')
+    payload = json.dumps(_schedule_payload(game_type=9)).encode()
 
     client = NhlClient(
         client=httpx.Client(
@@ -94,14 +103,14 @@ def test_schedule_ingestion_can_filter_game_types() -> None:
         )
     )
 
-    result = ingest_schedule_date(date(2026, 1, 2), client, game_types={2, 3})
+    result = ingest_schedule_date(TEST_DATE, client, game_types={2, 3})
 
     try:
         assert result.games_processed == 0
         with session_scope() as session:
             assert (
                 session.scalar(
-                    select(func.count()).select_from(Game).where(Game.nhl_id == 2025020600)
+                    select(func.count()).select_from(Game).where(Game.nhl_id == TEST_GAME_ID)
                 )
                 == 0
             )
@@ -109,9 +118,29 @@ def test_schedule_ingestion_can_filter_game_types() -> None:
         with session_scope() as session:
             run_ids = session.scalars(
                 select(SourcePayload.ingestion_run_id).where(
-                    SourcePayload.source_key == "2026-01-02"
+                    SourcePayload.source_key == TEST_DATE.isoformat()
                 )
             ).all()
-            session.execute(delete(SourcePayload).where(SourcePayload.source_key == "2026-01-02"))
+            session.execute(
+                delete(SourcePayload).where(SourcePayload.source_key == TEST_DATE.isoformat())
+            )
             if run_ids:
                 session.execute(delete(IngestionRun).where(IngestionRun.id.in_(run_ids)))
+
+
+def _schedule_payload(*, game_type: int = 2) -> dict[str, Any]:
+    payload: dict[str, Any] = json.loads(FIXTURE_PATH.read_text())
+    payload["nextStartDate"] = "2097-01-09"
+    payload["regularSeasonStartDate"] = TEST_DATE.isoformat()
+    payload["regularSeasonEndDate"] = "2097-04-16"
+    payload["playoffEndDate"] = "2097-06-22"
+    game_day = payload["gameWeek"][0]
+    game_day["date"] = TEST_DATE.isoformat()
+    game = game_day["games"][0]
+    game["id"] = TEST_GAME_ID
+    game["season"] = TEST_SEASON_ID
+    game["gameType"] = game_type
+    game["startTimeUTC"] = "2097-01-03T00:00:00Z"
+    game["awayTeam"]["id"] = TEST_TEAM_IDS[0]
+    game["homeTeam"]["id"] = TEST_TEAM_IDS[1]
+    return payload
