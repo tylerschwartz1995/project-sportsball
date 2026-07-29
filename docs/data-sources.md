@@ -72,6 +72,10 @@ Source and usage details:
 Available data includes skater, goalie, line, team, game-level, and shot-level
 records. Shot data includes expected goals and related model outputs.
 
+The first implemented MoneyPuck slice ingests skater, goalie, and team season
+summaries and is documented in
+[MoneyPuck season-summary ingestion](moneypuck-season-ingestion.md).
+
 ## Coverage shown on the website
 
 | Data category | Initial coverage |
@@ -80,7 +84,8 @@ records. Shot data includes expected goals and related model outputs.
 | Traditional team and player statistics | 2005–06 onward |
 | Standings | 2005–06 onward, subject to endpoint validation |
 | Play-by-play | 2005–06 onward, with fields varying by season |
-| MoneyPuck advanced statistics | 2007–08 onward |
+| MoneyPuck season-summary advanced statistics | 2008–09 onward |
+| MoneyPuck shot-level advanced statistics | 2007–08 onward |
 
 The interface must show the source and coverage range for each metric. Missing
 advanced data in 2005–06 and 2006–07 must display as unavailable rather than

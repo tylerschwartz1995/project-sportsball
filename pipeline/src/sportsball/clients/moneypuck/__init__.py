@@ -1,0 +1,1 @@
+"""MoneyPuck approved-download client."""
