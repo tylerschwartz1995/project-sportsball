@@ -49,3 +49,13 @@ class ScheduleResponse(NhlModel):
 
     number_of_games: int = Field(alias="numberOfGames")
     game_week: list[ScheduleDay] = Field(alias="gameWeek")
+    next_start_date: date | None = Field(default=None, alias="nextStartDate")
+    regular_season_start_date: date | None = Field(
+        default=None,
+        alias="regularSeasonStartDate",
+    )
+    regular_season_end_date: date | None = Field(
+        default=None,
+        alias="regularSeasonEndDate",
+    )
+    playoff_end_date: date | None = Field(default=None, alias="playoffEndDate")

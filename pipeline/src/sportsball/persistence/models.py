@@ -71,7 +71,7 @@ class Season(Base):
 
     __tablename__ = "seasons"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=False)
     start_year: Mapped[int] = mapped_column(SmallInteger)
     end_year: Mapped[int] = mapped_column(SmallInteger)
 
@@ -101,3 +101,22 @@ class Game(Base):
     state: Mapped[str] = mapped_column(String(20))
     away_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
     home_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+
+
+class ScheduleBackfillCheckpoint(Base):
+    """Durable cursor for a season schedule backfill."""
+
+    __tablename__ = "schedule_backfill_checkpoints"
+
+    season_id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=False)
+    next_date: Mapped[date | None] = mapped_column(Date)
+    end_date: Mapped[date] = mapped_column(Date)
+    status: Mapped[str] = mapped_column(String(20))
+    requests_completed: Mapped[int] = mapped_column(Integer, default=0)
+    games_processed: Mapped[int] = mapped_column(Integer, default=0)
+    error_message: Mapped[str | None] = mapped_column(Text)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
