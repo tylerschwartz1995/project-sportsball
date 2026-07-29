@@ -166,6 +166,27 @@ class ScheduleBackfillCheckpoint(Base):
     )
 
 
+class BoxscoreBackfillGame(Base):
+    """Durable processing state for one game's historical box-score import."""
+
+    __tablename__ = "boxscore_backfill_games"
+
+    game_id: Mapped[int] = mapped_column(
+        ForeignKey("games.id"),
+        primary_key=True,
+        autoincrement=False,
+    )
+    status: Mapped[str] = mapped_column(String(20))
+    attempt_count: Mapped[int] = mapped_column(Integer, default=0)
+    error_message: Mapped[str | None] = mapped_column(Text)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+
 class Player(Base):
     """A canonical player with an NHL source identifier."""
 
@@ -218,7 +239,7 @@ class PlayerGameStats(Base):
     giveaways: Mapped[int] = mapped_column(SmallInteger)
     takeaways: Mapped[int] = mapped_column(SmallInteger)
     shifts: Mapped[int] = mapped_column(SmallInteger)
-    time_on_ice_seconds: Mapped[int] = mapped_column(Integer)
+    time_on_ice_seconds: Mapped[int | None] = mapped_column(Integer)
 
 
 class GoalieGameStats(Base):

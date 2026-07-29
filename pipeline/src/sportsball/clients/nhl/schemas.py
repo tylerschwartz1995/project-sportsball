@@ -91,7 +91,7 @@ class BoxscoreSkater(NhlModel):
     giveaways: int
     takeaways: int
     shifts: int
-    time_on_ice: str = Field(alias="toi")
+    time_on_ice: str | None = Field(default=None, alias="toi")
 
 
 class BoxscoreGoalie(NhlModel):
