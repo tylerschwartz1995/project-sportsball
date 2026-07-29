@@ -13,6 +13,7 @@ from sportsball.ingestion.orchestration.multi_season_backfill import (
 )
 from sportsball.ingestion.orchestration.schedules import ingest_schedule_date
 from sportsball.ingestion.orchestration.season_backfill import backfill_season_schedule
+from sportsball.ingestion.orchestration.season_stats import build_season_stats
 from sportsball.normalization.games import schedule_games_frame
 
 app = typer.Typer(no_args_is_help=True)
@@ -142,6 +143,21 @@ def backfill_seasons(
     typer.echo(f"completed={result.completed} skipped={result.skipped} failed={result.failed}")
     if result.failed:
         raise typer.Exit(code=1)
+
+
+@app.command("build-season-stats")
+def build_season_stats_command(start_season: int, end_season: int) -> None:
+    """Build materialized skater, goalie, and team season statistics."""
+    try:
+        result = build_season_stats(start_season, end_season)
+    except ValueError as error:
+        raise typer.BadParameter(str(error)) from error
+
+    typer.echo(
+        f"run={result.run_id} seasons={result.start_season}-{result.end_season} "
+        f"skaters={result.skaters_processed} goalies={result.goalies_processed} "
+        f"teams={result.teams_processed} total={result.records_processed}"
+    )
 
 
 def _echo_season_summary(season: SeasonBackfillSummary) -> None:
