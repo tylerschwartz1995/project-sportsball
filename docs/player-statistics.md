@@ -8,6 +8,9 @@
 - Treat box-score names as source display names. Full player identity and
   biographical enrichment comes from the NHL player-profile endpoint; see
   [Player profile ingestion](player-profiles.md).
+
+Richer NHL-published team splits are stored separately from the derived totals;
+see [Official player season statistics](official-player-season-stats.md).
 - Persist time on ice as integer seconds and percentages as decimal fractions.
 - Build season totals with Polars from game-level facts and materialize them in
   PostgreSQL. See [Season statistics](season-statistics.md) for their grain,
