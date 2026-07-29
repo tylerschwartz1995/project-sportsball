@@ -7,6 +7,7 @@
 node_modules/
 .venv/
 venv/
+.conda/
 
 # Build and test output
 .next/
@@ -24,4 +25,9 @@ __pycache__/
 
 # Logs
 *.log
+
+# Local data and generated model artifacts
+data/raw/
+data/processed/
+models/
 
