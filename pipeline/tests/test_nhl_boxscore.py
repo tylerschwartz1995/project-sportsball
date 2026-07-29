@@ -1,9 +1,11 @@
 """Historical and modern NHL box-score contract tests."""
 
 import hashlib
+import json
 from pathlib import Path
 
 import httpx
+import polars as pl
 import pytest
 
 from sportsball.clients.nhl.client import NhlClient
@@ -53,6 +55,20 @@ def test_historical_time_and_goalie_splits_are_normalized() -> None:
         normalized.goalie_games["source_player_id"] == 8471186
     )
     assert historical_backup["time_on_ice_seconds"].item() is None
+
+
+def test_historical_skater_allows_missing_time_on_ice() -> None:
+    payload = json.loads((FIXTURE_DIR / "nhl_boxscore_2005.json").read_text())
+    skater = payload["playerByGameStats"]["awayTeam"]["forwards"][0]
+    del skater["toi"]
+
+    boxscore = BoxscoreResponse.model_validate(payload)
+    normalized = boxscore_frames(boxscore)
+    historical_skater = normalized.skater_games.filter(
+        pl.col("source_player_id") == skater["playerId"]
+    )
+
+    assert historical_skater["time_on_ice_seconds"].item() is None
 
 
 def test_modern_backup_goalie_allows_missing_decision_and_save_percentage() -> None:

@@ -5,6 +5,7 @@ from datetime import date
 import typer
 
 from sportsball.clients.nhl.client import NhlClient
+from sportsball.ingestion.orchestration.boxscore_backfill import backfill_boxscores
 from sportsball.ingestion.orchestration.boxscores import ingest_boxscore
 from sportsball.ingestion.orchestration.multi_season_backfill import (
     SeasonBackfillSummary,
@@ -64,6 +65,38 @@ def ingest_game_boxscore(game_id: int) -> None:
         f"skaters_processed={result.skaters_processed} "
         f"goalies_processed={result.goalies_processed}"
     )
+
+
+@app.command()
+def backfill_game_boxscores(
+    start_season: int,
+    end_season: int,
+    max_games: int | None = None,
+    retry_failed: bool = False,
+) -> None:
+    """Backfill missing box scores across an inclusive stored season range."""
+    with NhlClient() as client:
+        try:
+            result = backfill_boxscores(
+                start_season,
+                end_season,
+                client,
+                max_games=max_games,
+                retry_failed=retry_failed,
+            )
+        except ValueError as error:
+            raise typer.BadParameter(str(error)) from error
+
+    typer.echo(
+        f"seasons={result.start_season}-{result.end_season} "
+        f"attempted={result.attempted_this_run} completed={result.completed_games}/"
+        f"{result.total_games} pending={result.pending_games} "
+        f"failed={result.failed_games}"
+    )
+    for failure in result.failures:
+        typer.echo(f"  game={failure.game_id} error={failure.error_message}", err=True)
+    if result.failed_games and result.pending_games == 0:
+        raise typer.Exit(code=1)
 
 
 @app.command()
