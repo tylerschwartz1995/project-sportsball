@@ -1,5 +1,6 @@
 """Contract and normalization tests for NHL schedules."""
 
+import hashlib
 from datetime import date
 from pathlib import Path
 
@@ -18,9 +19,10 @@ def test_schedule_payload_normalizes_to_polars() -> None:
 
     frame = schedule_games_frame(schedule)
 
-    assert frame.shape == (1, 10)
+    assert frame.shape == (1, 12)
     assert frame["source_game_id"].item() == 2025020600
     assert frame["home_team_abbrev"].item() == "TOR"
+    assert frame["home_team_name"].item() == "Maple Leafs"
     assert frame.schema["game_date"] == pl.Date
 
 
@@ -38,6 +40,8 @@ def test_client_requests_expected_schedule_endpoint() -> None:
     )
 
     client = NhlClient(client=http_client)
-    schedule = client.get_schedule(date(2026, 1, 2))
+    fetched = client.fetch_schedule(date(2026, 1, 2))
 
-    assert schedule.number_of_games == 1
+    assert fetched.schedule.number_of_games == 1
+    assert fetched.payload["numberOfGames"] == 1
+    assert fetched.checksum == hashlib.sha256(fixture).hexdigest()

@@ -1,8 +1,10 @@
 """Rate-conscious client for NHL web endpoints."""
 
+import hashlib
+from dataclasses import dataclass
 from datetime import date
 from types import TracebackType
-from typing import Self
+from typing import Any, Self
 
 import httpx
 
@@ -10,6 +12,15 @@ from sportsball.clients.nhl.schemas import ScheduleResponse
 
 DEFAULT_BASE_URL = "https://api-web.nhle.com/v1"
 DEFAULT_USER_AGENT = "sportsball/0.1 (+https://github.com/tylerschwartz1995/project-sportsball)"
+
+
+@dataclass(frozen=True)
+class ScheduleFetch:
+    """A validated schedule together with its original source payload."""
+
+    schedule: ScheduleResponse
+    payload: dict[str, Any]
+    checksum: str
 
 
 class NhlClient:
@@ -33,9 +44,18 @@ class NhlClient:
 
     def get_schedule(self, game_date: date) -> ScheduleResponse:
         """Return the validated NHL schedule for a calendar date."""
+        return self.fetch_schedule(game_date).schedule
+
+    def fetch_schedule(self, game_date: date) -> ScheduleFetch:
+        """Return a validated schedule and the exact decoded source payload."""
         response = self._client.get(f"/schedule/{game_date.isoformat()}")
         response.raise_for_status()
-        return ScheduleResponse.model_validate_json(response.content)
+        payload: dict[str, Any] = response.json()
+        return ScheduleFetch(
+            schedule=ScheduleResponse.model_validate(payload),
+            payload=payload,
+            checksum=hashlib.sha256(response.content).hexdigest(),
+        )
 
     def close(self) -> None:
         """Close an internally managed HTTP connection pool."""
