@@ -4,11 +4,12 @@ from dataclasses import dataclass
 from typing import Any
 
 import polars as pl
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
-from sportsball.persistence.models import Game, Season, Team
+from sportsball.persistence.models import Game, Season, Team, TeamSeason
+from sportsball.reference.team_identities import team_identity, team_season_identity
 
 
 @dataclass(frozen=True)
@@ -52,6 +53,10 @@ class ScheduleRepository:
             .on_conflict_do_update(
                 index_elements=[Team.nhl_id],
                 set_={
+                    "franchise_id": func.coalesce(
+                        insert(Team).excluded.franchise_id,
+                        Team.franchise_id,
+                    ),
                     "abbreviation": insert(Team).excluded.abbreviation,
                     "name": insert(Team).excluded.name,
                 },
@@ -66,6 +71,19 @@ class ScheduleRepository:
                 )
             ).tuples()
         }
+        team_season_rows = self._team_season_rows(rows, team_ids)
+        team_season_insert = insert(TeamSeason)
+        self._session.execute(
+            team_season_insert.values(team_season_rows).on_conflict_do_update(
+                constraint="uq_team_seasons_team_season",
+                set_={
+                    "abbreviation": team_season_insert.excluded.abbreviation,
+                    "place_name": team_season_insert.excluded.place_name,
+                    "common_name": team_season_insert.excluded.common_name,
+                    "full_name": team_season_insert.excluded.full_name,
+                },
+            )
+        )
         game_rows = [
             {
                 "nhl_id": row["source_game_id"],
@@ -113,14 +131,47 @@ class ScheduleRepository:
         ]
 
     @staticmethod
-    def _team_rows(rows: list[dict[str, Any]]) -> list[dict[str, int | str]]:
-        teams: dict[int, dict[str, int | str]] = {}
+    def _team_rows(rows: list[dict[str, Any]]) -> list[dict[str, int | str | None]]:
+        teams: dict[int, dict[str, int | str | None]] = {}
         for row in rows:
             for side in ("away", "home"):
                 nhl_id = int(row[f"{side}_team_id"])
+                identity = team_identity(nhl_id)
                 teams[nhl_id] = {
                     "nhl_id": nhl_id,
+                    "franchise_id": identity.franchise_id if identity else None,
                     "abbreviation": str(row[f"{side}_team_abbrev"]),
                     "name": str(row[f"{side}_team_name"]),
                 }
         return [teams[nhl_id] for nhl_id in sorted(teams)]
+
+    @staticmethod
+    def _team_season_rows(
+        rows: list[dict[str, Any]],
+        team_ids: dict[int, int],
+    ) -> list[dict[str, int | str | None]]:
+        team_seasons: dict[tuple[int, int], dict[str, int | str | None]] = {}
+        for row in rows:
+            season_id = int(row["season_id"])
+            for side in ("away", "home"):
+                nhl_id = int(row[f"{side}_team_id"])
+                identity = team_season_identity(nhl_id, season_id)
+                abbreviation = (
+                    identity.abbreviation if identity else str(row[f"{side}_team_abbrev"])
+                )
+                common_name = identity.common_name if identity else str(row[f"{side}_team_name"])
+                place_name = identity.place_name if identity else None
+                full_name = (
+                    identity.full_name
+                    if identity
+                    else " ".join(part for part in (place_name, common_name) if part)
+                )
+                team_seasons[(team_ids[nhl_id], season_id)] = {
+                    "team_id": team_ids[nhl_id],
+                    "season_id": season_id,
+                    "abbreviation": abbreviation,
+                    "place_name": place_name,
+                    "common_name": common_name,
+                    "full_name": full_name,
+                }
+        return [team_seasons[key] for key in sorted(team_seasons, key=lambda key: (key[1], key[0]))]

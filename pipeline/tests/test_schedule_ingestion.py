@@ -13,7 +13,14 @@ from sqlalchemy import delete, func, select
 from sportsball.clients.nhl.client import NhlClient
 from sportsball.ingestion.orchestration.schedules import ingest_schedule_date
 from sportsball.persistence.database import session_scope
-from sportsball.persistence.models import Game, IngestionRun, Season, SourcePayload, Team
+from sportsball.persistence.models import (
+    Game,
+    IngestionRun,
+    Season,
+    SourcePayload,
+    Team,
+    TeamSeason,
+)
 
 FIXTURE_PATH = Path(__file__).parent / "fixtures" / "nhl_schedule.json"
 TEST_DATE = date(2097, 1, 2)
@@ -68,6 +75,14 @@ def test_schedule_ingestion_is_idempotent() -> None:
             assert (
                 session.scalar(
                     select(func.count())
+                    .select_from(TeamSeason)
+                    .where(TeamSeason.season_id == TEST_SEASON_ID)
+                )
+                == 2
+            )
+            assert (
+                session.scalar(
+                    select(func.count())
                     .select_from(SourcePayload)
                     .where(
                         SourcePayload.provider == "nhl",
@@ -89,6 +104,7 @@ def test_schedule_ingestion_is_idempotent() -> None:
             if run_ids:
                 session.execute(delete(IngestionRun).where(IngestionRun.id.in_(run_ids)))
             session.execute(delete(Game).where(Game.nhl_id == TEST_GAME_ID))
+            session.execute(delete(TeamSeason).where(TeamSeason.season_id == TEST_SEASON_ID))
             session.execute(delete(Team).where(Team.nhl_id.in_(TEST_TEAM_IDS)))
             session.execute(delete(Season).where(Season.id == TEST_SEASON_ID))
 

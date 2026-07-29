@@ -31,8 +31,102 @@ def test_schedule_dimensions_are_deduplicated() -> None:
         {"id": 20252026, "start_year": 2025, "end_year": 2026}
     ]
     assert ScheduleRepository._team_rows(rows) == [
-        {"nhl_id": 6, "abbreviation": "BOS", "name": "Bruins"},
-        {"nhl_id": 10, "abbreviation": "TOR", "name": "Maple Leafs"},
+        {
+            "nhl_id": 6,
+            "franchise_id": 6,
+            "abbreviation": "BOS",
+            "name": "Bruins",
+        },
+        {
+            "nhl_id": 10,
+            "franchise_id": 5,
+            "abbreviation": "TOR",
+            "name": "Maple Leafs",
+        },
+    ]
+
+
+def test_team_seasons_preserve_historical_identity_names() -> None:
+    rows = [
+        {
+            "season_id": 20102011,
+            "away_team_id": 11,
+            "away_team_abbrev": "ATL",
+            "away_team_name": "Thrashers",
+            "home_team_id": 27,
+            "home_team_abbrev": "PHX",
+            "home_team_name": "Coyotes",
+        },
+        {
+            "season_id": 20142015,
+            "away_team_id": 52,
+            "away_team_abbrev": "WPG",
+            "away_team_name": "Jets",
+            "home_team_id": 53,
+            "home_team_abbrev": "ARI",
+            "home_team_name": "Coyotes",
+        },
+        {
+            "season_id": 20252026,
+            "away_team_id": 59,
+            "away_team_abbrev": "UTA",
+            "away_team_name": "Hockey Club",
+            "home_team_id": 6,
+            "home_team_abbrev": "BOS",
+            "home_team_name": "Bruins",
+        },
+    ]
+    team_ids = {6: 1006, 11: 1011, 27: 1027, 52: 1052, 53: 1053, 59: 1059}
+
+    assert ScheduleRepository._team_season_rows(rows, team_ids) == [
+        {
+            "team_id": 1011,
+            "season_id": 20102011,
+            "abbreviation": "ATL",
+            "place_name": "Atlanta",
+            "common_name": "Thrashers",
+            "full_name": "Atlanta Thrashers",
+        },
+        {
+            "team_id": 1027,
+            "season_id": 20102011,
+            "abbreviation": "PHX",
+            "place_name": "Phoenix",
+            "common_name": "Coyotes",
+            "full_name": "Phoenix Coyotes",
+        },
+        {
+            "team_id": 1052,
+            "season_id": 20142015,
+            "abbreviation": "WPG",
+            "place_name": "Winnipeg",
+            "common_name": "Jets",
+            "full_name": "Winnipeg Jets",
+        },
+        {
+            "team_id": 1053,
+            "season_id": 20142015,
+            "abbreviation": "ARI",
+            "place_name": "Arizona",
+            "common_name": "Coyotes",
+            "full_name": "Arizona Coyotes",
+        },
+        {
+            "team_id": 1006,
+            "season_id": 20252026,
+            "abbreviation": "BOS",
+            "place_name": "Boston",
+            "common_name": "Bruins",
+            "full_name": "Boston Bruins",
+        },
+        {
+            "team_id": 1059,
+            "season_id": 20252026,
+            "abbreviation": "UTA",
+            "place_name": "Utah",
+            "common_name": "Mammoth",
+            "full_name": "Utah Mammoth",
+        },
     ]
 
 
