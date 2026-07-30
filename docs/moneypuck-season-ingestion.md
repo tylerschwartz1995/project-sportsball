@@ -59,3 +59,18 @@ includes all shot attempts, while Fenwick excludes blocked attempts. Player
 on-ice percentages describe results while the player is on the ice and should
 not be presented as individual production. The website must show MoneyPuck
 attribution and metric definitions wherever these values appear.
+
+## Team game-level metrics
+
+The approved all-team game file can be ingested for a bounded season range:
+
+```bash
+uv run --project pipeline --frozen sportsball \
+  ingest-moneypuck-team-game-stats 20082009 20252026
+```
+
+`moneypuck_team_game_stats` stores one row per game, team, and situation for
+regular-season and playoff games. It includes expected-goal share, Corsi and
+Fenwick share, expected and actual goals, shots and attempts, danger-tier
+expected goals, score/venue adjustments, and total shot credit. The exact
+all-season CSV remains available in `source_artifacts`.

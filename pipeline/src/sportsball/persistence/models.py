@@ -789,6 +789,53 @@ class MoneyPuckTeamSeasonStats(Base):
     metrics: Mapped[dict[str, Any]] = mapped_column(JSONB)
 
 
+class MoneyPuckTeamGameStats(Base):
+    """MoneyPuck team advanced metrics for one game and situation."""
+
+    __tablename__ = "moneypuck_team_game_stats"
+    __table_args__ = (
+        UniqueConstraint(
+            "game_id",
+            "team_id",
+            "situation",
+            name="uq_moneypuck_team_game_team_situation",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id"), index=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    opponent_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    situation: Mapped[str] = mapped_column(String(20), index=True)
+    is_home: Mapped[bool] = mapped_column(Boolean)
+    playoff_game: Mapped[bool] = mapped_column(Boolean)
+    game_date: Mapped[date] = mapped_column(Date)
+    ice_time_seconds: Mapped[float] = mapped_column(Float)
+    x_goals_percentage: Mapped[float | None] = mapped_column(Float)
+    corsi_percentage: Mapped[float | None] = mapped_column(Float)
+    fenwick_percentage: Mapped[float | None] = mapped_column(Float)
+    x_goals_for: Mapped[float | None] = mapped_column(Float)
+    x_goals_against: Mapped[float | None] = mapped_column(Float)
+    flurry_adjusted_x_goals_for: Mapped[float | None] = mapped_column(Float)
+    flurry_adjusted_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    score_venue_adjusted_x_goals_for: Mapped[float | None] = mapped_column(Float)
+    score_venue_adjusted_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    shots_on_goal_for: Mapped[float | None] = mapped_column(Float)
+    shots_on_goal_against: Mapped[float | None] = mapped_column(Float)
+    shot_attempts_for: Mapped[float | None] = mapped_column(Float)
+    shot_attempts_against: Mapped[float | None] = mapped_column(Float)
+    goals_for: Mapped[float | None] = mapped_column(Float)
+    goals_against: Mapped[float | None] = mapped_column(Float)
+    low_danger_x_goals_for: Mapped[float | None] = mapped_column(Float)
+    low_danger_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    medium_danger_x_goals_for: Mapped[float | None] = mapped_column(Float)
+    medium_danger_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    high_danger_x_goals_for: Mapped[float | None] = mapped_column(Float)
+    high_danger_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    total_shot_credit_for: Mapped[float | None] = mapped_column(Float)
+    total_shot_credit_against: Mapped[float | None] = mapped_column(Float)
+
+
 class TeamSeasonStats(Base):
     """Polars-derived team results for one season and game type."""
 

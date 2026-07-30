@@ -66,7 +66,7 @@ def ingest_moneypuck_season(
         )
         with session_scope() as session:
             for artifact in fetched.values():
-                _store_artifact(session, run_id, artifact)
+                store_source_artifact(session, run_id, artifact)
             result = MoneyPuckSeasonRepository(session).replace(
                 [season_id],
                 skaters=normalized.skaters,
@@ -104,7 +104,7 @@ def ingest_moneypuck_season(
     )
 
 
-def _store_artifact(
+def store_source_artifact(
     session: Session,
     run_id: uuid.UUID,
     artifact: MoneyPuckCsvFetch,

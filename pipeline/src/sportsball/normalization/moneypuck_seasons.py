@@ -104,7 +104,7 @@ def _skater_frame(source: pl.DataFrame) -> pl.DataFrame:
     normalized = source.select(
         _season_id_expression(),
         pl.col("playerId").cast(pl.Int64).alias("source_player_id"),
-        _team_expression(),
+        canonical_team_expression(),
         "situation",
         "name",
         "position",
@@ -160,7 +160,7 @@ def _goalie_frame(source: pl.DataFrame) -> pl.DataFrame:
     normalized = source.select(
         _season_id_expression(),
         pl.col("playerId").cast(pl.Int64).alias("source_player_id"),
-        _team_expression(),
+        canonical_team_expression(),
         "situation",
         "name",
         pl.col("games_played").cast(pl.Int64),
@@ -205,7 +205,7 @@ def _team_frame(source: pl.DataFrame) -> pl.DataFrame:
     _require_columns(source, required, "teams")
     normalized = source.select(
         _season_id_expression(),
-        _team_expression(),
+        canonical_team_expression(),
         "situation",
         pl.col("games_played").cast(pl.Int64),
         pl.col("iceTime").cast(pl.Float64).alias("ice_time_seconds"),
@@ -230,8 +230,13 @@ def _season_id_expression() -> pl.Expr:
     )
 
 
-def _team_expression() -> pl.Expr:
-    team = pl.col("team")
+def canonical_team_expression(
+    column: str = "team",
+    *,
+    alias: str = "canonical_team_abbrev",
+) -> pl.Expr:
+    """Map MoneyPuck's published team aliases to NHL season abbreviations."""
+    team = pl.col(column)
     expression = team
     for source, canonical in TEAM_ALIASES.items():
         expression = pl.when(team == source).then(pl.lit(canonical)).otherwise(expression)
@@ -239,7 +244,7 @@ def _team_expression() -> pl.Expr:
         pl.when((team == "ARI") & (pl.col("season") <= 2013))
         .then(pl.lit("PHX"))
         .otherwise(expression)
-        .alias("canonical_team_abbrev")
+        .alias(alias)
     )
 
 

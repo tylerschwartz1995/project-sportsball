@@ -15,6 +15,9 @@ from sportsball.ingestion.orchestration.moneypuck_season_backfill import (
 from sportsball.ingestion.orchestration.moneypuck_seasons import (
     ingest_moneypuck_season,
 )
+from sportsball.ingestion.orchestration.moneypuck_team_games import (
+    ingest_moneypuck_team_games,
+)
 from sportsball.ingestion.orchestration.multi_season_backfill import (
     SeasonBackfillSummary,
     backfill_season_range,
@@ -174,6 +177,27 @@ def backfill_moneypuck_season_summaries(
         )
     if result.failures and result.pending_seasons == 0:
         raise typer.Exit(code=1)
+
+
+@app.command()
+def ingest_moneypuck_team_game_stats(
+    start_season: int,
+    end_season: int,
+) -> None:
+    """Ingest MoneyPuck all-team game-level metrics for a season range."""
+    with MoneyPuckClient() as client:
+        try:
+            result = ingest_moneypuck_team_games(
+                start_season,
+                end_season,
+                client,
+            )
+        except ValueError as error:
+            raise typer.BadParameter(str(error)) from error
+    typer.echo(
+        f"run={result.run_id} seasons={result.start_season}-{result.end_season} "
+        f"rows_processed={result.rows_processed}"
+    )
 
 
 @app.command()
