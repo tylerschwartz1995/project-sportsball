@@ -1,6 +1,10 @@
 import Link from "next/link";
 
 import { SiteHeader } from "@/app/_components/site-header";
+import {
+  WorkspaceMetric,
+  WorkspacePageHeader,
+} from "@/app/_components/workspace-primitives";
 import { parseGameDate, type GameSummary } from "@/contracts/game";
 import { parseSeasonId } from "@/contracts/season";
 import { getGamesByDate, listGameDates } from "@/data/games";
@@ -50,71 +54,29 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
       <SiteHeader active="games" />
 
       <section className="py-10">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
-              Schedule and results
-            </p>
-            <h2 className="mt-3 max-w-3xl text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-              {selectedDate
-                ? formatDate(selectedDate)
-                : "No schedule available"}
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-400">
-              Every NHL matchup, final score, and shot total from the selected
-              date, using the team name active in that season.
-            </p>
-          </div>
-
-          <form
-            method="get"
-            className="grid w-full max-w-xl gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end"
-          >
-            <label className="text-sm font-medium text-slate-300">
-              Season
-              <select
-                name="season"
-                defaultValue={selectedSeason?.id}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-white outline-none focus:border-cyan-300/60"
-              >
-                {seasons.map((season) => (
-                  <option key={season.id} value={season.id}>
-                    {season.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="text-sm font-medium text-slate-300">
-              Game date
-              <select
-                name="date"
-                defaultValue={selectedDate}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-white outline-none focus:border-cyan-300/60"
-              >
-                {gameDates.map((entry) => (
-                  <option key={entry.date} value={entry.date}>
-                    {entry.date} · {entry.gameCount}{" "}
-                    {entry.gameCount === 1 ? "game" : "games"}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button
-              type="submit"
-              className="rounded-lg bg-cyan-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
-            >
-              View
-            </button>
-          </form>
-        </div>
+        <WorkspacePageHeader
+          eyebrow="Schedule and results"
+          title={
+            selectedDate ? formatDate(selectedDate) : "No schedule available"
+          }
+          description="Every NHL matchup, final score, and shot total from the selected date, using the team name active in that season."
+          action={
+            <GamePicker
+              seasons={seasons}
+              selectedSeasonId={selectedSeason?.id}
+              gameDates={gameDates}
+              selectedDate={selectedDate}
+            />
+          }
+        />
 
         {selectedSeason && selectedDate ? (
           <>
-            <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-slate-400">
+            <div className="workspace-date-navigation">
+              <p>
                 {selectedSeason.label} season · {gameDates.length} game dates
               </p>
-              <nav aria-label="Game date navigation" className="flex gap-2">
+              <nav aria-label="Game date navigation">
                 <DateLink
                   label="← Older"
                   seasonId={selectedSeason.id}
@@ -128,13 +90,18 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
               </nav>
             </div>
 
-            <div className="mt-6 grid gap-4 sm:grid-cols-3">
-              <SummaryCard label="Games" value={String(games.length)} />
-              <SummaryCard
+            <div className="workspace-metric-grid">
+              <WorkspaceMetric
+                label="Games"
+                value={String(games.length)}
+                detail="Scheduled on selected date"
+              />
+              <WorkspaceMetric
                 label="Completed"
                 value={`${completedGames} of ${games.length}`}
+                detail="Games with a final score"
               />
-              <SummaryCard
+              <WorkspaceMetric
                 label="Schedule type"
                 value={
                   playoffGames === games.length
@@ -143,11 +110,12 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
                       ? "Regular + playoffs"
                       : "Regular season"
                 }
+                detail={selectedSeason.label}
               />
             </div>
 
             {games.length > 0 ? (
-              <div className="mt-8 grid gap-4 lg:grid-cols-2">
+              <div className="workspace-game-grid">
                 {games.map((game) => (
                   <GameCard key={game.id} game={game} />
                 ))}
@@ -168,28 +136,66 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
   );
 }
 
+function GamePicker({
+  seasons,
+  selectedSeasonId,
+  gameDates,
+  selectedDate,
+}: {
+  seasons: Array<{ id: number; label: string }>;
+  selectedSeasonId: number | undefined;
+  gameDates: Array<{ date: string; gameCount: number }>;
+  selectedDate: string | undefined;
+}) {
+  return (
+    <form method="get" className="workspace-game-picker">
+      <label>
+        Season
+        <select name="season" defaultValue={selectedSeasonId}>
+          {seasons.map((season) => (
+            <option key={season.id} value={season.id}>
+              {season.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label>
+        Game date
+        <select name="date" defaultValue={selectedDate}>
+          {gameDates.map((entry) => (
+            <option key={entry.date} value={entry.date}>
+              {entry.date} · {entry.gameCount}{" "}
+              {entry.gameCount === 1 ? "game" : "games"}
+            </option>
+          ))}
+        </select>
+      </label>
+      <button type="submit">View</button>
+    </form>
+  );
+}
+
 function GameCard({ game }: { game: GameSummary }) {
   const completed = hasFinalScore(game);
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
-      <div className="flex items-center justify-between border-b border-white/[0.07] px-5 py-3 text-xs uppercase tracking-[0.12em]">
-        <span className="text-slate-500">
+    <article className="workspace-game-card">
+      <div className="workspace-game-card-header">
+        <span>
           {game.gameType === 3 ? "Playoffs" : "Regular season"}
         </span>
-        <span className={completed ? "text-emerald-200" : "text-cyan-200"}>
+        <strong data-complete={completed}>
           {completed ? finalLabel(game.lastPeriodType) : game.state}
-        </span>
+        </strong>
       </div>
-      <div className="space-y-4 p-5">
+      <div className="workspace-game-card-teams">
         <TeamLine team={game.awayTeam} seasonId={game.seasonId} />
         <TeamLine team={game.homeTeam} seasonId={game.seasonId} />
       </div>
-      <div className="flex items-center justify-between border-t border-white/[0.07] px-5 py-3 text-xs text-slate-500">
+      <div className="workspace-game-card-footer">
         <span>{formatTime(game.startTimeUtc)}</span>
         <Link
           href={`/games/${game.nhlGameId}`}
-          className="font-medium text-cyan-300 transition hover:text-cyan-200"
         >
           View box score →
         </Link>
@@ -206,26 +212,23 @@ function TeamLine({
   seasonId: number;
 }) {
   return (
-    <div className="grid grid-cols-[3rem_1fr_auto] items-center gap-3">
-      <span className="font-mono text-sm font-semibold text-cyan-200">
+    <div className="workspace-game-team">
+      <span className="workspace-game-team-abbreviation">
         {team.abbreviation}
       </span>
       <div>
-        <Link
-          href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
-          className="font-medium text-white transition hover:text-cyan-200"
-        >
+        <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
           {team.name}
         </Link>
-        <p className="mt-0.5 text-xs text-slate-500">
+        <p>
           {team.shotsOnGoal === null
             ? "Shots unavailable"
             : `${team.shotsOnGoal} shots`}
         </p>
       </div>
-      <span className="text-3xl font-semibold tabular-nums text-white">
+      <strong>
         {team.score ?? "—"}
-      </span>
+      </strong>
     </div>
   );
 }
@@ -239,31 +242,19 @@ function DateLink({
   seasonId: number;
   date: string | undefined;
 }) {
-  const className =
-    "rounded-lg border border-white/10 px-3 py-2 text-sm font-medium";
+  const className = "workspace-date-link";
 
   return date ? (
     <Link
       href={`/games?season=${seasonId}&date=${date}`}
-      className={`${className} text-slate-300 transition hover:border-cyan-300/40 hover:text-white`}
+      className={className}
     >
       {label}
     </Link>
   ) : (
-    <span aria-disabled="true" className={`${className} text-slate-700`}>
+    <span aria-disabled="true" className={className}>
       {label}
     </span>
-  );
-}
-
-function SummaryCard({ label, value }: { label: string; value: string }) {
-  return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-        {label}
-      </p>
-      <p className="mt-3 text-2xl font-semibold text-white">{value}</p>
-    </article>
   );
 }
 

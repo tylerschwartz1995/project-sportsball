@@ -30,7 +30,10 @@ export function GamePlayByPlayView({
   const periods = groupEventsByPeriod(data.events);
 
   return (
-    <section className="mt-12 border-t border-white/10 pt-12">
+    <section
+      id="scoring"
+      className="workspace-section-divider scroll-mt-6"
+    >
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-cyan-300">
@@ -112,10 +115,10 @@ function ScoringSummary({
           No goals were recorded in the play-by-play.
         </p>
       ) : (
-        <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+        <div className="data-table-shell mt-4">
           <SortableTable defaultSortKey="gameTime" defaultDirection="asc">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[900px] text-sm">
+            <div className="workspace-table-scroll">
+              <table className="workspace-table min-w-[900px]">
                 <thead>
                   <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                     <SortableHeader
@@ -260,7 +263,7 @@ function PeriodTimeline({
   ).length;
 
   return (
-    <details className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.025]">
+    <details className="workspace-timeline-period group">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 transition hover:bg-white/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300">
         <span>
           <span className="font-semibold text-white">

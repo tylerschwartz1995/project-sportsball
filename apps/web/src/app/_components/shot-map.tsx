@@ -59,7 +59,7 @@ function TeamShotMap({
     shots.find((shot) => shotKey(shot) === selectedShotId) ?? null;
 
   return (
-    <figure className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/60">
+    <figure className="surface-panel overflow-hidden">
       <figcaption className="flex flex-wrap items-end justify-between gap-3 border-b border-white/[0.07] px-5 py-4">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.14em] text-slate-500">
@@ -86,8 +86,8 @@ function TeamShotMap({
             width="304"
             height="204"
             rx="48"
-            fill="#071525"
-            stroke="#334155"
+            fill="var(--surface-raised)"
+            stroke="var(--border-strong)"
             strokeWidth="2"
           />
           <line
@@ -129,7 +129,7 @@ function TeamShotMap({
             y1="9"
             x2="160"
             y2="211"
-            stroke="#94a3b8"
+            stroke="var(--muted)"
             strokeDasharray="4 6"
             opacity="0.2"
           />
@@ -169,7 +169,7 @@ function TeamShotMap({
                     cy={y}
                     r={radius + 3.5}
                     fill="none"
-                    stroke="#ffffff"
+                    stroke="var(--foreground)"
                     strokeWidth="1.5"
                     opacity="0.95"
                   />
@@ -179,7 +179,11 @@ function TeamShotMap({
                   cy={y}
                   r={radius}
                   fill={
-                    shot.isGoal ? color : shot.wasOnGoal ? color : "#071525"
+                    shot.isGoal
+                      ? color
+                      : shot.wasOnGoal
+                        ? color
+                        : "var(--surface-raised)"
                   }
                   fillOpacity={shot.isGoal ? 0.95 : 0.45}
                   stroke={color}

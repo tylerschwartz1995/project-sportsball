@@ -49,7 +49,8 @@ cover source freshness, stuck jobs, recent-game completeness, and HTTP
 deployment readiness. The selected Data Workspace interface provides responsive
 global navigation, persistent light/dark themes with a dark first-visit
 default, and native workspace presentations for the league overview, standings,
-team and player directories, and primary team and player profiles.
+team and player directories, primary team and player profiles, and the complete
+game directory-to-box-score workflow.
 
 ## Local development
 

@@ -6,6 +6,10 @@ import { GamePlayByPlayView } from "@/app/_components/play-by-play";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import {
+  DataTableShell,
+  SectionHeader,
+} from "@/app/_components/ui-primitives";
 import { parseNhlId } from "@/contracts/entity";
 import type {
   GameBoxScoreTeam,
@@ -57,19 +61,22 @@ export default async function GamePage({ params }: GamePageProps) {
           ← Games on {formatDate(game.gameDate)}
         </Link>
 
-        <div className="mt-7 overflow-hidden rounded-3xl border border-white/10 bg-slate-950/55">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.07] px-5 py-4 text-xs uppercase tracking-[0.14em] sm:px-8">
-            <span className="text-slate-500">
+        <div className="workspace-game-hero">
+          <div className="workspace-game-hero-meta">
+            <span>
               {game.gameType === 3 ? "NHL playoffs" : "Regular season"}
             </span>
-            <span className={completed ? "text-emerald-200" : "text-cyan-200"}>
+            <h1 className="sr-only">
+              {game.awayTeam.name} at {game.homeTeam.name}
+            </h1>
+            <strong>
               {completed ? finalLabel(game.lastPeriodType) : game.state}
-            </span>
+            </strong>
           </div>
 
-          <div className="grid gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+          <div className="workspace-game-hero-score">
             <ScoreTeam team={game.awayTeam} seasonId={game.seasonId} />
-            <div className="text-center font-mono text-xs uppercase tracking-[0.2em] text-slate-600">
+            <div className="workspace-game-hero-at">
               at
             </div>
             <ScoreTeam
@@ -79,14 +86,23 @@ export default async function GamePage({ params }: GamePageProps) {
             />
           </div>
 
-          <div className="grid gap-3 border-t border-white/[0.07] px-5 py-4 text-xs text-slate-500 sm:grid-cols-3 sm:px-8">
+          <div className="workspace-game-hero-footer">
             <span>{formatDate(game.gameDate)}</span>
-            <span className="sm:text-center">
-              {formatTime(game.startTimeUtc)}
-            </span>
-            <span className="sm:text-right">NHL game {game.nhlGameId}</span>
+            <span>{formatTime(game.startTimeUtc)}</span>
+            <span>NHL game {game.nhlGameId}</span>
           </div>
         </div>
+
+        <nav
+          aria-label="Game page sections"
+          className="workspace-scroll-nav"
+        >
+          {playByPlay.events.length > 0 ? (
+            <a href="#scoring">Scoring & timeline</a>
+          ) : null}
+          {hasBoxScore ? <a href="#box-score">Box score</a> : null}
+          {advanced ? <a href="#advanced">Advanced analytics</a> : null}
+        </nav>
 
         <GamePlayByPlayView
           data={playByPlay}
@@ -95,10 +111,11 @@ export default async function GamePage({ params }: GamePageProps) {
           seasonId={game.seasonId}
         />
 
-        {advanced ? <GameAdvancedAnalytics data={advanced} /> : null}
-
         {hasBoxScore ? (
-          <div className="mt-12 space-y-14">
+          <div
+            id="box-score"
+            className="mt-12 space-y-14 scroll-mt-6"
+          >
             <TeamBoxScore team={game.awayTeam} seasonId={game.seasonId} />
             <TeamBoxScore team={game.homeTeam} seasonId={game.seasonId} />
           </div>
@@ -107,6 +124,12 @@ export default async function GamePage({ params }: GamePageProps) {
             The player box score is not available yet.
           </div>
         )}
+
+        {advanced ? (
+          <div id="advanced" className="scroll-mt-6">
+            <GameAdvancedAnalytics data={advanced} />
+          </div>
+        ) : null}
       </section>
     </main>
   );
@@ -122,32 +145,25 @@ function ScoreTeam({
   align?: "left" | "right";
 }) {
   return (
-    <div
-      className={
-        align === "right"
-          ? "flex items-center justify-between gap-5 lg:flex-row-reverse lg:text-right"
-          : "flex items-center justify-between gap-5"
-      }
-    >
+    <div className="workspace-game-score-team" data-align={align}>
       <div>
-        <p className="font-mono text-sm font-semibold text-cyan-200">
+        <small>
           {team.abbreviation}
-        </p>
+        </small>
         <Link
           href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
-          className="mt-1 block text-xl font-semibold text-white transition hover:text-cyan-200 sm:text-2xl"
         >
           {team.name}
         </Link>
-        <p className="mt-2 text-sm text-slate-500">
+        <p>
           {team.shotsOnGoal === null
             ? "Shots unavailable"
             : `${team.shotsOnGoal} shots`}
         </p>
       </div>
-      <span className="text-6xl font-semibold tabular-nums text-white">
+      <strong>
         {team.score ?? "—"}
-      </span>
+      </strong>
     </div>
   );
 }
@@ -161,19 +177,16 @@ function TeamBoxScore({
 }) {
   return (
     <section>
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-cyan-300">
-            {team.abbreviation} box score
-          </p>
-          <h2 className="mt-2 text-2xl font-semibold text-white">
-            {team.name}
-          </h2>
-        </div>
-        <p className="text-sm text-slate-500">
+      <SectionHeader
+        eyebrow={`${team.abbreviation} box score`}
+        title={team.name}
+        description="Official NHL player results for this game."
+        action={
+          <p className="text-sm text-slate-500">
           {team.skaters.length} skaters · {team.goalies.length} goalies
-        </p>
-      </div>
+          </p>
+        }
+      />
 
       <h3 className="mt-7 text-lg font-semibold text-white">Skaters</h3>
       <SkaterTable
@@ -202,10 +215,10 @@ function SkaterTable({
   teamName: string;
 }) {
   return (
-    <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+    <DataTableShell>
       <SortableTable defaultSortKey="points">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[940px] text-sm">
+      <div className="workspace-table-scroll">
+        <table className="workspace-table min-w-[940px]">
           <caption className="sr-only">{teamName} skater box score</caption>
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
@@ -256,7 +269,7 @@ function SkaterTable({
         </table>
       </div>
       </SortableTable>
-    </div>
+    </DataTableShell>
   );
 }
 
@@ -270,10 +283,10 @@ function GoalieTable({
   teamName: string;
 }) {
   return (
-    <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+    <DataTableShell>
       <SortableTable defaultSortKey="shotsAgainst">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px] text-sm">
+      <div className="workspace-table-scroll">
+        <table className="workspace-table min-w-[900px]">
           <caption className="sr-only">{teamName} goalie box score</caption>
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
@@ -332,7 +345,7 @@ function GoalieTable({
         </table>
       </div>
       </SortableTable>
-    </div>
+    </DataTableShell>
   );
 }
 
