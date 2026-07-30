@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 export function WorkspacePageHeader({
@@ -15,7 +16,7 @@ export function WorkspacePageHeader({
     <header className="workspace-page-header">
       <div>
         <p className="workspace-eyebrow">{eyebrow}</p>
-        <h2>{title}</h2>
+        <h1>{title}</h1>
         <p className="workspace-description">{description}</p>
       </div>
       {action}
@@ -43,9 +44,9 @@ export function WorkspaceMetric({
   );
 
   return href ? (
-    <a href={href} className="workspace-metric workspace-metric-link">
+    <Link href={href} className="workspace-metric workspace-metric-link">
       {content}
-    </a>
+    </Link>
   ) : (
     <article className="workspace-metric">{content}</article>
   );

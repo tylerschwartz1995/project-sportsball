@@ -37,10 +37,10 @@ individual pages.
 ## Theme implementation
 
 The application shell provides semantic light and dark tokens, a persistent
-toggle, operating-system preference as the initial default, local preference
-storage, and a pre-render bootstrap that prevents a wrong-theme flash. Routes
-are being migrated to native semantic components in controlled groups; a
-temporary compatibility layer keeps remaining routes readable during rollout.
+toggle, dark mode as the first-visit default, local preference storage, and a
+pre-render bootstrap that prevents a wrong-theme flash. Routes are being
+migrated to native semantic components in controlled groups; a temporary
+compatibility layer keeps remaining routes readable during rollout.
 
 ## Plotting milestone
 

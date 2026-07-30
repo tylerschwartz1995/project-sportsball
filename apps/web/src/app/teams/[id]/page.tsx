@@ -98,9 +98,9 @@ export default async function TeamPage({
                 <p className="font-mono text-xs uppercase tracking-[0.18em] text-cyan-300">
                   Team profile · NHL {detail.team.nhlTeamId}
                 </p>
-                <h2 className="mt-2 text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">
+                <h1 className="mt-2 text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">
                   {detail.team.name}
-                </h2>
+                </h1>
                 <div className="mt-4 flex flex-wrap gap-2 text-sm text-slate-400">
                   <span className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1">
                     {selectedSeason.label}
@@ -121,7 +121,7 @@ export default async function TeamPage({
 
         <nav
           aria-label={`${detail.team.name} page sections`}
-          className="mt-5 flex gap-1 overflow-x-auto rounded-xl border border-white/[0.08] bg-black/10 p-1"
+          className="workspace-scroll-nav"
         >
           <SectionLink href="#overview" label="Overview" />
           <SectionLink href="#skaters" label="Skaters" />
@@ -403,7 +403,6 @@ function SectionLink({ href, label }: { href: string; label: string }) {
   return (
     <a
       href={href}
-      className="shrink-0 rounded-lg px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/[0.055] hover:text-white"
     >
       {label}
     </a>

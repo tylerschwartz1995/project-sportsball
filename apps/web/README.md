@@ -48,9 +48,10 @@ profile season selectors only offer seasons in which that team has stored
 statistics, preventing expansion teams from linking to seasons before they
 existed. The team profile is also the reference implementation for the shared
 sport-neutral visual design system documented in `../../docs/design-system.md`.
-The selected Data Workspace shell now provides responsive global navigation
-and a persistent system-aware light/dark toggle. The league overview and
-standings are the first routes migrated to native workspace components.
+The selected Data Workspace shell now provides responsive global navigation,
+a persistent light/dark toggle with a dark first-visit default, and native
+workspace presentations for the league overview, standings, team and player
+directories, and primary team and player profiles.
 - `GET /api/seasons`;
 - `GET /api/standings?season=20242025`;
 - `GET /api/games?season=20252026&date=2026-06-14`;

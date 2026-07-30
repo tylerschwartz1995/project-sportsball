@@ -46,9 +46,10 @@ daily-update coordinator and opt-in GitHub Actions scheduler are implemented;
 scheduled writes remain disabled until the deployment milestone provides a
 hosted database, secrets, and tested recovery. Operational health checks now
 cover source freshness, stuck jobs, recent-game completeness, and HTTP
-deployment readiness. The selected Data Workspace interface provides
-responsive global navigation, persistent light/dark themes, and native
-workspace presentations for the league overview and standings.
+deployment readiness. The selected Data Workspace interface provides responsive
+global navigation, persistent light/dark themes with a dark first-visit
+default, and native workspace presentations for the league overview, standings,
+team and player directories, and primary team and player profiles.
 
 ## Local development
 

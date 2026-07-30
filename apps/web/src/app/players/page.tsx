@@ -6,6 +6,10 @@ import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import {
+  WorkspaceMetric,
+  WorkspacePageHeader,
+} from "@/app/_components/workspace-primitives";
 import type {
   GoalieSeasonSummary,
   SkaterSeasonSummary,
@@ -101,49 +105,38 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
       <SiteHeader active="players" />
 
       <section className="py-10">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
-              Player statistics
-            </p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-              {selectedSeason?.label ?? "No season"} players
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-400">
-              Complete Polars-derived regular-season totals for every
-              participating skater and goalie. Traded-player rows combine all
-              teams.
-            </p>
-          </div>
-          <SeasonPicker
-            seasons={seasons}
-            selectedSeasonId={selectedSeason?.id}
-          />
-        </div>
+        <WorkspacePageHeader
+          eyebrow="Player statistics"
+          title={`${selectedSeason?.label ?? "No season"} players`}
+          description="Complete Polars-derived regular-season totals for every participating skater and goalie. Traded-player rows combine all teams."
+          action={
+            <SeasonPicker
+              seasons={seasons}
+              selectedSeasonId={selectedSeason?.id}
+            />
+          }
+        />
 
         {pointsLeader ? (
           <>
-            <div className="mt-10 grid gap-4 md:grid-cols-3">
-              <LeaderCard
+            <div className="workspace-metric-grid">
+              <WorkspaceMetric
                 label="Points leader"
-                playerId={pointsLeader.nhlPlayerId}
-                seasonId={selectedSeason?.id}
-                name={pointsLeader.name}
+                value={pointsLeader.name}
                 detail={`${pointsLeader.points} points`}
+                href={`/players/${pointsLeader.nhlPlayerId}?season=${selectedSeason?.id}`}
               />
-              <LeaderCard
+              <WorkspaceMetric
                 label="Goals leader"
-                playerId={goalsLeader.nhlPlayerId}
-                seasonId={selectedSeason?.id}
-                name={goalsLeader.name}
+                value={goalsLeader.name}
                 detail={`${goalsLeader.goals} goals`}
+                href={`/players/${goalsLeader.nhlPlayerId}?season=${selectedSeason?.id}`}
               />
-              <LeaderCard
+              <WorkspaceMetric
                 label="Save percentage"
-                playerId={goalieLeader.nhlPlayerId}
-                seasonId={selectedSeason?.id}
-                name={goalieLeader.name}
+                value={goalieLeader.name}
                 detail={`${formatSavePercentage(goalieLeader.savePercentage)} in ${goalieLeader.gamesPlayed} games`}
+                href={`/players/${goalieLeader.nhlPlayerId}?season=${selectedSeason?.id}`}
               />
             </div>
 
@@ -609,32 +602,6 @@ function DirectoryEmptyState() {
     <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
       No players match the current search.
     </div>
-  );
-}
-
-function LeaderCard({
-  label,
-  playerId,
-  seasonId,
-  name,
-  detail,
-}: {
-  label: string;
-  playerId: number;
-  seasonId: number | undefined;
-  name: string;
-  detail: string;
-}) {
-  return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-        {label}
-      </p>
-      <p className="mt-3 text-xl font-semibold">
-        <PlayerLink playerId={playerId} seasonId={seasonId} name={name} />
-      </p>
-      <p className="mt-2 text-sm text-slate-400">{detail}</p>
-    </article>
   );
 }
 
