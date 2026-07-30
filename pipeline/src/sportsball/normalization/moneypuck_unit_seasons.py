@@ -64,9 +64,7 @@ def moneypuck_unit_season_frame(game_units: pl.DataFrame) -> pl.DataFrame:
     return (
         aggregated.with_columns(
             _share("x_goals_for", "x_goals_against").alias("x_goals_percentage"),
-            _share("shot_attempts_for", "shot_attempts_against").alias(
-                "corsi_percentage"
-            ),
+            _share("shot_attempts_for", "shot_attempts_against").alias("corsi_percentage"),
             pl.lit(DERIVATION_VERSION).alias("derivation_version"),
         )
         .select(
@@ -110,9 +108,7 @@ def _share(for_column: str, against_column: str) -> pl.Expr:
     total = pl.col(for_column) + pl.col(against_column)
     return (
         pl.when(
-            pl.col(for_column).is_not_null()
-            & pl.col(against_column).is_not_null()
-            & (total > 0)
+            pl.col(for_column).is_not_null() & pl.col(against_column).is_not_null() & (total > 0)
         )
         .then(pl.col(for_column) / total)
         .otherwise(None)

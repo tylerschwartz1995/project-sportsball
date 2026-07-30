@@ -29,8 +29,6 @@ class MoneyPuckUnitSeasonRepository:
         rows: list[dict[str, Any]] = frame.to_dicts()
         for offset in range(0, len(rows), INSERT_BATCH_SIZE):
             self._session.execute(
-                insert(MoneyPuckUnitSeasonStats).values(
-                    rows[offset : offset + INSERT_BATCH_SIZE]
-                )
+                insert(MoneyPuckUnitSeasonStats).values(rows[offset : offset + INSERT_BATCH_SIZE])
             )
         return len(rows)
