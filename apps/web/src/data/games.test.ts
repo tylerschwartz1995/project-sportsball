@@ -9,6 +9,7 @@ vi.mock("@/data/database", () => ({
 import {
   getGameBoxScore,
   getGamesByDate,
+  getLatestGamesForSeason,
   listGameDates,
 } from "@/data/games";
 
@@ -77,6 +78,17 @@ describe("game queries", () => {
         score: 0,
       },
     });
+  });
+
+  it("loads the latest game date for a season without a second query", async () => {
+    queryMock.mockResolvedValue([]);
+
+    await expect(getLatestGamesForSeason(20252026)).resolves.toEqual([]);
+    expect(queryMock).toHaveBeenCalledTimes(1);
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("SELECT MAX(latest.game_date)"),
+      [20252026],
+    );
   });
 
   it("groups skaters and goalies under the correct box-score team", async () => {

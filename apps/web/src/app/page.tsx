@@ -1,23 +1,21 @@
+import Link from "next/link";
+
+import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
-import { SortableHeader } from "@/app/_components/sortable-header";
-import { SortableTable } from "@/app/_components/sortable-table";
 import { parseSeasonId } from "@/contracts/season";
+import type { GameSummary } from "@/contracts/game";
 import type { StandingsEntry } from "@/contracts/standings";
+import { getLatestGamesForSeason } from "@/data/games";
+import { listPlayersBySeason } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
 import { getStandings } from "@/data/standings";
-import {
-  applySortDirection,
-  firstQueryValue,
-  parseSortDirection,
-} from "@/lib/directory";
+import { firstQueryValue } from "@/lib/directory";
 
 export const dynamic = "force-dynamic";
 
 type HomeProps = {
   searchParams: Promise<{
     season?: string | string[];
-    sort?: string | string[];
-    dir?: string | string[];
   }>;
 };
 
@@ -25,273 +23,285 @@ export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
   const seasons = await listSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
-  const requestedSort = firstQueryValue(params.sort);
-  const sort = standingsColumns.some(
-    (column) => column.key === requestedSort,
-  );
-  const activeSort = sort ? requestedSort! : "rank";
-  const direction = parseSortDirection(
-    firstQueryValue(params.dir),
-    activeSort === "rank" || activeSort === "team" ? "asc" : "desc",
-  );
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
-  const standings = selectedSeason
-    ? await getStandings(selectedSeason.id)
-    : [];
-  const sortedStandings = sortStandings(standings, activeSort, direction);
-  const leader = standings[0];
-  const winsLeader = standings.reduce(
-    (best, team) => (!best || team.wins > best.wins ? team : best),
-    leader,
+
+  const [standings, players, latestGames] = selectedSeason
+    ? await Promise.all([
+        getStandings(selectedSeason.id),
+        listPlayersBySeason(selectedSeason.id),
+        getLatestGamesForSeason(selectedSeason.id),
+      ])
+    : [[], { seasonId: 0, skaters: [], goalies: [] }, []];
+  const latestDate = latestGames[0]?.gameDate;
+  const pointsLeader = players.skaters[0];
+  const goalsLeader = players.skaters.reduce(
+    (best, player) =>
+      !best || player.goals > best.goals ? player : best,
+    pointsLeader,
   );
-  const differentialLeader = standings.reduce(
-    (best, team) =>
-      !best || team.goalDifferential > best.goalDifferential ? team : best,
-    leader,
-  );
+  const leagueLeader = standings[0];
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
-      <SiteHeader active="standings" />
+      <SiteHeader active="home" />
 
       <section className="py-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
-              League standings
+              League dashboard
             </p>
             <h2 className="mt-3 max-w-3xl text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
               {selectedSeason
-                ? `${selectedSeason.label} NHL season`
-                : "No seasons available"}
+                ? `${selectedSeason.label} NHL overview`
+                : "NHL data unavailable"}
             </h2>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-400">
-              NHL-published final regular-season standings, joined to the team
-              identity used during the selected season.
+              One starting point for results, the playoff picture, scoring
+              leaders, and deeper team and player analysis.
             </p>
           </div>
-
-          <form
-            method="get"
-            className="flex w-full max-w-sm items-end gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4"
-          >
-            <label className="flex-1 text-sm font-medium text-slate-300">
-              Season
-              <select
-                name="season"
-                defaultValue={selectedSeason?.id}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-white outline-none focus:border-cyan-300/60"
-              >
-                {seasons.map((season) => (
-                  <option key={season.id} value={season.id}>
-                    {season.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button
-              type="submit"
-              className="rounded-lg bg-cyan-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
-            >
-              View
-            </button>
-          </form>
+          <SeasonPicker
+            seasons={seasons}
+            selectedSeasonId={selectedSeason?.id}
+          />
         </div>
 
-        {leader ? (
+        {selectedSeason && leagueLeader && pointsLeader && goalsLeader ? (
           <>
             <div className="mt-10 grid gap-4 md:grid-cols-3">
-              <SummaryCard
-                label="Presidents’ Trophy"
-                value={leader.teamName}
-                detail={`${leader.points} points · ${leader.wins} wins`}
+              <LeaderCard
+                eyebrow="League leader"
+                value={leagueLeader.teamName}
+                detail={`${leagueLeader.points} points · ${formatRecord(leagueLeader)}`}
+                href={`/teams/${leagueLeader.nhlTeamId}?season=${selectedSeason.id}`}
               />
-              <SummaryCard
-                label="Most wins"
-                value={winsLeader.teamName}
-                detail={`${winsLeader.wins} wins in ${winsLeader.gamesPlayed} games`}
+              <LeaderCard
+                eyebrow="Points leader"
+                value={pointsLeader.name}
+                detail={`${pointsLeader.points} points · ${pointsLeader.goals} goals`}
+                href={`/players/${pointsLeader.nhlPlayerId}?season=${selectedSeason.id}`}
               />
-              <SummaryCard
-                label="Best goal differential"
-                value={differentialLeader.teamName}
-                detail={`${formatDifferential(differentialLeader.goalDifferential)} goals`}
+              <LeaderCard
+                eyebrow="Goals leader"
+                value={goalsLeader.name}
+                detail={`${goalsLeader.goals} goals in ${goalsLeader.gamesPlayed} games`}
+                href={`/players/${goalsLeader.nhlPlayerId}?season=${selectedSeason.id}`}
               />
             </div>
 
-            <div className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
-              <SortableTable
-                defaultSortKey={activeSort}
-                defaultDirection={direction}
+            <div className="mt-12 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+              <DashboardSection
+                title={latestDate ? `Results · ${formatDate(latestDate)}` : "Results"}
+                description="The most recent game date stored for this season."
+                href={
+                  latestDate
+                    ? `/games?season=${selectedSeason.id}&date=${latestDate}`
+                    : `/games?season=${selectedSeason.id}`
+                }
+                linkLabel="All games"
               >
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[760px] border-collapse text-sm">
-                  <thead>
-                    <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
-                      {standingsColumns.map((column) => (
-                        <SortableHeader
-                          key={column.key}
-                          label={column.label}
-                          sortKey={column.key}
-                          align={column.align}
-                          defaultDirection={column.defaultDirection}
-                        />
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedStandings.map((team) => (
-                      <tr
-                        key={team.teamId}
-                        className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
-                      >
-                        <td className="px-4 py-3 text-center font-mono text-slate-500">
-                          {team.leagueRank}
-                        </td>
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-white">
-                            {team.teamName}
-                            {team.clinchIndicator ? (
-                              <span className="ml-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase text-cyan-200">
-                                {team.clinchIndicator}
-                              </span>
-                            ) : null}
-                          </div>
-                          <div className="mt-0.5 text-xs text-slate-500">
-                            {team.teamAbbreviation} · {team.divisionName}
-                          </div>
-                        </td>
-                        <NumericCell value={team.gamesPlayed} />
-                        <NumericCell value={team.wins} />
-                        <NumericCell value={team.losses} />
-                        <NumericCell value={team.overtimeLosses} />
-                        <NumericCell value={team.regulationWins} />
-                        <NumericCell value={team.goalsFor} />
-                        <NumericCell value={team.goalsAgainst} />
-                        <NumericCell
-                          value={formatDifferential(team.goalDifferential)}
-                        />
-                        <td className="px-4 py-3 text-right font-semibold tabular-nums text-cyan-200">
-                          {team.points}
-                        </td>
-                      </tr>
+                {latestGames.length > 0 ? (
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+                    {latestGames.slice(0, 4).map((game) => (
+                      <GameResult key={game.id} game={game} />
                     ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="border-t border-white/10 px-4 py-3 text-xs text-slate-500">
-                Snapshot: {leader.snapshotDate} · Source: NHL · p Presidents’
-                Trophy · z conference · y division · x playoff berth · e
-                eliminated
-              </div>
-              </SortableTable>
+                  </div>
+                ) : (
+                  <EmptyState message="No games are available for this season." />
+                )}
+              </DashboardSection>
+
+              <DashboardSection
+                title="Standings snapshot"
+                description="The top five teams in the latest NHL standings."
+                href={`/standings?season=${selectedSeason.id}`}
+                linkLabel="Full standings"
+              >
+                <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+                  {standings.slice(0, 5).map((team) => (
+                    <Link
+                      key={team.teamId}
+                      href={`/teams/${team.nhlTeamId}?season=${selectedSeason.id}`}
+                      className="grid grid-cols-[2rem_1fr_auto] items-center gap-3 border-b border-white/[0.06] px-4 py-3 text-sm transition last:border-0 hover:bg-white/[0.035]"
+                    >
+                      <span className="font-mono text-slate-600">
+                        {team.leagueRank}
+                      </span>
+                      <span>
+                        <span className="block font-medium text-white">
+                          {team.teamName}
+                        </span>
+                        <span className="mt-0.5 block text-xs text-slate-500">
+                          {formatRecord(team)}
+                        </span>
+                      </span>
+                      <span className="font-semibold tabular-nums text-cyan-200">
+                        {team.points} PTS
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </DashboardSection>
             </div>
+
+            <DashboardSection
+              className="mt-12"
+              title="Scoring leaders"
+              description="The five highest-scoring skaters in the selected regular season."
+              href={`/players?season=${selectedSeason.id}`}
+              linkLabel="All players"
+            >
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                {players.skaters.slice(0, 5).map((player, index) => (
+                  <Link
+                    key={player.nhlPlayerId}
+                    href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
+                    className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-cyan-300/30 hover:bg-white/[0.055]"
+                  >
+                    <p className="font-mono text-xs text-slate-600">
+                      #{index + 1}
+                    </p>
+                    <p className="mt-3 font-semibold text-white">
+                      {player.name}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      {player.position ?? "Skater"} · {player.gamesPlayed} GP
+                    </p>
+                    <p className="mt-5 text-2xl font-semibold tabular-nums text-cyan-200">
+                      {player.points}
+                    </p>
+                    <p className="text-xs uppercase tracking-[0.12em] text-slate-600">
+                      points
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </DashboardSection>
           </>
         ) : (
-          <div className="mt-10 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
-            No standings are available for this season.
-          </div>
+          <EmptyState message="The selected season does not have a complete dashboard yet." />
         )}
       </section>
     </main>
   );
 }
 
-const standingsColumns: Array<{
-  key: string;
-  label: string;
-  align?: "left" | "center" | "right";
-  defaultDirection?: "asc" | "desc";
-}> = [
-  { key: "rank", label: "Rank", align: "center", defaultDirection: "asc" },
-  { key: "team", label: "Team", align: "left", defaultDirection: "asc" },
-  { key: "games", label: "GP" },
-  { key: "wins", label: "W" },
-  { key: "losses", label: "L" },
-  { key: "overtimeLosses", label: "OT" },
-  { key: "regulationWins", label: "RW" },
-  { key: "goalsFor", label: "GF" },
-  { key: "goalsAgainst", label: "GA" },
-  { key: "goalDifferential", label: "DIFF" },
-  { key: "points", label: "PTS" },
-];
-
-function sortStandings(
-  standings: StandingsEntry[],
-  sort: string,
-  direction: "asc" | "desc",
-): StandingsEntry[] {
-  return [...standings].sort((left, right) => {
-    let comparison: number;
-    switch (sort) {
-      case "team":
-        comparison = right.teamName.localeCompare(left.teamName);
-        break;
-      case "games":
-        comparison = right.gamesPlayed - left.gamesPlayed;
-        break;
-      case "wins":
-        comparison = right.wins - left.wins;
-        break;
-      case "losses":
-        comparison = right.losses - left.losses;
-        break;
-      case "overtimeLosses":
-        comparison = right.overtimeLosses - left.overtimeLosses;
-        break;
-      case "regulationWins":
-        comparison = right.regulationWins - left.regulationWins;
-        break;
-      case "goalsFor":
-        comparison = right.goalsFor - left.goalsFor;
-        break;
-      case "goalsAgainst":
-        comparison = right.goalsAgainst - left.goalsAgainst;
-        break;
-      case "goalDifferential":
-        comparison = right.goalDifferential - left.goalDifferential;
-        break;
-      case "points":
-        comparison = right.points - left.points;
-        break;
-      default:
-        comparison = right.leagueRank - left.leagueRank;
-    }
-    if (comparison === 0) {
-      comparison = right.teamName.localeCompare(left.teamName);
-    }
-    return applySortDirection(comparison, direction);
-  });
-}
-
-function SummaryCard({
-  label,
+function LeaderCard({
+  eyebrow,
   value,
   detail,
+  href,
 }: {
-  label: string;
+  eyebrow: string;
   value: string;
   detail: string;
+  href: string;
 }) {
   return (
     <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
       <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-        {label}
+        {eyebrow}
       </p>
-      <p className="mt-3 text-xl font-semibold text-white">{value}</p>
+      <Link
+        href={href}
+        className="mt-3 block text-xl font-semibold text-white transition hover:text-cyan-200"
+      >
+        {value}
+      </Link>
       <p className="mt-2 text-sm text-slate-400">{detail}</p>
     </article>
   );
 }
 
-function NumericCell({ value }: { value: number | string }) {
+function DashboardSection({
+  title,
+  description,
+  href,
+  linkLabel,
+  className = "",
+  children,
+}: {
+  title: string;
+  description: string;
+  href: string;
+  linkLabel: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
   return (
-    <td className="px-3 py-3 text-right tabular-nums text-slate-300">
-      {value}
-    </td>
+    <section className={className}>
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h3 className="text-2xl font-semibold text-white">{title}</h3>
+          <p className="mt-2 text-sm text-slate-500">{description}</p>
+        </div>
+        <Link
+          href={href}
+          className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
+        >
+          {linkLabel} →
+        </Link>
+      </div>
+      {children}
+    </section>
   );
 }
 
-function formatDifferential(value: number): string {
-  return value > 0 ? `+${value}` : String(value);
+function GameResult({ game }: { game: GameSummary }) {
+  return (
+    <Link
+      href={`/games/${game.nhlGameId}`}
+      className="block rounded-2xl border border-white/10 bg-slate-950/50 p-4 transition hover:border-cyan-300/25 hover:bg-slate-950/80"
+    >
+      <div className="mb-3 flex items-center justify-between text-xs uppercase tracking-[0.12em] text-slate-600">
+        <span>{game.gameType === 3 ? "Playoffs" : "Regular season"}</span>
+        <span>{finalLabel(game.lastPeriodType)}</span>
+      </div>
+      <ScoreLine team={game.awayTeam} />
+      <ScoreLine team={game.homeTeam} />
+    </Link>
+  );
+}
+
+function ScoreLine({ team }: { team: GameSummary["awayTeam"] }) {
+  return (
+    <div className="grid grid-cols-[3rem_1fr_auto] items-center gap-3 py-1.5">
+      <span className="font-mono text-sm font-semibold text-cyan-200">
+        {team.abbreviation}
+      </span>
+      <span className="truncate text-sm text-slate-300">{team.name}</span>
+      <span className="text-xl font-semibold tabular-nums text-white">
+        {team.score ?? "—"}
+      </span>
+    </div>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
+      {message}
+    </div>
+  );
+}
+
+function formatRecord(team: StandingsEntry): string {
+  return `${team.wins}-${team.losses}-${team.overtimeLosses}`;
+}
+
+function formatDate(value: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(`${value}T00:00:00Z`));
+}
+
+function finalLabel(lastPeriodType: string | null): string {
+  return lastPeriodType && lastPeriodType !== "REG"
+    ? `Final · ${lastPeriodType}`
+    : "Final";
 }

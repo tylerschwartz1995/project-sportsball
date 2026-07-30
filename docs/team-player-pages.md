@@ -3,7 +3,8 @@
 The core website exposes traditional season statistics through four
 server-rendered routes:
 
-- `/teams?season=20252026` lists every regular-season team;
+- `/teams?season=20252026` provides a searchable card directory for every
+  regular-season team;
 - `/teams/12?season=20252026` shows one team's season and roster splits;
 - `/players?season=20252026` lists every participating skater and goalie;
 - `/players/8478402?season=20252026` shows a player profile and career history.
@@ -42,7 +43,9 @@ game percentages.
 Team queries join `team_seasons` for the requested season. Relocations and
 rebrands therefore use the name and abbreviation active at that time, while
 the underlying NHL team and franchise identifiers remain stable for linking
-and lineage analysis.
+and lineage analysis. A team profile queries its available season identifiers
+before rendering the selector, so an expansion team cannot navigate to a
+season in which it did not participate.
 
 ## Directory controls
 
@@ -54,12 +57,13 @@ views.
 
 Every statistics table uses a shared client-side sorter. Column-heading buttons
 reorder the visible rows immediately without a route transition; clicking the
-active heading reverses its direction. This applies to standings, directories,
-team rosters, player histories, box scores, advanced game comparisons, and
-MoneyPuck season tables. Small screens use compact directory cards and retain
-explicit URL-based sort controls because cards have no column headings. The
-underlying traditional-stat response contracts and statistical grains are
-unchanged.
+active heading reverses its direction. This applies to standings, the player
+directory, team rosters, player histories, box scores, advanced game
+comparisons, and MoneyPuck season tables. The team directory is card-based at
+every viewport and keeps explicit URL-based sort controls because cards have
+no column headings. Small screens use the same explicit controls for the
+player directory. The underlying traditional-stat response contracts and
+statistical grains are unchanged.
 
 Team and player detail pages also show the available MoneyPuck season summaries.
 See [Advanced analytics presentation](advanced-analytics.md) for the initial

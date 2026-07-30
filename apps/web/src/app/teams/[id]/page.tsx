@@ -13,7 +13,7 @@ import type { TeamSeasonStats } from "@/contracts/team";
 import { getMoneyPuckTeamSeason } from "@/data/advanced";
 import { listSeasons } from "@/data/seasons";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
-import { getTeamSeasonDetail } from "@/data/teams";
+import { getTeamSeasonDetail, listTeamSeasonIds } from "@/data/teams";
 
 export const dynamic = "force-dynamic";
 
@@ -26,14 +26,26 @@ export default async function TeamPage({
   params,
   searchParams,
 }: TeamPageProps) {
-  const seasons = await listSeasons();
   const nhlTeamId = parseNhlId((await params).id);
+  if (nhlTeamId === null) {
+    notFound();
+  }
+
+  const [seasons, teamSeasonIds] = await Promise.all([
+    listSeasons(),
+    listTeamSeasonIds(nhlTeamId),
+  ]);
+  const teamSeasonIdSet = new Set(teamSeasonIds);
+  const availableSeasons = seasons.filter((season) =>
+    teamSeasonIdSet.has(season.id),
+  );
   const requestedSeason = firstValue((await searchParams).season);
   const parsedSeason = parseSeasonId(requestedSeason);
   const selectedSeason =
-    seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
+    availableSeasons.find((season) => season.id === parsedSeason) ??
+    availableSeasons[0];
 
-  if (nhlTeamId === null || !selectedSeason) {
+  if (!selectedSeason) {
     notFound();
   }
 
@@ -75,7 +87,7 @@ export default async function TeamPage({
             </p>
           </div>
           <SeasonPicker
-            seasons={seasons}
+            seasons={availableSeasons}
             selectedSeasonId={selectedSeason.id}
           />
         </div>

@@ -6,7 +6,7 @@ vi.mock("@/data/database", () => ({
   query: queryMock,
 }));
 
-import { listTeamsBySeason } from "@/data/teams";
+import { listTeamsBySeason, listTeamSeasonIds } from "@/data/teams";
 
 describe("listTeamsBySeason", () => {
   beforeEach(() => {
@@ -58,5 +58,27 @@ describe("listTeamsBySeason", () => {
         goalsFor: 296,
       },
     });
+  });
+});
+
+describe("listTeamSeasonIds", () => {
+  beforeEach(() => {
+    queryMock.mockReset();
+  });
+
+  it("returns only seasons in which the team has stored statistics", async () => {
+    queryMock.mockResolvedValue([
+      { season_id: 20252026 },
+      { season_id: 20242025 },
+    ]);
+
+    await expect(listTeamSeasonIds(54)).resolves.toEqual([
+      20252026,
+      20242025,
+    ]);
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("WHERE team.nhl_id = $1"),
+      [54],
+    );
   });
 });

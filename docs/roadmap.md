@@ -27,9 +27,10 @@ were implemented on July 30, 2026.
 ## Milestone 3: core website — complete
 
 - [x] Add the server-only PostgreSQL query foundation and response contracts.
-- [x] Add the league dashboard, historical season selector, and standings.
+- [x] Add a league overview dashboard, dedicated standings route, and
+  historical season selector.
 - [x] Add schedules and results.
-- [x] Add team and player pages.
+- [x] Add a card-based team directory plus team and player detail pages.
 - [x] Add game and box-score pages.
 - [x] Add search, sorting, pagination, and complete mobile layouts.
 
@@ -44,7 +45,21 @@ were implemented on July 30, 2026.
 - [x] Add advanced game views, shot maps, lines, and pairings.
 - [x] Add Polars-derived season forward-line and defensive-pairing rankings.
 
-## Milestone 5: daily operation
+## Milestone 5: product experience — in progress
+
+- [x] Make standings leaders, standings rows, and schedule teams link to their
+  supporting profiles.
+- [x] Restrict team profile season navigation to seasons in which the team
+  participated.
+- [x] Separate the league dashboard, standings, and team-directory
+  responsibilities.
+- [ ] Add league-wide advanced team, skater, and goalie leaderboards.
+- [ ] Add team and player game logs plus trend views.
+- [ ] Present normalized play-by-play as a game timeline and scoring summary.
+- [ ] Consolidate advanced metric discovery and definitions.
+- [ ] Establish and apply the production visual design system.
+
+## Milestone 6: daily operation
 
 - [x] Add an audited daily coordinator for bounded incremental imports and
   recent-game corrections.
@@ -61,7 +76,7 @@ were implemented on July 30, 2026.
 - Deploy the application and database.
 - Complete the production recovery and source-change runbooks.
 
-## Milestone 6: predictive modelling
+## Milestone 7: predictive modelling
 
 - Define prediction targets without leaking future information.
 - Build point-in-time Python feature pipelines.

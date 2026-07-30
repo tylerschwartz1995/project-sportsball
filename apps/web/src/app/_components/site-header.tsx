@@ -1,11 +1,12 @@
 import Link from "next/link";
 
 type SiteHeaderProps = {
-  active: "standings" | "games" | "teams" | "players" | "lines";
+  active: "home" | "standings" | "games" | "teams" | "players" | "lines";
 };
 
 const links = [
-  { id: "standings", href: "/", label: "Standings" },
+  { id: "home", href: "/", label: "Home" },
+  { id: "standings", href: "/standings", label: "Standings" },
   { id: "games", href: "/games", label: "Games" },
   { id: "teams", href: "/teams", label: "Teams" },
   { id: "players", href: "/players", label: "Players" },

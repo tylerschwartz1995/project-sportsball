@@ -109,6 +109,24 @@ export async function listTeamsBySeason(
   }));
 }
 
+export async function listTeamSeasonIds(
+  nhlTeamId: number,
+): Promise<number[]> {
+  const rows = await query<{ season_id: number }>(
+    `
+      SELECT DISTINCT stats.season_id
+      FROM team_season_stats AS stats
+      JOIN teams AS team
+        ON team.id = stats.team_id
+      WHERE team.nhl_id = $1
+      ORDER BY stats.season_id DESC
+    `,
+    [nhlTeamId],
+  );
+
+  return rows.map((row) => row.season_id);
+}
+
 export async function getTeamSeasonDetail(
   nhlTeamId: number,
   seasonId: number,
