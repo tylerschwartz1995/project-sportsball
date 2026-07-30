@@ -1047,6 +1047,7 @@ class MoneyPuckLineGameStats(Base):
             "game_id",
             "team_id",
             "source_line_id",
+            "unit_type",
             name="uq_moneypuck_line_game_team_unit",
         ),
     )

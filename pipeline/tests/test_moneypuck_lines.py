@@ -28,17 +28,20 @@ TEST_SEASON_ID = 20992100
 TEST_GAME_ID = 2099020001
 TEST_TEAM_IDS = [690, 691]
 TEST_PLAYER_IDS = [8999001, 8999002, 8999003]
+OMITTED_PLAYER_ID = 8482116
 
 
 def test_line_archive_normalizes_lines_and_pairings() -> None:
     frame = moneypuck_line_frame(TEST_SEASON_ID, _archive())
 
-    assert frame.height == 2
+    assert frame.height == 3
     assert set(frame["unit_type"].to_list()) == {"line", "pairing"}
-    line = frame.filter(frame["unit_type"] == "line").row(0, named=True)
+    line = frame.filter(frame["name"] == "One-Two-Three").row(0, named=True)
     pairing = frame.filter(frame["unit_type"] == "pairing").row(0, named=True)
     assert line["source_player_3_id"] == TEST_PLAYER_IDS[2]
     assert pairing["source_player_3_id"] is None
+    omitted = frame.filter(frame["name"] == "Stutzle-One-Two").row(0, named=True)
+    assert omitted["source_player_3_id"] == OMITTED_PLAYER_ID
 
 
 @pytest.mark.skipif(
@@ -75,7 +78,7 @@ def _client() -> MoneyPuckClient:
         client=httpx.Client(
             transport=httpx.MockTransport(
                 lambda request: (
-                    httpx.Response(200, content=_archive())
+                    httpx.Response(200, content=_archive(include_omitted=False))
                     if request.url.path.endswith("/lines/2099.zip")
                     else httpx.Response(404)
                 )
@@ -86,14 +89,17 @@ def _client() -> MoneyPuckClient:
     )
 
 
-def _archive() -> bytes:
+def _archive(*, include_omitted: bool = True) -> bytes:
     output = BytesIO()
     with ZipFile(output, "w", ZIP_DEFLATED) as archive:
-        archive.writestr("nested/lines/2099.csv", _csv())
+        archive.writestr(
+            "nested/lines/2099.csv",
+            _csv(include_omitted=include_omitted),
+        )
     return output.getvalue()
 
 
-def _csv() -> bytes:
+def _csv(*, include_omitted: bool) -> bytes:
     header = (
         "lineId,name,gameId,season,playerTeam,opposingTeam,home_or_away,"
         "gameDate,position,situation,icetime,iceTimeRank,xGoalsPercentage,"
@@ -110,6 +116,10 @@ def _csv() -> bytes:
         f"{line_id},One-Two-Three,{TEST_GAME_ID},2099,TSA,TSB,HOME,20991001,line,5on5,{metrics}",
         f"{pairing_id},One-Two,{TEST_GAME_ID},2099,TSA,TSA,AWAY,20991001,pairing,5on5,{metrics}",
     ]
+    if include_omitted:
+        rows.append(
+            f"{pairing_id},Stutzle-One-Two,{TEST_GAME_ID},2099,TSA,TSB,HOME,20991001,line,5on5,{metrics}"
+        )
     return f"{header}\n{'\n'.join(rows)}\n".encode()
 
 
