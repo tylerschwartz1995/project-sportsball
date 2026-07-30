@@ -36,7 +36,7 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
-      <SiteHeader active="lines" />
+      <SiteHeader active="analytics" />
 
       <section className="py-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

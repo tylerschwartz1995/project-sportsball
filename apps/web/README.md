@@ -31,6 +31,8 @@ The current read-only slice provides:
   player splits and MoneyPuck season metrics;
 - complete player leaderboards and player profiles with career history and
   MoneyPuck season metrics;
+- league-wide MoneyPuck team, skater, and goalie leaderboards with situation
+  and minimum-ice-time controls;
 - season-level forward-line and defensive-pairing rankings with team and
   minimum-ice-time filters;
 - immediate column sorting on every statistics table;

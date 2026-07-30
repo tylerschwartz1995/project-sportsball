@@ -6,6 +6,9 @@ server-only TypeScript queries.
 
 ## Routes
 
+- `/analytics?season={seasonId}&type={teams|skaters|goalies}` displays
+  league-wide advanced leaderboards with situation and qualifying-ice-time
+  controls.
 - `/teams/{nhlTeamId}?season={seasonId}` displays team situation splits.
 - `/players/{nhlPlayerId}?season={seasonId}` displays player-team situation
   splits for skaters or goalies.
@@ -36,6 +39,21 @@ returns `null`. Player-game and line data are regular-season only, while team
 game and shot data also cover playoffs.
 
 ## Current presentation
+
+The league analytics route includes:
+
+- team xG%, Corsi%, Fenwick%, expected goals, and actual goals;
+- skater game score, on-ice xG% and Corsi%, individual expected goals, goals,
+  and points;
+- goalie goals saved above expected, expected/actual goals against, and
+  expected/actual shots on goal;
+- all-situations, five-on-five, power-play, and penalty-kill filters;
+- explicit minimum-ice-time thresholds for skaters and goalies;
+- sortable tables with links to supporting team and player profiles.
+
+League skater and goalie tables retain player-team splits rather than silently
+combining traded-player rows. They show at most 200 qualifying rows for the
+selected view.
 
 Team and skater views include:
 
@@ -82,6 +100,6 @@ individual production.
 
 ## Future analytics presentation
 
-- cross-season advanced leaderboards and comparisons;
+- cross-season advanced comparisons;
 - richer metric documentation, filters, and interactive shot exploration.
 - rolling-window and score-state line-combination splits.
