@@ -1,8 +1,14 @@
 import Link from "next/link";
 
+import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import {
+  WorkspaceMetric,
+  WorkspacePageHeader,
+  WorkspacePanel,
+} from "@/app/_components/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
 import { listSeasons } from "@/data/seasons";
@@ -47,148 +53,146 @@ export default async function StandingsPage({
   const leader = standings[0];
   const cutLines = buildConferenceCutLines(standings);
   const leagueContext = buildLeagueContext(standings);
+  const cutLineValue = cutLines
+    .map(
+      (line) =>
+        `${shortConferenceName(line.conference).slice(0, 1)}: ${line.qualifyingTeam.teamAbbreviation} ${line.qualifyingTeam.points}`,
+    )
+    .join(" · ");
+  const cutLineDetail = cutLines
+    .map((line) =>
+      line.firstTeamOut
+        ? `${line.margin === 0 ? "tied with" : `+${line.margin} over`} ${line.firstTeamOut.teamAbbreviation}`
+        : shortConferenceName(line.conference),
+    )
+    .join(" · ");
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="standings" />
 
-      <section className="py-10">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
-              League standings
-            </p>
-            <h2 className="mt-3 max-w-3xl text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-              {selectedSeason
-                ? `${selectedSeason.label} NHL season`
-                : "No seasons available"}
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-400">
-              NHL-published final regular-season standings, joined to the team
-              identity used during the selected season.
-            </p>
-          </div>
-
-          <form
-            method="get"
-            className="flex w-full max-w-sm items-end gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4"
-          >
-            <label className="flex-1 text-sm font-medium text-slate-300">
-              Season
-              <select
-                name="season"
-                defaultValue={selectedSeason?.id}
-                className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-white outline-none focus:border-cyan-300/60"
-              >
-                {seasons.map((season) => (
-                  <option key={season.id} value={season.id}>
-                    {season.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <button
-              type="submit"
-              className="rounded-lg bg-cyan-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-cyan-200"
-            >
-              View
-            </button>
-          </form>
-        </div>
+      <section className="py-8 sm:py-10">
+        <WorkspacePageHeader
+          eyebrow="League / Standings"
+          title={
+            selectedSeason
+              ? `${selectedSeason.label} final table`
+              : "No standings available"
+          }
+          description="Official NHL regular-season rankings with historical team identity and sortable statistical columns."
+          action={
+            <SeasonPicker
+              seasons={seasons}
+              selectedSeasonId={selectedSeason?.id}
+            />
+          }
+        />
 
         {leader ? (
           <>
-            <div className="mt-10 grid gap-4 md:grid-cols-3">
-              <SummaryCard
+            <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <WorkspaceMetric
                 label="Presidents’ Trophy"
-                team={leader}
+                value={leader.teamName}
                 detail={`${leader.points} points · ${leader.wins} wins`}
-                seasonId={selectedSeason.id}
+                href={`/teams/${leader.nhlTeamId}?season=${selectedSeason.id}`}
               />
-              <PlayoffCutLineCard
-                cutLines={cutLines}
-                seasonId={selectedSeason.id}
+              <WorkspaceMetric
+                label="Playoff cut lines"
+                value={cutLineValue || "Unavailable"}
+                detail={cutLineDetail || "Conference ranks unavailable"}
               />
-              <LeagueContextCard
-                goalsPerGame={leagueContext.goalsPerGame}
-                pointsPerTeam={leagueContext.pointsPerTeam}
-                gamesPlayed={leagueContext.gamesPlayed}
+              <WorkspaceMetric
+                label="League scoring"
+                value={
+                  leagueContext.goalsPerGame === null
+                    ? "Unavailable"
+                    : `${leagueContext.goalsPerGame.toFixed(2)} G/GP`
+                }
+                detail={`${leagueContext.gamesPlayed.toLocaleString()} total games`}
+              />
+              <WorkspaceMetric
+                label="Average points"
+                value={
+                  leagueContext.pointsPerTeam === null
+                    ? "Unavailable"
+                    : leagueContext.pointsPerTeam.toFixed(1)
+                }
+                detail={`${standings.length} teams in final snapshot`}
               />
             </div>
 
-            <div className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+            <WorkspacePanel
+              className="mt-5"
+              title="League standings"
+              description="Select any column heading to sort the current table"
+            >
               <SortableTable
                 defaultSortKey={activeSort}
                 defaultDirection={direction}
               >
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[760px] border-collapse text-sm">
-                  <thead>
-                    <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
-                      {standingsColumns.map((column) => (
-                        <SortableHeader
-                          key={column.key}
-                          label={column.label}
-                          sortKey={column.key}
-                          align={column.align}
-                          defaultDirection={column.defaultDirection}
-                        />
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedStandings.map((team) => (
-                      <tr
-                        key={team.teamId}
-                        className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
-                      >
-                        <td className="px-4 py-3 text-center font-mono text-slate-500">
-                          {team.leagueRank}
-                        </td>
-                        <td className="px-4 py-3">
-                          <Link
-                            href={`/teams/${team.nhlTeamId}?season=${selectedSeason.id}`}
-                            className="font-medium text-white transition hover:text-cyan-200"
-                          >
-                            {team.teamName}
-                            {team.clinchIndicator ? (
-                              <span className="ml-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase text-cyan-200">
-                                {team.clinchIndicator}
-                              </span>
-                            ) : null}
-                          </Link>
-                          <div className="mt-0.5 text-xs text-slate-500">
-                            {team.teamAbbreviation} · {team.divisionName}
-                          </div>
-                        </td>
-                        <NumericCell value={team.gamesPlayed} />
-                        <NumericCell value={team.wins} />
-                        <NumericCell value={team.losses} />
-                        <NumericCell value={team.overtimeLosses} />
-                        <NumericCell value={team.regulationWins} />
-                        <NumericCell value={team.goalsFor} />
-                        <NumericCell value={team.goalsAgainst} />
-                        <NumericCell
-                          value={formatDifferential(team.goalDifferential)}
-                        />
-                        <td className="px-4 py-3 text-right font-semibold tabular-nums text-cyan-200">
-                          {team.points}
-                        </td>
+                <div className="workspace-table-scroll">
+                  <table className="workspace-table min-w-[760px]">
+                    <thead>
+                      <tr>
+                        {standingsColumns.map((column) => (
+                          <SortableHeader
+                            key={column.key}
+                            label={column.label}
+                            sortKey={column.key}
+                            align={column.align}
+                            defaultDirection={column.defaultDirection}
+                          />
+                        ))}
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              <div className="border-t border-white/10 px-4 py-3 text-xs text-slate-500">
-                Snapshot: {leader.snapshotDate} · Source: NHL · p Presidents’
-                Trophy · z conference · y division · x playoff berth · e
-                eliminated
-              </div>
+                    </thead>
+                    <tbody>
+                      {sortedStandings.map((team) => (
+                        <tr key={team.teamId}>
+                          <td className="workspace-rank-cell">
+                            {team.leagueRank}
+                          </td>
+                          <td className="workspace-team-cell">
+                            <Link
+                              href={`/teams/${team.nhlTeamId}?season=${selectedSeason.id}`}
+                            >
+                              {team.teamName}
+                            </Link>
+                            {team.clinchIndicator ? (
+                              <span>{team.clinchIndicator}</span>
+                            ) : null}
+                            <small>
+                              {team.teamAbbreviation} · {team.divisionName}
+                            </small>
+                          </td>
+                          <NumericCell value={team.gamesPlayed} />
+                          <NumericCell value={team.wins} />
+                          <NumericCell value={team.losses} />
+                          <NumericCell value={team.overtimeLosses} />
+                          <NumericCell value={team.regulationWins} />
+                          <NumericCell value={team.goalsFor} />
+                          <NumericCell value={team.goalsAgainst} />
+                          <NumericCell
+                            value={formatDifferential(team.goalDifferential)}
+                          />
+                          <td className="workspace-points-cell">
+                            {team.points}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="workspace-table-note">
+                  Snapshot: {leader.snapshotDate} · Source: NHL · p Presidents’
+                  Trophy · z conference · y division · x playoff berth · e
+                  eliminated
+                </div>
               </SortableTable>
-            </div>
+            </WorkspacePanel>
           </>
         ) : (
-          <div className="mt-10 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
+          <div className="workspace-empty-state">
             No standings are available for this season.
           </div>
         )}
@@ -264,105 +268,6 @@ function sortStandings(
   });
 }
 
-function SummaryCard({
-  label,
-  team,
-  detail,
-  seasonId,
-}: {
-  label: string;
-  team: StandingsEntry;
-  detail: string;
-  seasonId: number;
-}) {
-  return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-        {label}
-      </p>
-      <Link
-        href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
-        className="mt-3 block text-xl font-semibold text-white transition hover:text-cyan-200"
-      >
-        {team.teamName}
-      </Link>
-      <p className="mt-2 text-sm text-slate-400">{detail}</p>
-    </article>
-  );
-}
-
-function PlayoffCutLineCard({
-  cutLines,
-  seasonId,
-}: {
-  cutLines: ConferenceCutLine[];
-  seasonId: number;
-}) {
-  return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-        Playoff cut lines
-      </p>
-      <div className="mt-3 space-y-3">
-        {cutLines.map((line) => (
-          <div
-            key={line.conference}
-            className="flex items-baseline justify-between gap-3"
-          >
-            <div>
-              <p className="text-xs text-slate-500">
-                {shortConferenceName(line.conference)}
-              </p>
-              <Link
-                href={`/teams/${line.qualifyingTeam.nhlTeamId}?season=${seasonId}`}
-                className="font-semibold text-white transition hover:text-cyan-200"
-              >
-                {line.qualifyingTeam.teamAbbreviation}
-              </Link>
-            </div>
-            <p className="text-right text-sm tabular-nums text-slate-400">
-              {line.qualifyingTeam.points} pts
-              {line.firstTeamOut ? (
-                <span className="block text-xs text-slate-500">
-                  {line.margin === 0 ? "tied with" : `+${line.margin} over`}{" "}
-                  {line.firstTeamOut.teamAbbreviation}
-                </span>
-              ) : null}
-            </p>
-          </div>
-        ))}
-      </div>
-    </article>
-  );
-}
-
-function LeagueContextCard({
-  goalsPerGame,
-  pointsPerTeam,
-  gamesPlayed,
-}: {
-  goalsPerGame: number | null;
-  pointsPerTeam: number | null;
-  gamesPlayed: number;
-}) {
-  return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-        League scoring
-      </p>
-      <p className="mt-3 text-xl font-semibold tabular-nums text-white">
-        {goalsPerGame === null ? "Unavailable" : `${goalsPerGame.toFixed(2)} goals/game`}
-      </p>
-      <p className="mt-2 text-sm text-slate-400">
-        {gamesPlayed.toLocaleString()} games
-        {pointsPerTeam === null
-          ? ""
-          : ` · ${pointsPerTeam.toFixed(1)} average points per team`}
-      </p>
-    </article>
-  );
-}
-
 type ConferenceCutLine = {
   conference: string;
   qualifyingTeam: StandingsEntry;
@@ -430,11 +335,7 @@ function shortConferenceName(value: string): string {
 }
 
 function NumericCell({ value }: { value: number | string }) {
-  return (
-    <td className="px-3 py-3 text-right tabular-nums text-slate-300">
-      {value}
-    </td>
-  );
+  return <td className="workspace-number-cell">{value}</td>;
 }
 
 function formatDifferential(value: number): string {
