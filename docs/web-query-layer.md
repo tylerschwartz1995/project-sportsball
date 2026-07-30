@@ -15,11 +15,10 @@ browser request
   -> rendered HTML or JSON
 ```
 
-The standings and games pages call `listSeasons()`, `getStandings()`,
-`listGameDates()`, and `getGamesByDate()` directly from Server Components.
-They do not make internal HTTP requests to their own APIs. The API routes
-reuse the same query functions when an HTTP representation is useful to a
-client or future application.
+The standings, games, teams, and players pages call their query functions
+directly from Server Components. They do not make internal HTTP requests to
+their own APIs. The API routes reuse the same query functions when an HTTP
+representation is useful to a client or future application.
 
 ## Implemented modules
 
@@ -27,18 +26,26 @@ client or future application.
 apps/web/src/
 ├── contracts/
 │   ├── game.ts
+│   ├── player.ts
 │   ├── season.ts
-│   └── standings.ts
+│   ├── standings.ts
+│   └── team.ts
 ├── data/
 │   ├── database.ts
 │   ├── games.ts
+│   ├── players.ts
 │   ├── seasons.ts
-│   └── standings.ts
+│   ├── standings.ts
+│   └── teams.ts
 └── app/
     ├── api/games/route.ts
+    ├── api/players/route.ts
     ├── api/seasons/route.ts
     ├── api/standings/route.ts
+    ├── api/teams/route.ts
     ├── games/page.tsx
+    ├── players/page.tsx
+    ├── teams/page.tsx
     └── page.tsx
 ```
 
@@ -85,9 +92,18 @@ and a real ISO calendar date, then returns the day's games in start-time order.
 Invalid input returns 400, a date without games returns 404, and a database
 failure returns a generic 503.
 
+`GET /api/teams?season=20252026` returns every regular-season team ordered by
+derived standings points. `GET /api/teams/12?season=20252026` adds playoff
+totals plus NHL-published skater and goalie team splits.
+
+`GET /api/players?season=20252026` returns complete combined-season totals for
+participating skaters and goalies. `GET /api/players/8478402` returns the
+canonical player profile and all derived regular-season and playoff history.
+
 The season index uses a one-hour shared-cache lifetime. Standings and games use
-five minutes with one hour of stale-while-revalidate coverage. Both website
-pages are dynamically rendered and read PostgreSQL directly.
+five minutes with one hour of stale-while-revalidate coverage. Team and player
+endpoints use the same policy. Website pages are dynamically rendered and read
+PostgreSQL directly.
 
 ## Testing
 
@@ -97,10 +113,10 @@ Run linting, type checking, unit tests, and the production build:
 make web-check
 ```
 
-Unit tests validate season identifiers, calendar dates, database-row mapping,
+Unit tests validate identifiers, calendar dates, database-row mapping,
 parameter use, and API behavior without requiring PostgreSQL. The opt-in
-integration test executes the season, standings, schedule-date, and game-result
-queries against the real development database:
+integration test executes season, standings, schedule, game, team, roster,
+player-index, and player-career queries against the real development database:
 
 ```bash
 SPORTSBALL_RUN_WEB_DATABASE_TESTS=1 \

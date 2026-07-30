@@ -1,12 +1,14 @@
 import Link from "next/link";
 
 type SiteHeaderProps = {
-  active: "standings" | "games";
+  active: "standings" | "games" | "teams" | "players";
 };
 
 const links = [
   { id: "standings", href: "/", label: "Standings" },
   { id: "games", href: "/games", label: "Games" },
+  { id: "teams", href: "/teams", label: "Teams" },
+  { id: "players", href: "/players", label: "Players" },
 ] as const;
 
 export function SiteHeader({ active }: SiteHeaderProps) {
@@ -24,7 +26,7 @@ export function SiteHeader({ active }: SiteHeaderProps) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <nav
           aria-label="Primary navigation"
-          className="flex w-fit rounded-xl border border-white/10 bg-white/[0.035] p-1"
+          className="flex w-fit flex-wrap rounded-xl border border-white/10 bg-white/[0.035] p-1"
         >
           {links.map((link) => (
             <Link
