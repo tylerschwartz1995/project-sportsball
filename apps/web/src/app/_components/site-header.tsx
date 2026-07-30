@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { ThemeToggle } from "@/app/_components/theme-toggle";
+
 type SiteHeaderProps = {
   active:
     | "home"
@@ -21,55 +23,65 @@ const links = [
 
 export function SiteHeader({ active }: SiteHeaderProps) {
   return (
-    <header className="flex flex-col gap-5 border-b border-white/10 pb-5 lg:flex-row lg:items-center lg:justify-between">
-      <Link href="/" className="group flex w-fit items-center gap-3">
-        <span
-          aria-hidden="true"
-          className="grid h-10 w-10 place-items-center rounded-xl border border-cyan-300/25 bg-cyan-300/[0.08] font-mono text-sm font-semibold text-cyan-200 transition group-hover:border-cyan-300/45"
-        >
-          SB
-        </span>
-        <span>
-          <span className="block text-lg font-semibold tracking-[-0.025em] text-white">
-            Sportsball
+    <>
+      <aside className="workspace-sidebar">
+        <Brand />
+        <PrimaryNavigation active={active} />
+        <div className="workspace-sidebar-footer">
+          <ThemeToggle />
+          <span className="workspace-data-status">
+            <span aria-hidden="true" />
+            Data current
           </span>
-          <span className="mt-0.5 flex items-center gap-2 text-xs text-slate-500">
-            <span className="font-mono uppercase tracking-[0.16em] text-cyan-300">
-              NHL
-            </span>
-            Historical data lab
-          </span>
-        </span>
-      </Link>
+        </div>
+      </aside>
 
-      <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
-        <nav
-          aria-label="Primary navigation"
-          className="flex w-fit max-w-full flex-wrap gap-1"
-        >
+      <header className="workspace-mobile-header">
+        <Brand compact />
+        <nav aria-label="Primary navigation" className="workspace-mobile-nav">
           {links.map((link) => (
             <Link
               key={link.id}
               href={link.href}
               aria-current={active === link.id ? "page" : undefined}
-              className={
-                active === link.id
-                  ? "rounded-lg bg-white/[0.08] px-3 py-2 text-sm font-semibold text-white ring-1 ring-white/10"
-                  : "rounded-lg px-3 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/[0.05] hover:text-white"
-              }
             >
               {link.label}
             </Link>
           ))}
         </nav>
-        <span className="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-300/15 bg-emerald-300/[0.06] px-3 py-1.5 text-xs font-medium text-emerald-100">
-          <span
-            aria-hidden="true"
-            className="h-1.5 w-1.5 rounded-full bg-emerald-300"
-          />
-          Data current
+        <ThemeToggle compact />
+      </header>
+    </>
+  );
+}
+
+function Brand({ compact = false }: { compact?: boolean }) {
+  return (
+    <Link href="/" className="workspace-brand">
+      <span aria-hidden="true">SB</span>
+      {compact ? null : (
+        <span>
+          <strong>Sportsball</strong>
+          <small>NHL data workspace</small>
         </span>
-      </div>
-    </header>
+      )}
+    </Link>
+  );
+}
+
+function PrimaryNavigation({ active }: SiteHeaderProps) {
+  return (
+    <nav aria-label="Primary navigation" className="workspace-primary-nav">
+      {links.map((link) => (
+        <Link
+          key={link.id}
+          href={link.href}
+          aria-current={active === link.id ? "page" : undefined}
+        >
+          <span aria-hidden="true">{link.label.slice(0, 1)}</span>
+          {link.label}
+        </Link>
+      ))}
+    </nav>
   );
 }

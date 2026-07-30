@@ -61,8 +61,9 @@ were implemented on July 30, 2026.
   implementation.
 - [x] Add a three-direction visual design lab with light/dark and controlled
   team-color previews.
-- [ ] Select a visual direction and implement the persistent production theme
-  toggle.
+- [x] Select Data Workspace and implement the persistent production theme
+  toggle plus responsive global navigation.
+- [x] Apply Data Workspace natively to the league overview and standings.
 - [ ] Apply the production visual design system across the remaining routes.
 - [ ] Establish shared plot conventions and add rolling team and player trends.
 

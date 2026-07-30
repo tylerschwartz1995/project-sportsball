@@ -2,8 +2,13 @@ import Link from "next/link";
 
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
-import { parseSeasonId } from "@/contracts/season";
+import {
+  WorkspaceMetric,
+  WorkspacePageHeader,
+  WorkspacePanel,
+} from "@/app/_components/workspace-primitives";
 import type { GameSummary } from "@/contracts/game";
+import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
 import { getLatestGamesForSeason } from "@/data/games";
 import { listPlayersBySeason } from "@/data/players";
@@ -14,9 +19,7 @@ import { firstQueryValue } from "@/lib/directory";
 export const dynamic = "force-dynamic";
 
 type HomeProps = {
-  searchParams: Promise<{
-    season?: string | string[];
-  }>;
+  searchParams: Promise<{ season?: string | string[] }>;
 };
 
 export default async function Home({ searchParams }: HomeProps) {
@@ -25,7 +28,6 @@ export default async function Home({ searchParams }: HomeProps) {
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
-
   const [standings, players, latestGames] = selectedSeason
     ? await Promise.all([
         getStandings(selectedSeason.id),
@@ -33,6 +35,7 @@ export default async function Home({ searchParams }: HomeProps) {
         getLatestGamesForSeason(selectedSeason.id),
       ])
     : [[], { seasonId: 0, skaters: [], goalies: [] }, []];
+
   const latestDate = latestGames[0]?.gameDate;
   const pointsLeader = players.skaters[0];
   const goalsLeader = players.skaters.reduce(
@@ -46,159 +49,149 @@ export default async function Home({ searchParams }: HomeProps) {
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="home" />
 
-      <section className="py-10">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
-              League dashboard
-            </p>
-            <h2 className="mt-3 max-w-3xl text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-              {selectedSeason
-                ? `${selectedSeason.label} NHL overview`
-                : "NHL data unavailable"}
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-400">
-              One starting point for results, the playoff picture, scoring
-              leaders, and deeper team and player analysis.
-            </p>
-          </div>
-          <SeasonPicker
-            seasons={seasons}
-            selectedSeasonId={selectedSeason?.id}
-          />
-        </div>
+      <section className="py-8 sm:py-10">
+        <WorkspacePageHeader
+          eyebrow="League / Overview"
+          title={
+            selectedSeason
+              ? `${selectedSeason.label} NHL workspace`
+              : "NHL data unavailable"
+          }
+          description="Results, standings, scoring leaders, and advanced analysis in one compact league workspace."
+          action={
+            <SeasonPicker
+              seasons={seasons}
+              selectedSeasonId={selectedSeason?.id}
+            />
+          }
+        />
 
         {selectedSeason && leagueLeader && pointsLeader && goalsLeader ? (
           <>
-            <div className="mt-10 grid gap-4 md:grid-cols-3">
-              <LeaderCard
-                eyebrow="League leader"
+            <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <WorkspaceMetric
+                label="League leader"
                 value={leagueLeader.teamName}
                 detail={`${leagueLeader.points} points · ${formatRecord(leagueLeader)}`}
                 href={`/teams/${leagueLeader.nhlTeamId}?season=${selectedSeason.id}`}
               />
-              <LeaderCard
-                eyebrow="Points leader"
+              <WorkspaceMetric
+                label="Points leader"
                 value={pointsLeader.name}
                 detail={`${pointsLeader.points} points · ${pointsLeader.goals} goals`}
                 href={`/players/${pointsLeader.nhlPlayerId}?season=${selectedSeason.id}`}
               />
-              <LeaderCard
-                eyebrow="Goals leader"
+              <WorkspaceMetric
+                label="Goals leader"
                 value={goalsLeader.name}
-                detail={`${goalsLeader.goals} goals in ${goalsLeader.gamesPlayed} games`}
+                detail={`${goalsLeader.goals} goals · ${goalsLeader.gamesPlayed} GP`}
                 href={`/players/${goalsLeader.nhlPlayerId}?season=${selectedSeason.id}`}
               />
-            </div>
-
-            {selectedSeason.id >= 20082009 ? (
-              <Link
-                href={`/analytics?season=${selectedSeason.id}`}
-                className="mt-5 flex flex-col gap-2 rounded-2xl border border-violet-300/15 bg-violet-300/[0.055] px-5 py-4 transition hover:border-violet-300/30 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <span>
-                  <span className="block font-semibold text-white">
-                    Explore advanced analytics
-                  </span>
-                  <span className="mt-1 block text-sm text-slate-400">
-                    League-wide xG, possession, game score, GSAx, lines, and
-                    pairings.
-                  </span>
-                </span>
-                <span className="text-sm font-medium text-violet-300">
-                  Open leaderboards →
-                </span>
-              </Link>
-            ) : null}
-
-            <div className="mt-12 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-              <DashboardSection
-                title={latestDate ? `Results · ${formatDate(latestDate)}` : "Results"}
-                description="The most recent game date stored for this season."
+              <WorkspaceMetric
+                label="Latest results"
+                value={latestDate ? formatDate(latestDate) : "Unavailable"}
+                detail={`${latestGames.length} games on latest stored date`}
                 href={
                   latestDate
                     ? `/games?season=${selectedSeason.id}&date=${latestDate}`
                     : `/games?season=${selectedSeason.id}`
                 }
-                linkLabel="All games"
+              />
+            </div>
+
+            <div className="mt-5 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+              <WorkspacePanel
+                title={latestDate ? `Results · ${formatDate(latestDate)}` : "Results"}
+                description="Most recent stored game date"
+                action={
+                  <Link
+                    href={
+                      latestDate
+                        ? `/games?season=${selectedSeason.id}&date=${latestDate}`
+                        : `/games?season=${selectedSeason.id}`
+                    }
+                  >
+                    All games →
+                  </Link>
+                }
               >
                 {latestGames.length > 0 ? (
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-                    {latestGames.slice(0, 4).map((game) => (
+                  <div className="workspace-result-list">
+                    {latestGames.slice(0, 5).map((game) => (
                       <GameResult key={game.id} game={game} />
                     ))}
                   </div>
                 ) : (
                   <EmptyState message="No games are available for this season." />
                 )}
-              </DashboardSection>
+              </WorkspacePanel>
 
-              <DashboardSection
-                title="Standings snapshot"
-                description="The top five teams in the latest NHL standings."
-                href={`/standings?season=${selectedSeason.id}`}
-                linkLabel="Full standings"
+              <WorkspacePanel
+                title="Standings"
+                description="Top six in the final NHL snapshot"
+                action={
+                  <Link href={`/standings?season=${selectedSeason.id}`}>
+                    Full table →
+                  </Link>
+                }
               >
-                <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
-                  {standings.slice(0, 5).map((team) => (
+                <div className="workspace-standing-list">
+                  {standings.slice(0, 6).map((team) => (
                     <Link
                       key={team.teamId}
                       href={`/teams/${team.nhlTeamId}?season=${selectedSeason.id}`}
-                      className="grid grid-cols-[2rem_1fr_auto] items-center gap-3 border-b border-white/[0.06] px-4 py-3 text-sm transition last:border-0 hover:bg-white/[0.035]"
                     >
-                      <span className="font-mono text-slate-600">
-                        {team.leagueRank}
-                      </span>
-                      <span>
-                        <span className="block font-medium text-white">
-                          {team.teamName}
-                        </span>
-                        <span className="mt-0.5 block text-xs text-slate-500">
-                          {formatRecord(team)}
-                        </span>
-                      </span>
-                      <span className="font-semibold tabular-nums text-cyan-200">
-                        {team.points} PTS
-                      </span>
+                      <span>{team.leagueRank}</span>
+                      <b>{team.teamName}</b>
+                      <small>{formatRecord(team)}</small>
+                      <strong>{team.points}</strong>
                     </Link>
                   ))}
                 </div>
-              </DashboardSection>
+              </WorkspacePanel>
             </div>
 
-            <DashboardSection
-              className="mt-12"
+            <WorkspacePanel
+              className="mt-5"
               title="Scoring leaders"
-              description="The five highest-scoring skaters in the selected regular season."
-              href={`/players?season=${selectedSeason.id}`}
-              linkLabel="All players"
+              description="Regular-season points leaders"
+              action={
+                <Link href={`/players?season=${selectedSeason.id}`}>
+                  All players →
+                </Link>
+              }
             >
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="workspace-leader-grid">
                 {players.skaters.slice(0, 5).map((player, index) => (
                   <Link
                     key={player.nhlPlayerId}
                     href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                    className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 transition hover:border-cyan-300/30 hover:bg-white/[0.055]"
                   >
-                    <p className="font-mono text-xs text-slate-600">
-                      #{index + 1}
-                    </p>
-                    <p className="mt-3 font-semibold text-white">
-                      {player.name}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500">
+                    <span>#{index + 1}</span>
+                    <b>{player.name}</b>
+                    <small>
                       {player.position ?? "Skater"} · {player.gamesPlayed} GP
-                    </p>
-                    <p className="mt-5 text-2xl font-semibold tabular-nums text-cyan-200">
-                      {player.points}
-                    </p>
-                    <p className="text-xs uppercase tracking-[0.12em] text-slate-600">
-                      points
-                    </p>
+                    </small>
+                    <strong>{player.points} PTS</strong>
                   </Link>
                 ))}
               </div>
-            </DashboardSection>
+            </WorkspacePanel>
+
+            {selectedSeason.id >= 20082009 ? (
+              <Link
+                href={`/analytics?season=${selectedSeason.id}`}
+                className="workspace-analytics-link"
+              >
+                <span>
+                  <b>Advanced analytics workspace</b>
+                  <small>
+                    xG, possession, game score, GSAx, lines, and pairings
+                  </small>
+                </span>
+                Open analytics →
+              </Link>
+            ) : null}
           </>
         ) : (
           <EmptyState message="The selected season does not have a complete dashboard yet." />
@@ -208,103 +201,27 @@ export default async function Home({ searchParams }: HomeProps) {
   );
 }
 
-function LeaderCard({
-  eyebrow,
-  value,
-  detail,
-  href,
-}: {
-  eyebrow: string;
-  value: string;
-  detail: string;
-  href: string;
-}) {
-  return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-        {eyebrow}
-      </p>
-      <Link
-        href={href}
-        className="mt-3 block text-xl font-semibold text-white transition hover:text-cyan-200"
-      >
-        {value}
-      </Link>
-      <p className="mt-2 text-sm text-slate-400">{detail}</p>
-    </article>
-  );
-}
-
-function DashboardSection({
-  title,
-  description,
-  href,
-  linkLabel,
-  className = "",
-  children,
-}: {
-  title: string;
-  description: string;
-  href: string;
-  linkLabel: string;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <section className={className}>
-      <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h3 className="text-2xl font-semibold text-white">{title}</h3>
-          <p className="mt-2 text-sm text-slate-500">{description}</p>
-        </div>
-        <Link
-          href={href}
-          className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
-        >
-          {linkLabel} →
-        </Link>
-      </div>
-      {children}
-    </section>
-  );
-}
-
 function GameResult({ game }: { game: GameSummary }) {
   return (
-    <Link
-      href={`/games/${game.nhlGameId}`}
-      className="block rounded-2xl border border-white/10 bg-slate-950/50 p-4 transition hover:border-cyan-300/25 hover:bg-slate-950/80"
-    >
-      <div className="mb-3 flex items-center justify-between text-xs uppercase tracking-[0.12em] text-slate-600">
-        <span>{game.gameType === 3 ? "Playoffs" : "Regular season"}</span>
-        <span>{finalLabel(game.lastPeriodType)}</span>
-      </div>
-      <ScoreLine team={game.awayTeam} />
-      <ScoreLine team={game.homeTeam} />
+    <Link href={`/games/${game.nhlGameId}`} className="workspace-result-row">
+      <span>
+        <small>{game.gameType === 3 ? "Playoffs" : "Regular"}</small>
+        <b>{finalLabel(game.lastPeriodType)}</b>
+      </span>
+      <span>
+        <b>{game.awayTeam.abbreviation}</b>
+        <strong>{game.awayTeam.score ?? "—"}</strong>
+      </span>
+      <span>
+        <b>{game.homeTeam.abbreviation}</b>
+        <strong>{game.homeTeam.score ?? "—"}</strong>
+      </span>
     </Link>
   );
 }
 
-function ScoreLine({ team }: { team: GameSummary["awayTeam"] }) {
-  return (
-    <div className="grid grid-cols-[3rem_1fr_auto] items-center gap-3 py-1.5">
-      <span className="font-mono text-sm font-semibold text-cyan-200">
-        {team.abbreviation}
-      </span>
-      <span className="truncate text-sm text-slate-300">{team.name}</span>
-      <span className="text-xl font-semibold tabular-nums text-white">
-        {team.score ?? "—"}
-      </span>
-    </div>
-  );
-}
-
 function EmptyState({ message }: { message: string }) {
-  return (
-    <div className="rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
-      {message}
-    </div>
-  );
+  return <div className="workspace-empty-state">{message}</div>;
 }
 
 function formatRecord(team: StandingsEntry): string {

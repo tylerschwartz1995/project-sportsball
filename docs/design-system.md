@@ -1,9 +1,9 @@
 # Sportsball visual design system
 
-This document defines the initial production visual direction introduced with
-the team profile reference page. The system is deliberately sport-neutral so a
-future basketball, baseball, or football section can reuse the same application
-shell and data components without looking like a hockey reskin.
+This document defines the selected Data Workspace production direction. The
+system is deliberately sport-neutral so a future basketball, baseball, or
+football section can reuse the same application shell and data components
+without looking like a hockey reskin.
 
 ## Product character
 
@@ -45,6 +45,18 @@ Every detail page should follow the same sequence:
 Traditional statistics use cyan accents. Advanced statistics use violet accents
 and retain provider attribution and definition links.
 
+## Application shell
+
+Desktop routes use a persistent left sidebar. Small screens use a compact,
+horizontally scrollable top navigation so content retains the full screen
+width. The shell owns sport context, primary navigation, data status, and the
+theme control; pages own their season and dataset controls.
+
+Light and dark modes use semantic tokens rather than separate component markup.
+The initial mode follows the operating system, an explicit selection persists
+on the device, and a pre-render bootstrap applies it before the interface is
+painted.
+
 ## Data components
 
 - Section headings contain one eyebrow, one descriptive title, optional
@@ -67,11 +79,11 @@ and retain provider attribution and definition links.
 
 ## Rollout
 
-The team profile is the reference implementation. Once approved, the same
-tokens and primitives should be applied in this order:
+The league overview and standings are the first native Data Workspace routes.
+The team profile retains the earlier reference components while it awaits the
+next migration group. Remaining rollout order:
 
-1. standings and league overview;
+1. team and player profiles plus directories;
 2. game pages and timelines;
-3. player profiles and directories;
-4. advanced leaderboards and the metric guide;
-5. final cross-route mobile and accessibility review.
+3. advanced leaderboards and the metric guide;
+4. final cross-route mobile and accessibility review.
