@@ -22,8 +22,10 @@ call NHL or MoneyPuck endpoints while rendering user requests.
 The current read-only slice provides:
 
 - a server-rendered league standings dashboard and historical season selector;
+- a server-rendered schedule and results page with season/date navigation;
 - `GET /api/seasons`;
-- `GET /api/standings?season=20242025`.
+- `GET /api/standings?season=20242025`;
+- `GET /api/games?season=20252026&date=2026-06-14`.
 
 Set `SPORTSBALL_RUN_WEB_DATABASE_TESTS=1` alongside the database URL to include
 the opt-in PostgreSQL query integration test:

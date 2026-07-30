@@ -1,3 +1,4 @@
+import { SiteHeader } from "@/app/_components/site-header";
 import { parseSeasonId } from "@/contracts/season";
 import { listSeasons } from "@/data/seasons";
 import { getStandings } from "@/data/standings";
@@ -32,19 +33,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
-      <header className="flex flex-col gap-4 border-b border-white/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.22em] text-cyan-300">
-            Sportsball
-          </p>
-          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-white">
-            NHL league dashboard
-          </h1>
-        </div>
-        <span className="w-fit rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-emerald-100">
-          Historical data online
-        </span>
-      </header>
+      <SiteHeader active="standings" />
 
       <section className="py-10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

@@ -28,8 +28,8 @@ The full completeness audit currently passes every season with no errors.
 Three early seasons contain warnings for a total of 41 play-by-play participant
 references that the NHL source identifies but that cannot be mapped to a
 canonical player. Those source identifiers remain preserved. Core website
-development is in progress: the first read-only query layer, league dashboard,
-season selector, standings table, and JSON endpoints are implemented.
+development is in progress: read-only standings and game-results pages,
+season/date navigation, and JSON endpoints are implemented.
 
 ## Local development
 
