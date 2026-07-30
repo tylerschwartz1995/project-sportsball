@@ -116,9 +116,11 @@ def _csv() -> bytes:
     for index, event in enumerate(("SHOT", "MISS", "GOAL")):
         goal = int(event == "GOAL")
         on_goal = int(event != "MISS")
+        source_event_index = 10 if index < 2 else 12
+        goalie_id = "" if event == "MISS" else str(TEST_PLAYER_IDS[1])
         rows.append(
-            f"{index},{index + 10},20001,2099,{event},1,{index + 20},TSA,TSA,"
-            f"TSB,1,0,{TEST_PLAYER_IDS[0]},{TEST_PLAYER_IDS[1]},{goal},"
+            f"{index},{source_event_index},20001,2099,{event},1,{index + 20},TSA,TSA,"
+            f"TSB,1,0,{TEST_PLAYER_IDS[0]},{goalie_id},{goal},"
             f"{on_goal},WRIST,HOMEZONE,70,5,70,5,19,15,0.25,0.1,0.2,0.8,"
             "0.1,0.4,0.2,0,0,1,0,0,5,5,1,0,3,12.5"
         )

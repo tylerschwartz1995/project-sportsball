@@ -971,8 +971,8 @@ class MoneyPuckShot(Base):
     __table_args__ = (
         UniqueConstraint(
             "game_id",
-            "source_event_index",
-            name="uq_moneypuck_shots_game_event",
+            "source_shot_id",
+            name="uq_moneypuck_shots_game_shot",
         ),
     )
 

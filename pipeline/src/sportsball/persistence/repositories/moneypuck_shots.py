@@ -44,10 +44,10 @@ class MoneyPuckShotRepository:
             raise ValueError(f"MoneyPuck shots missing games: {sorted(missing_games)}")
 
         source_player_ids = {
-            int(row[key])
+            int(value)
             for row in rows
             for key in ("source_shooter_player_id", "source_goalie_player_id")
-            if int(row[key]) != 0
+            if (value := row[key]) not in (None, 0)
         }
         player_ids = {
             nhl_id: player_id
@@ -83,8 +83,8 @@ class MoneyPuckShotRepository:
         resolved: list[dict[str, Any]] = []
         for row in rows:
             source_game_id = int(row.pop("source_game_id"))
-            shooter_source_id = int(row.pop("source_shooter_player_id"))
-            goalie_source_id = int(row.pop("source_goalie_player_id"))
+            shooter_source_value = row.pop("source_shooter_player_id")
+            goalie_source_value = row.pop("source_goalie_player_id")
             team_abbrev = str(row.pop("canonical_team_abbrev"))
             defending_abbrev = str(row.pop("canonical_defending_team_abbrev"))
             game_id, game_type, home_team_id, away_team_id = games[source_game_id]
@@ -101,8 +101,8 @@ class MoneyPuckShotRepository:
                 {
                     **row,
                     "game_id": game_id,
-                    "shooter_player_id": player_ids.get(shooter_source_id),
-                    "goalie_player_id": player_ids.get(goalie_source_id),
+                    "shooter_player_id": _resolved_player_id(shooter_source_value, player_ids),
+                    "goalie_player_id": _resolved_player_id(goalie_source_value, player_ids),
                     "shooting_team_id": shooting_team_id,
                     "defending_team_id": defending_team_id,
                 }
@@ -115,3 +115,12 @@ class MoneyPuckShotRepository:
                 insert(MoneyPuckShot).values(resolved[offset : offset + INSERT_BATCH_SIZE])
             )
         return len(resolved)
+
+
+def _resolved_player_id(
+    source_value: Any,
+    player_ids: dict[int, int],
+) -> int | None:
+    if source_value in (None, 0):
+        return None
+    return player_ids[int(source_value)]
