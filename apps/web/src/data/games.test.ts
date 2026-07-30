@@ -6,7 +6,11 @@ vi.mock("@/data/database", () => ({
   query: queryMock,
 }));
 
-import { getGamesByDate, listGameDates } from "@/data/games";
+import {
+  getGameBoxScore,
+  getGamesByDate,
+  listGameDates,
+} from "@/data/games";
 
 describe("game queries", () => {
   beforeEach(() => {
@@ -71,6 +75,107 @@ describe("game queries", () => {
       homeTeam: {
         abbreviation: "VGK",
         score: 0,
+      },
+    });
+  });
+
+  it("groups skaters and goalies under the correct box-score team", async () => {
+    queryMock
+      .mockResolvedValueOnce([
+        {
+          id: 42,
+          nhl_game_id: 2025030416,
+          season_id: 20252026,
+          game_type: 3,
+          game_date: "2026-06-14",
+          start_time_utc: "2026-06-14 00:00:00+00",
+          state: "OFF",
+          last_period_type: "REG",
+          away_team_id: 16,
+          away_nhl_team_id: 12,
+          away_abbreviation: "CAR",
+          away_name: "Carolina Hurricanes",
+          away_score: 3,
+          away_shots_on_goal: 23,
+          home_team_id: 11096,
+          home_nhl_team_id: 54,
+          home_abbreviation: "VGK",
+          home_name: "Vegas Golden Knights",
+          home_score: 0,
+          home_shots_on_goal: 22,
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          team_id: 16,
+          nhl_player_id: 8482809,
+          player_name: "Jackson Blake",
+          sweater_number: 53,
+          position: "R",
+          goals: 1,
+          assists: 1,
+          points: 2,
+          plus_minus: 2,
+          penalty_minutes: 0,
+          hits: 1,
+          power_play_goals: 0,
+          shots_on_goal: 3,
+          faceoff_win_percentage: null,
+          blocked_shots: 0,
+          giveaways: 0,
+          takeaways: 1,
+          shifts: 20,
+          time_on_ice_seconds: 872,
+        },
+      ])
+      .mockResolvedValueOnce([
+        {
+          team_id: 16,
+          nhl_player_id: 8481035,
+          player_name: "Brandon Bussi",
+          sweater_number: 32,
+          starter: true,
+          decision: "W",
+          goals_against: 0,
+          shots_against: 22,
+          saves: 22,
+          save_percentage: 1,
+          even_strength_goals_against: 0,
+          even_strength_saves: 18,
+          power_play_goals_against: 0,
+          power_play_saves: 4,
+          shorthanded_goals_against: 0,
+          shorthanded_saves: 0,
+          time_on_ice_seconds: 3600,
+        },
+      ]);
+
+    const result = await getGameBoxScore(2025030416);
+
+    expect(queryMock).toHaveBeenCalledTimes(3);
+    expect(result).toMatchObject({
+      nhlGameId: 2025030416,
+      awayTeam: {
+        abbreviation: "CAR",
+        skaters: [
+          {
+            nhlPlayerId: 8482809,
+            name: "Jackson Blake",
+            points: 2,
+          },
+        ],
+        goalies: [
+          {
+            name: "Brandon Bussi",
+            decision: "W",
+            saves: 22,
+          },
+        ],
+      },
+      homeTeam: {
+        abbreviation: "VGK",
+        skaters: [],
+        goalies: [],
       },
     });
   });

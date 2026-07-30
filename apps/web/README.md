@@ -23,11 +23,13 @@ The current read-only slice provides:
 
 - a server-rendered league standings dashboard and historical season selector;
 - a server-rendered schedule and results page with season/date navigation;
+- individual game pages with team, skater, and goalie box scores;
 - team season directories and team detail pages with official player splits;
 - complete player leaderboards and player profiles with career history;
 - `GET /api/seasons`;
 - `GET /api/standings?season=20242025`;
 - `GET /api/games?season=20252026&date=2026-06-14`;
+- `GET /api/games/2025030416`;
 - `GET /api/teams?season=20252026` and `GET /api/teams/12?season=20252026`;
 - `GET /api/players?season=20252026` and `GET /api/players/8478402`.
 

@@ -25,6 +25,56 @@ export type GameTeamSummary = {
   shotsOnGoal: number | null;
 };
 
+export type GameSkaterStats = {
+  nhlPlayerId: number;
+  name: string;
+  sweaterNumber: number | null;
+  position: string;
+  goals: number;
+  assists: number;
+  points: number;
+  plusMinus: number;
+  penaltyMinutes: number;
+  hits: number;
+  powerPlayGoals: number;
+  shotsOnGoal: number;
+  faceoffWinPercentage: number | null;
+  blockedShots: number;
+  giveaways: number;
+  takeaways: number;
+  shifts: number;
+  timeOnIceSeconds: number | null;
+};
+
+export type GameGoalieStats = {
+  nhlPlayerId: number;
+  name: string;
+  sweaterNumber: number | null;
+  starter: boolean;
+  decision: string | null;
+  goalsAgainst: number;
+  shotsAgainst: number;
+  saves: number;
+  savePercentage: number | null;
+  evenStrengthGoalsAgainst: number;
+  evenStrengthSaves: number;
+  powerPlayGoalsAgainst: number;
+  powerPlaySaves: number;
+  shorthandedGoalsAgainst: number;
+  shorthandedSaves: number;
+  timeOnIceSeconds: number | null;
+};
+
+export type GameBoxScoreTeam = GameTeamSummary & {
+  skaters: GameSkaterStats[];
+  goalies: GameGoalieStats[];
+};
+
+export type GameBoxScore = Omit<GameSummary, "awayTeam" | "homeTeam"> & {
+  awayTeam: GameBoxScoreTeam;
+  homeTeam: GameBoxScoreTeam;
+};
+
 export function parseGameDate(value: string | null | undefined): string | null {
   if (value === null || value === undefined) {
     return null;

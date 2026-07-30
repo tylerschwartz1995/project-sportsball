@@ -30,7 +30,7 @@ on July 29, 2026.
 - [x] Add the league dashboard, historical season selector, and standings.
 - [x] Add schedules and results.
 - [x] Add team and player pages.
-- [ ] Add game and box-score pages.
+- [x] Add game and box-score pages.
 - [ ] Add search, sorting, pagination, and complete mobile layouts.
 
 ## Milestone 4: advanced analytics — ingestion complete, presentation pending

@@ -1,7 +1,11 @@
 import { afterAll, describe, expect, it } from "vitest";
 
 import { closeDatabasePool } from "@/data/database";
-import { getGamesByDate, listGameDates } from "@/data/games";
+import {
+  getGameBoxScore,
+  getGamesByDate,
+  listGameDates,
+} from "@/data/games";
 import { getPlayerDetail, listPlayersBySeason } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
 import { getStandings } from "@/data/standings";
@@ -54,6 +58,23 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
         score: 0,
       },
     });
+
+    const boxScore = await getGameBoxScore(games[0].nhlGameId);
+    expect(boxScore).toMatchObject({
+      nhlGameId: 2025030416,
+      awayTeam: {
+        abbreviation: "CAR",
+        score: 3,
+      },
+      homeTeam: {
+        abbreviation: "VGK",
+        score: 0,
+      },
+    });
+    expect(boxScore?.awayTeam.skaters).toHaveLength(18);
+    expect(boxScore?.homeTeam.skaters).toHaveLength(18);
+    expect(boxScore?.awayTeam.goalies).toHaveLength(2);
+    expect(boxScore?.homeTeam.goalies).toHaveLength(2);
 
     const teams = await listTeamsBySeason(seasons[0].id);
     expect(teams).toHaveLength(32);

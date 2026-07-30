@@ -39,11 +39,13 @@ apps/web/src/
 │   └── teams.ts
 └── app/
     ├── api/games/route.ts
+    ├── api/games/[id]/route.ts
     ├── api/players/route.ts
     ├── api/seasons/route.ts
     ├── api/standings/route.ts
     ├── api/teams/route.ts
     ├── games/page.tsx
+    ├── games/[id]/page.tsx
     ├── players/page.tsx
     ├── teams/page.tsx
     └── page.tsx
@@ -92,6 +94,10 @@ and a real ISO calendar date, then returns the day's games in start-time order.
 Invalid input returns 400, a date without games returns 404, and a database
 failure returns a generic 503.
 
+`GET /api/games/2025030416` returns one game with its away and home team
+totals, skaters, and goalies. A malformed NHL game identifier returns 400 and
+an unknown game returns 404.
+
 `GET /api/teams?season=20252026` returns every regular-season team ordered by
 derived standings points. `GET /api/teams/12?season=20252026` adds playoff
 totals plus NHL-published skater and goalie team splits.
@@ -115,8 +121,9 @@ make web-check
 
 Unit tests validate identifiers, calendar dates, database-row mapping,
 parameter use, and API behavior without requiring PostgreSQL. The opt-in
-integration test executes season, standings, schedule, game, team, roster,
-player-index, and player-career queries against the real development database:
+integration test executes season, standings, schedule, box-score, team,
+roster, player-index, and player-career queries against the real development
+database:
 
 ```bash
 SPORTSBALL_RUN_WEB_DATABASE_TESTS=1 \
