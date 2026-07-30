@@ -68,6 +68,8 @@ were implemented on July 30, 2026.
   and player directories and primary profiles.
 - [x] Apply Data Workspace to the games directory, score presentation, scoring
   timeline, player box scores, and game-level advanced analytics.
+- [x] Apply Data Workspace to advanced team, skater, and goalie leaderboards
+  and the centralized metric guide.
 - [ ] Apply the production visual design system across the remaining routes.
 - [ ] Establish shared plot conventions and add rolling team and player trends.
 

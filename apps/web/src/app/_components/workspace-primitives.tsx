@@ -29,11 +29,13 @@ export function WorkspaceMetric({
   value,
   detail,
   href,
+  tone = "cyan",
 }: {
   label: string;
   value: ReactNode;
   detail: string;
   href?: string;
+  tone?: "cyan" | "violet";
 }) {
   const content = (
     <>
@@ -44,11 +46,17 @@ export function WorkspaceMetric({
   );
 
   return href ? (
-    <Link href={href} className="workspace-metric workspace-metric-link">
+    <Link
+      href={href}
+      className="workspace-metric workspace-metric-link"
+      data-tone={tone}
+    >
       {content}
     </Link>
   ) : (
-    <article className="workspace-metric">{content}</article>
+    <article className="workspace-metric" data-tone={tone}>
+      {content}
+    </article>
   );
 }
 
