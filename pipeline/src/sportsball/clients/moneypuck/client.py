@@ -12,7 +12,7 @@ DEFAULT_BASE_URL = "https://www.moneypuck.com"
 DEFAULT_USER_AGENT = "sportsball/0.1 (+https://github.com/tylerschwartz1995/project-sportsball)"
 TRANSIENT_STATUS_CODES = {408, 429, 500, 502, 503, 504}
 SEASON_RESOURCE_TYPES = {"skaters", "goalies", "teams"}
-PLAYER_GAME_RESOURCE_TYPES = {"skaters", "goalies"}
+PLAYER_GAME_RESOURCE_TYPES = {"skaters", "goalies", "lines"}
 PLAYER_GAME_ARCHIVE_BASE_URL = "https://peter-tanner.com/moneypuck/downloads/seasonPlayersSummary"
 DOWNLOAD_BASE_URL = "https://peter-tanner.com/moneypuck/downloads"
 
