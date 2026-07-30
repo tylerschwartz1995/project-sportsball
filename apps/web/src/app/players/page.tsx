@@ -5,6 +5,7 @@ import { Pagination } from "@/app/_components/pagination";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
+import { SortableTable } from "@/app/_components/sortable-table";
 import type {
   GoalieSeasonSummary,
   SkaterSeasonSummary,
@@ -177,6 +178,10 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                       ))}
                     </div>
                     <div className="mt-5 hidden overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50 md:block">
+                      <SortableTable
+                        defaultSortKey={sort}
+                        defaultDirection={direction}
+                      >
                       <div className="overflow-x-auto">
                         <table className="w-full min-w-[880px] text-sm">
                           <thead>
@@ -184,14 +189,6 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                               <SortableHeader
                                 label="Player"
                                 sortKey="name"
-                                activeSort={sort}
-                                direction={direction}
-                                path="/players"
-                                params={{
-                                  season: selectedSeason.id,
-                                  q: query,
-                                  type: category,
-                                }}
                                 align="left"
                                 defaultDirection="asc"
                               />
@@ -200,14 +197,6 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                   key={column.key}
                                   label={column.label}
                                   sortKey={column.key}
-                                  activeSort={sort}
-                                  direction={direction}
-                                  path="/players"
-                                  params={{
-                                    season: selectedSeason.id,
-                                    q: query,
-                                    type: category,
-                                  }}
                                 />
                               ))}
                             </tr>
@@ -243,6 +232,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                           </tbody>
                         </table>
                       </div>
+                      </SortableTable>
                     </div>
                     <Pagination
                       path="/players"
@@ -280,6 +270,10 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                       ))}
                     </div>
                     <div className="mt-5 hidden overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50 md:block">
+                      <SortableTable
+                        defaultSortKey={sort}
+                        defaultDirection={direction}
+                      >
                       <div className="overflow-x-auto">
                         <table className="w-full min-w-[880px] text-sm">
                           <thead>
@@ -287,14 +281,6 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                               <SortableHeader
                                 label="Goalie"
                                 sortKey="name"
-                                activeSort={sort}
-                                direction={direction}
-                                path="/players"
-                                params={{
-                                  season: selectedSeason.id,
-                                  q: query,
-                                  type: category,
-                                }}
                                 align="left"
                                 defaultDirection="asc"
                               />
@@ -303,14 +289,6 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                   key={column.key}
                                   label={column.label}
                                   sortKey={column.key}
-                                  activeSort={sort}
-                                  direction={direction}
-                                  path="/players"
-                                  params={{
-                                    season: selectedSeason.id,
-                                    q: query,
-                                    type: category,
-                                  }}
                                 />
                               ))}
                             </tr>
@@ -346,6 +324,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                           </tbody>
                         </table>
                       </div>
+                      </SortableTable>
                     </div>
                     <Pagination
                       path="/players"

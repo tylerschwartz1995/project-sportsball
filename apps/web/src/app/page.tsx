@@ -1,5 +1,6 @@
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
+import { SortableTable } from "@/app/_components/sortable-table";
 import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
 import { listSeasons } from "@/data/seasons";
@@ -119,6 +120,10 @@ export default async function Home({ searchParams }: HomeProps) {
             </div>
 
             <div className="mt-8 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+              <SortableTable
+                defaultSortKey={activeSort}
+                defaultDirection={direction}
+              >
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[760px] border-collapse text-sm">
                   <thead>
@@ -128,10 +133,6 @@ export default async function Home({ searchParams }: HomeProps) {
                           key={column.key}
                           label={column.label}
                           sortKey={column.key}
-                          activeSort={activeSort}
-                          direction={direction}
-                          path="/"
-                          params={{ season: selectedSeason.id }}
                           align={column.align}
                           defaultDirection={column.defaultDirection}
                         />
@@ -183,6 +184,7 @@ export default async function Home({ searchParams }: HomeProps) {
                 Trophy · z conference · y division · x playoff berth · e
                 eliminated
               </div>
+              </SortableTable>
             </div>
           </>
         ) : (

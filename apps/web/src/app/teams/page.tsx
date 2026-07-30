@@ -5,6 +5,7 @@ import { Pagination } from "@/app/_components/pagination";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
+import { SortableTable } from "@/app/_components/sortable-table";
 import { parseSeasonId } from "@/contracts/season";
 import type { TeamSeasonSummary } from "@/contracts/team";
 import { listSeasons } from "@/data/seasons";
@@ -151,6 +152,10 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
                 </div>
 
                 <div className="mt-4 hidden overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50 md:block">
+              <SortableTable
+                defaultSortKey={sort}
+                defaultDirection={direction}
+              >
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[850px] border-collapse text-sm">
                   <thead>
@@ -158,10 +163,6 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
                       <SortableHeader
                         label="Team"
                         sortKey="name"
-                        activeSort={sort}
-                        direction={direction}
-                        path="/teams"
-                        params={{ season: selectedSeason.id, q: query }}
                         align="left"
                         defaultDirection="asc"
                       />
@@ -170,10 +171,6 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
                           key={column.key}
                           label={column.label}
                           sortKey={column.key}
-                          activeSort={sort}
-                          direction={direction}
-                          path="/teams"
-                          params={{ season: selectedSeason.id, q: query }}
                         />
                       ))}
                     </tr>
@@ -216,6 +213,7 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
                   </tbody>
                 </table>
               </div>
+              </SortableTable>
                 </div>
 
                 <Pagination

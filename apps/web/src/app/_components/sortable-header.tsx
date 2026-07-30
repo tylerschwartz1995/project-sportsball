@@ -1,14 +1,12 @@
-import Link from "next/link";
+"use client";
+
+import { useSortableTable } from "@/app/_components/sortable-table";
 
 type SortDirection = "asc" | "desc";
 
 type SortableHeaderProps = {
   label: string;
   sortKey: string;
-  activeSort: string;
-  direction: SortDirection;
-  path: string;
-  params: Record<string, string | number | undefined>;
   align?: "left" | "center" | "right";
   defaultDirection?: SortDirection;
 };
@@ -16,28 +14,11 @@ type SortableHeaderProps = {
 export function SortableHeader({
   label,
   sortKey,
-  activeSort,
-  direction,
-  path,
-  params,
   align = "right",
   defaultDirection = "desc",
 }: SortableHeaderProps) {
-  const isActive = activeSort === sortKey;
-  const nextDirection = isActive
-    ? direction === "desc"
-      ? "asc"
-      : "desc"
-    : defaultDirection;
-  const search = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== "" && key !== "page") {
-      search.set(key, String(value));
-    }
-  });
-  search.set("sort", sortKey);
-  search.set("dir", nextDirection);
+  const { key, direction, sort } = useSortableTable();
+  const isActive = key === sortKey;
 
   return (
     <th
@@ -57,8 +38,9 @@ export function SortableHeader({
             : "text-right"
       }`}
     >
-      <Link
-        href={`${path}?${search.toString()}`}
+      <button
+        type="button"
+        onClick={(event) => sort(event, sortKey, defaultDirection)}
         className="inline-flex items-center gap-1.5 rounded-sm transition hover:text-cyan-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
       >
         {label}
@@ -68,7 +50,7 @@ export function SortableHeader({
         >
           {isActive ? (direction === "asc" ? "↑" : "↓") : "↕"}
         </span>
-      </Link>
+      </button>
     </th>
   );
 }

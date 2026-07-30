@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { TeamAdvancedAnalytics } from "@/app/_components/advanced-analytics";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
+import { SortableHeader } from "@/app/_components/sortable-header";
+import { SortableTable } from "@/app/_components/sortable-table";
 import { parseNhlId } from "@/contracts/entity";
 import { parseSeasonId } from "@/contracts/season";
 import type { TeamSeasonStats } from "@/contracts/team";
@@ -96,17 +98,18 @@ export default async function TeamPage({
             </p>
           </div>
           <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+            <SortableTable defaultSortKey="points">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[720px] text-sm">
                 <thead>
                   <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
-                    <th className="px-4 py-3 font-medium">Player</th>
-                    <th className="px-3 py-3 text-right font-medium">GP</th>
-                    <th className="px-3 py-3 text-right font-medium">G</th>
-                    <th className="px-3 py-3 text-right font-medium">A</th>
-                    <th className="px-3 py-3 text-right font-medium">PTS</th>
-                    <th className="px-3 py-3 text-right font-medium">+/-</th>
-                    <th className="px-4 py-3 text-right font-medium">PIM</th>
+                    <SortableHeader label="Player" sortKey="player" align="left" defaultDirection="asc" />
+                    <SortableHeader label="GP" sortKey="games" />
+                    <SortableHeader label="G" sortKey="goals" />
+                    <SortableHeader label="A" sortKey="assists" />
+                    <SortableHeader label="PTS" sortKey="points" />
+                    <SortableHeader label="+/-" sortKey="plusMinus" />
+                    <SortableHeader label="PIM" sortKey="penaltyMinutes" />
                   </tr>
                 </thead>
                 <tbody>
@@ -137,6 +140,7 @@ export default async function TeamPage({
                 </tbody>
               </table>
             </div>
+            </SortableTable>
           </div>
         </section>
 
@@ -148,19 +152,20 @@ export default async function TeamPage({
             </p>
           </div>
           <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+            <SortableTable defaultSortKey="savePercentage">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[760px] text-sm">
                 <thead>
                   <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
-                    <th className="px-4 py-3 font-medium">Goalie</th>
-                    <th className="px-3 py-3 text-right font-medium">GP</th>
-                    <th className="px-3 py-3 text-right font-medium">GS</th>
-                    <th className="px-3 py-3 text-right font-medium">W</th>
-                    <th className="px-3 py-3 text-right font-medium">L</th>
-                    <th className="px-3 py-3 text-right font-medium">OTL</th>
-                    <th className="px-3 py-3 text-right font-medium">GAA</th>
-                    <th className="px-3 py-3 text-right font-medium">SV%</th>
-                    <th className="px-4 py-3 text-right font-medium">SO</th>
+                    <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" />
+                    <SortableHeader label="GP" sortKey="games" />
+                    <SortableHeader label="GS" sortKey="starts" />
+                    <SortableHeader label="W" sortKey="wins" />
+                    <SortableHeader label="L" sortKey="losses" />
+                    <SortableHeader label="OTL" sortKey="overtimeLosses" />
+                    <SortableHeader label="GAA" sortKey="goalsAgainstAverage" defaultDirection="asc" />
+                    <SortableHeader label="SV%" sortKey="savePercentage" />
+                    <SortableHeader label="SO" sortKey="shutouts" />
                   </tr>
                 </thead>
                 <tbody>
@@ -195,6 +200,7 @@ export default async function TeamPage({
                 </tbody>
               </table>
             </div>
+            </SortableTable>
           </div>
         </section>
       </section>

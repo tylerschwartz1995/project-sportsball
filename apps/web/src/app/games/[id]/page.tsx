@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SiteHeader } from "@/app/_components/site-header";
+import { SortableHeader } from "@/app/_components/sortable-header";
+import { SortableTable } from "@/app/_components/sortable-table";
 import { parseNhlId } from "@/contracts/entity";
 import type {
   GameBoxScoreTeam,
@@ -184,21 +186,22 @@ function SkaterTable({
 }) {
   return (
     <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+      <SortableTable defaultSortKey="points">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[940px] text-sm">
           <caption className="sr-only">{teamName} skater box score</caption>
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
-              <th className="px-4 py-3 font-medium">Player</th>
-              <th className="px-3 py-3 text-right font-medium">G</th>
-              <th className="px-3 py-3 text-right font-medium">A</th>
-              <th className="px-3 py-3 text-right font-medium">PTS</th>
-              <th className="px-3 py-3 text-right font-medium">+/-</th>
-              <th className="px-3 py-3 text-right font-medium">S</th>
-              <th className="px-3 py-3 text-right font-medium">HIT</th>
-              <th className="px-3 py-3 text-right font-medium">BLK</th>
-              <th className="px-3 py-3 text-right font-medium">PIM</th>
-              <th className="px-4 py-3 text-right font-medium">TOI</th>
+              <SortableHeader label="Player" sortKey="player" align="left" defaultDirection="asc" />
+              <SortableHeader label="G" sortKey="goals" />
+              <SortableHeader label="A" sortKey="assists" />
+              <SortableHeader label="PTS" sortKey="points" />
+              <SortableHeader label="+/-" sortKey="plusMinus" />
+              <SortableHeader label="S" sortKey="shots" />
+              <SortableHeader label="HIT" sortKey="hits" />
+              <SortableHeader label="BLK" sortKey="blocks" />
+              <SortableHeader label="PIM" sortKey="penaltyMinutes" />
+              <SortableHeader label="TOI" sortKey="timeOnIce" />
             </tr>
           </thead>
           <tbody>
@@ -235,6 +238,7 @@ function SkaterTable({
           </tbody>
         </table>
       </div>
+      </SortableTable>
     </div>
   );
 }
@@ -250,20 +254,21 @@ function GoalieTable({
 }) {
   return (
     <div className="mt-4 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+      <SortableTable defaultSortKey="shotsAgainst">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[900px] text-sm">
           <caption className="sr-only">{teamName} goalie box score</caption>
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
-              <th className="px-4 py-3 font-medium">Goalie</th>
-              <th className="px-3 py-3 text-right font-medium">DEC</th>
-              <th className="px-3 py-3 text-right font-medium">SA</th>
-              <th className="px-3 py-3 text-right font-medium">SV</th>
-              <th className="px-3 py-3 text-right font-medium">GA</th>
-              <th className="px-3 py-3 text-right font-medium">SV%</th>
-              <th className="px-3 py-3 text-right font-medium">EV SV/GA</th>
-              <th className="px-3 py-3 text-right font-medium">PP SV/GA</th>
-              <th className="px-4 py-3 text-right font-medium">TOI</th>
+              <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" />
+              <SortableHeader label="DEC" sortKey="decision" align="right" defaultDirection="asc" />
+              <SortableHeader label="SA" sortKey="shotsAgainst" />
+              <SortableHeader label="SV" sortKey="saves" />
+              <SortableHeader label="GA" sortKey="goalsAgainst" defaultDirection="asc" />
+              <SortableHeader label="SV%" sortKey="savePercentage" />
+              <SortableHeader label="EV SV/GA" sortKey="evenStrength" />
+              <SortableHeader label="PP SV/GA" sortKey="powerPlay" />
+              <SortableHeader label="TOI" sortKey="timeOnIce" />
             </tr>
           </thead>
           <tbody>
@@ -309,6 +314,7 @@ function GoalieTable({
           </tbody>
         </table>
       </div>
+      </SortableTable>
     </div>
   );
 }
