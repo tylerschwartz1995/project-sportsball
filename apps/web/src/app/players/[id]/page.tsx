@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { PlayerAdvancedAnalytics } from "@/app/_components/advanced-analytics";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { parseNhlId } from "@/contracts/entity";
@@ -9,6 +10,7 @@ import type {
   SkaterSeasonSummary,
 } from "@/contracts/player";
 import { parseSeasonId } from "@/contracts/season";
+import { getMoneyPuckPlayerSeason } from "@/data/advanced";
 import { getPlayerDetail } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
 
@@ -60,6 +62,9 @@ export default async function PlayerPage({
   const regularGoalie = selectedGoalieRows.find((row) => row.gameType === 2);
   const playoffGoalie = selectedGoalieRows.find((row) => row.gameType === 3);
   const profile = detail.profile;
+  const advanced = selectedSeason
+    ? await getMoneyPuckPlayerSeason(nhlPlayerId, selectedSeason.id)
+    : null;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -146,6 +151,8 @@ export default async function PlayerPage({
             </div>
           </section>
         ) : null}
+
+        {advanced ? <PlayerAdvancedAnalytics data={advanced} /> : null}
 
         {detail.skaterSeasons.length > 0 ? (
           <section className="mt-12">

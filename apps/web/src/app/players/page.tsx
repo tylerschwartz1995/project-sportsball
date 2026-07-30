@@ -4,6 +4,7 @@ import { DirectoryControls } from "@/app/_components/directory-controls";
 import { Pagination } from "@/app/_components/pagination";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
+import { SortableHeader } from "@/app/_components/sortable-header";
 import type {
   GoalieSeasonSummary,
   SkaterSeasonSummary,
@@ -12,11 +13,13 @@ import { parseSeasonId } from "@/contracts/season";
 import { listPlayersBySeason } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
 import {
+  applySortDirection,
   firstQueryValue,
   matchesSearch,
   normalizeSearch,
   paginate,
   parsePage,
+  parseSortDirection,
 } from "@/lib/directory";
 
 export const dynamic = "force-dynamic";
@@ -27,6 +30,7 @@ type PlayersPageProps = {
     q?: string | string[];
     type?: string | string[];
     sort?: string | string[];
+    dir?: string | string[];
     page?: string | string[];
   }>;
 };
@@ -51,6 +55,10 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
     : category === "goalies"
       ? "savePercentage"
       : "points";
+  const direction = parseSortDirection(
+    firstQueryValue(params.dir),
+    sort === "name" ? "asc" : "desc",
+  );
   const requestedPage = parsePage(firstQueryValue(params.page));
   const skaterPage = paginate(
     sortSkaters(
@@ -58,6 +66,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
         matchesSearch(query, player.name, player.position),
       ),
       sort,
+      direction,
     ),
     requestedPage,
     50,
@@ -68,6 +77,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
         matchesSearch(query, player.name, player.position),
       ),
       sort,
+      direction,
     ),
     requestedPage,
     50,
@@ -142,6 +152,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
               query={query}
               sort={sort}
               sortOptions={sortOptions}
+              direction={direction}
               category={category}
               categoryOptions={playerTypeOptions}
               searchPlaceholder="Player name or position"
@@ -170,31 +181,35 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         <table className="w-full min-w-[880px] text-sm">
                           <thead>
                             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
-                              <th className="px-4 py-3 font-medium">Player</th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                GP
-                              </th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                G
-                              </th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                A
-                              </th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                PTS
-                              </th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                +/-
-                              </th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                PIM
-                              </th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                S
-                              </th>
-                              <th className="px-4 py-3 text-right font-medium">
-                                Teams
-                              </th>
+                              <SortableHeader
+                                label="Player"
+                                sortKey="name"
+                                activeSort={sort}
+                                direction={direction}
+                                path="/players"
+                                params={{
+                                  season: selectedSeason.id,
+                                  q: query,
+                                  type: category,
+                                }}
+                                align="left"
+                                defaultDirection="asc"
+                              />
+                              {skaterTableColumns.map((column) => (
+                                <SortableHeader
+                                  key={column.key}
+                                  label={column.label}
+                                  sortKey={column.key}
+                                  activeSort={sort}
+                                  direction={direction}
+                                  path="/players"
+                                  params={{
+                                    season: selectedSeason.id,
+                                    q: query,
+                                    type: category,
+                                  }}
+                                />
+                              ))}
                             </tr>
                           </thead>
                           <tbody>
@@ -238,6 +253,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         q: query,
                         type: category,
                         sort,
+                        dir: direction,
                       }}
                     />
                   </>
@@ -268,31 +284,35 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         <table className="w-full min-w-[880px] text-sm">
                           <thead>
                             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
-                              <th className="px-4 py-3 font-medium">Goalie</th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                GP
-                              </th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                GS
-                              </th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                W
-                              </th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                L
-                              </th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                OTL
-                              </th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                GA
-                              </th>
-                              <th className="px-3 py-3 text-right font-medium">
-                                SV
-                              </th>
-                              <th className="px-4 py-3 text-right font-medium">
-                                SV%
-                              </th>
+                              <SortableHeader
+                                label="Goalie"
+                                sortKey="name"
+                                activeSort={sort}
+                                direction={direction}
+                                path="/players"
+                                params={{
+                                  season: selectedSeason.id,
+                                  q: query,
+                                  type: category,
+                                }}
+                                align="left"
+                                defaultDirection="asc"
+                              />
+                              {goalieTableColumns.map((column) => (
+                                <SortableHeader
+                                  key={column.key}
+                                  label={column.label}
+                                  sortKey={column.key}
+                                  activeSort={sort}
+                                  direction={direction}
+                                  path="/players"
+                                  params={{
+                                    season: selectedSeason.id,
+                                    q: query,
+                                    type: category,
+                                  }}
+                                />
+                              ))}
                             </tr>
                           </thead>
                           <tbody>
@@ -336,6 +356,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         q: query,
                         type: category,
                         sort,
+                        dir: direction,
                       }}
                     />
                   </>
@@ -365,6 +386,10 @@ const skaterSortOptions = [
   { value: "goals", label: "Goals" },
   { value: "assists", label: "Assists" },
   { value: "games", label: "Games played" },
+  { value: "plusMinus", label: "Plus/minus" },
+  { value: "penaltyMinutes", label: "Penalty minutes" },
+  { value: "shotsOnGoal", label: "Shots" },
+  { value: "teamsPlayedFor", label: "Teams played for" },
   { value: "name", label: "Player name" },
 ];
 
@@ -372,52 +397,134 @@ const goalieSortOptions = [
   { value: "savePercentage", label: "Save percentage" },
   { value: "wins", label: "Wins" },
   { value: "games", label: "Games played" },
+  { value: "gamesStarted", label: "Games started" },
+  { value: "losses", label: "Losses" },
+  { value: "overtimeLosses", label: "Overtime losses" },
+  { value: "goalsAgainst", label: "Goals against" },
+  { value: "saves", label: "Saves" },
   { value: "name", label: "Player name" },
+];
+
+const skaterTableColumns = [
+  { key: "games", label: "GP" },
+  { key: "goals", label: "G" },
+  { key: "assists", label: "A" },
+  { key: "points", label: "PTS" },
+  { key: "plusMinus", label: "+/-" },
+  { key: "penaltyMinutes", label: "PIM" },
+  { key: "shotsOnGoal", label: "S" },
+  { key: "teamsPlayedFor", label: "Teams" },
+];
+
+const goalieTableColumns = [
+  { key: "games", label: "GP" },
+  { key: "gamesStarted", label: "GS" },
+  { key: "wins", label: "W" },
+  { key: "losses", label: "L" },
+  { key: "overtimeLosses", label: "OTL" },
+  { key: "goalsAgainst", label: "GA" },
+  { key: "saves", label: "SV" },
+  { key: "savePercentage", label: "SV%" },
 ];
 
 function sortSkaters(
   players: SkaterSeasonSummary[],
   sort: string,
+  direction: "asc" | "desc",
 ): SkaterSeasonSummary[] {
   return [...players].sort((left, right) => {
+    let comparison: number;
     switch (sort) {
       case "goals":
-        return right.goals - left.goals || right.points - left.points;
+        comparison = right.goals - left.goals || right.points - left.points;
+        break;
       case "assists":
-        return right.assists - left.assists || right.points - left.points;
+        comparison =
+          right.assists - left.assists || right.points - left.points;
+        break;
       case "games":
-        return right.gamesPlayed - left.gamesPlayed || right.points - left.points;
+        comparison =
+          right.gamesPlayed - left.gamesPlayed || right.points - left.points;
+        break;
+      case "plusMinus":
+        comparison = right.plusMinus - left.plusMinus || right.points - left.points;
+        break;
+      case "penaltyMinutes":
+        comparison =
+          right.penaltyMinutes - left.penaltyMinutes ||
+          right.points - left.points;
+        break;
+      case "shotsOnGoal":
+        comparison =
+          right.shotsOnGoal - left.shotsOnGoal || right.points - left.points;
+        break;
+      case "teamsPlayedFor":
+        comparison =
+          right.teamsPlayedFor - left.teamsPlayedFor ||
+          right.points - left.points;
+        break;
       case "name":
-        return left.name.localeCompare(right.name);
+        comparison = right.name.localeCompare(left.name);
+        break;
       default:
-        return (
+        comparison =
           right.points - left.points ||
           right.goals - left.goals ||
-          left.name.localeCompare(right.name)
-        );
+          left.name.localeCompare(right.name);
     }
+    return applySortDirection(comparison, direction);
   });
 }
 
 function sortGoalies(
   players: GoalieSeasonSummary[],
   sort: string,
+  direction: "asc" | "desc",
 ): GoalieSeasonSummary[] {
   return [...players].sort((left, right) => {
+    let comparison: number;
     switch (sort) {
       case "wins":
-        return right.wins - left.wins || right.gamesPlayed - left.gamesPlayed;
+        comparison =
+          right.wins - left.wins || right.gamesPlayed - left.gamesPlayed;
+        break;
       case "games":
-        return right.gamesPlayed - left.gamesPlayed || right.wins - left.wins;
+        comparison =
+          right.gamesPlayed - left.gamesPlayed || right.wins - left.wins;
+        break;
+      case "gamesStarted":
+        comparison =
+          right.gamesStarted - left.gamesStarted ||
+          right.gamesPlayed - left.gamesPlayed;
+        break;
+      case "losses":
+        comparison =
+          right.losses - left.losses || right.gamesPlayed - left.gamesPlayed;
+        break;
+      case "overtimeLosses":
+        comparison =
+          right.overtimeLosses - left.overtimeLosses ||
+          right.gamesPlayed - left.gamesPlayed;
+        break;
+      case "goalsAgainst":
+        comparison =
+          right.goalsAgainst - left.goalsAgainst ||
+          right.gamesPlayed - left.gamesPlayed;
+        break;
+      case "saves":
+        comparison =
+          right.saves - left.saves || right.gamesPlayed - left.gamesPlayed;
+        break;
       case "name":
-        return left.name.localeCompare(right.name);
+        comparison = right.name.localeCompare(left.name);
+        break;
       default:
-        return (
+        comparison =
           (right.savePercentage ?? -1) - (left.savePercentage ?? -1) ||
           right.gamesPlayed - left.gamesPlayed ||
-          left.name.localeCompare(right.name)
-        );
+          left.name.localeCompare(right.name);
     }
+    return applySortDirection(comparison, direction);
   });
 }
 

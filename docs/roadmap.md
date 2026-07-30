@@ -24,7 +24,7 @@ on July 29, 2026.
   pairing downloads across their published coverage ranges.
 - Verify all 21 seasons with the read-only completeness audit.
 
-## Milestone 3: core website — in progress
+## Milestone 3: core website — complete
 
 - [x] Add the server-only PostgreSQL query foundation and response contracts.
 - [x] Add the league dashboard, historical season selector, and standings.
@@ -33,12 +33,15 @@ on July 29, 2026.
 - [x] Add game and box-score pages.
 - [x] Add search, sorting, pagination, and complete mobile layouts.
 
-## Milestone 4: advanced analytics — ingestion complete, presentation pending
+## Milestone 4: advanced analytics — in progress
 
-- Expose the stored MoneyPuck team, player, goalie, game, shot, line, and
-  pairing records through read-only application queries.
-- Add metric definitions, MoneyPuck attribution, and coverage labels.
-- Add advanced team, player, goalie, and game views.
+- [x] Expose MoneyPuck team, skater, and goalie season summaries through
+  read-only application queries.
+- [x] Add initial metric definitions, MoneyPuck attribution, and coverage
+  labels.
+- [x] Add advanced team, skater, and goalie season views.
+- [ ] Expose game, shot, line, and pairing records through application queries.
+- [ ] Add advanced game views, shot maps, lines, and pairings.
 
 ## Milestone 5: daily operation
 

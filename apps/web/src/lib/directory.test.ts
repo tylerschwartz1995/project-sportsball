@@ -2,10 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   firstQueryValue,
+  applySortDirection,
   matchesSearch,
   normalizeSearch,
   paginate,
   parsePage,
+  parseSortDirection,
 } from "@/lib/directory";
 
 describe("directory query helpers", () => {
@@ -19,6 +21,13 @@ describe("directory query helpers", () => {
     expect(parsePage("1.5")).toBe(1);
     expect(parsePage("abc")).toBe(1);
     expect(parsePage("3")).toBe(3);
+  });
+
+  it("parses and applies sort direction", () => {
+    expect(parseSortDirection("asc", "desc")).toBe("asc");
+    expect(parseSortDirection("invalid", "desc")).toBe("desc");
+    expect(applySortDirection(-4, "desc")).toBe(-4);
+    expect(applySortDirection(-4, "asc")).toBe(4);
   });
 
   it("clamps pages and reports the visible range", () => {

@@ -1,25 +1,44 @@
 import { SiteHeader } from "@/app/_components/site-header";
+import { SortableHeader } from "@/app/_components/sortable-header";
 import { parseSeasonId } from "@/contracts/season";
+import type { StandingsEntry } from "@/contracts/standings";
 import { listSeasons } from "@/data/seasons";
 import { getStandings } from "@/data/standings";
+import {
+  applySortDirection,
+  firstQueryValue,
+  parseSortDirection,
+} from "@/lib/directory";
 
 export const dynamic = "force-dynamic";
 
 type HomeProps = {
-  searchParams: Promise<{ season?: string | string[] }>;
+  searchParams: Promise<{
+    season?: string | string[];
+    sort?: string | string[];
+    dir?: string | string[];
+  }>;
 };
 
 export default async function Home({ searchParams }: HomeProps) {
+  const params = await searchParams;
   const seasons = await listSeasons();
-  const requestedSeason = (await searchParams).season;
-  const parsedSeason = parseSeasonId(
-    Array.isArray(requestedSeason) ? requestedSeason[0] : requestedSeason,
+  const parsedSeason = parseSeasonId(firstQueryValue(params.season));
+  const requestedSort = firstQueryValue(params.sort);
+  const sort = standingsColumns.some(
+    (column) => column.key === requestedSort,
+  );
+  const activeSort = sort ? requestedSort! : "rank";
+  const direction = parseSortDirection(
+    firstQueryValue(params.dir),
+    activeSort === "rank" || activeSort === "team" ? "asc" : "desc",
   );
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
   const standings = selectedSeason
     ? await getStandings(selectedSeason.id)
     : [];
+  const sortedStandings = sortStandings(standings, activeSort, direction);
   const leader = standings[0];
   const winsLeader = standings.reduce(
     (best, team) => (!best || team.wins > best.wins ? team : best),
@@ -104,21 +123,23 @@ export default async function Home({ searchParams }: HomeProps) {
                 <table className="w-full min-w-[760px] border-collapse text-sm">
                   <thead>
                     <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
-                      <th className="px-4 py-3 text-center font-medium">Rank</th>
-                      <th className="px-4 py-3 font-medium">Team</th>
-                      <th className="px-3 py-3 text-right font-medium">GP</th>
-                      <th className="px-3 py-3 text-right font-medium">W</th>
-                      <th className="px-3 py-3 text-right font-medium">L</th>
-                      <th className="px-3 py-3 text-right font-medium">OT</th>
-                      <th className="px-3 py-3 text-right font-medium">RW</th>
-                      <th className="px-3 py-3 text-right font-medium">GF</th>
-                      <th className="px-3 py-3 text-right font-medium">GA</th>
-                      <th className="px-3 py-3 text-right font-medium">DIFF</th>
-                      <th className="px-4 py-3 text-right font-medium">PTS</th>
+                      {standingsColumns.map((column) => (
+                        <SortableHeader
+                          key={column.key}
+                          label={column.label}
+                          sortKey={column.key}
+                          activeSort={activeSort}
+                          direction={direction}
+                          path="/"
+                          params={{ season: selectedSeason.id }}
+                          align={column.align}
+                          defaultDirection={column.defaultDirection}
+                        />
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {standings.map((team) => (
+                    {sortedStandings.map((team) => (
                       <tr
                         key={team.teamId}
                         className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
@@ -129,9 +150,11 @@ export default async function Home({ searchParams }: HomeProps) {
                         <td className="px-4 py-3">
                           <div className="font-medium text-white">
                             {team.teamName}
-                            {team.clinchIndicator
-                              ? ` ${team.clinchIndicator}`
-                              : ""}
+                            {team.clinchIndicator ? (
+                              <span className="ml-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-1.5 py-0.5 text-[0.65rem] font-semibold uppercase text-cyan-200">
+                                {team.clinchIndicator}
+                              </span>
+                            ) : null}
                           </div>
                           <div className="mt-0.5 text-xs text-slate-500">
                             {team.teamAbbreviation} · {team.divisionName}
@@ -156,7 +179,9 @@ export default async function Home({ searchParams }: HomeProps) {
                 </table>
               </div>
               <div className="border-t border-white/10 px-4 py-3 text-xs text-slate-500">
-                Snapshot: {leader.snapshotDate} · Source: NHL
+                Snapshot: {leader.snapshotDate} · Source: NHL · p Presidents’
+                Trophy · z conference · y division · x playoff berth · e
+                eliminated
               </div>
             </div>
           </>
@@ -168,6 +193,73 @@ export default async function Home({ searchParams }: HomeProps) {
       </section>
     </main>
   );
+}
+
+const standingsColumns: Array<{
+  key: string;
+  label: string;
+  align?: "left" | "center" | "right";
+  defaultDirection?: "asc" | "desc";
+}> = [
+  { key: "rank", label: "Rank", align: "center", defaultDirection: "asc" },
+  { key: "team", label: "Team", align: "left", defaultDirection: "asc" },
+  { key: "games", label: "GP" },
+  { key: "wins", label: "W" },
+  { key: "losses", label: "L" },
+  { key: "overtimeLosses", label: "OT" },
+  { key: "regulationWins", label: "RW" },
+  { key: "goalsFor", label: "GF" },
+  { key: "goalsAgainst", label: "GA" },
+  { key: "goalDifferential", label: "DIFF" },
+  { key: "points", label: "PTS" },
+];
+
+function sortStandings(
+  standings: StandingsEntry[],
+  sort: string,
+  direction: "asc" | "desc",
+): StandingsEntry[] {
+  return [...standings].sort((left, right) => {
+    let comparison: number;
+    switch (sort) {
+      case "team":
+        comparison = right.teamName.localeCompare(left.teamName);
+        break;
+      case "games":
+        comparison = right.gamesPlayed - left.gamesPlayed;
+        break;
+      case "wins":
+        comparison = right.wins - left.wins;
+        break;
+      case "losses":
+        comparison = right.losses - left.losses;
+        break;
+      case "overtimeLosses":
+        comparison = right.overtimeLosses - left.overtimeLosses;
+        break;
+      case "regulationWins":
+        comparison = right.regulationWins - left.regulationWins;
+        break;
+      case "goalsFor":
+        comparison = right.goalsFor - left.goalsFor;
+        break;
+      case "goalsAgainst":
+        comparison = right.goalsAgainst - left.goalsAgainst;
+        break;
+      case "goalDifferential":
+        comparison = right.goalDifferential - left.goalDifferential;
+        break;
+      case "points":
+        comparison = right.points - left.points;
+        break;
+      default:
+        comparison = right.leagueRank - left.leagueRank;
+    }
+    if (comparison === 0) {
+      comparison = right.teamName.localeCompare(left.teamName);
+    }
+    return applySortDirection(comparison, direction);
+  });
 }
 
 function SummaryCard({

@@ -4,16 +4,19 @@ import { DirectoryControls } from "@/app/_components/directory-controls";
 import { Pagination } from "@/app/_components/pagination";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
+import { SortableHeader } from "@/app/_components/sortable-header";
 import { parseSeasonId } from "@/contracts/season";
 import type { TeamSeasonSummary } from "@/contracts/team";
 import { listSeasons } from "@/data/seasons";
 import { listTeamsBySeason } from "@/data/teams";
 import {
+  applySortDirection,
   firstQueryValue,
   matchesSearch,
   normalizeSearch,
   paginate,
   parsePage,
+  parseSortDirection,
 } from "@/lib/directory";
 
 export const dynamic = "force-dynamic";
@@ -23,6 +26,7 @@ type TeamsPageProps = {
     season?: string | string[];
     q?: string | string[];
     sort?: string | string[];
+    dir?: string | string[];
     page?: string | string[];
   }>;
 };
@@ -44,11 +48,16 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
   )
     ? requestedSort!
     : "points";
+  const direction = parseSortDirection(
+    firstQueryValue(params.dir),
+    sort === "name" ? "asc" : "desc",
+  );
   const filteredTeams = sortTeams(
     teams.filter((entry) =>
       matchesSearch(query, entry.team.name, entry.team.abbreviation),
     ),
     sort,
+    direction,
   );
   const teamPage = paginate(
     filteredTeams,
@@ -119,6 +128,7 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
               query={query}
               sort={sort}
               sortOptions={teamSortOptions}
+              direction={direction}
               searchPlaceholder="Team name or abbreviation"
             />
 
@@ -145,16 +155,27 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
                 <table className="w-full min-w-[850px] border-collapse text-sm">
                   <thead>
                     <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
-                      <th className="px-4 py-3 font-medium">Team</th>
-                      <th className="px-3 py-3 text-right font-medium">GP</th>
-                      <th className="px-3 py-3 text-right font-medium">W</th>
-                      <th className="px-3 py-3 text-right font-medium">L</th>
-                      <th className="px-3 py-3 text-right font-medium">OTL</th>
-                      <th className="px-3 py-3 text-right font-medium">PTS</th>
-                      <th className="px-3 py-3 text-right font-medium">GF</th>
-                      <th className="px-3 py-3 text-right font-medium">GA</th>
-                      <th className="px-3 py-3 text-right font-medium">SF</th>
-                      <th className="px-4 py-3 text-right font-medium">SA</th>
+                      <SortableHeader
+                        label="Team"
+                        sortKey="name"
+                        activeSort={sort}
+                        direction={direction}
+                        path="/teams"
+                        params={{ season: selectedSeason.id, q: query }}
+                        align="left"
+                        defaultDirection="asc"
+                      />
+                      {teamTableColumns.map((column) => (
+                        <SortableHeader
+                          key={column.key}
+                          label={column.label}
+                          sortKey={column.key}
+                          activeSort={sort}
+                          direction={direction}
+                          path="/teams"
+                          params={{ season: selectedSeason.id, q: query }}
+                        />
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
@@ -205,6 +226,7 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
                     season: selectedSeason.id,
                     q: query,
                     sort,
+                    dir: direction,
                   }}
                 />
               </>
@@ -223,42 +245,89 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
 const teamSortOptions = [
   { value: "points", label: "Points" },
   { value: "wins", label: "Wins" },
-  { value: "goals", label: "Goals scored" },
-  { value: "defense", label: "Fewest goals allowed" },
+  { value: "losses", label: "Losses" },
+  { value: "overtimeLosses", label: "Overtime losses" },
+  { value: "games", label: "Games played" },
+  { value: "goalsFor", label: "Goals scored" },
+  { value: "goalsAgainst", label: "Goals allowed" },
+  { value: "shotsFor", label: "Shots for" },
+  { value: "shotsAgainst", label: "Shots against" },
   { value: "name", label: "Team name" },
+];
+
+const teamTableColumns = [
+  { key: "games", label: "GP" },
+  { key: "wins", label: "W" },
+  { key: "losses", label: "L" },
+  { key: "overtimeLosses", label: "OTL" },
+  { key: "points", label: "PTS" },
+  { key: "goalsFor", label: "GF" },
+  { key: "goalsAgainst", label: "GA" },
+  { key: "shotsFor", label: "SF" },
+  { key: "shotsAgainst", label: "SA" },
 ];
 
 function sortTeams(
   teams: TeamSeasonSummary[],
   sort: string,
+  direction: "asc" | "desc",
 ): TeamSeasonSummary[] {
   return [...teams].sort((left, right) => {
+    let comparison: number;
     switch (sort) {
       case "wins":
-        return (
+        comparison =
           right.stats.wins - left.stats.wins ||
           right.stats.standingsPoints - left.stats.standingsPoints ||
-          left.team.name.localeCompare(right.team.name)
-        );
-      case "goals":
-        return (
+          left.team.name.localeCompare(right.team.name);
+        break;
+      case "losses":
+        comparison =
+          right.stats.regulationLosses - left.stats.regulationLosses ||
+          left.team.name.localeCompare(right.team.name);
+        break;
+      case "overtimeLosses":
+        comparison =
+          right.stats.overtimeLosses +
+            right.stats.shootoutLosses -
+            (left.stats.overtimeLosses + left.stats.shootoutLosses) ||
+          left.team.name.localeCompare(right.team.name);
+        break;
+      case "games":
+        comparison =
+          right.stats.gamesPlayed - left.stats.gamesPlayed ||
+          left.team.name.localeCompare(right.team.name);
+        break;
+      case "goalsFor":
+        comparison =
           right.stats.goalsFor - left.stats.goalsFor ||
-          left.team.name.localeCompare(right.team.name)
-        );
-      case "defense":
-        return (
-          left.stats.goalsAgainst - right.stats.goalsAgainst ||
-          left.team.name.localeCompare(right.team.name)
-        );
+          left.team.name.localeCompare(right.team.name);
+        break;
+      case "goalsAgainst":
+        comparison =
+          right.stats.goalsAgainst - left.stats.goalsAgainst ||
+          left.team.name.localeCompare(right.team.name);
+        break;
+      case "shotsFor":
+        comparison =
+          right.stats.shotsFor - left.stats.shotsFor ||
+          left.team.name.localeCompare(right.team.name);
+        break;
+      case "shotsAgainst":
+        comparison =
+          right.stats.shotsAgainst - left.stats.shotsAgainst ||
+          left.team.name.localeCompare(right.team.name);
+        break;
       case "name":
-        return left.team.name.localeCompare(right.team.name);
+        comparison = right.team.name.localeCompare(left.team.name);
+        break;
       default:
-        return (
+        comparison =
           right.stats.standingsPoints - left.stats.standingsPoints ||
           right.stats.wins - left.stats.wins ||
-          left.team.name.localeCompare(right.team.name)
-        );
+          left.team.name.localeCompare(right.team.name);
     }
+    return applySortDirection(comparison, direction);
   });
 }
 

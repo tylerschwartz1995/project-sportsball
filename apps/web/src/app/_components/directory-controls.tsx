@@ -11,6 +11,7 @@ type DirectoryControlsProps = {
   query: string;
   sort: string;
   sortOptions: SelectOption[];
+  direction: "asc" | "desc";
   category?: string;
   categoryOptions?: SelectOption[];
   searchPlaceholder: string;
@@ -22,6 +23,7 @@ export function DirectoryControls({
   query,
   sort,
   sortOptions,
+  direction,
   category,
   categoryOptions,
   searchPlaceholder,
@@ -61,7 +63,7 @@ export function DirectoryControls({
         </label>
       ) : null}
 
-      <label className="text-sm font-medium text-slate-300">
+      <label className="text-sm font-medium text-slate-300 md:hidden">
         Sort by
         <select
           name="sort"
@@ -73,6 +75,18 @@ export function DirectoryControls({
               {option.label}
             </option>
           ))}
+        </select>
+      </label>
+
+      <label className="text-sm font-medium text-slate-300 md:hidden">
+        Direction
+        <select
+          name="dir"
+          defaultValue={direction}
+          className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-white outline-none focus:border-cyan-300/60"
+        >
+          <option value="desc">Descending</option>
+          <option value="asc">Ascending</option>
         </select>
       </label>
 
