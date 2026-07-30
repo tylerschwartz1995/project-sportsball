@@ -12,19 +12,20 @@
 
 ### Web application
 
-A server-rendered Next.js TypeScript application provides the first league
-standings dashboard and will expand to team, player, schedule, and game pages.
-Server Components call the internal query functions directly instead of making
-an HTTP round trip to the same application. Hosting will be selected during
-the deployment milestone.
+A server-rendered Next.js TypeScript application provides standings, schedules,
+traditional and advanced game pages, team pages, player profiles, historical
+navigation, and sortable statistical comparisons. Server Components call the
+internal query functions directly instead of making an HTTP round trip to the
+same application. Hosting will be selected during the deployment milestone.
 
 ### Application API
 
 Read-only application endpoints and Server Components query normalized records
-through a shared, server-only TypeScript data layer. The first contracts expose
-the season index and NHL standings. No page or route calls an upstream NHL or
-MoneyPuck source during a user request, keeping the site responsive and
-preventing public traffic from multiplying provider requests.
+through a shared, server-only TypeScript data layer. Typed contracts cover
+seasons, standings, schedules, box scores, teams, players, and MoneyPuck season
+and game analytics. No page or route calls an upstream NHL or MoneyPuck source
+during a user request, keeping the site responsive and preventing public
+traffic from multiplying provider requests.
 
 ### Database
 
@@ -217,8 +218,8 @@ under `pipeline/tests/fixtures`.
 - `pipeline` owns all source-specific and analytical logic.
 - Polars is the default dataframe engine throughout `pipeline`.
 - `database` defines storage independently of any one data source.
-- Stable read contracts for `apps/web` will be introduced with the application
-  query layer.
+- `apps/web` uses stable serializable read contracts backed by parameterized,
+  server-only PostgreSQL queries.
 - `apps/web` never imports Python internals or calls upstream data sources.
 - Deployment infrastructure will run published jobs and services without
   containing domain logic.

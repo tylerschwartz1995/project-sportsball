@@ -55,10 +55,11 @@ views.
 Every statistics table uses a shared client-side sorter. Column-heading buttons
 reorder the visible rows immediately without a route transition; clicking the
 active heading reverses its direction. This applies to standings, directories,
-team rosters, player histories, box scores, and MoneyPuck tables. Small screens
-use compact directory cards and retain explicit URL-based sort controls because
-cards have no column headings. The underlying traditional-stat response
-contracts and statistical grains are unchanged.
+team rosters, player histories, box scores, advanced game comparisons, and
+MoneyPuck season tables. Small screens use compact directory cards and retain
+explicit URL-based sort controls because cards have no column headings. The
+underlying traditional-stat response contracts and statistical grains are
+unchanged.
 
 Team and player detail pages also show the available MoneyPuck season summaries.
 See [Advanced analytics presentation](advanced-analytics.md) for the initial

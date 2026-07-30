@@ -577,7 +577,7 @@ function mapShot(row: ShotRow): MoneyPuckShot {
     goalie: mapNullablePlayer(row.goalie_nhl_id, row.goalie_name),
     eventType: row.event_type,
     period: row.period,
-    timeInPeriodSeconds: row.time_in_period_seconds,
+    gameTimeSeconds: row.time_in_period_seconds,
     isHomeTeam: row.is_home_team,
     isPlayoffGame: row.is_playoff_game,
     isGoal: row.is_goal,

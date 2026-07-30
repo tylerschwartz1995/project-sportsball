@@ -30,8 +30,10 @@ references that the NHL source identifies but that cannot be mapped to a
 canonical player. Those source identifiers remain preserved. The core website
 is implemented with read-only standings, schedules, box scores, team pages,
 player profiles, historical navigation, directory search and sorting,
-responsive layouts, and JSON endpoints. Advanced-analytics presentation is in
-progress; team and player pages now expose the first MoneyPuck season views.
+responsive layouts, sortable statistics tables, and JSON endpoints.
+MoneyPuck presentation is implemented on team, player, and game pages,
+including game-level expected-goal and possession tables, shot maps, forward
+lines, and defensive pairings.
 
 ## Local development
 

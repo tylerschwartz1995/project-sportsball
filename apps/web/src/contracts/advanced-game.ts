@@ -96,7 +96,7 @@ export type MoneyPuckShot = {
   goalie: MoneyPuckGamePlayer | null;
   eventType: string;
   period: number;
-  timeInPeriodSeconds: number;
+  gameTimeSeconds: number;
   isHomeTeam: boolean;
   isPlayoffGame: boolean;
   isGoal: boolean;

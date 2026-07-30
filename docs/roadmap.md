@@ -1,7 +1,7 @@
 # Implementation roadmap
 
-Status values reflect the repository after the historical completeness audit
-on July 29, 2026.
+Status values reflect the repository after the advanced game presentation was
+completed on July 30, 2026.
 
 ## Milestone 1: foundation — complete
 
@@ -33,7 +33,7 @@ on July 29, 2026.
 - [x] Add game and box-score pages.
 - [x] Add search, sorting, pagination, and complete mobile layouts.
 
-## Milestone 4: advanced analytics — in progress
+## Milestone 4: advanced analytics — complete
 
 - [x] Expose MoneyPuck team, skater, and goalie season summaries through
   read-only application queries.
@@ -41,7 +41,7 @@ on July 29, 2026.
   labels.
 - [x] Add advanced team, skater, and goalie season views.
 - [x] Expose game, shot, line, and pairing records through application queries.
-- [ ] Add advanced game views, shot maps, lines, and pairings.
+- [x] Add advanced game views, shot maps, lines, and pairings.
 
 ## Milestone 5: daily operation
 

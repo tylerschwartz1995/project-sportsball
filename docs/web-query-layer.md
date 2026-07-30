@@ -72,6 +72,8 @@ MoneyPuck season summaries for team and player pages.
 forward-line, and defensive-pairing records. The six parameterized reads run in
 parallel, and every returned date and identity is a plain serializable value
 safe to pass from a Server Component to a visualization component.
+The game page starts this package and the traditional three-query box-score
+read together, avoiding a server-side request waterfall.
 
 ## Configuration
 
