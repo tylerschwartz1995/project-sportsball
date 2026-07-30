@@ -54,7 +54,7 @@ were implemented on July 30, 2026.
 - [x] Separate the league dashboard, standings, and team-directory
   responsibilities.
 - [x] Add league-wide advanced team, skater, and goalie leaderboards.
-- [ ] Add team and player game logs plus trend views.
+- [x] Add team and player game logs plus recent-form trend views.
 - [ ] Present normalized play-by-play as a game timeline and scoring summary.
 - [ ] Consolidate advanced metric discovery and definitions.
 - [ ] Establish and apply the production visual design system.

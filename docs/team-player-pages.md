@@ -1,13 +1,17 @@
 # Team and player pages
 
-The core website exposes traditional season statistics through four
+The core website exposes traditional season and game statistics through six
 server-rendered routes:
 
 - `/teams?season=20252026` provides a searchable card directory for every
   regular-season team;
 - `/teams/12?season=20252026` shows one team's season and roster splits;
+- `/teams/12/games?season=20252026` shows one team's complete game log and
+  recent form;
 - `/players?season=20252026` lists every participating skater and goalie;
-- `/players/8478402?season=20252026` shows a player profile and career history.
+- `/players/8478402?season=20252026` shows a player profile and career history;
+- `/players/8478402/games?season=20252026` shows game-by-game performance and
+  recent form.
 
 All pages query PostgreSQL directly from React Server Components. Matching JSON
 endpoints under `/api/teams` and `/api/players` reuse the same typed query
@@ -26,6 +30,20 @@ The player directory uses the Polars-derived `skater_season_stats` and
 traded player therefore has one combined total and a `teamsPlayedFor` count.
 The player detail page displays those combined rows across the player's full
 stored career.
+
+Team game logs join each completed `team_game_stats` row to the opponent's row
+for the same game. Player game logs read traditional `player_game_stats` or
+`goalie_game_stats` appearances. Both routes retain the historical team
+identity active in the selected season and link every row to its supporting
+game and team pages.
+
+MoneyPuck game metrics are left-joined to these traditional rows. Team logs add
+five-on-five expected-goal share and totals. Skater logs add all-situations game
+score, individual expected goals, and on-ice expected-goal share. Goalie logs
+add expected goals against and calculate goals saved above expected as expected
+goals against minus actual goals against. This left-join design keeps playoff
+and older games visible when provider-specific player analytics are not
+published.
 
 This distinction is intentional:
 
@@ -64,6 +82,11 @@ every viewport and keeps explicit URL-based sort controls because cards have
 no column headings. Small screens use the same explicit controls for the
 player directory. The underlying traditional-stat response contracts and
 statistical grains are unchanged.
+
+Team and player profile pages link to their selected-season game log. Each game
+log begins with a last-ten summary and a compact chronological form strip, then
+shows the full regular-season and playoff table. Advanced columns use a dash
+when MoneyPuck coverage is unavailable and include an inline coverage note.
 
 Team and player detail pages also show the available MoneyPuck season summaries.
 See [Advanced analytics presentation](advanced-analytics.md) for the initial
