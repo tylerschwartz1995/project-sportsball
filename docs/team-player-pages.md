@@ -47,15 +47,18 @@ and lineage analysis.
 ## Directory controls
 
 Team and player directories support URL-based search, sorting, and pagination.
-Filters use ordinary query parameters, so a result can be bookmarked, shared,
-and restored with browser navigation without client-side state. Team pages show
-16 results per page. Player pages show 50 results per page and separate skater
-and goalie views.
+Filters use ordinary query parameters, so a filtered result can be bookmarked,
+shared, and restored with browser navigation. Team pages show 16 results per
+page. Player pages show 50 results per page and separate skater and goalie
+views.
 
-Desktop comparison tables use clickable column headings; clicking the active
-heading reverses its direction. Small screens use compact cards and retain
-explicit sort controls because cards have no column headings. The underlying
-traditional-stat response contracts and statistical grains are unchanged.
+Every statistics table uses a shared client-side sorter. Column-heading buttons
+reorder the visible rows immediately without a route transition; clicking the
+active heading reverses its direction. This applies to standings, directories,
+team rosters, player histories, box scores, and MoneyPuck tables. Small screens
+use compact directory cards and retain explicit URL-based sort controls because
+cards have no column headings. The underlying traditional-stat response
+contracts and statistical grains are unchanged.
 
 Team and player detail pages also show the available MoneyPuck season summaries.
 See [Advanced analytics presentation](advanced-analytics.md) for the initial

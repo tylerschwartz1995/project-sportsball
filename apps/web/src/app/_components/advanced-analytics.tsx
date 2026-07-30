@@ -5,6 +5,8 @@ import type {
   MoneyPuckTeamSeason,
   MoneyPuckTeamSituation,
 } from "@/contracts/advanced";
+import { SortableHeader } from "@/app/_components/sortable-header";
+import { SortableTable } from "@/app/_components/sortable-table";
 
 export function TeamAdvancedAnalytics({
   data,
@@ -44,6 +46,7 @@ export function TeamAdvancedAnalytics({
       ) : null}
 
       <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+        <SortableTable>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
             <thead>
@@ -65,6 +68,7 @@ export function TeamAdvancedAnalytics({
             </tbody>
           </table>
         </div>
+        </SortableTable>
       </div>
       <MetricDefinitions />
     </AdvancedSection>
@@ -151,6 +155,7 @@ function SkaterAdvancedTable({
         </div>
       ) : null}
       <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+        <SortableTable>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[840px] text-sm">
             <thead>
@@ -195,6 +200,7 @@ function SkaterAdvancedTable({
             </tbody>
           </table>
         </div>
+        </SortableTable>
       </div>
     </>
   );
@@ -232,6 +238,7 @@ function GoalieAdvancedTable({
         </div>
       ) : null}
       <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+        <SortableTable>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
             <thead>
@@ -273,6 +280,7 @@ function GoalieAdvancedTable({
             </tbody>
           </table>
         </div>
+        </SortableTable>
       </div>
     </>
   );
@@ -369,14 +377,12 @@ function MetricHeader({
   align?: "left" | "right";
 }) {
   return (
-    <th
-      scope="col"
-      className={`px-4 py-3 font-medium ${
-        align === "left" ? "text-left" : "text-right"
-      }`}
-    >
-      {label}
-    </th>
+    <SortableHeader
+      label={label}
+      sortKey={label}
+      align={align}
+      defaultDirection={align === "left" ? "asc" : "desc"}
+    />
   );
 }
 

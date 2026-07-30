@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { PlayerAdvancedAnalytics } from "@/app/_components/advanced-analytics";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
+import { SortableHeader } from "@/app/_components/sortable-header";
+import { SortableTable } from "@/app/_components/sortable-table";
 import { parseNhlId } from "@/contracts/entity";
 import type {
   GoalieSeasonSummary,
@@ -364,19 +366,19 @@ function HistoryTable({
 }) {
   return (
     <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+      <SortableTable defaultSortKey={headers[0]} defaultDirection="desc">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[700px] text-sm">
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
               {headers.map((header, index) => (
-                <th
+                <SortableHeader
                   key={header}
-                  className={`px-4 py-3 font-medium ${
-                    index < 2 ? "text-left" : "text-right"
-                  }`}
-                >
-                  {header}
-                </th>
+                  label={header}
+                  sortKey={header}
+                  align={index < 2 ? "left" : "right"}
+                  defaultDirection={index < 2 ? "asc" : "desc"}
+                />
               ))}
             </tr>
           </thead>
@@ -401,6 +403,7 @@ function HistoryTable({
           </tbody>
         </table>
       </div>
+      </SortableTable>
     </div>
   );
 }
