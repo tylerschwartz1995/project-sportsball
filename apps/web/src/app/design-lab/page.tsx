@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { SiteHeader } from "@/app/_components/site-header";
+import { getStandings } from "@/data/standings";
 import { getTeamSeasonDetail } from "@/data/teams";
 
 import { DesignLab } from "./design-lab";
@@ -11,10 +12,10 @@ const REFERENCE_TEAM_ID = 21;
 const REFERENCE_SEASON_ID = 20252026;
 
 export default async function DesignLabPage() {
-  const detail = await getTeamSeasonDetail(
-    REFERENCE_TEAM_ID,
-    REFERENCE_SEASON_ID,
-  );
+  const [detail, standings] = await Promise.all([
+    getTeamSeasonDetail(REFERENCE_TEAM_ID, REFERENCE_SEASON_ID),
+    getStandings(REFERENCE_SEASON_ID),
+  ]);
   if (!detail?.regularSeason) {
     notFound();
   }
@@ -26,6 +27,7 @@ export default async function DesignLabPage() {
         team={detail.team}
         stats={detail.regularSeason}
         skaters={detail.skaters.slice(0, 5)}
+        standings={standings.slice(0, 6)}
       />
     </main>
   );
