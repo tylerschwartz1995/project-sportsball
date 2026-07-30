@@ -27,8 +27,9 @@ in [Data sources and coverage](docs/data-sources.md).
 The full completeness audit currently passes every season with no errors.
 Three early seasons contain warnings for a total of 41 play-by-play participant
 references that the NHL source identifies but that cannot be mapped to a
-canonical player. Those source identifiers remain preserved. The next product
-milestone is the core website.
+canonical player. Those source identifiers remain preserved. Core website
+development is in progress: the first read-only query layer, league dashboard,
+season selector, standings table, and JSON endpoints are implemented.
 
 ## Local development
 
@@ -118,7 +119,8 @@ Install and start the website:
 
 ```bash
 npm install --prefix apps/web
-npm run dev --prefix apps/web
+SPORTSBALL_WEB_DATABASE_URL=postgresql://sportsball:sportsball@localhost:5432/sportsball \
+  npm run dev --prefix apps/web
 ```
 
 The website runs at `http://localhost:3000` and its initial health endpoint is
@@ -129,6 +131,7 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 - [Data sources and coverage](docs/data-sources.md)
 - [Architecture](docs/architecture.md)
 - [Implementation roadmap](docs/roadmap.md)
+- [Web query layer](docs/web-query-layer.md)
 - [Data-completeness audit](docs/data-completeness-audit.md)
 - [Historical box-score backfill](docs/boxscore-backfill.md)
 - [Player statistics data dictionary](docs/player-statistics.md)

@@ -47,4 +47,5 @@ web-dev:
 web-check:
 	npm run lint --prefix apps/web
 	npm run typecheck --prefix apps/web
+	npm run test --prefix apps/web
 	npm run build --prefix apps/web

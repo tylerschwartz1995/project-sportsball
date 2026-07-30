@@ -12,15 +12,19 @@
 
 ### Web application
 
-A server-rendered Next.js TypeScript application will provide league, team,
-player, standings, schedule, and game pages. Hosting will be selected during
+A server-rendered Next.js TypeScript application provides the first league
+standings dashboard and will expand to team, player, schedule, and game pages.
+Server Components call the internal query functions directly instead of making
+an HTTP round trip to the same application. Hosting will be selected during
 the deployment milestone.
 
 ### Application API
 
-Read-only application endpoints will query normalized records rather than
-calling upstream sources during user requests. This keeps the site responsive
-and prevents traffic from multiplying NHL or MoneyPuck requests.
+Read-only application endpoints and Server Components query normalized records
+through a shared, server-only TypeScript data layer. The first contracts expose
+the season index and NHL standings. No page or route calls an upstream NHL or
+MoneyPuck source during a user request, keeping the site responsive and
+preventing public traffic from multiplying provider requests.
 
 ### Database
 
