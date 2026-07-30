@@ -52,11 +52,14 @@ were implemented on July 30, 2026.
   dispatch.
 - [x] Add source freshness, stuck-run, recent-game completeness, and HTTP
   readiness checks.
+- [x] Add safe abandoned-run reconciliation and complete a verified local
+  logical backup/restore rehearsal.
 - Activate the schedule after the hosted database, secrets, and recovery
   process are ready.
-- Add alerts, backups, and a data-quality dashboard.
+- Select a hosted PostgreSQL plan with sufficient storage and recovery.
+- Configure provider-managed backups, alerts, and a data-quality dashboard.
 - Deploy the application and database.
-- Document recovery and source-change procedures.
+- Complete the production recovery and source-change runbooks.
 
 ## Milestone 6: predictive modelling
 

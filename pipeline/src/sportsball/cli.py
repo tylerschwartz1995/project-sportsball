@@ -1,6 +1,6 @@
 """Command-line entry points for pipeline development and operations."""
 
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 
 import typer
 
@@ -61,6 +61,7 @@ from sportsball.ingestion.orchestration.standings_backfill import (
     backfill_final_standings,
 )
 from sportsball.normalization.games import schedule_games_frame
+from sportsball.operations.ingestion_recovery import reconcile_abandoned_runs
 from sportsball.validation.completeness import (
     audit_completeness,
     format_season_audit,
@@ -142,6 +143,38 @@ def check_data_health_command(
         warnings_as_errors and report.status is HealthStatus.WARNING
     ):
         raise typer.Exit(code=1)
+
+
+@app.command("reconcile-abandoned-runs")
+def reconcile_abandoned_runs_command(
+    older_than_hours: int = 2,
+    apply: bool = False,
+) -> None:
+    """Find interrupted runs and fail only those superseded by later successes."""
+    try:
+        result = reconcile_abandoned_runs(
+            older_than=timedelta(hours=older_than_hours),
+            apply=apply,
+        )
+    except ValueError as error:
+        raise typer.BadParameter(str(error)) from error
+
+    mode = "apply" if apply else "dry-run"
+    typer.echo(
+        f"mode={mode} abandoned={len(result.runs)} "
+        f"superseded={result.superseded} unresolved={result.unresolved} "
+        f"reconciled={result.reconciled}"
+    )
+    for run in result.runs:
+        superseding = str(run.superseding_run_id) if run.superseding_run_id else "none"
+        typer.echo(
+            f"  run={run.run_id} job={run.job_name} "
+            f"started_at={run.started_at.isoformat()} superseding_run={superseding}"
+        )
+    if not apply and result.superseded:
+        typer.echo("dry-run only; rerun with --apply to mark superseded records failed")
+    if result.unresolved:
+        typer.echo("unresolved records were not changed", err=True)
 
 
 @app.command()

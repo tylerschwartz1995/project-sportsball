@@ -141,6 +141,17 @@ ingestion, and missing recent box scores or play-by-play. The web readiness
 endpoint at `http://localhost:3000/api/health` exposes a smaller database and
 daily-run status suitable for deployment monitoring.
 
+Create and verify a portable local PostgreSQL backup:
+
+```bash
+make db-backup
+make db-verify-backup BACKUP_PATH=backups/sportsball-YYYYMMDDTHHMMSSZ.dump
+```
+
+The restore verification uses an isolated scratch database and never
+overwrites the development database. See
+[Database backup and recovery](docs/database-recovery.md).
+
 Run the Python checks:
 
 ```bash
@@ -177,4 +188,5 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 - [Advanced analytics presentation](docs/advanced-analytics.md)
 - [Daily ingestion](docs/daily-ingestion.md)
 - [Operational data health](docs/data-health.md)
+- [Database backup and recovery](docs/database-recovery.md)
 - [Product ideas](docs/product-ideas.md)
