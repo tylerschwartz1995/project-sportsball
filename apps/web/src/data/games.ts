@@ -1,6 +1,12 @@
 import "server-only";
 
-import type { GameDateSummary, GameSummary } from "@/contracts/game";
+import type {
+  GameBoxScore,
+  GameDateSummary,
+  GameGoalieStats,
+  GameSkaterStats,
+  GameSummary,
+} from "@/contracts/game";
 import { query } from "@/data/database";
 
 type GameDateRow = {
@@ -31,6 +37,89 @@ type GameRow = {
   home_shots_on_goal: number | null;
 };
 
+type GameSkaterRow = {
+  team_id: number;
+  nhl_player_id: number;
+  player_name: string;
+  sweater_number: number | null;
+  position: string;
+  goals: number;
+  assists: number;
+  points: number;
+  plus_minus: number;
+  penalty_minutes: number;
+  hits: number;
+  power_play_goals: number;
+  shots_on_goal: number;
+  faceoff_win_percentage: number | null;
+  blocked_shots: number;
+  giveaways: number;
+  takeaways: number;
+  shifts: number;
+  time_on_ice_seconds: number | null;
+};
+
+type GameGoalieRow = {
+  team_id: number;
+  nhl_player_id: number;
+  player_name: string;
+  sweater_number: number | null;
+  starter: boolean;
+  decision: string | null;
+  goals_against: number;
+  shots_against: number;
+  saves: number;
+  save_percentage: number | null;
+  even_strength_goals_against: number;
+  even_strength_saves: number;
+  power_play_goals_against: number;
+  power_play_saves: number;
+  shorthanded_goals_against: number;
+  shorthanded_saves: number;
+  time_on_ice_seconds: number | null;
+};
+
+const gameSelect = `
+  SELECT
+    game.id::integer AS id,
+    game.nhl_id::integer AS nhl_game_id,
+    game.season_id,
+    game.game_type,
+    game.game_date::text AS game_date,
+    game.start_time_utc::text AS start_time_utc,
+    game.state,
+    game.last_period_type,
+    away_team.id::integer AS away_team_id,
+    away_team.nhl_id AS away_nhl_team_id,
+    COALESCE(away_team_season.abbreviation, away_team.abbreviation) AS away_abbreviation,
+    COALESCE(away_team_season.full_name, away_team.name) AS away_name,
+    away_stats.score AS away_score,
+    away_stats.shots_on_goal AS away_shots_on_goal,
+    home_team.id::integer AS home_team_id,
+    home_team.nhl_id AS home_nhl_team_id,
+    COALESCE(home_team_season.abbreviation, home_team.abbreviation) AS home_abbreviation,
+    COALESCE(home_team_season.full_name, home_team.name) AS home_name,
+    home_stats.score AS home_score,
+    home_stats.shots_on_goal AS home_shots_on_goal
+  FROM games AS game
+  JOIN teams AS away_team
+    ON away_team.id = game.away_team_id
+  JOIN teams AS home_team
+    ON home_team.id = game.home_team_id
+  LEFT JOIN team_seasons AS away_team_season
+    ON away_team_season.team_id = away_team.id
+   AND away_team_season.season_id = game.season_id
+  LEFT JOIN team_seasons AS home_team_season
+    ON home_team_season.team_id = home_team.id
+   AND home_team_season.season_id = game.season_id
+  LEFT JOIN team_game_stats AS away_stats
+    ON away_stats.game_id = game.id
+   AND away_stats.team_id = game.away_team_id
+  LEFT JOIN team_game_stats AS home_stats
+    ON home_stats.game_id = game.id
+   AND home_stats.team_id = game.home_team_id
+`;
+
 export async function listGameDates(
   seasonId: number,
 ): Promise<GameDateSummary[]> {
@@ -59,44 +148,7 @@ export async function getGamesByDate(
 ): Promise<GameSummary[]> {
   const rows = await query<GameRow>(
     `
-      SELECT
-        game.id::integer AS id,
-        game.nhl_id::integer AS nhl_game_id,
-        game.season_id,
-        game.game_type,
-        game.game_date::text AS game_date,
-        game.start_time_utc::text AS start_time_utc,
-        game.state,
-        game.last_period_type,
-        away_team.id::integer AS away_team_id,
-        away_team.nhl_id AS away_nhl_team_id,
-        COALESCE(away_team_season.abbreviation, away_team.abbreviation) AS away_abbreviation,
-        COALESCE(away_team_season.full_name, away_team.name) AS away_name,
-        away_stats.score AS away_score,
-        away_stats.shots_on_goal AS away_shots_on_goal,
-        home_team.id::integer AS home_team_id,
-        home_team.nhl_id AS home_nhl_team_id,
-        COALESCE(home_team_season.abbreviation, home_team.abbreviation) AS home_abbreviation,
-        COALESCE(home_team_season.full_name, home_team.name) AS home_name,
-        home_stats.score AS home_score,
-        home_stats.shots_on_goal AS home_shots_on_goal
-      FROM games AS game
-      JOIN teams AS away_team
-        ON away_team.id = game.away_team_id
-      JOIN teams AS home_team
-        ON home_team.id = game.home_team_id
-      LEFT JOIN team_seasons AS away_team_season
-        ON away_team_season.team_id = away_team.id
-       AND away_team_season.season_id = game.season_id
-      LEFT JOIN team_seasons AS home_team_season
-        ON home_team_season.team_id = home_team.id
-       AND home_team_season.season_id = game.season_id
-      LEFT JOIN team_game_stats AS away_stats
-        ON away_stats.game_id = game.id
-       AND away_stats.team_id = game.away_team_id
-      LEFT JOIN team_game_stats AS home_stats
-        ON home_stats.game_id = game.id
-       AND home_stats.team_id = game.home_team_id
+      ${gameSelect}
       WHERE game.season_id = $1
         AND game.game_date = $2::date
       ORDER BY game.start_time_utc, game.nhl_id
@@ -104,7 +156,117 @@ export async function getGamesByDate(
     [seasonId, gameDate],
   );
 
-  return rows.map((row) => ({
+  return rows.map(mapGame);
+}
+
+export async function getGameBoxScore(
+  nhlGameId: number,
+): Promise<GameBoxScore | null> {
+  const [gameRows, skaterRows, goalieRows] = await Promise.all([
+    query<GameRow>(
+      `
+        ${gameSelect}
+        WHERE game.nhl_id = $1
+      `,
+      [nhlGameId],
+    ),
+    query<GameSkaterRow>(
+      `
+        SELECT
+          stats.team_id,
+          player.nhl_id::integer AS nhl_player_id,
+          player.display_name AS player_name,
+          stats.sweater_number,
+          stats.position,
+          stats.goals,
+          stats.assists,
+          stats.points,
+          stats.plus_minus,
+          stats.penalty_minutes,
+          stats.hits,
+          stats.power_play_goals,
+          stats.shots_on_goal,
+          stats.faceoff_win_percentage,
+          stats.blocked_shots,
+          stats.giveaways,
+          stats.takeaways,
+          stats.shifts,
+          stats.time_on_ice_seconds
+        FROM player_game_stats AS stats
+        JOIN players AS player
+          ON player.id = stats.player_id
+        JOIN games AS game
+          ON game.id = stats.game_id
+        WHERE game.nhl_id = $1
+        ORDER BY stats.team_id, stats.points DESC, stats.goals DESC,
+                 player.display_name
+      `,
+      [nhlGameId],
+    ),
+    query<GameGoalieRow>(
+      `
+        SELECT
+          stats.team_id,
+          player.nhl_id::integer AS nhl_player_id,
+          player.display_name AS player_name,
+          stats.sweater_number,
+          stats.starter,
+          stats.decision,
+          stats.goals_against,
+          stats.shots_against,
+          stats.saves,
+          stats.save_percentage,
+          stats.even_strength_goals_against,
+          stats.even_strength_saves,
+          stats.power_play_goals_against,
+          stats.power_play_saves,
+          stats.shorthanded_goals_against,
+          stats.shorthanded_saves,
+          stats.time_on_ice_seconds
+        FROM goalie_game_stats AS stats
+        JOIN players AS player
+          ON player.id = stats.player_id
+        JOIN games AS game
+          ON game.id = stats.game_id
+        WHERE game.nhl_id = $1
+        ORDER BY stats.team_id, stats.starter DESC,
+                 stats.time_on_ice_seconds DESC, player.display_name
+      `,
+      [nhlGameId],
+    ),
+  ]);
+
+  const row = gameRows[0];
+  if (!row) {
+    return null;
+  }
+
+  const game = mapGame(row);
+  return {
+    ...game,
+    awayTeam: {
+      ...game.awayTeam,
+      skaters: skaterRows
+        .filter((player) => player.team_id === row.away_team_id)
+        .map(mapGameSkater),
+      goalies: goalieRows
+        .filter((player) => player.team_id === row.away_team_id)
+        .map(mapGameGoalie),
+    },
+    homeTeam: {
+      ...game.homeTeam,
+      skaters: skaterRows
+        .filter((player) => player.team_id === row.home_team_id)
+        .map(mapGameSkater),
+      goalies: goalieRows
+        .filter((player) => player.team_id === row.home_team_id)
+        .map(mapGameGoalie),
+    },
+  };
+}
+
+function mapGame(row: GameRow): GameSummary {
+  return {
     id: row.id,
     nhlGameId: row.nhl_game_id,
     seasonId: row.season_id,
@@ -129,5 +291,49 @@ export async function getGamesByDate(
       score: row.home_score,
       shotsOnGoal: row.home_shots_on_goal,
     },
-  }));
+  };
+}
+
+function mapGameSkater(row: GameSkaterRow): GameSkaterStats {
+  return {
+    nhlPlayerId: row.nhl_player_id,
+    name: row.player_name,
+    sweaterNumber: row.sweater_number,
+    position: row.position,
+    goals: row.goals,
+    assists: row.assists,
+    points: row.points,
+    plusMinus: row.plus_minus,
+    penaltyMinutes: row.penalty_minutes,
+    hits: row.hits,
+    powerPlayGoals: row.power_play_goals,
+    shotsOnGoal: row.shots_on_goal,
+    faceoffWinPercentage: row.faceoff_win_percentage,
+    blockedShots: row.blocked_shots,
+    giveaways: row.giveaways,
+    takeaways: row.takeaways,
+    shifts: row.shifts,
+    timeOnIceSeconds: row.time_on_ice_seconds,
+  };
+}
+
+function mapGameGoalie(row: GameGoalieRow): GameGoalieStats {
+  return {
+    nhlPlayerId: row.nhl_player_id,
+    name: row.player_name,
+    sweaterNumber: row.sweater_number,
+    starter: row.starter,
+    decision: row.decision,
+    goalsAgainst: row.goals_against,
+    shotsAgainst: row.shots_against,
+    saves: row.saves,
+    savePercentage: row.save_percentage,
+    evenStrengthGoalsAgainst: row.even_strength_goals_against,
+    evenStrengthSaves: row.even_strength_saves,
+    powerPlayGoalsAgainst: row.power_play_goals_against,
+    powerPlaySaves: row.power_play_saves,
+    shorthandedGoalsAgainst: row.shorthanded_goals_against,
+    shorthandedSaves: row.shorthanded_saves,
+    timeOnIceSeconds: row.time_on_ice_seconds,
+  };
 }

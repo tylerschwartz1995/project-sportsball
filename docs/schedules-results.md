@@ -12,6 +12,9 @@ Each result shows:
 - whether the game ended in regulation, overtime, or a shootout;
 - the recorded UTC start time and NHL game identifier.
 
+Completed results link to `/games/{nhlGameId}`, which shows the full
+traditional box score.
+
 The underlying read model keeps one game as the response grain. The
 `getGamesByDate()` query joins the two participating teams and their
 `team_game_stats` rows into one typed `GameSummary`. Result rows are left
@@ -32,3 +35,12 @@ temporarily unavailable.
 The page reads the database query functions directly as a Server Component.
 It does not call this endpoint internally; the JSON representation exists for
 future client-side features and other consumers.
+
+Individual box scores are also available as JSON:
+
+```text
+GET /api/games/2025030416
+```
+
+See [Game box scores](game-box-scores.md) for the player-level grain and
+display behavior.

@@ -187,7 +187,12 @@ function GameCard({ game }: { game: GameSummary }) {
       </div>
       <div className="flex items-center justify-between border-t border-white/[0.07] px-5 py-3 text-xs text-slate-500">
         <span>{formatTime(game.startTimeUtc)}</span>
-        <span>NHL game {game.nhlGameId}</span>
+        <Link
+          href={`/games/${game.nhlGameId}`}
+          className="font-medium text-cyan-300 transition hover:text-cyan-200"
+        >
+          View box score →
+        </Link>
       </div>
     </article>
   );
