@@ -3,7 +3,7 @@ PYTHON_PATHS := pipeline/src pipeline/tests database/migrations
 
 .PHONY: env pipeline-sync pipeline-lock pipeline-format pipeline-lint pipeline-typecheck
 .PHONY: pipeline-test pipeline-check db-up db-down db-migrate web-install
-.PHONY: web-dev web-check
+.PHONY: db-backup db-verify-backup web-dev web-check
 
 env: pipeline-sync
 
@@ -37,6 +37,13 @@ db-down:
 
 db-migrate:
 	$(UV) run --project pipeline --frozen alembic --config database/alembic.ini upgrade head
+
+db-backup:
+	./scripts/backup-local-database.sh
+
+db-verify-backup:
+	@test -n "$(BACKUP_PATH)" || (echo "BACKUP_PATH is required" && exit 1)
+	./scripts/verify-local-database-backup.sh "$(BACKUP_PATH)"
 
 web-install:
 	npm install --prefix apps/web

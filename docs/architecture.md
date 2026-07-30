@@ -179,6 +179,12 @@ route exposes only database readiness and daily-parent freshness. See
 [Daily ingestion](daily-ingestion.md) and
 [Operational data health](data-health.md).
 
+Portable PostgreSQL custom-format backups and scratch-database restore tests
+complement the future provider's managed backups and point-in-time recovery.
+Interrupted audit records are only reconciled automatically when a later
+successful run with identical parameters proves recovery. See
+[Database backup and recovery](database-recovery.md).
+
 ## Boundaries
 
 - No upstream request occurs while rendering a user page.
