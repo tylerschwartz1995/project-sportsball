@@ -64,6 +64,8 @@ were implemented on July 30, 2026.
 - [x] Select Data Workspace and implement the persistent production theme
   toggle plus responsive global navigation.
 - [x] Apply Data Workspace natively to the league overview and standings.
+- [x] Apply Data Workspace hierarchy, controls, and readable typography to team
+  and player directories and primary profiles.
 - [ ] Apply the production visual design system across the remaining routes.
 - [ ] Establish shared plot conventions and add rolling team and player trends.
 

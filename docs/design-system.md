@@ -53,9 +53,8 @@ width. The shell owns sport context, primary navigation, data status, and the
 theme control; pages own their season and dataset controls.
 
 Light and dark modes use semantic tokens rather than separate component markup.
-The initial mode follows the operating system, an explicit selection persists
-on the device, and a pre-render bootstrap applies it before the interface is
-painted.
+Dark is the first-visit default, an explicit selection persists on the device,
+and a pre-render bootstrap applies it before the interface is painted.
 
 ## Data components
 
@@ -79,11 +78,10 @@ painted.
 
 ## Rollout
 
-The league overview and standings are the first native Data Workspace routes.
-The team profile retains the earlier reference components while it awaits the
-next migration group. Remaining rollout order:
+The league overview, standings, team and player directories, and primary team
+and player profiles use the Data Workspace hierarchy and semantic controls.
+Remaining rollout order:
 
-1. team and player profiles plus directories;
-2. game pages and timelines;
-3. advanced leaderboards and the metric guide;
-4. final cross-route mobile and accessibility review.
+1. game pages and timelines;
+2. advanced leaderboards and the metric guide;
+3. final cross-route mobile and accessibility review.

@@ -4,6 +4,10 @@ import { DirectoryControls } from "@/app/_components/directory-controls";
 import { Pagination } from "@/app/_components/pagination";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
+import {
+  WorkspaceMetric,
+  WorkspacePageHeader,
+} from "@/app/_components/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
 import type { TeamSeasonSummary } from "@/contracts/team";
@@ -89,45 +93,38 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
       <SiteHeader active="teams" />
 
       <section className="py-10">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
-              Team directory
-            </p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-              {selectedSeason?.label ?? "No season"} teams
-            </h2>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-400">
-              Browse every club from the selected season. Team profiles combine
-              results, rosters, advanced analytics, and five-on-five units.
-            </p>
-          </div>
-          <SeasonPicker
-            seasons={seasons}
-            selectedSeasonId={selectedSeason?.id}
-          />
-        </div>
+        <WorkspacePageHeader
+          eyebrow="Team directory"
+          title={`${selectedSeason?.label ?? "No season"} teams`}
+          description="Browse every club from the selected season. Team profiles combine results, rosters, advanced analytics, and five-on-five units."
+          action={
+            <SeasonPicker
+              seasons={seasons}
+              selectedSeasonId={selectedSeason?.id}
+            />
+          }
+        />
 
         {pointsLeader && selectedSeason ? (
           <>
-            <div className="mt-10 grid gap-4 md:grid-cols-3">
-              <SummaryCard
+            <div className="workspace-metric-grid">
+              <WorkspaceMetric
                 label="Points leader"
-                entry={pointsLeader}
+                value={pointsLeader.team.name}
                 detail={`${pointsLeader.stats.standingsPoints} points`}
-                seasonId={selectedSeason.id}
+                href={`/teams/${pointsLeader.team.nhlTeamId}?season=${selectedSeason.id}`}
               />
-              <SummaryCard
+              <WorkspaceMetric
                 label="Most goals"
-                entry={goalsLeader}
+                value={goalsLeader.team.name}
                 detail={`${goalsLeader.stats.goalsFor} goals`}
-                seasonId={selectedSeason.id}
+                href={`/teams/${goalsLeader.team.nhlTeamId}?season=${selectedSeason.id}`}
               />
-              <SummaryCard
+              <WorkspaceMetric
                 label="Fewest goals allowed"
-                entry={defenseLeader}
+                value={defenseLeader.team.name}
                 detail={`${defenseLeader.stats.goalsAgainst} goals against`}
-                seasonId={selectedSeason.id}
+                href={`/teams/${defenseLeader.team.nhlTeamId}?season=${selectedSeason.id}`}
               />
             </div>
 
@@ -150,7 +147,7 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
 
             {teamPage.items.length > 0 ? (
               <>
-                <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                <div className="workspace-team-grid">
                   {teamPage.items.map((entry) => (
                     <TeamCard
                       key={entry.team.id}
@@ -275,35 +272,35 @@ function TeamCard({
     entry.stats.overtimeLosses + entry.stats.shootoutLosses;
 
   return (
-    <article className="group rounded-2xl border border-white/10 bg-slate-950/50 p-5 transition hover:border-cyan-300/25 hover:bg-slate-950/80">
+    <article className="workspace-team-card">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.14em] text-cyan-300">
+          <p className="workspace-team-card-kicker">
             {entry.team.abbreviation}
             {standings?.divisionName ? ` · ${standings.divisionName}` : ""}
           </p>
           <Link
             href={`/teams/${entry.team.nhlTeamId}?season=${seasonId}`}
-            className="mt-2 block text-lg font-semibold text-white transition group-hover:text-cyan-200"
+            className="workspace-team-card-name"
           >
             {entry.team.name}
           </Link>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="workspace-team-card-rank">
             {standings
               ? `League rank #${standings.leagueRank}`
               : `${entry.stats.gamesPlayed} games`}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-semibold tabular-nums text-cyan-200">
+          <p className="workspace-team-card-points">
             {entry.stats.standingsPoints}
           </p>
-          <p className="text-xs uppercase tracking-[0.12em] text-slate-600">
+          <p className="workspace-team-card-label">
             points
           </p>
         </div>
       </div>
-      <dl className="mt-5 grid grid-cols-3 gap-3 border-t border-white/[0.06] pt-4 text-sm">
+      <dl>
         <CardStat
           label="Record"
           value={`${entry.stats.wins}-${entry.stats.regulationLosses}-${overtimeLosses}`}
@@ -311,12 +308,12 @@ function TeamCard({
         <CardStat label="Goals" value={entry.stats.goalsFor} />
         <CardStat label="Allowed" value={entry.stats.goalsAgainst} />
       </dl>
-      <div className="mt-5 flex items-center justify-between text-xs">
-        <span className="text-slate-600">
+      <div className="workspace-team-card-footer">
+        <span className="workspace-team-card-meta">
           Shot differential{" "}
           {formatSigned(entry.stats.shotsFor - entry.stats.shotsAgainst)}
         </span>
-        <span className="font-medium text-cyan-300">Team profile →</span>
+        <span className="workspace-team-card-link">Team profile →</span>
       </div>
     </article>
   );
@@ -331,38 +328,11 @@ function CardStat({
 }) {
   return (
     <div>
-      <dt className="text-xs uppercase tracking-[0.1em] text-slate-600">
+      <dt className="workspace-team-card-label">
         {label}
       </dt>
-      <dd className="mt-1 font-medium tabular-nums text-slate-200">{value}</dd>
+      <dd>{value}</dd>
     </div>
-  );
-}
-
-function SummaryCard({
-  label,
-  entry,
-  detail,
-  seasonId,
-}: {
-  label: string;
-  entry: TeamSeasonSummary;
-  detail: string;
-  seasonId: number;
-}) {
-  return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-        {label}
-      </p>
-      <Link
-        href={`/teams/${entry.team.nhlTeamId}?season=${seasonId}`}
-        className="mt-3 block text-xl font-semibold text-white transition hover:text-cyan-200"
-      >
-        {entry.team.name}
-      </Link>
-      <p className="mt-2 text-sm text-slate-400">{detail}</p>
-    </article>
   );
 }
 

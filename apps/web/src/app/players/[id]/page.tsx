@@ -85,9 +85,9 @@ export default async function PlayerPage({
             <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
               {profile.position ?? "Player"} · NHL {profile.nhlPlayerId}
             </p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
+            <h1 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
               {profile.name}
-            </h2>
+            </h1>
             <p className="mt-4 text-base text-slate-400">
               {selectedSeason
                 ? `${selectedSeason.label} and career statistics`
