@@ -14,6 +14,7 @@ TRANSIENT_STATUS_CODES = {408, 429, 500, 502, 503, 504}
 SEASON_RESOURCE_TYPES = {"skaters", "goalies", "teams"}
 PLAYER_GAME_RESOURCE_TYPES = {"skaters", "goalies"}
 PLAYER_GAME_ARCHIVE_BASE_URL = "https://peter-tanner.com/moneypuck/downloads/seasonPlayersSummary"
+DOWNLOAD_BASE_URL = "https://peter-tanner.com/moneypuck/downloads"
 
 
 @dataclass(frozen=True)
@@ -109,6 +110,21 @@ class MoneyPuckClient:
         return MoneyPuckCsvFetch(
             resource_type=f"{resource_type}_games",
             source_key=f"{season_start_year}:regular:{resource_type}_games",
+            source_url=str(response.url),
+            content_type=response.headers.get("content-type"),
+            content=content,
+            checksum=hashlib.sha256(content).hexdigest(),
+        )
+
+    def fetch_shot_archive(self, season_start_year: int) -> MoneyPuckCsvFetch:
+        """Download one approved season-level shot archive."""
+        response = self._get(f"{DOWNLOAD_BASE_URL}/shots_{season_start_year}.zip")
+        content = response.content
+        if not content.startswith(b"PK"):
+            raise ValueError("MoneyPuck shot response is not a ZIP archive")
+        return MoneyPuckCsvFetch(
+            resource_type="shots",
+            source_key=f"{season_start_year}:shots",
             source_url=str(response.url),
             content_type=response.headers.get("content-type"),
             content=content,

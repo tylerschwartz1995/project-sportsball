@@ -387,6 +387,25 @@ class MoneyPuckPlayerGameBackfill(Base):
     )
 
 
+class MoneyPuckShotBackfill(Base):
+    """Durable processing state for one MoneyPuck shot season."""
+
+    __tablename__ = "moneypuck_shot_backfills"
+
+    season_id: Mapped[int] = mapped_column(
+        ForeignKey("seasons.id"), primary_key=True, autoincrement=False
+    )
+    status: Mapped[str] = mapped_column(String(20))
+    attempt_count: Mapped[int] = mapped_column(Integer, default=0)
+    error_message: Mapped[str | None] = mapped_column(Text)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+
 class TeamGameStats(Base):
     """Traditional team totals from one NHL box score."""
 
@@ -943,6 +962,61 @@ class MoneyPuckGoalieGameStats(Base):
     low_danger_x_goals_against: Mapped[float | None] = mapped_column(Float)
     medium_danger_x_goals_against: Mapped[float | None] = mapped_column(Float)
     high_danger_x_goals_against: Mapped[float | None] = mapped_column(Float)
+
+
+class MoneyPuckShot(Base):
+    """One MoneyPuck modeled shot attempt."""
+
+    __tablename__ = "moneypuck_shots"
+    __table_args__ = (
+        UniqueConstraint(
+            "game_id",
+            "source_event_index",
+            name="uq_moneypuck_shots_game_event",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id"), index=True)
+    shooter_player_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), index=True)
+    goalie_player_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), index=True)
+    shooting_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    defending_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"))
+    source_shot_id: Mapped[int] = mapped_column(BigInteger)
+    source_event_index: Mapped[int] = mapped_column(Integer)
+    event_type: Mapped[str] = mapped_column(String(20), index=True)
+    period: Mapped[int] = mapped_column(SmallInteger)
+    time_in_period_seconds: Mapped[int] = mapped_column(SmallInteger)
+    is_home_team: Mapped[bool] = mapped_column(Boolean)
+    is_playoff_game: Mapped[bool] = mapped_column(Boolean)
+    is_goal: Mapped[bool] = mapped_column(Boolean)
+    was_on_goal: Mapped[bool] = mapped_column(Boolean)
+    shot_type: Mapped[str | None] = mapped_column(String(30))
+    location: Mapped[str | None] = mapped_column(String(30))
+    x_coord: Mapped[float | None] = mapped_column(Float)
+    y_coord: Mapped[float | None] = mapped_column(Float)
+    x_coord_adjusted: Mapped[float | None] = mapped_column(Float)
+    y_coord_adjusted: Mapped[float | None] = mapped_column(Float)
+    shot_distance: Mapped[float | None] = mapped_column(Float)
+    shot_angle: Mapped[float | None] = mapped_column(Float)
+    x_goal: Mapped[float | None] = mapped_column(Float)
+    x_rebound: Mapped[float | None] = mapped_column(Float)
+    x_froze: Mapped[float | None] = mapped_column(Float)
+    x_shot_was_on_goal: Mapped[float | None] = mapped_column(Float)
+    x_play_stopped: Mapped[float | None] = mapped_column(Float)
+    x_play_continued_in_zone: Mapped[float | None] = mapped_column(Float)
+    x_play_continued_outside_zone: Mapped[float | None] = mapped_column(Float)
+    generated_rebound: Mapped[bool] = mapped_column(Boolean)
+    was_rebound: Mapped[bool] = mapped_column(Boolean)
+    was_rush: Mapped[bool] = mapped_column(Boolean)
+    was_off_wing: Mapped[bool] = mapped_column(Boolean)
+    was_empty_net: Mapped[bool] = mapped_column(Boolean)
+    home_skaters_on_ice: Mapped[int | None] = mapped_column(SmallInteger)
+    away_skaters_on_ice: Mapped[int | None] = mapped_column(SmallInteger)
+    home_team_goals: Mapped[int | None] = mapped_column(SmallInteger)
+    away_team_goals: Mapped[int | None] = mapped_column(SmallInteger)
+    time_since_last_event: Mapped[float | None] = mapped_column(Float)
+    distance_from_last_event: Mapped[float | None] = mapped_column(Float)
 
 
 class TeamSeasonStats(Base):
