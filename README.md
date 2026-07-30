@@ -182,6 +182,7 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 - [Architecture](docs/architecture.md)
 - [Implementation roadmap](docs/roadmap.md)
 - [Visual design system](docs/design-system.md)
+- [Visual direction exploration](docs/design-exploration.md)
 - [Web query layer](docs/web-query-layer.md)
 - [Data-completeness audit](docs/data-completeness-audit.md)
 - [Historical box-score backfill](docs/boxscore-backfill.md)

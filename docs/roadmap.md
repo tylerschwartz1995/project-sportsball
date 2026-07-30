@@ -59,7 +59,12 @@ were implemented on July 30, 2026.
 - [x] Consolidate advanced metric discovery and definitions.
 - [x] Establish the production visual design system and team-profile reference
   implementation.
+- [x] Add a three-direction visual design lab with light/dark and controlled
+  team-color previews.
+- [ ] Select a visual direction and implement the persistent production theme
+  toggle.
 - [ ] Apply the production visual design system across the remaining routes.
+- [ ] Establish shared plot conventions and add rolling team and player trends.
 
 ## Milestone 6: daily operation
 
