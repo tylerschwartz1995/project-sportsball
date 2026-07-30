@@ -14,6 +14,23 @@ The React Server Components query PostgreSQL directly. No browser request or
 page render calls MoneyPuck, and the normalized source records remain separate
 from traditional NHL statistics.
 
+## Advanced game query package
+
+`getMoneyPuckGameAnalytics(nhlGameId)` is the server-only application boundary
+for the next game-page slice. It performs six parameterized reads in parallel
+and returns one serializable contract containing:
+
+- historical game and team identity;
+- team, skater, and goalie situation metrics;
+- chronologically ordered modeled shots with coordinates and expected-goal
+  context;
+- forward lines and defensive pairings with canonical player identities.
+
+An existing NHL game returns a package even when MoneyPuck does not cover that
+season or game; its advanced record arrays are empty. An unknown NHL game
+returns `null`. Player-game and line data are regular-season only, while team
+game and shot data also cover playoffs.
+
 ## Current metrics
 
 Team and skater views include:

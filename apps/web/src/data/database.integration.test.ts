@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from "vitest";
 
+import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";
 import { closeDatabasePool } from "@/data/database";
 import {
   getGameBoxScore,
@@ -106,5 +107,36 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     const player = await getPlayerDetail(8478402);
     expect(player?.profile.name).toBe("Connor McDavid");
     expect(player?.skaterSeasons.length).toBeGreaterThan(10);
+  });
+
+  it("loads a complete regular-season MoneyPuck game package", async () => {
+    const advanced = await getMoneyPuckGameAnalytics(2025021312);
+
+    expect(advanced).toMatchObject({
+      game: {
+        nhlGameId: 2025021312,
+        seasonId: 20252026,
+      },
+    });
+    expect(advanced?.teamSituations).toHaveLength(10);
+    expect(advanced?.skaterSituations).toHaveLength(180);
+    expect(advanced?.goalieSituations).toHaveLength(10);
+    expect(advanced?.shots).toHaveLength(86);
+    expect(advanced?.forwardLines).toHaveLength(34);
+    expect(advanced?.defensivePairings).toHaveLength(21);
+    expect(typeof advanced?.shots[0]?.sourceShotId).toBe("string");
+    expect(() => JSON.stringify(advanced)).not.toThrow();
+  });
+
+  it("keeps playoff coverage boundaries explicit", async () => {
+    const advanced = await getMoneyPuckGameAnalytics(2025030416);
+
+    expect(advanced?.game.gameType).toBe(3);
+    expect(advanced?.teamSituations).toHaveLength(10);
+    expect(advanced?.shots).toHaveLength(73);
+    expect(advanced?.skaterSituations).toHaveLength(0);
+    expect(advanced?.goalieSituations).toHaveLength(0);
+    expect(advanced?.forwardLines).toHaveLength(0);
+    expect(advanced?.defensivePairings).toHaveLength(0);
   });
 });
