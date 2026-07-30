@@ -1,21 +1,24 @@
 # Visual direction exploration
 
-The temporary `/design-lab` route compares three candidate directions using the
-same Colorado Avalanche season data. It is intentionally separate from the
-production routes so a visual direction can be selected before the system is
-propagated through the application.
+The temporary `/design-lab` route compares three candidate application systems
+using the same Colorado Avalanche season and NHL standings data. It is
+intentionally separate from the production routes so a visual direction can be
+selected before the system is propagated through the application. The lab can
+switch every concept between a league-home view and a team-profile view.
 
 ## Candidate directions
 
-1. **Data Lab** — compact, technical, and optimized for dense analytical use.
-2. **Modern Broadcast** — energetic, team-forward, and built around large
-   records and strong sports hierarchy.
-3. **Sports Editorial** — spacious, typographic, and closer to a data-rich
-   sports publication.
+1. **Data Workspace** — compact analytics software with a persistent sidebar,
+   workspace tabs, high-density controls, and utility-first tables.
+2. **Sports Publication** — a reading-led product with a masthead, editorial
+   hierarchy, broad whitespace, restrained rules, and narrative statistics.
+3. **Broadcast Product** — a high-energy sports experience with a live ticker,
+   full-width team moments, bold score graphics, and horizontal content rails.
 
-The comparison includes light and dark previews. The preview toggle is local to
-the design lab; production theme persistence will be implemented only after a
-direction is selected.
+These are different information and navigation architectures, not alternate
+skins for one card layout. The comparison also includes light and dark previews.
+Both preview controls are local to the design lab; production navigation and
+theme persistence will be implemented only after a direction is selected.
 
 ## Team identity
 
