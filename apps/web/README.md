@@ -46,7 +46,8 @@ The current read-only slice provides:
 Team, player and game summaries link to their supporting detail pages. Team
 profile season selectors only offer seasons in which that team has stored
 statistics, preventing expansion teams from linking to seasons before they
-existed.
+existed. The team profile is also the reference implementation for the shared
+sport-neutral visual design system documented in `../../docs/design-system.md`.
 - `GET /api/seasons`;
 - `GET /api/standings?season=20242025`;
 - `GET /api/games?season=20252026&date=2026-06-14`;

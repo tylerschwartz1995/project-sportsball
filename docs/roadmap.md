@@ -57,7 +57,9 @@ were implemented on July 30, 2026.
 - [x] Add team and player game logs plus recent-form trend views.
 - [x] Present normalized play-by-play as a game timeline and scoring summary.
 - [x] Consolidate advanced metric discovery and definitions.
-- [ ] Establish and apply the production visual design system.
+- [x] Establish the production visual design system and team-profile reference
+  implementation.
+- [ ] Apply the production visual design system across the remaining routes.
 
 ## Milestone 6: daily operation
 

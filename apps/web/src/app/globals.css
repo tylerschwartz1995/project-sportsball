@@ -1,8 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  --background: #06111f;
-  --foreground: #f8fafc;
+  --background: #07101d;
+  --foreground: #f5f7fb;
+  --surface: #0b1727;
+  --surface-raised: #101e30;
+  --surface-subtle: rgb(255 255 255 / 0.035);
+  --border: rgb(255 255 255 / 0.1);
+  --border-strong: rgb(255 255 255 / 0.16);
+  --muted: #94a3b8;
+  --accent: #67e8f9;
+  --accent-secondary: #c4b5fd;
+  --positive: #6ee7b7;
+  --negative: #fda4af;
+  --radius-panel: 1rem;
 }
 
 @theme inline {
@@ -17,6 +28,42 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   background-image:
-    radial-gradient(circle at 15% 10%, rgb(14 116 144 / 18%), transparent 34rem),
-    radial-gradient(circle at 90% 55%, rgb(30 64 175 / 14%), transparent 38rem);
+    linear-gradient(rgb(255 255 255 / 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 0.018) 1px, transparent 1px),
+    radial-gradient(circle at 15% 8%, rgb(8 145 178 / 17%), transparent 34rem),
+    radial-gradient(circle at 92% 48%, rgb(109 40 217 / 12%), transparent 38rem);
+  background-size:
+    40px 40px,
+    40px 40px,
+    auto,
+    auto;
+}
+
+::selection {
+  background: rgb(103 232 249 / 0.25);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+@layer components {
+  .surface-panel {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+    background:
+      linear-gradient(145deg, rgb(255 255 255 / 0.045), transparent 55%),
+      var(--surface);
+    box-shadow: 0 18px 45px rgb(0 0 0 / 0.16);
+  }
+
+  .data-table-shell {
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-panel);
+    background: rgb(5 13 24 / 0.72);
+    box-shadow: 0 16px 40px rgb(0 0 0 / 0.12);
+  }
 }
