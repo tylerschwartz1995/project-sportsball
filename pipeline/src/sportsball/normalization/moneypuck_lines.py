@@ -38,6 +38,12 @@ REQUIRED_COLUMNS = {
     "totalShotCreditFor",
     "totalShotCreditAgainst",
 }
+OMITTED_LINE_PLAYER_IDS = {
+    "Stutzle": 8482116,
+    "De Leo": 8478029,
+    "Studenic": 8480226,
+    "Sharangovich": 8481068,
+}
 
 
 def moneypuck_line_frame(season_id: int, archive_content: bytes) -> pl.DataFrame:
@@ -56,7 +62,7 @@ def moneypuck_line_frame(season_id: int, archive_content: bytes) -> pl.DataFrame
     if set(source.get_column("situation").unique().to_list()) != {"5on5"}:
         raise ValueError("MoneyPuck line situations changed")
     bad_lengths = source.filter(
-        ((pl.col("position") == "line") & (pl.col("source_line_id").str.len_chars() != 21))
+        ((pl.col("position") == "line") & ~pl.col("source_line_id").str.len_chars().is_in([14, 21]))
         | ((pl.col("position") == "pairing") & (pl.col("source_line_id").str.len_chars() != 14))
     )
     if bad_lengths.height:
@@ -66,9 +72,9 @@ def moneypuck_line_frame(season_id: int, archive_content: bytes) -> pl.DataFrame
         pl.col("source_line_id"),
         pl.col("source_line_id").str.slice(0, 7).cast(pl.Int64).alias("source_player_1_id"),
         pl.col("source_line_id").str.slice(7, 7).cast(pl.Int64).alias("source_player_2_id"),
-        pl.when(pl.col("position") == "line")
+        pl.when((pl.col("position") == "line") & (pl.col("source_line_id").str.len_chars() == 21))
         .then(pl.col("source_line_id").str.slice(14, 7).cast(pl.Int64, strict=False))
-        .otherwise(None)
+        .otherwise(_omitted_line_player_expression())
         .alias("source_player_3_id"),
         canonical_team_expression("playerTeam"),
         canonical_team_expression("opposingTeam", alias="canonical_opponent_abbrev"),
@@ -101,10 +107,30 @@ def moneypuck_line_frame(season_id: int, archive_content: bytes) -> pl.DataFrame
         pl.col("totalShotCreditFor").cast(pl.Float64).alias("total_shot_credit_for"),
         pl.col("totalShotCreditAgainst").cast(pl.Float64).alias("total_shot_credit_against"),
     ).sort("source_game_id", "canonical_team_abbrev", "source_line_id")
-    keys = ["source_game_id", "canonical_team_abbrev", "source_line_id"]
+    keys = [
+        "source_game_id",
+        "canonical_team_abbrev",
+        "source_line_id",
+        "unit_type",
+    ]
     if frame.select(keys).n_unique() != frame.height:
         raise ValueError("duplicate MoneyPuck line-game keys")
+    if frame.filter(
+        (pl.col("unit_type") == "line") & pl.col("source_player_3_id").is_null()
+    ).height:
+        raise ValueError("MoneyPuck forward line has an unknown omitted player")
     return frame
+
+
+def _omitted_line_player_expression() -> pl.Expr:
+    expression = pl.lit(None, dtype=pl.Int64)
+    for name, player_id in OMITTED_LINE_PLAYER_IDS.items():
+        expression = (
+            pl.when(pl.col("name").str.contains(name, literal=True))
+            .then(pl.lit(player_id))
+            .otherwise(expression)
+        )
+    return expression
 
 
 def _read_archive(content: bytes) -> pl.DataFrame:
