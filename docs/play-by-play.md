@@ -65,3 +65,27 @@ source sort order without inventing a time.
 
 The backfill is idempotent. A successful refresh replaces one game's normalized event
 snapshot in a transaction, while raw responses remain checksum-versioned for provenance.
+
+## Website presentation
+
+Completed game pages read `game_events` and `game_event_players` through the
+server-only `getGamePlayByPlay()` query. Its two parameterized reads run in
+parallel, preserve the NHL chronological sort order, attach historical team
+identity, and group each participant beneath the event with their semantic
+role.
+
+The page presents:
+
+- an always-visible scoring summary with period, time, team, scorer, assists,
+  strength, shot type, and running score;
+- an expandable section for every period containing all recorded events in
+  order;
+- readable event descriptions for goals, penalties, shots, blocks, hits,
+  faceoffs, possession changes, stoppages, and period boundaries;
+- links from canonical players and teams to their supporting profiles;
+- unresolved historical player references as visible NHL source identifiers
+  rather than invented identities.
+
+Goals and penalties receive stronger visual emphasis within the full timeline.
+Historical nulls remain visible as unavailable details; the presentation does
+not infer coordinates, clocks, or players that are absent from the source.

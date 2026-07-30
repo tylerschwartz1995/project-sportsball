@@ -13,12 +13,13 @@
 ### Web application
 
 A server-rendered Next.js TypeScript application provides a league overview
-dashboard, dedicated standings, schedules, traditional and advanced game
-pages, a team directory, player profiles, league-wide advanced leaderboards,
-team and player game logs with recent-form summaries, historical navigation,
-and sortable statistical comparisons. Server Components call the internal
-query functions directly instead of making an HTTP round trip to the same
-application. Hosting will be selected during the deployment milestone.
+dashboard, dedicated standings, schedules, traditional and advanced game pages,
+official scoring summaries and play-by-play timelines, a team directory,
+player profiles, league-wide advanced leaderboards, team and player game logs
+with recent-form summaries, historical navigation, and sortable statistical
+comparisons. Server Components call the internal query functions directly
+instead of making an HTTP round trip to the same application. Hosting will be
+selected during the deployment milestone.
 
 ### Application API
 

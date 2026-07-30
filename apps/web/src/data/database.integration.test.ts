@@ -9,6 +9,7 @@ import {
   listGameDates,
 } from "@/data/games";
 import { getPlayerDetail, listPlayersBySeason } from "@/data/players";
+import { getGamePlayByPlay } from "@/data/play-by-play";
 import { listSeasons } from "@/data/seasons";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
 import { getStandings } from "@/data/standings";
@@ -78,6 +79,20 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     expect(boxScore?.homeTeam.skaters).toHaveLength(18);
     expect(boxScore?.awayTeam.goalies).toHaveLength(2);
     expect(boxScore?.homeTeam.goalies).toHaveLength(2);
+
+    const playByPlay = await getGamePlayByPlay(games[0].nhlGameId);
+    expect(playByPlay.events.length).toBeGreaterThan(300);
+    expect(
+      playByPlay.events.filter((event) => event.typeDescription === "goal"),
+    ).toHaveLength(3);
+    expect(
+      playByPlay.events.find((event) => event.typeDescription === "goal")
+        ?.players,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ role: "scorer" }),
+      ]),
+    );
 
     const teams = await listTeamsBySeason(seasons[0].id);
     expect(teams).toHaveLength(32);

@@ -8,6 +8,8 @@ NHL game as its response grain and displays:
 - one traditional stat row per participating skater;
 - goalie totals and even-strength and power-play save splits;
 - dressed backup goalies as `DNP` when they recorded no ice time;
+- an official NHL scoring summary and expandable period-by-period play
+  timeline;
 - MoneyPuck team and player game analytics where covered;
 - normalized shot maps with expected-goal event context;
 - regular-season five-on-five forward lines and defensive pairings.
@@ -16,7 +18,8 @@ Team and player names link to their existing season and career pages.
 
 ## Query model
 
-The page starts its traditional and advanced reads in parallel.
+The page starts its traditional box-score, normalized play-by-play, and
+advanced analytics reads in parallel.
 `getGameBoxScore()` runs three independent parameterized queries:
 
 ```text
@@ -34,6 +37,11 @@ context, team situations, skaters, goalies, shots, and units. It returns a
 separate serializable contract so provider-specific metrics remain distinct
 from the source-neutral NHL box score. Team game and shot records cover
 playoffs; player-game and unit records are regular-season only.
+
+`getGamePlayByPlay()` runs event and participant reads in parallel, keeps the
+provider's chronological sort order, and groups semantic player roles beneath
+each event. The Server Component derives the scoring summary from normalized
+goal events and renders every stored play inside its period section.
 
 All team names and abbreviations join through `team_seasons`, so a 2005–06 box
 score uses the identity active in 2005–06 rather than a later relocation or

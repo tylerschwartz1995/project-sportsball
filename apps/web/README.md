@@ -25,8 +25,9 @@ The current read-only slice provides:
   leader snapshots;
 - dedicated sortable NHL standings with historical season navigation;
 - a server-rendered schedule and results page with season/date navigation;
-- individual game pages with traditional box scores, advanced team/player
-  results, shot maps, forward lines, and defensive pairings;
+- individual game pages with traditional box scores, scoring summaries,
+  expandable play-by-play timelines, advanced team/player results, shot maps,
+  forward lines, and defensive pairings;
 - a searchable, sortable team directory and team detail pages with official
   player splits and MoneyPuck season metrics;
 - complete player leaderboards and player profiles with career history and
@@ -34,7 +35,7 @@ The current read-only slice provides:
 - team and player game logs with last-ten form summaries, traditional
   box-score metrics, and available MoneyPuck game analytics;
 - league-wide MoneyPuck team, skater, and goalie leaderboards with situation
-  and minimum-ice-time controls;
+  and minimum-ice-time controls plus persistent section navigation;
 - season-level forward-line and defensive-pairing rankings with team and
   minimum-ice-time filters;
 - immediate column sorting on every statistics table;

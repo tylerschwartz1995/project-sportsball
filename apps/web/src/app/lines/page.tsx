@@ -1,3 +1,4 @@
+import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonUnitTables } from "@/app/_components/season-unit-tables";
 import { SiteHeader } from "@/app/_components/site-header";
@@ -58,6 +59,10 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
             selectedSeasonId={selectedSeason?.id}
           />
         </div>
+
+        {selectedSeason ? (
+          <AnalyticsSectionTabs seasonId={selectedSeason.id} active="lines" />
+        ) : null}
 
         {selectedSeason && selectedSeason.id >= 20082009 ? (
           <>
