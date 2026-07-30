@@ -4,18 +4,25 @@ type SeasonPickerProps = {
   seasons: SeasonSummary[];
   selectedSeasonId: number | undefined;
   className?: string;
+  params?: Record<string, string | number | undefined>;
 };
 
 export function SeasonPicker({
   seasons,
   selectedSeasonId,
   className = "",
+  params = {},
 }: SeasonPickerProps) {
   return (
     <form
       method="get"
       className={`flex w-full max-w-sm items-end gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 ${className}`}
     >
+      {Object.entries(params).map(([name, value]) =>
+        value === undefined || name === "season" ? null : (
+          <input key={name} type="hidden" name={name} value={value} />
+        ),
+      )}
       <label className="flex-1 text-sm font-medium text-slate-300">
         Season
         <select

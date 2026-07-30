@@ -91,6 +91,26 @@ export default async function Home({ searchParams }: HomeProps) {
               />
             </div>
 
+            {selectedSeason.id >= 20082009 ? (
+              <Link
+                href={`/analytics?season=${selectedSeason.id}`}
+                className="mt-5 flex flex-col gap-2 rounded-2xl border border-violet-300/15 bg-violet-300/[0.055] px-5 py-4 transition hover:border-violet-300/30 sm:flex-row sm:items-center sm:justify-between"
+              >
+                <span>
+                  <span className="block font-semibold text-white">
+                    Explore advanced analytics
+                  </span>
+                  <span className="mt-1 block text-sm text-slate-400">
+                    League-wide xG, possession, game score, GSAx, lines, and
+                    pairings.
+                  </span>
+                </span>
+                <span className="text-sm font-medium text-violet-300">
+                  Open leaderboards →
+                </span>
+              </Link>
+            ) : null}
+
             <div className="mt-12 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
               <DashboardSection
                 title={latestDate ? `Results · ${formatDate(latestDate)}` : "Results"}
