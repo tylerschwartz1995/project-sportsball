@@ -1,4 +1,9 @@
-export type AnalyticsSection = "teams" | "skaters" | "goalies" | "lines";
+export type AnalyticsSection =
+  | "teams"
+  | "skaters"
+  | "goalies"
+  | "lines"
+  | "guide";
 
 export function AnalyticsSectionTabs({
   seasonId,
@@ -31,6 +36,11 @@ export function AnalyticsSectionTabs({
       id: "lines",
       label: "Lines & pairings",
       href: `/lines?season=${seasonId}&minimum=100`,
+    },
+    {
+      id: "guide",
+      label: "Metric guide",
+      href: `/analytics/guide?season=${seasonId}`,
     },
   ];
 

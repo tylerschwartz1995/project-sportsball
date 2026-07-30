@@ -92,6 +92,9 @@ Team and player detail pages also show the available MoneyPuck season summaries.
 See [Advanced analytics presentation](advanced-analytics.md) for the initial
 metrics, source attribution, and coverage behavior.
 
-Covered team seasons also show forward lines and defensive pairings with at
-least 50 five-on-five minutes together. These link to the league-wide season
-rankings, which default to a 100-minute minimum and allow alternate thresholds.
+Team profiles present the essential traditional information first: season
+summary cards, the game-log link, and sortable official skater and goalie
+splits. Advanced team metrics follow those raw statistics. Covered team seasons
+then show forward lines and defensive pairings with at least 50 five-on-five
+minutes together. These link to the league-wide season rankings, which default
+to a 100-minute minimum and allow alternate thresholds.

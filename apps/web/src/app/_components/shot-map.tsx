@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 import type {
   MoneyPuckGameTeam,
   MoneyPuckShot,
@@ -42,6 +46,7 @@ function TeamShotMap({
   shots: MoneyPuckShot[];
   accent: "cyan" | "violet";
 }) {
+  const [selectedShotId, setSelectedShotId] = useState<string | null>(null);
   const plottedShots = shots.filter(
     (shot) =>
       shot.adjustedXCoordinate !== null &&
@@ -50,6 +55,8 @@ function TeamShotMap({
   const goals = shots.filter((shot) => shot.isGoal).length;
   const expectedGoals = sumExpectedGoals(shots);
   const color = accent === "cyan" ? "#67e8f9" : "#c4b5fd";
+  const selectedShot =
+    shots.find((shot) => shotKey(shot) === selectedShotId) ?? null;
 
   return (
     <figure className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/60">
@@ -131,19 +138,54 @@ function TeamShotMap({
             const x = mapX(shot.adjustedXCoordinate!);
             const y = mapY(shot.adjustedYCoordinate!);
             const radius = shotRadius(shot.expectedGoal);
+            const key = shotKey(shot);
+            const isSelected = key === selectedShotId;
             return (
-              <circle
-                key={`${shot.sourceShotId}-${shot.sourceEventIndex}`}
-                cx={x}
-                cy={y}
-                r={radius}
-                fill={shot.isGoal ? color : shot.wasOnGoal ? color : "#071525"}
-                fillOpacity={shot.isGoal ? 0.95 : 0.45}
-                stroke={color}
-                strokeWidth={shot.isGoal ? 2.5 : 1.25}
+              <g
+                key={key}
+                role="button"
+                tabIndex={0}
+                aria-label={shotLabel(shot)}
+                aria-pressed={isSelected}
+                className="cursor-pointer outline-none"
+                onClick={() => setSelectedShotId(key)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" || event.key === " ") {
+                    event.preventDefault();
+                    setSelectedShotId(key);
+                  }
+                }}
               >
                 <title>{shotLabel(shot)}</title>
-              </circle>
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={Math.max(radius + 5, 9)}
+                  fill="transparent"
+                />
+                {isSelected ? (
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r={radius + 3.5}
+                    fill="none"
+                    stroke="#ffffff"
+                    strokeWidth="1.5"
+                    opacity="0.95"
+                  />
+                ) : null}
+                <circle
+                  cx={x}
+                  cy={y}
+                  r={radius}
+                  fill={
+                    shot.isGoal ? color : shot.wasOnGoal ? color : "#071525"
+                  }
+                  fillOpacity={shot.isGoal ? 0.95 : 0.45}
+                  stroke={color}
+                  strokeWidth={shot.isGoal ? 2.5 : 1.25}
+                />
+              </g>
             );
           })}
         </svg>
@@ -151,10 +193,113 @@ function TeamShotMap({
         <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500">
           <LegendDot color={color} label="On goal" />
           <LegendDot color={color} label="Goal" solid />
-          <span>Circle size reflects expected-goal probability.</span>
+          <span>Circle size reflects expected-goal probability. Select a shot for details.</span>
         </div>
+
+        <ShotDetails shot={selectedShot} team={team} />
       </div>
     </figure>
+  );
+}
+
+function ShotDetails({
+  shot,
+  team,
+}: {
+  shot: MoneyPuckShot | null;
+  team: MoneyPuckGameTeam;
+}) {
+  if (!shot) {
+    return (
+      <p className="mt-4 rounded-xl border border-dashed border-white/10 bg-white/[0.025] px-4 py-3 text-sm text-slate-500">
+        Select any shot marker to see the shooter, result, game situation, and
+        shot-quality details.
+      </p>
+    );
+  }
+
+  const score =
+    shot.awayTeamGoals === null || shot.homeTeamGoals === null
+      ? "Unavailable"
+      : shot.isHomeTeam
+        ? `${team.abbreviation} ${shot.homeTeamGoals}–${shot.awayTeamGoals} ${shot.defendingTeam.abbreviation}`
+        : `${team.abbreviation} ${shot.awayTeamGoals}–${shot.homeTeamGoals} ${shot.defendingTeam.abbreviation}`;
+  const tags = [
+    shot.wasRebound ? "Rebound" : null,
+    shot.wasRush ? "Rush" : null,
+    shot.wasEmptyNet ? "Empty net" : null,
+  ].filter(Boolean);
+
+  return (
+    <div
+      aria-live="polite"
+      className="mt-4 rounded-xl border border-white/10 bg-white/[0.035] p-4"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
+            Selected shot
+          </p>
+          <p className="mt-1 font-semibold text-white">
+            {shot.shooter?.name ?? "Unknown shooter"}
+          </p>
+        </div>
+        <span
+          className={
+            shot.isGoal
+              ? "rounded-full bg-emerald-300/15 px-2.5 py-1 text-xs font-semibold text-emerald-200"
+              : "rounded-full bg-white/[0.06] px-2.5 py-1 text-xs font-semibold text-slate-300"
+          }
+        >
+          {shotOutcome(shot)}
+        </span>
+      </div>
+
+      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 text-sm sm:grid-cols-3">
+        <ShotDetail label="When" value={`P${shot.period} · ${formatMoneyPuckPeriodClock(shot.gameTimeSeconds, shot.period)}`} />
+        <ShotDetail label="Shot type" value={formatShotType(shot.shotType)} />
+        <ShotDetail
+          label="Expected goal"
+          value={
+            shot.expectedGoal === null
+              ? "Unavailable"
+              : `${(shot.expectedGoal * 100).toFixed(1)}%`
+          }
+        />
+        <ShotDetail label="Goalie" value={shot.goalie?.name ?? (shot.wasEmptyNet ? "Empty net" : "Unknown")} />
+        <ShotDetail
+          label="Distance"
+          value={
+            shot.shotDistance === null
+              ? "Unavailable"
+              : `${shot.shotDistance.toFixed(1)} ft`
+          }
+        />
+        <ShotDetail label="Recorded score" value={score} />
+      </dl>
+
+      {tags.length > 0 ? (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="rounded-full border border-white/10 px-2.5 py-1 text-xs text-slate-400"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ShotDetail({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-xs text-slate-500">{label}</dt>
+      <dd className="mt-0.5 tabular-nums text-slate-200">{value}</dd>
+    </div>
   );
 }
 
@@ -200,14 +345,32 @@ function sumExpectedGoals(shots: MoneyPuckShot[]): number {
 
 function shotLabel(shot: MoneyPuckShot): string {
   const shooter = shot.shooter?.name ?? "Unknown shooter";
-  const outcome = shot.isGoal
-    ? "Goal"
-    : shot.wasOnGoal
-      ? "Shot on goal"
-      : "Missed shot";
+  const outcome = shotOutcome(shot);
   const expectedGoal =
     shot.expectedGoal === null
       ? "xG unavailable"
       : `${(shot.expectedGoal * 100).toFixed(1)}% xG`;
   return `${shooter}: ${outcome}, period ${shot.period}, ${formatMoneyPuckPeriodClock(shot.gameTimeSeconds, shot.period)}, ${expectedGoal}`;
+}
+
+function shotKey(shot: MoneyPuckShot): string {
+  return `${shot.sourceShotId}-${shot.sourceEventIndex}`;
+}
+
+function shotOutcome(shot: MoneyPuckShot): string {
+  return shot.isGoal
+    ? "Goal"
+    : shot.wasOnGoal
+      ? "Saved"
+      : "Missed shot";
+}
+
+function formatShotType(value: string | null): string {
+  if (!value) {
+    return "Unknown";
+  }
+  return value
+    .toLowerCase()
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
 }

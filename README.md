@@ -33,7 +33,10 @@ player profiles, historical navigation, directory search and sorting,
 responsive layouts, sortable statistics tables, and JSON endpoints.
 MoneyPuck presentation is implemented on team, player, and game pages,
 including game-level expected-goal and possession tables, shot maps, forward
-lines, and defensive pairings. Season-level top-line and defensive-pairing
+lines, and defensive pairings. Shot-map events can be selected to inspect
+shooter, result, timing, goalie, and shot-quality context, and a shared metric
+guide explains advanced-stat definitions across the website. Season-level
+top-line and defensive-pairing
 rankings are calculated in Polars and available across the league and on team
 pages. Completed game pages include official scoring summaries and expandable
 period-by-period timelines from the normalized NHL play-by-play archive. Team

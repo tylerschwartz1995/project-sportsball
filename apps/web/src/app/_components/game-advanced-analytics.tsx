@@ -84,7 +84,7 @@ export function GameAdvancedAnalytics({
         </CoverageNote>
       )}
 
-      <MetricDefinitions />
+      <MetricDefinitions seasonId={data.game.seasonId} />
     </section>
   );
 }
@@ -574,7 +574,7 @@ function CoverageNote({ children }: { children: React.ReactNode }) {
   );
 }
 
-function MetricDefinitions() {
+function MetricDefinitions({ seasonId }: { seasonId: number }) {
   return (
     <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.025] p-5 text-sm leading-6 text-slate-400">
       <p>
@@ -586,6 +586,12 @@ function MetricDefinitions() {
         attempts. <strong className="text-slate-200">GSAx</strong> is expected
         goals against minus actual goals against; positive is better.
       </p>
+      <Link
+        href={`/analytics/guide?season=${seasonId}`}
+        className="mt-3 inline-block font-medium text-violet-300 transition hover:text-violet-200"
+      >
+        Open the full metric guide →
+      </Link>
     </div>
   );
 }

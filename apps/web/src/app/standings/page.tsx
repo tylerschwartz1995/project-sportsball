@@ -45,15 +45,8 @@ export default async function StandingsPage({
     : [];
   const sortedStandings = sortStandings(standings, activeSort, direction);
   const leader = standings[0];
-  const winsLeader = standings.reduce(
-    (best, team) => (!best || team.wins > best.wins ? team : best),
-    leader,
-  );
-  const differentialLeader = standings.reduce(
-    (best, team) =>
-      !best || team.goalDifferential > best.goalDifferential ? team : best,
-    leader,
-  );
+  const cutLines = buildConferenceCutLines(standings);
+  const leagueContext = buildLeagueContext(standings);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -112,17 +105,14 @@ export default async function StandingsPage({
                 detail={`${leader.points} points · ${leader.wins} wins`}
                 seasonId={selectedSeason.id}
               />
-              <SummaryCard
-                label="Most wins"
-                team={winsLeader}
-                detail={`${winsLeader.wins} wins in ${winsLeader.gamesPlayed} games`}
+              <PlayoffCutLineCard
+                cutLines={cutLines}
                 seasonId={selectedSeason.id}
               />
-              <SummaryCard
-                label="Best goal differential"
-                team={differentialLeader}
-                detail={`${formatDifferential(differentialLeader.goalDifferential)} goals`}
-                seasonId={selectedSeason.id}
+              <LeagueContextCard
+                goalsPerGame={leagueContext.goalsPerGame}
+                pointsPerTeam={leagueContext.pointsPerTeam}
+                gamesPlayed={leagueContext.gamesPlayed}
               />
             </div>
 
@@ -299,6 +289,144 @@ function SummaryCard({
       <p className="mt-2 text-sm text-slate-400">{detail}</p>
     </article>
   );
+}
+
+function PlayoffCutLineCard({
+  cutLines,
+  seasonId,
+}: {
+  cutLines: ConferenceCutLine[];
+  seasonId: number;
+}) {
+  return (
+    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+      <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
+        Playoff cut lines
+      </p>
+      <div className="mt-3 space-y-3">
+        {cutLines.map((line) => (
+          <div
+            key={line.conference}
+            className="flex items-baseline justify-between gap-3"
+          >
+            <div>
+              <p className="text-xs text-slate-500">
+                {shortConferenceName(line.conference)}
+              </p>
+              <Link
+                href={`/teams/${line.qualifyingTeam.nhlTeamId}?season=${seasonId}`}
+                className="font-semibold text-white transition hover:text-cyan-200"
+              >
+                {line.qualifyingTeam.teamAbbreviation}
+              </Link>
+            </div>
+            <p className="text-right text-sm tabular-nums text-slate-400">
+              {line.qualifyingTeam.points} pts
+              {line.firstTeamOut ? (
+                <span className="block text-xs text-slate-500">
+                  {line.margin === 0 ? "tied with" : `+${line.margin} over`}{" "}
+                  {line.firstTeamOut.teamAbbreviation}
+                </span>
+              ) : null}
+            </p>
+          </div>
+        ))}
+      </div>
+    </article>
+  );
+}
+
+function LeagueContextCard({
+  goalsPerGame,
+  pointsPerTeam,
+  gamesPlayed,
+}: {
+  goalsPerGame: number | null;
+  pointsPerTeam: number | null;
+  gamesPlayed: number;
+}) {
+  return (
+    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
+      <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
+        League scoring
+      </p>
+      <p className="mt-3 text-xl font-semibold tabular-nums text-white">
+        {goalsPerGame === null ? "Unavailable" : `${goalsPerGame.toFixed(2)} goals/game`}
+      </p>
+      <p className="mt-2 text-sm text-slate-400">
+        {gamesPlayed.toLocaleString()} games
+        {pointsPerTeam === null
+          ? ""
+          : ` · ${pointsPerTeam.toFixed(1)} average points per team`}
+      </p>
+    </article>
+  );
+}
+
+type ConferenceCutLine = {
+  conference: string;
+  qualifyingTeam: StandingsEntry;
+  firstTeamOut: StandingsEntry | null;
+  margin: number;
+};
+
+function buildConferenceCutLines(
+  standings: StandingsEntry[],
+): ConferenceCutLine[] {
+  const conferenceNames = [
+    ...new Set(standings.map((team) => team.conferenceName)),
+  ].filter((conference): conference is string => conference !== null);
+
+  return conferenceNames.flatMap((conference) => {
+    const teams = standings
+      .filter(
+        (team) =>
+          team.conferenceName === conference && team.conferenceRank !== null,
+      )
+      .sort((left, right) => left.conferenceRank! - right.conferenceRank!);
+    const qualifyingTeam = teams.find((team) => team.conferenceRank === 8);
+    if (!qualifyingTeam) {
+      return [];
+    }
+    const firstTeamOut =
+      teams.find((team) => team.conferenceRank === 9) ?? null;
+    return [
+      {
+        conference,
+        qualifyingTeam,
+        firstTeamOut,
+        margin: firstTeamOut
+          ? qualifyingTeam.points - firstTeamOut.points
+          : 0,
+      },
+    ];
+  });
+}
+
+function buildLeagueContext(standings: StandingsEntry[]): {
+  goalsPerGame: number | null;
+  pointsPerTeam: number | null;
+  gamesPlayed: number;
+} {
+  if (standings.length === 0) {
+    return { goalsPerGame: null, pointsPerTeam: null, gamesPlayed: 0 };
+  }
+  const teamGames = standings.reduce(
+    (total, team) => total + team.gamesPlayed,
+    0,
+  );
+  const gamesPlayed = Math.round(teamGames / 2);
+  const goals = standings.reduce((total, team) => total + team.goalsFor, 0);
+  const points = standings.reduce((total, team) => total + team.points, 0);
+  return {
+    goalsPerGame: gamesPlayed > 0 ? goals / gamesPlayed : null,
+    pointsPerTeam: points / standings.length,
+    gamesPlayed,
+  };
+}
+
+function shortConferenceName(value: string): string {
+  return value.replace(/\s+Conference$/i, "");
 }
 
 function NumericCell({ value }: { value: number | string }) {
