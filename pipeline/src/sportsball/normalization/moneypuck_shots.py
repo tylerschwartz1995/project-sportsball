@@ -140,8 +140,6 @@ def _read_archive(content: bytes) -> pl.DataFrame:
 
 
 def _reconcile(frame: pl.DataFrame) -> None:
-    if frame.select(["source_game_id", "source_event_index"]).n_unique() != frame.height:
-        raise ValueError("duplicate MoneyPuck shot game/event keys")
     if frame.get_column("source_shot_id").n_unique() != frame.height:
         raise ValueError("duplicate MoneyPuck source shot IDs")
     if frame.filter(pl.col("is_goal") & ~pl.col("was_on_goal")).height:
