@@ -97,6 +97,21 @@ export default async function TeamPage({
           <SeasonPanel title="Playoffs" stats={detail.playoffs} />
         </div>
 
+        <Link
+          href={`/teams/${detail.team.nhlTeamId}/games?season=${selectedSeason.id}`}
+          className="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.06] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.09]"
+        >
+          <span>
+            <span className="block font-medium text-white">
+              Explore the {selectedSeason.label} game log
+            </span>
+            <span className="mt-1 block text-sm text-slate-400">
+              Results, recent form, shot totals, and five-on-five expected goals.
+            </span>
+          </span>
+          <span className="shrink-0 text-cyan-300">View games →</span>
+        </Link>
+
         <TeamAdvancedAnalytics
           data={advanced}
           seasonId={selectedSeason.id}

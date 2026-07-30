@@ -27,6 +27,7 @@ apps/web/src/
 ├── contracts/
 │   ├── advanced-game.ts
 │   ├── advanced.ts
+│   ├── game-log.ts
 │   ├── game.ts
 │   ├── player.ts
 │   ├── season.ts
@@ -36,6 +37,7 @@ apps/web/src/
 │   ├── advanced-game.ts
 │   ├── advanced.ts
 │   ├── database.ts
+│   ├── game-logs.ts
 │   ├── games.ts
 │   ├── players.ts
 │   ├── seasons.ts
@@ -51,7 +53,11 @@ apps/web/src/
     ├── games/page.tsx
     ├── games/[id]/page.tsx
     ├── players/page.tsx
+    ├── players/[id]/page.tsx
+    ├── players/[id]/games/page.tsx
     ├── teams/page.tsx
+    ├── teams/[id]/page.tsx
+    ├── teams/[id]/games/page.tsx
     └── page.tsx
 ```
 
@@ -79,6 +85,13 @@ read together, avoiding a server-side request waterfall.
 Forward lines and defensive pairings are queried in parallel with an explicit
 ice-time threshold, optional team filter, and bounded result limit. Team pages
 start this read alongside their traditional and MoneyPuck season queries.
+
+`game-logs.ts` provides selected-season team, skater, and goalie game logs.
+Traditional box-score appearances establish the complete row set. MoneyPuck
+team and player metrics are left-joined at their matching situation, so an
+advanced coverage gap produces nullable metrics rather than a missing game.
+The query layer also calculates explicit team results and goalie goals saved
+above expected before returning serializable contracts to the pages.
 
 ## Configuration
 
@@ -138,10 +151,11 @@ make web-check
 ```
 
 Unit tests validate identifiers, calendar dates, database-row mapping,
-parameter use, advanced-game unit classification, and API behavior without
-requiring PostgreSQL. The opt-in integration test executes season, standings,
-schedule, box-score, team, roster, player-index, player-career, and complete
-MoneyPuck advanced-game queries against the real development database:
+parameter use, game-log result mapping, advanced-game unit classification, and
+API behavior without requiring PostgreSQL. The opt-in integration test executes
+season, standings, schedule, box-score, team, roster, team and player game-log,
+player-index, player-career, and complete MoneyPuck advanced-game queries
+against the real development database:
 
 ```bash
 SPORTSBALL_RUN_WEB_DATABASE_TESTS=1 \

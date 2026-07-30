@@ -2,6 +2,7 @@ import { afterAll, describe, expect, it } from "vitest";
 
 import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";
 import { closeDatabasePool } from "@/data/database";
+import { getPlayerGameLog, getTeamGameLog } from "@/data/game-logs";
 import {
   getGameBoxScore,
   getGamesByDate,
@@ -108,6 +109,22 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     const player = await getPlayerDetail(8478402);
     expect(player?.profile.name).toBe("Connor McDavid");
     expect(player?.skaterSeasons.length).toBeGreaterThan(10);
+
+    const teamGameLog = await getTeamGameLog(12, seasons[0].id);
+    expect(teamGameLog?.games.length).toBeGreaterThan(82);
+    expect(teamGameLog?.games[0]?.opponent.name).toBeTruthy();
+    expect(
+      teamGameLog?.games.some(
+        (game) => game.fiveOnFiveXGoalsPercentage !== null,
+      ),
+    ).toBe(true);
+
+    const playerGameLog = await getPlayerGameLog(8478402, seasons[0].id);
+    expect(playerGameLog?.profile.name).toBe("Connor McDavid");
+    expect(playerGameLog?.skaterGames.length).toBeGreaterThan(70);
+    expect(
+      playerGameLog?.skaterGames.some((game) => game.gameScore !== null),
+    ).toBe(true);
 
     const units = await getMoneyPuckSeasonUnitLeaders(20252026, {
       minimumIceTimeSeconds: 6_000,
