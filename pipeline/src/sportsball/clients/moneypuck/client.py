@@ -12,11 +12,13 @@ DEFAULT_BASE_URL = "https://www.moneypuck.com"
 DEFAULT_USER_AGENT = "sportsball/0.1 (+https://github.com/tylerschwartz1995/project-sportsball)"
 TRANSIENT_STATUS_CODES = {408, 429, 500, 502, 503, 504}
 SEASON_RESOURCE_TYPES = {"skaters", "goalies", "teams"}
+PLAYER_GAME_RESOURCE_TYPES = {"skaters", "goalies"}
+PLAYER_GAME_ARCHIVE_BASE_URL = "https://peter-tanner.com/moneypuck/downloads/seasonPlayersSummary"
 
 
 @dataclass(frozen=True)
 class MoneyPuckCsvFetch:
-    """One downloaded CSV with provenance and checksum."""
+    """One downloaded MoneyPuck artifact with provenance and checksum."""
 
     resource_type: str
     source_key: str
@@ -85,6 +87,28 @@ class MoneyPuckClient:
         return MoneyPuckCsvFetch(
             resource_type="team_games",
             source_key="all:team_games",
+            source_url=str(response.url),
+            content_type=response.headers.get("content-type"),
+            content=content,
+            checksum=hashlib.sha256(content).hexdigest(),
+        )
+
+    def fetch_player_game_archive(
+        self,
+        season_start_year: int,
+        resource_type: str,
+    ) -> MoneyPuckCsvFetch:
+        """Download one approved regular-season player game archive."""
+        if resource_type not in PLAYER_GAME_RESOURCE_TYPES:
+            raise ValueError(f"unsupported MoneyPuck player-game resource: {resource_type}")
+        url = f"{PLAYER_GAME_ARCHIVE_BASE_URL}/{resource_type}/{season_start_year}.zip"
+        response = self._get(url)
+        content = response.content
+        if not content.startswith(b"PK"):
+            raise ValueError(f"MoneyPuck {resource_type} player-game response is not a ZIP archive")
+        return MoneyPuckCsvFetch(
+            resource_type=f"{resource_type}_games",
+            source_key=f"{season_start_year}:regular:{resource_type}_games",
             source_url=str(response.url),
             content_type=response.headers.get("content-type"),
             content=content,

@@ -74,3 +74,25 @@ regular-season and playoff games. It includes expected-goal share, Corsi and
 Fenwick share, expected and actual goals, shots and attempts, danger-tier
 expected goals, score/venue adjustments, and total shot credit. The exact
 all-season CSV remains available in `source_artifacts`.
+
+## Player game-level metrics
+
+MoneyPuck's regular-season skater and goalie archives can be ingested one
+season at a time or through a resumable range backfill:
+
+```bash
+uv run --project pipeline --frozen sportsball \
+  ingest-moneypuck-player-game-stats 20242025
+
+uv run --project pipeline --frozen sportsball \
+  backfill-moneypuck-player-game-stats 20082009 20252026
+```
+
+Use `--max-seasons N` for a bounded backfill and `--retry-failed` to retry
+parked failures. The exact compressed archives are retained in
+`source_artifacts`; curated, frequently queried fields are typed in
+`moneypuck_skater_game_stats` and `moneypuck_goalie_game_stats`. Each fact
+resolves to canonical NHL game, player, team, and opponent identities.
+
+These published player archives contain regular-season games. Team game-level
+facts cover both regular-season and playoff games.

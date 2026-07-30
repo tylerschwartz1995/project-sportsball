@@ -366,6 +366,27 @@ class MoneyPuckSeasonBackfill(Base):
     )
 
 
+class MoneyPuckPlayerGameBackfill(Base):
+    """Durable processing state for one MoneyPuck player-game season."""
+
+    __tablename__ = "moneypuck_player_game_backfills"
+
+    season_id: Mapped[int] = mapped_column(
+        ForeignKey("seasons.id"),
+        primary_key=True,
+        autoincrement=False,
+    )
+    status: Mapped[str] = mapped_column(String(20))
+    attempt_count: Mapped[int] = mapped_column(Integer, default=0)
+    error_message: Mapped[str | None] = mapped_column(Text)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+
 class TeamGameStats(Base):
     """Traditional team totals from one NHL box score."""
 
@@ -834,6 +855,94 @@ class MoneyPuckTeamGameStats(Base):
     high_danger_x_goals_against: Mapped[float | None] = mapped_column(Float)
     total_shot_credit_for: Mapped[float | None] = mapped_column(Float)
     total_shot_credit_against: Mapped[float | None] = mapped_column(Float)
+
+
+class MoneyPuckSkaterGameStats(Base):
+    """MoneyPuck skater metrics for one regular-season game and situation."""
+
+    __tablename__ = "moneypuck_skater_game_stats"
+    __table_args__ = (
+        UniqueConstraint(
+            "game_id",
+            "player_id",
+            "team_id",
+            "situation",
+            name="uq_moneypuck_skater_game_player_team_situation",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id"), index=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    opponent_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"))
+    situation: Mapped[str] = mapped_column(String(20), index=True)
+    name: Mapped[str] = mapped_column(String(100))
+    position: Mapped[str | None] = mapped_column(String(10))
+    is_home: Mapped[bool] = mapped_column(Boolean)
+    game_date: Mapped[date] = mapped_column(Date)
+    ice_time_seconds: Mapped[float] = mapped_column(Float)
+    shifts: Mapped[float | None] = mapped_column(Float)
+    game_score: Mapped[float | None] = mapped_column(Float)
+    on_ice_x_goals_percentage: Mapped[float | None] = mapped_column(Float)
+    off_ice_x_goals_percentage: Mapped[float | None] = mapped_column(Float)
+    on_ice_corsi_percentage: Mapped[float | None] = mapped_column(Float)
+    off_ice_corsi_percentage: Mapped[float | None] = mapped_column(Float)
+    on_ice_fenwick_percentage: Mapped[float | None] = mapped_column(Float)
+    off_ice_fenwick_percentage: Mapped[float | None] = mapped_column(Float)
+    individual_x_goals: Mapped[float | None] = mapped_column(Float)
+    individual_goals: Mapped[float | None] = mapped_column(Float)
+    individual_points: Mapped[float | None] = mapped_column(Float)
+    individual_shot_attempts: Mapped[float | None] = mapped_column(Float)
+    primary_assists: Mapped[float | None] = mapped_column(Float)
+    secondary_assists: Mapped[float | None] = mapped_column(Float)
+    shots_on_goal: Mapped[float | None] = mapped_column(Float)
+    hits: Mapped[float | None] = mapped_column(Float)
+    takeaways: Mapped[float | None] = mapped_column(Float)
+    giveaways: Mapped[float | None] = mapped_column(Float)
+    on_ice_x_goals_for: Mapped[float | None] = mapped_column(Float)
+    on_ice_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    on_ice_goals_for: Mapped[float | None] = mapped_column(Float)
+    on_ice_goals_against: Mapped[float | None] = mapped_column(Float)
+
+
+class MoneyPuckGoalieGameStats(Base):
+    """MoneyPuck goalie metrics for one regular-season game and situation."""
+
+    __tablename__ = "moneypuck_goalie_game_stats"
+    __table_args__ = (
+        UniqueConstraint(
+            "game_id",
+            "player_id",
+            "team_id",
+            "situation",
+            name="uq_moneypuck_goalie_game_player_team_situation",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id"), index=True)
+    player_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    opponent_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"))
+    situation: Mapped[str] = mapped_column(String(20), index=True)
+    name: Mapped[str] = mapped_column(String(100))
+    is_home: Mapped[bool] = mapped_column(Boolean)
+    game_date: Mapped[date] = mapped_column(Date)
+    ice_time_seconds: Mapped[float] = mapped_column(Float)
+    expected_goals_against: Mapped[float | None] = mapped_column(Float)
+    goals_against: Mapped[float | None] = mapped_column(Float)
+    unblocked_shot_attempts_against: Mapped[float | None] = mapped_column(Float)
+    expected_rebounds: Mapped[float | None] = mapped_column(Float)
+    rebounds: Mapped[float | None] = mapped_column(Float)
+    expected_freezes: Mapped[float | None] = mapped_column(Float)
+    freezes: Mapped[float | None] = mapped_column(Float)
+    expected_shots_on_goal_against: Mapped[float | None] = mapped_column(Float)
+    shots_on_goal_against: Mapped[float | None] = mapped_column(Float)
+    flurry_adjusted_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    low_danger_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    medium_danger_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    high_danger_x_goals_against: Mapped[float | None] = mapped_column(Float)
 
 
 class TeamSeasonStats(Base):
