@@ -9,8 +9,9 @@
   biographical enrichment comes from the NHL player-profile endpoint; see
   [Player profile ingestion](player-profiles.md).
 
-Richer NHL-published team splits are stored separately from the derived totals;
-see [Official player season statistics](official-player-season-stats.md).
+- Richer NHL-published team splits are stored separately from the derived
+  totals; see
+  [Official player season statistics](official-player-season-stats.md).
 - Persist time on ice as integer seconds and percentages as decimal fractions.
 - Build season totals with Polars from game-level facts and materialize them in
   PostgreSQL. See [Season statistics](season-statistics.md) for their grain,
@@ -58,9 +59,11 @@ shorthanded.
 
 ## Team game statistics
 
-The initial team-game slice stores final score and shots on goal. Further team
-totals will be added only where the NHL exposes an authoritative value or where
-the sum of player rows has a documented definition.
+The canonical team-game facts store final score and shots on goal. Further
+traditional team totals will be added only where the NHL exposes an
+authoritative value or where the sum of player rows has a documented
+definition. Provider-specific advanced team facts remain in the MoneyPuck
+tables rather than being blended into this source-neutral table.
 
 The parent `games` row stores the provider's final-period classification (`REG`,
 `OT`, or `SO`). This preserves whether each team-game result ended in regulation,

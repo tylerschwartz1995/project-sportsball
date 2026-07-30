@@ -10,20 +10,21 @@ are written in the same database transaction.
 Backfill one season:
 
 ```bash
-uv run --project pipeline sportsball backfill-game-boxscores 20052006 20052006
+uv run --project pipeline --frozen sportsball \
+  backfill-game-boxscores 20052006 20052006
 ```
 
 Run a small, resumable batch:
 
 ```bash
-uv run --project pipeline sportsball backfill-game-boxscores \
+uv run --project pipeline --frozen sportsball backfill-game-boxscores \
   20052006 20052006 --max-games 100
 ```
 
 Retry games previously parked as failures:
 
 ```bash
-uv run --project pipeline sportsball backfill-game-boxscores \
+uv run --project pipeline --frozen sportsball backfill-game-boxscores \
   20052006 20052006 --retry-failed
 ```
 

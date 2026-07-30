@@ -53,6 +53,10 @@ from sportsball.ingestion.orchestration.standings_backfill import (
     backfill_final_standings,
 )
 from sportsball.normalization.games import schedule_games_frame
+from sportsball.validation.completeness import (
+    audit_completeness,
+    format_season_audit,
+)
 
 app = typer.Typer(no_args_is_help=True)
 
@@ -582,6 +586,29 @@ def backfill_game_outcomes_command(start_season: int, end_season: int) -> None:
         f"run={result.run_id} seasons={result.start_season}-{result.end_season} "
         f"games_processed={result.games_processed}"
     )
+
+
+@app.command("audit-data-completeness")
+def audit_data_completeness_command(
+    start_season: int,
+    end_season: int,
+    warnings_as_errors: bool = False,
+) -> None:
+    """Audit stored NHL and MoneyPuck coverage without changing data."""
+    try:
+        result = audit_completeness(start_season, end_season)
+    except ValueError as error:
+        raise typer.BadParameter(str(error)) from error
+
+    for season in result.seasons:
+        for line in format_season_audit(season):
+            typer.echo(line)
+    typer.echo(
+        f"summary seasons={len(result.seasons)} passed={result.passed_seasons} "
+        f"errors={result.errors} warnings={result.warnings}"
+    )
+    if result.errors or (warnings_as_errors and result.warnings):
+        raise typer.Exit(code=1)
 
 
 def _echo_season_summary(season: SeasonBackfillSummary) -> None:

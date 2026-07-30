@@ -18,9 +18,17 @@ The second stage will add predictive modelling for team and player performance.
 
 ## Status
 
-Foundation scaffolding is in progress. The repository contains a Python
-pipeline, PostgreSQL migrations, local Docker infrastructure, and a Next.js
-web application.
+Historical ingestion is complete for the initial NHL and MoneyPuck scope.
+PostgreSQL contains all 21 seasons from 2005–06 through 2025–26, including
+schedules, results, box scores, play-by-play, player profiles, traditional
+season statistics, standings, and the published MoneyPuck datasets described
+in [Data sources and coverage](docs/data-sources.md).
+
+The full completeness audit currently passes every season with no errors.
+Three early seasons contain warnings for a total of 41 play-by-play participant
+references that the NHL source identifies but that cannot be mapped to a
+canonical player. Those source identifiers remain preserved. The next product
+milestone is the core website.
 
 ## Local development
 
@@ -89,6 +97,17 @@ uv run --project pipeline --frozen sportsball \
 The game must already exist in the schedule index. The original box score is
 retained, and canonical player and game-stat records are updated idempotently.
 
+Audit the complete historical database without changing it:
+
+```bash
+uv run --project pipeline --frozen sportsball \
+  audit-data-completeness 20052006 20252026
+```
+
+The command exits unsuccessfully when a required dataset is incomplete. See
+[Data-completeness audit](docs/data-completeness-audit.md) for its checks,
+source-specific coverage rules, and warning behavior.
+
 Run the Python checks:
 
 ```bash
@@ -105,15 +124,19 @@ npm run dev --prefix apps/web
 The website runs at `http://localhost:3000` and its initial health endpoint is
 `http://localhost:3000/api/health`.
 
-## Planning
+## Documentation
 
 - [Data sources and coverage](docs/data-sources.md)
-- [Initial architecture](docs/architecture.md)
+- [Architecture](docs/architecture.md)
 - [Implementation roadmap](docs/roadmap.md)
+- [Data-completeness audit](docs/data-completeness-audit.md)
+- [Historical box-score backfill](docs/boxscore-backfill.md)
 - [Player statistics data dictionary](docs/player-statistics.md)
 - [Season-statistics definitions and refresh behavior](docs/season-statistics.md)
 - [Play-by-play ingestion and event definitions](docs/play-by-play.md)
 - [Player profile ingestion](docs/player-profiles.md)
+- [Team identity and franchise history](docs/team-identities.md)
 - [Official NHL standings snapshots](docs/official-standings.md)
 - [Official player season statistics](docs/official-player-season-stats.md)
-- [MoneyPuck season-summary ingestion](docs/moneypuck-season-ingestion.md)
+- [MoneyPuck ingestion](docs/moneypuck-season-ingestion.md)
+- [Product ideas](docs/product-ideas.md)

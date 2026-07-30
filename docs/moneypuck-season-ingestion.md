@@ -1,4 +1,4 @@
-# MoneyPuck season-summary ingestion
+# MoneyPuck ingestion
 
 MoneyPuck publishes downloadable advanced-stat datasets for non-commercial
 use. Any website view or analysis using these records must clearly credit
@@ -10,8 +10,9 @@ Sources:
 - https://www.moneypuck.com/data.htm
 - https://www.moneypuck.com/glossary.htm
 
-Season summaries currently begin with 2008–09. Shot-level coverage begins one
-season earlier and will be handled by a separate ingestion job.
+Season summaries, team games, player games, and line/pairing records begin
+with 2008–09. Shot-level coverage begins one season earlier. Each dataset has
+its own bounded or resumable ingestion command.
 
 ## Commands
 
@@ -132,3 +133,18 @@ uv run --project pipeline --frozen sportsball \
 `moneypuck_line_game_stats` resolves all two or three unit members to canonical
 NHL players and stores game-level possession, expected-goal, shot, goal,
 danger, score-adjusted, and shot-credit metrics. Exact ZIP sources are retained.
+
+## Completed historical coverage
+
+The initial backfill through 2025–26 is complete:
+
+| Dataset | Coverage | Stored grain |
+| --- | --- | --- |
+| Season summaries | 2008–09 onward | player/team, season, situation |
+| Team games | 2008–09 onward | game, team, situation |
+| Player games | 2008–09 onward | game, player, team, situation |
+| Shots | 2007–08 onward | game and source shot event |
+| Lines and pairings | 2008–09 onward | game, team, unit, situation |
+
+Run the [data-completeness audit](data-completeness-audit.md) to verify these
+facts and their durable backfill states alongside the canonical NHL data.
