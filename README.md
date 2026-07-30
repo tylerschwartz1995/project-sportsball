@@ -35,7 +35,9 @@ MoneyPuck presentation is implemented on team, player, and game pages,
 including game-level expected-goal and possession tables, shot maps, forward
 lines, and defensive pairings. Season-level top-line and defensive-pairing
 rankings are calculated in Polars and available across the league and on team
-pages.
+pages. An audited daily-update coordinator and opt-in GitHub Actions scheduler
+are implemented; scheduled writes remain disabled until the deployment
+milestone provides a hosted database, secrets, and tested recovery.
 
 ## Local development
 
@@ -115,6 +117,17 @@ The command exits unsuccessfully when a required dataset is incomplete. See
 [Data-completeness audit](docs/data-completeness-audit.md) for its checks,
 source-specific coverage rules, and warning behavior.
 
+Refresh recent schedules, final games, standings, season aggregates, and
+current MoneyPuck snapshots:
+
+```bash
+uv run --project pipeline --frozen sportsball daily-update
+```
+
+The command is safe to rerun and deliberately refreshes recent final games to
+capture source corrections. See [Daily ingestion](docs/daily-ingestion.md) for
+its boundaries, overrides, failure behavior, and scheduler activation.
+
 Run the Python checks:
 
 ```bash
@@ -149,4 +162,5 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 - [Official player season statistics](docs/official-player-season-stats.md)
 - [MoneyPuck ingestion](docs/moneypuck-season-ingestion.md)
 - [Advanced analytics presentation](docs/advanced-analytics.md)
+- [Daily ingestion](docs/daily-ingestion.md)
 - [Product ideas](docs/product-ideas.md)
