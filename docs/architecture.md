@@ -173,7 +173,11 @@ validation; scheduler configuration does not contain ingestion domain logic.
 Every parent and child run records its status, input range, row counts, errors,
 and duration. Recent final games are deliberately re-fetched to capture NHL
 corrections, while source-specific transactions preserve the last known-good
-table when a replacement fails. See [Daily ingestion](daily-ingestion.md).
+table when a replacement fails. The detailed Python health check evaluates
+source freshness, stuck runs, and recent-game completeness; the web health
+route exposes only database readiness and daily-parent freshness. See
+[Daily ingestion](daily-ingestion.md) and
+[Operational data health](data-health.md).
 
 ## Boundaries
 

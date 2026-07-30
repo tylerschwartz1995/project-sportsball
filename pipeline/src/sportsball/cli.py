@@ -65,6 +65,11 @@ from sportsball.validation.completeness import (
     audit_completeness,
     format_season_audit,
 )
+from sportsball.validation.data_health import (
+    HealthStatus,
+    check_data_health,
+    format_data_health,
+)
 
 app = typer.Typer(no_args_is_help=True)
 
@@ -118,6 +123,25 @@ def daily_update_command(
     )
     for step in result.steps:
         typer.echo(f"  step={step.name} records_processed={step.records_processed}")
+
+
+@app.command("check-data-health")
+def check_data_health_command(
+    recent_days: int = 3,
+    warnings_as_errors: bool = False,
+) -> None:
+    """Check ingestion freshness and recent final-game completeness."""
+    try:
+        report = check_data_health(recent_days=recent_days)
+    except ValueError as error:
+        raise typer.BadParameter(str(error)) from error
+
+    for line in format_data_health(report):
+        typer.echo(line)
+    if report.status is HealthStatus.ERROR or (
+        warnings_as_errors and report.status is HealthStatus.WARNING
+    ):
+        raise typer.Exit(code=1)
 
 
 @app.command()
