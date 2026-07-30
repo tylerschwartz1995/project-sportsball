@@ -159,6 +159,26 @@ export async function getGamesByDate(
   return rows.map(mapGame);
 }
 
+export async function getLatestGamesForSeason(
+  seasonId: number,
+): Promise<GameSummary[]> {
+  const rows = await query<GameRow>(
+    `
+      ${gameSelect}
+      WHERE game.season_id = $1
+        AND game.game_date = (
+          SELECT MAX(latest.game_date)
+          FROM games AS latest
+          WHERE latest.season_id = $1
+        )
+      ORDER BY game.start_time_utc, game.nhl_id
+    `,
+    [seasonId],
+  );
+
+  return rows.map(mapGame);
+}
+
 export async function getGameBoxScore(
   nhlGameId: number,
 ): Promise<GameBoxScore | null> {

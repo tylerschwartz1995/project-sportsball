@@ -21,17 +21,24 @@ call NHL or MoneyPuck endpoints while rendering user requests.
 
 The current read-only slice provides:
 
-- a server-rendered league standings dashboard and historical season selector;
+- a server-rendered league homepage with recent results, standings and scoring
+  leader snapshots;
+- dedicated sortable NHL standings with historical season navigation;
 - a server-rendered schedule and results page with season/date navigation;
 - individual game pages with traditional box scores, advanced team/player
   results, shot maps, forward lines, and defensive pairings;
-- team season directories and team detail pages with official player splits
-  and MoneyPuck season metrics;
+- a searchable, sortable team directory and team detail pages with official
+  player splits and MoneyPuck season metrics;
 - complete player leaderboards and player profiles with career history and
   MoneyPuck season metrics;
 - season-level forward-line and defensive-pairing rankings with team and
   minimum-ice-time filters;
 - immediate column sorting on every statistics table;
+
+Team, player and game summaries link to their supporting detail pages. Team
+profile season selectors only offer seasons in which that team has stored
+statistics, preventing expansion teams from linking to seasons before they
+existed.
 - `GET /api/seasons`;
 - `GET /api/standings?season=20242025`;
 - `GET /api/games?season=20252026&date=2026-06-14`;

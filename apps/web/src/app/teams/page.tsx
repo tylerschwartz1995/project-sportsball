@@ -4,11 +4,11 @@ import { DirectoryControls } from "@/app/_components/directory-controls";
 import { Pagination } from "@/app/_components/pagination";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
-import { SortableHeader } from "@/app/_components/sortable-header";
-import { SortableTable } from "@/app/_components/sortable-table";
 import { parseSeasonId } from "@/contracts/season";
+import type { StandingsEntry } from "@/contracts/standings";
 import type { TeamSeasonSummary } from "@/contracts/team";
 import { listSeasons } from "@/data/seasons";
+import { getStandings } from "@/data/standings";
 import { listTeamsBySeason } from "@/data/teams";
 import {
   applySortDirection,
@@ -35,13 +35,18 @@ type TeamsPageProps = {
 export default async function TeamsPage({ searchParams }: TeamsPageProps) {
   const params = await searchParams;
   const seasons = await listSeasons();
-  const requestedSeason = firstQueryValue(params.season);
-  const parsedSeason = parseSeasonId(requestedSeason);
+  const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
-  const teams = selectedSeason
-    ? await listTeamsBySeason(selectedSeason.id)
-    : [];
+  const [teams, standings] = selectedSeason
+    ? await Promise.all([
+        listTeamsBySeason(selectedSeason.id),
+        getStandings(selectedSeason.id),
+      ])
+    : [[], []];
+  const standingsByTeam = new Map(
+    standings.map((entry) => [entry.nhlTeamId, entry]),
+  );
   const query = normalizeSearch(firstQueryValue(params.q));
   const requestedSort = firstQueryValue(params.sort);
   const sort = teamSortOptions.some(
@@ -87,14 +92,14 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
-              Team statistics
+              Team directory
             </p>
             <h2 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
               {selectedSeason?.label ?? "No season"} teams
             </h2>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-400">
-              Polars-derived regular-season records, scoring, and shot totals.
-              Open a team for playoff results and its official player splits.
+              Browse every club from the selected season. Team profiles combine
+              results, rosters, advanced analytics, and five-on-five units.
             </p>
           </div>
           <SeasonPicker
@@ -103,23 +108,26 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
           />
         </div>
 
-        {pointsLeader ? (
+        {pointsLeader && selectedSeason ? (
           <>
             <div className="mt-10 grid gap-4 md:grid-cols-3">
               <SummaryCard
                 label="Points leader"
-                value={pointsLeader.team.name}
+                entry={pointsLeader}
                 detail={`${pointsLeader.stats.standingsPoints} points`}
+                seasonId={selectedSeason.id}
               />
               <SummaryCard
                 label="Most goals"
-                value={goalsLeader.team.name}
+                entry={goalsLeader}
                 detail={`${goalsLeader.stats.goalsFor} goals`}
+                seasonId={selectedSeason.id}
               />
               <SummaryCard
                 label="Fewest goals allowed"
-                value={defenseLeader.team.name}
+                entry={defenseLeader}
                 detail={`${defenseLeader.stats.goalsAgainst} goals against`}
+                seasonId={selectedSeason.id}
               />
             </div>
 
@@ -131,6 +139,7 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
               sortOptions={teamSortOptions}
               direction={direction}
               searchPlaceholder="Team name or abbreviation"
+              alwaysShowSort
             />
 
             <p className="mt-5 text-sm text-slate-500" aria-live="polite">
@@ -141,79 +150,15 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
 
             {teamPage.items.length > 0 ? (
               <>
-                <div className="mt-4 grid gap-3 md:hidden">
+                <div className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
                   {teamPage.items.map((entry) => (
-                    <MobileTeamCard
+                    <TeamCard
                       key={entry.team.id}
                       entry={entry}
                       seasonId={selectedSeason.id}
+                      standings={standingsByTeam.get(entry.team.nhlTeamId)}
                     />
                   ))}
-                </div>
-
-                <div className="mt-4 hidden overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50 md:block">
-              <SortableTable
-                defaultSortKey={sort}
-                defaultDirection={direction}
-              >
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[850px] border-collapse text-sm">
-                  <thead>
-                    <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
-                      <SortableHeader
-                        label="Team"
-                        sortKey="name"
-                        align="left"
-                        defaultDirection="asc"
-                      />
-                      {teamTableColumns.map((column) => (
-                        <SortableHeader
-                          key={column.key}
-                          label={column.label}
-                          sortKey={column.key}
-                        />
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {teamPage.items.map((entry) => (
-                      <tr
-                        key={entry.team.id}
-                        className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
-                      >
-                        <td className="px-4 py-3">
-                          <Link
-                            href={`/teams/${entry.team.nhlTeamId}?season=${selectedSeason.id}`}
-                            className="font-medium text-white transition hover:text-cyan-200"
-                          >
-                            {entry.team.name}
-                          </Link>
-                          <div className="mt-0.5 text-xs text-slate-500">
-                            {entry.team.abbreviation}
-                          </div>
-                        </td>
-                        <NumericCell value={entry.stats.gamesPlayed} />
-                        <NumericCell value={entry.stats.wins} />
-                        <NumericCell value={entry.stats.regulationLosses} />
-                        <NumericCell
-                          value={
-                            entry.stats.overtimeLosses +
-                            entry.stats.shootoutLosses
-                          }
-                        />
-                        <td className="px-3 py-3 text-right font-semibold tabular-nums text-cyan-200">
-                          {entry.stats.standingsPoints}
-                        </td>
-                        <NumericCell value={entry.stats.goalsFor} />
-                        <NumericCell value={entry.stats.goalsAgainst} />
-                        <NumericCell value={entry.stats.shotsFor} />
-                        <NumericCell value={entry.stats.shotsAgainst} />
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              </SortableTable>
                 </div>
 
                 <Pagination
@@ -251,18 +196,6 @@ const teamSortOptions = [
   { value: "shotsFor", label: "Shots for" },
   { value: "shotsAgainst", label: "Shots against" },
   { value: "name", label: "Team name" },
-];
-
-const teamTableColumns = [
-  { key: "games", label: "GP" },
-  { key: "wins", label: "W" },
-  { key: "losses", label: "L" },
-  { key: "overtimeLosses", label: "OTL" },
-  { key: "points", label: "PTS" },
-  { key: "goalsFor", label: "GF" },
-  { key: "goalsAgainst", label: "GA" },
-  { key: "shotsFor", label: "SF" },
-  { key: "shotsAgainst", label: "SA" },
 ];
 
 function sortTeams(
@@ -329,28 +262,36 @@ function sortTeams(
   });
 }
 
-function MobileTeamCard({
+function TeamCard({
   entry,
   seasonId,
+  standings,
 }: {
   entry: TeamSeasonSummary;
   seasonId: number;
+  standings: StandingsEntry | undefined;
 }) {
   const overtimeLosses =
     entry.stats.overtimeLosses + entry.stats.shootoutLosses;
 
   return (
-    <article className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+    <article className="group rounded-2xl border border-white/10 bg-slate-950/50 p-5 transition hover:border-cyan-300/25 hover:bg-slate-950/80">
       <div className="flex items-start justify-between gap-4">
         <div>
+          <p className="font-mono text-xs uppercase tracking-[0.14em] text-cyan-300">
+            {entry.team.abbreviation}
+            {standings?.divisionName ? ` · ${standings.divisionName}` : ""}
+          </p>
           <Link
             href={`/teams/${entry.team.nhlTeamId}?season=${seasonId}`}
-            className="font-semibold text-white transition hover:text-cyan-200"
+            className="mt-2 block text-lg font-semibold text-white transition group-hover:text-cyan-200"
           >
             {entry.team.name}
           </Link>
           <p className="mt-1 text-xs text-slate-500">
-            {entry.team.abbreviation} · {entry.stats.gamesPlayed} games
+            {standings
+              ? `League rank #${standings.leagueRank}`
+              : `${entry.stats.gamesPlayed} games`}
           </p>
         </div>
         <div className="text-right">
@@ -362,19 +303,26 @@ function MobileTeamCard({
           </p>
         </div>
       </div>
-      <dl className="mt-4 grid grid-cols-3 gap-3 border-t border-white/[0.06] pt-4 text-sm">
-        <MobileStat
+      <dl className="mt-5 grid grid-cols-3 gap-3 border-t border-white/[0.06] pt-4 text-sm">
+        <CardStat
           label="Record"
           value={`${entry.stats.wins}-${entry.stats.regulationLosses}-${overtimeLosses}`}
         />
-        <MobileStat label="Goals" value={entry.stats.goalsFor} />
-        <MobileStat label="Allowed" value={entry.stats.goalsAgainst} />
+        <CardStat label="Goals" value={entry.stats.goalsFor} />
+        <CardStat label="Allowed" value={entry.stats.goalsAgainst} />
       </dl>
+      <div className="mt-5 flex items-center justify-between text-xs">
+        <span className="text-slate-600">
+          Shot differential{" "}
+          {formatSigned(entry.stats.shotsFor - entry.stats.shotsAgainst)}
+        </span>
+        <span className="font-medium text-cyan-300">Team profile →</span>
+      </div>
     </article>
   );
 }
 
-function MobileStat({
+function CardStat({
   label,
   value,
 }: {
@@ -393,29 +341,28 @@ function MobileStat({
 
 function SummaryCard({
   label,
-  value,
+  entry,
   detail,
+  seasonId,
 }: {
   label: string;
-  value: string;
+  entry: TeamSeasonSummary;
   detail: string;
+  seasonId: number;
 }) {
   return (
     <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
       <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
         {label}
       </p>
-      <p className="mt-3 text-xl font-semibold text-white">{value}</p>
+      <Link
+        href={`/teams/${entry.team.nhlTeamId}?season=${seasonId}`}
+        className="mt-3 block text-xl font-semibold text-white transition hover:text-cyan-200"
+      >
+        {entry.team.name}
+      </Link>
       <p className="mt-2 text-sm text-slate-400">{detail}</p>
     </article>
-  );
-}
-
-function NumericCell({ value }: { value: number }) {
-  return (
-    <td className="px-3 py-3 text-right tabular-nums text-slate-300">
-      {value}
-    </td>
   );
 }
 
@@ -425,4 +372,8 @@ function EmptyState({ message }: { message: string }) {
       {message}
     </div>
   );
+}
+
+function formatSigned(value: number): string {
+  return value > 0 ? `+${value}` : String(value);
 }

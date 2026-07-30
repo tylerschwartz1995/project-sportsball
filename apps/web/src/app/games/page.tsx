@@ -182,8 +182,8 @@ function GameCard({ game }: { game: GameSummary }) {
         </span>
       </div>
       <div className="space-y-4 p-5">
-        <TeamLine team={game.awayTeam} />
-        <TeamLine team={game.homeTeam} />
+        <TeamLine team={game.awayTeam} seasonId={game.seasonId} />
+        <TeamLine team={game.homeTeam} seasonId={game.seasonId} />
       </div>
       <div className="flex items-center justify-between border-t border-white/[0.07] px-5 py-3 text-xs text-slate-500">
         <span>{formatTime(game.startTimeUtc)}</span>
@@ -198,14 +198,25 @@ function GameCard({ game }: { game: GameSummary }) {
   );
 }
 
-function TeamLine({ team }: { team: GameSummary["awayTeam"] }) {
+function TeamLine({
+  team,
+  seasonId,
+}: {
+  team: GameSummary["awayTeam"];
+  seasonId: number;
+}) {
   return (
     <div className="grid grid-cols-[3rem_1fr_auto] items-center gap-3">
       <span className="font-mono text-sm font-semibold text-cyan-200">
         {team.abbreviation}
       </span>
       <div>
-        <p className="font-medium text-white">{team.name}</p>
+        <Link
+          href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
+          className="font-medium text-white transition hover:text-cyan-200"
+        >
+          {team.name}
+        </Link>
         <p className="mt-0.5 text-xs text-slate-500">
           {team.shotsOnGoal === null
             ? "Shots unavailable"

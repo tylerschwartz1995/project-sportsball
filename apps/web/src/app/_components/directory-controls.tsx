@@ -15,6 +15,7 @@ type DirectoryControlsProps = {
   category?: string;
   categoryOptions?: SelectOption[];
   searchPlaceholder: string;
+  alwaysShowSort?: boolean;
 };
 
 export function DirectoryControls({
@@ -27,6 +28,7 @@ export function DirectoryControls({
   category,
   categoryOptions,
   searchPlaceholder,
+  alwaysShowSort = false,
 }: DirectoryControlsProps) {
   return (
     <form
@@ -63,7 +65,11 @@ export function DirectoryControls({
         </label>
       ) : null}
 
-      <label className="text-sm font-medium text-slate-300 md:hidden">
+      <label
+        className={`text-sm font-medium text-slate-300 ${
+          alwaysShowSort ? "" : "md:hidden"
+        }`}
+      >
         Sort by
         <select
           name="sort"
@@ -78,7 +84,11 @@ export function DirectoryControls({
         </select>
       </label>
 
-      <label className="text-sm font-medium text-slate-300 md:hidden">
+      <label
+        className={`text-sm font-medium text-slate-300 ${
+          alwaysShowSort ? "" : "md:hidden"
+        }`}
+      >
         Direction
         <select
           name="dir"
