@@ -29,7 +29,7 @@ on July 29, 2026.
 - [x] Add the server-only PostgreSQL query foundation and response contracts.
 - [x] Add the league dashboard, historical season selector, and standings.
 - [x] Add schedules and results.
-- [ ] Add team and player pages.
+- [x] Add team and player pages.
 - [ ] Add game and box-score pages.
 - [ ] Add search, sorting, pagination, and complete mobile layouts.
 
