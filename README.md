@@ -37,7 +37,9 @@ lines, and defensive pairings. Season-level top-line and defensive-pairing
 rankings are calculated in Polars and available across the league and on team
 pages. An audited daily-update coordinator and opt-in GitHub Actions scheduler
 are implemented; scheduled writes remain disabled until the deployment
-milestone provides a hosted database, secrets, and tested recovery.
+milestone provides a hosted database, secrets, and tested recovery. Operational
+health checks now cover source freshness, stuck jobs, recent-game completeness,
+and HTTP deployment readiness.
 
 ## Local development
 
@@ -128,6 +130,17 @@ The command is safe to rerun and deliberately refreshes recent final games to
 capture source corrections. See [Daily ingestion](docs/daily-ingestion.md) for
 its boundaries, overrides, failure behavior, and scheduler activation.
 
+Check current-source freshness and recent final-game completeness:
+
+```bash
+uv run --project pipeline --frozen sportsball check-data-health
+```
+
+The command exits unsuccessfully for stale core data, failed or stuck
+ingestion, and missing recent box scores or play-by-play. The web readiness
+endpoint at `http://localhost:3000/api/health` exposes a smaller database and
+daily-run status suitable for deployment monitoring.
+
 Run the Python checks:
 
 ```bash
@@ -163,4 +176,5 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 - [MoneyPuck ingestion](docs/moneypuck-season-ingestion.md)
 - [Advanced analytics presentation](docs/advanced-analytics.md)
 - [Daily ingestion](docs/daily-ingestion.md)
+- [Operational data health](docs/data-health.md)
 - [Product ideas](docs/product-ideas.md)

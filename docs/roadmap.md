@@ -1,7 +1,7 @@
 # Implementation roadmap
 
-Status values reflect the repository after the daily-ingestion coordinator and
-opt-in scheduler were implemented on July 30, 2026.
+Status values reflect the repository after the operational data-health checks
+were implemented on July 30, 2026.
 
 ## Milestone 1: foundation — complete
 
@@ -50,9 +50,11 @@ opt-in scheduler were implemented on July 30, 2026.
   recent-game corrections.
 - [x] Add a disabled-by-default scheduled workflow and manual operational
   dispatch.
+- [x] Add source freshness, stuck-run, recent-game completeness, and HTTP
+  readiness checks.
 - Activate the schedule after the hosted database, secrets, and recovery
   process are ready.
-- Add health checks, alerts, backups, and data-quality dashboards.
+- Add alerts, backups, and a data-quality dashboard.
 - Deploy the application and database.
 - Document recovery and source-change procedures.
 

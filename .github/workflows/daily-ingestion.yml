@@ -75,3 +75,6 @@ jobs:
             arguments+=(--skip-moneypuck)
           fi
           uv run --project pipeline --frozen sportsball "${arguments[@]}"
+
+      - name: Verify data health
+        run: uv run --project pipeline --frozen sportsball check-data-health

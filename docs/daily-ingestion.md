@@ -82,8 +82,9 @@ Activation requires:
 
 Manual dispatches are allowed before the enable variable is set, but they
 still require the database secret. The workflow applies committed Alembic
-migrations before invoking the daily command and prevents concurrent daily
-runs from overlapping.
+migrations before invoking the daily command, runs the operational data-health
+check after a successful refresh, and prevents concurrent daily runs from
+overlapping.
 
 Do not point the workflow at a laptop database. GitHub-hosted runners cannot
 depend on a personal computer remaining online, and exposing a local database
@@ -93,7 +94,6 @@ to the public internet would add avoidable security and reliability risks.
 
 - hosted database selection and deployment;
 - automated backups with a tested restore;
-- freshness and row-count health checks;
 - failure notifications;
 - a data-quality dashboard;
 - documented source-change and recovery playbooks.

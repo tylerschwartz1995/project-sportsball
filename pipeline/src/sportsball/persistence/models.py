@@ -33,6 +33,10 @@ class IngestionRun(Base):
     """Auditable execution of one pipeline job."""
 
     __tablename__ = "ingestion_runs"
+    __table_args__ = (
+        Index("ix_ingestion_runs_job_started_at", "job_name", "started_at"),
+        Index("ix_ingestion_runs_status_started_at", "status", "started_at"),
+    )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     job_name: Mapped[str] = mapped_column(String(100))
