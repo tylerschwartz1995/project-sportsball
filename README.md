@@ -35,8 +35,10 @@ MoneyPuck presentation is implemented on team, player, and game pages,
 including game-level expected-goal and possession tables, shot maps, forward
 lines, and defensive pairings. Season-level top-line and defensive-pairing
 rankings are calculated in Polars and available across the league and on team
-pages. Team and player profiles also link to complete selected-season game logs
-with last-ten form summaries and available MoneyPuck game metrics. An audited
+pages. Completed game pages include official scoring summaries and expandable
+period-by-period timelines from the normalized NHL play-by-play archive. Team
+and player profiles also link to complete selected-season game logs with
+last-ten form summaries and available MoneyPuck game metrics. An audited
 daily-update coordinator and opt-in GitHub Actions scheduler are implemented;
 scheduled writes remain disabled until the deployment milestone provides a
 hosted database, secrets, and tested recovery. Operational health checks now

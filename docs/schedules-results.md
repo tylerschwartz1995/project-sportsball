@@ -13,8 +13,9 @@ Each result shows:
 - the recorded UTC start time and NHL game identifier.
 
 Completed results link to `/games/{nhlGameId}`, which shows the traditional
-box score plus MoneyPuck advanced team/player results, shot maps, forward
-lines, and defensive pairings wherever the provider publishes coverage.
+box score, NHL scoring summary and full period timeline, plus MoneyPuck
+advanced team/player results, shot maps, forward lines, and defensive pairings
+wherever the provider publishes coverage.
 
 The underlying read model keeps one game as the response grain. The
 `getGamesByDate()` query joins the two participating teams and their

@@ -51,6 +51,12 @@ The league analytics route includes:
 - explicit minimum-ice-time thresholds for skaters and goalies;
 - sortable tables with links to supporting team and player profiles.
 
+Teams, Skaters, Goalies, and Lines & Pairings share one persistent section
+selector. The links use full document navigation so large server-rendered
+leaderboards cannot leave the active tab and displayed dataset out of sync.
+The selector remains visible on the dedicated line-ranking route and marks
+Lines & Pairings as the active section.
+
 League skater and goalie tables retain player-team splits rather than silently
 combining traded-player rows. They show at most 200 qualifying rows for the
 selected view.

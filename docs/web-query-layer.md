@@ -29,6 +29,7 @@ apps/web/src/
 │   ├── advanced.ts
 │   ├── game-log.ts
 │   ├── game.ts
+│   ├── play-by-play.ts
 │   ├── player.ts
 │   ├── season.ts
 │   ├── standings.ts
@@ -39,6 +40,7 @@ apps/web/src/
 │   ├── database.ts
 │   ├── game-logs.ts
 │   ├── games.ts
+│   ├── play-by-play.ts
 │   ├── players.ts
 │   ├── seasons.ts
 │   ├── standings.ts
@@ -78,8 +80,14 @@ MoneyPuck season summaries for team and player pages.
 forward-line, and defensive-pairing records. The six parameterized reads run in
 parallel, and every returned date and identity is a plain serializable value
 safe to pass from a Server Component to a visualization component.
-The game page starts this package and the traditional three-query box-score
-read together, avoiding a server-side request waterfall.
+The game page starts this package, the traditional three-query box-score read,
+and the normalized play-by-play read together, avoiding a server-side request
+waterfall.
+
+`play-by-play.ts` performs event and participant reads in parallel, then groups
+semantic player roles beneath each event while preserving NHL sort order. The
+serializable result powers both the scoring summary and the expandable
+period-by-period timeline without an upstream request.
 
 `getMoneyPuckSeasonUnitLeaders()` reads the Polars-derived unit-season table.
 Forward lines and defensive pairings are queried in parallel with an explicit
@@ -151,11 +159,12 @@ make web-check
 ```
 
 Unit tests validate identifiers, calendar dates, database-row mapping,
-parameter use, game-log result mapping, advanced-game unit classification, and
-API behavior without requiring PostgreSQL. The opt-in integration test executes
-season, standings, schedule, box-score, team, roster, team and player game-log,
-player-index, player-career, and complete MoneyPuck advanced-game queries
-against the real development database:
+parameter use, game-log and play-by-play mapping, advanced-game unit
+classification, and API behavior without requiring PostgreSQL. The opt-in
+integration test executes season, standings, schedule, box-score, complete
+play-by-play, team, roster, team and player game-log, player-index,
+player-career, and complete MoneyPuck advanced-game queries against the real
+development database:
 
 ```bash
 SPORTSBALL_RUN_WEB_DATABASE_TESTS=1 \
