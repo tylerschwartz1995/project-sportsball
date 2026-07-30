@@ -7,11 +7,17 @@ from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
+from sportsball.normalization.moneypuck_unit_seasons import (
+    moneypuck_unit_season_frame,
+)
 from sportsball.persistence.models import (
     Game,
     MoneyPuckLineGameStats,
     Player,
     TeamSeason,
+)
+from sportsball.persistence.repositories.moneypuck_unit_seasons import (
+    MoneyPuckUnitSeasonRepository,
 )
 
 INSERT_BATCH_SIZE = 1_000
@@ -132,4 +138,8 @@ class MoneyPuckLineRepository:
             self._session.execute(
                 insert(MoneyPuckLineGameStats).values(resolved[offset : offset + INSERT_BATCH_SIZE])
             )
+        season_frame = moneypuck_unit_season_frame(
+            pl.DataFrame([{**row, "season_id": season_id} for row in resolved])
+        )
+        MoneyPuckUnitSeasonRepository(self._session).replace([season_id], season_frame)
         return len(resolved)

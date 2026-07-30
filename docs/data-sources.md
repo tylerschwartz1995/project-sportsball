@@ -95,7 +95,7 @@ provider limitations are documented in
 | MoneyPuck team game advanced statistics | 2008–09 onward; regular season and playoffs |
 | MoneyPuck player game advanced statistics | 2008–09 onward; regular season |
 | MoneyPuck shot-level advanced statistics | 2007–08 onward |
-| MoneyPuck line and pairing statistics | 2008–09 onward; regular-season five-on-five |
+| MoneyPuck line and pairing statistics | 2008–09 onward; regular-season five-on-five, game and Polars-derived season grains |
 
 The interface must show the source and coverage range for each metric.
 Unavailable provider coverage must display as unavailable rather than zero.

@@ -84,3 +84,36 @@ The current NHL implementation remains the proving ground. We should not
 generalize ingestion or database tables prematurely; the second sport will
 provide the concrete requirements needed to extract the correct shared
 abstractions.
+
+## 3. Line-combination explorer
+
+**Status:** Partially implemented
+
+Season-level forward-line and defensive-pairing rankings are implemented with
+season, team, minimum-ice-time, and sortable metric controls. Potential future
+extensions include:
+
+- rolling 10-, 20-, and 40-game combination results;
+- home/away, tied/trailing/leading, and score-adjusted splits;
+- teammate-network visualizations showing how frequently players skate
+  together;
+- comparison of a player's results across different linemates;
+- cross-season leaderboards and franchise-history views;
+- interactive drill-down from a season aggregate to its supporting games.
+
+These should continue to use the canonical game-level unit facts and explicit
+sample-size thresholds.
+
+## 4. Additional modelling data
+
+**Status:** Evaluate after daily automation
+
+Potential additions include injuries, transactions, salary-cap and contract
+data, projected lineups, and betting-market odds. Each source needs a licensing,
+reliability, historical-coverage, and predictive-value review before ingestion.
+Natural Stat Trick remains paused unless approved access or another compliant
+acquisition method becomes available.
+
+New sources should be added only when they improve a defined product feature or
+model evaluation. The existing NHL and MoneyPuck history is sufficient for
+baseline team, game, and player modelling.

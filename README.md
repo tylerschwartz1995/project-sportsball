@@ -33,7 +33,9 @@ player profiles, historical navigation, directory search and sorting,
 responsive layouts, sortable statistics tables, and JSON endpoints.
 MoneyPuck presentation is implemented on team, player, and game pages,
 including game-level expected-goal and possession tables, shot maps, forward
-lines, and defensive pairings.
+lines, and defensive pairings. Season-level top-line and defensive-pairing
+rankings are calculated in Polars and available across the league and on team
+pages.
 
 ## Local development
 

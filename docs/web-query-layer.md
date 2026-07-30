@@ -75,6 +75,11 @@ safe to pass from a Server Component to a visualization component.
 The game page starts this package and the traditional three-query box-score
 read together, avoiding a server-side request waterfall.
 
+`getMoneyPuckSeasonUnitLeaders()` reads the Polars-derived unit-season table.
+Forward lines and defensive pairings are queried in parallel with an explicit
+ice-time threshold, optional team filter, and bounded result limit. Team pages
+start this read alongside their traditional and MoneyPuck season queries.
+
 ## Configuration
 
 The Python SQLAlchemy URL includes the `+psycopg` driver name. Node's `pg`

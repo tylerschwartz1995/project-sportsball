@@ -1086,6 +1086,50 @@ class MoneyPuckLineGameStats(Base):
     total_shot_credit_against: Mapped[float | None] = mapped_column(Float)
 
 
+class MoneyPuckUnitSeasonStats(Base):
+    """Polars-derived regular-season five-on-five unit totals."""
+
+    __tablename__ = "moneypuck_unit_season_stats"
+    __table_args__ = (
+        UniqueConstraint(
+            "season_id",
+            "team_id",
+            "unit_type",
+            "unit_key",
+            name="uq_moneypuck_unit_season",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    season_id: Mapped[int] = mapped_column(ForeignKey("seasons.id"), index=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    player_1_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    player_2_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    player_3_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), index=True)
+    unit_key: Mapped[str] = mapped_column(String(24))
+    unit_type: Mapped[str] = mapped_column(String(10), index=True)
+    derivation_version: Mapped[str] = mapped_column(String(30))
+    games_played: Mapped[int] = mapped_column(Integer)
+    ice_time_seconds: Mapped[float] = mapped_column(Float, index=True)
+    x_goals_percentage: Mapped[float | None] = mapped_column(Float)
+    corsi_percentage: Mapped[float | None] = mapped_column(Float)
+    x_goals_for: Mapped[float | None] = mapped_column(Float)
+    x_goals_against: Mapped[float | None] = mapped_column(Float)
+    goals_for: Mapped[float | None] = mapped_column(Float)
+    goals_against: Mapped[float | None] = mapped_column(Float)
+    shots_on_goal_for: Mapped[float | None] = mapped_column(Float)
+    shots_on_goal_against: Mapped[float | None] = mapped_column(Float)
+    shot_attempts_for: Mapped[float | None] = mapped_column(Float)
+    shot_attempts_against: Mapped[float | None] = mapped_column(Float)
+    high_danger_x_goals_for: Mapped[float | None] = mapped_column(Float)
+    high_danger_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+
 class TeamSeasonStats(Base):
     """Polars-derived team results for one season and game type."""
 

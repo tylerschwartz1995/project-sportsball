@@ -28,6 +28,7 @@ from sportsball.persistence.models import (
     MoneyPuckSkaterSeasonStats,
     MoneyPuckTeamGameStats,
     MoneyPuckTeamSeasonStats,
+    MoneyPuckUnitSeasonStats,
     OfficialGoalieSeasonStats,
     OfficialSkaterSeasonStats,
     OfficialStandingsSnapshot,
@@ -90,6 +91,7 @@ class SeasonCounts:
     moneypuck_goalie_game_rows: int = 0
     moneypuck_shot_rows: int = 0
     moneypuck_line_rows: int = 0
+    moneypuck_unit_season_rows: int = 0
     moneypuck_summary_status: str | None = None
     moneypuck_player_game_status: str | None = None
     moneypuck_shot_status: str | None = None
@@ -247,6 +249,11 @@ def evaluate_season(counts: SeasonCounts) -> tuple[AuditIssue, ...]:
             )
         if counts.moneypuck_line_status != "completed" or not counts.moneypuck_line_rows:
             error("moneypuck_lines", "line/pairing backfill is incomplete or empty")
+        if not counts.moneypuck_unit_season_rows:
+            error(
+                "moneypuck_unit_seasons",
+                "season line/pairing aggregates are empty",
+            )
 
     if counts.season_id >= MONEYPUCK_FIRST_SHOT_SEASON and (
         counts.moneypuck_shot_status != "completed" or not counts.moneypuck_shot_rows
@@ -274,7 +281,8 @@ def format_season_audit(season: SeasonAudit) -> tuple[str, ...]:
             f"team_games={counts.moneypuck_team_game_rows} "
             f"player_games={counts.moneypuck_skater_game_rows}/"
             f"{counts.moneypuck_goalie_game_rows} "
-            f"shots={counts.moneypuck_shot_rows} lines={counts.moneypuck_line_rows}"
+            f"shots={counts.moneypuck_shot_rows} lines={counts.moneypuck_line_rows} "
+            f"season_units={counts.moneypuck_unit_season_rows}"
         )
     elif counts.season_id >= MONEYPUCK_FIRST_SHOT_SEASON:
         moneypuck = f"summary=n/a shots={counts.moneypuck_shot_rows}"
@@ -415,6 +423,7 @@ def _load_counts(session: Session, season_ids: list[int]) -> list[SeasonCounts]:
     mp_goalie_games = _count_via_game(session, MoneyPuckGoalieGameStats, season_ids)
     mp_shots = _count_via_game(session, MoneyPuckShot, season_ids)
     mp_lines = _count_via_game(session, MoneyPuckLineGameStats, season_ids)
+    mp_unit_seasons = _count_direct(session, MoneyPuckUnitSeasonStats, season_ids)
 
     summary_statuses = _status_by_season(session, MoneyPuckSeasonBackfill, season_ids)
     player_statuses = _status_by_season(session, MoneyPuckPlayerGameBackfill, season_ids)
@@ -452,6 +461,7 @@ def _load_counts(session: Session, season_ids: list[int]) -> list[SeasonCounts]:
                 moneypuck_goalie_game_rows=mp_goalie_games.get(season_id, 0),
                 moneypuck_shot_rows=mp_shots.get(season_id, 0),
                 moneypuck_line_rows=mp_lines.get(season_id, 0),
+                moneypuck_unit_season_rows=mp_unit_seasons.get(season_id, 0),
                 moneypuck_summary_status=summary_statuses.get(season_id),
                 moneypuck_player_game_status=player_statuses.get(season_id),
                 moneypuck_shot_status=shot_statuses.get(season_id),
@@ -488,6 +498,7 @@ def _count_direct(
         | MoneyPuckSkaterSeasonStats
         | MoneyPuckGoalieSeasonStats
         | MoneyPuckTeamSeasonStats
+        | MoneyPuckUnitSeasonStats
     ],
     season_ids: list[int],
 ) -> dict[int, int]:

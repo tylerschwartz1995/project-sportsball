@@ -223,3 +223,8 @@ under `pipeline/tests/fixtures`.
 - `apps/web` never imports Python internals or calls upstream data sources.
 - Deployment infrastructure will run published jobs and services without
   containing domain logic.
+
+`moneypuck_unit_season_stats` is a replaceable derived table built in Python
+with Polars from `moneypuck_line_game_stats`. It canonicalizes each player set,
+sums game-level numerators, and recomputes season shares rather than averaging
+published game percentages.
