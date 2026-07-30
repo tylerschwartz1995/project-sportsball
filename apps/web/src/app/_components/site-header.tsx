@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 type SiteHeaderProps = {
-  active: "standings" | "games" | "teams" | "players";
+  active: "standings" | "games" | "teams" | "players" | "lines";
 };
 
 const links = [
@@ -9,6 +9,7 @@ const links = [
   { id: "games", href: "/games", label: "Games" },
   { id: "teams", href: "/teams", label: "Teams" },
   { id: "players", href: "/players", label: "Players" },
+  { id: "lines", href: "/lines", label: "Lines" },
 ] as const;
 
 export function SiteHeader({ active }: SiteHeaderProps) {

@@ -42,6 +42,7 @@ completed on July 30, 2026.
 - [x] Add advanced team, skater, and goalie season views.
 - [x] Expose game, shot, line, and pairing records through application queries.
 - [x] Add advanced game views, shot maps, lines, and pairings.
+- [x] Add Polars-derived season forward-line and defensive-pairing rankings.
 
 ## Milestone 5: daily operation
 

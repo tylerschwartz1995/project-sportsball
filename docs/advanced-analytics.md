@@ -11,6 +11,8 @@ server-only TypeScript queries.
   splits for skaters or goalies.
 - `/games/{nhlGameId}` displays advanced team and player results, shot maps,
   forward lines, and defensive pairings alongside the traditional box score.
+- `/lines?season={seasonId}&minimum={minutes}` ranks season-level forward lines
+  and defensive pairings.
 
 The React Server Components query PostgreSQL directly. No browser request or
 page render calls MoneyPuck, and the normalized source records remain separate
@@ -57,6 +59,12 @@ Game pages add:
 - sortable all-situations skater and goalie advanced results;
 - sortable five-on-five forward-line and defensive-pairing tables.
 
+The line-ranking page and team pages display Polars-derived season aggregates.
+Player combinations are canonicalized before grouping, totals are summed across
+games, and xG% and CF% are recomputed from those totals. The default league
+threshold is 100 five-on-five minutes, with selectable thresholds to prevent
+small samples from being presented as established top units.
+
 Rows retain MoneyPuck's published situations: all situations, 5-on-5, 5-on-4,
 4-on-5, and other. Player records remain split by team so traded-player context
 is not lost.
@@ -76,3 +84,4 @@ individual production.
 
 - cross-season advanced leaderboards and comparisons;
 - richer metric documentation, filters, and interactive shot exploration.
+- rolling-window and score-state line-combination splits.

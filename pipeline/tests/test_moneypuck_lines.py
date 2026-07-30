@@ -17,6 +17,7 @@ from sportsball.persistence.models import (
     Game,
     IngestionRun,
     MoneyPuckLineGameStats,
+    MoneyPuckUnitSeasonStats,
     Player,
     Season,
     SourceArtifact,
@@ -69,6 +70,14 @@ def test_line_ingestion_is_idempotent() -> None:
             ).all()
             assert all(row.is_home for row in rows)
             assert len({row.opponent_team_id for row in rows}) == 1
+            season_units = session.scalars(
+                select(MoneyPuckUnitSeasonStats).where(
+                    MoneyPuckUnitSeasonStats.season_id == TEST_SEASON_ID
+                )
+            ).all()
+            assert len(season_units) == 2
+            assert {unit.unit_type for unit in season_units} == {"line", "pairing"}
+            assert all(unit.games_played == 1 for unit in season_units)
     finally:
         _clean_up()
 
@@ -164,6 +173,11 @@ def _create_dimensions() -> None:
 
 def _clean_up() -> None:
     with session_scope() as session:
+        session.execute(
+            delete(MoneyPuckUnitSeasonStats).where(
+                MoneyPuckUnitSeasonStats.season_id == TEST_SEASON_ID
+            )
+        )
         game_pk = session.scalar(select(Game.id).where(Game.nhl_id == TEST_GAME_ID))
         if game_pk is not None:
             session.execute(

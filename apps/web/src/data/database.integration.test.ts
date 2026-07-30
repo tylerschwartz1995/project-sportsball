@@ -9,6 +9,7 @@ import {
 } from "@/data/games";
 import { getPlayerDetail, listPlayersBySeason } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
+import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
 import { getStandings } from "@/data/standings";
 import { getTeamSeasonDetail, listTeamsBySeason } from "@/data/teams";
 
@@ -107,6 +108,23 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     const player = await getPlayerDetail(8478402);
     expect(player?.profile.name).toBe("Connor McDavid");
     expect(player?.skaterSeasons.length).toBeGreaterThan(10);
+
+    const units = await getMoneyPuckSeasonUnitLeaders(20252026, {
+      minimumIceTimeSeconds: 6_000,
+      limit: 100,
+    });
+    expect(units.forwardLines).toHaveLength(100);
+    expect(units.defensivePairings).toHaveLength(100);
+    expect(units.forwardLines[0]).toMatchObject({
+      unitType: "line",
+      team: { abbreviation: "COL" },
+      players: [
+        { name: "Brock Nelson" },
+        { name: "Valeri Nichushkin" },
+        { name: "Artturi Lehkonen" },
+      ],
+    });
+    expect(() => JSON.stringify(units)).not.toThrow();
   });
 
   it("loads a complete regular-season MoneyPuck game package", async () => {

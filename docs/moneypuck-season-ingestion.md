@@ -133,6 +133,20 @@ uv run --project pipeline --frozen sportsball \
 `moneypuck_line_game_stats` resolves all two or three unit members to canonical
 NHL players and stores game-level possession, expected-goal, shot, goal,
 danger, score-adjusted, and shot-credit metrics. Exact ZIP sources are retained.
+Each line ingestion also replaces that season's canonical
+`moneypuck_unit_season_stats` rows.
+
+Build or repair season aggregates from the already stored game facts without
+downloading MoneyPuck again:
+
+```bash
+uv run --project pipeline --frozen sportsball \
+  build-moneypuck-unit-seasons 20082009 20252026
+```
+
+The Polars transformation canonicalizes player ordering, sums ice time and
+metric numerators, and recomputes xG% and CF%. It never averages game-level
+percentages.
 
 ## Completed historical coverage
 
@@ -145,6 +159,7 @@ The initial backfill through 2025–26 is complete:
 | Player games | 2008–09 onward | game, player, team, situation |
 | Shots | 2007–08 onward | game and source shot event |
 | Lines and pairings | 2008–09 onward | game, team, unit, situation |
+| Derived line and pairing rankings | 2008–09 onward | season, team, canonical unit |
 
 Run the [data-completeness audit](data-completeness-audit.md) to verify these
 facts and their durable backfill states alongside the canonical NHL data.

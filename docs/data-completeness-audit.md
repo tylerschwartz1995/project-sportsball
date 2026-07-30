@@ -29,7 +29,9 @@ For every requested season, the audit verifies:
 - NHL-published standings and player season statistics exist;
 - every player participating in a box score has an enriched player profile;
 - MoneyPuck tables and resumable backfill states are complete wherever that
-  provider publishes coverage.
+  provider publishes coverage;
+- Polars-derived season line and pairing aggregates exist wherever MoneyPuck
+  line-game records exist.
 
 MoneyPuck expectations are source-aware. Shot checks begin with 2007–08.
 Season summaries, team games, player games, and line/pairing checks begin with

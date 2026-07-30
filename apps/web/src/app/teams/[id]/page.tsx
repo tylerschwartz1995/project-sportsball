@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { TeamAdvancedAnalytics } from "@/app/_components/advanced-analytics";
 import { SeasonPicker } from "@/app/_components/season-picker";
+import { SeasonUnitTables } from "@/app/_components/season-unit-tables";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
@@ -11,6 +12,7 @@ import { parseSeasonId } from "@/contracts/season";
 import type { TeamSeasonStats } from "@/contracts/team";
 import { getMoneyPuckTeamSeason } from "@/data/advanced";
 import { listSeasons } from "@/data/seasons";
+import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
 import { getTeamSeasonDetail } from "@/data/teams";
 
 export const dynamic = "force-dynamic";
@@ -35,9 +37,14 @@ export default async function TeamPage({
     notFound();
   }
 
-  const [detail, advanced] = await Promise.all([
+  const [detail, advanced, units] = await Promise.all([
     getTeamSeasonDetail(nhlTeamId, selectedSeason.id),
     getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id),
+    getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
+      teamNhlId: nhlTeamId,
+      minimumIceTimeSeconds: 3_000,
+      limit: 100,
+    }),
   ]);
   if (!detail) {
     notFound();
@@ -82,6 +89,37 @@ export default async function TeamPage({
           data={advanced}
           seasonId={selectedSeason.id}
         />
+
+        {selectedSeason.id >= 20082009 ? (
+          <section className="mt-12">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
+                  Five-on-five combinations
+                </p>
+                <h3 className="mt-2 text-2xl font-semibold text-white">
+                  Season lines and pairings
+                </h3>
+                <p className="mt-2 text-sm text-slate-500">
+                  Combinations with at least 50 minutes together.
+                </p>
+              </div>
+              <Link
+                href={`/lines?season=${selectedSeason.id}&minimum=100`}
+                className="text-sm font-medium text-violet-300 transition hover:text-violet-200"
+              >
+                View league rankings →
+              </Link>
+            </div>
+            <div className="mt-6">
+              <SeasonUnitTables
+                data={units}
+                seasonId={selectedSeason.id}
+                showTeam={false}
+              />
+            </div>
+          </section>
+        ) : null}
 
         <section className="mt-12">
           <div className="flex flex-wrap items-end justify-between gap-3">
