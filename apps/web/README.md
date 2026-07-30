@@ -2,11 +2,12 @@
 
 The server-rendered Next.js application for NHL statistics and analytics.
 
-From the repository root:
+The web server uses a Node-compatible PostgreSQL URL. From the repository root:
 
 ```bash
 npm install --prefix apps/web
-npm run dev --prefix apps/web
+SPORTSBALL_WEB_DATABASE_URL=postgresql://sportsball:sportsball@localhost:5432/sportsball \
+  npm run dev --prefix apps/web
 ```
 
 Quality checks:
@@ -17,3 +18,21 @@ make web-check
 
 The application reads prepared records from Sportsball storage. It must not
 call NHL or MoneyPuck endpoints while rendering user requests.
+
+The current read-only slice provides:
+
+- a server-rendered league standings dashboard and historical season selector;
+- `GET /api/seasons`;
+- `GET /api/standings?season=20242025`.
+
+Set `SPORTSBALL_RUN_WEB_DATABASE_TESTS=1` alongside the database URL to include
+the opt-in PostgreSQL query integration test:
+
+```bash
+SPORTSBALL_RUN_WEB_DATABASE_TESTS=1 \
+SPORTSBALL_WEB_DATABASE_URL=postgresql://sportsball:sportsball@localhost:5432/sportsball \
+  npm run test --prefix apps/web
+```
+
+See [Web query layer](../../docs/web-query-layer.md) for the request flow,
+contracts, caching, and security boundary.

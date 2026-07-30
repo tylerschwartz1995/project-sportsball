@@ -24,13 +24,14 @@ on July 29, 2026.
   pairing downloads across their published coverage ranges.
 - Verify all 21 seasons with the read-only completeness audit.
 
-## Milestone 3: core website — next
+## Milestone 3: core website — in progress
 
-- Add league dashboard and season selector.
-- Add standings and schedules.
-- Add team and player pages.
-- Add results and box-score pages.
-- Add search, sorting, pagination, and mobile layouts.
+- [x] Add the server-only PostgreSQL query foundation and response contracts.
+- [x] Add the league dashboard, historical season selector, and standings.
+- [ ] Add schedules and results.
+- [ ] Add team and player pages.
+- [ ] Add game and box-score pages.
+- [ ] Add search, sorting, pagination, and complete mobile layouts.
 
 ## Milestone 4: advanced analytics — ingestion complete, presentation pending
 

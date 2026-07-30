@@ -81,5 +81,8 @@ jobs:
       - name: Type check
         run: npm run typecheck --prefix apps/web
 
+      - name: Test
+        run: npm run test --prefix apps/web
+
       - name: Build
         run: npm run build --prefix apps/web
