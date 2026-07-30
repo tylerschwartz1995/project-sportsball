@@ -1,4 +1,4 @@
-# Initial architecture
+# Architecture
 
 ## Goals
 
@@ -8,13 +8,13 @@
 - Make upstream sources replaceable.
 - Support idempotent daily imports and safe backfills.
 
-## Proposed components
+## Components
 
 ### Web application
 
-A server-rendered TypeScript application will provide league, team, player,
-standings, schedule, and game pages. The exact framework and hosting provider
-will be selected during scaffolding.
+A server-rendered Next.js TypeScript application will provide league, team,
+player, standings, schedule, and game pages. Hosting will be selected during
+the deployment milestone.
 
 ### Application API
 
@@ -24,26 +24,27 @@ and prevents traffic from multiplying NHL or MoneyPuck requests.
 
 ### Database
 
-PostgreSQL is the proposed system of record. Its relational model fits games,
+PostgreSQL is the system of record. Its relational model fits games,
 teams, players, seasons, rosters, events, and statistics. SQL will be used for
 schema migrations, constraints, indexing, and straightforward data retrieval.
 Business transformations and model features will not be implemented as large
 SQL pipelines.
 
-Initial entity groups:
+Implemented entity groups:
 
-- seasons, franchises, teams, and venues;
-- players, player names, and roster assignments;
-- games, periods, officials, and game states;
+- seasons, franchises, teams, season-specific identities, and transitions;
+- players and enriched player profiles;
+- games and durable backfill checkpoints;
 - team-game and player-game statistics;
 - play-by-play events and event participants;
-- standings snapshots;
-- advanced-stat observations;
-- ingestion runs, source payloads, and validation errors.
+- derived and NHL-published season statistics;
+- official standings snapshots;
+- MoneyPuck season, game, shot, line, and pairing observations;
+- ingestion runs, retained JSON payloads, and retained downloaded artifacts.
 
 Source identifiers will be stored alongside internal identifiers. MoneyPuck
-records must be joined to NHL entities through explicit mapping tables rather
-than names alone.
+records are resolved to canonical NHL games, teams, and players during
+normalization through explicit, season-aware mappings rather than fuzzy names.
 
 ### Ingestion workers
 
@@ -59,7 +60,7 @@ Python is the standard data-processing language for:
 Each import will be idempotent: rerunning the same date or game must update the
 same records without creating duplicates.
 
-The initial pipeline is:
+The ingestion pipeline is:
 
 ```text
 source fetch -> raw payload -> validation -> normalization -> database upsert
@@ -87,10 +88,10 @@ This point-in-time design is required to prevent future game results or revised
 statistics from leaking into historical training examples. SQL remains a
 storage and retrieval tool rather than the feature-engineering language.
 
-### Ingestion package layout
+### Implemented ingestion package layout
 
-Ingestion orchestration will remain separate from source clients,
-normalization, and persistence:
+Ingestion orchestration remains separate from source clients, normalization,
+persistence, and validation:
 
 ```text
 pipeline/
@@ -99,61 +100,38 @@ pipeline/
 │   ├── clients/
 │   │   ├── nhl/
 │   │   │   ├── client.py
-│   │   │   ├── endpoints.py
-│   │   │   ├── schemas.py
-│   │   │   └── exceptions.py
+│   │   │   └── schemas.py
 │   │   └── moneypuck/
-│   │       ├── client.py
-│   │       ├── downloads.py
-│   │       ├── schemas.py
-│   │       └── exceptions.py
+│   │       └── client.py
 │   ├── ingestion/
 │   │   ├── orchestration/
-│   │   │   ├── daily_update.py
-│   │   │   ├── historical_backfill.py
-│   │   │   ├── recent_corrections.py
-│   │   │   └── advanced_stats.py
-│   │   ├── extractors/
 │   │   │   ├── schedules.py
-│   │   │   ├── standings.py
-│   │   │   ├── rosters.py
+│   │   │   ├── season_backfill.py
 │   │   │   ├── boxscores.py
 │   │   │   ├── play_by_play.py
-│   │   │   └── moneypuck.py
-│   │   ├── raw/
-│   │   │   ├── repository.py
-│   │   │   ├── checksum.py
-│   │   │   └── metadata.py
-│   │   ├── validation/
-│   │   │   ├── payloads.py
-│   │   │   ├── completeness.py
-│   │   │   └── reconciliation.py
-│   │   ├── state/
-│   │   │   ├── runs.py
-│   │   │   ├── checkpoints.py
-│   │   │   └── locks.py
-│   │   └── config.py
+│   │   │   ├── player_profiles.py
+│   │   │   ├── standings.py
+│   │   │   ├── season_stats.py
+│   │   │   └── moneypuck_*.py
 │   ├── normalization/
-│   │   ├── teams.py
-│   │   ├── players.py
 │   │   ├── games.py
-│   │   ├── events.py
+│   │   ├── boxscores.py
+│   │   ├── play_by_play.py
 │   │   ├── standings.py
-│   │   └── advanced_stats.py
+│   │   ├── season_stats.py
+│   │   └── moneypuck_*.py
 │   ├── persistence/
 │   │   ├── database.py
-│   │   ├── repositories/
-│   │   └── unit_of_work.py
-│   └── jobs/
-│       ├── ingest_daily.py
-│       ├── backfill_season.py
-│       ├── refresh_game.py
-│       └── ingest_moneypuck.py
+│   │   ├── models.py
+│   │   └── repositories/
+│   ├── reference/
+│   │   └── team_identities.py
+│   ├── validation/
+│   │   └── completeness.py
+│   └── cli.py
 └── tests/
-    ├── unit/
-    ├── integration/
-    ├── contract/
-    └── fixtures/
+    ├── fixtures/
+    └── test_*.py
 ```
 
 The execution path is:
@@ -166,13 +144,15 @@ job -> orchestration -> source client -> raw payload storage -> validation
 Responsibilities are intentionally narrow:
 
 - `clients` implements provider communication, schemas, and provider errors.
-- `extractors` decides which source records a job needs.
-- `raw` preserves original payloads, checksums, and provenance.
-- `validation` checks payload shape, completeness, and source reconciliation.
+- orchestration decides which source records a job needs and records resumable
+  state.
+- source payload and artifact repositories preserve originals, checksums, and
+  provenance.
+- `validation` checks cross-table completeness and source coverage.
 - `normalization` maps provider records to the canonical domain model.
 - `persistence` centralizes database transactions and repository operations.
-- `state` makes jobs observable, resumable, locked, and safe to rerun.
-- `jobs` contains thin command-line entry points for people and schedulers.
+- checkpoint tables make jobs observable, resumable, and safe to rerun.
+- `cli.py` contains thin command-line entry points for people and schedulers.
 
 Generic `utils` and `helpers` packages will be avoided. Shared code must have a
 specific domain or infrastructure responsibility.
@@ -194,8 +174,8 @@ must preserve the last known-good public data.
 
 ## Repository structure
 
-The project will use one repository so application and data contracts can
-evolve together:
+The project uses one repository so application and data contracts can evolve
+together:
 
 ```text
 project-sportsball/
@@ -209,35 +189,32 @@ project-sportsball/
 │   │   ├── clients/           # NHL and MoneyPuck source adapters
 │   │   ├── ingestion/         # Fetching, raw storage, retries, and audit records
 │   │   ├── normalization/     # Source records to canonical domain records
-│   │   ├── statistics/        # Reproducible derived hockey statistics
-│   │   ├── features/          # Point-in-time model feature definitions
-│   │   ├── models/            # Training, evaluation, and prediction
-│   │   └── jobs/              # Backfill and scheduled-job entry points
+│   │   ├── persistence/       # SQLAlchemy models, sessions, and repositories
+│   │   ├── reference/         # Team and franchise identity mappings
+│   │   └── validation/        # Cross-table completeness checks
 │   └── tests/
 ├── database/
-│   ├── migrations/            # Versioned PostgreSQL schema changes
-│   └── seeds/                 # Small stable reference records
-├── contracts/                 # Shared API and data-contract definitions
-├── data/
-│   └── samples/               # Small, non-sensitive test fixtures only
+│   └── migrations/            # Versioned PostgreSQL schema changes
 ├── docs/                      # Decisions, sources, operations, and metric definitions
-├── infrastructure/            # Deployment and scheduled-job configuration
 ├── .github/
-│   └── workflows/             # Continuous integration and scheduled workflows
+│   └── workflows/             # Pipeline and web continuous integration
+├── compose.yaml               # Local PostgreSQL service
+├── Makefile                   # Quality, database, and web commands
 ├── README.md
 └── .env.example
 ```
 
 Large raw datasets, database files, trained models, caches, and secrets will
-not be committed. The `data/samples` directory is only for small deterministic
-fixtures needed by tests.
+not be committed. Small deterministic source fixtures needed by tests live
+under `pipeline/tests/fixtures`.
 
 ### Dependency direction
 
 - `pipeline` owns all source-specific and analytical logic.
 - Polars is the default dataframe engine throughout `pipeline`.
 - `database` defines storage independently of any one data source.
-- `contracts` defines the stable shapes consumed by `apps/web`.
+- Stable read contracts for `apps/web` will be introduced with the application
+  query layer.
 - `apps/web` never imports Python internals or calls upstream data sources.
-- `infrastructure` runs published jobs and services without containing domain
-  logic.
+- Deployment infrastructure will run published jobs and services without
+  containing domain logic.

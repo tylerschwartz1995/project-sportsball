@@ -20,19 +20,19 @@ have every value.
 Ingest one known NHL player:
 
 ```bash
-uv run --project pipeline sportsball ingest-player 8483493
+uv run --project pipeline --frozen sportsball ingest-player 8483493
 ```
 
 Resume all missing profiles:
 
 ```bash
-uv run --project pipeline sportsball backfill-players
+uv run --project pipeline --frozen sportsball backfill-players
 ```
 
 Use `--max-players` for a bounded batch and `--retry-failed` to revisit parked failures.
 The backfill reports progress every 100 players and is safe to resume.
 
 Every landing response is retained in `source_payloads` before canonical fields are
-updated. The source also contains NHL-published season totals; those will be normalized
-separately for richer traditional statistics and reconciliation rather than mixed into
-the player identity row.
+updated. The NHL-published season totals in the same response are normalized separately
+for richer traditional statistics and reconciliation rather than mixed into the player
+identity row. See [Official player season statistics](official-player-season-stats.md).

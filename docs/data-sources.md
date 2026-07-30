@@ -19,7 +19,7 @@ The NHL website currently uses JSON endpoints under:
 - `https://api-web.nhle.com/v1`
 - `https://api.nhle.com/stats/rest`
 
-Useful endpoint families verified during planning include:
+Implemented endpoint families include:
 
 - `/standings/now`
 - `/schedule/{date}`
@@ -29,9 +29,9 @@ Useful endpoint families verified during planning include:
 - `/gamecenter/{game-id}/boxscore`
 - `/gamecenter/{game-id}/play-by-play`
 
-Schedules, box scores, and play-by-play were verified for a 2005–06 game.
-Early play-by-play is less detailed than modern data; for example, some events
-do not include shot coordinates.
+Schedules, box scores, play-by-play, profiles, and standings have been
+backfilled across 2005–06 through 2025–26. Early play-by-play is less detailed
+than modern data; for example, some events do not include shot coordinates.
 
 Play-by-play normalization and its resumable historical backfill are documented
 in [Play-by-play ingestion](play-by-play.md).
@@ -69,12 +69,19 @@ Source and usage details:
 - https://www.moneypuck.com/data.htm
 - https://www.moneypuck.com/glossary.htm
 
-Available data includes skater, goalie, line, team, game-level, and shot-level
-records. Shot data includes expected goals and related model outputs.
+The implemented adapter ingests every approved download needed for the initial
+scope:
 
-The first implemented MoneyPuck slice ingests skater, goalie, and team season
-summaries and is documented in
-[MoneyPuck season-summary ingestion](moneypuck-season-ingestion.md).
+- skater, goalie, and team season summaries;
+- team game-level records for regular season and playoffs;
+- regular-season skater and goalie game records;
+- regular-season and playoff shot records;
+- regular-season five-on-five forward-line and defensive-pairing records.
+
+Shot data includes expected goals and related model outputs. Exact downloaded
+files are retained separately from normalized facts. Commands, storage, and
+provider limitations are documented in
+[MoneyPuck ingestion](moneypuck-season-ingestion.md).
 
 ## Coverage shown on the website
 
@@ -82,14 +89,22 @@ summaries and is documented in
 | --- | --- |
 | Schedules, results, and box scores | 2005–06 onward |
 | Traditional team and player statistics | 2005–06 onward |
-| Standings | 2005–06 onward, subject to endpoint validation |
+| Standings | 2005–06 onward |
 | Play-by-play | 2005–06 onward, with fields varying by season |
 | MoneyPuck season-summary advanced statistics | 2008–09 onward |
+| MoneyPuck team game advanced statistics | 2008–09 onward; regular season and playoffs |
+| MoneyPuck player game advanced statistics | 2008–09 onward; regular season |
 | MoneyPuck shot-level advanced statistics | 2007–08 onward |
+| MoneyPuck line and pairing statistics | 2008–09 onward; regular-season five-on-five |
 
-The interface must show the source and coverage range for each metric. Missing
-advanced data in 2005–06 and 2006–07 must display as unavailable rather than
-zero.
+The interface must show the source and coverage range for each metric.
+Unavailable provider coverage must display as unavailable rather than zero.
+There is no MoneyPuck coverage in 2005–06 or 2006–07; 2007–08 has shot data
+but not the other MoneyPuck datasets.
+
+The database coverage is checked by
+[the completeness audit](data-completeness-audit.md). On July 29, 2026, all
+21 seasons passed with zero completeness errors.
 
 ## Update policy
 

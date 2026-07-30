@@ -7,8 +7,10 @@ recalculating an entire season on every page request.
 Run an inclusive range:
 
 ```bash
-uv run --project pipeline sportsball backfill-game-outcomes 20052006 20252026
-uv run --project pipeline sportsball build-season-stats 20052006 20252026
+uv run --project pipeline --frozen sportsball \
+  backfill-game-outcomes 20052006 20252026
+uv run --project pipeline --frozen sportsball \
+  build-season-stats 20052006 20252026
 ```
 
 Each row is scoped to a season and NHL game type. Regular season (`2`) and playoffs (`3`)

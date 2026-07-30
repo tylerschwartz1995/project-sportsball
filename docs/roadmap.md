@@ -1,6 +1,9 @@
 # Implementation roadmap
 
-## Milestone 1: foundation
+Status values reflect the repository after the historical completeness audit
+on July 29, 2026.
+
+## Milestone 1: foundation — complete
 
 - Create the monorepo package layout.
 - Use Next.js with TypeScript for the web application.
@@ -9,15 +12,19 @@
 - Define migrations for seasons, teams, players, and games.
 - Add formatting, linting, tests, and continuous integration.
 
-## Milestone 2: NHL historical ingestion
+## Milestone 2: historical ingestion — complete
 
 - Implement a rate-limited NHL client.
 - Import seasons, teams, schedules, and completed games.
 - Import box scores and play-by-play from 2005–06 onward.
 - Add raw-payload storage, validation, retries, and import audit records.
-- Verify counts against representative seasons.
+- Import player profiles, official standings, NHL-published player season
+  splits, and Polars-derived season statistics.
+- Import approved MoneyPuck season, team-game, player-game, shot, line, and
+  pairing downloads across their published coverage ranges.
+- Verify all 21 seasons with the read-only completeness audit.
 
-## Milestone 3: core website
+## Milestone 3: core website — next
 
 - Add league dashboard and season selector.
 - Add standings and schedules.
@@ -25,11 +32,11 @@
 - Add results and box-score pages.
 - Add search, sorting, pagination, and mobile layouts.
 
-## Milestone 4: advanced analytics
+## Milestone 4: advanced analytics — ingestion complete, presentation pending
 
-- Implement approved MoneyPuck download ingestion.
-- Map MoneyPuck players, teams, seasons, and games to NHL records.
-- Add metric definitions, source attribution, and coverage labels.
+- Expose the stored MoneyPuck team, player, goalie, game, shot, line, and
+  pairing records through read-only application queries.
+- Add metric definitions, MoneyPuck attribution, and coverage labels.
 - Add advanced team, player, goalie, and game views.
 
 ## Milestone 5: daily operation

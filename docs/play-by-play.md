@@ -9,13 +9,15 @@ complete NHL response in `source_payloads`, then creates queryable `game_events`
 Ingest one stored final game:
 
 ```bash
-uv run --project pipeline sportsball ingest-game-play-by-play 2025020001
+uv run --project pipeline --frozen sportsball \
+  ingest-game-play-by-play 2025020001
 ```
 
 Resume an inclusive historical range:
 
 ```bash
-uv run --project pipeline sportsball backfill-game-play-by-play 20052006 20252026
+uv run --project pipeline --frozen sportsball \
+  backfill-game-play-by-play 20052006 20252026
 ```
 
 Use `--max-games` for a bounded test or batch. Known failures are parked so later games
