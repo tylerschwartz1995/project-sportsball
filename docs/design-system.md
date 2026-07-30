@@ -83,5 +83,4 @@ player profiles, games directory, game timelines, box scores, and game
 analytics use the Data Workspace hierarchy and semantic controls. Remaining
 rollout order:
 
-1. advanced leaderboards and the metric guide;
-2. final cross-route mobile and accessibility review.
+1. final cross-route mobile and accessibility review.

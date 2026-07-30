@@ -5,6 +5,11 @@ import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { DataTableShell } from "@/app/_components/ui-primitives";
+import {
+  WorkspaceMetric,
+  WorkspacePageHeader,
+} from "@/app/_components/workspace-primitives";
 import type {
   AdvancedGoalieLeaderboardRow,
   AdvancedSkaterLeaderboardRow,
@@ -74,30 +79,22 @@ export default async function AnalyticsPage({
       <SiteHeader active="analytics" />
 
       <section className="py-10">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="font-mono text-sm uppercase tracking-[0.18em] text-violet-300">
-              MoneyPuck leaderboards
-            </p>
-            <h2 className="mt-3 max-w-3xl text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-              {selectedSeason?.label ?? "No season"} advanced analytics
-            </h2>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
-              Compare shot quality, possession, individual creation, and goalie
-              performance across the league. Player results remain split by
-              team so traded-player context is preserved.
-            </p>
-          </div>
-          <SeasonPicker
-            seasons={seasons}
-            selectedSeasonId={selectedSeason?.id}
-            params={{
-              type,
-              situation,
-              minimum: type === "teams" ? undefined : minimumMinutes,
-            }}
-          />
-        </div>
+        <WorkspacePageHeader
+          eyebrow="MoneyPuck leaderboards"
+          title={`${selectedSeason?.label ?? "No season"} advanced analytics`}
+          description="Compare shot quality, possession, individual creation, and goalie performance across the league. Player results remain split by team so traded-player context is preserved."
+          action={
+            <SeasonPicker
+              seasons={seasons}
+              selectedSeasonId={selectedSeason?.id}
+              params={{
+                type,
+                situation,
+                minimum: type === "teams" ? undefined : minimumMinutes,
+              }}
+            />
+          }
+        />
 
         {selectedSeason ? (
           <>
@@ -149,16 +146,16 @@ function AnalyticsFilters({
   return (
     <form
       method="get"
-      className="mt-6 grid gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:max-w-2xl sm:grid-cols-[1fr_1fr_auto] sm:items-end"
+      className="workspace-analytics-filters"
+      data-type={type}
     >
       <input type="hidden" name="season" value={seasonId} />
       <input type="hidden" name="type" value={type} />
-      <label className="text-sm font-medium text-slate-300">
+      <label>
         Game situation
         <select
           name="situation"
           defaultValue={situation}
-          className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-white outline-none focus:border-violet-300/60"
         >
           {SITUATIONS.map((value) => (
             <option key={value} value={value}>
@@ -167,15 +164,12 @@ function AnalyticsFilters({
           ))}
         </select>
       </label>
-      {type === "teams" ? (
-        <div className="hidden sm:block" />
-      ) : (
-        <label className="text-sm font-medium text-slate-300">
+      {type === "teams" ? null : (
+        <label>
           Minimum ice time
           <select
             name="minimum"
             defaultValue={minimumMinutes}
-            className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-white outline-none focus:border-violet-300/60"
           >
             {MINIMUM_MINUTES.map((minutes) => (
               <option key={minutes} value={minutes}>
@@ -185,10 +179,7 @@ function AnalyticsFilters({
           </select>
         </label>
       )}
-      <button
-        type="submit"
-        className="rounded-lg bg-violet-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-violet-200"
-      >
+      <button type="submit">
         Apply
       </button>
     </form>
@@ -210,25 +201,18 @@ function LeaderboardSummary({
   }
 
   return (
-    <div className="mt-8 grid gap-4 md:grid-cols-3">
+    <div className="workspace-metric-grid">
       {leaders.map((row, index) => {
         const summary = leaderboardSummary(type, row);
         return (
-          <article
+          <WorkspaceMetric
             key={summary.key}
-            className="rounded-2xl border border-violet-300/15 bg-violet-300/[0.06] p-5"
-          >
-            <p className="font-mono text-xs uppercase tracking-[0.14em] text-violet-200/70">
-              #{index + 1} {summary.metric}
-            </p>
-            <Link
-              href={summaryHref(type, row, seasonId)}
-              className="mt-3 block text-xl font-semibold text-white transition hover:text-violet-200"
-            >
-              {summary.name}
-            </Link>
-            <p className="mt-2 text-sm text-slate-400">{summary.value}</p>
-          </article>
+            label={`#${index + 1} ${summary.metric}`}
+            value={summary.name}
+            detail={summary.value}
+            href={summaryHref(type, row, seasonId)}
+            tone="violet"
+          />
         );
       })}
     </div>
@@ -295,7 +279,7 @@ function TeamLeaderboard({
       description="Team results"
       defaultSortKey="xgPercentage"
     >
-      <table className="w-full min-w-[920px] text-sm">
+      <table className="workspace-table min-w-[920px]">
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Team" sortKey="team" align="left" defaultDirection="asc" />
@@ -351,7 +335,7 @@ function SkaterLeaderboard({
       description="Player-team rows"
       defaultSortKey="gameScore"
     >
-      <table className="w-full min-w-[1080px] text-sm">
+      <table className="workspace-table min-w-[1080px]">
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Player" sortKey="player" align="left" defaultDirection="asc" />
@@ -411,7 +395,7 @@ function GoalieLeaderboard({
       description="Goalie-team rows"
       defaultSortKey="goalsSaved"
     >
-      <table className="w-full min-w-[900px] text-sm">
+      <table className="workspace-table min-w-[900px]">
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" />
@@ -473,11 +457,11 @@ function LeaderboardFrame({
         <p>{description}</p>
         <p>{count === 200 ? "Top 200 qualifying rows" : `${count} qualifying rows`}</p>
       </div>
-      <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+      <DataTableShell>
         <SortableTable defaultSortKey={defaultSortKey}>
-          <div className="overflow-x-auto">{children}</div>
+          <div className="workspace-table-scroll">{children}</div>
         </SortableTable>
-      </div>
+      </DataTableShell>
     </section>
   );
 }

@@ -47,18 +47,13 @@ export function AnalyticsSectionTabs({
   return (
     <nav
       aria-label="Advanced analytics sections"
-      className="mt-10 flex w-fit max-w-full flex-wrap rounded-xl border border-white/10 bg-white/[0.035] p-1"
+      className="workspace-scroll-nav workspace-analytics-tabs"
     >
       {tabs.map((tab) => (
         <a
           key={tab.id}
           href={tab.href}
           aria-current={tab.id === active ? "page" : undefined}
-          className={
-            tab.id === active
-              ? "rounded-lg bg-violet-300 px-4 py-2 text-sm font-semibold text-slate-950"
-              : "rounded-lg px-4 py-2 text-sm font-medium text-slate-400 transition hover:bg-white/[0.05] hover:text-white"
-          }
         >
           {tab.label}
         </a>

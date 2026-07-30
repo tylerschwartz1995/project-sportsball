@@ -53,6 +53,12 @@ The league analytics route includes:
 - explicit minimum-ice-time thresholds for skaters and goalies;
 - sortable tables with links to supporting team and player profiles.
 
+The league leaderboards and centralized guide use the shared Data Workspace
+page hierarchy, semantic filters, compact metric cards, table shells, and
+responsive section navigation. Advanced controls and highlights use the
+secondary violet accent while retaining the same light/dark theme behavior as
+traditional-stat routes.
+
 Teams, Skaters, Goalies, Lines & Pairings, and the Metric Guide share one
 persistent section selector. The links use full document navigation so large
 server-rendered leaderboards cannot leave the active tab and displayed dataset

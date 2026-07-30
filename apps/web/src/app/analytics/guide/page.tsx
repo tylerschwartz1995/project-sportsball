@@ -1,6 +1,7 @@
 import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
+import { WorkspacePageHeader } from "@/app/_components/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
 import { listSeasons } from "@/data/seasons";
 import { firstQueryValue } from "@/lib/directory";
@@ -120,24 +121,17 @@ export default async function MetricGuidePage({
       <SiteHeader active="analytics" />
 
       <section className="py-10">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="font-mono text-sm uppercase tracking-[0.18em] text-violet-300">
-              Advanced analytics reference
-            </p>
-            <h2 className="mt-3 max-w-3xl text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-              Metric guide
-            </h2>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
-              Plain-language definitions for the advanced statistics used
-              across team, player, line, goalie, and game views.
-            </p>
-          </div>
-          <SeasonPicker
-            seasons={seasons}
-            selectedSeasonId={selectedSeason?.id}
-          />
-        </div>
+        <WorkspacePageHeader
+          eyebrow="Advanced analytics reference"
+          title="Metric guide"
+          description="Plain-language definitions for the advanced statistics used across team, player, line, goalie, and game views."
+          action={
+            <SeasonPicker
+              seasons={seasons}
+              selectedSeasonId={selectedSeason?.id}
+            />
+          }
+        />
 
         {selectedSeason ? (
           <AnalyticsSectionTabs
@@ -146,33 +140,33 @@ export default async function MetricGuidePage({
           />
         ) : null}
 
-        <div className="mt-8 space-y-8">
+        <div className="workspace-guide-groups">
           {metricGroups.map((group) => (
-            <section key={group.title}>
-              <h3 className="text-2xl font-semibold text-white">
-                {group.title}
-              </h3>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
+            <section key={group.title} className="workspace-guide-group">
+              <header>
+                <h2>{group.title}</h2>
+                <p>
                 {group.description}
-              </p>
-              <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                </p>
+              </header>
+              <div className="workspace-guide-grid">
                 {group.metrics.map((metric) => (
                   <article
                     key={metric.abbreviation}
-                    className="rounded-2xl border border-white/10 bg-white/[0.035] p-5"
+                    className="workspace-guide-card"
                   >
-                    <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                      <h4 className="text-xl font-semibold text-violet-200">
+                    <div>
+                      <h3>
                         {metric.abbreviation}
-                      </h4>
-                      <p className="text-sm font-medium text-white">
+                      </h3>
+                      <strong>
                         {metric.name}
-                      </p>
+                      </strong>
                     </div>
-                    <p className="mt-3 text-sm leading-6 text-slate-400">
+                    <p>
                       {metric.definition}
                     </p>
-                    <p className="mt-3 border-l-2 border-violet-300/30 pl-3 text-sm leading-6 text-slate-300">
+                    <p className="workspace-guide-reading">
                       {metric.reading}
                     </p>
                   </article>
@@ -182,20 +176,19 @@ export default async function MetricGuidePage({
           ))}
         </div>
 
-        <aside className="mt-10 rounded-2xl border border-violet-300/20 bg-violet-300/[0.06] p-6">
-          <h3 className="font-semibold text-white">How to read the data</h3>
-          <p className="mt-2 max-w-4xl text-sm leading-6 text-slate-400">
+        <aside className="workspace-guide-note">
+          <h2>How to read the data</h2>
+          <p>
             Situation filters matter: all-situations results include power
             plays and penalty kills, while 5-on-5 is better for even-strength
             comparison. Small samples can swing sharply, and model-based
             metrics should support—not replace—game context.
           </p>
-          <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm">
+          <div>
             <a
               href="https://www.moneypuck.com/glossary.htm"
               target="_blank"
               rel="noreferrer"
-              className="font-medium text-violet-300 transition hover:text-violet-200"
             >
               MoneyPuck glossary ↗
             </a>
@@ -203,7 +196,6 @@ export default async function MetricGuidePage({
               href="https://www.moneypuck.com/about.htm"
               target="_blank"
               rel="noreferrer"
-              className="font-medium text-violet-300 transition hover:text-violet-200"
             >
               Model methodology ↗
             </a>
