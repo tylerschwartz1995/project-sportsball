@@ -96,3 +96,22 @@ resolves to canonical NHL game, player, team, and opponent identities.
 
 These published player archives contain regular-season games. Team game-level
 facts cover both regular-season and playoff games.
+
+## Shot-level metrics
+
+MoneyPuck shot archives begin with 2007–08 and contain regular-season and
+playoff saved shots, missed shots, and goals. Blocked attempts are not included.
+
+```bash
+uv run --project pipeline --frozen sportsball \
+  ingest-moneypuck-shot-stats 20242025
+
+uv run --project pipeline --frozen sportsball \
+  backfill-moneypuck-shot-stats 20072008 20252026
+```
+
+`moneypuck_shots` stores modeling-ready expected-goal and outcome
+probabilities, coordinates, distance and angle, shot type, rebound and rush
+context, strength and score context, shooter, goalie, and canonical team
+identities. The exact published ZIP—including every source attribute—is stored
+in `source_artifacts`.

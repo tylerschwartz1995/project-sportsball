@@ -19,6 +19,10 @@ from sportsball.ingestion.orchestration.moneypuck_season_backfill import (
 from sportsball.ingestion.orchestration.moneypuck_seasons import (
     ingest_moneypuck_season,
 )
+from sportsball.ingestion.orchestration.moneypuck_shots import (
+    backfill_moneypuck_shots,
+    ingest_moneypuck_shots,
+)
 from sportsball.ingestion.orchestration.moneypuck_team_games import (
     ingest_moneypuck_team_games,
 )
@@ -249,6 +253,50 @@ def backfill_moneypuck_player_game_stats(
             f"  season={failure.season_id} error={failure.error_message}",
             err=True,
         )
+    if result.failures and result.pending_seasons == 0:
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def ingest_moneypuck_shot_stats(season_id: int) -> None:
+    """Ingest one season of MoneyPuck shot-level data."""
+    with MoneyPuckClient() as client:
+        try:
+            result = ingest_moneypuck_shots(season_id, client)
+        except ValueError as error:
+            raise typer.BadParameter(str(error)) from error
+    typer.echo(
+        f"run={result.run_id} season={result.season_id} rows_processed={result.rows_processed}"
+    )
+
+
+@app.command()
+def backfill_moneypuck_shot_stats(
+    start_season: int,
+    end_season: int,
+    max_seasons: int | None = None,
+    retry_failed: bool = False,
+) -> None:
+    """Backfill MoneyPuck shot-level data across a season range."""
+    with MoneyPuckClient() as client:
+        try:
+            result = backfill_moneypuck_shots(
+                start_season,
+                end_season,
+                client,
+                max_seasons=max_seasons,
+                retry_failed=retry_failed,
+            )
+        except ValueError as error:
+            raise typer.BadParameter(str(error)) from error
+    typer.echo(
+        f"seasons={result.start_season}-{result.end_season} "
+        f"attempted={result.attempted_this_run} "
+        f"completed={result.completed_seasons}/{result.total_seasons} "
+        f"pending={result.pending_seasons} failed={result.failed_seasons}"
+    )
+    for season_id, message in result.failures:
+        typer.echo(f"  season={season_id} error={message}", err=True)
     if result.failures and result.pending_seasons == 0:
         raise typer.Exit(code=1)
 
