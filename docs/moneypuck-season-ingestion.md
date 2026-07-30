@@ -115,3 +115,20 @@ probabilities, coordinates, distance and angle, shot type, rebound and rush
 context, strength and score context, shooter, goalie, and canonical team
 identities. The exact published ZIP—including every source attribute—is stored
 in `source_artifacts`.
+
+## Line and pairing metrics
+
+MoneyPuck's regular-season five-on-five unit archives contain both three-player
+forward lines and two-player defensive pairings:
+
+```bash
+uv run --project pipeline --frozen sportsball \
+  ingest-moneypuck-line-stats 20242025
+
+uv run --project pipeline --frozen sportsball \
+  backfill-moneypuck-line-stats 20082009 20252026
+```
+
+`moneypuck_line_game_stats` resolves all two or three unit members to canonical
+NHL players and stores game-level possession, expected-goal, shot, goal,
+danger, score-adjusted, and shot-credit metrics. Exact ZIP sources are retained.

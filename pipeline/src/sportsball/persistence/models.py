@@ -406,6 +406,25 @@ class MoneyPuckShotBackfill(Base):
     )
 
 
+class MoneyPuckLineBackfill(Base):
+    """Durable processing state for one MoneyPuck line-game season."""
+
+    __tablename__ = "moneypuck_line_backfills"
+
+    season_id: Mapped[int] = mapped_column(
+        ForeignKey("seasons.id"), primary_key=True, autoincrement=False
+    )
+    status: Mapped[str] = mapped_column(String(20))
+    attempt_count: Mapped[int] = mapped_column(Integer, default=0)
+    error_message: Mapped[str | None] = mapped_column(Text)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+
 class TeamGameStats(Base):
     """Traditional team totals from one NHL box score."""
 
@@ -1017,6 +1036,53 @@ class MoneyPuckShot(Base):
     away_team_goals: Mapped[int | None] = mapped_column(SmallInteger)
     time_since_last_event: Mapped[float | None] = mapped_column(Float)
     distance_from_last_event: Mapped[float | None] = mapped_column(Float)
+
+
+class MoneyPuckLineGameStats(Base):
+    """MoneyPuck forward-line or defensive-pair game metrics."""
+
+    __tablename__ = "moneypuck_line_game_stats"
+    __table_args__ = (
+        UniqueConstraint(
+            "game_id",
+            "team_id",
+            "source_line_id",
+            name="uq_moneypuck_line_game_team_unit",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    game_id: Mapped[int] = mapped_column(ForeignKey("games.id"), index=True)
+    team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"), index=True)
+    opponent_team_id: Mapped[int] = mapped_column(ForeignKey("teams.id"))
+    player_1_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    player_2_id: Mapped[int] = mapped_column(ForeignKey("players.id"), index=True)
+    player_3_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), index=True)
+    source_line_id: Mapped[str] = mapped_column(String(24))
+    name: Mapped[str] = mapped_column(String(200))
+    unit_type: Mapped[str] = mapped_column(String(10), index=True)
+    situation: Mapped[str] = mapped_column(String(20))
+    is_home: Mapped[bool] = mapped_column(Boolean)
+    game_date: Mapped[date] = mapped_column(Date)
+    ice_time_seconds: Mapped[float] = mapped_column(Float)
+    ice_time_rank: Mapped[float | None] = mapped_column(Float)
+    x_goals_percentage: Mapped[float | None] = mapped_column(Float)
+    corsi_percentage: Mapped[float | None] = mapped_column(Float)
+    fenwick_percentage: Mapped[float | None] = mapped_column(Float)
+    x_goals_for: Mapped[float | None] = mapped_column(Float)
+    x_goals_against: Mapped[float | None] = mapped_column(Float)
+    goals_for: Mapped[float | None] = mapped_column(Float)
+    goals_against: Mapped[float | None] = mapped_column(Float)
+    shots_on_goal_for: Mapped[float | None] = mapped_column(Float)
+    shots_on_goal_against: Mapped[float | None] = mapped_column(Float)
+    shot_attempts_for: Mapped[float | None] = mapped_column(Float)
+    shot_attempts_against: Mapped[float | None] = mapped_column(Float)
+    score_venue_adjusted_x_goals_for: Mapped[float | None] = mapped_column(Float)
+    score_venue_adjusted_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    high_danger_x_goals_for: Mapped[float | None] = mapped_column(Float)
+    high_danger_x_goals_against: Mapped[float | None] = mapped_column(Float)
+    total_shot_credit_for: Mapped[float | None] = mapped_column(Float)
+    total_shot_credit_against: Mapped[float | None] = mapped_column(Float)
 
 
 class TeamSeasonStats(Base):

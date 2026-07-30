@@ -9,6 +9,10 @@ from sportsball.clients.nhl.client import NhlClient
 from sportsball.ingestion.orchestration.boxscore_backfill import backfill_boxscores
 from sportsball.ingestion.orchestration.boxscores import ingest_boxscore
 from sportsball.ingestion.orchestration.game_outcomes import backfill_game_outcomes
+from sportsball.ingestion.orchestration.moneypuck_lines import (
+    backfill_moneypuck_lines,
+    ingest_moneypuck_lines,
+)
 from sportsball.ingestion.orchestration.moneypuck_player_games import (
     backfill_moneypuck_player_games,
     ingest_moneypuck_player_games,
@@ -281,6 +285,50 @@ def backfill_moneypuck_shot_stats(
     with MoneyPuckClient() as client:
         try:
             result = backfill_moneypuck_shots(
+                start_season,
+                end_season,
+                client,
+                max_seasons=max_seasons,
+                retry_failed=retry_failed,
+            )
+        except ValueError as error:
+            raise typer.BadParameter(str(error)) from error
+    typer.echo(
+        f"seasons={result.start_season}-{result.end_season} "
+        f"attempted={result.attempted_this_run} "
+        f"completed={result.completed_seasons}/{result.total_seasons} "
+        f"pending={result.pending_seasons} failed={result.failed_seasons}"
+    )
+    for season_id, message in result.failures:
+        typer.echo(f"  season={season_id} error={message}", err=True)
+    if result.failures and result.pending_seasons == 0:
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def ingest_moneypuck_line_stats(season_id: int) -> None:
+    """Ingest MoneyPuck forward-line and defensive-pairing game data."""
+    with MoneyPuckClient() as client:
+        try:
+            result = ingest_moneypuck_lines(season_id, client)
+        except ValueError as error:
+            raise typer.BadParameter(str(error)) from error
+    typer.echo(
+        f"run={result.run_id} season={result.season_id} rows_processed={result.rows_processed}"
+    )
+
+
+@app.command()
+def backfill_moneypuck_line_stats(
+    start_season: int,
+    end_season: int,
+    max_seasons: int | None = None,
+    retry_failed: bool = False,
+) -> None:
+    """Backfill MoneyPuck line and pairing metrics."""
+    with MoneyPuckClient() as client:
+        try:
+            result = backfill_moneypuck_lines(
                 start_season,
                 end_season,
                 client,
