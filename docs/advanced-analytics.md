@@ -9,6 +9,8 @@ server-only TypeScript queries.
 - `/analytics?season={seasonId}&type={teams|skaters|goalies}` displays
   league-wide advanced leaderboards with situation and qualifying-ice-time
   controls.
+- `/analytics/guide?season={seasonId}` provides the shared plain-language
+  reference for every advanced metric used by the website.
 - `/teams/{nhlTeamId}?season={seasonId}` displays team situation splits.
 - `/players/{nhlPlayerId}?season={seasonId}` displays player-team situation
   splits for skaters or goalies.
@@ -51,11 +53,10 @@ The league analytics route includes:
 - explicit minimum-ice-time thresholds for skaters and goalies;
 - sortable tables with links to supporting team and player profiles.
 
-Teams, Skaters, Goalies, and Lines & Pairings share one persistent section
-selector. The links use full document navigation so large server-rendered
-leaderboards cannot leave the active tab and displayed dataset out of sync.
-The selector remains visible on the dedicated line-ranking route and marks
-Lines & Pairings as the active section.
+Teams, Skaters, Goalies, Lines & Pairings, and the Metric Guide share one
+persistent section selector. The links use full document navigation so large
+server-rendered leaderboards cannot leave the active tab and displayed dataset
+out of sync.
 
 League skater and goalie tables retain player-team splits rather than silently
 combining traded-player rows. They show at most 200 qualifying rows for the
@@ -79,7 +80,9 @@ Game pages add:
 
 - all-situations expected-goal cards and sortable team situation comparisons;
 - normalized offensive-zone shot maps, with circle size representing expected
-  goal probability and accessible event labels;
+  goal probability; every marker can be selected by pointer or keyboard to
+  reveal its shooter, result, time, goalie, shot type, distance, score, and
+  contextual tags;
 - sortable all-situations skater and goalie advanced results;
 - sortable five-on-five forward-line and defensive-pairing tables.
 
@@ -100,12 +103,12 @@ game metrics begin in 2008–09 and cover regular season and playoffs; player
 game and unit files are regular-season only. Pages show an explicit coverage
 message instead of treating unavailable records as zero.
 
-Every advanced section links to and credits MoneyPuck.com. Metric definitions
-are displayed with the results so on-ice percentages are not confused with
-individual production.
+Every advanced section links to and credits MoneyPuck.com. Compact definitions
+beside the results link to the centralized metric guide, which explains how to
+interpret shot-quality, possession, individual, on-ice, and goalie metrics.
 
 ## Future analytics presentation
 
 - cross-season advanced comparisons;
-- richer metric documentation, filters, and interactive shot exploration.
+- richer filters and shot-map filtering.
 - rolling-window and score-state line-combination splits.

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import type {
   MoneyPuckGoalieSituation,
   MoneyPuckPlayerSeason,
@@ -70,7 +72,7 @@ export function TeamAdvancedAnalytics({
         </div>
         </SortableTable>
       </div>
-      <MetricDefinitions />
+      <MetricDefinitions seasonId={data.seasonId} />
     </AdvancedSection>
   );
 }
@@ -98,7 +100,7 @@ export function PlayerAdvancedAnalytics({
       {hasGoalieRows ? (
         <GoalieAdvancedTable rows={data.goalieSituations} />
       ) : null}
-      <MetricDefinitions />
+      <MetricDefinitions seasonId={data.seasonId} />
     </AdvancedSection>
   );
 }
@@ -317,7 +319,7 @@ function AdvancedCard({ label, value }: { label: string; value: string }) {
   );
 }
 
-function MetricDefinitions() {
+function MetricDefinitions({ seasonId }: { seasonId: number }) {
   return (
     <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.025] p-5 text-sm leading-6 text-slate-400">
       <p>
@@ -328,6 +330,12 @@ function MetricDefinitions() {
         blocked attempts. <strong className="text-slate-200">GSAx</strong> is
         expected goals against minus actual goals against; positive is better.
       </p>
+      <Link
+        href={`/analytics/guide?season=${seasonId}`}
+        className="mt-3 inline-block font-medium text-violet-300 transition hover:text-violet-200"
+      >
+        Open the full metric guide →
+      </Link>
     </div>
   );
 }

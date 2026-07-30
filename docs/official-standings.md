@@ -42,3 +42,12 @@ ingestion-run status are retained in the shared audit tables.
 - goals for, goals against, goal differential, and percentages;
 - league, conference, division, and wildcard ranks;
 - conference/division labels and clinch indicators.
+
+## Website presentation
+
+The standings header keeps the Presidents' Trophy leader as the primary
+season result, then adds conference playoff cut lines and league-wide scoring
+context. This avoids repeating the same team for points, wins, and goal
+differential while giving the table useful competitive and scoring context.
+Every team and cut-line abbreviation links to the supporting historical team
+profile.

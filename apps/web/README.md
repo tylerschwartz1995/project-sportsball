@@ -35,9 +35,12 @@ The current read-only slice provides:
 - team and player game logs with last-ten form summaries, traditional
   box-score metrics, and available MoneyPuck game analytics;
 - league-wide MoneyPuck team, skater, and goalie leaderboards with situation
-  and minimum-ice-time controls plus persistent section navigation;
+  and minimum-ice-time controls plus persistent section navigation and a
+  centralized advanced-metric guide;
 - season-level forward-line and defensive-pairing rankings with team and
   minimum-ice-time filters;
+- selectable, keyboard-accessible shot-map events with shooter, result, time,
+  goalie, and shot-quality details;
 - immediate column sorting on every statistics table;
 
 Team, player and game summaries link to their supporting detail pages. Team

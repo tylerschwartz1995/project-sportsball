@@ -121,7 +121,7 @@ export default async function AnalyticsPage({
                   rows={rows}
                   seasonId={selectedSeason.id}
                 />
-                <AnalyticsGuide />
+                <AnalyticsGuide seasonId={selectedSeason.id} />
               </>
             ) : (
               <CoverageNotice />
@@ -524,7 +524,7 @@ function ValueCell({
   );
 }
 
-function AnalyticsGuide() {
+function AnalyticsGuide({ seasonId }: { seasonId: number }) {
   return (
     <section className="mt-8 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-start">
       <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 text-sm leading-6 text-slate-400">
@@ -538,6 +538,12 @@ function AnalyticsGuide() {
           <strong className="text-slate-200">GSAx</strong> is expected goals
           against minus actual goals against; positive is better.
         </p>
+        <Link
+          href={`/analytics/guide?season=${seasonId}`}
+          className="mt-3 inline-block font-medium text-violet-300 transition hover:text-violet-200"
+        >
+          Open the full metric guide →
+        </Link>
       </div>
       <a
         href="https://moneypuck.com/"

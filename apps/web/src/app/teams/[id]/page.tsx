@@ -112,42 +112,6 @@ export default async function TeamPage({
           <span className="shrink-0 text-cyan-300">View games →</span>
         </Link>
 
-        <TeamAdvancedAnalytics
-          data={advanced}
-          seasonId={selectedSeason.id}
-        />
-
-        {selectedSeason.id >= 20082009 ? (
-          <section className="mt-12">
-            <div className="flex flex-wrap items-end justify-between gap-3">
-              <div>
-                <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
-                  Five-on-five combinations
-                </p>
-                <h3 className="mt-2 text-2xl font-semibold text-white">
-                  Season lines and pairings
-                </h3>
-                <p className="mt-2 text-sm text-slate-500">
-                  Combinations with at least 50 minutes together.
-                </p>
-              </div>
-              <Link
-                href={`/lines?season=${selectedSeason.id}&minimum=100`}
-                className="text-sm font-medium text-violet-300 transition hover:text-violet-200"
-              >
-                View league rankings →
-              </Link>
-            </div>
-            <div className="mt-6">
-              <SeasonUnitTables
-                data={units}
-                seasonId={selectedSeason.id}
-                showTeam={false}
-              />
-            </div>
-          </section>
-        ) : null}
-
         <section className="mt-12">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
@@ -268,6 +232,42 @@ export default async function TeamPage({
             </SortableTable>
           </div>
         </section>
+
+        <TeamAdvancedAnalytics
+          data={advanced}
+          seasonId={selectedSeason.id}
+        />
+
+        {selectedSeason.id >= 20082009 ? (
+          <section className="mt-12">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
+                  Five-on-five combinations
+                </p>
+                <h3 className="mt-2 text-2xl font-semibold text-white">
+                  Season lines and pairings
+                </h3>
+                <p className="mt-2 text-sm text-slate-500">
+                  Combinations with at least 50 minutes together.
+                </p>
+              </div>
+              <Link
+                href={`/lines?season=${selectedSeason.id}&minimum=100`}
+                className="text-sm font-medium text-violet-300 transition hover:text-violet-200"
+              >
+                View league rankings →
+              </Link>
+            </div>
+            <div className="mt-6">
+              <SeasonUnitTables
+                data={units}
+                seasonId={selectedSeason.id}
+                showTeam={false}
+              />
+            </div>
+          </section>
+        ) : null}
       </section>
     </main>
   );
