@@ -75,6 +75,22 @@ class MoneyPuckClient:
             checksum=hashlib.sha256(content).hexdigest(),
         )
 
+    def fetch_all_team_games(self) -> MoneyPuckCsvFetch:
+        """Download the approved all-season team game-level CSV."""
+        path = "/moneypuck/playerData/careers/gameByGame/all_teams.csv"
+        response = self._get(path)
+        content = response.content
+        if not content.startswith(b"team,season,name,gameId,"):
+            raise ValueError("MoneyPuck team-game response does not have the expected CSV header")
+        return MoneyPuckCsvFetch(
+            resource_type="team_games",
+            source_key="all:team_games",
+            source_url=str(response.url),
+            content_type=response.headers.get("content-type"),
+            content=content,
+            checksum=hashlib.sha256(content).hexdigest(),
+        )
+
     def _get(self, path: str) -> httpx.Response:
         for attempt in range(self._max_retries + 1):
             self._throttle()
