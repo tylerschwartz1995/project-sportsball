@@ -12,8 +12,9 @@ Each result shows:
 - whether the game ended in regulation, overtime, or a shootout;
 - the recorded UTC start time and NHL game identifier.
 
-Completed results link to `/games/{nhlGameId}`, which shows the full
-traditional box score.
+Completed results link to `/games/{nhlGameId}`, which shows the traditional
+box score plus MoneyPuck advanced team/player results, shot maps, forward
+lines, and defensive pairings wherever the provider publishes coverage.
 
 The underlying read model keeps one game as the response grain. The
 `getGamesByDate()` query joins the two participating teams and their

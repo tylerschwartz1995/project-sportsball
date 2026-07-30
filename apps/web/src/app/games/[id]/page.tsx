@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { GameAdvancedAnalytics } from "@/app/_components/game-advanced-analytics";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
@@ -10,6 +11,7 @@ import type {
   GameGoalieStats,
   GameSkaterStats,
 } from "@/contracts/game";
+import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";
 import { getGameBoxScore } from "@/data/games";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +26,10 @@ export default async function GamePage({ params }: GamePageProps) {
     notFound();
   }
 
-  const game = await getGameBoxScore(nhlGameId);
+  const [game, advanced] = await Promise.all([
+    getGameBoxScore(nhlGameId),
+    getMoneyPuckGameAnalytics(nhlGameId),
+  ]);
   if (!game) {
     notFound();
   }
@@ -79,6 +84,8 @@ export default async function GamePage({ params }: GamePageProps) {
             <span className="sm:text-right">NHL game {game.nhlGameId}</span>
           </div>
         </div>
+
+        {advanced ? <GameAdvancedAnalytics data={advanced} /> : null}
 
         {hasBoxScore ? (
           <div className="mt-12 space-y-14">

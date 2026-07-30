@@ -1,23 +1,25 @@
 # Advanced analytics presentation
 
-The first MoneyPuck website slice exposes season-level team, skater, and goalie
-metrics through server-only TypeScript queries and renders them on existing team
-and player detail pages.
+The MoneyPuck website layer exposes season-level team, skater, and goalie
+metrics plus game-level team, player, shot, line, and pairing records through
+server-only TypeScript queries.
 
 ## Routes
 
 - `/teams/{nhlTeamId}?season={seasonId}` displays team situation splits.
 - `/players/{nhlPlayerId}?season={seasonId}` displays player-team situation
   splits for skaters or goalies.
+- `/games/{nhlGameId}` displays advanced team and player results, shot maps,
+  forward lines, and defensive pairings alongside the traditional box score.
 
 The React Server Components query PostgreSQL directly. No browser request or
 page render calls MoneyPuck, and the normalized source records remain separate
 from traditional NHL statistics.
 
-## Advanced game query package
+## Advanced game package
 
 `getMoneyPuckGameAnalytics(nhlGameId)` is the server-only application boundary
-for the next game-page slice. It performs six parameterized reads in parallel
+for the game page. It performs six parameterized reads in parallel
 and returns one serializable contract containing:
 
 - historical game and team identity;
@@ -31,7 +33,7 @@ season or game; its advanced record arrays are empty. An unknown NHL game
 returns `null`. Player-game and line data are regular-season only, while team
 game and shot data also cover playoffs.
 
-## Current metrics
+## Current presentation
 
 Team and skater views include:
 
@@ -47,23 +49,30 @@ Goalie views include:
 - expected and actual shots on goal against;
 - goals saved above expected (`xGA - GA`).
 
+Game pages add:
+
+- all-situations expected-goal cards and sortable team situation comparisons;
+- normalized offensive-zone shot maps, with circle size representing expected
+  goal probability and accessible event labels;
+- sortable all-situations skater and goalie advanced results;
+- sortable five-on-five forward-line and defensive-pairing tables.
+
 Rows retain MoneyPuck's published situations: all situations, 5-on-5, 5-on-4,
 4-on-5, and other. Player records remain split by team so traded-player context
 is not lost.
 
 ## Coverage and attribution
 
-Season-summary coverage begins in 2008–09. Earlier team and player pages show an
-explicit coverage message instead of treating missing data as zero.
+Season-summary coverage begins in 2008–09. Shot maps begin in 2007–08. Team
+game metrics begin in 2008–09 and cover regular season and playoffs; player
+game and unit files are regular-season only. Pages show an explicit coverage
+message instead of treating unavailable records as zero.
 
 Every advanced section links to and credits MoneyPuck.com. Metric definitions
 are displayed with the results so on-ice percentages are not confused with
 individual production.
 
-## Remaining presentation work
+## Future analytics presentation
 
-- game-level team, skater, and goalie advanced views;
-- shot maps and expected-goal event views;
-- forward-line and defensive-pairing views;
 - cross-season advanced leaderboards and comparisons;
-- richer metric documentation and visualization.
+- richer metric documentation, filters, and interactive shot exploration.
