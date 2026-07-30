@@ -1,27 +1,77 @@
 import Link from "next/link";
 
+import { DirectoryControls } from "@/app/_components/directory-controls";
+import { Pagination } from "@/app/_components/pagination";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
+import type {
+  GoalieSeasonSummary,
+  SkaterSeasonSummary,
+} from "@/contracts/player";
 import { parseSeasonId } from "@/contracts/season";
 import { listPlayersBySeason } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
+import {
+  firstQueryValue,
+  matchesSearch,
+  normalizeSearch,
+  paginate,
+  parsePage,
+} from "@/lib/directory";
 
 export const dynamic = "force-dynamic";
 
 type PlayersPageProps = {
-  searchParams: Promise<{ season?: string | string[] }>;
+  searchParams: Promise<{
+    season?: string | string[];
+    q?: string | string[];
+    type?: string | string[];
+    sort?: string | string[];
+    page?: string | string[];
+  }>;
 };
 
 export default async function PlayersPage({ searchParams }: PlayersPageProps) {
+  const params = await searchParams;
   const seasons = await listSeasons();
-  const parsedSeason = parseSeasonId(
-    firstValue((await searchParams).season),
-  );
+  const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
   const players = selectedSeason
     ? await listPlayersBySeason(selectedSeason.id)
     : { seasonId: 0, skaters: [], goalies: [] };
+  const query = normalizeSearch(firstQueryValue(params.q));
+  const category =
+    firstQueryValue(params.type) === "goalies" ? "goalies" : "skaters";
+  const sortOptions =
+    category === "goalies" ? goalieSortOptions : skaterSortOptions;
+  const requestedSort = firstQueryValue(params.sort);
+  const sort = sortOptions.some((option) => option.value === requestedSort)
+    ? requestedSort!
+    : category === "goalies"
+      ? "savePercentage"
+      : "points";
+  const requestedPage = parsePage(firstQueryValue(params.page));
+  const skaterPage = paginate(
+    sortSkaters(
+      players.skaters.filter((player) =>
+        matchesSearch(query, player.name, player.position),
+      ),
+      sort,
+    ),
+    requestedPage,
+    50,
+  );
+  const goaliePage = paginate(
+    sortGoalies(
+      players.goalies.filter((player) =>
+        matchesSearch(query, player.name, player.position),
+      ),
+      sort,
+    ),
+    requestedPage,
+    50,
+  );
   const pointsLeader = players.skaters[0];
   const goalsLeader = players.skaters.reduce(
     (best, player) => (!best || player.goals > best.goals ? player : best),
@@ -86,109 +136,214 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
               />
             </div>
 
-            <PlayerSectionHeader
-              title="Skaters"
-              count={players.skaters.length}
-              description="Combined totals across all teams played for."
+            <DirectoryControls
+              action="/players"
+              seasonId={selectedSeason.id}
+              query={query}
+              sort={sort}
+              sortOptions={sortOptions}
+              category={category}
+              categoryOptions={playerTypeOptions}
+              searchPlaceholder="Player name or position"
             />
-            <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[880px] text-sm">
-                  <thead>
-                    <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
-                      <th className="px-4 py-3 font-medium">Player</th>
-                      <th className="px-3 py-3 text-right font-medium">GP</th>
-                      <th className="px-3 py-3 text-right font-medium">G</th>
-                      <th className="px-3 py-3 text-right font-medium">A</th>
-                      <th className="px-3 py-3 text-right font-medium">PTS</th>
-                      <th className="px-3 py-3 text-right font-medium">+/-</th>
-                      <th className="px-3 py-3 text-right font-medium">PIM</th>
-                      <th className="px-3 py-3 text-right font-medium">S</th>
-                      <th className="px-4 py-3 text-right font-medium">Teams</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {players.skaters.map((player) => (
-                      <tr
-                        key={player.nhlPlayerId}
-                        className="border-b border-white/[0.06] text-slate-300 [contain-intrinsic-size:auto_48px] [content-visibility:auto] last:border-0 hover:bg-white/[0.035]"
-                      >
-                        <td className="px-4 py-3">
-                          <PlayerLink
-                            playerId={player.nhlPlayerId}
-                            seasonId={selectedSeason?.id}
-                            name={player.name}
-                          />
-                          <span className="ml-2 text-xs text-slate-500">
-                            {player.position}
-                          </span>
-                        </td>
-                        <NumericCell value={player.gamesPlayed} />
-                        <NumericCell value={player.goals} />
-                        <NumericCell value={player.assists} />
-                        <NumericCell value={player.points} highlight />
-                        <NumericCell value={formatSigned(player.plusMinus)} />
-                        <NumericCell value={player.penaltyMinutes} />
-                        <NumericCell value={player.shotsOnGoal} />
-                        <NumericCell value={player.teamsPlayedFor} />
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
 
-            <PlayerSectionHeader
-              title="Goalies"
-              count={players.goalies.length}
-              description="Participating goalies only; dressed backups are excluded."
-            />
-            <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
-              <div className="overflow-x-auto">
-                <table className="w-full min-w-[880px] text-sm">
-                  <thead>
-                    <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
-                      <th className="px-4 py-3 font-medium">Goalie</th>
-                      <th className="px-3 py-3 text-right font-medium">GP</th>
-                      <th className="px-3 py-3 text-right font-medium">GS</th>
-                      <th className="px-3 py-3 text-right font-medium">W</th>
-                      <th className="px-3 py-3 text-right font-medium">L</th>
-                      <th className="px-3 py-3 text-right font-medium">OTL</th>
-                      <th className="px-3 py-3 text-right font-medium">GA</th>
-                      <th className="px-3 py-3 text-right font-medium">SV</th>
-                      <th className="px-4 py-3 text-right font-medium">SV%</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {players.goalies.map((player) => (
-                      <tr
-                        key={player.nhlPlayerId}
-                        className="border-b border-white/[0.06] text-slate-300 [contain-intrinsic-size:auto_48px] [content-visibility:auto] last:border-0 hover:bg-white/[0.035]"
-                      >
-                        <td className="px-4 py-3">
-                          <PlayerLink
-                            playerId={player.nhlPlayerId}
-                            seasonId={selectedSeason?.id}
-                            name={player.name}
-                          />
-                        </td>
-                        <NumericCell value={player.gamesPlayed} />
-                        <NumericCell value={player.gamesStarted} />
-                        <NumericCell value={player.wins} />
-                        <NumericCell value={player.losses} />
-                        <NumericCell value={player.overtimeLosses} />
-                        <NumericCell value={player.goalsAgainst} />
-                        <NumericCell value={player.saves} />
-                        <NumericCell
-                          value={formatSavePercentage(player.savePercentage)}
-                          highlight
+            {category === "skaters" ? (
+              <>
+                <PlayerSectionHeader
+                  title="Skaters"
+                  count={skaterPage.totalItems}
+                  description="Combined totals across all teams played for."
+                />
+                {skaterPage.items.length > 0 ? (
+                  <>
+                    <div className="mt-5 grid gap-3 md:hidden">
+                      {skaterPage.items.map((player) => (
+                        <MobileSkaterCard
+                          key={player.nhlPlayerId}
+                          player={player}
+                          seasonId={selectedSeason.id}
                         />
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                      ))}
+                    </div>
+                    <div className="mt-5 hidden overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50 md:block">
+                      <div className="overflow-x-auto">
+                        <table className="w-full min-w-[880px] text-sm">
+                          <thead>
+                            <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
+                              <th className="px-4 py-3 font-medium">Player</th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                GP
+                              </th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                G
+                              </th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                A
+                              </th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                PTS
+                              </th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                +/-
+                              </th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                PIM
+                              </th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                S
+                              </th>
+                              <th className="px-4 py-3 text-right font-medium">
+                                Teams
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {skaterPage.items.map((player) => (
+                              <tr
+                                key={player.nhlPlayerId}
+                                className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
+                              >
+                                <td className="px-4 py-3">
+                                  <PlayerLink
+                                    playerId={player.nhlPlayerId}
+                                    seasonId={selectedSeason.id}
+                                    name={player.name}
+                                  />
+                                  <span className="ml-2 text-xs text-slate-500">
+                                    {player.position}
+                                  </span>
+                                </td>
+                                <NumericCell value={player.gamesPlayed} />
+                                <NumericCell value={player.goals} />
+                                <NumericCell value={player.assists} />
+                                <NumericCell value={player.points} highlight />
+                                <NumericCell
+                                  value={formatSigned(player.plusMinus)}
+                                />
+                                <NumericCell value={player.penaltyMinutes} />
+                                <NumericCell value={player.shotsOnGoal} />
+                                <NumericCell value={player.teamsPlayedFor} />
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <Pagination
+                      path="/players"
+                      currentPage={skaterPage.currentPage}
+                      totalPages={skaterPage.totalPages}
+                      params={{
+                        season: selectedSeason.id,
+                        q: query,
+                        type: category,
+                        sort,
+                      }}
+                    />
+                  </>
+                ) : (
+                  <DirectoryEmptyState />
+                )}
+              </>
+            ) : (
+              <>
+                <PlayerSectionHeader
+                  title="Goalies"
+                  count={goaliePage.totalItems}
+                  description="Participating goalies only; dressed backups are excluded."
+                />
+                {goaliePage.items.length > 0 ? (
+                  <>
+                    <div className="mt-5 grid gap-3 md:hidden">
+                      {goaliePage.items.map((player) => (
+                        <MobileGoalieCard
+                          key={player.nhlPlayerId}
+                          player={player}
+                          seasonId={selectedSeason.id}
+                        />
+                      ))}
+                    </div>
+                    <div className="mt-5 hidden overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50 md:block">
+                      <div className="overflow-x-auto">
+                        <table className="w-full min-w-[880px] text-sm">
+                          <thead>
+                            <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
+                              <th className="px-4 py-3 font-medium">Goalie</th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                GP
+                              </th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                GS
+                              </th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                W
+                              </th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                L
+                              </th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                OTL
+                              </th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                GA
+                              </th>
+                              <th className="px-3 py-3 text-right font-medium">
+                                SV
+                              </th>
+                              <th className="px-4 py-3 text-right font-medium">
+                                SV%
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {goaliePage.items.map((player) => (
+                              <tr
+                                key={player.nhlPlayerId}
+                                className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
+                              >
+                                <td className="px-4 py-3">
+                                  <PlayerLink
+                                    playerId={player.nhlPlayerId}
+                                    seasonId={selectedSeason.id}
+                                    name={player.name}
+                                  />
+                                </td>
+                                <NumericCell value={player.gamesPlayed} />
+                                <NumericCell value={player.gamesStarted} />
+                                <NumericCell value={player.wins} />
+                                <NumericCell value={player.losses} />
+                                <NumericCell value={player.overtimeLosses} />
+                                <NumericCell value={player.goalsAgainst} />
+                                <NumericCell value={player.saves} />
+                                <NumericCell
+                                  value={formatSavePercentage(
+                                    player.savePercentage,
+                                  )}
+                                  highlight
+                                />
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <Pagination
+                      path="/players"
+                      currentPage={goaliePage.currentPage}
+                      totalPages={goaliePage.totalPages}
+                      params={{
+                        season: selectedSeason.id,
+                        q: query,
+                        type: category,
+                        sort,
+                      }}
+                    />
+                  </>
+                ) : (
+                  <DirectoryEmptyState />
+                )}
+              </>
+            )}
           </>
         ) : (
           <div className="mt-10 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
@@ -197,6 +352,177 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
         )}
       </section>
     </main>
+  );
+}
+
+const playerTypeOptions = [
+  { value: "skaters", label: "Skaters" },
+  { value: "goalies", label: "Goalies" },
+];
+
+const skaterSortOptions = [
+  { value: "points", label: "Points" },
+  { value: "goals", label: "Goals" },
+  { value: "assists", label: "Assists" },
+  { value: "games", label: "Games played" },
+  { value: "name", label: "Player name" },
+];
+
+const goalieSortOptions = [
+  { value: "savePercentage", label: "Save percentage" },
+  { value: "wins", label: "Wins" },
+  { value: "games", label: "Games played" },
+  { value: "name", label: "Player name" },
+];
+
+function sortSkaters(
+  players: SkaterSeasonSummary[],
+  sort: string,
+): SkaterSeasonSummary[] {
+  return [...players].sort((left, right) => {
+    switch (sort) {
+      case "goals":
+        return right.goals - left.goals || right.points - left.points;
+      case "assists":
+        return right.assists - left.assists || right.points - left.points;
+      case "games":
+        return right.gamesPlayed - left.gamesPlayed || right.points - left.points;
+      case "name":
+        return left.name.localeCompare(right.name);
+      default:
+        return (
+          right.points - left.points ||
+          right.goals - left.goals ||
+          left.name.localeCompare(right.name)
+        );
+    }
+  });
+}
+
+function sortGoalies(
+  players: GoalieSeasonSummary[],
+  sort: string,
+): GoalieSeasonSummary[] {
+  return [...players].sort((left, right) => {
+    switch (sort) {
+      case "wins":
+        return right.wins - left.wins || right.gamesPlayed - left.gamesPlayed;
+      case "games":
+        return right.gamesPlayed - left.gamesPlayed || right.wins - left.wins;
+      case "name":
+        return left.name.localeCompare(right.name);
+      default:
+        return (
+          (right.savePercentage ?? -1) - (left.savePercentage ?? -1) ||
+          right.gamesPlayed - left.gamesPlayed ||
+          left.name.localeCompare(right.name)
+        );
+    }
+  });
+}
+
+function MobileSkaterCard({
+  player,
+  seasonId,
+}: {
+  player: SkaterSeasonSummary;
+  seasonId: number;
+}) {
+  return (
+    <article className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <PlayerLink
+            playerId={player.nhlPlayerId}
+            seasonId={seasonId}
+            name={player.name}
+          />
+          <p className="mt-1 text-xs text-slate-500">
+            {player.position ?? "Skater"} · {player.gamesPlayed} games
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-2xl font-semibold tabular-nums text-cyan-200">
+            {player.points}
+          </p>
+          <p className="text-xs uppercase tracking-[0.12em] text-slate-600">
+            points
+          </p>
+        </div>
+      </div>
+      <dl className="mt-4 grid grid-cols-4 gap-3 border-t border-white/[0.06] pt-4">
+        <MobilePlayerStat label="Goals" value={player.goals} />
+        <MobilePlayerStat label="Assists" value={player.assists} />
+        <MobilePlayerStat label="+/-" value={formatSigned(player.plusMinus)} />
+        <MobilePlayerStat label="Shots" value={player.shotsOnGoal} />
+      </dl>
+    </article>
+  );
+}
+
+function MobileGoalieCard({
+  player,
+  seasonId,
+}: {
+  player: GoalieSeasonSummary;
+  seasonId: number;
+}) {
+  return (
+    <article className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <PlayerLink
+            playerId={player.nhlPlayerId}
+            seasonId={seasonId}
+            name={player.name}
+          />
+          <p className="mt-1 text-xs text-slate-500">
+            {player.gamesPlayed} games · {player.gamesStarted} starts
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-2xl font-semibold tabular-nums text-cyan-200">
+            {formatSavePercentage(player.savePercentage)}
+          </p>
+          <p className="text-xs uppercase tracking-[0.12em] text-slate-600">
+            save %
+          </p>
+        </div>
+      </div>
+      <dl className="mt-4 grid grid-cols-4 gap-3 border-t border-white/[0.06] pt-4">
+        <MobilePlayerStat label="Wins" value={player.wins} />
+        <MobilePlayerStat label="Losses" value={player.losses} />
+        <MobilePlayerStat label="OTL" value={player.overtimeLosses} />
+        <MobilePlayerStat label="Saves" value={player.saves} />
+      </dl>
+    </article>
+  );
+}
+
+function MobilePlayerStat({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div>
+      <dt className="text-[0.65rem] uppercase tracking-[0.1em] text-slate-600">
+        {label}
+      </dt>
+      <dd className="mt-1 text-sm font-medium tabular-nums text-slate-200">
+        {value}
+      </dd>
+    </div>
+  );
+}
+
+function DirectoryEmptyState() {
+  return (
+    <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
+      No players match the current search.
+    </div>
   );
 }
 
@@ -241,7 +567,9 @@ function PlayerSectionHeader({
         <h3 className="text-2xl font-semibold text-white">{title}</h3>
         <p className="mt-1 text-sm text-slate-500">{description}</p>
       </div>
-      <p className="text-sm text-slate-500">{count} players</p>
+      <p className="text-sm text-slate-500">
+        {count} {count === 1 ? "player" : "players"}
+      </p>
     </div>
   );
 }
@@ -289,8 +617,4 @@ function formatSigned(value: number): string {
 
 function formatSavePercentage(value: number | null): string {
   return value === null ? "—" : value.toFixed(3).replace(/^0/, "");
-}
-
-function firstValue(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
 }

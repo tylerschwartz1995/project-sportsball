@@ -51,3 +51,36 @@ such as:
 Natural-language querying should sit on top of the structured query system, not
 replace it. That keeps results reproducible and makes it possible to explain
 exactly why a game matched.
+
+## 2. Multi-sport platform
+
+**Status:** Long-term
+
+Expand Sportsball beyond hockey so one site can eventually support multiple
+sports and leagues without making every experience look or behave like NHL
+statistics.
+
+### Product behavior
+
+- Add a clear sport and league selector when a second sport is introduced.
+- Keep shared navigation, search, dates, teams, players, games, and standings
+  patterns consistent where the underlying concepts truly match.
+- Give each sport its own terminology, table columns, metric definitions,
+  visualizations, season structure, and game-detail experience.
+- Preserve sport and league context in every shareable URL.
+
+### Architecture implications
+
+- Keep shared interface components neutral where practical, while allowing
+  sport-specific pages and data contracts instead of one oversized universal
+  schema.
+- Add explicit sport and league dimensions before ingesting a second sport.
+- Namespace source integrations, normalization rules, metrics, and predictive
+  models by sport and provider.
+- Avoid coupling the global shell and design system to NHL-specific labels or
+  imagery.
+
+The current NHL implementation remains the proving ground. We should not
+generalize ingestion or database tables prematurely; the second sport will
+provide the concrete requirements needed to extract the correct shared
+abstractions.

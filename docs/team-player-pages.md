@@ -44,9 +44,15 @@ rebrands therefore use the name and abbreviation active at that time, while
 the underlying NHL team and franchise identifiers remain stable for linking
 and lineage analysis.
 
-## Current presentation boundary
+## Directory controls
 
-The player directory intentionally returns every stored participant so no
-player is hidden behind an arbitrary cutoff. Search, sorting controls, and
-pagination are the next website milestone and can be added without changing
-the response contracts or statistical grains.
+Team and player directories support URL-based search, sorting, and pagination.
+Filters use ordinary query parameters, so a result can be bookmarked, shared,
+and restored with browser navigation without client-side state. Team pages show
+16 results per page. Player pages show 50 results per page and separate skater
+and goalie views.
+
+Desktop layouts use full statistical tables. Small screens use compact cards
+with the most important statistics instead of requiring horizontal table
+scrolling. The underlying response contracts and statistical grains are
+unchanged.
