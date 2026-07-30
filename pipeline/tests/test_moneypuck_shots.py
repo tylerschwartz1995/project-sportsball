@@ -60,6 +60,17 @@ def test_shot_archive_normalizes_modeled_events() -> None:
     assert goal["canonical_team_abbrev"] == "TSA"
 
 
+def test_shot_ids_may_repeat_across_games() -> None:
+    frame = moneypuck_shot_frame(
+        TEST_SEASON_ID,
+        _archive(duplicate_shot_id_across_games=True),
+    )
+
+    assert frame.height == 3
+    assert frame["source_shot_id"].n_unique() == 2
+    assert frame.select(["source_game_id", "source_shot_id"]).n_unique() == 3
+
+
 @pytest.mark.skipif(
     os.getenv("SPORTSBALL_RUN_DATABASE_TESTS") != "1",
     reason="set SPORTSBALL_RUN_DATABASE_TESTS=1 with PostgreSQL available",
@@ -94,14 +105,17 @@ def _client() -> MoneyPuckClient:
     )
 
 
-def _archive() -> bytes:
+def _archive(*, duplicate_shot_id_across_games: bool = False) -> bytes:
     output = BytesIO()
     with ZipFile(output, "w", ZIP_DEFLATED) as archive:
-        archive.writestr("shots_2099.csv", _csv())
+        archive.writestr(
+            "shots_2099.csv",
+            _csv(duplicate_shot_id_across_games=duplicate_shot_id_across_games),
+        )
     return output.getvalue()
 
 
-def _csv() -> bytes:
+def _csv(*, duplicate_shot_id_across_games: bool = False) -> bytes:
     header = (
         "shotID,id,game_id,season,event,period,time,teamCode,homeTeamCode,"
         "awayTeamCode,isHomeTeam,isPlayoffGame,shooterPlayerId,goalieIdForShot,"
@@ -118,8 +132,11 @@ def _csv() -> bytes:
         on_goal = int(event != "MISS")
         source_event_index = 10 if index < 2 else 12
         goalie_id = "" if event == "MISS" else str(TEST_PLAYER_IDS[1])
+        source_shot_id = 0 if duplicate_shot_id_across_games and index == 1 else index
+        source_game_id = 20002 if duplicate_shot_id_across_games and index == 1 else 20001
         rows.append(
-            f"{index},{source_event_index},20001,2099,{event},1,{index + 20},TSA,TSA,"
+            f"{source_shot_id},{source_event_index},{source_game_id},2099,{event},"
+            f"1,{index + 20},TSA,TSA,"
             f"TSB,1,0,{TEST_PLAYER_IDS[0]},{goalie_id},{goal},"
             f"{on_goal},WRIST,HOMEZONE,70,5,70,5,19,15,0.25,0.1,0.2,0.8,"
             "0.1,0.4,0.2,0,0,1,0,0,5,5,1,0,3,12.5"

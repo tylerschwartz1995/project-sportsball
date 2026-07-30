@@ -140,7 +140,7 @@ def _read_archive(content: bytes) -> pl.DataFrame:
 
 
 def _reconcile(frame: pl.DataFrame) -> None:
-    if frame.get_column("source_shot_id").n_unique() != frame.height:
-        raise ValueError("duplicate MoneyPuck source shot IDs")
+    if frame.select(["source_game_id", "source_shot_id"]).n_unique() != frame.height:
+        raise ValueError("duplicate MoneyPuck game/shot IDs")
     if frame.filter(pl.col("is_goal") & ~pl.col("was_on_goal")).height:
         raise ValueError("MoneyPuck goal is not marked on goal")
