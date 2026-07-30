@@ -66,6 +66,8 @@ were implemented on July 30, 2026.
 - [x] Apply Data Workspace natively to the league overview and standings.
 - [x] Apply Data Workspace hierarchy, controls, and readable typography to team
   and player directories and primary profiles.
+- [x] Apply Data Workspace to the games directory, score presentation, scoring
+  timeline, player box scores, and game-level advanced analytics.
 - [ ] Apply the production visual design system across the remaining routes.
 - [ ] Establish shared plot conventions and add rolling team and player trends.
 

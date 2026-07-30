@@ -28,7 +28,7 @@ export function GameAdvancedAnalytics({
   }
 
   return (
-    <section className="mt-16 border-t border-white/10 pt-12">
+    <section className="workspace-section-divider">
       <SectionHeading
         eyebrow="MoneyPuck game analytics"
         title="How the game was played"
@@ -611,7 +611,7 @@ function MoneyPuckAttribution() {
 
 function GameAdvancedUnavailable({ seasonId }: { seasonId: number }) {
   return (
-    <section className="mt-16 rounded-2xl border border-white/10 bg-white/[0.025] p-6">
+    <section className="workspace-section-divider">
       <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
         Advanced analytics
       </p>

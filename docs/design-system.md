@@ -78,10 +78,10 @@ and a pre-render bootstrap applies it before the interface is painted.
 
 ## Rollout
 
-The league overview, standings, team and player directories, and primary team
-and player profiles use the Data Workspace hierarchy and semantic controls.
-Remaining rollout order:
+The league overview, standings, team and player directories, primary team and
+player profiles, games directory, game timelines, box scores, and game
+analytics use the Data Workspace hierarchy and semantic controls. Remaining
+rollout order:
 
-1. game pages and timelines;
-2. advanced leaderboards and the metric guide;
-3. final cross-route mobile and accessibility review.
+1. advanced leaderboards and the metric guide;
+2. final cross-route mobile and accessibility review.
