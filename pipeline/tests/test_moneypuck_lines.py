@@ -61,6 +61,11 @@ def test_line_ingestion_is_idempotent() -> None:
                 .where(MoneyPuckLineGameStats.game_id == game_pk)
             )
             assert count == 2
+            rows = session.scalars(
+                select(MoneyPuckLineGameStats).where(MoneyPuckLineGameStats.game_id == game_pk)
+            ).all()
+            assert all(row.is_home for row in rows)
+            assert len({row.opponent_team_id for row in rows}) == 1
     finally:
         _clean_up()
 
@@ -103,7 +108,7 @@ def _csv() -> bytes:
     metrics = "600,1,0.55,0.54,0.53,1.5,1.2,2,1,12,10,25,20,1.6,1.3,0.8,0.6,1.7,1.4"
     rows = [
         f"{line_id},One-Two-Three,{TEST_GAME_ID},2099,TSA,TSB,HOME,20991001,line,5on5,{metrics}",
-        f"{pairing_id},One-Two,{TEST_GAME_ID},2099,TSA,TSB,HOME,20991001,pairing,5on5,{metrics}",
+        f"{pairing_id},One-Two,{TEST_GAME_ID},2099,TSA,TSA,AWAY,20991001,pairing,5on5,{metrics}",
     ]
     return f"{header}\n{'\n'.join(rows)}\n".encode()
 

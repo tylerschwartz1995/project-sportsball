@@ -93,16 +93,25 @@ class MoneyPuckLineRepository:
             opponent_abbrev = str(row.pop("canonical_opponent_abbrev"))
             game_id, canonical_date, game_type, home_team_id, away_team_id = games[source_game_id]
             team_id = team_ids[team_abbrev]
-            opponent_team_id = team_ids[opponent_abbrev]
+            source_opponent_team_id = team_ids[opponent_abbrev]
+            if team_id == home_team_id:
+                opponent_team_id = away_team_id
+                is_home = True
+            elif team_id == away_team_id:
+                opponent_team_id = home_team_id
+                is_home = False
+            else:
+                raise ValueError(f"MoneyPuck line game {source_game_id} team does not match NHL")
             if (
                 canonical_date != row["game_date"]
                 or game_type != 2
-                or {team_id, opponent_team_id} != {home_team_id, away_team_id}
+                or source_opponent_team_id not in (team_id, opponent_team_id)
             ):
                 raise ValueError(f"MoneyPuck line game {source_game_id} does not match NHL")
             resolved.append(
                 {
                     **row,
+                    "is_home": is_home,
                     "game_id": game_id,
                     "team_id": team_id,
                     "opponent_team_id": opponent_team_id,
