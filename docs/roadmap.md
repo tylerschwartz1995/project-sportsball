@@ -40,7 +40,7 @@ on July 29, 2026.
 - [x] Add initial metric definitions, MoneyPuck attribution, and coverage
   labels.
 - [x] Add advanced team, skater, and goalie season views.
-- [ ] Expose game, shot, line, and pairing records through application queries.
+- [x] Expose game, shot, line, and pairing records through application queries.
 - [ ] Add advanced game views, shot maps, lines, and pairings.
 
 ## Milestone 5: daily operation

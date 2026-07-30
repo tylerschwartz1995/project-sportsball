@@ -25,12 +25,16 @@ representation is useful to a client or future application.
 ```text
 apps/web/src/
 ├── contracts/
+│   ├── advanced-game.ts
+│   ├── advanced.ts
 │   ├── game.ts
 │   ├── player.ts
 │   ├── season.ts
 │   ├── standings.ts
 │   └── team.ts
 ├── data/
+│   ├── advanced-game.ts
+│   ├── advanced.ts
 │   ├── database.ts
 │   ├── games.ts
 │   ├── players.ts
@@ -61,6 +65,13 @@ historical request returns the name and abbreviation used in that season.
 Game results left-join `team_game_stats`, allowing the same contract to
 represent completed games and future scheduled games whose scores are not yet
 available.
+
+Advanced analytics use two server-only query modules. `advanced.ts` returns
+MoneyPuck season summaries for team and player pages.
+`advanced-game.ts` returns one game package with team, skater, goalie, shot,
+forward-line, and defensive-pairing records. The six parameterized reads run in
+parallel, and every returned date and identity is a plain serializable value
+safe to pass from a Server Component to a visualization component.
 
 ## Configuration
 
@@ -120,10 +131,10 @@ make web-check
 ```
 
 Unit tests validate identifiers, calendar dates, database-row mapping,
-parameter use, and API behavior without requiring PostgreSQL. The opt-in
-integration test executes season, standings, schedule, box-score, team,
-roster, player-index, and player-career queries against the real development
-database:
+parameter use, advanced-game unit classification, and API behavior without
+requiring PostgreSQL. The opt-in integration test executes season, standings,
+schedule, box-score, team, roster, player-index, player-career, and complete
+MoneyPuck advanced-game queries against the real development database:
 
 ```bash
 SPORTSBALL_RUN_WEB_DATABASE_TESTS=1 \
