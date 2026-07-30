@@ -52,7 +52,11 @@ and restored with browser navigation without client-side state. Team pages show
 16 results per page. Player pages show 50 results per page and separate skater
 and goalie views.
 
-Desktop layouts use full statistical tables. Small screens use compact cards
-with the most important statistics instead of requiring horizontal table
-scrolling. The underlying response contracts and statistical grains are
-unchanged.
+Desktop comparison tables use clickable column headings; clicking the active
+heading reverses its direction. Small screens use compact cards and retain
+explicit sort controls because cards have no column headings. The underlying
+traditional-stat response contracts and statistical grains are unchanged.
+
+Team and player detail pages also show the available MoneyPuck season summaries.
+See [Advanced analytics presentation](advanced-analytics.md) for the initial
+metrics, source attribution, and coverage behavior.

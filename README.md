@@ -27,10 +27,11 @@ in [Data sources and coverage](docs/data-sources.md).
 The full completeness audit currently passes every season with no errors.
 Three early seasons contain warnings for a total of 41 play-by-play participant
 references that the NHL source identifies but that cannot be mapped to a
-canonical player. Those source identifiers remain preserved. Core website
-development is in progress: read-only standings, schedules, box scores, team
-pages, player profiles, historical navigation, and JSON endpoints are
-implemented.
+canonical player. Those source identifiers remain preserved. The core website
+is implemented with read-only standings, schedules, box scores, team pages,
+player profiles, historical navigation, directory search and sorting,
+responsive layouts, and JSON endpoints. Advanced-analytics presentation is in
+progress; team and player pages now expose the first MoneyPuck season views.
 
 ## Local development
 
@@ -143,4 +144,5 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 - [Official NHL standings snapshots](docs/official-standings.md)
 - [Official player season statistics](docs/official-player-season-stats.md)
 - [MoneyPuck ingestion](docs/moneypuck-season-ingestion.md)
+- [Advanced analytics presentation](docs/advanced-analytics.md)
 - [Product ideas](docs/product-ideas.md)

@@ -1,0 +1,436 @@
+import type {
+  MoneyPuckGoalieSituation,
+  MoneyPuckPlayerSeason,
+  MoneyPuckSkaterSituation,
+  MoneyPuckTeamSeason,
+  MoneyPuckTeamSituation,
+} from "@/contracts/advanced";
+
+export function TeamAdvancedAnalytics({
+  data,
+  seasonId,
+}: {
+  data: MoneyPuckTeamSeason | null;
+  seasonId: number;
+}) {
+  if (!data) {
+    return <AdvancedUnavailable seasonId={seasonId} entity="team" />;
+  }
+
+  const fiveOnFive = data.situations.find(
+    (row) => row.situation === "5on5",
+  );
+
+  return (
+    <AdvancedSection
+      title="Team advanced analytics"
+      description="Possession and expected-goal results by game situation."
+    >
+      {fiveOnFive ? (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <AdvancedCard
+            label="5-on-5 xG share"
+            value={formatPercentage(fiveOnFive.expectedGoalsPercentage)}
+          />
+          <AdvancedCard
+            label="5-on-5 Corsi share"
+            value={formatPercentage(fiveOnFive.corsiPercentage)}
+          />
+          <AdvancedCard
+            label="5-on-5 Fenwick share"
+            value={formatPercentage(fiveOnFive.fenwickPercentage)}
+          />
+        </div>
+      ) : null}
+
+      <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px] text-sm">
+            <thead>
+              <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+                <MetricHeader label="Situation" align="left" />
+                <MetricHeader label="xG%" />
+                <MetricHeader label="CF%" />
+                <MetricHeader label="FF%" />
+                <MetricHeader label="xGF" />
+                <MetricHeader label="xGA" />
+                <MetricHeader label="GF" />
+                <MetricHeader label="GA" />
+              </tr>
+            </thead>
+            <tbody>
+              {data.situations.map((row) => (
+                <TeamAdvancedRow key={row.situation} row={row} />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <MetricDefinitions />
+    </AdvancedSection>
+  );
+}
+
+export function PlayerAdvancedAnalytics({
+  data,
+}: {
+  data: MoneyPuckPlayerSeason;
+}) {
+  const hasSkaterRows = data.skaterSituations.length > 0;
+  const hasGoalieRows = data.goalieSituations.length > 0;
+
+  if (!hasSkaterRows && !hasGoalieRows) {
+    return <AdvancedUnavailable seasonId={data.seasonId} entity="player" />;
+  }
+
+  return (
+    <AdvancedSection
+      title="Player advanced analytics"
+      description="MoneyPuck season metrics remain split by team and game situation."
+    >
+      {hasSkaterRows ? (
+        <SkaterAdvancedTable rows={data.skaterSituations} />
+      ) : null}
+      {hasGoalieRows ? (
+        <GoalieAdvancedTable rows={data.goalieSituations} />
+      ) : null}
+      <MetricDefinitions />
+    </AdvancedSection>
+  );
+}
+
+function AdvancedSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="mt-12">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
+            Advanced analytics
+          </p>
+          <h3 className="mt-2 text-2xl font-semibold text-white">{title}</h3>
+          <p className="mt-2 text-sm text-slate-500">{description}</p>
+        </div>
+        <MoneyPuckAttribution />
+      </div>
+      <div className="mt-5">{children}</div>
+    </section>
+  );
+}
+
+function SkaterAdvancedTable({
+  rows,
+}: {
+  rows: MoneyPuckSkaterSituation[];
+}) {
+  const fiveOnFive = rows.find((row) => row.situation === "5on5");
+
+  return (
+    <>
+      {fiveOnFive ? (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <AdvancedCard
+            label="5-on-5 xG share"
+            value={formatPercentage(fiveOnFive.onIceExpectedGoalsPercentage)}
+          />
+          <AdvancedCard
+            label="5-on-5 individual xG"
+            value={formatDecimal(fiveOnFive.individualExpectedGoals)}
+          />
+          <AdvancedCard
+            label="Season game score"
+            value={formatDecimal(fiveOnFive.gameScore)}
+          />
+        </div>
+      ) : null}
+      <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[840px] text-sm">
+            <thead>
+              <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+                <MetricHeader label="Team" align="left" />
+                <MetricHeader label="Situation" align="left" />
+                <MetricHeader label="xG%" />
+                <MetricHeader label="CF%" />
+                <MetricHeader label="FF%" />
+                <MetricHeader label="ixG" />
+                <MetricHeader label="Goals" />
+                <MetricHeader label="Points" />
+                <MetricHeader label="Game score" />
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr
+                  key={`${row.team.nhlTeamId}-${row.situation}`}
+                  className="border-b border-white/[0.06] text-slate-300 last:border-0"
+                >
+                  <TextCell value={row.team.abbreviation} />
+                  <TextCell value={situationLabel(row.situation)} />
+                  <ValueCell
+                    value={formatPercentage(
+                      row.onIceExpectedGoalsPercentage,
+                    )}
+                    highlight
+                  />
+                  <ValueCell
+                    value={formatPercentage(row.onIceCorsiPercentage)}
+                  />
+                  <ValueCell
+                    value={formatPercentage(row.onIceFenwickPercentage)}
+                  />
+                  <ValueCell value={formatDecimal(row.individualExpectedGoals)} />
+                  <ValueCell value={formatDecimal(row.individualGoals)} />
+                  <ValueCell value={formatDecimal(row.individualPoints)} />
+                  <ValueCell value={formatDecimal(row.gameScore)} />
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function GoalieAdvancedTable({
+  rows,
+}: {
+  rows: MoneyPuckGoalieSituation[];
+}) {
+  const allSituations = rows.find((row) => row.situation === "all");
+  const goalsSavedAboveExpected = allSituations
+    ? difference(
+        allSituations.expectedGoalsAgainst,
+        allSituations.goalsAgainst,
+      )
+    : null;
+
+  return (
+    <>
+      {allSituations ? (
+        <div className="grid gap-4 sm:grid-cols-3">
+          <AdvancedCard
+            label="Goals saved above expected"
+            value={formatSignedDecimal(goalsSavedAboveExpected)}
+          />
+          <AdvancedCard
+            label="Expected goals against"
+            value={formatDecimal(allSituations.expectedGoalsAgainst)}
+          />
+          <AdvancedCard
+            label="Actual goals against"
+            value={formatDecimal(allSituations.goalsAgainst)}
+          />
+        </div>
+      ) : null}
+      <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px] text-sm">
+            <thead>
+              <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+                <MetricHeader label="Team" align="left" />
+                <MetricHeader label="Situation" align="left" />
+                <MetricHeader label="xGA" />
+                <MetricHeader label="GA" />
+                <MetricHeader label="GSAx" />
+                <MetricHeader label="Expected SOG" />
+                <MetricHeader label="SOG" />
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr
+                  key={`${row.team.nhlTeamId}-${row.situation}`}
+                  className="border-b border-white/[0.06] text-slate-300 last:border-0"
+                >
+                  <TextCell value={row.team.abbreviation} />
+                  <TextCell value={situationLabel(row.situation)} />
+                  <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} />
+                  <ValueCell value={formatDecimal(row.goalsAgainst)} />
+                  <ValueCell
+                    value={formatSignedDecimal(
+                      difference(
+                        row.expectedGoalsAgainst,
+                        row.goalsAgainst,
+                      ),
+                    )}
+                    highlight
+                  />
+                  <ValueCell
+                    value={formatDecimal(row.expectedShotsOnGoalAgainst)}
+                  />
+                  <ValueCell value={formatDecimal(row.shotsOnGoalAgainst)} />
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function TeamAdvancedRow({ row }: { row: MoneyPuckTeamSituation }) {
+  return (
+    <tr className="border-b border-white/[0.06] text-slate-300 last:border-0">
+      <TextCell value={situationLabel(row.situation)} />
+      <ValueCell
+        value={formatPercentage(row.expectedGoalsPercentage)}
+        highlight
+      />
+      <ValueCell value={formatPercentage(row.corsiPercentage)} />
+      <ValueCell value={formatPercentage(row.fenwickPercentage)} />
+      <ValueCell value={formatDecimal(row.expectedGoalsFor)} />
+      <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} />
+      <ValueCell value={formatDecimal(row.goalsFor)} />
+      <ValueCell value={formatDecimal(row.goalsAgainst)} />
+    </tr>
+  );
+}
+
+function AdvancedCard({ label, value }: { label: string; value: string }) {
+  return (
+    <article className="rounded-2xl border border-violet-300/15 bg-violet-300/[0.06] p-5">
+      <p className="text-xs uppercase tracking-[0.12em] text-violet-200/70">
+        {label}
+      </p>
+      <p className="mt-3 text-2xl font-semibold tabular-nums text-white">
+        {value}
+      </p>
+    </article>
+  );
+}
+
+function MetricDefinitions() {
+  return (
+    <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.025] p-5 text-sm leading-6 text-slate-400">
+      <p>
+        <strong className="text-slate-200">xG%</strong> is the share of expected
+        goals while the team or player was on the ice.{" "}
+        <strong className="text-slate-200">CF%</strong> is the share of all shot
+        attempts. <strong className="text-slate-200">FF%</strong> excludes
+        blocked attempts. <strong className="text-slate-200">GSAx</strong> is
+        expected goals against minus actual goals against; positive is better.
+      </p>
+    </div>
+  );
+}
+
+function MoneyPuckAttribution() {
+  return (
+    <a
+      href="https://moneypuck.com/"
+      target="_blank"
+      rel="noreferrer"
+      className="text-sm font-medium text-violet-300 transition hover:text-violet-200"
+    >
+      Data: MoneyPuck.com ↗
+    </a>
+  );
+}
+
+function AdvancedUnavailable({
+  seasonId,
+  entity,
+}: {
+  seasonId: number;
+  entity: "team" | "player";
+}) {
+  return (
+    <section className="mt-12 rounded-2xl border border-white/10 bg-white/[0.025] p-6">
+      <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
+        Advanced analytics
+      </p>
+      <h3 className="mt-2 text-xl font-semibold text-white">
+        MoneyPuck data unavailable
+      </h3>
+      <p className="mt-3 text-sm leading-6 text-slate-400">
+        {seasonId < 20082009
+          ? "MoneyPuck season summaries begin with the 2008–09 season."
+          : `No MoneyPuck ${entity} season summary is stored for this selection.`}
+      </p>
+    </section>
+  );
+}
+
+function MetricHeader({
+  label,
+  align = "right",
+}: {
+  label: string;
+  align?: "left" | "right";
+}) {
+  return (
+    <th
+      scope="col"
+      className={`px-4 py-3 font-medium ${
+        align === "left" ? "text-left" : "text-right"
+      }`}
+    >
+      {label}
+    </th>
+  );
+}
+
+function TextCell({ value }: { value: string }) {
+  return <td className="px-4 py-3 text-left font-medium text-white">{value}</td>;
+}
+
+function ValueCell({
+  value,
+  highlight = false,
+}: {
+  value: string;
+  highlight?: boolean;
+}) {
+  return (
+    <td
+      className={`px-4 py-3 text-right tabular-nums ${
+        highlight ? "font-semibold text-violet-200" : "text-slate-300"
+      }`}
+    >
+      {value}
+    </td>
+  );
+}
+
+function situationLabel(situation: string): string {
+  const labels: Record<string, string> = {
+    all: "All situations",
+    "5on5": "5-on-5",
+    "5on4": "5-on-4",
+    "4on5": "4-on-5",
+    other: "Other",
+  };
+  return labels[situation] ?? situation;
+}
+
+function formatPercentage(value: number | null): string {
+  return value === null ? "—" : `${(value * 100).toFixed(1)}%`;
+}
+
+function formatDecimal(value: number | null): string {
+  return value === null ? "—" : value.toFixed(2);
+}
+
+function formatSignedDecimal(value: number | null): string {
+  if (value === null) {
+    return "—";
+  }
+  return `${value > 0 ? "+" : ""}${value.toFixed(2)}`;
+}
+
+function difference(
+  left: number | null,
+  right: number | null,
+): number | null {
+  return left === null || right === null ? null : left - right;
+}

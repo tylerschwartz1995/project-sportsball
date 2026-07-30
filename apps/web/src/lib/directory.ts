@@ -22,6 +22,20 @@ export function parsePage(value: string | undefined): number {
   return Number.isSafeInteger(page) && page > 0 ? page : 1;
 }
 
+export function parseSortDirection(
+  value: string | undefined,
+  fallback: "asc" | "desc",
+): "asc" | "desc" {
+  return value === "asc" || value === "desc" ? value : fallback;
+}
+
+export function applySortDirection(
+  comparison: number,
+  direction: "asc" | "desc",
+): number {
+  return direction === "asc" ? -comparison : comparison;
+}
+
 export function paginate<T>(
   items: T[],
   requestedPage: number,

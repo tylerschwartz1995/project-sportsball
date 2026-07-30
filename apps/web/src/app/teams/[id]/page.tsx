@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { TeamAdvancedAnalytics } from "@/app/_components/advanced-analytics";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { parseNhlId } from "@/contracts/entity";
 import { parseSeasonId } from "@/contracts/season";
 import type { TeamSeasonStats } from "@/contracts/team";
+import { getMoneyPuckTeamSeason } from "@/data/advanced";
 import { listSeasons } from "@/data/seasons";
 import { getTeamSeasonDetail } from "@/data/teams";
 
@@ -31,7 +33,10 @@ export default async function TeamPage({
     notFound();
   }
 
-  const detail = await getTeamSeasonDetail(nhlTeamId, selectedSeason.id);
+  const [detail, advanced] = await Promise.all([
+    getTeamSeasonDetail(nhlTeamId, selectedSeason.id),
+    getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id),
+  ]);
   if (!detail) {
     notFound();
   }
@@ -70,6 +75,11 @@ export default async function TeamPage({
           <SeasonPanel title="Regular season" stats={detail.regularSeason} />
           <SeasonPanel title="Playoffs" stats={detail.playoffs} />
         </div>
+
+        <TeamAdvancedAnalytics
+          data={advanced}
+          seasonId={selectedSeason.id}
+        />
 
         <section className="mt-12">
           <div className="flex flex-wrap items-end justify-between gap-3">
