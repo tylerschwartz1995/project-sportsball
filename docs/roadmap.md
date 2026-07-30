@@ -1,7 +1,7 @@
 # Implementation roadmap
 
-Status values reflect the repository after the advanced game presentation was
-completed on July 30, 2026.
+Status values reflect the repository after the daily-ingestion coordinator and
+opt-in scheduler were implemented on July 30, 2026.
 
 ## Milestone 1: foundation — complete
 
@@ -46,7 +46,12 @@ completed on July 30, 2026.
 
 ## Milestone 5: daily operation
 
-- Schedule daily incremental imports and recent-game corrections.
+- [x] Add an audited daily coordinator for bounded incremental imports and
+  recent-game corrections.
+- [x] Add a disabled-by-default scheduled workflow and manual operational
+  dispatch.
+- Activate the schedule after the hosted database, secrets, and recovery
+  process are ready.
 - Add health checks, alerts, backups, and data-quality dashboards.
 - Deploy the application and database.
 - Document recovery and source-change procedures.

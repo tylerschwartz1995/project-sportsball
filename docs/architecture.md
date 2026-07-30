@@ -164,9 +164,16 @@ specific domain or infrastructure responsibility.
 
 ### Scheduling and monitoring
 
-Daily jobs will be scheduled by the eventual hosting platform. Every run will
-record its status, input range, row counts, errors, and duration. A failed job
-must preserve the last known-good public data.
+The `daily-update` Python coordinator owns refresh ordering and can be invoked
+by any scheduler. An opt-in GitHub Actions workflow currently provides manual
+dispatches and a disabled-by-default `15:00 UTC` schedule. Production
+activation waits for a hosted database, secrets, backups, and recovery
+validation; scheduler configuration does not contain ingestion domain logic.
+
+Every parent and child run records its status, input range, row counts, errors,
+and duration. Recent final games are deliberately re-fetched to capture NHL
+corrections, while source-specific transactions preserve the last known-good
+table when a replacement fails. See [Daily ingestion](daily-ingestion.md).
 
 ## Boundaries
 

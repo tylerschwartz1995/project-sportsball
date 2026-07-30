@@ -1,0 +1,77 @@
+name: Daily ingestion
+
+on:
+  schedule:
+    - cron: "0 15 * * *"
+  workflow_dispatch:
+    inputs:
+      run_date:
+        description: Optional UTC date override (YYYY-MM-DD)
+        required: false
+        type: string
+      season_id:
+        description: Optional eight-digit NHL season override
+        required: false
+        type: string
+      skip_moneypuck:
+        description: Skip MoneyPuck refreshes
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: daily-ingestion
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Refresh current data
+    if: github.event_name == 'workflow_dispatch' || vars.DAILY_INGESTION_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SPORTSBALL_DATABASE_URL: ${{ secrets.SPORTSBALL_DATABASE_URL }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.12.0"
+          working-directory: pipeline
+          enable-cache: true
+
+      - name: Sync pipeline
+        run: uv sync --project pipeline --locked
+
+      - name: Require production database secret
+        run: |
+          if [[ -z "${SPORTSBALL_DATABASE_URL}" ]]; then
+            echo "SPORTSBALL_DATABASE_URL must be configured as a repository secret."
+            exit 1
+          fi
+
+      - name: Apply database migrations
+        run: uv run --project pipeline --frozen alembic --config database/alembic.ini upgrade head
+
+      - name: Run daily update
+        env:
+          INPUT_RUN_DATE: ${{ inputs.run_date }}
+          INPUT_SEASON_ID: ${{ inputs.season_id }}
+          INPUT_SKIP_MONEYPUCK: ${{ inputs.skip_moneypuck }}
+        run: |
+          arguments=(daily-update)
+          if [[ -n "${INPUT_RUN_DATE}" ]]; then
+            arguments+=(--run-date "${INPUT_RUN_DATE}")
+          fi
+          if [[ -n "${INPUT_SEASON_ID}" ]]; then
+            arguments+=(--season-id "${INPUT_SEASON_ID}")
+          fi
+          if [[ "${INPUT_SKIP_MONEYPUCK}" == "true" ]]; then
+            arguments+=(--skip-moneypuck)
+          fi
+          uv run --project pipeline --frozen sportsball "${arguments[@]}"
