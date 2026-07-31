@@ -10,7 +10,7 @@ import type { GameSummary } from "@/contracts/game";
 import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
 import { getLatestGamesForSeason, getUpcomingGames } from "@/data/games";
-import { listPlayersBySeason } from "@/data/players";
+import { listSkaterLeadersBySeason } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
 import { getStandings } from "@/data/standings";
 import { firstQueryValue } from "@/lib/directory";
@@ -27,14 +27,14 @@ export default async function Home({ searchParams }: HomeProps) {
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
-  const [standings, players, latestGames, upcomingGames] = selectedSeason
+  const [standings, scoringLeaders, latestGames, upcomingGames] = selectedSeason
     ? await Promise.all([
         getStandings(selectedSeason.id),
-        listPlayersBySeason(selectedSeason.id),
+        listSkaterLeadersBySeason(selectedSeason.id, 5),
         getLatestGamesForSeason(selectedSeason.id),
         getUpcomingGames(6),
       ])
-    : [[], { seasonId: 0, skaters: [], goalies: [] }, [], []];
+    : [[], [], [], []];
 
   const latestDate = latestGames[0]?.gameDate;
   const leagueLeader = standings[0];
@@ -145,7 +145,7 @@ export default async function Home({ searchParams }: HomeProps) {
               }
             >
               <div className="workspace-leader-grid">
-                {players.skaters.slice(0, 5).map((player, index) => (
+                {scoringLeaders.map((player, index) => (
                   <Link
                     key={player.nhlPlayerId}
                     href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
