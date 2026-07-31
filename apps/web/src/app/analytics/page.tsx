@@ -6,6 +6,7 @@ import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamComparisonScatterplot } from "@/app/_components/team-comparison-scatterplot";
 import { DataTableShell } from "@/app/_components/ui-primitives";
 import {
   WorkspacePageHeader,
@@ -27,7 +28,9 @@ import {
   listAdvancedTeamLeaders,
 } from "@/data/advanced-leaderboard";
 import { listSeasons } from "@/data/seasons";
+import { listTeamsBySeason } from "@/data/teams";
 import { firstQueryValue } from "@/lib/directory";
+import { buildTeamComparisonPoints } from "@/lib/team-comparison";
 
 export const dynamic = "force-dynamic";
 
@@ -72,14 +75,37 @@ export default async function AnalyticsPage({
   const hasCoverage = Boolean(
     selectedSeason && selectedSeason.id >= 20082009,
   );
-  const rows =
+  const gameType = gameTypeForPhase(phase);
+  const [rows, comparisonAdvancedRows, comparisonTeamRows] =
     selectedSeason && hasCoverage
-      ? await loadLeaderboard(
-          type,
-          selectedSeason.id,
-          situation,
-          minimumMinutes * 60,
-          gameTypeForPhase(phase),
+      ? await Promise.all([
+          loadLeaderboard(
+            type,
+            selectedSeason.id,
+            situation,
+            minimumMinutes * 60,
+            gameType,
+          ),
+          type === "teams" && situation !== "5on5"
+            ? listAdvancedTeamLeaders(
+                selectedSeason.id,
+                "5on5",
+                gameType,
+              )
+            : Promise.resolve(null),
+          type === "teams"
+            ? listTeamsBySeason(selectedSeason.id, gameType)
+            : Promise.resolve(null),
+        ])
+      : [[], null, null];
+  const comparisonPoints =
+    type === "teams" && comparisonTeamRows
+      ? buildTeamComparisonPoints(
+          situation === "5on5"
+            ? (rows as AdvancedTeamLeaderboardRow[])
+            : (comparisonAdvancedRows ?? []),
+          comparisonTeamRows,
+          phase,
         )
       : [];
 
@@ -128,6 +154,12 @@ export default async function AnalyticsPage({
 
             {hasCoverage ? (
               <>
+                {type === "teams" ? (
+                  <TeamComparisonScatterplot
+                    points={comparisonPoints}
+                    phase={phase}
+                  />
+                ) : null}
                 <AnalyticsFilters
                   seasonId={selectedSeason.id}
                   type={type}

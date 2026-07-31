@@ -78,7 +78,8 @@ were implemented on July 30, 2026.
 - [x] Establish shared plot conventions and add rolling team performance
   trends.
 - [x] Add rolling skater-production and goalie-performance trends.
-- [ ] Add league comparison scatterplots and distribution views.
+- [x] Add the first league team results-versus-process scatterplot.
+- [ ] Add player comparison and distribution views.
 
 ## Milestone 6: daily operation
 

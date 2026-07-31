@@ -44,6 +44,11 @@ game and shot data also cover playoffs.
 
 The league analytics route includes:
 
+- an interactive team results-versus-process scatterplot that compares
+  five-on-five expected-goal share with regular-season points percentage or
+  playoff win percentage;
+- quadrant filters for strong, outperforming, underperforming, and struggling
+  teams, with fixed axes and exact-value tooltips;
 - team xG%, Corsi%, Fenwick%, expected goals, and actual goals;
 - skater game score, on-ice xG% and Corsi%, individual expected goals, goals,
   and points;
@@ -116,5 +121,6 @@ interpret shot-quality, possession, individual, on-ice, and goalie metrics.
 ## Future analytics presentation
 
 - cross-season advanced comparisons;
-- richer filters and shot-map filtering.
+- player comparison and distribution views;
+- richer filters and shot-map filtering;
 - rolling-window and score-state line-combination splits.
