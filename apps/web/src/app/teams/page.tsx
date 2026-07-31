@@ -7,6 +7,7 @@ import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogo } from "@/app/_components/team-logo";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -342,7 +343,12 @@ function TeamRow({
         <Link
           href={`/teams/${entry.team.nhlTeamId}?season=${seasonId}&phase=${phase}`}
         >
-          <span aria-hidden="true" className="workspace-team-marker" />
+          <TeamLogo
+            name={entry.team.name}
+            abbreviation={entry.team.abbreviation}
+            nhlTeamId={entry.team.nhlTeamId}
+            size="compact"
+          />
           <span>
             {entry.team.name}
           </span>
