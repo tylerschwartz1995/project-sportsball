@@ -27,7 +27,8 @@ The current read-only slice provides:
   views plus a filterable cumulative-points plot;
 - a server-rendered schedule and results page with season/date navigation;
 - a historical records page with sortable all-time career and best-season
-  skater, goalie, and team leaderboards from 1917–18 onward;
+  skater, goalie, and team leaderboards from 1917–18 onward, including era,
+  participation, player-attribute, team, and total/rate controls;
 - individual game pages with traditional box scores, scoring summaries,
   expandable play-by-play timelines, advanced team/player results, shot maps,
   forward lines, and defensive pairings;

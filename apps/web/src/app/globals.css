@@ -1862,6 +1862,84 @@ html[data-theme="light"] .workspace-history-filter button {
   color: #fff;
 }
 
+.workspace-history-controls {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  background: var(--surface);
+  box-shadow: 0 10px 28px var(--shadow);
+}
+
+@media (min-width: 640px) {
+  .workspace-history-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .workspace-history-controls {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.workspace-history-controls label {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 650;
+}
+
+.workspace-history-controls input,
+.workspace-history-controls select {
+  width: 100%;
+  margin-top: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.7rem;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.84rem;
+  outline: none;
+}
+
+.workspace-history-controls input:focus,
+.workspace-history-controls select:focus {
+  border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
+}
+
+.workspace-history-actions {
+  display: flex;
+  align-items: end;
+  gap: 0.65rem;
+}
+
+.workspace-history-actions button,
+.workspace-history-actions a {
+  display: inline-flex;
+  min-height: 2.6rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  padding: 0 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 750;
+}
+
+.workspace-history-actions button {
+  border: 0;
+  background: var(--accent);
+  color: var(--background);
+  cursor: pointer;
+}
+
+.workspace-history-actions a {
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
 .workspace-date-navigation {
   display: flex;
   flex-wrap: wrap;
