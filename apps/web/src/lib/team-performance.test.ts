@@ -1,10 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import type { TeamGameLogEntry } from "@/contracts/game-log";
-import {
-  buildRollingTeamPerformance,
-  filterTeamPerformanceGames,
-} from "@/lib/team-performance";
+import { filterGamesByVenue } from "@/lib/rolling-performance";
+import { buildRollingTeamPerformance } from "@/lib/team-performance";
 
 const games: TeamGameLogEntry[] = [
   makeGame({
@@ -91,7 +89,7 @@ describe("buildRollingTeamPerformance", () => {
   });
 });
 
-describe("filterTeamPerformanceGames", () => {
+describe("filterGamesByVenue", () => {
   const venueGames = [
     makeGame({
       nhlGameId: 10,
@@ -114,11 +112,11 @@ describe("filterTeamPerformanceGames", () => {
   ];
 
   it("keeps all games when venue is not restricted", () => {
-    expect(filterTeamPerformanceGames(venueGames, "all")).toHaveLength(2);
+    expect(filterGamesByVenue(venueGames, "all")).toHaveLength(2);
   });
 
   it("filters before a rolling series is calculated", () => {
-    const awayGames = filterTeamPerformanceGames(venueGames, "away");
+    const awayGames = filterGamesByVenue(venueGames, "away");
     const rollingAway = buildRollingTeamPerformance(awayGames, 10);
 
     expect(rollingAway).toHaveLength(1);

@@ -1,11 +1,5 @@
 import type { TeamGameLogEntry } from "@/contracts/game-log";
-
-export const TEAM_PERFORMANCE_WINDOWS = [5, 10, 20] as const;
-
-export type TeamPerformanceWindow =
-  (typeof TEAM_PERFORMANCE_WINDOWS)[number];
-
-export type TeamPerformanceVenue = "all" | "home" | "away";
+import type { RollingWindow } from "@/lib/rolling-performance";
 
 export type TeamPerformanceGame = Pick<
   TeamGameLogEntry,
@@ -34,22 +28,9 @@ export type RollingTeamPerformancePoint = {
   fiveOnFiveExpectedGoalSharePercentage: number | null;
 };
 
-export function filterTeamPerformanceGames(
-  games: TeamPerformanceGame[],
-  venue: TeamPerformanceVenue,
-): TeamPerformanceGame[] {
-  if (venue === "all") {
-    return games;
-  }
-
-  return games.filter((game) =>
-    venue === "home" ? game.isHome : !game.isHome,
-  );
-}
-
 export function buildRollingTeamPerformance(
   games: TeamPerformanceGame[],
-  windowSize: TeamPerformanceWindow,
+  windowSize: RollingWindow,
 ): RollingTeamPerformancePoint[] {
   const chronologicalGames = [...games].sort(
     (left, right) =>

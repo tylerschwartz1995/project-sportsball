@@ -87,6 +87,14 @@ log begins with a compact chronological form strip, then shows the full table
 for the selected regular-season or playoff phase. Advanced columns use a dash
 when MoneyPuck coverage is unavailable and include an inline coverage note.
 
+Player profiles also visualize rolling performance after every appearance.
+Skater charts compare points per game with individual expected goals per game.
+Goalie charts compare save percentage, recomputed from rolling saves and shots,
+with goals saved above expected per game. Both support 5-, 10-, and 20-game
+windows plus all, home, and away venue filters. Advanced rates exclude games
+where the provider metric is unavailable rather than treating missing values as
+zero.
+
 Team and player detail pages also show the available MoneyPuck season summaries.
 See [Advanced analytics presentation](advanced-analytics.md) for the initial
 metrics, source attribution, and coverage behavior.

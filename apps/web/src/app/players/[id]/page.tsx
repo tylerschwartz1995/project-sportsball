@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { PlayerAdvancedAnalytics } from "@/app/_components/advanced-analytics";
+import { PlayerRollingPerformanceChart } from "@/app/_components/player-rolling-performance-chart";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
@@ -14,10 +15,12 @@ import type {
 } from "@/contracts/player";
 import { parseSeasonId } from "@/contracts/season";
 import {
+  gameTypeForPhase,
   parseSeasonPhase,
   seasonPhaseLabel,
 } from "@/contracts/season-phase";
 import { getMoneyPuckPlayerSeason } from "@/data/advanced";
+import { getPlayerGameLog } from "@/data/game-logs";
 import { getPlayerDetail } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
 
@@ -72,11 +75,44 @@ export default async function PlayerPage({
   const regularGoalie = selectedGoalieRows.find((row) => row.gameType === 2);
   const playoffGoalie = selectedGoalieRows.find((row) => row.gameType === 3);
   const profile = detail.profile;
-  const advanced = selectedSeason
-    ? phase === "regular"
-      ? await getMoneyPuckPlayerSeason(nhlPlayerId, selectedSeason.id)
-      : null
-    : null;
+  const [advanced, gameLog] = selectedSeason
+    ? await Promise.all([
+        phase === "regular"
+          ? getMoneyPuckPlayerSeason(nhlPlayerId, selectedSeason.id)
+          : Promise.resolve(null),
+        getPlayerGameLog(nhlPlayerId, selectedSeason.id),
+      ])
+    : [null, null];
+  const gameType = gameTypeForPhase(phase);
+  const skaterPerformanceGames =
+    gameLog?.skaterGames
+      .filter((game) => game.gameType === gameType)
+      .map((game) => ({
+        nhlGameId: game.nhlGameId,
+        gameDate: game.gameDate,
+        isHome: game.isHome,
+        team: game.team,
+        opponent: game.opponent,
+        teamScore: game.teamScore,
+        opponentScore: game.opponentScore,
+        points: game.points,
+        individualXGoals: game.individualXGoals,
+      })) ?? [];
+  const goaliePerformanceGames =
+    gameLog?.goalieGames
+      .filter((game) => game.gameType === gameType)
+      .map((game) => ({
+        nhlGameId: game.nhlGameId,
+        gameDate: game.gameDate,
+        isHome: game.isHome,
+        team: game.team,
+        opponent: game.opponent,
+        teamScore: game.teamScore,
+        opponentScore: game.opponentScore,
+        saves: game.saves,
+        shotsAgainst: game.shotsAgainst,
+        goalsSavedAboveExpected: game.goalsSavedAboveExpected,
+      })) ?? [];
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -193,6 +229,33 @@ export default async function PlayerPage({
             </span>
             <span className="shrink-0 text-cyan-300">View games →</span>
           </Link>
+        ) : null}
+
+        {skaterPerformanceGames.length > 0 ||
+        goaliePerformanceGames.length > 0 ? (
+          <section className="mt-12">
+            <SectionTitle
+              eyebrow="Rolling performance"
+              title="Player Form"
+              detail={`${seasonPhaseLabel(phase)} · rates update after every appearance`}
+            />
+            <div className="mt-5 grid gap-6">
+              {skaterPerformanceGames.length > 0 ? (
+                <PlayerRollingPerformanceChart
+                  kind="skater"
+                  games={skaterPerformanceGames}
+                  playerName={profile.name}
+                />
+              ) : null}
+              {goaliePerformanceGames.length > 0 ? (
+                <PlayerRollingPerformanceChart
+                  kind="goalie"
+                  games={goaliePerformanceGames}
+                  playerName={profile.name}
+                />
+              ) : null}
+            </div>
+          </section>
         ) : null}
 
         {advanced ? <PlayerAdvancedAnalytics data={advanced} /> : null}
