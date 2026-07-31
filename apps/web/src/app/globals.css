@@ -1035,6 +1035,139 @@ html[data-theme="light"] .workspace-directory-controls button {
   color: var(--foreground);
 }
 
+.workspace-coverage-note a {
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.workspace-unit-filter {
+  display: flex;
+  width: 100%;
+  max-width: 24rem;
+  align-items: end;
+  gap: 0.7rem;
+  padding: 1rem 1.1rem;
+}
+
+.workspace-unit-filter label {
+  flex: 1;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.workspace-unit-filter select {
+  width: 100%;
+  margin-top: 0.4rem;
+  border: 1px solid var(--border);
+  border-radius: 0.48rem;
+  padding: 0.62rem 0.7rem;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  font: inherit;
+}
+
+.workspace-unit-filter button,
+.workspace-system-actions button,
+.workspace-system-actions a {
+  min-height: 2.45rem;
+  border-radius: 0.48rem;
+  padding: 0 0.9rem;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.workspace-unit-filter button,
+.workspace-system-actions button {
+  border: 0;
+  background: var(--accent);
+  color: var(--background);
+  cursor: pointer;
+}
+
+.workspace-empty-state {
+  display: grid;
+  gap: 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  padding: 1.25rem;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.workspace-empty-state strong {
+  color: var(--foreground);
+  font-size: 0.95rem;
+}
+
+.workspace-loading-shell {
+  animation: workspace-pulse 1.8s ease-in-out infinite;
+}
+
+.workspace-loading-nav {
+  height: 4rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.workspace-loading-block,
+.workspace-loading-panel {
+  border-radius: 0.7rem;
+  background: var(--surface-subtle);
+}
+
+.workspace-loading-panel {
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.workspace-system-state {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  padding: clamp(1.5rem, 5vw, 2.5rem);
+  background: var(--surface);
+  box-shadow: 0 18px 45px var(--shadow);
+}
+
+.workspace-system-state h1 {
+  margin-top: 0.7rem;
+  color: var(--foreground);
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+
+.workspace-system-state > p:not(.workspace-eyebrow) {
+  max-width: 38rem;
+  margin-top: 0.8rem;
+  color: var(--muted);
+  line-height: 1.65;
+}
+
+.workspace-system-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 1.5rem;
+}
+
+.workspace-system-actions a {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+@keyframes workspace-pulse {
+  50% {
+    opacity: 0.62;
+  }
+}
+
 .workspace-draft-insights {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

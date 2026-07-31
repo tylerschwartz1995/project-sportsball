@@ -2,6 +2,10 @@ import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonUnitTables } from "@/app/_components/season-unit-tables";
 import { SiteHeader } from "@/app/_components/site-header";
+import {
+  WorkspacePageHeader,
+  WorkspacePanel,
+} from "@/app/_components/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
 import { listSeasons } from "@/data/seasons";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
@@ -40,25 +44,17 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
       <SiteHeader active="analytics" />
 
       <section className="py-10">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="font-mono text-sm uppercase tracking-[0.18em] text-violet-300">
-              MoneyPuck five-on-five units
-            </p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-              {selectedSeason?.label ?? "No Season"} Top Combinations
-            </h2>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
-              Season totals are calculated in Polars from stored game-level
-              forward-line and defensive-pairing records. Percentages are
-              recomputed from summed results rather than averaged across games.
-            </p>
-          </div>
-          <SeasonPicker
-            seasons={seasons}
-            selectedSeasonId={selectedSeason?.id}
-          />
-        </div>
+        <WorkspacePageHeader
+          eyebrow="MoneyPuck five-on-five units"
+          title={`${selectedSeason?.label ?? "No Season"} Top Combinations`}
+          description="Compare the most-used forward lines and defensive pairings. Season totals are calculated from stored game-level records, with percentages recomputed from their combined results."
+          action={
+            <SeasonPicker
+              seasons={seasons}
+              selectedSeasonId={selectedSeason?.id}
+            />
+          }
+        />
 
         {selectedSeason ? (
           <AnalyticsSectionTabs seasonId={selectedSeason.id} active="lines" />
@@ -66,20 +62,25 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
 
         {selectedSeason && selectedSeason.id >= 20082009 ? (
           <>
-            <MinimumIceTimeFilter
-              seasonId={selectedSeason.id}
-              selectedMinutes={minimumMinutes}
-            />
+            <WorkspacePanel
+              className="mt-8"
+              title="Usage Filter"
+              description="Set the minimum five-on-five ice time required to appear in both tables."
+            >
+              <MinimumIceTimeFilter
+                seasonId={selectedSeason.id}
+                selectedMinutes={minimumMinutes}
+              />
+            </WorkspacePanel>
             <div className="mt-10">
               <SeasonUnitTables data={units} seasonId={selectedSeason.id} />
             </div>
-            <p className="mt-8 text-sm leading-6 text-slate-500">
-              Regular-season five-on-five data from{" "}
+            <p className="workspace-coverage-note mt-8">
+              <strong>Coverage:</strong> Regular-season five-on-five data from{" "}
               <a
                 href="https://moneypuck.com/"
                 target="_blank"
                 rel="noreferrer"
-                className="font-medium text-violet-300 hover:text-violet-200"
               >
                 MoneyPuck.com
               </a>
@@ -87,9 +88,10 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
             </p>
           </>
         ) : (
-          <p className="mt-10 rounded-2xl border border-white/10 bg-white/[0.025] p-6 text-sm leading-6 text-slate-400">
-            MoneyPuck line and pairing coverage begins in 2008–09.
-          </p>
+          <div className="workspace-empty-state mt-10">
+            <strong>Combinations are unavailable for this season.</strong>
+            <span>MoneyPuck line and pairing coverage begins in 2008–09.</span>
+          </div>
         )}
       </section>
     </main>
@@ -106,15 +108,14 @@ function MinimumIceTimeFilter({
   return (
     <form
       method="get"
-      className="mt-8 flex w-full max-w-sm items-end gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4"
+      className="workspace-unit-filter"
     >
       <input type="hidden" name="season" value={seasonId} />
-      <label className="flex-1 text-sm font-medium text-slate-300">
+      <label>
         Minimum five-on-five TOI
         <select
           name="minimum"
           defaultValue={selectedMinutes}
-          className="mt-2 w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-white outline-none focus:border-violet-300/60"
         >
           {ICE_TIME_OPTIONS.map((minutes) => (
             <option key={minutes} value={minutes}>
@@ -125,7 +126,6 @@ function MinimumIceTimeFilter({
       </label>
       <button
         type="submit"
-        className="rounded-lg bg-violet-300 px-4 py-2.5 text-sm font-semibold text-slate-950 transition hover:bg-violet-200"
       >
         Apply
       </button>
