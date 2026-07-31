@@ -82,6 +82,15 @@ were implemented on July 30, 2026.
 - [x] Add skater and goalie comparison and distribution views.
 - [x] Add selectable metrics and direct comparisons to league team and player
   comparison plots.
+- [x] Add player-directory minimum-stat and birth-region filters, and remove
+  unnecessary team-directory search.
+- [x] Add overall, conference, and division standings views with a filterable
+  cumulative-points chart.
+- [x] Add a postseason bracket and playoff scoring-leader page, with
+  standings-based projected matchups before the playoffs begin.
+- [x] Separate regular-season and playoff history on player profiles and make
+  rolling player plots single-metric views with official and advanced options.
+- [x] Increase table and plot typography for comfortable reading at 100% zoom.
 - [ ] Add saved comparison views and shareable plot URLs.
 
 ## Milestone 6: daily operation

@@ -21,6 +21,9 @@ export type SkaterSeasonSummary = {
   nhlPlayerId: number;
   name: string;
   position: string | null;
+  birthCity: string | null;
+  birthStateProvince: string | null;
+  birthCountry: string | null;
   seasonId: number;
   gameType: number;
   gamesPlayed: number;
@@ -42,6 +45,9 @@ export type GoalieSeasonSummary = {
   nhlPlayerId: number;
   name: string;
   position: string | null;
+  birthCity: string | null;
+  birthStateProvince: string | null;
+  birthCountry: string | null;
   seasonId: number;
   gameType: number;
   gamesPlayed: number;

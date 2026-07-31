@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { DirectoryControls } from "@/app/_components/directory-controls";
 import { Pagination } from "@/app/_components/pagination";
+import { PlayerDirectoryFilters } from "@/app/_components/player-directory-filters";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
@@ -43,6 +43,15 @@ type PlayersPageProps = {
     dir?: string | string[];
     page?: string | string[];
     phase?: string | string[];
+    minGames?: string | string[];
+    minGoals?: string | string[];
+    minAssists?: string | string[];
+    minPoints?: string | string[];
+    minWins?: string | string[];
+    minSavePercentage?: string | string[];
+    country?: string | string[];
+    region?: string | string[];
+    city?: string | string[];
   }>;
 };
 
@@ -75,10 +84,42 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
     sort === "name" ? "asc" : "desc",
   );
   const requestedPage = parsePage(firstQueryValue(params.page));
+  const filters = {
+    minGames: firstQueryValue(params.minGames) ?? "",
+    minGoals: firstQueryValue(params.minGoals) ?? "",
+    minAssists: firstQueryValue(params.minAssists) ?? "",
+    minPoints: firstQueryValue(params.minPoints) ?? "",
+    minWins: firstQueryValue(params.minWins) ?? "",
+    minSavePercentage: firstQueryValue(params.minSavePercentage) ?? "",
+    country: firstQueryValue(params.country) ?? "",
+    region: firstQueryValue(params.region) ?? "",
+    city: firstQueryValue(params.city) ?? "",
+  };
+  const minGames = parseMinimum(filters.minGames);
+  const minGoals = parseMinimum(filters.minGoals);
+  const minAssists = parseMinimum(filters.minAssists);
+  const minPoints = parseMinimum(filters.minPoints);
+  const minWins = parseMinimum(filters.minWins);
+  const minSavePercentage = parseMinimum(filters.minSavePercentage);
+  const allPlayers =
+    category === "skaters" ? players.skaters : players.goalies;
+  const countries = uniqueRegions(
+    allPlayers.map((player) => player.birthCountry),
+  );
+  const regions = uniqueRegions(
+    allPlayers.map((player) => player.birthStateProvince),
+  );
+  const cities = uniqueRegions(allPlayers.map((player) => player.birthCity));
   const skaterPage = paginate(
     sortSkaters(
-      players.skaters.filter((player) =>
-        matchesSearch(query, player.name, player.position),
+      players.skaters.filter(
+        (player) =>
+          matchesSearch(query, player.name, player.position) &&
+          matchesBirthplace(player, filters) &&
+          player.gamesPlayed >= minGames &&
+          player.goals >= minGoals &&
+          player.assists >= minAssists &&
+          player.points >= minPoints,
       ),
       sort,
       direction,
@@ -88,8 +129,13 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
   );
   const goaliePage = paginate(
     sortGoalies(
-      players.goalies.filter((player) =>
-        matchesSearch(query, player.name, player.position),
+      players.goalies.filter(
+        (player) =>
+          matchesSearch(query, player.name, player.position) &&
+          matchesBirthplace(player, filters) &&
+          player.gamesPlayed >= minGames &&
+          player.wins >= minWins &&
+          (player.savePercentage ?? 0) >= minSavePercentage,
       ),
       sort,
       direction,
@@ -123,17 +169,18 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
               path="/players"
               params={{ season: selectedSeason.id, type: category }}
             />
-            <DirectoryControls
-              action="/players"
+            <PlayerDirectoryFilters
               seasonId={selectedSeason.id}
+              phase={phase}
+              category={category}
               query={query}
               sort={sort}
               sortOptions={sortOptions}
               direction={direction}
-              category={category}
-              categoryOptions={playerTypeOptions}
-              searchPlaceholder="Player name or position"
-              phase={phase}
+              countries={countries}
+              regions={regions}
+              cities={cities}
+              filters={filters}
             />
 
             {category === "skaters" ? (
@@ -224,6 +271,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         sort,
                         dir: direction,
                         phase,
+                        ...filters,
                       }}
                     />
                   </>
@@ -319,6 +367,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         sort,
                         dir: direction,
                         phase,
+                        ...filters,
                       }}
                     />
                   </>
@@ -337,11 +386,6 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
     </main>
   );
 }
-
-const playerTypeOptions = [
-  { value: "skaters", label: "Skaters" },
-  { value: "goalies", label: "Goalies" },
-];
 
 const skaterSortOptions = [
   { value: "points", label: "Points" },
@@ -668,4 +712,33 @@ function formatSigned(value: number): string {
 
 function formatSavePercentage(value: number | null): string {
   return value === null ? "—" : value.toFixed(3).replace(/^0/, "");
+}
+
+function parseMinimum(value: string): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+}
+
+function uniqueRegions(values: Array<string | null>): string[] {
+  return [...new Set(values.filter((value): value is string => Boolean(value)))]
+    .sort((left, right) => left.localeCompare(right));
+}
+
+function matchesBirthplace(
+  player: {
+    birthCountry: string | null;
+    birthStateProvince: string | null;
+    birthCity: string | null;
+  },
+  filters: {
+    country: string;
+    region: string;
+    city: string;
+  },
+): boolean {
+  return (
+    (!filters.country || player.birthCountry === filters.country) &&
+    (!filters.region || player.birthStateProvince === filters.region) &&
+    (!filters.city || player.birthCity === filters.city)
+  );
 }

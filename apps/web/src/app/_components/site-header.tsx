@@ -9,6 +9,7 @@ type SiteHeaderProps = {
     | "games"
     | "teams"
     | "players"
+    | "playoffs"
     | "analytics";
 };
 
@@ -18,6 +19,7 @@ const links = [
   { id: "games", href: "/games", label: "Games" },
   { id: "teams", href: "/teams", label: "Teams" },
   { id: "players", href: "/players", label: "Players" },
+  { id: "playoffs", href: "/playoffs", label: "Playoffs" },
   { id: "analytics", href: "/analytics", label: "Analytics" },
 ] as const;
 

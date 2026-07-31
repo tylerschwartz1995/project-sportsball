@@ -3,7 +3,7 @@
 The core website exposes traditional season and game statistics through six
 server-rendered routes:
 
-- `/teams?season=20252026&phase=regular` provides a searchable, sortable
+- `/teams?season=20252026&phase=regular` provides a sortable
   comparison table for every participating team;
 - `/teams/12?season=20252026` shows one team's season and roster splits;
 - `/teams/12/games?season=20252026` shows one team's complete game log and
@@ -67,11 +67,13 @@ season in which it did not participate.
 
 ## Directory controls
 
-Team and player directories support URL-based season phase, search, sorting,
-and pagination. Filters use ordinary query parameters, so a filtered result can
-be bookmarked, shared, and restored with browser navigation. The team table
-shows the full league on one page. Player pages show 50 results per page and
-separate skater and goalie views.
+Team and player directories support URL-based season phase, sorting, and
+pagination. The team page intentionally omits search because the full league
+fits in one comparison table. Player pages retain name/position search and add
+minimum-stat plus birth-country, province/state, and city filters. Filters use
+ordinary query parameters, so a result can be bookmarked, shared, and restored
+with browser navigation. Player pages show 50 results per page and separate
+skater and goalie views.
 
 Every statistics table uses a shared client-side sorter. Column-heading buttons
 reorder the visible rows immediately without a route transition; clicking the
@@ -88,12 +90,15 @@ for the selected regular-season or playoff phase. Advanced columns use a dash
 when MoneyPuck coverage is unavailable and include an inline coverage note.
 
 Player profiles also visualize rolling performance after every appearance.
-Skater charts compare points per game with individual expected goals per game.
-Goalie charts compare save percentage, recomputed from rolling saves and shots,
-with goals saved above expected per game. Both support 5-, 10-, and 20-game
-windows plus all, home, and away venue filters. Advanced rates exclude games
-where the provider metric is unavailable rather than treating missing values as
-zero.
+The chart shows one selected metric at a time to avoid overlapping scales.
+Skaters can choose official scoring and shot rates or individual expected
+goals, game score, and on-ice expected-goal share. Goalies can choose official
+save/goal rates or expected goals against and goals saved above expected.
+Both support 5-, 10-, and 20-game windows plus all, home, and away venue
+filters. Advanced rates exclude games where the provider metric is unavailable
+rather than treating missing values as zero. Career history appears in separate
+regular-season and playoff tables, and the season advanced-analytics section
+can be filtered to one game situation.
 
 Team and player detail pages also show the available MoneyPuck season summaries.
 See [Advanced analytics presentation](advanced-analytics.md) for the initial

@@ -8,13 +8,14 @@ type SelectOption = {
 type DirectoryControlsProps = {
   action: string;
   seasonId: number;
-  query: string;
+  query?: string;
   sort: string;
   sortOptions: SelectOption[];
   direction: "asc" | "desc";
   category?: string;
   categoryOptions?: SelectOption[];
-  searchPlaceholder: string;
+  searchPlaceholder?: string;
+  showSearch?: boolean;
   alwaysShowSort?: boolean;
   phase?: string;
 };
@@ -22,13 +23,14 @@ type DirectoryControlsProps = {
 export function DirectoryControls({
   action,
   seasonId,
-  query,
+  query = "",
   sort,
   sortOptions,
   direction,
   category,
   categoryOptions,
-  searchPlaceholder,
+  searchPlaceholder = "",
+  showSearch = true,
   alwaysShowSort = false,
   phase,
 }: DirectoryControlsProps) {
@@ -40,15 +42,17 @@ export function DirectoryControls({
     >
       <input type="hidden" name="season" value={seasonId} />
       {phase ? <input type="hidden" name="phase" value={phase} /> : null}
-      <label>
-        Search
-        <input
-          type="search"
-          name="q"
-          defaultValue={query}
-          placeholder={searchPlaceholder}
-        />
-      </label>
+      {showSearch ? (
+        <label>
+          Search
+          <input
+            type="search"
+            name="q"
+            defaultValue={query}
+            placeholder={searchPlaceholder}
+          />
+        </label>
+      ) : null}
 
       {categoryOptions && category ? (
         <label>

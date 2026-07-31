@@ -30,6 +30,7 @@ apps/web/src/
 │   ├── game-log.ts
 │   ├── game.ts
 │   ├── play-by-play.ts
+│   ├── playoffs.ts
 │   ├── player.ts
 │   ├── season.ts
 │   ├── standings.ts
@@ -41,6 +42,7 @@ apps/web/src/
 │   ├── game-logs.ts
 │   ├── games.ts
 │   ├── play-by-play.ts
+│   ├── playoffs.ts
 │   ├── players.ts
 │   ├── seasons.ts
 │   ├── standings.ts
@@ -57,6 +59,7 @@ apps/web/src/
     ├── players/page.tsx
     ├── players/[id]/page.tsx
     ├── players/[id]/games/page.tsx
+    ├── playoffs/page.tsx
     ├── teams/page.tsx
     ├── teams/[id]/page.tsx
     ├── teams/[id]/games/page.tsx
@@ -100,6 +103,13 @@ team and player metrics are left-joined at their matching situation, so an
 advanced coverage gap produces nullable metrics rather than a missing game.
 The query layer also calculates explicit team results and goalie goals saved
 above expected before returning serializable contracts to the pages.
+
+`standings.ts` also derives each team's cumulative regular-season points after
+every stored result for the standings history plot. `playoffs.ts` aggregates
+official playoff box-score scoring, while the playoff page groups NHL playoff
+game identifiers into series and rounds. If no postseason game has been
+completed, the page constructs the current first-round projection from the
+official standings snapshot instead.
 
 ## Configuration
 

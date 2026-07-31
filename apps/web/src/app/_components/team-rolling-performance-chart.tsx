@@ -156,7 +156,7 @@ export function TeamRollingPerformanceChart({
                 dataKey="gameDate"
                 tickFormatter={formatAxisDate}
                 stroke="var(--chart-axis)"
-                tick={{ fill: "var(--chart-label)", fontSize: 12 }}
+                tick={{ fill: "var(--chart-label)", fontSize: 13 }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
                 interval="preserveStartEnd"
@@ -167,7 +167,7 @@ export function TeamRollingPerformanceChart({
                 ticks={[0, 25, 50, 75, 100]}
                 tickFormatter={(value: number) => `${value}%`}
                 stroke="var(--chart-axis)"
-                tick={{ fill: "var(--chart-label)", fontSize: 12 }}
+                tick={{ fill: "var(--chart-label)", fontSize: 13 }}
                 tickLine={false}
                 axisLine={false}
                 width={52}
@@ -180,7 +180,7 @@ export function TeamRollingPerformanceChart({
                   value: "50%",
                   position: "insideTopLeft",
                   fill: "var(--chart-label)",
-                  fontSize: 11,
+                  fontSize: 12,
                 }}
               />
               <Tooltip

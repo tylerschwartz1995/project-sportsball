@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import {
   CartesianGrid,
-  Legend,
   Line,
   LineChart,
   ReferenceLine,
@@ -43,6 +42,16 @@ type PlayerRollingPerformanceChartProps =
       playerName: string;
     };
 
+type MetricConfig = {
+  key: string;
+  label: string;
+  shortLabel: string;
+  advanced: boolean;
+  percentage?: boolean;
+  signed?: boolean;
+  referenceValue?: number;
+};
+
 type PlayerPerformanceChartPoint = {
   nhlGameId: number;
   gameDate: string;
@@ -52,46 +61,140 @@ type PlayerPerformanceChartPoint = {
   venueLabel: "vs" | "at";
   scoreLabel: string;
   sampleSize: number;
-  advancedSampleSize: number;
-  primaryValue: number | null;
-  advancedValue: number | null;
+  metricSampleSize: number;
+  value: number | null;
 };
+
+const SKATER_METRICS: MetricConfig[] = [
+  {
+    key: "pointsPerGame",
+    label: "Points per Game",
+    shortLabel: "PTS/GP",
+    advanced: false,
+  },
+  {
+    key: "goalsPerGame",
+    label: "Goals per Game",
+    shortLabel: "G/GP",
+    advanced: false,
+  },
+  {
+    key: "assistsPerGame",
+    label: "Assists per Game",
+    shortLabel: "A/GP",
+    advanced: false,
+  },
+  {
+    key: "shotsPerGame",
+    label: "Shots per Game",
+    shortLabel: "S/GP",
+    advanced: false,
+  },
+  {
+    key: "individualExpectedGoalsPerGame",
+    label: "Individual Expected Goals per Game",
+    shortLabel: "ixG/GP",
+    advanced: true,
+  },
+  {
+    key: "gameScorePerGame",
+    label: "Game Score per Game",
+    shortLabel: "Game Score/GP",
+    advanced: true,
+  },
+  {
+    key: "onIceExpectedGoalsPercentage",
+    label: "On-Ice Expected-Goal Share",
+    shortLabel: "On-Ice xG%",
+    advanced: true,
+    percentage: true,
+    referenceValue: 50,
+  },
+];
+
+const GOALIE_METRICS: MetricConfig[] = [
+  {
+    key: "savePercentage",
+    label: "Save Percentage",
+    shortLabel: "SV%",
+    advanced: false,
+    percentage: true,
+  },
+  {
+    key: "savesPerGame",
+    label: "Saves per Game",
+    shortLabel: "SV/GP",
+    advanced: false,
+  },
+  {
+    key: "goalsAgainstPerGame",
+    label: "Goals Against per Game",
+    shortLabel: "GA/GP",
+    advanced: false,
+  },
+  {
+    key: "expectedGoalsAgainstPerGame",
+    label: "Expected Goals Against per Game",
+    shortLabel: "xGA/GP",
+    advanced: true,
+  },
+  {
+    key: "goalsSavedAboveExpectedPerGame",
+    label: "Goals Saved Above Expected per Game",
+    shortLabel: "GSAx/GP",
+    advanced: true,
+    signed: true,
+    referenceValue: 0,
+  },
+];
 
 export function PlayerRollingPerformanceChart(
   props: PlayerRollingPerformanceChartProps,
 ) {
   const { kind, games, playerName } = props;
+  const metrics = kind === "skater" ? SKATER_METRICS : GOALIE_METRICS;
   const [windowSize, setWindowSize] = useState<RollingWindow>(10);
   const [venue, setVenue] = useState<PerformanceVenue>("all");
-  const [showPrimary, setShowPrimary] = useState(true);
-  const [showAdvanced, setShowAdvanced] = useState(true);
+  const [metricKey, setMetricKey] = useState(metrics[0].key);
+  const metric =
+    metrics.find((candidate) => candidate.key === metricKey) ?? metrics[0];
   const data = useMemo<PlayerPerformanceChartPoint[]>(() => {
-    if (kind === "skater") {
-      return buildRollingSkaterPerformance(
-        filterGamesByVenue(games as SkaterPerformanceGame[], venue),
-        windowSize,
-      ).map((point) => ({
-        ...point,
-        primaryValue: point.pointsPerGame,
-        advancedValue: point.individualExpectedGoalsPerGame,
-      }));
-    }
+    const rolling =
+      kind === "skater"
+        ? buildRollingSkaterPerformance(
+            filterGamesByVenue(games, venue),
+            windowSize,
+          )
+        : buildRollingGoaliePerformance(
+            filterGamesByVenue(games, venue),
+            windowSize,
+          );
 
-    return buildRollingGoaliePerformance(
-      filterGamesByVenue(games as GoaliePerformanceGame[], venue),
-      windowSize,
-    ).map((point) => ({
-      ...point,
-      primaryValue: point.savePercentage,
-      advancedValue: point.goalsSavedAboveExpectedPerGame,
-    }));
-  }, [games, kind, venue, windowSize]);
-  const hasAdvancedData = data.some(
-    (point) => point.advancedValue !== null,
-  );
-  const effectiveShowAdvanced = showAdvanced && hasAdvancedData;
-  const effectiveShowPrimary = showPrimary || !effectiveShowAdvanced;
-  const config = chartConfig(kind);
+    return rolling.map((point) => {
+      const values = point as unknown as Record<string, unknown>;
+      const advancedSampleSizes = values.advancedSampleSizes as
+        | Record<string, number>
+        | undefined;
+      return {
+        nhlGameId: point.nhlGameId,
+        gameDate: point.gameDate,
+        teamAbbreviation: point.teamAbbreviation,
+        opponentAbbreviation: point.opponentAbbreviation,
+        opponentName: point.opponentName,
+        venueLabel: point.venueLabel,
+        scoreLabel: point.scoreLabel,
+        sampleSize: point.sampleSize,
+        metricSampleSize: metric.advanced
+          ? advancedSampleSizes?.[metric.key] ?? 0
+          : point.sampleSize,
+        value:
+          typeof values[metric.key] === "number"
+            ? (values[metric.key] as number)
+            : null,
+      };
+    });
+  }, [games, kind, metric.advanced, metric.key, venue, windowSize]);
+  const hasMetricData = data.some((point) => point.value !== null);
 
   if (games.length === 0) {
     return null;
@@ -102,16 +205,36 @@ export function PlayerRollingPerformanceChart(
       <header className="workspace-player-chart-header">
         <div>
           <p>{kind === "skater" ? "Skater trend" : "Goalie trend"}</p>
-          <h4>{config.title}</h4>
+          <h4>Rolling {metric.label}</h4>
         </div>
-        <p>{config.description}</p>
+        <p>
+          One metric at a time keeps the trend readable. Choose from official
+          and advanced measures below.
+        </p>
       </header>
 
       <div className="workspace-chart-toolbar">
-        <p>
-          Filters are applied before the rolling rates are calculated. Early
-          points use the games available at that point in the season.
-        </p>
+        <label className="workspace-chart-metric-select">
+          Metric
+          <select
+            value={metric.key}
+            onChange={(event) => setMetricKey(event.target.value)}
+          >
+            {metrics.map((option) => (
+              <option
+                key={option.key}
+                value={option.key}
+                disabled={
+                  option.advanced &&
+                  !rollingMetricAvailable(games, kind, option.key)
+                }
+              >
+                {option.label}
+                {option.advanced ? " · Advanced" : ""}
+              </option>
+            ))}
+          </select>
+        </label>
         <div className="workspace-chart-filters">
           <ChartFilterGroup label="Window">
             {ROLLING_WINDOWS.map((option) => (
@@ -140,50 +263,21 @@ export function PlayerRollingPerformanceChart(
               />
             ))}
           </ChartFilterGroup>
-
-          <ChartFilterGroup label="Series">
-            <ChartFilterButton
-              active={effectiveShowPrimary}
-              disabled={
-                effectiveShowPrimary && !effectiveShowAdvanced
-              }
-              label={config.primaryShortLabel}
-              onClick={() => setShowPrimary((visible) => !visible)}
-            />
-            <ChartFilterButton
-              active={effectiveShowAdvanced}
-              disabled={
-                !hasAdvancedData ||
-                (effectiveShowAdvanced && !effectiveShowPrimary)
-              }
-              label={config.advancedShortLabel}
-              onClick={() => setShowAdvanced((visible) => !visible)}
-            />
-          </ChartFilterGroup>
         </div>
       </div>
 
-      {data.length > 0 ? (
+      {data.length > 0 && hasMetricData ? (
         <div
           className="workspace-chart"
           role="img"
-          aria-label={`${playerName} rolling ${[
-            effectiveShowPrimary
-              ? config.primaryLabel.toLowerCase()
-              : null,
-            effectiveShowAdvanced
-              ? config.advancedLabel.toLowerCase()
-              : null,
-          ]
-            .filter(Boolean)
-            .join(" and ")} over ${windowSize} ${
+          aria-label={`${playerName} rolling ${metric.label.toLowerCase()} over ${windowSize} ${
             venue === "all" ? "all games" : `${venue} games`
           }.`}
         >
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={data}
-              margin={{ top: 14, right: 4, bottom: 4, left: -8 }}
+              margin={{ top: 14, right: 12, bottom: 4, left: 0 }}
               accessibilityLayer
             >
               <CartesianGrid
@@ -195,43 +289,28 @@ export function PlayerRollingPerformanceChart(
                 dataKey="gameDate"
                 tickFormatter={formatAxisDate}
                 stroke="var(--chart-axis)"
-                tick={{ fill: "var(--chart-label)", fontSize: 12 }}
+                tick={{ fill: "var(--chart-label)", fontSize: 13 }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
                 interval="preserveStartEnd"
-                minTickGap={34}
+                minTickGap={38}
               />
               <YAxis
-                yAxisId="primary"
-                hide={!effectiveShowPrimary}
                 domain={["auto", "auto"]}
-                tickFormatter={config.primaryAxisFormatter}
+                tickFormatter={(value) => formatAxisValue(value, metric)}
                 tick={{
-                  fill: "var(--chart-primary)",
-                  fontSize: 11,
+                  fill: metric.advanced
+                    ? "var(--chart-secondary)"
+                    : "var(--chart-primary)",
+                  fontSize: 13,
                 }}
                 tickLine={false}
                 axisLine={false}
-                width={56}
+                width={64}
               />
-              <YAxis
-                yAxisId="advanced"
-                hide={!effectiveShowAdvanced}
-                orientation="right"
-                domain={["auto", "auto"]}
-                tickFormatter={config.advancedAxisFormatter}
-                tick={{
-                  fill: "var(--chart-secondary)",
-                  fontSize: 11,
-                }}
-                tickLine={false}
-                axisLine={false}
-                width={56}
-              />
-              {kind === "goalie" && effectiveShowAdvanced ? (
+              {metric.referenceValue !== undefined ? (
                 <ReferenceLine
-                  yAxisId="advanced"
-                  y={0}
+                  y={metric.referenceValue}
                   stroke="var(--chart-reference)"
                   strokeDasharray="5 5"
                 />
@@ -239,9 +318,7 @@ export function PlayerRollingPerformanceChart(
               <Tooltip
                 content={
                   <PlayerPerformanceTooltip
-                    kind={kind}
-                    showPrimary={effectiveShowPrimary}
-                    showAdvanced={effectiveShowAdvanced}
+                    metric={metric}
                   />
                 }
                 cursor={{
@@ -250,84 +327,49 @@ export function PlayerRollingPerformanceChart(
                 }}
                 isAnimationActive="auto"
               />
-              <Legend
-                iconType="plainline"
-                formatter={(value) => (
-                  <span className="workspace-chart-legend-label">
-                    {value}
-                  </span>
-                )}
+              <Line
+                type="monotone"
+                dataKey="value"
+                name={metric.label}
+                stroke={
+                  metric.advanced
+                    ? "var(--chart-secondary)"
+                    : "var(--chart-primary)"
+                }
+                strokeWidth={2.75}
+                dot={false}
+                activeDot={{ r: 5, strokeWidth: 2 }}
+                connectNulls
+                isAnimationActive={false}
               />
-              {effectiveShowPrimary ? (
-                <Line
-                  yAxisId="primary"
-                  type="monotone"
-                  dataKey={config.primaryDataKey}
-                  name={config.primaryLabel}
-                  stroke="var(--chart-primary)"
-                  strokeWidth={2.5}
-                  dot={false}
-                  activeDot={{ r: 5, strokeWidth: 2 }}
-                  connectNulls
-                  isAnimationActive={false}
-                />
-              ) : null}
-              {effectiveShowAdvanced ? (
-                <Line
-                  yAxisId="advanced"
-                  type="monotone"
-                  dataKey={config.advancedDataKey}
-                  name={config.advancedLabel}
-                  stroke="var(--chart-secondary)"
-                  strokeWidth={2.5}
-                  dot={false}
-                  activeDot={{ r: 5, strokeWidth: 2 }}
-                  connectNulls
-                  isAnimationActive={false}
-                />
-              ) : null}
             </LineChart>
           </ResponsiveContainer>
         </div>
       ) : (
         <div className="workspace-chart-empty">
-          No {venue} appearances are stored for this season phase.
+          No {metric.label.toLowerCase()} data is stored for these {venue}{" "}
+          appearances.
         </div>
       )}
 
-      {data.length > 0 && !hasAdvancedData ? (
-        <p className="workspace-chart-coverage">
-          {config.advancedLabel} is not available for this season phase, so
-          only {config.primaryLabel} is shown.
-        </p>
-      ) : null}
-
       <PlayerPerformanceTable
         data={data}
-        kind={kind}
+        metric={metric}
         playerName={playerName}
         venue={venue}
         windowSize={windowSize}
-        showPrimary={effectiveShowPrimary}
-        showAdvanced={effectiveShowAdvanced}
       />
     </div>
   );
 }
 
-type PlayerPerformanceTooltipProps = Partial<TooltipContentProps> & {
-  kind: "skater" | "goalie";
-  showPrimary: boolean;
-  showAdvanced: boolean;
-};
-
 function PlayerPerformanceTooltip({
   active,
   payload = [],
-  kind,
-  showPrimary,
-  showAdvanced,
-}: PlayerPerformanceTooltipProps) {
+  metric,
+}: Partial<TooltipContentProps> & {
+  metric: MetricConfig;
+}) {
   const point = payload[0]?.payload as
     | PlayerPerformanceChartPoint
     | undefined;
@@ -335,7 +377,6 @@ function PlayerPerformanceTooltip({
     return null;
   }
 
-  const config = chartConfig(kind);
   return (
     <div className="workspace-chart-tooltip">
       <p className="workspace-chart-tooltip-date">
@@ -346,22 +387,13 @@ function PlayerPerformanceTooltip({
         {point.opponentAbbreviation}
       </p>
       <dl>
-        {showPrimary ? (
-          <div>
-            <dt>{config.primaryLabel}</dt>
-            <dd>{config.primaryValueFormatter(point.primaryValue)}</dd>
-          </div>
-        ) : null}
-        {showAdvanced ? (
-          <div>
-            <dt>{config.advancedLabel}</dt>
-            <dd>{config.advancedValueFormatter(point.advancedValue)}</dd>
-          </div>
-        ) : null}
+        <div>
+          <dt>{metric.label}</dt>
+          <dd>{formatMetricValue(point.value, metric)}</dd>
+        </div>
       </dl>
       <p className="workspace-chart-tooltip-sample">
-        {point.sampleSize}-game official sample ·{" "}
-        {point.advancedSampleSize}-game advanced sample
+        {point.metricSampleSize}-game metric sample
       </p>
     </div>
   );
@@ -369,28 +401,22 @@ function PlayerPerformanceTooltip({
 
 function PlayerPerformanceTable({
   data,
-  kind,
+  metric,
   playerName,
   venue,
   windowSize,
-  showPrimary,
-  showAdvanced,
 }: {
   data: PlayerPerformanceChartPoint[];
-  kind: "skater" | "goalie";
+  metric: MetricConfig;
   playerName: string;
   venue: PerformanceVenue;
   windowSize: RollingWindow;
-  showPrimary: boolean;
-  showAdvanced: boolean;
 }) {
-  const config = chartConfig(kind);
-
   return (
     <table className="sr-only">
       <caption>
         {playerName} rolling {venue === "all" ? "" : `${venue} `}
-        {kind} performance using up to {windowSize} games per point
+        {metric.label.toLowerCase()} using up to {windowSize} games per point
       </caption>
       <thead>
         <tr>
@@ -398,8 +424,7 @@ function PlayerPerformanceTable({
           <th>Team</th>
           <th>Opponent</th>
           <th>Score</th>
-          {showPrimary ? <th>{config.primaryLabel}</th> : null}
-          {showAdvanced ? <th>{config.advancedLabel}</th> : null}
+          <th>{metric.label}</th>
         </tr>
       </thead>
       <tbody>
@@ -411,12 +436,7 @@ function PlayerPerformanceTable({
               {point.venueLabel} {point.opponentName}
             </td>
             <td>{point.scoreLabel}</td>
-            {showPrimary ? (
-              <td>{config.primaryValueFormatter(point.primaryValue)}</td>
-            ) : null}
-            {showAdvanced ? (
-              <td>{config.advancedValueFormatter(point.advancedValue)}</td>
-            ) : null}
+            <td>{formatMetricValue(point.value, metric)}</td>
           </tr>
         ))}
       </tbody>
@@ -424,38 +444,37 @@ function PlayerPerformanceTable({
   );
 }
 
-function chartConfig(kind: "skater" | "goalie") {
-  return kind === "skater"
-    ? {
-        title: "Rolling Skater Production",
-        description:
-          "Points per game alongside individual expected goals per game.",
-        primaryDataKey: "primaryValue",
-        primaryLabel: "Points/Game",
-        primaryShortLabel: "PTS/GP",
-        primaryAxisFormatter: (value: number) => value.toFixed(1),
-        primaryValueFormatter: formatRate,
-        advancedDataKey: "advancedValue",
-        advancedLabel: "Individual xG/Game",
-        advancedShortLabel: "ixG/GP",
-        advancedAxisFormatter: (value: number) => value.toFixed(2),
-        advancedValueFormatter: formatRate,
-      }
-    : {
-        title: "Rolling Goalie Performance",
-        description:
-          "Save percentage alongside goals saved above expected per game.",
-        primaryDataKey: "primaryValue",
-        primaryLabel: "Save Percentage",
-        primaryShortLabel: "SV%",
-        primaryAxisFormatter: (value: number) => `${value.toFixed(0)}%`,
-        primaryValueFormatter: formatPercentage,
-        advancedDataKey: "advancedValue",
-        advancedLabel: "GSAx/Game",
-        advancedShortLabel: "GSAx/GP",
-        advancedAxisFormatter: (value: number) => value.toFixed(1),
-        advancedValueFormatter: formatSignedRate,
-      };
+function rollingMetricAvailable(
+  games: SkaterPerformanceGame[] | GoaliePerformanceGame[],
+  kind: "skater" | "goalie",
+  key: string,
+) {
+  if (kind === "skater") {
+    const skaterGames = games as SkaterPerformanceGame[];
+    if (key === "individualExpectedGoalsPerGame") {
+      return skaterGames.some((game) => game.individualXGoals !== null);
+    }
+    if (key === "gameScorePerGame") {
+      return skaterGames.some((game) => game.gameScore !== null);
+    }
+    if (key === "onIceExpectedGoalsPercentage") {
+      return skaterGames.some(
+        (game) => game.onIceXGoalsPercentage !== null,
+      );
+    }
+    return true;
+  }
+
+  const goalieGames = games as GoaliePerformanceGame[];
+  if (key === "expectedGoalsAgainstPerGame") {
+    return goalieGames.some((game) => game.expectedGoalsAgainst !== null);
+  }
+  if (key === "goalsSavedAboveExpectedPerGame") {
+    return goalieGames.some(
+      (game) => game.goalsSavedAboveExpected !== null,
+    );
+  }
+  return true;
 }
 
 function formatAxisDate(value: string): string {
@@ -479,17 +498,21 @@ function dateOnly(value: string): Date {
   return new Date(`${value.slice(0, 10)}T00:00:00Z`);
 }
 
-function formatRate(value: number | null): string {
-  return value === null ? "—" : value.toFixed(2);
+function formatAxisValue(value: number, metric: MetricConfig): string {
+  if (metric.percentage) {
+    return `${value.toFixed(0)}%`;
+  }
+  return `${metric.signed && value > 0 ? "+" : ""}${value.toFixed(1)}`;
 }
 
-function formatPercentage(value: number | null): string {
-  return value === null ? "—" : `${value.toFixed(1)}%`;
-}
-
-function formatSignedRate(value: number | null): string {
+function formatMetricValue(
+  value: number | null,
+  metric: MetricConfig,
+): string {
   if (value === null) {
     return "—";
   }
-  return `${value > 0 ? "+" : ""}${value.toFixed(2)}`;
+  const sign = metric.signed && value > 0 ? "+" : "";
+  const suffix = metric.percentage ? "%" : "";
+  return `${sign}${value.toFixed(2)}${suffix}`;
 }

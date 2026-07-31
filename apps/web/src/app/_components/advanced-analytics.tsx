@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useMemo, useState } from "react";
 
 import type {
   MoneyPuckGoalieSituation,
@@ -84,6 +87,29 @@ export function PlayerAdvancedAnalytics({
 }) {
   const hasSkaterRows = data.skaterSituations.length > 0;
   const hasGoalieRows = data.goalieSituations.length > 0;
+  const situations = useMemo(
+    () =>
+      Array.from(
+        new Set([
+          ...data.skaterSituations.map((row) => row.situation),
+          ...data.goalieSituations.map((row) => row.situation),
+        ]),
+      ).sort(situationOrder),
+    [data.goalieSituations, data.skaterSituations],
+  );
+  const [situation, setSituation] = useState(
+    hasSkaterRows && situations.includes("5on5")
+      ? "5on5"
+      : situations.includes("all")
+        ? "all"
+        : situations[0] ?? "",
+  );
+  const skaterRows = data.skaterSituations.filter(
+    (row) => row.situation === situation,
+  );
+  const goalieRows = data.goalieSituations.filter(
+    (row) => row.situation === situation,
+  );
 
   if (!hasSkaterRows && !hasGoalieRows) {
     return <AdvancedUnavailable seasonId={data.seasonId} entity="player" />;
@@ -92,17 +118,38 @@ export function PlayerAdvancedAnalytics({
   return (
     <AdvancedSection
       title="Player Advanced Analytics"
-      description="MoneyPuck season metrics remain split by team and game situation."
+      description="MoneyPuck season metrics remain split by team. Select one game situation at a time."
     >
-      {hasSkaterRows ? (
-        <SkaterAdvancedTable rows={data.skaterSituations} />
+      <label className="workspace-advanced-situation-filter">
+        Game situation
+        <select
+          value={situation}
+          onChange={(event) => setSituation(event.target.value)}
+        >
+          {situations.map((option) => (
+            <option key={option} value={option}>
+              {situationLabel(option)}
+            </option>
+          ))}
+        </select>
+      </label>
+      {hasSkaterRows && skaterRows.length > 0 ? (
+        <SkaterAdvancedTable rows={skaterRows} />
       ) : null}
-      {hasGoalieRows ? (
-        <GoalieAdvancedTable rows={data.goalieSituations} />
+      {hasGoalieRows && goalieRows.length > 0 ? (
+        <GoalieAdvancedTable rows={goalieRows} />
       ) : null}
       <MetricDefinitions seasonId={data.seasonId} />
     </AdvancedSection>
   );
+}
+
+function situationOrder(left: string, right: string) {
+  const order = ["all", "5on5", "5on4", "4on5", "other"];
+  const leftIndex = order.indexOf(left);
+  const rightIndex = order.indexOf(right);
+  return (leftIndex === -1 ? order.length : leftIndex) -
+    (rightIndex === -1 ? order.length : rightIndex);
 }
 
 function AdvancedSection({

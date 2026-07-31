@@ -62,13 +62,12 @@ export function GameAdvancedAnalytics({
           goalies={data.goalieSituations}
           seasonId={data.game.seasonId}
         />
-      ) : (
+      ) : data.game.gameType !== 3 ? (
         <CoverageNote>
-          {data.game.gameType === 3
-            ? "MoneyPuck player-game files are regular-season only, so playoff games do not include these skater and goalie tables."
-            : "No MoneyPuck player-game records are stored for this regular-season game."}
+          No MoneyPuck player-game records are stored for this regular-season
+          game.
         </CoverageNote>
-      )}
+      ) : null}
 
       {hasUnitData ? (
         <UnitAnalytics
@@ -76,13 +75,12 @@ export function GameAdvancedAnalytics({
           defensivePairings={data.defensivePairings}
           seasonId={data.game.seasonId}
         />
-      ) : (
+      ) : data.game.gameType !== 3 ? (
         <CoverageNote>
-          {data.game.gameType === 3
-            ? "Forward-line and defensive-pairing files cover regular-season five-on-five play only."
-            : "No five-on-five forward-line or defensive-pairing records are stored for this game."}
+          No five-on-five forward-line or defensive-pairing records are stored
+          for this game.
         </CoverageNote>
-      )}
+      ) : null}
 
       <MetricDefinitions seasonId={data.game.seasonId} />
     </section>
