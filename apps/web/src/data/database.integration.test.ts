@@ -9,6 +9,10 @@ import {
   listGameDates,
 } from "@/data/games";
 import { getPlayerDetail, listPlayersBySeason } from "@/data/players";
+import {
+  getHistoricalLeaders,
+  getHistoricalPlayerSeasons,
+} from "@/data/history";
 import { getGamePlayByPlay } from "@/data/play-by-play";
 import { listSeasons } from "@/data/seasons";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
@@ -124,6 +128,31 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     const player = await getPlayerDetail(8478402);
     expect(player?.profile.name).toBe("Connor McDavid");
     expect(player?.skaterSeasons.length).toBeGreaterThan(10);
+
+    const gretzkyHistory = await getHistoricalPlayerSeasons(8447400);
+    expect(gretzkyHistory.skaters.find((row) => row.seasonId === 19851986)).toMatchObject({
+      points: 215,
+      gameType: 2,
+    });
+    const rateLeaders = await getHistoricalLeaders(
+      "skaters",
+      "pointsPerGame",
+      2,
+      {
+        startYear: 1980,
+        endYear: 2025,
+        minimumGames: 500,
+        position: "C",
+        team: null,
+        country: null,
+      },
+      10,
+    );
+    expect(rateLeaders.view).toBe("skaters");
+    if (rateLeaders.view !== "skaters") {
+      throw new Error("expected skater rate leaders");
+    }
+    expect(rateLeaders.careers[0]?.pointsPerGame).toBeGreaterThan(1);
 
     const teamGameLog = await getTeamGameLog(12, seasons[0].id);
     expect(teamGameLog?.games.length).toBeGreaterThan(82);

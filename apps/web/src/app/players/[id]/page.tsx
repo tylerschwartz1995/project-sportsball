@@ -13,6 +13,10 @@ import type {
   GoalieSeasonSummary,
   SkaterSeasonSummary,
 } from "@/contracts/player";
+import type {
+  HistoricalGoalieSeason,
+  HistoricalSkaterSeason,
+} from "@/contracts/history";
 import { parseSeasonId } from "@/contracts/season";
 import {
   gameTypeForPhase,
@@ -22,6 +26,7 @@ import {
 import { getMoneyPuckPlayerSeason } from "@/data/advanced";
 import { getPlayerGameLog } from "@/data/game-logs";
 import { getPlayerDetail } from "@/data/players";
+import { getHistoricalPlayerSeasons } from "@/data/history";
 import { listSeasons } from "@/data/seasons";
 
 export const dynamic = "force-dynamic";
@@ -43,9 +48,10 @@ export default async function PlayerPage({
     notFound();
   }
 
-  const [detail, seasons] = await Promise.all([
+  const [detail, seasons, historical] = await Promise.all([
     getPlayerDetail(nhlPlayerId),
     listSeasons(),
+    getHistoricalPlayerSeasons(nhlPlayerId),
   ]);
   if (!detail) {
     notFound();
@@ -288,6 +294,42 @@ export default async function PlayerPage({
           </p>
         ) : null}
 
+        {historical.skaters.length > 0 ? (
+          <section className="mt-12">
+            <SectionTitle
+              eyebrow="All-time NHL record"
+              title="Historical Skater Seasons"
+              detail={`${new Set(historical.skaters.map((row) => row.seasonId)).size} seasons · 1917–18 onward`}
+            />
+            <div className="mt-5 grid gap-6">
+              <HistoryGroup title="Regular Season">
+                <HistoricalSkaterTable rows={historical.skaters.filter((row) => row.gameType === 2)} />
+              </HistoryGroup>
+              <HistoryGroup title="Playoffs">
+                <HistoricalSkaterTable rows={historical.skaters.filter((row) => row.gameType === 3)} />
+              </HistoryGroup>
+            </div>
+          </section>
+        ) : null}
+
+        {historical.goalies.length > 0 ? (
+          <section className="mt-12">
+            <SectionTitle
+              eyebrow="All-time NHL record"
+              title="Historical Goalie Seasons"
+              detail={`${new Set(historical.goalies.map((row) => row.seasonId)).size} seasons · 1917–18 onward`}
+            />
+            <div className="mt-5 grid gap-6">
+              <HistoryGroup title="Regular Season">
+                <HistoricalGoalieTable rows={historical.goalies.filter((row) => row.gameType === 2)} />
+              </HistoryGroup>
+              <HistoryGroup title="Playoffs">
+                <HistoricalGoalieTable rows={historical.goalies.filter((row) => row.gameType === 3)} />
+              </HistoryGroup>
+            </div>
+          </section>
+        ) : null}
+
         {detail.skaterSeasons.length > 0 ? (
           <section className="mt-12">
             <SectionTitle
@@ -519,6 +561,41 @@ function GoalieHistory({
   );
 }
 
+function HistoricalSkaterTable({ rows }: { rows: HistoricalSkaterSeason[] }) {
+  return (
+    <HistoryTable
+      headers={["Season", "Team(s)", "GP", "G", "A", "PTS", "P/GP"]}
+      rows={rows.map((row) => [
+        formatHistoricalSeason(row.seasonId),
+        row.teamAbbreviations ?? "—",
+        row.gamesPlayed,
+        row.goals,
+        row.assists,
+        row.points,
+        row.pointsPerGame.toFixed(2),
+      ])}
+    />
+  );
+}
+
+function HistoricalGoalieTable({ rows }: { rows: HistoricalGoalieSeason[] }) {
+  return (
+    <HistoryTable
+      headers={["Season", "Team(s)", "GP", "W", "L", "SO", "GAA", "SV%"]}
+      rows={rows.map((row) => [
+        formatHistoricalSeason(row.seasonId),
+        row.teamAbbreviations ?? "—",
+        row.gamesPlayed,
+        row.wins,
+        row.losses,
+        row.shutouts,
+        row.goalsAgainstAverage?.toFixed(2) ?? "—",
+        formatSavePercentage(row.savePercentage),
+      ])}
+    />
+  );
+}
+
 function HistoryTable({
   headers,
   rows,
@@ -621,6 +698,10 @@ function formatSigned(value: number): string {
 
 function formatSavePercentage(value: number | null): string {
   return value === null ? "—" : value.toFixed(3).replace(/^0/, "");
+}
+
+function formatHistoricalSeason(seasonId: number): string {
+  return `${Math.floor(seasonId / 10_000)}–${String(seasonId % 10_000).slice(-2)}`;
 }
 
 function firstValue(value: string | string[] | undefined): string | undefined {

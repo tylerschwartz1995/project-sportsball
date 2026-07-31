@@ -84,8 +84,11 @@ available.
 
 `history.ts` reads the dedicated all-time summary tables for career totals and
 best seasons. Metric names are selected from strict allowlists before they are
-used as SQL identifiers. The regular season/playoff and entity-type controls
-remain parameterized. `seasons.ts` exposes separate detailed-stat and schedule
+used as SQL identifiers. Regular season/playoff, season range, minimum games,
+position, team, and known birth-country controls remain parameterized. Career
+rate metrics are calculated from the summed numerators and denominators rather
+than averaging season rates. The same module supplies complete historical rows
+to clickable player profiles. `seasons.ts` exposes separate detailed-stat and schedule
 season lists so 1917–2004 summaries do not leak into pages requiring detailed
 games, while the future 2026–27 schedule remains selectable on `/games`.
 

@@ -1,7 +1,16 @@
 export type HistoryView = "skaters" | "goalies" | "teams";
 
-export type SkaterHistoryMetric = "points" | "goals" | "assists" | "games";
-export type GoalieHistoryMetric = "wins" | "games" | "shutouts";
+export type SkaterHistoryMetric =
+  | "points"
+  | "goals"
+  | "assists"
+  | "games"
+  | "pointsPerGame";
+export type GoalieHistoryMetric =
+  | "wins"
+  | "games"
+  | "shutouts"
+  | "savePercentage";
 export type TeamHistoryMetric = "points" | "wins" | "pointPercentage";
 export type HistoryMetric =
   | SkaterHistoryMetric
@@ -17,6 +26,7 @@ export type HistoricalSkaterCareer = {
   goals: number;
   assists: number;
   points: number;
+  pointsPerGame: number;
 };
 
 export type HistoricalSkaterSeason = Omit<
@@ -24,6 +34,7 @@ export type HistoricalSkaterSeason = Omit<
   "seasonsPlayed"
 > & {
   seasonId: number;
+  gameType: number;
   teamAbbreviations: string | null;
 };
 
@@ -35,6 +46,7 @@ export type HistoricalGoalieCareer = {
   wins: number;
   losses: number;
   shutouts: number;
+  savePercentage: number | null;
 };
 
 export type HistoricalGoalieSeason = Omit<
@@ -42,6 +54,7 @@ export type HistoricalGoalieSeason = Omit<
   "seasonsPlayed"
 > & {
   seasonId: number;
+  gameType: number;
   teamAbbreviations: string | null;
   goalsAgainstAverage: number | null;
   savePercentage: number | null;
@@ -57,13 +70,15 @@ export type HistoricalTeamCareer = {
   ties: number;
   overtimeLosses: number;
   points: number;
+  pointPercentage: number | null;
 };
 
 export type HistoricalTeamSeason = Omit<
   HistoricalTeamCareer,
-  "seasonsPlayed"
+  "seasonsPlayed" | "pointPercentage"
 > & {
   seasonId: number;
+  gameType: number;
   pointPercentage: number | null;
   goalsFor: number;
   goalsAgainst: number;
@@ -94,3 +109,23 @@ export type HistoricalLeaders =
   | HistoricalSkaterLeaders
   | HistoricalGoalieLeaders
   | HistoricalTeamLeaders;
+
+export type HistoryFilters = {
+  startYear: number;
+  endYear: number;
+  minimumGames: number;
+  position: string | null;
+  team: string | null;
+  country: string | null;
+};
+
+export type HistoryFilterOptions = {
+  positions: string[];
+  teams: string[];
+  countries: string[];
+};
+
+export type HistoricalPlayerSeasons = {
+  skaters: HistoricalSkaterSeason[];
+  goalies: HistoricalGoalieSeason[];
+};

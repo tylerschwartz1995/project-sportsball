@@ -30,8 +30,23 @@ uses NHL game type 2 and playoffs use type 3. Fields unavailable in an earlier
 era remain `NULL`; they are never converted to zero.
 
 The `/history` page reads these tables for sortable career totals and best
-single seasons. It supports skater, goalie, and team views, regular season and
-playoffs, and view-specific ranking metrics. Team career totals currently
+single seasons. It supports skater, goalie, and team views; regular season and
+playoffs; start/end season, minimum-games, position, team, and known birth
+country filters; and view-specific total and rate ranking metrics. Team and
+birth-country filters apply to player views. A team filter identifies seasons
+in which the player appeared for that team; the all-team NHL summary cannot
+separate the player's totals within a multi-team season.
+
+Historical player names link to `/players/{nhlPlayerId}`. Player profiles show
+the complete regular-season and playoff summary archive, including seasons
+before the detailed 2005–06 game-data boundary. Birth-country filtering is
+available only for players whose separately ingested NHL profile provides that
+field; leaving it at the default includes both known and unknown countries.
+
+Skater points per game uses total points divided by total games in the selected
+range. Goalie career save percentage uses total saves divided by total shots
+against for seasons where those fields exist. Team career points percentage
+uses total points divided by twice the games played. Team career totals currently
 follow the NHL source team identity. Combining relocations and renames into
 franchise lineages remains a documented future enhancement.
 
