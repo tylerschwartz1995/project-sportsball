@@ -228,6 +228,28 @@ export async function getUpcomingGamesForTeam(
   return rows.map(mapGame);
 }
 
+export async function getUpcomingGamesForTeamAcrossSeasons(
+  nhlTeamId: number,
+  limit = 10,
+): Promise<GameSummary[]> {
+  const rows = await query<GameRow>(
+    `
+      ${gameSelect}
+      WHERE (
+          away_team.nhl_id = $1
+          OR home_team.nhl_id = $1
+        )
+        AND game.game_type IN (2, 3)
+        AND game.start_time_utc > NOW()
+      ORDER BY game.start_time_utc, game.nhl_id
+      LIMIT $2
+    `,
+    [nhlTeamId, limit],
+  );
+
+  return rows.map(mapGame);
+}
+
 export async function getGameBoxScore(
   nhlGameId: number,
 ): Promise<GameBoxScore | null> {

@@ -6,7 +6,7 @@ vi.mock("@/data/database", () => ({
   query: queryMock,
 }));
 
-import { listSeasons } from "@/data/seasons";
+import { listScheduleSeasons, listSeasons } from "@/data/seasons";
 
 describe("listSeasons", () => {
   beforeEach(() => {
@@ -24,5 +24,21 @@ describe("listSeasons", () => {
       { id: 20232024, startYear: 2023, endYear: 2024, label: "2023–24" },
     ]);
     expect(queryMock).toHaveBeenCalledOnce();
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("FROM team_season_stats"),
+    );
+  });
+
+  it("lists future schedule seasons independently of detailed stat coverage", async () => {
+    queryMock.mockResolvedValue([
+      { id: 20262027, start_year: 2026, end_year: 2027 },
+    ]);
+
+    await expect(listScheduleSeasons()).resolves.toEqual([
+      { id: 20262027, startYear: 2026, endYear: 2027, label: "2026–27" },
+    ]);
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("FROM games"),
+    );
   });
 });

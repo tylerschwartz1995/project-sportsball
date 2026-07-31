@@ -1792,7 +1792,8 @@ html[data-theme="light"]
   }
 }
 
-.workspace-game-picker {
+.workspace-game-picker,
+.workspace-history-filter {
   display: grid;
   width: 100%;
   max-width: 34rem;
@@ -1809,15 +1810,22 @@ html[data-theme="light"]
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) auto;
     align-items: end;
   }
+
+  .workspace-history-filter {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+  }
 }
 
-.workspace-game-picker label {
+.workspace-game-picker label,
+.workspace-history-filter label {
   color: var(--muted);
   font-size: 0.74rem;
   font-weight: 600;
 }
 
-.workspace-game-picker select {
+.workspace-game-picker select,
+.workspace-history-filter select {
   width: 100%;
   margin-top: 0.4rem;
   border: 1px solid var(--border);
@@ -1830,11 +1838,13 @@ html[data-theme="light"]
   outline: none;
 }
 
-.workspace-game-picker select:focus {
+.workspace-game-picker select:focus,
+.workspace-history-filter select:focus {
   border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
 }
 
-.workspace-game-picker button {
+.workspace-game-picker button,
+.workspace-history-filter button {
   min-height: 2.45rem;
   border: 0;
   border-radius: 0.45rem;
@@ -1847,7 +1857,8 @@ html[data-theme="light"]
   font-weight: 750;
 }
 
-html[data-theme="light"] .workspace-game-picker button {
+html[data-theme="light"] .workspace-game-picker button,
+html[data-theme="light"] .workspace-history-filter button {
   color: #fff;
 }
 

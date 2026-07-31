@@ -26,11 +26,13 @@ The current read-only slice provides:
 - dedicated sortable NHL standings with overall, conference, and division
   views plus a filterable cumulative-points plot;
 - a server-rendered schedule and results page with season/date navigation;
+- a historical records page with sortable all-time career and best-season
+  skater, goalie, and team leaderboards from 1917–18 onward;
 - individual game pages with traditional box scores, scoring summaries,
   expandable play-by-play timelines, advanced team/player results, shot maps,
   forward lines, and defensive pairings;
 - a sortable team directory and team detail pages with official
-  player splits and MoneyPuck season metrics;
+  player splits, MoneyPuck season metrics, and cross-season upcoming schedules;
 - complete player leaderboards with minimum-stat and birth-region filters,
   plus player profiles with separate regular-season/playoff history and
   situation-filtered MoneyPuck season metrics;

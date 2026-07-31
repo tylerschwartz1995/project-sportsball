@@ -1,7 +1,7 @@
 # Sportsball
 
-A personal NHL statistics website covering current and historical data from the
-2005–06 season onward.
+A personal NHL statistics website with all-time traditional season records from
+1917–18 onward and detailed game and advanced data across their supported eras.
 
 ## Project scope
 
@@ -19,10 +19,15 @@ The second stage will add predictive modelling for team and player performance.
 ## Status
 
 Historical ingestion is complete for the initial NHL and MoneyPuck scope.
-PostgreSQL contains all 21 seasons from 2005–06 through 2025–26, including
+PostgreSQL contains official skater, goalie, and team season summaries from
+1917–18 through 2025–26. It also contains all 21 detailed seasons from 2005–06
+through 2025–26, including
 schedules, results, box scores, play-by-play, player profiles, traditional
 season statistics, standings, and the published MoneyPuck datasets described
 in [Data sources and coverage](docs/data-sources.md).
+The complete published 2026–27 regular-season schedule is stored as 1,344
+future games. Team pages show their next games across season boundaries, and a
+dedicated History page presents sortable career and single-season leaders.
 
 The full completeness audit currently passes every season with no errors.
 Three early seasons contain warnings for a total of 41 play-by-play participant
@@ -117,6 +122,16 @@ Completed seasons are reconciled and skipped without making another NHL
 request. Failures are reported per season without discarding progress made by
 the remaining range. Use `--max-seasons N` for a bounded invocation.
 
+Ingest official all-time traditional season summaries idempotently:
+
+```bash
+uv run --project pipeline --frozen sportsball \
+  ingest-historical-seasons 19171918 20252026
+```
+
+This paginates NHL Stats reports, retains audited source payloads, and preserves
+era-specific unavailable values as `NULL` rather than zero.
+
 Ingest traditional team, skater, and goalie statistics for a completed game:
 
 ```bash
@@ -200,6 +215,7 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 - [Historical box-score backfill](docs/boxscore-backfill.md)
 - [Player statistics data dictionary](docs/player-statistics.md)
 - [Season-statistics definitions and refresh behavior](docs/season-statistics.md)
+- [All-time historical season statistics](docs/historical-statistics.md)
 - [Play-by-play ingestion and event definitions](docs/play-by-play.md)
 - [Player profile ingestion](docs/player-profiles.md)
 - [Team identity and franchise history](docs/team-identities.md)

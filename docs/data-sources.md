@@ -32,6 +32,9 @@ Implemented endpoint families include:
 Schedules, box scores, play-by-play, profiles, and standings have been
 backfilled across 2005–06 through 2025–26. Early play-by-play is less detailed
 than modern data; for example, some events do not include shot coordinates.
+The NHL Stats summary reports provide traditional skater, goalie, and team
+season totals from 1917–18 through 2025–26. The published 2026–27 schedule is
+also stored, including all future games through April 10, 2027.
 
 Play-by-play normalization and its resumable historical backfill are documented
 in [Play-by-play ingestion](play-by-play.md).
@@ -87,8 +90,9 @@ provider limitations are documented in
 
 | Data category | Initial coverage |
 | --- | --- |
-| Schedules, results, and box scores | 2005–06 onward |
-| Traditional team and player statistics | 2005–06 onward |
+| Schedule index | 2005–06 through the published 2026–27 schedule |
+| Results, box scores, and detailed game statistics | 2005–06 onward as games are completed |
+| Traditional team, skater, and goalie season summaries | 1917–18 onward |
 | Standings | 2005–06 onward |
 | Play-by-play | 2005–06 onward, with fields varying by season |
 | MoneyPuck season-summary advanced statistics | 2008–09 onward |
@@ -102,7 +106,7 @@ Unavailable provider coverage must display as unavailable rather than zero.
 There is no MoneyPuck coverage in 2005–06 or 2006–07; 2007–08 has shot data
 but not the other MoneyPuck datasets.
 
-The database coverage is checked by
+Detailed 2005–06+ database coverage is checked by
 [the completeness audit](data-completeness-audit.md). On July 29, 2026, all
 21 seasons passed with zero completeness errors.
 

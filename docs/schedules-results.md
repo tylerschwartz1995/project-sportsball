@@ -25,9 +25,15 @@ The underlying read model keeps one game as the response grain. The
 joins, so scheduled games can appear before their scores and box scores have
 been ingested.
 
-Team profiles also query the next five stored future games for the selected
-season phase. Historical or completed seasons show an explicit no-upcoming-games
-message and retain a link to the full league schedule.
+Team profiles query their next ten stored future games across season boundaries,
+independent of the season selected for the statistics above them. This allows a
+completed 2025–26 profile to show the published 2026–27 schedule during the
+offseason. The compact table includes home/away opponent, season, phase, date,
+time, and status, and links to the full league schedule.
+
+The complete published 2026–27 regular-season schedule was loaded on July 31,
+2026: 1,344 future games from September 29, 2026 through April 10, 2027. The
+daily job refreshes the nearer date window for time, venue, and state changes.
 
 ## HTTP endpoint
 
