@@ -6,6 +6,7 @@ import typer
 
 from sportsball.clients.moneypuck.client import MoneyPuckClient
 from sportsball.clients.nhl.client import NhlClient
+from sportsball.clients.nhl.stats_client import NhlStatsClient
 from sportsball.ingestion.orchestration.boxscore_backfill import backfill_boxscores
 from sportsball.ingestion.orchestration.boxscores import ingest_boxscore
 from sportsball.ingestion.orchestration.daily_update import (
@@ -14,6 +15,7 @@ from sportsball.ingestion.orchestration.daily_update import (
     run_daily_update,
 )
 from sportsball.ingestion.orchestration.game_outcomes import backfill_game_outcomes
+from sportsball.ingestion.orchestration.historical_seasons import ingest_historical_seasons
 from sportsball.ingestion.orchestration.moneypuck_lines import (
     backfill_moneypuck_lines,
     ingest_moneypuck_lines,
@@ -661,6 +663,30 @@ def build_season_stats_command(start_season: int, end_season: int) -> None:
     except ValueError as error:
         raise typer.BadParameter(str(error)) from error
 
+    typer.echo(
+        f"run={result.run_id} seasons={result.start_season}-{result.end_season} "
+        f"skaters={result.skaters_processed} goalies={result.goalies_processed} "
+        f"teams={result.teams_processed} total={result.records_processed}"
+    )
+
+
+@app.command("ingest-historical-seasons")
+def ingest_historical_seasons_command(start_season: int, end_season: int) -> None:
+    """Ingest NHL-published skater, goalie, and team summaries."""
+
+    def echo_progress(season_id: int) -> None:
+        typer.echo(f"season={season_id} fetched")
+
+    with NhlStatsClient() as client:
+        try:
+            result = ingest_historical_seasons(
+                start_season,
+                end_season,
+                client,
+                on_season_complete=echo_progress,
+            )
+        except ValueError as error:
+            raise typer.BadParameter(str(error)) from error
     typer.echo(
         f"run={result.run_id} seasons={result.start_season}-{result.end_season} "
         f"skaters={result.skaters_processed} goalies={result.goalies_processed} "

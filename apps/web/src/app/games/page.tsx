@@ -12,7 +12,7 @@ import {
   parseGamePhase,
 } from "@/contracts/season-phase";
 import { getGamesByDate, listGameDates } from "@/data/games";
-import { listSeasons } from "@/data/seasons";
+import { listScheduleSeasons } from "@/data/seasons";
 
 export const dynamic = "force-dynamic";
 
@@ -25,7 +25,7 @@ type GamesPageProps = {
 };
 
 export default async function GamesPage({ searchParams }: GamesPageProps) {
-  const seasons = await listSeasons();
+  const seasons = await listScheduleSeasons();
   const requested = await searchParams;
   const requestedSeason = firstValue(requested.season);
   const phase = parseGamePhase(firstValue(requested.phase));
@@ -44,14 +44,19 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
     selectedSeason && selectedDate
       ? await getGamesByDate(selectedSeason.id, selectedDate, gameType)
       : [];
-  const selectedDateIndex = gameDates.findIndex(
+  const chronologicalDates = [...gameDates].sort((left, right) =>
+    left.date.localeCompare(right.date),
+  );
+  const selectedDateIndex = chronologicalDates.findIndex(
     (entry) => entry.date === selectedDate,
   );
   const newerDate =
-    selectedDateIndex > 0 ? gameDates[selectedDateIndex - 1]?.date : undefined;
-  const olderDate =
     selectedDateIndex >= 0
-      ? gameDates[selectedDateIndex + 1]?.date
+      ? chronologicalDates[selectedDateIndex + 1]?.date
+      : undefined;
+  const olderDate =
+    selectedDateIndex > 0
+      ? chronologicalDates[selectedDateIndex - 1]?.date
       : undefined;
 
   return (
@@ -179,7 +184,7 @@ function GameCard({ game }: { game: GameSummary }) {
           {game.gameType === 3 ? "Playoffs" : "Regular season"}
         </span>
         <strong data-complete={completed}>
-          {completed ? finalLabel(game.lastPeriodType) : game.state}
+          {completed ? finalLabel(game.lastPeriodType) : gameStateLabel(game.state)}
         </strong>
       </div>
       <div className="workspace-game-card-teams">
@@ -191,7 +196,7 @@ function GameCard({ game }: { game: GameSummary }) {
         <Link
           href={`/games/${game.nhlGameId}`}
         >
-          View box score →
+          {completed ? "View box score" : "Game preview"} →
         </Link>
       </div>
     </article>
@@ -256,6 +261,12 @@ function DateLink({
 
 function hasFinalScore(game: GameSummary): boolean {
   return game.awayTeam.score !== null && game.homeTeam.score !== null;
+}
+
+function gameStateLabel(state: string): string {
+  if (state === "FUT" || state === "PRE") return "Scheduled";
+  if (state === "LIVE" || state === "CRIT") return "Live";
+  return state;
 }
 
 function finalLabel(lastPeriodType: string | null): string {

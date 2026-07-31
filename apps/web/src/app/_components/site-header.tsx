@@ -10,6 +10,7 @@ type SiteHeaderProps = {
     | "teams"
     | "players"
     | "drafts"
+    | "history"
     | "playoffs"
     | "analytics";
 };
@@ -21,6 +22,7 @@ const links = [
   { id: "teams", href: "/teams", label: "Teams" },
   { id: "players", href: "/players", label: "Players" },
   { id: "drafts", href: "/drafts", label: "Drafts" },
+  { id: "history", href: "/history", label: "History" },
   { id: "playoffs", href: "/playoffs", label: "Playoffs" },
   { id: "analytics", href: "/analytics", label: "Analytics" },
 ] as const;

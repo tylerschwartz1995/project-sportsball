@@ -25,7 +25,7 @@ import type { TeamSeasonStats } from "@/contracts/team";
 import type { GameSummary } from "@/contracts/game";
 import { getMoneyPuckTeamSeason } from "@/data/advanced";
 import { getTeamGameLog } from "@/data/game-logs";
-import { getUpcomingGamesForTeam } from "@/data/games";
+import { getUpcomingGamesForTeamAcrossSeasons } from "@/data/games";
 import { listSeasons } from "@/data/seasons";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
 import { getTeamSeasonDetail, listTeamSeasonIds } from "@/data/teams";
@@ -78,11 +78,7 @@ export default async function TeamPage({
       minimumIceTimeSeconds: 3_000,
       limit: 100,
     }),
-    getUpcomingGamesForTeam(
-      nhlTeamId,
-      selectedSeason.id,
-      gameType,
-    ),
+    getUpcomingGamesForTeamAcrossSeasons(nhlTeamId),
     getTeamGameLog(nhlTeamId, selectedSeason.id),
   ]);
   if (!detail) {
@@ -153,6 +149,7 @@ export default async function TeamPage({
           className="workspace-scroll-nav"
         >
           <SectionLink href="#overview" label="Overview" />
+          <SectionLink href="#schedule" label="Schedule" />
           <SectionLink href="#trends" label="Trends" />
           <SectionLink href="#skaters" label="Skaters" />
           <SectionLink href="#goalies" label="Goalies" />
@@ -174,8 +171,6 @@ export default async function TeamPage({
         <UpcomingSchedule
           games={upcomingGames}
           teamNhlId={detail.team.nhlTeamId}
-          seasonId={selectedSeason.id}
-          phase={phase}
         />
 
         <Link
@@ -473,61 +468,54 @@ function SeasonPanel({
 function UpcomingSchedule({
   games,
   teamNhlId,
-  seasonId,
-  phase,
 }: {
   games: GameSummary[];
   teamNhlId: number;
-  seasonId: number;
-  phase: "regular" | "playoffs";
 }) {
+  const firstGame = games[0];
   return (
-    <section className="mt-8">
+    <section id="schedule" className="mt-8 scroll-mt-6">
       <SectionHeader
         eyebrow="Schedule"
         title="Upcoming Games"
         description={
           games.length > 0
-            ? `Next ${games.length} scheduled ${seasonPhaseLabel(phase).toLowerCase()} games.`
-            : "No upcoming games are currently stored for this season phase."
+            ? `Next ${games.length} scheduled games across the current and upcoming season.`
+            : "No upcoming games are currently stored."
         }
       />
       {games.length > 0 ? (
-        <div className="mt-5 grid gap-3 lg:grid-cols-2">
-          {games.map((game) => {
-            const isHome = game.homeTeam.nhlTeamId === teamNhlId;
-            const opponent = isHome ? game.awayTeam : game.homeTeam;
-
-            return (
-              <Link
-                key={game.nhlGameId}
-                href={`/games/${game.nhlGameId}`}
-                className="surface-panel flex items-center justify-between gap-5 p-5 transition hover:border-cyan-300/30"
-              >
-                <span>
-                  <span className="block text-sm font-semibold text-white">
-                    {isHome ? "vs" : "at"} {opponent.name}
-                  </span>
-                  <span className="mt-1 block text-sm text-slate-400">
-                    {formatScheduleDate(game.startTimeUtc)}
-                  </span>
-                </span>
-                <span className="font-mono text-xs uppercase tracking-[0.12em] text-cyan-300">
-                  Preview →
-                </span>
-              </Link>
-            );
-          })}
+        <div className="workspace-table-scroll mt-5">
+          <table className="workspace-table">
+            <thead><tr><th>Date</th><th>Matchup</th><th>Season</th><th>Phase</th><th>Status</th></tr></thead>
+            <tbody>{games.map((game) => {
+              const isHome = game.homeTeam.nhlTeamId === teamNhlId;
+              const opponent = isHome ? game.awayTeam : game.homeTeam;
+              return <tr key={game.nhlGameId}>
+                <td><Link href={`/games/${game.nhlGameId}`}>{formatScheduleDate(game.startTimeUtc)}</Link></td>
+                <td>{isHome ? "vs" : "at"} {opponent.name}</td>
+                <td>{formatSeasonId(game.seasonId)}</td>
+                <td>{game.gameType === 3 ? "Playoffs" : "Regular Season"}</td>
+                <td>{game.state === "FUT" ? "Scheduled" : game.state}</td>
+              </tr>;
+            })}</tbody>
+          </table>
         </div>
       ) : null}
       <Link
-        href={`/games?season=${seasonId}&phase=${phase}`}
+        href={firstGame ? `/games?season=${firstGame.seasonId}&date=${firstGame.gameDate}&phase=${firstGame.gameType === 3 ? "playoffs" : "regular"}` : "/games"}
         className="mt-4 inline-flex text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
       >
         Browse the full league schedule →
       </Link>
     </section>
   );
+}
+
+function formatSeasonId(seasonId: number) {
+  const start = Math.floor(seasonId / 10_000);
+  const end = seasonId % 10_000;
+  return `${start}\u2013${String(end).slice(2)}`;
 }
 
 function SectionLink({ href, label }: { href: string; label: string }) {

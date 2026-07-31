@@ -23,6 +23,8 @@ were implemented on July 30, 2026.
 - Import approved MoneyPuck season, team-game, player-game, shot, line, and
   pairing downloads across their published coverage ranges.
 - Verify all 21 seasons with the read-only completeness audit.
+- [x] Add official all-time traditional season summaries from 1917–18 onward.
+- [x] Store the complete published 2026–27 schedule, including future games.
 
 ## Milestone 3: core website — complete
 
@@ -96,6 +98,8 @@ were implemented on July 30, 2026.
   dependent birthplace groups.
 - [x] Add the first draft-outcomes and team drafting-production workspace for
   NHL players represented in stored history.
+- [x] Add an initial historical records workspace with career and single-season
+  skater, goalie, and team leaderboards.
 - [ ] Add saved comparison views and shareable plot URLs.
 
 ## Milestone 6: daily operation
