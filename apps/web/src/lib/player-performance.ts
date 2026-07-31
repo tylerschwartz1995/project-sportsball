@@ -16,12 +16,25 @@ type PlayerGameIdentity = Pick<
 >;
 
 export type SkaterPerformanceGame = PlayerGameIdentity &
-  Pick<SkaterGameLogEntry, "points" | "individualXGoals">;
+  Pick<
+    SkaterGameLogEntry,
+    | "goals"
+    | "assists"
+    | "points"
+    | "shotsOnGoal"
+    | "gameScore"
+    | "individualXGoals"
+    | "onIceXGoalsPercentage"
+  >;
 
 export type GoaliePerformanceGame = PlayerGameIdentity &
   Pick<
     GoalieGameLogEntry,
-    "saves" | "shotsAgainst" | "goalsSavedAboveExpected"
+    | "goalsAgainst"
+    | "saves"
+    | "shotsAgainst"
+    | "expectedGoalsAgainst"
+    | "goalsSavedAboveExpected"
   >;
 
 type RollingPlayerPerformancePointBase = {
@@ -33,19 +46,35 @@ type RollingPlayerPerformancePointBase = {
   venueLabel: "vs" | "at";
   scoreLabel: string;
   sampleSize: number;
-  advancedSampleSize: number;
 };
 
 export type RollingSkaterPerformancePoint =
   RollingPlayerPerformancePointBase & {
+    goalsPerGame: number;
+    assistsPerGame: number;
     pointsPerGame: number;
+    shotsPerGame: number;
     individualExpectedGoalsPerGame: number | null;
+    gameScorePerGame: number | null;
+    onIceExpectedGoalsPercentage: number | null;
+    advancedSampleSizes: {
+      individualExpectedGoalsPerGame: number;
+      gameScorePerGame: number;
+      onIceExpectedGoalsPercentage: number;
+    };
   };
 
 export type RollingGoaliePerformancePoint =
   RollingPlayerPerformancePointBase & {
     savePercentage: number | null;
+    savesPerGame: number;
+    goalsAgainstPerGame: number;
+    expectedGoalsAgainstPerGame: number | null;
     goalsSavedAboveExpectedPerGame: number | null;
+    advancedSampleSizes: {
+      expectedGoalsAgainstPerGame: number;
+      goalsSavedAboveExpectedPerGame: number;
+    };
   };
 
 export function buildRollingSkaterPerformance(
@@ -56,24 +85,34 @@ export function buildRollingSkaterPerformance(
 
   return chronologicalGames.map((game, index) => {
     const rollingGames = window(chronologicalGames, index, windowSize);
-    const advancedGames = rollingGames.filter(
-      (rollingGame) => rollingGame.individualXGoals !== null,
+    const expectedGoals = available(
+      rollingGames,
+      (row) => row.individualXGoals,
+    );
+    const gameScores = available(rollingGames, (row) => row.gameScore);
+    const onIceShares = available(
+      rollingGames,
+      (row) => row.onIceXGoalsPercentage,
     );
 
     return {
       ...identity(game),
       sampleSize: rollingGames.length,
-      advancedSampleSize: advancedGames.length,
-      pointsPerGame:
-        sum(rollingGames, (rollingGame) => rollingGame.points) /
-        rollingGames.length,
-      individualExpectedGoalsPerGame:
-        advancedGames.length === 0
+      goalsPerGame: average(rollingGames, (row) => row.goals),
+      assistsPerGame: average(rollingGames, (row) => row.assists),
+      pointsPerGame: average(rollingGames, (row) => row.points),
+      shotsPerGame: average(rollingGames, (row) => row.shotsOnGoal),
+      individualExpectedGoalsPerGame: nullableAverage(expectedGoals),
+      gameScorePerGame: nullableAverage(gameScores),
+      onIceExpectedGoalsPercentage:
+        onIceShares.length === 0
           ? null
-          : sum(
-              advancedGames,
-              (rollingGame) => rollingGame.individualXGoals ?? 0,
-            ) / advancedGames.length,
+          : (sum(onIceShares, (value) => value) / onIceShares.length) * 100,
+      advancedSampleSizes: {
+        individualExpectedGoalsPerGame: expectedGoals.length,
+        gameScorePerGame: gameScores.length,
+        onIceExpectedGoalsPercentage: onIceShares.length,
+      },
     };
   });
 }
@@ -86,29 +125,35 @@ export function buildRollingGoaliePerformance(
 
   return chronologicalGames.map((game, index) => {
     const rollingGames = window(chronologicalGames, index, windowSize);
-    const advancedGames = rollingGames.filter(
-      (rollingGame) => rollingGame.goalsSavedAboveExpected !== null,
+    const expectedGoals = available(
+      rollingGames,
+      (row) => row.expectedGoalsAgainst,
     );
-    const saves = sum(rollingGames, (rollingGame) => rollingGame.saves);
+    const goalsSaved = available(
+      rollingGames,
+      (row) => row.goalsSavedAboveExpected,
+    );
+    const saves = sum(rollingGames, (row) => row.saves);
     const shotsAgainst = sum(
       rollingGames,
-      (rollingGame) => rollingGame.shotsAgainst,
+      (row) => row.shotsAgainst,
     );
 
     return {
       ...identity(game),
       sampleSize: rollingGames.length,
-      advancedSampleSize: advancedGames.length,
       savePercentage:
         shotsAgainst === 0 ? null : (saves / shotsAgainst) * 100,
-      goalsSavedAboveExpectedPerGame:
-        advancedGames.length === 0
-          ? null
-          : sum(
-              advancedGames,
-              (rollingGame) =>
-                rollingGame.goalsSavedAboveExpected ?? 0,
-            ) / advancedGames.length,
+      savesPerGame: saves / rollingGames.length,
+      goalsAgainstPerGame:
+        sum(rollingGames, (row) => row.goalsAgainst) /
+        rollingGames.length,
+      expectedGoalsAgainstPerGame: nullableAverage(expectedGoals),
+      goalsSavedAboveExpectedPerGame: nullableAverage(goalsSaved),
+      advancedSampleSizes: {
+        expectedGoalsAgainstPerGame: expectedGoals.length,
+        goalsSavedAboveExpectedPerGame: goalsSaved.length,
+      },
     };
   });
 }
@@ -127,10 +172,7 @@ function window<T>(games: T[], index: number, size: RollingWindow): T[] {
 
 function identity(
   game: PlayerGameIdentity,
-): Omit<
-  RollingPlayerPerformancePointBase,
-  "sampleSize" | "advancedSampleSize"
-> {
+): Omit<RollingPlayerPerformancePointBase, "sampleSize"> {
   const scoreLabel =
     game.teamScore === null || game.opponentScore === null
       ? "Score unavailable"
@@ -145,6 +187,26 @@ function identity(
     venueLabel: game.isHome ? "vs" : "at",
     scoreLabel,
   };
+}
+
+function available<T>(
+  rows: T[],
+  value: (row: T) => number | null,
+): number[] {
+  return rows.flatMap((row) => {
+    const result = value(row);
+    return result === null ? [] : [result];
+  });
+}
+
+function average<T>(rows: T[], value: (row: T) => number): number {
+  return sum(rows, value) / rows.length;
+}
+
+function nullableAverage(values: number[]): number | null {
+  return values.length === 0
+    ? null
+    : sum(values, (value) => value) / values.length;
 }
 
 function sum<T>(rows: T[], value: (row: T) => number): number {

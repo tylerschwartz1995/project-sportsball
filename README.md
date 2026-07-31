@@ -31,6 +31,10 @@ canonical player. Those source identifiers remain preserved. The core website
 is implemented with read-only standings, schedules, box scores, team pages,
 player profiles, historical navigation, directory search and sorting,
 responsive layouts, sortable statistics tables, and JSON endpoints.
+The standings workspace adds overall, conference, and division views plus
+cumulative points history. Player discovery includes minimum-stat and birth
+region filters, and a dedicated playoffs workspace presents the historical
+bracket, scoring leaders, or projected first-round matchups before play begins.
 MoneyPuck presentation is implemented on team, player, and game pages,
 including game-level expected-goal and possession tables, shot maps, forward
 lines, and defensive pairings. Shot-map events can be selected to inspect

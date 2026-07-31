@@ -96,7 +96,12 @@ export default async function PlayerPage({
         teamScore: game.teamScore,
         opponentScore: game.opponentScore,
         points: game.points,
+        goals: game.goals,
+        assists: game.assists,
+        shotsOnGoal: game.shotsOnGoal,
+        gameScore: game.gameScore,
         individualXGoals: game.individualXGoals,
+        onIceXGoalsPercentage: game.onIceXGoalsPercentage,
       })) ?? [];
   const goaliePerformanceGames =
     gameLog?.goalieGames
@@ -111,6 +116,8 @@ export default async function PlayerPage({
         opponentScore: game.opponentScore,
         saves: game.saves,
         shotsAgainst: game.shotsAgainst,
+        goalsAgainst: game.goalsAgainst,
+        expectedGoalsAgainst: game.expectedGoalsAgainst,
         goalsSavedAboveExpected: game.goalsSavedAboveExpected,
       })) ?? [];
 
@@ -258,7 +265,12 @@ export default async function PlayerPage({
           </section>
         ) : null}
 
-        {advanced ? <PlayerAdvancedAnalytics data={advanced} /> : null}
+        {advanced ? (
+          <PlayerAdvancedAnalytics
+            key={`${profile.nhlPlayerId}-${selectedSeason?.id}`}
+            data={advanced}
+          />
+        ) : null}
         {phase === "playoffs" ? (
           <p className="mt-8 rounded-2xl border border-violet-300/20 bg-violet-300/[0.06] p-5 text-sm text-slate-300">
             Player-level MoneyPuck playoff files are not available, so advanced
@@ -273,12 +285,28 @@ export default async function PlayerPage({
               title="Skater Seasons"
               detail={`${careerSeasonIds.size} NHL seasons`}
             />
-            <SkaterHistory
-              rows={detail.skaterSeasons}
-              seasonLabels={new Map(
-                seasons.map((season) => [season.id, season.label]),
-              )}
-            />
+            <div className="mt-5 grid gap-6">
+              <HistoryGroup title="Regular Season">
+                <SkaterHistory
+                  rows={detail.skaterSeasons.filter(
+                    (row) => row.gameType === 2,
+                  )}
+                  seasonLabels={new Map(
+                    seasons.map((season) => [season.id, season.label]),
+                  )}
+                />
+              </HistoryGroup>
+              <HistoryGroup title="Playoffs">
+                <SkaterHistory
+                  rows={detail.skaterSeasons.filter(
+                    (row) => row.gameType === 3,
+                  )}
+                  seasonLabels={new Map(
+                    seasons.map((season) => [season.id, season.label]),
+                  )}
+                />
+              </HistoryGroup>
+            </div>
           </section>
         ) : null}
 
@@ -289,12 +317,28 @@ export default async function PlayerPage({
               title="Goalie Seasons"
               detail={`${careerSeasonIds.size} NHL seasons`}
             />
-            <GoalieHistory
-              rows={detail.goalieSeasons}
-              seasonLabels={new Map(
-                seasons.map((season) => [season.id, season.label]),
-              )}
-            />
+            <div className="mt-5 grid gap-6">
+              <HistoryGroup title="Regular Season">
+                <GoalieHistory
+                  rows={detail.goalieSeasons.filter(
+                    (row) => row.gameType === 2,
+                  )}
+                  seasonLabels={new Map(
+                    seasons.map((season) => [season.id, season.label]),
+                  )}
+                />
+              </HistoryGroup>
+              <HistoryGroup title="Playoffs">
+                <GoalieHistory
+                  rows={detail.goalieSeasons.filter(
+                    (row) => row.gameType === 3,
+                  )}
+                  seasonLabels={new Map(
+                    seasons.map((season) => [season.id, season.label]),
+                  )}
+                />
+              </HistoryGroup>
+            </div>
           </section>
         ) : null}
       </section>
@@ -428,10 +472,9 @@ function SkaterHistory({
 }) {
   return (
     <HistoryTable
-      headers={["Season", "Type", "GP", "G", "A", "PTS", "+/-", "PIM"]}
+      headers={["Season", "GP", "G", "A", "PTS", "+/-", "PIM"]}
       rows={rows.map((row) => [
         seasonLabels.get(row.seasonId) ?? String(row.seasonId),
-        gameTypeLabel(row.gameType),
         row.gamesPlayed,
         row.goals,
         row.assists,
@@ -452,10 +495,9 @@ function GoalieHistory({
 }) {
   return (
     <HistoryTable
-      headers={["Season", "Type", "GP", "GS", "W", "L", "OTL", "SV%"]}
+      headers={["Season", "GP", "GS", "W", "L", "OTL", "SV%"]}
       rows={rows.map((row) => [
         seasonLabels.get(row.seasonId) ?? String(row.seasonId),
-        gameTypeLabel(row.gameType),
         row.gamesPlayed,
         row.gamesStarted,
         row.wins,
@@ -474,8 +516,16 @@ function HistoryTable({
   headers: string[];
   rows: Array<Array<number | string>>;
 }) {
+  if (rows.length === 0) {
+    return (
+      <p className="rounded-xl border border-white/10 bg-white/[0.025] p-5 text-sm text-slate-500">
+        No appearances.
+      </p>
+    );
+  }
+
   return (
-    <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+    <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
       <SortableTable defaultSortKey={headers[0]} defaultDirection="desc">
       <div className="overflow-x-auto">
         <table className="w-full min-w-[700px] text-sm">
@@ -486,8 +536,8 @@ function HistoryTable({
                   key={header}
                   label={header}
                   sortKey={header}
-                  align={index < 2 ? "left" : "right"}
-                  defaultDirection={index < 2 ? "asc" : "desc"}
+                  align={index === 0 ? "left" : "right"}
+                  defaultDirection={index === 0 ? "asc" : "desc"}
                 />
               ))}
             </tr>
@@ -495,15 +545,15 @@ function HistoryTable({
           <tbody>
             {rows.map((row) => (
               <tr
-                key={`${row[0]}-${row[1]}`}
+                key={String(row[0])}
                 className="border-b border-white/[0.06] text-slate-300 last:border-0"
               >
                 {row.map((value, index) => (
                   <td
                     key={`${headers[index]}-${value}`}
                     className={`px-4 py-3 tabular-nums ${
-                      index < 2 ? "text-left" : "text-right"
-                    } ${index === 5 ? "font-semibold text-cyan-200" : ""}`}
+                      index === 0 ? "text-left" : "text-right"
+                    } ${index === 4 ? "font-semibold text-cyan-200" : ""}`}
                   >
                     {value}
                   </td>
@@ -514,6 +564,21 @@ function HistoryTable({
         </table>
       </div>
       </SortableTable>
+    </div>
+  );
+}
+
+function HistoryGroup({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <h4 className="mb-3 text-sm font-semibold text-white">{title}</h4>
+      {children}
     </div>
   );
 }
@@ -546,10 +611,6 @@ function formatSigned(value: number): string {
 
 function formatSavePercentage(value: number | null): string {
   return value === null ? "—" : value.toFixed(3).replace(/^0/, "");
-}
-
-function gameTypeLabel(gameType: number): string {
-  return gameType === 3 ? "Playoffs" : "Regular";
 }
 
 function firstValue(value: string | string[] | undefined): string | undefined {

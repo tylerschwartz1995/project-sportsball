@@ -25,8 +25,6 @@ import { listTeamsBySeason } from "@/data/teams";
 import {
   applySortDirection,
   firstQueryValue,
-  matchesSearch,
-  normalizeSearch,
   paginate,
   parsePage,
   parseSortDirection,
@@ -37,7 +35,6 @@ export const dynamic = "force-dynamic";
 type TeamsPageProps = {
   searchParams: Promise<{
     season?: string | string[];
-    q?: string | string[];
     sort?: string | string[];
     dir?: string | string[];
     page?: string | string[];
@@ -62,7 +59,6 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
   const standingsByTeam = new Map(
     standings.map((entry) => [entry.nhlTeamId, entry]),
   );
-  const query = normalizeSearch(firstQueryValue(params.q));
   const requestedSort = firstQueryValue(params.sort);
   const sort = teamSortOptions.some(
     (option) => option.value === requestedSort,
@@ -75,13 +71,7 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
     firstQueryValue(params.dir),
     sort === "name" ? "asc" : "desc",
   );
-  const filteredTeams = sortTeams(
-    teams.filter((entry) =>
-      matchesSearch(query, entry.team.name, entry.team.abbreviation),
-    ),
-    sort,
-    direction,
-  );
+  const filteredTeams = sortTeams(teams, sort, direction);
   const teamPage = paginate(
     filteredTeams,
     parsePage(firstQueryValue(params.page)),
@@ -116,11 +106,10 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
             <DirectoryControls
               action="/teams"
               seasonId={selectedSeason.id}
-              query={query}
               sort={sort}
               sortOptions={teamSortOptions}
               direction={direction}
-              searchPlaceholder="Team name or abbreviation"
+              showSearch={false}
               alwaysShowSort
               phase={phase}
             />
@@ -218,7 +207,6 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
                   totalPages={teamPage.totalPages}
                   params={{
                     season: selectedSeason.id,
-                    q: query,
                     sort,
                     dir: direction,
                     phase,
@@ -226,7 +214,7 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
                 />
               </>
             ) : (
-              <EmptyState message="No teams match the current search." />
+              <EmptyState message="No team statistics are available for this season." />
             )}
           </>
         ) : (

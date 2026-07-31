@@ -4,6 +4,7 @@ import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { StandingsPointsChart } from "@/app/_components/standings-points-chart";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -11,7 +12,10 @@ import {
 import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
 import { listSeasons } from "@/data/seasons";
-import { getStandings } from "@/data/standings";
+import {
+  getStandings,
+  getStandingsPointsHistory,
+} from "@/data/standings";
 import {
   applySortDirection,
   firstQueryValue,
@@ -20,11 +24,14 @@ import {
 
 export const dynamic = "force-dynamic";
 
+type StandingsView = "overall" | "conference" | "division";
+
 type StandingsPageProps = {
   searchParams: Promise<{
     season?: string | string[];
     sort?: string | string[];
     dir?: string | string[];
+    view?: string | string[];
   }>;
 };
 
@@ -35,21 +42,26 @@ export default async function StandingsPage({
   const seasons = await listSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const requestedSort = firstQueryValue(params.sort);
-  const sort = standingsColumns.some(
+  const activeSort = standingsColumns.some(
     (column) => column.key === requestedSort,
-  );
-  const activeSort = sort ? requestedSort! : "rank";
+  )
+    ? requestedSort!
+    : "rank";
   const direction = parseSortDirection(
     firstQueryValue(params.dir),
     activeSort === "rank" || activeSort === "team" ? "asc" : "desc",
   );
+  const view = parseView(firstQueryValue(params.view));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
-  const standings = selectedSeason
-    ? await getStandings(selectedSeason.id)
-    : [];
-  const sortedStandings = sortStandings(standings, activeSort, direction);
+  const [standings, pointsHistory] = selectedSeason
+    ? await Promise.all([
+        getStandings(selectedSeason.id),
+        getStandingsPointsHistory(selectedSeason.id),
+      ])
+    : [[], []];
   const leader = standings[0];
+  const groups = buildGroups(standings, view);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -63,85 +75,61 @@ export default async function StandingsPage({
               ? `${selectedSeason.label} Final Standings`
               : "No Standings Available"
           }
-          description="Official NHL regular-season rankings with historical team identity and sortable statistical columns."
+          description="Official NHL regular-season rankings with overall, conference, and division views."
           action={
             <SeasonPicker
               seasons={seasons}
               selectedSeasonId={selectedSeason?.id}
+              params={{ view }}
             />
           }
         />
 
-        {leader ? (
+        {leader && selectedSeason ? (
           <>
-            <WorkspacePanel
-              className="mt-7"
-              title="League Standings"
-              description="Select any column heading to sort the current table"
+            <nav
+              className="workspace-standings-scope"
+              aria-label="Standings view"
             >
-              <SortableTable
-                defaultSortKey={activeSort}
-                defaultDirection={direction}
-              >
-                <div className="workspace-table-scroll">
-                  <table className="workspace-table min-w-[760px]">
-                    <thead>
-                      <tr>
-                        {standingsColumns.map((column) => (
-                          <SortableHeader
-                            key={column.key}
-                            label={column.label}
-                            sortKey={column.key}
-                            align={column.align}
-                            defaultDirection={column.defaultDirection}
-                          />
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sortedStandings.map((team) => (
-                        <tr key={team.teamId}>
-                          <td className="workspace-rank-cell">
-                            {team.leagueRank}
-                          </td>
-                          <td className="workspace-team-cell">
-                            <Link
-                              href={`/teams/${team.nhlTeamId}?season=${selectedSeason.id}`}
-                            >
-                              {team.teamName}
-                            </Link>
-                            {team.clinchIndicator ? (
-                              <span>{team.clinchIndicator}</span>
-                            ) : null}
-                            <small>
-                              {team.teamAbbreviation} · {team.divisionName}
-                            </small>
-                          </td>
-                          <NumericCell value={team.gamesPlayed} />
-                          <NumericCell value={team.wins} />
-                          <NumericCell value={team.losses} />
-                          <NumericCell value={team.overtimeLosses} />
-                          <NumericCell value={team.regulationWins} />
-                          <NumericCell value={team.goalsFor} />
-                          <NumericCell value={team.goalsAgainst} />
-                          <NumericCell
-                            value={formatDifferential(team.goalDifferential)}
-                          />
-                          <td className="workspace-points-cell">
-                            {team.points}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-                <div className="workspace-table-note">
-                  Snapshot: {leader.snapshotDate} · Source: NHL · p Presidents’
-                  Trophy · z conference · y division · x playoff berth · e
-                  eliminated
-                </div>
-              </SortableTable>
-            </WorkspacePanel>
+              {(["overall", "conference", "division"] as const).map(
+                (option) => (
+                  <Link
+                    key={option}
+                    href={`/standings?season=${selectedSeason.id}&view=${option}`}
+                    aria-current={view === option ? "page" : undefined}
+                  >
+                    {capitalize(option)}
+                  </Link>
+                ),
+              )}
+            </nav>
+
+            <div className="mt-7">
+              <StandingsPointsChart
+                history={pointsHistory}
+                standings={standings}
+              />
+            </div>
+
+            <div className="mt-7 grid gap-7">
+              {groups.map((group) => (
+                <StandingsTable
+                  key={group.label}
+                  label={group.label}
+                  standings={sortStandings(
+                    group.standings,
+                    activeSort,
+                    direction,
+                    view,
+                  )}
+                  defaultSortKey={activeSort}
+                  defaultDirection={direction}
+                  view={view}
+                  seasonId={selectedSeason.id}
+                  snapshotDate={leader.snapshotDate}
+                />
+              ))}
+            </div>
           </>
         ) : (
           <div className="workspace-empty-state">
@@ -150,6 +138,89 @@ export default async function StandingsPage({
         )}
       </section>
     </main>
+  );
+}
+
+function StandingsTable({
+  label,
+  standings,
+  defaultSortKey,
+  defaultDirection,
+  view,
+  seasonId,
+  snapshotDate,
+}: {
+  label: string;
+  standings: StandingsEntry[];
+  defaultSortKey: string;
+  defaultDirection: "asc" | "desc";
+  view: StandingsView;
+  seasonId: number;
+  snapshotDate: string;
+}) {
+  return (
+    <WorkspacePanel
+      title={label}
+      description="Select any column heading to sort the current table"
+    >
+      <SortableTable
+        defaultSortKey={defaultSortKey}
+        defaultDirection={defaultDirection}
+      >
+        <div className="workspace-table-scroll">
+          <table className="workspace-table min-w-[760px]">
+            <thead>
+              <tr>
+                {standingsColumns.map((column) => (
+                  <SortableHeader
+                    key={column.key}
+                    label={column.label}
+                    sortKey={column.key}
+                    align={column.align}
+                    defaultDirection={column.defaultDirection}
+                  />
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {standings.map((team) => (
+                <tr key={team.teamId}>
+                  <td className="workspace-rank-cell">
+                    {rankForView(team, view)}
+                  </td>
+                  <td className="workspace-team-cell">
+                    <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
+                      {team.teamName}
+                    </Link>
+                    {team.clinchIndicator ? (
+                      <span>{team.clinchIndicator}</span>
+                    ) : null}
+                    <small>
+                      {team.teamAbbreviation} · {team.divisionName}
+                    </small>
+                  </td>
+                  <NumericCell value={team.gamesPlayed} />
+                  <NumericCell value={team.wins} />
+                  <NumericCell value={team.losses} />
+                  <NumericCell value={team.overtimeLosses} />
+                  <NumericCell value={team.regulationWins} />
+                  <NumericCell value={team.goalsFor} />
+                  <NumericCell value={team.goalsAgainst} />
+                  <NumericCell
+                    value={formatDifferential(team.goalDifferential)}
+                  />
+                  <td className="workspace-points-cell">{team.points}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="workspace-table-note">
+          Snapshot: {snapshotDate} · Source: NHL · p Presidents’ Trophy · z
+          conference · y division · x playoff berth · e eliminated
+        </div>
+      </SortableTable>
+    </WorkspacePanel>
   );
 }
 
@@ -172,10 +243,42 @@ const standingsColumns: Array<{
   { key: "points", label: "PTS" },
 ];
 
+function parseView(value: string | undefined): StandingsView {
+  return value === "conference" || value === "division" ? value : "overall";
+}
+
+function buildGroups(
+  standings: StandingsEntry[],
+  view: StandingsView,
+): Array<{ label: string; standings: StandingsEntry[] }> {
+  if (view === "overall") {
+    return [{ label: "League Standings", standings }];
+  }
+  const key = view === "conference" ? "conferenceName" : "divisionName";
+  const grouped = new Map<string, StandingsEntry[]>();
+  for (const team of standings) {
+    const label = team[key] ?? `Unknown ${capitalize(view)}`;
+    grouped.set(label, [...(grouped.get(label) ?? []), team]);
+  }
+  return [...grouped.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([label, entries]) => ({
+      label: `${label} ${capitalize(view)}`,
+      standings: entries,
+    }));
+}
+
+function rankForView(team: StandingsEntry, view: StandingsView): number | null {
+  if (view === "conference") return team.conferenceRank;
+  if (view === "division") return team.divisionRank;
+  return team.leagueRank;
+}
+
 function sortStandings(
   standings: StandingsEntry[],
   sort: string,
   direction: "asc" | "desc",
+  view: StandingsView,
 ): StandingsEntry[] {
   return [...standings].sort((left, right) => {
     let comparison: number;
@@ -211,7 +314,9 @@ function sortStandings(
         comparison = right.points - left.points;
         break;
       default:
-        comparison = right.leagueRank - left.leagueRank;
+        comparison =
+          (rankForView(right, view) ?? 999) -
+          (rankForView(left, view) ?? 999);
     }
     if (comparison === 0) {
       comparison = right.teamName.localeCompare(left.teamName);
@@ -226,4 +331,8 @@ function NumericCell({ value }: { value: number | string }) {
 
 function formatDifferential(value: number): string {
   return value > 0 ? `+${value}` : String(value);
+}
+
+function capitalize(value: string): string {
+  return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }

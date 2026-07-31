@@ -197,7 +197,7 @@ export function TeamComparisonScatterplot({
                 tickFormatter={formatPercentage}
                 tick={{
                   fill: "var(--chart-label)",
-                  fontSize: 11,
+                  fontSize: 13,
                 }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
@@ -206,7 +206,7 @@ export function TeamComparisonScatterplot({
                   position: "insideBottom",
                   offset: -20,
                   fill: "var(--chart-label)",
-                  fontSize: 11,
+                  fontSize: 12,
                 }}
               />
               <YAxis
@@ -218,7 +218,7 @@ export function TeamComparisonScatterplot({
                 tickFormatter={formatPercentage}
                 tick={{
                   fill: "var(--chart-label)",
-                  fontSize: 11,
+                  fontSize: 13,
                 }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
@@ -229,7 +229,7 @@ export function TeamComparisonScatterplot({
                   position: "insideLeft",
                   offset: -8,
                   fill: "var(--chart-label)",
-                  fontSize: 11,
+                  fontSize: 12,
                 }}
               />
               <ZAxis range={[95, 95]} />

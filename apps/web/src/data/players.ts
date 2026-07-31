@@ -33,6 +33,9 @@ type SkaterRow = {
   nhl_player_id: number;
   player_name: string;
   position: string | null;
+  birth_city: string | null;
+  birth_state_province: string | null;
+  birth_country: string | null;
   season_id: number;
   game_type: number;
   games_played: number;
@@ -53,6 +56,9 @@ type GoalieRow = {
   nhl_player_id: number;
   player_name: string;
   position: string | null;
+  birth_city: string | null;
+  birth_state_province: string | null;
+  birth_country: string | null;
   season_id: number;
   game_type: number;
   games_played: number;
@@ -73,6 +79,9 @@ const skaterSelect = `
     player.nhl_id::integer AS nhl_player_id,
     player.display_name AS player_name,
     player.position,
+    player.birth_city,
+    player.birth_state_province,
+    player.birth_country,
     stats.season_id,
     stats.game_type,
     stats.games_played,
@@ -97,6 +106,9 @@ const goalieSelect = `
     player.nhl_id::integer AS nhl_player_id,
     player.display_name AS player_name,
     player.position,
+    player.birth_city,
+    player.birth_state_province,
+    player.birth_country,
     stats.season_id,
     stats.game_type,
     stats.games_played,
@@ -240,6 +252,9 @@ function mapSkater(row: SkaterRow): SkaterSeasonSummary {
     nhlPlayerId: row.nhl_player_id,
     name: row.player_name,
     position: row.position,
+    birthCity: row.birth_city,
+    birthStateProvince: row.birth_state_province,
+    birthCountry: row.birth_country,
     seasonId: row.season_id,
     gameType: row.game_type,
     gamesPlayed: row.games_played,
@@ -263,6 +278,9 @@ function mapGoalie(row: GoalieRow): GoalieSeasonSummary {
     nhlPlayerId: row.nhl_player_id,
     name: row.player_name,
     position: row.position,
+    birthCity: row.birth_city,
+    birthStateProvince: row.birth_state_province,
+    birthCountry: row.birth_country,
     seasonId: row.season_id,
     gameType: row.game_type,
     gamesPlayed: row.games_played,

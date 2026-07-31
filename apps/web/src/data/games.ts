@@ -186,6 +186,23 @@ export async function getLatestGamesForSeason(
   return rows.map(mapGame);
 }
 
+export async function getGamesForSeasonByType(
+  seasonId: number,
+  gameType: number,
+): Promise<GameSummary[]> {
+  const rows = await query<GameRow>(
+    `
+      ${gameSelect}
+      WHERE game.season_id = $1
+        AND game.game_type = $2
+      ORDER BY game.start_time_utc, game.nhl_id
+    `,
+    [seasonId, gameType],
+  );
+
+  return rows.map(mapGame);
+}
+
 export async function getUpcomingGamesForTeam(
   nhlTeamId: number,
   seasonId: number,
