@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import type { TeamGameLogEntry } from "@/contracts/game-log";
-import { buildRollingTeamPerformance } from "@/lib/team-performance";
+import {
+  buildRollingTeamPerformance,
+  filterTeamPerformanceGames,
+} from "@/lib/team-performance";
 
 const games: TeamGameLogEntry[] = [
   makeGame({
@@ -88,6 +91,45 @@ describe("buildRollingTeamPerformance", () => {
   });
 });
 
+describe("filterTeamPerformanceGames", () => {
+  const venueGames = [
+    makeGame({
+      nhlGameId: 10,
+      gameDate: "2025-11-01",
+      score: 3,
+      opponentScore: 1,
+      xGoalsFor: 2,
+      xGoalsAgainst: 1,
+      isHome: true,
+    }),
+    makeGame({
+      nhlGameId: 11,
+      gameDate: "2025-11-02",
+      score: 1,
+      opponentScore: 3,
+      xGoalsFor: 1,
+      xGoalsAgainst: 2,
+      isHome: false,
+    }),
+  ];
+
+  it("keeps all games when venue is not restricted", () => {
+    expect(filterTeamPerformanceGames(venueGames, "all")).toHaveLength(2);
+  });
+
+  it("filters before a rolling series is calculated", () => {
+    const awayGames = filterTeamPerformanceGames(venueGames, "away");
+    const rollingAway = buildRollingTeamPerformance(awayGames, 10);
+
+    expect(rollingAway).toHaveLength(1);
+    expect(rollingAway[0]).toMatchObject({
+      nhlGameId: 11,
+      sampleSize: 1,
+      venueLabel: "at",
+    });
+  });
+});
+
 function makeGame({
   nhlGameId,
   gameDate,
@@ -95,6 +137,7 @@ function makeGame({
   opponentScore,
   xGoalsFor,
   xGoalsAgainst,
+  isHome = true,
 }: {
   nhlGameId: number;
   gameDate: string;
@@ -102,13 +145,14 @@ function makeGame({
   opponentScore: number;
   xGoalsFor: number | null;
   xGoalsAgainst: number | null;
+  isHome?: boolean;
 }): TeamGameLogEntry {
   return {
     nhlGameId,
     gameDate,
     gameType: 2,
     lastPeriodType: "REG",
-    isHome: true,
+    isHome,
     opponent: {
       nhlTeamId: 10,
       abbreviation: "TOR",
