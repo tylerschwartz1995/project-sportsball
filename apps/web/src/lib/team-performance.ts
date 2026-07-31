@@ -5,6 +5,8 @@ export const TEAM_PERFORMANCE_WINDOWS = [5, 10, 20] as const;
 export type TeamPerformanceWindow =
   (typeof TEAM_PERFORMANCE_WINDOWS)[number];
 
+export type TeamPerformanceVenue = "all" | "home" | "away";
+
 export type TeamPerformanceGame = Pick<
   TeamGameLogEntry,
   | "nhlGameId"
@@ -31,6 +33,19 @@ export type RollingTeamPerformancePoint = {
   goalSharePercentage: number | null;
   fiveOnFiveExpectedGoalSharePercentage: number | null;
 };
+
+export function filterTeamPerformanceGames(
+  games: TeamPerformanceGame[],
+  venue: TeamPerformanceVenue,
+): TeamPerformanceGame[] {
+  if (venue === "all") {
+    return games;
+  }
+
+  return games.filter((game) =>
+    venue === "home" ? game.isHome : !game.isHome,
+  );
+}
 
 export function buildRollingTeamPerformance(
   games: TeamPerformanceGame[],

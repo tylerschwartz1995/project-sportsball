@@ -61,7 +61,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
         {selectedSeason && leagueLeader ? (
           <>
-            <div className="mt-7 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="mt-7 grid gap-5 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
               <WorkspacePanel
                 title={latestDate ? `Results · ${formatDate(latestDate)}` : "Results"}
                 description="Most recent stored game date"
@@ -166,17 +166,20 @@ export default async function Home({ searchParams }: HomeProps) {
 function GameResult({ game }: { game: GameSummary }) {
   return (
     <Link href={`/games/${game.nhlGameId}`} className="workspace-result-row">
-      <span>
+      <span className="workspace-result-status">
         <small>{game.gameType === 3 ? "Playoffs" : "Regular"}</small>
         <b>{finalLabel(game.lastPeriodType)}</b>
       </span>
-      <span>
-        <b>{game.awayTeam.abbreviation}</b>
-        <strong>{game.awayTeam.score ?? "—"}</strong>
-      </span>
-      <span>
-        <b>{game.homeTeam.abbreviation}</b>
-        <strong>{game.homeTeam.score ?? "—"}</strong>
+      <span className="workspace-result-matchup">
+        <span>
+          <b>{game.awayTeam.abbreviation}</b>
+          <strong>{game.awayTeam.score ?? "—"}</strong>
+        </span>
+        <span aria-hidden="true">–</span>
+        <span>
+          <strong>{game.homeTeam.score ?? "—"}</strong>
+          <b>{game.homeTeam.abbreviation}</b>
+        </span>
       </span>
     </Link>
   );

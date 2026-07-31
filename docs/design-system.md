@@ -78,6 +78,10 @@ and a pre-render bootstrap applies it before the interface is painted.
 - Rolling charts aggregate the component totals inside each window instead of
   averaging already-calculated percentages. Early-season points use the games
   available so far and disclose the smaller sample.
+- Plot filters are applied before the rolling calculation. Venue controls
+  therefore compare true home-only or away-only rolling samples rather than
+  hiding points from an all-games calculation. Series controls always keep at
+  least one available line visible.
 - Every interactive chart includes a plain-language description and a
   screen-reader table containing the same values.
 - Charts should reveal change, comparison, or distribution. Static headline

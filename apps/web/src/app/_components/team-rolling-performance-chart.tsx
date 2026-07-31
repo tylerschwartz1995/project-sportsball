@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   CartesianGrid,
   Legend,
@@ -16,9 +16,11 @@ import {
 
 import {
   buildRollingTeamPerformance,
+  filterTeamPerformanceGames,
   TEAM_PERFORMANCE_WINDOWS,
   type RollingTeamPerformancePoint,
   type TeamPerformanceGame,
+  type TeamPerformanceVenue,
   type TeamPerformanceWindow,
 } from "@/lib/team-performance";
 
@@ -32,15 +34,22 @@ export function TeamRollingPerformanceChart({
   teamName,
 }: TeamRollingPerformanceChartProps) {
   const [windowSize, setWindowSize] = useState<TeamPerformanceWindow>(10);
+  const [venue, setVenue] = useState<TeamPerformanceVenue>("all");
+  const [showGoalShare, setShowGoalShare] = useState(true);
+  const [showExpectedGoalShare, setShowExpectedGoalShare] = useState(true);
+  const filteredGames = useMemo(
+    () => filterTeamPerformanceGames(games, venue),
+    [games, venue],
+  );
   const data = useMemo(
-    () => buildRollingTeamPerformance(games, windowSize),
-    [games, windowSize],
+    () => buildRollingTeamPerformance(filteredGames, windowSize),
+    [filteredGames, windowSize],
   );
   const hasExpectedGoalData = data.some(
     (point) => point.fiveOnFiveExpectedGoalSharePercentage !== null,
   );
 
-  if (data.length === 0) {
+  if (games.length === 0) {
     return (
       <div className="workspace-chart-empty">
         No completed games are stored for this season phase.
@@ -52,109 +61,173 @@ export function TeamRollingPerformanceChart({
     <>
       <div className="workspace-chart-toolbar">
         <p>
-          Each point summarizes up to the selected number of games ending on
-          that date.
+          Filters are applied before each rolling window is calculated. For
+          example, 10 Away Games means the team&apos;s latest 10 away games.
         </p>
-        <div aria-label="Rolling game window" className="workspace-chart-window">
-          {TEAM_PERFORMANCE_WINDOWS.map((option) => (
-            <button
-              key={option}
-              type="button"
-              aria-pressed={windowSize === option}
-              onClick={() => setWindowSize(option)}
-            >
-              {option} Games
-            </button>
-          ))}
+        <div className="workspace-chart-filters">
+          <ChartFilterGroup label="Window">
+            {TEAM_PERFORMANCE_WINDOWS.map((option) => (
+              <FilterButton
+                key={option}
+                active={windowSize === option}
+                label={`${option} Games`}
+                onClick={() => setWindowSize(option)}
+              />
+            ))}
+          </ChartFilterGroup>
+
+          <ChartFilterGroup label="Venue">
+            {(
+              [
+                ["all", "All"],
+                ["home", "Home"],
+                ["away", "Away"],
+              ] as const
+            ).map(([value, label]) => (
+              <FilterButton
+                key={value}
+                active={venue === value}
+                label={label}
+                onClick={() => setVenue(value)}
+              />
+            ))}
+          </ChartFilterGroup>
+
+          <ChartFilterGroup label="Series">
+            <FilterButton
+              active={showGoalShare}
+              disabled={showGoalShare && !showExpectedGoalShare}
+              label="Goals"
+              onClick={() => setShowGoalShare((visible) => !visible)}
+            />
+            <FilterButton
+              active={showExpectedGoalShare && hasExpectedGoalData}
+              disabled={
+                !hasExpectedGoalData ||
+                (showExpectedGoalShare && !showGoalShare)
+              }
+              label="5v5 xG"
+              onClick={() =>
+                setShowExpectedGoalShare((visible) => !visible)
+              }
+            />
+          </ChartFilterGroup>
         </div>
       </div>
 
-      <div
-        className="workspace-chart"
-        role="img"
-        aria-label={`${teamName} rolling goal share and five-on-five expected-goal share over ${windowSize} games. A value above 50 percent means the team produced more than its opponent.`}
-      >
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart
-            data={data}
-            margin={{ top: 14, right: 18, bottom: 4, left: -8 }}
-            accessibilityLayer
-          >
-            <CartesianGrid
-              stroke="var(--chart-grid)"
-              strokeDasharray="3 5"
-              vertical={false}
-            />
-            <XAxis
-              dataKey="gameDate"
-              tickFormatter={formatAxisDate}
-              stroke="var(--chart-axis)"
-              tick={{ fill: "var(--chart-label)", fontSize: 12 }}
-              tickLine={false}
-              axisLine={{ stroke: "var(--chart-axis)" }}
-              interval="preserveStartEnd"
-              minTickGap={34}
-            />
-            <YAxis
-              domain={[0, 100]}
-              ticks={[0, 25, 50, 75, 100]}
-              tickFormatter={(value: number) => `${value}%`}
-              stroke="var(--chart-axis)"
-              tick={{ fill: "var(--chart-label)", fontSize: 12 }}
-              tickLine={false}
-              axisLine={false}
-              width={52}
-            />
-            <ReferenceLine
-              y={50}
-              stroke="var(--chart-reference)"
-              strokeDasharray="5 5"
-              label={{
-                value: "50%",
-                position: "insideTopLeft",
-                fill: "var(--chart-label)",
-                fontSize: 11,
-              }}
-            />
-            <Tooltip
-              content={PerformanceTooltip}
-              cursor={{ stroke: "var(--chart-reference)", strokeWidth: 1 }}
-              isAnimationActive="auto"
-            />
-            <Legend
-              iconType="plainline"
-              formatter={(value) => (
-                <span className="workspace-chart-legend-label">{value}</span>
-              )}
-            />
-            <Line
-              type="monotone"
-              dataKey="goalSharePercentage"
-              name="Goal Share"
-              stroke="var(--chart-primary)"
-              strokeWidth={2.5}
-              dot={false}
-              activeDot={{ r: 5, strokeWidth: 2 }}
-              connectNulls
-              isAnimationActive={false}
-            />
-            {hasExpectedGoalData ? (
-              <Line
-                type="monotone"
-                dataKey="fiveOnFiveExpectedGoalSharePercentage"
-                name="5v5 Expected-Goal Share"
-                stroke="var(--chart-secondary)"
-                strokeWidth={2.5}
-                dot={false}
-                activeDot={{ r: 5, strokeWidth: 2 }}
-                connectNulls
-                isAnimationActive={false}
+      {data.length > 0 ? (
+        <div
+          className="workspace-chart"
+          role="img"
+          aria-label={chartAriaLabel({
+            teamName,
+            windowSize,
+            venue,
+            showGoalShare,
+            showExpectedGoalShare:
+              showExpectedGoalShare && hasExpectedGoalData,
+          })}
+        >
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={data}
+              margin={{ top: 14, right: 18, bottom: 4, left: -8 }}
+              accessibilityLayer
+            >
+              <CartesianGrid
+                stroke="var(--chart-grid)"
+                strokeDasharray="3 5"
+                vertical={false}
               />
-            ) : null}
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-      {!hasExpectedGoalData ? (
+              <XAxis
+                dataKey="gameDate"
+                tickFormatter={formatAxisDate}
+                stroke="var(--chart-axis)"
+                tick={{ fill: "var(--chart-label)", fontSize: 12 }}
+                tickLine={false}
+                axisLine={{ stroke: "var(--chart-axis)" }}
+                interval="preserveStartEnd"
+                minTickGap={34}
+              />
+              <YAxis
+                domain={[0, 100]}
+                ticks={[0, 25, 50, 75, 100]}
+                tickFormatter={(value: number) => `${value}%`}
+                stroke="var(--chart-axis)"
+                tick={{ fill: "var(--chart-label)", fontSize: 12 }}
+                tickLine={false}
+                axisLine={false}
+                width={52}
+              />
+              <ReferenceLine
+                y={50}
+                stroke="var(--chart-reference)"
+                strokeDasharray="5 5"
+                label={{
+                  value: "50%",
+                  position: "insideTopLeft",
+                  fill: "var(--chart-label)",
+                  fontSize: 11,
+                }}
+              />
+              <Tooltip
+                content={
+                  <PerformanceTooltip
+                    showGoalShare={showGoalShare}
+                    showExpectedGoalShare={
+                      showExpectedGoalShare && hasExpectedGoalData
+                    }
+                  />
+                }
+                cursor={{
+                  stroke: "var(--chart-reference)",
+                  strokeWidth: 1,
+                }}
+                isAnimationActive="auto"
+              />
+              <Legend
+                iconType="plainline"
+                formatter={(value) => (
+                  <span className="workspace-chart-legend-label">
+                    {value}
+                  </span>
+                )}
+              />
+              {showGoalShare ? (
+                <Line
+                  type="monotone"
+                  dataKey="goalSharePercentage"
+                  name="Goal Share"
+                  stroke="var(--chart-primary)"
+                  strokeWidth={2.5}
+                  dot={false}
+                  activeDot={{ r: 5, strokeWidth: 2 }}
+                  connectNulls
+                  isAnimationActive={false}
+                />
+              ) : null}
+              {showExpectedGoalShare && hasExpectedGoalData ? (
+                <Line
+                  type="monotone"
+                  dataKey="fiveOnFiveExpectedGoalSharePercentage"
+                  name="5v5 Expected-Goal Share"
+                  stroke="var(--chart-secondary)"
+                  strokeWidth={2.5}
+                  dot={false}
+                  activeDot={{ r: 5, strokeWidth: 2 }}
+                  connectNulls
+                  isAnimationActive={false}
+                />
+              ) : null}
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      ) : (
+        <div className="workspace-chart-empty">
+          No completed {venue} games are stored for this season phase.
+        </div>
+      )}
+      {data.length > 0 && !hasExpectedGoalData ? (
         <p className="workspace-chart-coverage">
           Five-on-five expected-goal data is not available for this season
           phase, so only actual goal share is shown.
@@ -163,16 +236,18 @@ export function TeamRollingPerformanceChart({
 
       <table className="sr-only">
         <caption>
-          {teamName} rolling performance, using up to {windowSize} games per
-          point
+          {teamName} rolling {venue === "all" ? "" : `${venue} `}performance,
+          using up to {windowSize} games per point
         </caption>
         <thead>
           <tr>
             <th>Date</th>
             <th>Opponent</th>
             <th>Result</th>
-            <th>Goal Share</th>
-            <th>5v5 Expected-Goal Share</th>
+            {showGoalShare ? <th>Goal Share</th> : null}
+            {showExpectedGoalShare && hasExpectedGoalData ? (
+              <th>5v5 Expected-Goal Share</th>
+            ) : null}
           </tr>
         </thead>
         <tbody>
@@ -185,12 +260,16 @@ export function TeamRollingPerformanceChart({
               <td>
                 {point.result} {point.scoreLabel}
               </td>
-              <td>{formatPercentage(point.goalSharePercentage)}</td>
-              <td>
-                {formatPercentage(
-                  point.fiveOnFiveExpectedGoalSharePercentage,
-                )}
-              </td>
+              {showGoalShare ? (
+                <td>{formatPercentage(point.goalSharePercentage)}</td>
+              ) : null}
+              {showExpectedGoalShare && hasExpectedGoalData ? (
+                <td>
+                  {formatPercentage(
+                    point.fiveOnFiveExpectedGoalSharePercentage,
+                  )}
+                </td>
+              ) : null}
             </tr>
           ))}
         </tbody>
@@ -199,10 +278,55 @@ export function TeamRollingPerformanceChart({
   );
 }
 
+function ChartFilterGroup({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <fieldset className="workspace-chart-filter-group">
+      <legend>{label}</legend>
+      <div>{children}</div>
+    </fieldset>
+  );
+}
+
+function FilterButton({
+  active,
+  disabled = false,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  disabled?: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      disabled={disabled}
+      onClick={onClick}
+    >
+      {label}
+    </button>
+  );
+}
+
+type PerformanceTooltipProps = Partial<TooltipContentProps> & {
+  showGoalShare: boolean;
+  showExpectedGoalShare: boolean;
+};
+
 function PerformanceTooltip({
   active,
-  payload,
-}: TooltipContentProps) {
+  payload = [],
+  showGoalShare,
+  showExpectedGoalShare,
+}: PerformanceTooltipProps) {
   const point = payload[0]?.payload as
     | RollingTeamPerformancePoint
     | undefined;
@@ -220,18 +344,22 @@ function PerformanceTooltip({
         {point.opponentAbbreviation}
       </p>
       <dl>
-        <div>
-          <dt>Goal Share</dt>
-          <dd>{formatPercentage(point.goalSharePercentage)}</dd>
-        </div>
-        <div>
-          <dt>5v5 xG Share</dt>
-          <dd>
-            {formatPercentage(
-              point.fiveOnFiveExpectedGoalSharePercentage,
-            )}
-          </dd>
-        </div>
+        {showGoalShare ? (
+          <div>
+            <dt>Goal Share</dt>
+            <dd>{formatPercentage(point.goalSharePercentage)}</dd>
+          </div>
+        ) : null}
+        {showExpectedGoalShare ? (
+          <div>
+            <dt>5v5 xG Share</dt>
+            <dd>
+              {formatPercentage(
+                point.fiveOnFiveExpectedGoalSharePercentage,
+              )}
+            </dd>
+          </div>
+        ) : null}
       </dl>
       <p className="workspace-chart-tooltip-sample">
         {point.sampleSize}-game actual sample · {point.advancedSampleSize}-game
@@ -239,6 +367,29 @@ function PerformanceTooltip({
       </p>
     </div>
   );
+}
+
+function chartAriaLabel({
+  teamName,
+  windowSize,
+  venue,
+  showGoalShare,
+  showExpectedGoalShare,
+}: {
+  teamName: string;
+  windowSize: TeamPerformanceWindow;
+  venue: TeamPerformanceVenue;
+  showGoalShare: boolean;
+  showExpectedGoalShare: boolean;
+}): string {
+  const series = [
+    showGoalShare ? "goal share" : null,
+    showExpectedGoalShare ? "five-on-five expected-goal share" : null,
+  ].filter(Boolean);
+  const venueLabel =
+    venue === "all" ? "all games" : `${venue} games`;
+
+  return `${teamName} rolling ${series.join(" and ")} over ${windowSize} ${venueLabel}. A value above 50 percent means the team produced more than its opponent.`;
 }
 
 function formatAxisDate(value: string): string {
