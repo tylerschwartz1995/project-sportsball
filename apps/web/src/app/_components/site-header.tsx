@@ -37,7 +37,7 @@ export function SiteHeader({ active }: SiteHeaderProps) {
           <ThemeToggle />
           <span className="workspace-data-status">
             <span aria-hidden="true" />
-            Data current
+            Local dataset
           </span>
         </div>
       </aside>
