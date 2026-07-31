@@ -29,6 +29,64 @@ such as:
 - Allow results to be sorted by recency, frequency, or statistical extremity.
 - Save and share useful queries.
 
+### Conversational experience
+
+Present the explorer as an embedded "Ask Sportsball" experience rather than a
+separate generic chatbot. It should be available throughout the site and use
+the current page as context. A visitor on a player, team, or game page could ask
+questions such as:
+
+- Compare this player's last three seasons.
+- Show this team's worst defensive performances this season.
+- Why do the expected-goal totals favor one team in this game?
+- Find every playoff game since 2015 in which a team overcame a three-goal
+  deficit.
+
+Answers should be interactive results, not only generated prose. Depending on
+the question, a response may contain:
+
+- visible filter chips that the visitor can adjust;
+- sortable tables and player or team comparison cards;
+- charts, shot maps, or other existing Sportsball visualizations;
+- links to the supporting games, box scores, players, and teams;
+- suggested follow-up questions;
+- a shareable URL that preserves the interpreted query.
+
+Follow-up messages such as "only playoffs", "compare home and away", or "sort
+by expected goals" should refine the current structured query. The interface
+must show that interpretation so the visitor can verify and correct it.
+
+### AI orchestration
+
+An LLM application framework such as LangChain is a candidate for the
+conversational layer. It could provide schema-validated output, page-aware
+context, tool selection, multi-step query refinement, and tracing. This is an
+implementation option to evaluate, not a required dependency for the core
+application.
+
+The model should call a small set of typed, read-only Sportsball tools, such as
+player search, season comparison, game search, statistical-extreme lookup,
+game analysis, metric definitions, and shot-data retrieval. Each tool should
+delegate to deterministic application queries and return stable contracts.
+The model must not receive unrestricted SQL execution or become responsible
+for calculating official statistics.
+
+The intended request path is:
+
+```text
+natural-language question
+    -> validated structured query
+    -> deterministic Sportsball query functions
+    -> PostgreSQL or query-optimized derived tables
+    -> evidence-backed interactive result and concise explanation
+```
+
+Start with a direct model API and schema validation if that is sufficient for
+the first narrow slice. Adopt LangChain when multiple tools, correction loops,
+provider portability, or richer tracing provide a demonstrated benefit.
+LangGraph-style durable orchestration is unnecessary unless the feature grows
+into a genuinely long-running or stateful workflow.
+
 ### Data and engineering requirements
 
 - Complete box scores and play-by-play events from 2005 onward.
@@ -45,8 +103,11 @@ such as:
 1. Build structured filters and a small library of validated query templates.
 2. Add derived event and streak tables plus outlier-ranking features.
 3. Add saved queries and shareable result URLs.
-4. Add natural-language interpretation that translates a question into the
+4. Add contextual questions to player, team, and game pages.
+5. Add natural-language interpretation that translates a question into the
    same validated structured query, showing the interpretation to the user.
+6. Add conversational refinement, interactive result components, and
+   evaluation coverage for representative questions.
 
 Natural-language querying should sit on top of the structured query system, not
 replace it. That keeps results reproducible and makes it possible to explain
