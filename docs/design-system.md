@@ -85,6 +85,10 @@ and a pre-render bootstrap applies it before the interface is painted.
   therefore compare true home-only or away-only rolling samples rather than
   hiding points from an all-games calculation. Series controls always keep at
   least one available line visible.
+- League comparison scatterplots use fixed axes while filtering so a subject
+  never appears to move when its comparison group changes. Meaningful
+  horizontal and vertical baselines define plain-language quadrants, and the
+  legend explains both the color and interpretation of every group.
 - Every interactive chart includes a plain-language description and a
   screen-reader table containing the same values.
 - Charts should reveal change, comparison, or distribution. Static headline
