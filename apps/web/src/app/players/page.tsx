@@ -103,13 +103,13 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
   const minSavePercentage = parseMinimum(filters.minSavePercentage);
   const allPlayers =
     category === "skaters" ? players.skaters : players.goalies;
-  const countries = uniqueRegions(
-    allPlayers.map((player) => player.birthCountry),
+  const locations = uniqueLocations(
+    allPlayers.map((player) => ({
+      country: player.birthCountry,
+      region: player.birthStateProvince,
+      city: player.birthCity,
+    })),
   );
-  const regions = uniqueRegions(
-    allPlayers.map((player) => player.birthStateProvince),
-  );
-  const cities = uniqueRegions(allPlayers.map((player) => player.birthCity));
   const skaterPage = paginate(
     sortSkaters(
       players.skaters.filter(
@@ -154,11 +154,21 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
           title={`${selectedSeason?.label ?? "No Season"} Players`}
           description={`Complete Polars-derived ${seasonPhaseLabel(phase).toLowerCase()} totals for every participating skater and goalie. Traded-player rows combine all teams.`}
           action={
-            <SeasonPicker
-              seasons={seasons}
-              selectedSeasonId={selectedSeason?.id}
-              params={{ phase }}
-            />
+            <div className="workspace-page-actions">
+              {selectedSeason ? (
+                <Link
+                  href={`/players/compare?season=${selectedSeason.id}&phase=${phase}&type=${category}`}
+                  className="workspace-secondary-action"
+                >
+                  Compare Players
+                </Link>
+              ) : null}
+              <SeasonPicker
+                seasons={seasons}
+                selectedSeasonId={selectedSeason?.id}
+                params={{ phase }}
+              />
+            </div>
           }
         />
 
@@ -177,9 +187,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
               sort={sort}
               sortOptions={sortOptions}
               direction={direction}
-              countries={countries}
-              regions={regions}
-              cities={cities}
+              locations={locations}
               filters={filters}
             />
 
@@ -719,9 +727,32 @@ function parseMinimum(value: string): number {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 }
 
-function uniqueRegions(values: Array<string | null>): string[] {
-  return [...new Set(values.filter((value): value is string => Boolean(value)))]
-    .sort((left, right) => left.localeCompare(right));
+function uniqueLocations(
+  values: Array<{
+    country: string | null;
+    region: string | null;
+    city: string | null;
+  }>,
+) {
+  const locations = new Map<
+    string,
+    { country: string; region: string | null; city: string | null }
+  >();
+  for (const value of values) {
+    if (!value.country) continue;
+    const key = `${value.country}|${value.region ?? ""}|${value.city ?? ""}`;
+    locations.set(key, {
+      country: value.country,
+      region: value.region,
+      city: value.city,
+    });
+  }
+  return [...locations.values()].sort(
+    (left, right) =>
+      left.country.localeCompare(right.country) ||
+      (left.region ?? "").localeCompare(right.region ?? "") ||
+      (left.city ?? "").localeCompare(right.city ?? ""),
+  );
 }
 
 function matchesBirthplace(

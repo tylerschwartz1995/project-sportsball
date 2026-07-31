@@ -47,10 +47,10 @@ export default async function Home({ searchParams }: HomeProps) {
           eyebrow="League / Overview"
           title={
             selectedSeason
-              ? `${selectedSeason.label} NHL Workspace`
+              ? `${selectedSeason.label} NHL Overview`
               : "NHL Data Unavailable"
           }
-          description="Results, standings, scoring leaders, and advanced analysis in one compact league workspace."
+          description="Results, standings, scoring leaders, and advanced analysis in one compact league overview."
           action={
             <SeasonPicker
               seasons={seasons}
@@ -146,7 +146,7 @@ export default async function Home({ searchParams }: HomeProps) {
                 className="workspace-analytics-link"
               >
                 <span>
-                  <b>Advanced analytics workspace</b>
+                  <b>Advanced Analytics</b>
                   <small>
                     xG, possession, game score, GSAx, lines, and pairings
                   </small>

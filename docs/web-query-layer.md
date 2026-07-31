@@ -39,6 +39,7 @@ apps/web/src/
 │   ├── advanced-game.ts
 │   ├── advanced.ts
 │   ├── database.ts
+│   ├── drafts.ts
 │   ├── game-logs.ts
 │   ├── games.ts
 │   ├── play-by-play.ts
@@ -59,6 +60,8 @@ apps/web/src/
     ├── players/page.tsx
     ├── players/[id]/page.tsx
     ├── players/[id]/games/page.tsx
+    ├── players/compare/page.tsx
+    ├── drafts/page.tsx
     ├── playoffs/page.tsx
     ├── teams/page.tsx
     ├── teams/[id]/page.tsx

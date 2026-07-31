@@ -255,3 +255,55 @@ a strong analytical story.
   team, or player page.
 - Keep the homepage sport-neutral enough to become the entry point for multiple
   leagues later without flattening sport-specific information.
+
+## 9. Complete draft history and team drafting performance
+
+**Status:** Partially implemented
+
+The first Drafts page compares career outcomes for drafted players represented
+in Sportsball's stored NHL player universe, including pick-position plots,
+player outcomes, late-round value, and team production. This is useful for
+players who reached the NHL, but it is not a complete draft-board archive.
+
+The complete version should ingest every selection from each supported NHL
+draft, including players who never appeared in the NHL. That additional
+denominator is required before publishing true team hit rates or comparing
+draft efficiency fairly.
+
+Potential extensions include:
+
+- a complete round-by-round board for every draft;
+- NHL appearance, 100-game, and star-player hit rates by team and pick range;
+- era- and opportunity-adjusted value above expected draft position;
+- comparisons between drafting teams, general managers, and scouting eras;
+- re-drafts using realized career outcomes;
+- country, league, position, and age patterns;
+- time-to-debut, peak value, career longevity, awards, and playoff outcomes;
+- team pages showing the best and worst draft classes in franchise history.
+
+Historical team identities and traded draft picks should be preserved so the
+page can distinguish the club that made the selection from the franchise that
+originally owned the pick.
+
+## 10. Historical records and best seasons
+
+**Status:** Proposed
+
+Add a dedicated historical records page for browsing the strongest careers,
+single seasons, teams, and performances across the stored NHL archive.
+
+- Show all-time totals and rates for skaters, goalies, and teams.
+- Rank the best individual and team seasons by traditional and advanced
+  metrics.
+- Support regular-season/playoff, position, era, team, nationality, and
+  minimum-playing-time filters.
+- Separate raw historical records from era-adjusted comparisons so visitors
+  can understand both what happened and how unusual it was for the period.
+- Highlight peaks, longevity, records, milestones, age curves, and the best
+  multi-season stretches.
+- Link every result to its supporting season, player, team, games, and metric
+  definition.
+
+This should complement the historical query explorer. The records page is a
+curated, browsable statistical product; the query explorer answers narrower,
+open-ended questions.

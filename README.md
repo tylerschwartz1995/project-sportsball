@@ -35,6 +35,9 @@ The standings workspace adds overall, conference, and division views plus
 cumulative points history. Player discovery includes minimum-stat and birth
 region filters, and a dedicated playoffs workspace presents the historical
 bracket, scoring leaders, or projected first-round matchups before play begins.
+Player comparisons now combine official and available advanced season metrics,
+while the first draft-outcomes page evaluates pick value and team production
+for drafted players represented in stored NHL history.
 MoneyPuck presentation is implemented on team, player, and game pages,
 including game-level expected-goal and possession tables, shot maps, forward
 lines, and defensive pairings. Shot-map events can be selected to inspect

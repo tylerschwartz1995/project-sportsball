@@ -136,7 +136,7 @@ export default async function PlayerPage({
         <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
-              {profile.position ?? "Player"} · NHL {profile.nhlPlayerId}
+              {profile.position ?? "Player"}
             </p>
             <h1 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
               {profile.name}
@@ -148,11 +148,21 @@ export default async function PlayerPage({
             </p>
           </div>
           {careerSeasons.length > 0 ? (
-            <SeasonPicker
-              seasons={careerSeasons}
-              selectedSeasonId={selectedSeason?.id}
-              params={{ phase }}
-            />
+            <div className="workspace-page-actions">
+              {selectedSeason ? (
+                <Link
+                  href={`/players/compare?season=${selectedSeason.id}&phase=${phase}&type=${profile.position === "G" ? "goalies" : "skaters"}&players=${profile.nhlPlayerId}`}
+                  className="workspace-secondary-action"
+                >
+                  Compare Player
+                </Link>
+              ) : null}
+              <SeasonPicker
+                seasons={careerSeasons}
+                selectedSeasonId={selectedSeason?.id}
+                params={{ phase }}
+              />
+            </div>
           ) : null}
         </div>
 
