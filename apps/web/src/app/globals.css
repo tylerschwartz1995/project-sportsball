@@ -92,6 +92,26 @@ body {
   outline-offset: 3px;
 }
 
+.workspace-skip-link {
+  position: fixed;
+  z-index: 100;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.45rem;
+  background: var(--accent);
+  color: var(--background);
+  font-size: 0.82rem;
+  font-weight: 750;
+  text-decoration: none;
+  transform: translateY(calc(-100% - 1rem));
+  transition: transform 120ms ease;
+}
+
+.workspace-skip-link:focus {
+  transform: translateY(0);
+}
+
 @layer components {
   .surface-panel {
     border: 1px solid var(--border);
@@ -1165,6 +1185,17 @@ html[data-theme="light"] .workspace-directory-controls button {
 @keyframes workspace-pulse {
   50% {
     opacity: 0.62;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
 

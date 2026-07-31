@@ -159,6 +159,26 @@ export async function listPlayersBySeason(
   };
 }
 
+export async function listSkaterLeadersBySeason(
+  seasonId: number,
+  limit = 5,
+  gameType = 2,
+): Promise<SkaterSeasonSummary[]> {
+  const safeLimit = Math.max(1, Math.min(Math.trunc(limit), 100));
+  const rows = await query<SkaterRow>(
+    `
+      ${skaterSelect}
+      WHERE stats.season_id = $1
+        AND stats.game_type = $2
+      ORDER BY stats.points DESC, stats.goals DESC, player.display_name
+      LIMIT $3
+    `,
+    [seasonId, gameType, safeLimit],
+  );
+
+  return rows.map(mapSkater);
+}
+
 export async function getPlayerDetail(
   nhlPlayerId: number,
 ): Promise<PlayerDetail | null> {

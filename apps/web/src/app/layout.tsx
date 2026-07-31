@@ -50,13 +50,18 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        <a className="workspace-skip-link" href="#main-content">
+          Skip to Main Content
+        </a>
         <Script
           id="sportsball-theme-bootstrap"
           strategy="beforeInteractive"
         >
           {themeBootstrap}
         </Script>
-        {children}
+        <div id="main-content" tabIndex={-1}>
+          {children}
+        </div>
       </body>
     </html>
   );
