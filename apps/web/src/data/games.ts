@@ -122,6 +122,7 @@ const gameSelect = `
 
 export async function listGameDates(
   seasonId: number,
+  gameType?: number,
 ): Promise<GameDateSummary[]> {
   const rows = await query<GameDateRow>(
     `
@@ -130,10 +131,14 @@ export async function listGameDates(
         COUNT(*)::integer AS game_count
       FROM games
       WHERE season_id = $1
+        AND ($2::smallint IS NULL OR game_type = $2)
       GROUP BY game_date
-      ORDER BY game_date DESC
+      ORDER BY
+        CASE WHEN game_date >= CURRENT_DATE THEN 0 ELSE 1 END,
+        CASE WHEN game_date >= CURRENT_DATE THEN game_date END,
+        CASE WHEN game_date < CURRENT_DATE THEN game_date END DESC
     `,
-    [seasonId],
+    [seasonId, gameType ?? null],
   );
 
   return rows.map((row) => ({
@@ -145,15 +150,17 @@ export async function listGameDates(
 export async function getGamesByDate(
   seasonId: number,
   gameDate: string,
+  gameType?: number,
 ): Promise<GameSummary[]> {
   const rows = await query<GameRow>(
     `
       ${gameSelect}
       WHERE game.season_id = $1
         AND game.game_date = $2::date
+        AND ($3::smallint IS NULL OR game.game_type = $3)
       ORDER BY game.start_time_utc, game.nhl_id
     `,
-    [seasonId, gameDate],
+    [seasonId, gameDate, gameType ?? null],
   );
 
   return rows.map(mapGame);
@@ -174,6 +181,31 @@ export async function getLatestGamesForSeason(
       ORDER BY game.start_time_utc, game.nhl_id
     `,
     [seasonId],
+  );
+
+  return rows.map(mapGame);
+}
+
+export async function getUpcomingGamesForTeam(
+  nhlTeamId: number,
+  seasonId: number,
+  gameType: number,
+  limit = 5,
+): Promise<GameSummary[]> {
+  const rows = await query<GameRow>(
+    `
+      ${gameSelect}
+      WHERE game.season_id = $2
+        AND game.game_type = $3
+        AND (
+          away_team.nhl_id = $1
+          OR home_team.nhl_id = $1
+        )
+        AND game.start_time_utc > NOW()
+      ORDER BY game.start_time_utc, game.nhl_id
+      LIMIT $4
+    `,
+    [nhlTeamId, seasonId, gameType, limit],
   );
 
   return rows.map(mapGame);

@@ -84,9 +84,11 @@ const seasonIdentityJoin = `
 export async function listAdvancedTeamLeaders(
   seasonId: number,
   situation: string,
+  gameType = 2,
 ): Promise<AdvancedTeamLeaderboardRow[]> {
   const rows = await query<TeamRow>(
-    `
+    gameType === 2
+      ? `
       SELECT
         ${teamIdentitySelect},
         stats.situation,
@@ -104,8 +106,58 @@ export async function listAdvancedTeamLeaders(
       WHERE stats.season_id = $1
         AND stats.situation = $2
       ORDER BY stats.x_goals_percentage DESC NULLS LAST, team_name
+    `
+      : `
+      SELECT
+        ${teamIdentitySelect},
+        stats.situation,
+        COUNT(DISTINCT stats.game_id)::integer AS games_played,
+        SUM(stats.ice_time_seconds) AS ice_time_seconds,
+        CASE
+          WHEN SUM(stats.x_goals_for + stats.x_goals_against) = 0 THEN NULL
+          ELSE SUM(stats.x_goals_for) /
+            SUM(stats.x_goals_for + stats.x_goals_against)
+        END AS x_goals_percentage,
+        CASE
+          WHEN SUM(stats.shot_attempts_for + stats.shot_attempts_against) = 0
+            THEN NULL
+          ELSE SUM(stats.shot_attempts_for) /
+            SUM(stats.shot_attempts_for + stats.shot_attempts_against)
+        END AS corsi_percentage,
+        CASE
+          WHEN SUM(stats.ice_time_seconds) = 0 THEN NULL
+          ELSE SUM(stats.fenwick_percentage * stats.ice_time_seconds) /
+            SUM(stats.ice_time_seconds)
+        END AS fenwick_percentage,
+        SUM(stats.x_goals_for) AS x_goals_for,
+        SUM(stats.x_goals_against) AS x_goals_against,
+        SUM(stats.goals_for) AS goals_for,
+        SUM(stats.goals_against) AS goals_against
+      FROM moneypuck_team_game_stats AS stats
+      JOIN games AS game
+        ON game.id = stats.game_id
+      JOIN teams AS team
+        ON team.id = stats.team_id
+      LEFT JOIN team_seasons AS team_season
+        ON team_season.team_id = team.id
+       AND team_season.season_id = game.season_id
+      WHERE game.season_id = $1
+        AND stats.situation = $2
+        AND game.game_type = $3
+      GROUP BY
+        team.id,
+        team.nhl_id,
+        team.franchise_id,
+        team_season.abbreviation,
+        team.abbreviation,
+        team_season.full_name,
+        team.name,
+        stats.situation
+      ORDER BY x_goals_percentage DESC NULLS LAST, team_name
     `,
-    [seasonId, situation],
+    gameType === 2
+      ? [seasonId, situation]
+      : [seasonId, situation, gameType],
   );
 
   return rows.map((row) => ({

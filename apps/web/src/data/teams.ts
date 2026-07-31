@@ -92,15 +92,16 @@ const teamStatsSelect = `
 
 export async function listTeamsBySeason(
   seasonId: number,
+  gameType = 2,
 ): Promise<TeamSeasonSummary[]> {
   const rows = await query<TeamStatsRow>(
     `
       ${teamStatsSelect}
       WHERE stats.season_id = $1
-        AND stats.game_type = 2
+        AND stats.game_type = $2
       ORDER BY stats.standings_points DESC, stats.wins DESC, team_name
     `,
-    [seasonId],
+    [seasonId, gameType],
   );
 
   return rows.map((row) => ({
@@ -130,6 +131,7 @@ export async function listTeamSeasonIds(
 export async function getTeamSeasonDetail(
   nhlTeamId: number,
   seasonId: number,
+  rosterGameType = 2,
 ): Promise<TeamSeasonDetail | null> {
   const [statsRows, skaterRows, goalieRows] = await Promise.all([
     query<TeamStatsRow>(
@@ -160,12 +162,12 @@ export async function getTeamSeasonDetail(
           ON team.id = split.team_id
         WHERE team.nhl_id = $1
           AND split.season_id = $2
-          AND split.game_type = 2
+          AND split.game_type = $3
         ORDER BY split.points DESC NULLS LAST,
                  split.goals DESC NULLS LAST,
                  player.display_name
       `,
-      [nhlTeamId, seasonId],
+      [nhlTeamId, seasonId, rosterGameType],
     ),
     query<TeamGoalieRow>(
       `
@@ -187,10 +189,10 @@ export async function getTeamSeasonDetail(
           ON team.id = split.team_id
         WHERE team.nhl_id = $1
           AND split.season_id = $2
-          AND split.game_type = 2
+          AND split.game_type = $3
         ORDER BY split.games_played DESC, player.display_name
       `,
-      [nhlTeamId, seasonId],
+      [nhlTeamId, seasonId, rosterGameType],
     ),
   ]);
 

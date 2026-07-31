@@ -16,6 +16,7 @@ type DirectoryControlsProps = {
   categoryOptions?: SelectOption[];
   searchPlaceholder: string;
   alwaysShowSort?: boolean;
+  phase?: string;
 };
 
 export function DirectoryControls({
@@ -29,6 +30,7 @@ export function DirectoryControls({
   categoryOptions,
   searchPlaceholder,
   alwaysShowSort = false,
+  phase,
 }: DirectoryControlsProps) {
   return (
     <form
@@ -37,6 +39,7 @@ export function DirectoryControls({
       className="workspace-directory-controls"
     >
       <input type="hidden" name="season" value={seasonId} />
+      {phase ? <input type="hidden" name="phase" value={phase} /> : null}
       <label>
         Search
         <input
@@ -102,7 +105,7 @@ export function DirectoryControls({
         Apply
       </button>
       <Link
-        href={`${action}?season=${seasonId}`}
+        href={`${action}?season=${seasonId}${phase ? `&phase=${phase}` : ""}`}
         className="workspace-directory-reset"
       >
         Reset

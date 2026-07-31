@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { PlayerAdvancedAnalytics } from "@/app/_components/advanced-analytics";
 import { SeasonPicker } from "@/app/_components/season-picker";
+import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
@@ -12,6 +13,10 @@ import type {
   SkaterSeasonSummary,
 } from "@/contracts/player";
 import { parseSeasonId } from "@/contracts/season";
+import {
+  parseSeasonPhase,
+  seasonPhaseLabel,
+} from "@/contracts/season-phase";
 import { getMoneyPuckPlayerSeason } from "@/data/advanced";
 import { getPlayerDetail } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
@@ -20,7 +25,10 @@ export const dynamic = "force-dynamic";
 
 type PlayerPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ season?: string | string[] }>;
+  searchParams: Promise<{
+    season?: string | string[];
+    phase?: string | string[];
+  }>;
 };
 
 export default async function PlayerPage({
@@ -47,9 +55,9 @@ export default async function PlayerPage({
   const careerSeasons = seasons.filter((season) =>
     careerSeasonIds.has(season.id),
   );
-  const requestedSeason = parseSeasonId(
-    firstValue((await searchParams).season),
-  );
+  const pageParams = await searchParams;
+  const requestedSeason = parseSeasonId(firstValue(pageParams.season));
+  const phase = parseSeasonPhase(firstValue(pageParams.phase));
   const selectedSeason =
     careerSeasons.find((season) => season.id === requestedSeason) ??
     careerSeasons[0];
@@ -65,7 +73,9 @@ export default async function PlayerPage({
   const playoffGoalie = selectedGoalieRows.find((row) => row.gameType === 3);
   const profile = detail.profile;
   const advanced = selectedSeason
-    ? await getMoneyPuckPlayerSeason(nhlPlayerId, selectedSeason.id)
+    ? phase === "regular"
+      ? await getMoneyPuckPlayerSeason(nhlPlayerId, selectedSeason.id)
+      : null
     : null;
 
   return (
@@ -74,7 +84,7 @@ export default async function PlayerPage({
 
       <section className="py-10">
         <Link
-          href={`/players${selectedSeason ? `?season=${selectedSeason.id}` : ""}`}
+          href={`/players${selectedSeason ? `?season=${selectedSeason.id}&phase=${phase}` : ""}`}
           className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
         >
           ← All players
@@ -98,9 +108,18 @@ export default async function PlayerPage({
             <SeasonPicker
               seasons={careerSeasons}
               selectedSeasonId={selectedSeason?.id}
+              params={{ phase }}
             />
           ) : null}
         </div>
+
+        {selectedSeason ? (
+          <SeasonPhaseFilter
+            active={phase}
+            path={`/players/${profile.nhlPlayerId}`}
+            params={{ season: selectedSeason.id }}
+          />
+        ) : null}
 
         <dl className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <ProfileStat
@@ -130,12 +149,14 @@ export default async function PlayerPage({
           <section className="mt-12">
             <SectionTitle
               eyebrow="Selected season"
-              title="Skater totals"
+              title="Skater Totals"
               detail="Combined across teams played for"
             />
-            <div className="mt-5 grid gap-5 lg:grid-cols-2">
-              <SkaterPanel title="Regular season" stats={regularSkater} />
-              <SkaterPanel title="Playoffs" stats={playoffSkater} />
+            <div className="mt-5">
+              <SkaterPanel
+                title={seasonPhaseLabel(phase)}
+                stats={phase === "playoffs" ? playoffSkater : regularSkater}
+              />
             </div>
           </section>
         ) : null}
@@ -144,19 +165,21 @@ export default async function PlayerPage({
           <section className="mt-12">
             <SectionTitle
               eyebrow="Selected season"
-              title="Goalie totals"
+              title="Goalie Totals"
               detail="Combined across teams played for"
             />
-            <div className="mt-5 grid gap-5 lg:grid-cols-2">
-              <GoaliePanel title="Regular season" stats={regularGoalie} />
-              <GoaliePanel title="Playoffs" stats={playoffGoalie} />
+            <div className="mt-5">
+              <GoaliePanel
+                title={seasonPhaseLabel(phase)}
+                stats={phase === "playoffs" ? playoffGoalie : regularGoalie}
+              />
             </div>
           </section>
         ) : null}
 
         {selectedSeason ? (
           <Link
-            href={`/players/${profile.nhlPlayerId}/games?season=${selectedSeason.id}`}
+            href={`/players/${profile.nhlPlayerId}/games?season=${selectedSeason.id}&phase=${phase}`}
             className="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.06] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.09]"
           >
             <span>
@@ -173,12 +196,18 @@ export default async function PlayerPage({
         ) : null}
 
         {advanced ? <PlayerAdvancedAnalytics data={advanced} /> : null}
+        {phase === "playoffs" ? (
+          <p className="mt-8 rounded-2xl border border-violet-300/20 bg-violet-300/[0.06] p-5 text-sm text-slate-300">
+            Player-level MoneyPuck playoff files are not available, so advanced
+            skater and goalie panels remain regular-season only.
+          </p>
+        ) : null}
 
         {detail.skaterSeasons.length > 0 ? (
           <section className="mt-12">
             <SectionTitle
               eyebrow="Career history"
-              title="Skater seasons"
+              title="Skater Seasons"
               detail={`${careerSeasonIds.size} NHL seasons`}
             />
             <SkaterHistory
@@ -194,7 +223,7 @@ export default async function PlayerPage({
           <section className="mt-12">
             <SectionTitle
               eyebrow="Career history"
-              title="Goalie seasons"
+              title="Goalie Seasons"
               detail={`${careerSeasonIds.size} NHL seasons`}
             />
             <GoalieHistory

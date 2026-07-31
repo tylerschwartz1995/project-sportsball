@@ -5,7 +5,6 @@ import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import {
-  WorkspaceMetric,
   WorkspacePageHeader,
   WorkspacePanel,
 } from "@/app/_components/workspace-primitives";
@@ -51,21 +50,6 @@ export default async function StandingsPage({
     : [];
   const sortedStandings = sortStandings(standings, activeSort, direction);
   const leader = standings[0];
-  const cutLines = buildConferenceCutLines(standings);
-  const leagueContext = buildLeagueContext(standings);
-  const cutLineValue = cutLines
-    .map(
-      (line) =>
-        `${shortConferenceName(line.conference).slice(0, 1)}: ${line.qualifyingTeam.teamAbbreviation} ${line.qualifyingTeam.points}`,
-    )
-    .join(" · ");
-  const cutLineDetail = cutLines
-    .map((line) =>
-      line.firstTeamOut
-        ? `${line.margin === 0 ? "tied with" : `+${line.margin} over`} ${line.firstTeamOut.teamAbbreviation}`
-        : shortConferenceName(line.conference),
-    )
-    .join(" · ");
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -76,8 +60,8 @@ export default async function StandingsPage({
           eyebrow="League / Standings"
           title={
             selectedSeason
-              ? `${selectedSeason.label} final table`
-              : "No standings available"
+              ? `${selectedSeason.label} Final Standings`
+              : "No Standings Available"
           }
           description="Official NHL regular-season rankings with historical team identity and sortable statistical columns."
           action={
@@ -90,41 +74,9 @@ export default async function StandingsPage({
 
         {leader ? (
           <>
-            <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <WorkspaceMetric
-                label="Presidents’ Trophy"
-                value={leader.teamName}
-                detail={`${leader.points} points · ${leader.wins} wins`}
-                href={`/teams/${leader.nhlTeamId}?season=${selectedSeason.id}`}
-              />
-              <WorkspaceMetric
-                label="Playoff cut lines"
-                value={cutLineValue || "Unavailable"}
-                detail={cutLineDetail || "Conference ranks unavailable"}
-              />
-              <WorkspaceMetric
-                label="League scoring"
-                value={
-                  leagueContext.goalsPerGame === null
-                    ? "Unavailable"
-                    : `${leagueContext.goalsPerGame.toFixed(2)} G/GP`
-                }
-                detail={`${leagueContext.gamesPlayed.toLocaleString()} total games`}
-              />
-              <WorkspaceMetric
-                label="Average points"
-                value={
-                  leagueContext.pointsPerTeam === null
-                    ? "Unavailable"
-                    : leagueContext.pointsPerTeam.toFixed(1)
-                }
-                detail={`${standings.length} teams in final snapshot`}
-              />
-            </div>
-
             <WorkspacePanel
-              className="mt-5"
-              title="League standings"
+              className="mt-7"
+              title="League Standings"
               description="Select any column heading to sort the current table"
             >
               <SortableTable
@@ -266,72 +218,6 @@ function sortStandings(
     }
     return applySortDirection(comparison, direction);
   });
-}
-
-type ConferenceCutLine = {
-  conference: string;
-  qualifyingTeam: StandingsEntry;
-  firstTeamOut: StandingsEntry | null;
-  margin: number;
-};
-
-function buildConferenceCutLines(
-  standings: StandingsEntry[],
-): ConferenceCutLine[] {
-  const conferenceNames = [
-    ...new Set(standings.map((team) => team.conferenceName)),
-  ].filter((conference): conference is string => conference !== null);
-
-  return conferenceNames.flatMap((conference) => {
-    const teams = standings
-      .filter(
-        (team) =>
-          team.conferenceName === conference && team.conferenceRank !== null,
-      )
-      .sort((left, right) => left.conferenceRank! - right.conferenceRank!);
-    const qualifyingTeam = teams.find((team) => team.conferenceRank === 8);
-    if (!qualifyingTeam) {
-      return [];
-    }
-    const firstTeamOut =
-      teams.find((team) => team.conferenceRank === 9) ?? null;
-    return [
-      {
-        conference,
-        qualifyingTeam,
-        firstTeamOut,
-        margin: firstTeamOut
-          ? qualifyingTeam.points - firstTeamOut.points
-          : 0,
-      },
-    ];
-  });
-}
-
-function buildLeagueContext(standings: StandingsEntry[]): {
-  goalsPerGame: number | null;
-  pointsPerTeam: number | null;
-  gamesPlayed: number;
-} {
-  if (standings.length === 0) {
-    return { goalsPerGame: null, pointsPerTeam: null, gamesPlayed: 0 };
-  }
-  const teamGames = standings.reduce(
-    (total, team) => total + team.gamesPlayed,
-    0,
-  );
-  const gamesPlayed = Math.round(teamGames / 2);
-  const goals = standings.reduce((total, team) => total + team.goalsFor, 0);
-  const points = standings.reduce((total, team) => total + team.points, 0);
-  return {
-    goalsPerGame: gamesPlayed > 0 ? goals / gamesPlayed : null,
-    pointsPerTeam: points / standings.length,
-    gamesPlayed,
-  };
-}
-
-function shortConferenceName(value: string): string {
-  return value.replace(/\s+Conference$/i, "");
 }
 
 function NumericCell({ value }: { value: number | string }) {

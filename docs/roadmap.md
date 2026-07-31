@@ -30,7 +30,8 @@ were implemented on July 30, 2026.
 - [x] Add a league overview dashboard, dedicated standings route, and
   historical season selector.
 - [x] Add schedules and results.
-- [x] Add a card-based team directory plus team and player detail pages.
+- [x] Add a responsive, sortable team comparison directory plus team and player
+  detail pages.
 - [x] Add game and box-score pages.
 - [x] Add search, sorting, pagination, and complete mobile layouts.
 
@@ -70,6 +71,9 @@ were implemented on July 30, 2026.
   timeline, player box scores, and game-level advanced analytics.
 - [x] Apply Data Workspace to advanced team, skater, and goalie leaderboards
   and the centralized metric guide.
+- [x] Add consistent regular-season and playoff controls wherever the
+  underlying data supports both phases.
+- [x] Add an upcoming-schedule section to team profiles.
 - [ ] Apply the production visual design system across the remaining routes.
 - [ ] Establish shared plot conventions and add rolling team and player trends.
 

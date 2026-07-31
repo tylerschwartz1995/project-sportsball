@@ -19,14 +19,14 @@ export function SeasonUnitTables({
   return (
     <div className="space-y-10">
       <SeasonUnitTable
-        title="Forward lines"
+        title="Forward Lines"
         description="Three-player combinations at five-on-five."
         rows={data.forwardLines}
         seasonId={seasonId}
         showTeam={showTeam}
       />
       <SeasonUnitTable
-        title="Defensive pairings"
+        title="Defensive Pairings"
         description="Two-player defensive combinations at five-on-five."
         rows={data.defensivePairings}
         seasonId={seasonId}

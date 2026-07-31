@@ -3,11 +3,11 @@ import Link from "next/link";
 import { DirectoryControls } from "@/app/_components/directory-controls";
 import { Pagination } from "@/app/_components/pagination";
 import { SeasonPicker } from "@/app/_components/season-picker";
+import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import {
-  WorkspaceMetric,
   WorkspacePageHeader,
 } from "@/app/_components/workspace-primitives";
 import type {
@@ -15,6 +15,11 @@ import type {
   SkaterSeasonSummary,
 } from "@/contracts/player";
 import { parseSeasonId } from "@/contracts/season";
+import {
+  gameTypeForPhase,
+  parseSeasonPhase,
+  seasonPhaseLabel,
+} from "@/contracts/season-phase";
 import { listPlayersBySeason } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
 import {
@@ -37,6 +42,7 @@ type PlayersPageProps = {
     sort?: string | string[];
     dir?: string | string[];
     page?: string | string[];
+    phase?: string | string[];
   }>;
 };
 
@@ -46,8 +52,12 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
+  const phase = parseSeasonPhase(firstQueryValue(params.phase));
   const players = selectedSeason
-    ? await listPlayersBySeason(selectedSeason.id)
+    ? await listPlayersBySeason(
+        selectedSeason.id,
+        gameTypeForPhase(phase),
+      )
     : { seasonId: 0, skaters: [], goalies: [] };
   const query = normalizeSearch(firstQueryValue(params.q));
   const category =
@@ -87,18 +97,6 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
     requestedPage,
     50,
   );
-  const pointsLeader = players.skaters[0];
-  const goalsLeader = players.skaters.reduce(
-    (best, player) => (!best || player.goals > best.goals ? player : best),
-    pointsLeader,
-  );
-  const goalieLeader =
-    players.goalies
-      .filter((goalie) => goalie.gamesPlayed >= 20)
-      .sort(
-        (left, right) =>
-          (right.savePercentage ?? 0) - (left.savePercentage ?? 0),
-      )[0] ?? players.goalies[0];
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -107,39 +105,24 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
       <section className="py-10">
         <WorkspacePageHeader
           eyebrow="Player statistics"
-          title={`${selectedSeason?.label ?? "No season"} players`}
-          description="Complete Polars-derived regular-season totals for every participating skater and goalie. Traded-player rows combine all teams."
+          title={`${selectedSeason?.label ?? "No Season"} Players`}
+          description={`Complete Polars-derived ${seasonPhaseLabel(phase).toLowerCase()} totals for every participating skater and goalie. Traded-player rows combine all teams.`}
           action={
             <SeasonPicker
               seasons={seasons}
               selectedSeasonId={selectedSeason?.id}
+              params={{ phase }}
             />
           }
         />
 
-        {pointsLeader ? (
+        {selectedSeason ? (
           <>
-            <div className="workspace-metric-grid">
-              <WorkspaceMetric
-                label="Points leader"
-                value={pointsLeader.name}
-                detail={`${pointsLeader.points} points`}
-                href={`/players/${pointsLeader.nhlPlayerId}?season=${selectedSeason?.id}`}
-              />
-              <WorkspaceMetric
-                label="Goals leader"
-                value={goalsLeader.name}
-                detail={`${goalsLeader.goals} goals`}
-                href={`/players/${goalsLeader.nhlPlayerId}?season=${selectedSeason?.id}`}
-              />
-              <WorkspaceMetric
-                label="Save percentage"
-                value={goalieLeader.name}
-                detail={`${formatSavePercentage(goalieLeader.savePercentage)} in ${goalieLeader.gamesPlayed} games`}
-                href={`/players/${goalieLeader.nhlPlayerId}?season=${selectedSeason?.id}`}
-              />
-            </div>
-
+            <SeasonPhaseFilter
+              active={phase}
+              path="/players"
+              params={{ season: selectedSeason.id, type: category }}
+            />
             <DirectoryControls
               action="/players"
               seasonId={selectedSeason.id}
@@ -150,6 +133,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
               category={category}
               categoryOptions={playerTypeOptions}
               searchPlaceholder="Player name or position"
+              phase={phase}
             />
 
             {category === "skaters" ? (
@@ -167,6 +151,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                           key={player.nhlPlayerId}
                           player={player}
                           seasonId={selectedSeason.id}
+                          phase={phase}
                         />
                       ))}
                     </div>
@@ -205,6 +190,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                     playerId={player.nhlPlayerId}
                                     seasonId={selectedSeason.id}
                                     name={player.name}
+                                    phase={phase}
                                   />
                                   <span className="ml-2 text-xs text-slate-500">
                                     {player.position}
@@ -237,6 +223,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         type: category,
                         sort,
                         dir: direction,
+                        phase,
                       }}
                     />
                   </>
@@ -259,6 +246,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                           key={player.nhlPlayerId}
                           player={player}
                           seasonId={selectedSeason.id}
+                          phase={phase}
                         />
                       ))}
                     </div>
@@ -297,6 +285,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                     playerId={player.nhlPlayerId}
                                     seasonId={selectedSeason.id}
                                     name={player.name}
+                                    phase={phase}
                                   />
                                 </td>
                                 <NumericCell value={player.gamesPlayed} />
@@ -329,6 +318,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         type: category,
                         sort,
                         dir: direction,
+                        phase,
                       }}
                     />
                   </>
@@ -503,9 +493,11 @@ function sortGoalies(
 function MobileSkaterCard({
   player,
   seasonId,
+  phase,
 }: {
   player: SkaterSeasonSummary;
   seasonId: number;
+  phase: string;
 }) {
   return (
     <article className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
@@ -515,6 +507,7 @@ function MobileSkaterCard({
             playerId={player.nhlPlayerId}
             seasonId={seasonId}
             name={player.name}
+            phase={phase}
           />
           <p className="mt-1 text-xs text-slate-500">
             {player.position ?? "Skater"} · {player.gamesPlayed} games
@@ -542,9 +535,11 @@ function MobileSkaterCard({
 function MobileGoalieCard({
   player,
   seasonId,
+  phase,
 }: {
   player: GoalieSeasonSummary;
   seasonId: number;
+  phase: string;
 }) {
   return (
     <article className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
@@ -554,6 +549,7 @@ function MobileGoalieCard({
             playerId={player.nhlPlayerId}
             seasonId={seasonId}
             name={player.name}
+            phase={phase}
           />
           <p className="mt-1 text-xs text-slate-500">
             {player.gamesPlayed} games · {player.gamesStarted} starts
@@ -631,14 +627,16 @@ function PlayerLink({
   playerId,
   seasonId,
   name,
+  phase,
 }: {
   playerId: number;
   seasonId: number | undefined;
   name: string;
+  phase?: string;
 }) {
   return (
     <Link
-      href={`/players/${playerId}${seasonId ? `?season=${seasonId}` : ""}`}
+      href={`/players/${playerId}${seasonId ? `?season=${seasonId}${phase ? `&phase=${phase}` : ""}` : ""}`}
       className="font-medium text-white transition hover:text-cyan-200"
     >
       {name}

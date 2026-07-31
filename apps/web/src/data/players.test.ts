@@ -77,5 +77,27 @@ describe("listPlayersBySeason", () => {
       ],
     });
     expect(queryMock).toHaveBeenCalledTimes(2);
+    expect(queryMock).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("stats.game_type = $2"),
+      [20252026, 2],
+    );
+  });
+
+  it("selects playoff skater and goalie totals when requested", async () => {
+    queryMock.mockResolvedValue([]);
+
+    await listPlayersBySeason(20252026, 3);
+
+    expect(queryMock).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("stats.game_type = $2"),
+      [20252026, 3],
+    );
+    expect(queryMock).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("stats.game_type = $2"),
+      [20252026, 3],
+    );
   });
 });

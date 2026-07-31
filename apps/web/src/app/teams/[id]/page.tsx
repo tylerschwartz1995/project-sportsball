@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { TeamAdvancedAnalytics } from "@/app/_components/advanced-analytics";
 import { SeasonPicker } from "@/app/_components/season-picker";
+import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SeasonUnitTables } from "@/app/_components/season-unit-tables";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
@@ -14,8 +15,15 @@ import {
 } from "@/app/_components/ui-primitives";
 import { parseNhlId } from "@/contracts/entity";
 import { parseSeasonId } from "@/contracts/season";
+import {
+  gameTypeForPhase,
+  parseSeasonPhase,
+  seasonPhaseLabel,
+} from "@/contracts/season-phase";
 import type { TeamSeasonStats } from "@/contracts/team";
+import type { GameSummary } from "@/contracts/game";
 import { getMoneyPuckTeamSeason } from "@/data/advanced";
+import { getUpcomingGamesForTeam } from "@/data/games";
 import { listSeasons } from "@/data/seasons";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
 import { getTeamSeasonDetail, listTeamSeasonIds } from "@/data/teams";
@@ -24,7 +32,10 @@ export const dynamic = "force-dynamic";
 
 type TeamPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ season?: string | string[] }>;
+  searchParams: Promise<{
+    season?: string | string[];
+    phase?: string | string[];
+  }>;
 };
 
 export default async function TeamPage({
@@ -44,7 +55,10 @@ export default async function TeamPage({
   const availableSeasons = seasons.filter((season) =>
     teamSeasonIdSet.has(season.id),
   );
-  const requestedSeason = firstValue((await searchParams).season);
+  const pageParams = await searchParams;
+  const requestedSeason = firstValue(pageParams.season);
+  const phase = parseSeasonPhase(firstValue(pageParams.phase));
+  const gameType = gameTypeForPhase(phase);
   const parsedSeason = parseSeasonId(requestedSeason);
   const selectedSeason =
     availableSeasons.find((season) => season.id === parsedSeason) ??
@@ -54,14 +68,19 @@ export default async function TeamPage({
     notFound();
   }
 
-  const [detail, advanced, units] = await Promise.all([
-    getTeamSeasonDetail(nhlTeamId, selectedSeason.id),
-    getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id),
+  const [detail, advanced, units, upcomingGames] = await Promise.all([
+    getTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType),
+    getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id, gameType),
     getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
       teamNhlId: nhlTeamId,
       minimumIceTimeSeconds: 3_000,
       limit: 100,
     }),
+    getUpcomingGamesForTeam(
+      nhlTeamId,
+      selectedSeason.id,
+      gameType,
+    ),
   ]);
   if (!detail) {
     notFound();
@@ -73,7 +92,7 @@ export default async function TeamPage({
 
       <section className="py-8 sm:py-10">
         <Link
-          href={`/teams?season=${selectedSeason.id}`}
+          href={`/teams?season=${selectedSeason.id}&phase=${phase}`}
           className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 transition hover:text-cyan-200"
         >
           <span aria-hidden="true">←</span> All teams
@@ -106,7 +125,7 @@ export default async function TeamPage({
                     {selectedSeason.label}
                   </span>
                   <span className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1">
-                    Regular season + playoffs
+                    {seasonPhaseLabel(phase)}
                   </span>
                 </div>
               </div>
@@ -114,10 +133,17 @@ export default async function TeamPage({
             <SeasonPicker
               seasons={availableSeasons}
               selectedSeasonId={selectedSeason.id}
+              params={{ phase }}
               className="relative !max-w-none border-white/15 bg-slate-950/55"
             />
           </div>
         </div>
+
+        <SeasonPhaseFilter
+          active={phase}
+          path={`/teams/${detail.team.nhlTeamId}`}
+          params={{ season: selectedSeason.id }}
+        />
 
         <nav
           aria-label={`${detail.team.name} page sections`}
@@ -127,18 +153,29 @@ export default async function TeamPage({
           <SectionLink href="#skaters" label="Skaters" />
           <SectionLink href="#goalies" label="Goalies" />
           <SectionLink href="#advanced" label="Advanced" />
-          {selectedSeason.id >= 20082009 ? (
+          {selectedSeason.id >= 20082009 && phase === "regular" ? (
             <SectionLink href="#combinations" label="Combinations" />
           ) : null}
         </nav>
 
-        <div id="overview" className="mt-8 grid scroll-mt-6 gap-5 lg:grid-cols-2">
-          <SeasonPanel title="Regular season" stats={detail.regularSeason} />
-          <SeasonPanel title="Playoffs" stats={detail.playoffs} />
+        <div id="overview" className="mt-8 scroll-mt-6">
+          <SeasonPanel
+            title={seasonPhaseLabel(phase)}
+            stats={
+              phase === "playoffs" ? detail.playoffs : detail.regularSeason
+            }
+          />
         </div>
 
+        <UpcomingSchedule
+          games={upcomingGames}
+          teamNhlId={detail.team.nhlTeamId}
+          seasonId={selectedSeason.id}
+          phase={phase}
+        />
+
         <Link
-          href={`/teams/${detail.team.nhlTeamId}/games?season=${selectedSeason.id}`}
+          href={`/teams/${detail.team.nhlTeamId}/games?season=${selectedSeason.id}&phase=${phase}`}
           className="group mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.055] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.085]"
         >
           <span>
@@ -158,7 +195,7 @@ export default async function TeamPage({
           <SectionHeader
             eyebrow="Official NHL splits"
             title="Skaters"
-            description="Traditional regular-season production for every player who appeared with this team."
+            description={`Traditional ${seasonPhaseLabel(phase).toLowerCase()} production for every player who appeared with this team.`}
             action={
               <p className="text-sm tabular-nums text-slate-500">
                 {detail.skaters.length} player-team rows
@@ -221,7 +258,7 @@ export default async function TeamPage({
           <SectionHeader
             eyebrow="Official NHL splits"
             title="Goalies"
-            description="Traditional regular-season appearances, decisions, and save results."
+            description={`Traditional ${seasonPhaseLabel(phase).toLowerCase()} appearances, decisions, and save results.`}
             action={
               <p className="text-sm tabular-nums text-slate-500">
                 {detail.goalies.length} player-team rows
@@ -297,11 +334,11 @@ export default async function TeamPage({
           />
         </div>
 
-        {selectedSeason.id >= 20082009 ? (
+        {selectedSeason.id >= 20082009 && phase === "regular" ? (
           <section id="combinations" className="mt-12 scroll-mt-6">
             <SectionHeader
               eyebrow="Five-on-five combinations"
-              title="Season lines and pairings"
+              title="Season Lines and Pairings"
               description="Combinations with at least 50 minutes together."
               tone="violet"
               action={
@@ -399,6 +436,66 @@ function SeasonPanel({
   );
 }
 
+function UpcomingSchedule({
+  games,
+  teamNhlId,
+  seasonId,
+  phase,
+}: {
+  games: GameSummary[];
+  teamNhlId: number;
+  seasonId: number;
+  phase: "regular" | "playoffs";
+}) {
+  return (
+    <section className="mt-8">
+      <SectionHeader
+        eyebrow="Schedule"
+        title="Upcoming Games"
+        description={
+          games.length > 0
+            ? `Next ${games.length} scheduled ${seasonPhaseLabel(phase).toLowerCase()} games.`
+            : "No upcoming games are currently stored for this season phase."
+        }
+      />
+      {games.length > 0 ? (
+        <div className="mt-5 grid gap-3 lg:grid-cols-2">
+          {games.map((game) => {
+            const isHome = game.homeTeam.nhlTeamId === teamNhlId;
+            const opponent = isHome ? game.awayTeam : game.homeTeam;
+
+            return (
+              <Link
+                key={game.nhlGameId}
+                href={`/games/${game.nhlGameId}`}
+                className="surface-panel flex items-center justify-between gap-5 p-5 transition hover:border-cyan-300/30"
+              >
+                <span>
+                  <span className="block text-sm font-semibold text-white">
+                    {isHome ? "vs" : "at"} {opponent.name}
+                  </span>
+                  <span className="mt-1 block text-sm text-slate-400">
+                    {formatScheduleDate(game.startTimeUtc)}
+                  </span>
+                </span>
+                <span className="font-mono text-xs uppercase tracking-[0.12em] text-cyan-300">
+                  Preview →
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      ) : null}
+      <Link
+        href={`/games?season=${seasonId}&phase=${phase}`}
+        className="mt-4 inline-flex text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
+      >
+        Browse the full league schedule →
+      </Link>
+    </section>
+  );
+}
+
 function SectionLink({ href, label }: { href: string; label: string }) {
   return (
     <a
@@ -441,6 +538,18 @@ function formatDecimal(value: number | null, digits: number): string | null {
 
 function formatSavePercentage(value: number | null): string | null {
   return value === null ? null : value.toFixed(3).replace(/^0/, "");
+}
+
+function formatScheduleDate(value: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: "America/Vancouver",
+    timeZoneName: "short",
+  }).format(new Date(value));
 }
 
 function firstValue(value: string | string[] | undefined): string | undefined {

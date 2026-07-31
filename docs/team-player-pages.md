@@ -3,8 +3,8 @@
 The core website exposes traditional season and game statistics through six
 server-rendered routes:
 
-- `/teams?season=20252026` provides a searchable card directory for every
-  regular-season team;
+- `/teams?season=20252026&phase=regular` provides a searchable, sortable
+  comparison table for every participating team;
 - `/teams/12?season=20252026` shows one team's season and roster splits;
 - `/teams/12/games?season=20252026` shows one team's complete game log and
   recent form;
@@ -67,34 +67,34 @@ season in which it did not participate.
 
 ## Directory controls
 
-Team and player directories support URL-based search, sorting, and pagination.
-Filters use ordinary query parameters, so a filtered result can be bookmarked,
-shared, and restored with browser navigation. Team pages show 16 results per
-page. Player pages show 50 results per page and separate skater and goalie
-views.
+Team and player directories support URL-based season phase, search, sorting,
+and pagination. Filters use ordinary query parameters, so a filtered result can
+be bookmarked, shared, and restored with browser navigation. The team table
+shows the full league on one page. Player pages show 50 results per page and
+separate skater and goalie views.
 
 Every statistics table uses a shared client-side sorter. Column-heading buttons
 reorder the visible rows immediately without a route transition; clicking the
 active heading reverses its direction. This applies to standings, the player
 directory, team rosters, player histories, box scores, advanced game
-comparisons, and MoneyPuck season tables. The team directory is card-based at
-every viewport and keeps explicit URL-based sort controls because cards have
-no column headings. Small screens use the same explicit controls for the
-player directory. The underlying traditional-stat response contracts and
-statistical grains are unchanged.
+comparisons, and MoneyPuck season tables. The team directory uses a responsive
+comparison table with a sticky team column, sortable headings, and explicit
+small-screen sort controls. The underlying traditional-stat response contracts
+and statistical grains are unchanged.
 
 Team and player profile pages link to their selected-season game log. Each game
-log begins with a last-ten summary and a compact chronological form strip, then
-shows the full regular-season and playoff table. Advanced columns use a dash
+log begins with a compact chronological form strip, then shows the full table
+for the selected regular-season or playoff phase. Advanced columns use a dash
 when MoneyPuck coverage is unavailable and include an inline coverage note.
 
 Team and player detail pages also show the available MoneyPuck season summaries.
 See [Advanced analytics presentation](advanced-analytics.md) for the initial
 metrics, source attribution, and coverage behavior.
 
-Team profiles present the essential traditional information first: season
-summary cards, the game-log link, and sortable official skater and goalie
-splits. Advanced team metrics follow those raw statistics. Covered team seasons
-then show forward lines and defensive pairings with at least 50 five-on-five
-minutes together. These link to the league-wide season rankings, which default
-to a 100-minute minimum and allow alternate thresholds.
+Team profiles present the essential traditional information first: a selected
+season-phase summary, the next stored scheduled games, the game-log link, and
+sortable official skater and goalie splits. Advanced team metrics follow those
+raw statistics. Covered regular seasons then show forward lines and defensive
+pairings with at least 50 five-on-five minutes together. These link to the
+league-wide season rankings, which default to a 100-minute minimum and allow
+alternate thresholds.

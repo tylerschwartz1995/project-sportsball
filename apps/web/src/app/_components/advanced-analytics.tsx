@@ -27,7 +27,7 @@ export function TeamAdvancedAnalytics({
 
   return (
     <AdvancedSection
-      title="Team advanced analytics"
+      title="Team Advanced Analytics"
       description="Possession and expected-goal results by game situation."
     >
       {fiveOnFive ? (
@@ -91,7 +91,7 @@ export function PlayerAdvancedAnalytics({
 
   return (
     <AdvancedSection
-      title="Player advanced analytics"
+      title="Player Advanced Analytics"
       description="MoneyPuck season metrics remain split by team and game situation."
     >
       {hasSkaterRows ? (

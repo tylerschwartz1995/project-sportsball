@@ -2,12 +2,12 @@ import Link from "next/link";
 
 import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
 import { SeasonPicker } from "@/app/_components/season-picker";
+import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { DataTableShell } from "@/app/_components/ui-primitives";
 import {
-  WorkspaceMetric,
   WorkspacePageHeader,
 } from "@/app/_components/workspace-primitives";
 import type {
@@ -16,6 +16,11 @@ import type {
   AdvancedTeamLeaderboardRow,
 } from "@/contracts/advanced-leaderboard";
 import { parseSeasonId } from "@/contracts/season";
+import {
+  gameTypeForPhase,
+  parseSeasonPhase,
+  seasonPhaseLabel,
+} from "@/contracts/season-phase";
 import {
   listAdvancedGoalieLeaders,
   listAdvancedSkaterLeaders,
@@ -39,6 +44,7 @@ type AnalyticsPageProps = {
     type?: string | string[];
     situation?: string | string[];
     minimum?: string | string[];
+    phase?: string | string[];
   }>;
 };
 
@@ -51,6 +57,8 @@ export default async function AnalyticsPage({
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
   const type = parseLeaderboardType(firstQueryValue(params.type));
+  const requestedPhase = parseSeasonPhase(firstQueryValue(params.phase));
+  const phase = type === "teams" ? requestedPhase : "regular";
   const defaultSituation = type === "goalies" ? "all" : "5on5";
   const situation = parseSituation(
     firstQueryValue(params.situation),
@@ -71,6 +79,7 @@ export default async function AnalyticsPage({
           selectedSeason.id,
           situation,
           minimumMinutes * 60,
+          gameTypeForPhase(phase),
         )
       : [];
 
@@ -81,8 +90,8 @@ export default async function AnalyticsPage({
       <section className="py-10">
         <WorkspacePageHeader
           eyebrow="MoneyPuck leaderboards"
-          title={`${selectedSeason?.label ?? "No season"} advanced analytics`}
-          description="Compare shot quality, possession, individual creation, and goalie performance across the league. Player results remain split by team so traded-player context is preserved."
+          title={`${selectedSeason?.label ?? "No Season"} Advanced Analytics`}
+          description={`Compare ${type === "teams" ? seasonPhaseLabel(phase).toLowerCase() : "regular-season"} shot quality, possession, individual creation, and goalie performance across the league. Player results remain split by team so traded-player context is preserved.`}
           action={
             <SeasonPicker
               seasons={seasons}
@@ -91,6 +100,7 @@ export default async function AnalyticsPage({
                 type,
                 situation,
                 minimum: type === "teams" ? undefined : minimumMinutes,
+                phase,
               }}
             />
           }
@@ -100,6 +110,22 @@ export default async function AnalyticsPage({
           <>
             <AnalyticsSectionTabs seasonId={selectedSeason.id} active={type} />
 
+            {type === "teams" ? (
+              <SeasonPhaseFilter
+                active={phase}
+                path="/analytics"
+                params={{
+                  season: selectedSeason.id,
+                  type,
+                  situation,
+                }}
+              />
+            ) : (
+              <p className="mt-5 text-sm text-slate-500">
+                Player-level MoneyPuck leaderboards are regular-season only.
+              </p>
+            )}
+
             {hasCoverage ? (
               <>
                 <AnalyticsFilters
@@ -107,16 +133,13 @@ export default async function AnalyticsPage({
                   type={type}
                   situation={situation}
                   minimumMinutes={minimumMinutes}
-                />
-                <LeaderboardSummary
-                  type={type}
-                  rows={rows}
-                  seasonId={selectedSeason.id}
+                  phase={phase}
                 />
                 <LeaderboardTable
                   type={type}
                   rows={rows}
                   seasonId={selectedSeason.id}
+                  phase={phase}
                 />
                 <AnalyticsGuide seasonId={selectedSeason.id} />
               </>
@@ -137,11 +160,13 @@ function AnalyticsFilters({
   type,
   situation,
   minimumMinutes,
+  phase,
 }: {
   seasonId: number;
   type: LeaderboardType;
   situation: Situation;
   minimumMinutes: number;
+  phase: "regular" | "playoffs";
 }) {
   return (
     <form
@@ -151,6 +176,7 @@ function AnalyticsFilters({
     >
       <input type="hidden" name="season" value={seasonId} />
       <input type="hidden" name="type" value={type} />
+      <input type="hidden" name="phase" value={phase} />
       <label>
         Game situation
         <select
@@ -186,53 +212,21 @@ function AnalyticsFilters({
   );
 }
 
-function LeaderboardSummary({
-  type,
-  rows,
-  seasonId,
-}: {
-  type: LeaderboardType;
-  rows: LeaderboardRows;
-  seasonId: number;
-}) {
-  const leaders = rows.slice(0, 3);
-  if (leaders.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="workspace-metric-grid">
-      {leaders.map((row, index) => {
-        const summary = leaderboardSummary(type, row);
-        return (
-          <WorkspaceMetric
-            key={summary.key}
-            label={`#${index + 1} ${summary.metric}`}
-            value={summary.name}
-            detail={summary.value}
-            href={summaryHref(type, row, seasonId)}
-            tone="violet"
-          />
-        );
-      })}
-    </div>
-  );
-}
-
 type LeaderboardRows =
   | AdvancedTeamLeaderboardRow[]
   | AdvancedSkaterLeaderboardRow[]
   | AdvancedGoalieLeaderboardRow[];
-type LeaderboardRow = LeaderboardRows[number];
 
 function LeaderboardTable({
   type,
   rows,
   seasonId,
+  phase,
 }: {
   type: LeaderboardType;
   rows: LeaderboardRows;
   seasonId: number;
+  phase: "regular" | "playoffs";
 }) {
   if (rows.length === 0) {
     return (
@@ -247,6 +241,7 @@ function LeaderboardTable({
       <TeamLeaderboard
         rows={rows as AdvancedTeamLeaderboardRow[]}
         seasonId={seasonId}
+        phase={phase}
       />
     );
   }
@@ -269,9 +264,11 @@ function LeaderboardTable({
 function TeamLeaderboard({
   rows,
   seasonId,
+  phase,
 }: {
   rows: AdvancedTeamLeaderboardRow[];
   seasonId: number;
+  phase: "regular" | "playoffs";
 }) {
   return (
     <LeaderboardFrame
@@ -301,7 +298,7 @@ function TeamLeaderboard({
               className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
             >
               <EntityCell
-                href={`/teams/${row.team.nhlTeamId}?season=${seasonId}`}
+                href={`/teams/${row.team.nhlTeamId}?season=${seasonId}&phase=${phase}`}
                 name={row.team.name}
                 detail={row.team.abbreviation}
               />
@@ -555,9 +552,10 @@ async function loadLeaderboard(
   seasonId: number,
   situation: Situation,
   minimumIceTimeSeconds: number,
+  gameType: number,
 ): Promise<LeaderboardRows> {
   if (type === "teams") {
-    return listAdvancedTeamLeaders(seasonId, situation);
+    return listAdvancedTeamLeaders(seasonId, situation, gameType);
   }
   if (type === "goalies") {
     return listAdvancedGoalieLeaders(
@@ -571,57 +569,6 @@ async function loadLeaderboard(
     situation,
     minimumIceTimeSeconds,
   );
-}
-
-function leaderboardSummary(
-  type: LeaderboardType,
-  row: LeaderboardRow,
-): {
-  key: string;
-  metric: string;
-  name: string;
-  value: string;
-} {
-  if (type === "teams") {
-    const team = row as AdvancedTeamLeaderboardRow;
-    return {
-      key: String(team.team.nhlTeamId),
-      metric: "xG share",
-      name: team.team.name,
-      value: formatPercentage(team.expectedGoalsPercentage),
-    };
-  }
-  if (type === "goalies") {
-    const goalie = row as AdvancedGoalieLeaderboardRow;
-    return {
-      key: `${goalie.player.nhlPlayerId}-${goalie.team.nhlTeamId}`,
-      metric: "GSAx",
-      name: goalie.player.name,
-      value: `${formatSignedDecimal(goalie.goalsSavedAboveExpected)} · ${goalie.team.abbreviation}`,
-    };
-  }
-  const skater = row as AdvancedSkaterLeaderboardRow;
-  return {
-    key: `${skater.player.nhlPlayerId}-${skater.team.nhlTeamId}`,
-    metric: "game score",
-    name: skater.player.name,
-    value: `${formatDecimal(skater.gameScore)} · ${skater.team.abbreviation}`,
-  };
-}
-
-function summaryHref(
-  type: LeaderboardType,
-  row: LeaderboardRow,
-  seasonId: number,
-): string {
-  if (type === "teams") {
-    const team = row as AdvancedTeamLeaderboardRow;
-    return `/teams/${team.team.nhlTeamId}?season=${seasonId}`;
-  }
-  const player = row as
-    | AdvancedSkaterLeaderboardRow
-    | AdvancedGoalieLeaderboardRow;
-  return `/players/${player.player.nhlPlayerId}?season=${seasonId}`;
 }
 
 function parseLeaderboardType(value: string | undefined): LeaderboardType {

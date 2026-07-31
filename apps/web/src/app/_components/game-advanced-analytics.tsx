@@ -31,7 +31,7 @@ export function GameAdvancedAnalytics({
     <section className="workspace-section-divider">
       <SectionHeading
         eyebrow="MoneyPuck game analytics"
-        title="How the game was played"
+        title="How the Game Was Played"
         description="Expected goals, possession, shot quality, and on-ice combinations from the stored MoneyPuck game files."
       />
 
@@ -45,7 +45,7 @@ export function GameAdvancedAnalytics({
 
       {hasShotData ? (
         <Subsection
-          title="Shot maps"
+          title="Shot Maps"
           description="All MoneyPuck modeled goals, saved shots, and misses. Coordinates are normalized so each team attacks the net at right."
         >
           <ShotMaps
@@ -214,7 +214,7 @@ function PlayerGameAnalytics({
 
   return (
     <Subsection
-      title="Player advanced results"
+      title="Player Advanced Results"
       description="All-situations game totals. Open a player profile for season context and career history."
     >
       {allSituationSkaters.length > 0 ? (
@@ -361,12 +361,12 @@ function UnitAnalytics({
 }) {
   return (
     <Subsection
-      title="Five-on-five combinations"
+      title="Five-on-Five Combinations"
       description="Forward lines and defensive pairs ordered from the stored game-level MoneyPuck unit file."
     >
       {forwardLines.length > 0 ? (
         <UnitTable
-          title="Forward lines"
+          title="Forward Lines"
           rows={forwardLines}
           seasonId={seasonId}
         />
@@ -374,7 +374,7 @@ function UnitAnalytics({
       {defensivePairings.length > 0 ? (
         <div className={forwardLines.length > 0 ? "mt-5" : undefined}>
           <UnitTable
-            title="Defensive pairings"
+            title="Defensive Pairings"
             rows={defensivePairings}
             seasonId={seasonId}
           />

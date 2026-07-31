@@ -3,12 +3,20 @@ import Link from "next/link";
 import { DirectoryControls } from "@/app/_components/directory-controls";
 import { Pagination } from "@/app/_components/pagination";
 import { SeasonPicker } from "@/app/_components/season-picker";
+import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
+import { SortableHeader } from "@/app/_components/sortable-header";
+import { SortableTable } from "@/app/_components/sortable-table";
 import {
-  WorkspaceMetric,
   WorkspacePageHeader,
+  WorkspacePanel,
 } from "@/app/_components/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
+import {
+  gameTypeForPhase,
+  parseSeasonPhase,
+  seasonPhaseLabel,
+} from "@/contracts/season-phase";
 import type { StandingsEntry } from "@/contracts/standings";
 import type { TeamSeasonSummary } from "@/contracts/team";
 import { listSeasons } from "@/data/seasons";
@@ -33,6 +41,7 @@ type TeamsPageProps = {
     sort?: string | string[];
     dir?: string | string[];
     page?: string | string[];
+    phase?: string | string[];
   }>;
 };
 
@@ -42,9 +51,11 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
+  const phase = parseSeasonPhase(firstQueryValue(params.phase));
+  const gameType = gameTypeForPhase(phase);
   const [teams, standings] = selectedSeason
     ? await Promise.all([
-        listTeamsBySeason(selectedSeason.id),
+        listTeamsBySeason(selectedSeason.id, gameType),
         getStandings(selectedSeason.id),
       ])
     : [[], []];
@@ -57,7 +68,9 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
     (option) => option.value === requestedSort,
   )
     ? requestedSort!
-    : "points";
+    : phase === "playoffs"
+      ? "wins"
+      : "points";
   const direction = parseSortDirection(
     firstQueryValue(params.dir),
     sort === "name" ? "asc" : "desc",
@@ -72,22 +85,8 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
   const teamPage = paginate(
     filteredTeams,
     parsePage(firstQueryValue(params.page)),
-    16,
+    40,
   );
-  const pointsLeader = teams[0];
-  const goalsLeader = teams.reduce(
-    (best, entry) =>
-      !best || entry.stats.goalsFor > best.stats.goalsFor ? entry : best,
-    pointsLeader,
-  );
-  const defenseLeader = teams.reduce(
-    (best, entry) =>
-      !best || entry.stats.goalsAgainst < best.stats.goalsAgainst
-        ? entry
-        : best,
-    pointsLeader,
-  );
-
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="teams" />
@@ -95,38 +94,24 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
       <section className="py-10">
         <WorkspacePageHeader
           eyebrow="Team directory"
-          title={`${selectedSeason?.label ?? "No season"} teams`}
-          description="Browse every club from the selected season. Team profiles combine results, rosters, advanced analytics, and five-on-five units."
+          title={`${selectedSeason?.label ?? "No Season"} Teams`}
+          description={`Compare every club's ${seasonPhaseLabel(phase).toLowerCase()} results, scoring, and shot totals. Select a team for its full profile.`}
           action={
             <SeasonPicker
               seasons={seasons}
               selectedSeasonId={selectedSeason?.id}
+              params={{ phase }}
             />
           }
         />
 
-        {pointsLeader && selectedSeason ? (
+        {selectedSeason ? (
           <>
-            <div className="workspace-metric-grid">
-              <WorkspaceMetric
-                label="Points leader"
-                value={pointsLeader.team.name}
-                detail={`${pointsLeader.stats.standingsPoints} points`}
-                href={`/teams/${pointsLeader.team.nhlTeamId}?season=${selectedSeason.id}`}
-              />
-              <WorkspaceMetric
-                label="Most goals"
-                value={goalsLeader.team.name}
-                detail={`${goalsLeader.stats.goalsFor} goals`}
-                href={`/teams/${goalsLeader.team.nhlTeamId}?season=${selectedSeason.id}`}
-              />
-              <WorkspaceMetric
-                label="Fewest goals allowed"
-                value={defenseLeader.team.name}
-                detail={`${defenseLeader.stats.goalsAgainst} goals against`}
-                href={`/teams/${defenseLeader.team.nhlTeamId}?season=${selectedSeason.id}`}
-              />
-            </div>
+            <SeasonPhaseFilter
+              active={phase}
+              path="/teams"
+              params={{ season: selectedSeason.id }}
+            />
 
             <DirectoryControls
               action="/teams"
@@ -137,6 +122,7 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
               direction={direction}
               searchPlaceholder="Team name or abbreviation"
               alwaysShowSort
+              phase={phase}
             />
 
             <p className="mt-5 text-sm text-slate-500" aria-live="polite">
@@ -147,16 +133,84 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
 
             {teamPage.items.length > 0 ? (
               <>
-                <div className="workspace-team-grid">
-                  {teamPage.items.map((entry) => (
-                    <TeamCard
-                      key={entry.team.id}
-                      entry={entry}
-                      seasonId={selectedSeason.id}
-                      standings={standingsByTeam.get(entry.team.nhlTeamId)}
-                    />
-                  ))}
-                </div>
+                <WorkspacePanel
+                  className="mt-5"
+                  title={`${seasonPhaseLabel(phase)} Comparison`}
+                  description="Select any heading to sort. The team column stays visible while scrolling on smaller screens."
+                >
+                  <SortableTable
+                    defaultSortKey={sort}
+                    defaultDirection={direction}
+                  >
+                    <div className="workspace-table-scroll">
+                      <table className="workspace-table min-w-[850px]">
+                        <thead>
+                          <tr>
+                            <SortableHeader
+                              label="Team"
+                              sortKey="name"
+                              align="left"
+                              defaultDirection="asc"
+                            />
+                            <SortableHeader
+                              label="Div"
+                              sortKey="division"
+                              align="left"
+                              defaultDirection="asc"
+                            />
+                            <SortableHeader label="GP" sortKey="games" />
+                            <SortableHeader label="W" sortKey="wins" />
+                            <SortableHeader label="L" sortKey="losses" />
+                            {phase === "regular" ? (
+                              <>
+                                <SortableHeader
+                                  label="OTL"
+                                  sortKey="overtimeLosses"
+                                />
+                                <SortableHeader
+                                  label="PTS"
+                                  sortKey="points"
+                                />
+                              </>
+                            ) : null}
+                            <SortableHeader label="GF" sortKey="goalsFor" />
+                            <SortableHeader
+                              label="GA"
+                              sortKey="goalsAgainst"
+                              defaultDirection="asc"
+                            />
+                            <SortableHeader
+                              label="DIFF"
+                              sortKey="goalDifferential"
+                            />
+                            <SortableHeader
+                              label="SHOT DIFF"
+                              sortKey="shotDifferential"
+                            />
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {teamPage.items.map((entry) => (
+                            <TeamRow
+                              key={entry.team.id}
+                              entry={entry}
+                              seasonId={selectedSeason.id}
+                              phase={phase}
+                              standings={standingsByTeam.get(
+                                entry.team.nhlTeamId,
+                              )}
+                            />
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    <div className="workspace-table-note">
+                      {phase === "playoffs"
+                        ? "Only teams that participated in the playoffs are shown. Points and overtime-loss points do not apply."
+                        : "Official NHL regular-season totals. Division labels come from the final standings snapshot."}
+                    </div>
+                  </SortableTable>
+                </WorkspacePanel>
 
                 <Pagination
                   path="/teams"
@@ -167,6 +221,7 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
                     q: query,
                     sort,
                     dir: direction,
+                    phase,
                   }}
                 />
               </>
@@ -192,6 +247,8 @@ const teamSortOptions = [
   { value: "goalsAgainst", label: "Goals allowed" },
   { value: "shotsFor", label: "Shots for" },
   { value: "shotsAgainst", label: "Shots against" },
+  { value: "goalDifferential", label: "Goal differential" },
+  { value: "shotDifferential", label: "Shot differential" },
   { value: "name", label: "Team name" },
 ];
 
@@ -246,6 +303,20 @@ function sortTeams(
           right.stats.shotsAgainst - left.stats.shotsAgainst ||
           left.team.name.localeCompare(right.team.name);
         break;
+      case "goalDifferential":
+        comparison =
+          right.stats.goalsFor -
+            right.stats.goalsAgainst -
+            (left.stats.goalsFor - left.stats.goalsAgainst) ||
+          left.team.name.localeCompare(right.team.name);
+        break;
+      case "shotDifferential":
+        comparison =
+          right.stats.shotsFor -
+            right.stats.shotsAgainst -
+            (left.stats.shotsFor - left.stats.shotsAgainst) ||
+          left.team.name.localeCompare(right.team.name);
+        break;
       case "name":
         comparison = right.team.name.localeCompare(left.team.name);
         break;
@@ -259,81 +330,69 @@ function sortTeams(
   });
 }
 
-function TeamCard({
+function TeamRow({
   entry,
   seasonId,
+  phase,
   standings,
 }: {
   entry: TeamSeasonSummary;
   seasonId: number;
+  phase: "regular" | "playoffs";
   standings: StandingsEntry | undefined;
 }) {
   const overtimeLosses =
     entry.stats.overtimeLosses + entry.stats.shootoutLosses;
+  const losses =
+    entry.stats.regulationLosses +
+    entry.stats.overtimeLosses +
+    entry.stats.shootoutLosses;
 
   return (
-    <article className="workspace-team-card">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <p className="workspace-team-card-kicker">
-            {entry.team.abbreviation}
-            {standings?.divisionName ? ` · ${standings.divisionName}` : ""}
-          </p>
-          <Link
-            href={`/teams/${entry.team.nhlTeamId}?season=${seasonId}`}
-            className="workspace-team-card-name"
-          >
+    <tr>
+      <td className="workspace-team-cell workspace-sticky-team-cell">
+        <Link
+          href={`/teams/${entry.team.nhlTeamId}?season=${seasonId}&phase=${phase}`}
+        >
+          <span aria-hidden="true" className="workspace-team-marker" />
+          <span>
             {entry.team.name}
-          </Link>
-          <p className="workspace-team-card-rank">
-            {standings
-              ? `League rank #${standings.leagueRank}`
-              : `${entry.stats.gamesPlayed} games`}
-          </p>
-        </div>
-        <div className="text-right">
-          <p className="workspace-team-card-points">
+          </span>
+          <small>{entry.team.abbreviation}</small>
+        </Link>
+      </td>
+      <td className="px-3 py-3 text-left text-slate-400">
+        {standings?.divisionName ?? "—"}
+      </td>
+      <NumericCell value={entry.stats.gamesPlayed} />
+      <NumericCell value={entry.stats.wins} />
+      <NumericCell value={losses} />
+      {phase === "regular" ? (
+        <>
+          <NumericCell value={overtimeLosses} />
+          <td className="workspace-points-cell">
             {entry.stats.standingsPoints}
-          </p>
-          <p className="workspace-team-card-label">
-            points
-          </p>
-        </div>
-      </div>
-      <dl>
-        <CardStat
-          label="Record"
-          value={`${entry.stats.wins}-${entry.stats.regulationLosses}-${overtimeLosses}`}
-        />
-        <CardStat label="Goals" value={entry.stats.goalsFor} />
-        <CardStat label="Allowed" value={entry.stats.goalsAgainst} />
-      </dl>
-      <div className="workspace-team-card-footer">
-        <span className="workspace-team-card-meta">
-          Shot differential{" "}
-          {formatSigned(entry.stats.shotsFor - entry.stats.shotsAgainst)}
-        </span>
-        <span className="workspace-team-card-link">Team profile →</span>
-      </div>
-    </article>
+          </td>
+        </>
+      ) : null}
+      <NumericCell value={entry.stats.goalsFor} />
+      <NumericCell value={entry.stats.goalsAgainst} />
+      <NumericCell
+        value={formatSigned(
+          entry.stats.goalsFor - entry.stats.goalsAgainst,
+        )}
+      />
+      <NumericCell
+        value={formatSigned(
+          entry.stats.shotsFor - entry.stats.shotsAgainst,
+        )}
+      />
+    </tr>
   );
 }
 
-function CardStat({
-  label,
-  value,
-}: {
-  label: string;
-  value: string | number;
-}) {
-  return (
-    <div>
-      <dt className="workspace-team-card-label">
-        {label}
-      </dt>
-      <dd>{value}</dd>
-    </div>
-  );
+function NumericCell({ value }: { value: number | string }) {
+  return <td className="workspace-number-cell">{value}</td>;
 }
 
 function EmptyState({ message }: { message: string }) {

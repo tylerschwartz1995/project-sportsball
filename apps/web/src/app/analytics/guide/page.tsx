@@ -123,7 +123,7 @@ export default async function MetricGuidePage({
       <section className="py-10">
         <WorkspacePageHeader
           eyebrow="Advanced analytics reference"
-          title="Metric guide"
+          title="Metric Guide"
           description="Plain-language definitions for the advanced statistics used across team, player, line, goalie, and game views."
           action={
             <SeasonPicker
@@ -177,7 +177,7 @@ export default async function MetricGuidePage({
         </div>
 
         <aside className="workspace-guide-note">
-          <h2>How to read the data</h2>
+          <h2>How to Read the Data</h2>
           <p>
             Situation filters matter: all-situations results include power
             plays and penalty kills, while 5-on-5 is better for even-strength

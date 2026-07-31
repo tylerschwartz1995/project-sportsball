@@ -3,7 +3,6 @@ import Link from "next/link";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import {
-  WorkspaceMetric,
   WorkspacePageHeader,
   WorkspacePanel,
 } from "@/app/_components/workspace-primitives";
@@ -37,12 +36,6 @@ export default async function Home({ searchParams }: HomeProps) {
     : [[], { seasonId: 0, skaters: [], goalies: [] }, []];
 
   const latestDate = latestGames[0]?.gameDate;
-  const pointsLeader = players.skaters[0];
-  const goalsLeader = players.skaters.reduce(
-    (best, player) =>
-      !best || player.goals > best.goals ? player : best,
-    pointsLeader,
-  );
   const leagueLeader = standings[0];
 
   return (
@@ -54,8 +47,8 @@ export default async function Home({ searchParams }: HomeProps) {
           eyebrow="League / Overview"
           title={
             selectedSeason
-              ? `${selectedSeason.label} NHL workspace`
-              : "NHL data unavailable"
+              ? `${selectedSeason.label} NHL Workspace`
+              : "NHL Data Unavailable"
           }
           description="Results, standings, scoring leaders, and advanced analysis in one compact league workspace."
           action={
@@ -66,40 +59,9 @@ export default async function Home({ searchParams }: HomeProps) {
           }
         />
 
-        {selectedSeason && leagueLeader && pointsLeader && goalsLeader ? (
+        {selectedSeason && leagueLeader ? (
           <>
-            <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <WorkspaceMetric
-                label="League leader"
-                value={leagueLeader.teamName}
-                detail={`${leagueLeader.points} points · ${formatRecord(leagueLeader)}`}
-                href={`/teams/${leagueLeader.nhlTeamId}?season=${selectedSeason.id}`}
-              />
-              <WorkspaceMetric
-                label="Points leader"
-                value={pointsLeader.name}
-                detail={`${pointsLeader.points} points · ${pointsLeader.goals} goals`}
-                href={`/players/${pointsLeader.nhlPlayerId}?season=${selectedSeason.id}`}
-              />
-              <WorkspaceMetric
-                label="Goals leader"
-                value={goalsLeader.name}
-                detail={`${goalsLeader.goals} goals · ${goalsLeader.gamesPlayed} GP`}
-                href={`/players/${goalsLeader.nhlPlayerId}?season=${selectedSeason.id}`}
-              />
-              <WorkspaceMetric
-                label="Latest results"
-                value={latestDate ? formatDate(latestDate) : "Unavailable"}
-                detail={`${latestGames.length} games on latest stored date`}
-                href={
-                  latestDate
-                    ? `/games?season=${selectedSeason.id}&date=${latestDate}`
-                    : `/games?season=${selectedSeason.id}`
-                }
-              />
-            </div>
-
-            <div className="mt-5 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+            <div className="mt-7 grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
               <WorkspacePanel
                 title={latestDate ? `Results · ${formatDate(latestDate)}` : "Results"}
                 description="Most recent stored game date"
@@ -111,7 +73,7 @@ export default async function Home({ searchParams }: HomeProps) {
                         : `/games?season=${selectedSeason.id}`
                     }
                   >
-                    All games →
+                    All Games →
                   </Link>
                 }
               >
@@ -131,7 +93,7 @@ export default async function Home({ searchParams }: HomeProps) {
                 description="Top six in the final NHL snapshot"
                 action={
                   <Link href={`/standings?season=${selectedSeason.id}`}>
-                    Full table →
+                    Full Table →
                   </Link>
                 }
               >
@@ -153,11 +115,11 @@ export default async function Home({ searchParams }: HomeProps) {
 
             <WorkspacePanel
               className="mt-5"
-              title="Scoring leaders"
+              title="Scoring Leaders"
               description="Regular-season points leaders"
               action={
                 <Link href={`/players?season=${selectedSeason.id}`}>
-                  All players →
+                  All Players →
                 </Link>
               }
             >
