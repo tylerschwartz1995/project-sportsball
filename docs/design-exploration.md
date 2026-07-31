@@ -38,19 +38,17 @@ individual pages.
 
 The application shell provides semantic light and dark tokens, a persistent
 toggle, dark mode as the first-visit default, local preference storage, and a
-pre-render bootstrap that prevents a wrong-theme flash. Routes are being
-migrated to native semantic components in controlled groups; a temporary
-compatibility layer keeps remaining routes readable during rollout.
+pre-render bootstrap that prevents a wrong-theme flash. All local MVP routes
+now use the shared analytical hierarchy and semantic system states.
 
 ## Plotting milestone
 
-Plots begin after the selected design and theme system are promoted. The first
-chart slice will define shared color, typography, tooltip, axis, responsive,
-and accessible-summary rules, then add:
+The initial plotting milestone is implemented with shared color, typography,
+tooltip, axis, responsive, and accessible-summary rules across:
 
 1. rolling team form and goals/expected-goals trends;
 2. player rolling production trends;
 3. league comparison scatterplots and distribution views.
 
-Shot maps remain the existing sport-specific spatial visualization and will be
-adapted to the selected light/dark and team-color tokens at the same time.
+Shot maps remain the sport-specific spatial visualization and use the selected
+light/dark tokens with selectable event detail.

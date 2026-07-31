@@ -240,17 +240,16 @@ assignments, injured-reserve moves, retirements, and other roster changes.
 
 ## 8. Homepage information redesign
 
-**Status:** Proposed
+**Status:** Initial redesign implemented; trend insights remain proposed
 
-Redesign the league homepage once the primary directories and visualizations
-are mature. The current overview is useful as navigation but does not yet tell
-a strong analytical story.
+The local MVP homepage now prioritizes latest results, upcoming games,
+standings, scoring leaders, advanced analytics, and direct archive navigation.
+It uses dense lists and tables rather than low-information summary cards.
+Potential post-MVP extensions include:
 
-- Replace generic summary cards with information-rich league context.
-- Prioritize live or latest results, the next scheduled games, standings
-  movement, and meaningful statistical trends.
 - Add compact plots only where they reveal change, distribution, or an unusual
   result that a single number cannot explain.
+- Add standings movement and meaningful league-wide statistical trends.
 - Let visitors move directly from each insight to the supporting table, game,
   team, or player page.
 - Keep the homepage sport-neutral enough to become the entry point for multiple
@@ -314,3 +313,19 @@ season-range, minimum-games, position, team, known birth-country, and total/rate
 metric controls. Coverage begins in 1917–18, and player rows link to complete
 all-time profile tables. True nationality enrichment, milestones, franchise
 lineage, and era-adjusted views remain backlog.
+
+## 11. Saved comparisons and shareable plot state
+
+**Status:** Proposed
+
+Let visitors preserve a useful player or team comparison and share the exact
+plot configuration with another person.
+
+- Encode selected subjects, metrics, season, phase, situation, rolling window,
+  and applicable filters in a stable URL.
+- Allow named comparisons to be saved locally before deciding whether accounts
+  and server-side persistence are valuable.
+- Restore the same visible table, chart, and explanatory context when a shared
+  URL is opened.
+- Keep URLs backward compatible when metric labels or interface organization
+  change.

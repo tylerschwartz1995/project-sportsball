@@ -120,9 +120,12 @@ and a pre-render bootstrap applies it before the interface is painted.
 
 ## Rollout
 
-The league overview, standings, team and player directories, primary team and
-player profiles, games directory, game timelines, box scores, and game
-analytics use the Data Workspace hierarchy and semantic controls. Remaining
-rollout order:
+The local MVP rollout covers the league overview, standings, schedules, team
+and player directories and profiles, games, timelines, box scores, analytics,
+combinations, playoffs, drafts, history, comparisons, and global loading,
+empty, error, and not-found states. Keyboard skip navigation, visible focus,
+reduced-motion support, semantic chart alternatives, light/dark themes, and
+horizontally scrollable dense tables establish the accessibility baseline.
 
-1. final cross-route mobile and accessibility review.
+Cross-device testing and accessibility review continue as normal product
+maintenance rather than blocking the local MVP.

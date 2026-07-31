@@ -5,7 +5,7 @@ A personal NHL statistics website with all-time traditional season records from
 
 ## Project scope
 
-The first stage will provide:
+The local NHL MVP provides:
 
 - Daily NHL data updates
 - Team and player statistics
@@ -17,6 +17,13 @@ The first stage will provide:
 The second stage will add predictive modelling for team and player performance.
 
 ## Status
+
+**Local MVP complete as of July 31, 2026.** The website, ingestion pipeline,
+historical archive, advanced analytics, local database workflow, tests, and
+operational checks are implemented. Hosting, scheduled production writes, and
+predictive modelling are deliberately deferred. See the
+[MVP release record](docs/mvp-release.md) for the shipped scope, verification,
+and known limitations.
 
 Historical ingestion is complete for the initial NHL and MoneyPuck scope.
 PostgreSQL contains official skater, goalie, and team season summaries from
@@ -208,6 +215,7 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 - [Data sources and coverage](docs/data-sources.md)
 - [Architecture](docs/architecture.md)
 - [Implementation roadmap](docs/roadmap.md)
+- [Local MVP release record](docs/mvp-release.md)
 - [Visual design system](docs/design-system.md)
 - [Visual direction exploration](docs/design-exploration.md)
 - [Web query layer](docs/web-query-layer.md)

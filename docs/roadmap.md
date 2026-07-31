@@ -1,7 +1,6 @@
 # Implementation roadmap
 
-Status values reflect the repository after the operational data-health checks
-were implemented on July 30, 2026.
+Status values reflect the repository at local MVP sign-off on July 31, 2026.
 
 ## Milestone 1: foundation — complete
 
@@ -48,7 +47,7 @@ were implemented on July 30, 2026.
 - [x] Add advanced game views, shot maps, lines, and pairings.
 - [x] Add Polars-derived season forward-line and defensive-pairing rankings.
 
-## Milestone 5: product experience — in progress
+## Milestone 5: product experience — complete for local MVP
 
 - [x] Make standings leaders, standings rows, and schedule teams link to their
   supporting profiles.
@@ -76,7 +75,8 @@ were implemented on July 30, 2026.
 - [x] Add consistent regular-season and playoff controls wherever the
   underlying data supports both phases.
 - [x] Add an upcoming-schedule section to team profiles.
-- [ ] Apply the production visual design system across the remaining routes.
+- [x] Apply the production visual design system across the remaining routes,
+  including shared loading, empty, error, and not-found states.
 - [x] Establish shared plot conventions and add rolling team performance
   trends.
 - [x] Add rolling skater-production and goalie-performance trends.
@@ -100,9 +100,11 @@ were implemented on July 30, 2026.
   NHL players represented in stored history.
 - [x] Add an initial historical records workspace with career and single-season
   skater, goalie, and team leaderboards.
-- [ ] Add saved comparison views and shareable plot URLs.
 
-## Milestone 6: daily operation
+Saved comparison collections and additional shareable plot state remain
+post-MVP enhancements rather than release requirements.
+
+## Milestone 6: daily operation — local foundation complete; deployment deferred
 
 - [x] Add an audited daily coordinator for bounded incremental imports and
   recent-game corrections.
