@@ -20,6 +20,12 @@
   --sidebar-background: #081321;
   --table-background: rgb(5 13 24 / 0.72);
   --shadow: rgb(0 0 0 / 0.16);
+  --chart-grid: rgb(255 255 255 / 0.08);
+  --chart-axis: rgb(255 255 255 / 0.16);
+  --chart-label: #94a3b8;
+  --chart-reference: rgb(255 255 255 / 0.32);
+  --chart-primary: #67e8f9;
+  --chart-secondary: #c4b5fd;
 }
 
 html {
@@ -45,6 +51,12 @@ html[data-theme="light"] {
   --sidebar-background: #fff;
   --table-background: rgb(255 255 255 / 0.88);
   --shadow: rgb(15 23 42 / 0.08);
+  --chart-grid: rgb(15 23 42 / 0.1);
+  --chart-axis: rgb(15 23 42 / 0.22);
+  --chart-label: #64748b;
+  --chart-reference: rgb(15 23 42 / 0.38);
+  --chart-primary: #087c91;
+  --chart-secondary: #6d4bc3;
 }
 
 @theme inline {
@@ -617,6 +629,159 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
 .workspace-scroll-nav a:first-child {
   background: var(--surface-raised);
   color: var(--foreground);
+}
+
+.workspace-chart-panel {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  padding: 1rem 0.75rem 0.8rem;
+  background: var(--table-background);
+  box-shadow: 0 16px 40px var(--shadow);
+}
+
+.workspace-chart-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 0 0.5rem 0.9rem;
+}
+
+.workspace-chart-toolbar > p {
+  max-width: 42rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.workspace-chart-window {
+  display: inline-flex;
+  width: fit-content;
+  gap: 0.2rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  padding: 0.2rem;
+  background: var(--surface-raised);
+}
+
+.workspace-chart-window button {
+  min-height: 2.35rem;
+  border: 0;
+  border-radius: 0.42rem;
+  padding: 0.48rem 0.72rem;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.75rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.workspace-chart-window button:hover {
+  color: var(--foreground);
+}
+
+.workspace-chart-window button[aria-pressed="true"] {
+  background: var(--accent-secondary);
+  color: var(--background);
+}
+
+html[data-theme="light"]
+  .workspace-chart-window
+  button[aria-pressed="true"] {
+  color: #fff;
+}
+
+.workspace-chart {
+  width: 100%;
+  height: 21rem;
+}
+
+.workspace-chart-legend-label {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.workspace-chart-tooltip {
+  min-width: 13.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.7rem;
+  padding: 0.8rem;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  box-shadow: 0 14px 35px var(--shadow);
+}
+
+.workspace-chart-tooltip-date {
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.workspace-chart-tooltip-game {
+  margin-top: 0.3rem;
+  font-size: 0.84rem;
+  font-weight: 650;
+}
+
+.workspace-chart-tooltip dl {
+  display: grid;
+  gap: 0.42rem;
+  margin-top: 0.7rem;
+}
+
+.workspace-chart-tooltip dl > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.workspace-chart-tooltip dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.workspace-chart-tooltip dd {
+  font-family: var(--font-geist-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.workspace-chart-tooltip-sample {
+  margin-top: 0.65rem;
+  color: var(--muted);
+  font-size: 0.64rem;
+}
+
+.workspace-chart-empty {
+  padding: 2.5rem 1rem;
+  color: var(--muted);
+  text-align: center;
+}
+
+.workspace-chart-coverage {
+  padding: 0.35rem 0.5rem 0.2rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+@media (min-width: 640px) {
+  .workspace-chart-panel {
+    padding: 1.25rem 1.25rem 1rem;
+  }
+
+  .workspace-chart-toolbar {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .workspace-chart {
+    height: 23rem;
+  }
 }
 
 .workspace-game-picker {

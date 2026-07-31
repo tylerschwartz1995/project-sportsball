@@ -75,7 +75,10 @@ were implemented on July 30, 2026.
   underlying data supports both phases.
 - [x] Add an upcoming-schedule section to team profiles.
 - [ ] Apply the production visual design system across the remaining routes.
-- [ ] Establish shared plot conventions and add rolling team and player trends.
+- [x] Establish shared plot conventions and add rolling team performance
+  trends.
+- [ ] Add rolling skater-production and goalie-performance trends.
+- [ ] Add league comparison scatterplots and distribution views.
 
 ## Milestone 6: daily operation
 

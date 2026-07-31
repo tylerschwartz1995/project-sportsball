@@ -66,6 +66,23 @@ and a pre-render bootstrap applies it before the interface is painted.
 - Missing values display an em dash. Missing datasets use an explanatory state
   rather than a zero.
 
+## Plot conventions
+
+- Charts use semantic CSS tokens so the same component remains legible in light
+  and dark modes. Cyan represents traditional results; violet represents
+  derived or model-based measures.
+- Axes use percentages or explicit units, restrained horizontal grid lines, and
+  a labeled reference line when a meaningful baseline exists.
+- Tooltips identify the date, subject, observed result, values, and rolling
+  sample size. Color is never the only way to distinguish a series.
+- Rolling charts aggregate the component totals inside each window instead of
+  averaging already-calculated percentages. Early-season points use the games
+  available so far and disclose the smaller sample.
+- Every interactive chart includes a plain-language description and a
+  screen-reader table containing the same values.
+- Charts should reveal change, comparison, or distribution. Static headline
+  values remain text or tables rather than decorative plots.
+
 ## Responsive and accessibility rules
 
 - Touch targets should be at least 40 pixels tall wherever practical.
