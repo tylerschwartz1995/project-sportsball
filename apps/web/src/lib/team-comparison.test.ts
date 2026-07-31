@@ -4,6 +4,7 @@ import type { AdvancedTeamLeaderboardRow } from "@/contracts/advanced-leaderboar
 import type { TeamSeasonSummary } from "@/contracts/team";
 import {
   buildTeamComparisonPoints,
+  buildTeamPlotPoints,
   comparisonDomain,
   filterTeamComparisonPoints,
 } from "@/lib/team-comparison";
@@ -19,11 +20,17 @@ describe("buildTeamComparisonPoints", () => {
     expect(result[0]).toMatchObject({
       abbreviation: "COL",
       resultLabel: "Points Percentage",
-      group: "strong",
     });
-    expect(result[0].expectedGoalSharePercentage).toBeCloseTo(57);
+    expect(
+      result[0].processMetrics.expectedGoalSharePercentage,
+    ).toBeCloseTo(57);
     expect(result[0].resultPercentage).toBeCloseTo(73.78, 1);
-    expect(result[0].gapPercentagePoints).toBeCloseTo(16.78, 1);
+    const [plotPoint] = buildTeamPlotPoints(
+      result,
+      "expectedGoalSharePercentage",
+    );
+    expect(plotPoint.group).toBe("strong");
+    expect(plotPoint.gapPercentagePoints).toBeCloseTo(16.78, 1);
   });
 
   it("uses win percentage for playoff comparisons", () => {
@@ -33,9 +40,15 @@ describe("buildTeamComparisonPoints", () => {
       "playoffs",
     );
 
+    const [plotPoint] = buildTeamPlotPoints(
+      result,
+      "expectedGoalSharePercentage",
+    );
     expect(result[0]).toMatchObject({
       resultPercentage: 60,
       resultLabel: "Win Percentage",
+    });
+    expect(plotPoint).toMatchObject({
       group: "outperforming",
     });
   });
@@ -52,7 +65,7 @@ describe("buildTeamComparisonPoints", () => {
 });
 
 describe("team comparison filters", () => {
-  const points = buildTeamComparisonPoints(
+  const comparisonPoints = buildTeamComparisonPoints(
     [
       advancedRow(1, "AAA", 0.55),
       advancedRow(2, "BBB", 0.45),
@@ -66,6 +79,10 @@ describe("team comparison filters", () => {
       teamRow(4, "DDD", 10, 8, 4),
     ],
     "regular",
+  );
+  const points = buildTeamPlotPoints(
+    comparisonPoints,
+    "expectedGoalSharePercentage",
   );
 
   it("filters points by their result/process quadrant", () => {
@@ -83,12 +100,32 @@ describe("team comparison filters", () => {
     expect(comparisonDomain([35, 44])).toEqual([32, 53]);
     expect(comparisonDomain([])).toEqual([40, 60]);
   });
+
+  it("can rebuild team quadrants from another process metric", () => {
+    const comparison = buildTeamComparisonPoints(
+      [advancedRow(1, "AAA", 0.55, 0.45, 0.52)],
+      [teamRow(1, "AAA", 10, 12, 6)],
+      "regular",
+    );
+
+    expect(
+      buildTeamPlotPoints(comparison, "corsiSharePercentage")[0],
+    ).toMatchObject({
+      processPercentage: 45,
+      group: "outperforming",
+    });
+    expect(
+      comparison[0].processMetrics.fenwickSharePercentage,
+    ).toBeCloseTo(52);
+  });
 });
 
 function advancedRow(
   nhlTeamId: number,
   abbreviation: string,
   expectedGoalsPercentage: number | null,
+  corsiPercentage: number | null = null,
+  fenwickPercentage: number | null = null,
 ): AdvancedTeamLeaderboardRow {
   return {
     team: {
@@ -102,8 +139,8 @@ function advancedRow(
     gamesPlayed: 82,
     iceTimeSeconds: 240_000,
     expectedGoalsPercentage,
-    corsiPercentage: null,
-    fenwickPercentage: null,
+    corsiPercentage,
+    fenwickPercentage,
     expectedGoalsFor: null,
     expectedGoalsAgainst: null,
     goalsFor: null,

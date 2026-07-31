@@ -3,6 +3,27 @@ import type {
   AdvancedSkaterLeaderboardRow,
 } from "@/contracts/advanced-leaderboard";
 
+export const SKATER_METRIC_KEYS = [
+  "individualExpectedGoalsPer60",
+  "goalsPer60",
+  "pointsPer60",
+  "gameScorePer60",
+  "onIceExpectedGoalsPercentage",
+  "onIceCorsiPercentage",
+  "onIceFenwickPercentage",
+] as const;
+
+export const GOALIE_METRIC_KEYS = [
+  "expectedGoalsAgainstPer60",
+  "goalsAgainstPer60",
+  "goalsSavedAboveExpectedPer60",
+  "expectedShotsOnGoalAgainstPer60",
+  "shotsOnGoalAgainstPer60",
+] as const;
+
+export type SkaterMetricKey = (typeof SKATER_METRIC_KEYS)[number];
+export type GoalieMetricKey = (typeof GOALIE_METRIC_KEYS)[number];
+export type PlayerMetricKey = SkaterMetricKey | GoalieMetricKey;
 export type SkaterComparisonGroup = "forwards" | "defense";
 export type GoalieComparisonGroup = "aboveExpected" | "belowExpected";
 export type PlayerComparisonGroup =
@@ -17,30 +38,29 @@ type PlayerComparisonPointBase = {
   teamAbbreviation: string;
   gamesPlayed: number;
   iceTimeMinutes: number;
-  xValue: number;
-  yValue: number;
-  differenceValue: number;
 };
 
 export type SkaterComparisonPoint = PlayerComparisonPointBase & {
   kind: "skater";
   position: string | null;
   group: SkaterComparisonGroup;
-  individualExpectedGoals: number;
-  individualGoals: number;
+  metrics: Partial<Record<SkaterMetricKey, number>>;
 };
 
 export type GoalieComparisonPoint = PlayerComparisonPointBase & {
   kind: "goalie";
   group: GoalieComparisonGroup;
-  expectedGoalsAgainst: number;
-  goalsAgainst: number;
-  goalsSavedAboveExpected: number;
+  metrics: Partial<Record<GoalieMetricKey, number>>;
 };
 
 export type PlayerComparisonPoint =
   | SkaterComparisonPoint
   | GoalieComparisonPoint;
+
+export type PlotPoint = PlayerComparisonPoint & {
+  xValue: number;
+  yValue: number;
+};
 
 export type DistributionBin = {
   minimum: number;
@@ -54,17 +74,40 @@ export function buildSkaterComparisonPoints(
   rows: AdvancedSkaterLeaderboardRow[],
 ): SkaterComparisonPoint[] {
   return rows.flatMap((row) => {
-    if (
-      row.iceTimeSeconds <= 0 ||
-      row.individualExpectedGoals === null ||
-      row.individualGoals === null
-    ) {
+    if (row.iceTimeSeconds <= 0) {
       return [];
     }
 
     const hoursPlayed = row.iceTimeSeconds / 3600;
-    const xValue = row.individualExpectedGoals / hoursPlayed;
-    const yValue = row.individualGoals / hoursPlayed;
+    const metrics: Partial<Record<SkaterMetricKey, number>> = {};
+    setRate(
+      metrics,
+      "individualExpectedGoalsPer60",
+      row.individualExpectedGoals,
+      hoursPlayed,
+    );
+    setRate(metrics, "goalsPer60", row.individualGoals, hoursPlayed);
+    setRate(metrics, "pointsPer60", row.individualPoints, hoursPlayed);
+    setRate(metrics, "gameScorePer60", row.gameScore, hoursPlayed);
+    setPercentage(
+      metrics,
+      "onIceExpectedGoalsPercentage",
+      row.onIceExpectedGoalsPercentage,
+    );
+    setPercentage(
+      metrics,
+      "onIceCorsiPercentage",
+      row.onIceCorsiPercentage,
+    );
+    setPercentage(
+      metrics,
+      "onIceFenwickPercentage",
+      row.onIceFenwickPercentage,
+    );
+
+    if (Object.keys(metrics).length === 0) {
+      return [];
+    }
 
     return [
       {
@@ -76,12 +119,8 @@ export function buildSkaterComparisonPoints(
         teamAbbreviation: row.team.abbreviation,
         gamesPlayed: row.gamesPlayed,
         iceTimeMinutes: row.iceTimeSeconds / 60,
-        xValue,
-        yValue,
-        differenceValue: yValue - xValue,
         group: row.player.position === "D" ? "defense" : "forwards",
-        individualExpectedGoals: row.individualExpectedGoals,
-        individualGoals: row.individualGoals,
+        metrics,
       },
     ];
   });
@@ -91,18 +130,49 @@ export function buildGoalieComparisonPoints(
   rows: AdvancedGoalieLeaderboardRow[],
 ): GoalieComparisonPoint[] {
   return rows.flatMap((row) => {
-    if (
-      row.iceTimeSeconds <= 0 ||
-      row.expectedGoalsAgainst === null ||
-      row.goalsAgainst === null ||
-      row.goalsSavedAboveExpected === null
-    ) {
+    if (row.iceTimeSeconds <= 0) {
       return [];
     }
 
     const hoursPlayed = row.iceTimeSeconds / 3600;
-    const xValue = row.expectedGoalsAgainst / hoursPlayed;
-    const yValue = row.goalsSavedAboveExpected / hoursPlayed;
+    const metrics: Partial<Record<GoalieMetricKey, number>> = {};
+    setRate(
+      metrics,
+      "expectedGoalsAgainstPer60",
+      row.expectedGoalsAgainst,
+      hoursPlayed,
+    );
+    setRate(
+      metrics,
+      "goalsAgainstPer60",
+      row.goalsAgainst,
+      hoursPlayed,
+    );
+    setRate(
+      metrics,
+      "goalsSavedAboveExpectedPer60",
+      row.goalsSavedAboveExpected,
+      hoursPlayed,
+    );
+    setRate(
+      metrics,
+      "expectedShotsOnGoalAgainstPer60",
+      row.expectedShotsOnGoalAgainst,
+      hoursPlayed,
+    );
+    setRate(
+      metrics,
+      "shotsOnGoalAgainstPer60",
+      row.shotsOnGoalAgainst,
+      hoursPlayed,
+    );
+
+    if (Object.keys(metrics).length === 0) {
+      return [];
+    }
+
+    const goalsSavedRate =
+      metrics.goalsSavedAboveExpectedPer60 ?? Number.NEGATIVE_INFINITY;
 
     return [
       {
@@ -113,15 +183,27 @@ export function buildGoalieComparisonPoints(
         teamAbbreviation: row.team.abbreviation,
         gamesPlayed: row.gamesPlayed,
         iceTimeMinutes: row.iceTimeSeconds / 60,
-        xValue,
-        yValue,
-        differenceValue: yValue,
-        group: yValue >= 0 ? "aboveExpected" : "belowExpected",
-        expectedGoalsAgainst: row.expectedGoalsAgainst,
-        goalsAgainst: row.goalsAgainst,
-        goalsSavedAboveExpected: row.goalsSavedAboveExpected,
+        group: goalsSavedRate >= 0 ? "aboveExpected" : "belowExpected",
+        metrics,
       },
     ];
+  });
+}
+
+export function buildPlotPoints(
+  points: PlayerComparisonPoint[],
+  xMetric: PlayerMetricKey,
+  yMetric: PlayerMetricKey,
+): PlotPoint[] {
+  return points.flatMap((point) => {
+    const metrics = point.metrics as Partial<
+      Record<PlayerMetricKey, number>
+    >;
+    const xValue = metrics[xMetric];
+    const yValue = metrics[yMetric];
+    return xValue === undefined || yValue === undefined
+      ? []
+      : [{ ...point, xValue, yValue }];
   });
 }
 
@@ -133,31 +215,42 @@ export function filterPlayerComparisonPoints<
     : points.filter((point) => point.group === group);
 }
 
+export function playerPointKey(point: PlayerComparisonPoint): string {
+  return `${point.nhlPlayerId}:${point.nhlTeamId}`;
+}
+
+export function metricValue(
+  point: PlayerComparisonPoint,
+  metric: PlayerMetricKey,
+): number | undefined {
+  return (point.metrics as Partial<Record<PlayerMetricKey, number>>)[metric];
+}
+
 export function numericDomain(
   values: number[],
   options: {
-    includeZero?: boolean;
-    matchingMinimum?: number;
+    includeValues?: number[];
+    allowNegative?: boolean;
   } = {},
 ): [number, number] {
-  if (values.length === 0) {
-    return options.includeZero ? [-1, 1] : [0, 1];
+  const allValues = [...values, ...(options.includeValues ?? [])];
+  if (allValues.length === 0) {
+    return options.allowNegative ? [-1, 1] : [0, 1];
   }
 
-  const minimum = Math.min(
-    options.includeZero ? 0 : Number.POSITIVE_INFINITY,
-    options.matchingMinimum ?? Number.POSITIVE_INFINITY,
-    ...values,
-  );
-  const maximum = Math.max(
-    options.includeZero ? 0 : Number.NEGATIVE_INFINITY,
-    ...values,
-  );
-  const range = Math.max(maximum - minimum, 0.1);
+  const minimum = Math.min(...allValues);
+  const maximum = Math.max(...allValues);
+  const range = Math.max(maximum - minimum, Math.abs(maximum) * 0.1, 0.1);
   const padding = range * 0.1;
+  const paddedMinimum = minimum - padding;
 
   return [
-    Number(Math.max(0, minimum - padding).toFixed(2)),
+    Number(
+      (options.allowNegative
+        ? paddedMinimum
+        : Math.max(0, paddedMinimum)
+      ).toFixed(2),
+    ),
     Number((maximum + padding).toFixed(2)),
   ];
 }
@@ -172,24 +265,23 @@ export function signedDomain(values: number[]): [number, number] {
   return [-paddedBound, paddedBound];
 }
 
-export function buildCenteredDistribution(
+export function buildDistribution(
   values: number[],
+  domain: [number, number],
   binCount = 9,
-  domainBound?: number,
 ): DistributionBin[] {
   if (values.length === 0 || binCount < 1) {
     return [];
   }
 
-  const safeBinCount = binCount % 2 === 0 ? binCount + 1 : binCount;
-  const bound = Math.max(
-    0.05,
-    domainBound ?? 0,
-    ...values.map((value) => Math.abs(value)),
-  );
-  const width = (bound * 2) / safeBinCount;
-  const bins = Array.from({ length: safeBinCount }, (_, index) => {
-    const minimum = -bound + index * width;
+  const [minimumDomain, maximumDomain] = domain;
+  const width = (maximumDomain - minimumDomain) / binCount;
+  if (width <= 0) {
+    return [];
+  }
+
+  const bins = Array.from({ length: binCount }, (_, index) => {
+    const minimum = minimumDomain + index * width;
     const maximum = minimum + width;
     return {
       minimum,
@@ -201,10 +293,31 @@ export function buildCenteredDistribution(
   });
 
   for (const value of values) {
-    const rawIndex = Math.floor((value + bound) / width);
-    const index = Math.min(safeBinCount - 1, Math.max(0, rawIndex));
+    const rawIndex = Math.floor((value - minimumDomain) / width);
+    const index = Math.min(binCount - 1, Math.max(0, rawIndex));
     bins[index].count += 1;
   }
 
   return bins;
+}
+
+function setRate<Key extends string>(
+  metrics: Partial<Record<Key, number>>,
+  key: Key,
+  value: number | null,
+  hoursPlayed: number,
+) {
+  if (value !== null) {
+    metrics[key] = value / hoursPlayed;
+  }
+}
+
+function setPercentage<Key extends string>(
+  metrics: Partial<Record<Key, number>>,
+  key: Key,
+  value: number | null,
+) {
+  if (value !== null) {
+    metrics[key] = value * 100;
+  }
 }

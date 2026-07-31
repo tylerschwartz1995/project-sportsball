@@ -80,7 +80,9 @@ were implemented on July 30, 2026.
 - [x] Add rolling skater-production and goalie-performance trends.
 - [x] Add the first league team results-versus-process scatterplot.
 - [x] Add skater and goalie comparison and distribution views.
-- [ ] Add selectable plot metrics and direct player-to-player comparisons.
+- [x] Add selectable metrics and direct comparisons to league team and player
+  comparison plots.
+- [ ] Add saved comparison views and shareable plot URLs.
 
 ## Milestone 6: daily operation
 
