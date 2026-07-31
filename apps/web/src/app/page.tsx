@@ -9,7 +9,7 @@ import {
 import type { GameSummary } from "@/contracts/game";
 import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
-import { getLatestGamesForSeason } from "@/data/games";
+import { getLatestGamesForSeason, getUpcomingGames } from "@/data/games";
 import { listPlayersBySeason } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
 import { getStandings } from "@/data/standings";
@@ -27,13 +27,14 @@ export default async function Home({ searchParams }: HomeProps) {
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
-  const [standings, players, latestGames] = selectedSeason
+  const [standings, players, latestGames, upcomingGames] = selectedSeason
     ? await Promise.all([
         getStandings(selectedSeason.id),
         listPlayersBySeason(selectedSeason.id),
         getLatestGamesForSeason(selectedSeason.id),
+        getUpcomingGames(6),
       ])
-    : [[], { seasonId: 0, skaters: [], goalies: [] }, []];
+    : [[], { seasonId: 0, skaters: [], goalies: [] }, [], []];
 
   const latestDate = latestGames[0]?.gameDate;
   const leagueLeader = standings[0];
@@ -61,7 +62,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
         {selectedSeason && leagueLeader ? (
           <>
-            <div className="mt-7 grid gap-5 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
+            <div className="workspace-home-primary mt-7">
               <WorkspacePanel
                 title={latestDate ? `Results · ${formatDate(latestDate)}` : "Results"}
                 description="Most recent stored game date"
@@ -85,6 +86,26 @@ export default async function Home({ searchParams }: HomeProps) {
                   </div>
                 ) : (
                   <EmptyState message="No games are available for this season." />
+                )}
+              </WorkspacePanel>
+
+              <WorkspacePanel
+                title="Next Games"
+                description="Earliest scheduled matchups across the league"
+                action={
+                  <Link href={upcomingGames[0] ? `/games?season=${upcomingGames[0].seasonId}&date=${upcomingGames[0].gameDate}` : "/games"}>
+                    Full Schedule →
+                  </Link>
+                }
+              >
+                {upcomingGames.length > 0 ? (
+                  <div className="workspace-upcoming-list">
+                    {upcomingGames.map((game) => (
+                      <UpcomingGame key={game.nhlGameId} game={game} />
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyState message="No future games are currently stored." />
                 )}
               </WorkspacePanel>
 
@@ -154,6 +175,19 @@ export default async function Home({ searchParams }: HomeProps) {
                 Open analytics →
               </Link>
             ) : null}
+
+            <WorkspacePanel
+              className="mt-5"
+              title="Explore the NHL Archive"
+              description="Move from today's league picture into deeper historical and analytical views."
+            >
+              <nav className="workspace-home-explore" aria-label="Explore Sportsball">
+                <HomeDestination href="/history" title="Historical Leaders" detail="Career records and best seasons since 1917–18" />
+                <HomeDestination href={`/playoffs?season=${selectedSeason.id}`} title="Playoffs" detail="Bracket, projected matchups, and postseason leaders" />
+                <HomeDestination href={`/drafts?season=${selectedSeason.id}`} title="Draft Outcomes" detail="Pick value and team drafting performance" />
+                <HomeDestination href={`/players/compare?season=${selectedSeason.id}`} title="Compare Players" detail="Official and advanced metrics side by side" />
+              </nav>
+            </WorkspacePanel>
           </>
         ) : (
           <EmptyState message="The selected season does not have a complete dashboard yet." />
@@ -161,6 +195,20 @@ export default async function Home({ searchParams }: HomeProps) {
       </section>
     </main>
   );
+}
+
+function UpcomingGame({ game }: { game: GameSummary }) {
+  return (
+    <Link href={`/games/${game.nhlGameId}`}>
+      <time dateTime={game.startTimeUtc}>{formatUpcomingTime(game.startTimeUtc)}</time>
+      <span><b>{game.awayTeam.abbreviation}</b> at <b>{game.homeTeam.abbreviation}</b></span>
+      <small>{game.gameType === 3 ? "Playoffs" : formatSeason(game.seasonId)}</small>
+    </Link>
+  );
+}
+
+function HomeDestination({ href, title, detail }: { href: string; title: string; detail: string }) {
+  return <Link href={href}><span><b>{title}</b><small>{detail}</small></span><strong>Explore →</strong></Link>;
 }
 
 function GameResult({ game }: { game: GameSummary }) {
@@ -206,4 +254,15 @@ function finalLabel(lastPeriodType: string | null): string {
   return lastPeriodType && lastPeriodType !== "REG"
     ? `Final · ${lastPeriodType}`
     : "Final";
+}
+
+function formatUpcomingTime(value: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    month: "short", day: "numeric", hour: "numeric", minute: "2-digit",
+    timeZoneName: "short",
+  }).format(new Date(value));
+}
+
+function formatSeason(seasonId: number): string {
+  return `${Math.floor(seasonId / 10_000)}–${String(seasonId % 10_000).slice(-2)}`;
 }

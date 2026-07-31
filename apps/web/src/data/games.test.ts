@@ -11,6 +11,7 @@ import {
   getGamesByDate,
   getLatestGamesForSeason,
   getUpcomingGamesForTeamAcrossSeasons,
+  getUpcomingGames,
   listGameDates,
 } from "@/data/games";
 
@@ -120,6 +121,15 @@ describe("game queries", () => {
       [8, 10],
     );
     expect(queryMock.mock.calls[0]?.[0]).not.toContain("game.season_id =");
+  });
+
+  it("loads the next league games without a season boundary", async () => {
+    queryMock.mockResolvedValue([]);
+    await getUpcomingGames(6);
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("game.start_time_utc > NOW()"),
+      [6],
+    );
   });
 
   it("groups skaters and goalies under the correct box-score team", async () => {

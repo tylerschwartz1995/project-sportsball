@@ -250,6 +250,20 @@ export async function getUpcomingGamesForTeamAcrossSeasons(
   return rows.map(mapGame);
 }
 
+export async function getUpcomingGames(limit = 8): Promise<GameSummary[]> {
+  const rows = await query<GameRow>(
+    `
+      ${gameSelect}
+      WHERE game.game_type IN (2, 3)
+        AND game.start_time_utc > NOW()
+      ORDER BY game.start_time_utc, game.nhl_id
+      LIMIT $1
+    `,
+    [limit],
+  );
+  return rows.map(mapGame);
+}
+
 export async function getGameBoxScore(
   nhlGameId: number,
 ): Promise<GameBoxScore | null> {
