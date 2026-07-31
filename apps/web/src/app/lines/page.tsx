@@ -46,7 +46,7 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
               MoneyPuck five-on-five units
             </p>
             <h2 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-              {selectedSeason?.label ?? "No season"} top combinations
+              {selectedSeason?.label ?? "No Season"} Top Combinations
             </h2>
             <p className="mt-4 max-w-3xl text-base leading-7 text-slate-400">
               Season totals are calculated in Polars from stored game-level

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SeasonPicker } from "@/app/_components/season-picker";
+import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
@@ -12,6 +13,11 @@ import type {
 } from "@/contracts/game-log";
 import { parseSeasonId } from "@/contracts/season";
 import {
+  gameTypeForPhase,
+  parseSeasonPhase,
+  seasonPhaseLabel,
+} from "@/contracts/season-phase";
+import {
   getPlayerGameLog,
   listPlayerGameSeasonIds,
 } from "@/data/game-logs";
@@ -21,7 +27,10 @@ export const dynamic = "force-dynamic";
 
 type PlayerGamesPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ season?: string | string[] }>;
+  searchParams: Promise<{
+    season?: string | string[];
+    phase?: string | string[];
+  }>;
 };
 
 export default async function PlayerGamesPage({
@@ -41,9 +50,9 @@ export default async function PlayerGamesPage({
   const availableSeasons = seasons.filter((season) =>
     availableSeasonIds.has(season.id),
   );
-  const requestedSeason = parseSeasonId(
-    firstValue((await searchParams).season),
-  );
+  const pageParams = await searchParams;
+  const requestedSeason = parseSeasonId(firstValue(pageParams.season));
+  const phase = parseSeasonPhase(firstValue(pageParams.phase));
   const selectedSeason =
     availableSeasons.find((season) => season.id === requestedSeason) ??
     availableSeasons[0];
@@ -60,6 +69,13 @@ export default async function PlayerGamesPage({
   const isGoalie =
     log.profile.position === "G" ||
     (log.goalieGames.length > 0 && log.skaterGames.length === 0);
+  const gameType = gameTypeForPhase(phase);
+  const skaterGames = log.skaterGames.filter(
+    (game) => game.gameType === gameType,
+  );
+  const goalieGames = log.goalieGames.filter(
+    (game) => game.gameType === gameType,
+  );
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -67,7 +83,7 @@ export default async function PlayerGamesPage({
 
       <section className="py-10">
         <Link
-          href={`/players/${log.profile.nhlPlayerId}?season=${selectedSeason.id}`}
+          href={`/players/${log.profile.nhlPlayerId}?season=${selectedSeason.id}&phase=${phase}`}
           className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
         >
           ← {log.profile.name}
@@ -76,10 +92,10 @@ export default async function PlayerGamesPage({
         <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
-              {log.profile.position ?? "Player"} · Regular season and playoffs
+              {log.profile.position ?? "Player"} · {seasonPhaseLabel(phase)}
             </p>
             <h2 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-              Game log
+              Game Log
             </h2>
             <p className="mt-4 text-base text-slate-400">
               {selectedSeason.label} game-by-game traditional and advanced
@@ -88,26 +104,33 @@ export default async function PlayerGamesPage({
           </div>
           <SeasonPicker
             seasons={availableSeasons}
-            selectedSeasonId={selectedSeason.id}
+              selectedSeasonId={selectedSeason.id}
+              params={{ phase }}
           />
         </div>
 
+        <SeasonPhaseFilter
+          active={phase}
+          path={`/players/${log.profile.nhlPlayerId}/games`}
+          params={{ season: selectedSeason.id }}
+        />
+
         {isGoalie ? (
-          <GoalieRecentForm games={log.goalieGames.slice(0, 10)} />
+          <GoalieRecentForm games={goalieGames.slice(0, 10)} />
         ) : (
-          <SkaterRecentForm games={log.skaterGames.slice(0, 10)} />
+          <SkaterRecentForm games={skaterGames.slice(0, 10)} />
         )}
 
-        {log.skaterGames.length > 0 ? (
+        {skaterGames.length > 0 ? (
           <SkaterGameTable
-            games={log.skaterGames}
+            games={skaterGames}
             seasonId={selectedSeason.id}
           />
         ) : null}
 
-        {log.goalieGames.length > 0 ? (
+        {goalieGames.length > 0 ? (
           <GoalieGameTable
-            games={log.goalieGames}
+            games={goalieGames}
             seasonId={selectedSeason.id}
           />
         ) : null}
@@ -117,40 +140,10 @@ export default async function PlayerGamesPage({
 }
 
 function SkaterRecentForm({ games }: { games: SkaterGameLogEntry[] }) {
-  const points = games.reduce((total, game) => total + game.points, 0);
-  const goals = games.reduce((total, game) => total + game.goals, 0);
-  const advanced = games.filter((game) => game.gameScore !== null);
-  const averageGameScore =
-    advanced.length > 0
-      ? advanced.reduce(
-          (total, game) => total + (game.gameScore ?? 0),
-          0,
-        ) / advanced.length
-      : null;
-
   return (
     <RecentFormSection gameCount={games.length}>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <SummaryCard label="Points" value={String(points)} detail="Last 10" />
-        <SummaryCard label="Goals" value={String(goals)} detail="Last 10" />
-        <SummaryCard
-          label="Points per game"
-          value={games.length > 0 ? (points / games.length).toFixed(2) : "—"}
-          detail={`${games.length} games`}
-        />
-        <SummaryCard
-          label="Avg. game score"
-          value={formatDecimal(averageGameScore)}
-          detail={
-            advanced.length > 0
-              ? `${advanced.length} games available`
-              : "Not available"
-          }
-        />
-      </div>
-
       <div
-        className="mt-4 grid grid-cols-5 gap-2 sm:grid-cols-10"
+        className="grid grid-cols-5 gap-2 sm:grid-cols-10"
         aria-label="Points in recent games"
       >
         {games.map((game) => (
@@ -175,64 +168,10 @@ function SkaterRecentForm({ games }: { games: SkaterGameLogEntry[] }) {
 }
 
 function GoalieRecentForm({ games }: { games: GoalieGameLogEntry[] }) {
-  const wins = games.filter((game) => game.decision === "W").length;
-  const losses = games.filter((game) => game.decision === "L").length;
-  const overtimeLosses = games.filter(
-    (game) => game.decision === "OTL",
-  ).length;
-  const totalSaves = games.reduce((total, game) => total + game.saves, 0);
-  const totalShots = games.reduce(
-    (total, game) => total + game.shotsAgainst,
-    0,
-  );
-  const advanced = games.filter(
-    (game) => game.goalsSavedAboveExpected !== null,
-  );
-  const goalsSavedAboveExpected =
-    advanced.length > 0
-      ? advanced.reduce(
-          (total, game) => total + (game.goalsSavedAboveExpected ?? 0),
-          0,
-        )
-      : null;
-
   return (
     <RecentFormSection gameCount={games.length}>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <SummaryCard
-          label="Record"
-          value={`${wins}-${losses}-${overtimeLosses}`}
-          detail="W-L-OTL decisions"
-        />
-        <SummaryCard
-          label="Save percentage"
-          value={
-            totalShots > 0
-              ? (totalSaves / totalShots).toFixed(3).replace(/^0/, "")
-              : "—"
-          }
-          detail={`${totalSaves} saves`}
-        />
-        <SummaryCard
-          label="Goals against"
-          value={String(
-            games.reduce((total, game) => total + game.goalsAgainst, 0),
-          )}
-          detail={`${games.length} appearances`}
-        />
-        <SummaryCard
-          label="GSAx"
-          value={formatSignedDecimal(goalsSavedAboveExpected)}
-          detail={
-            advanced.length > 0
-              ? `${advanced.length} games available`
-              : "Not available"
-          }
-        />
-      </div>
-
       <div
-        className="mt-4 grid grid-cols-5 gap-2 sm:grid-cols-10"
+        className="grid grid-cols-5 gap-2 sm:grid-cols-10"
         aria-label="Save percentage in recent games"
       >
         {games.map((game) => (
@@ -270,7 +209,7 @@ function RecentFormSection({
             Recent form
           </p>
           <h3 className="mt-2 text-2xl font-semibold text-white">
-            Last {gameCount} games
+            Last {gameCount} Games
           </h3>
         </div>
         <p className="text-sm text-slate-500">Newest game appears first</p>
@@ -290,7 +229,7 @@ function SkaterGameTable({
   return (
     <GameTableSection
       eyebrow="Skater appearances"
-      title="All games"
+      title="All Games"
       detail={`${games.length} games`}
       note="Game score, individual xG, and on-ice xG% are MoneyPuck all-situations metrics. Advanced player data covers regular-season games from 2008–09 onward."
     >
@@ -355,7 +294,7 @@ function GoalieGameTable({
   return (
     <GameTableSection
       eyebrow="Goalie appearances"
-      title="All games"
+      title="All Games"
       detail={`${games.length} games`}
       note="Expected goals against and GSAx are MoneyPuck all-situations metrics. Advanced player data covers regular-season games from 2008–09 onward."
     >
@@ -556,26 +495,6 @@ function GameTableSection({
       </div>
       <p className="mt-3 text-xs text-slate-500">{note}</p>
     </section>
-  );
-}
-
-function SummaryCard({
-  label,
-  value,
-  detail,
-}: {
-  label: string;
-  value: string;
-  detail: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <p className="text-xs uppercase tracking-[0.14em] text-slate-500">
-        {label}
-      </p>
-      <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
-      <p className="mt-1 text-xs text-slate-500">{detail}</p>
-    </div>
   );
 }
 

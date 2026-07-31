@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 export function WorkspacePageHeader({
@@ -21,42 +20,6 @@ export function WorkspacePageHeader({
       </div>
       {action}
     </header>
-  );
-}
-
-export function WorkspaceMetric({
-  label,
-  value,
-  detail,
-  href,
-  tone = "cyan",
-}: {
-  label: string;
-  value: ReactNode;
-  detail: string;
-  href?: string;
-  tone?: "cyan" | "violet";
-}) {
-  const content = (
-    <>
-      <p className="workspace-metric-label">{label}</p>
-      <div className="workspace-metric-value">{value}</div>
-      <p className="workspace-metric-detail">{detail}</p>
-    </>
-  );
-
-  return href ? (
-    <Link
-      href={href}
-      className="workspace-metric workspace-metric-link"
-      data-tone={tone}
-    >
-      {content}
-    </Link>
-  ) : (
-    <article className="workspace-metric" data-tone={tone}>
-      {content}
-    </article>
   );
 }
 

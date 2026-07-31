@@ -1,12 +1,16 @@
 import Link from "next/link";
 
 import { SiteHeader } from "@/app/_components/site-header";
+import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import {
-  WorkspaceMetric,
   WorkspacePageHeader,
 } from "@/app/_components/workspace-primitives";
 import { parseGameDate, type GameSummary } from "@/contracts/game";
 import { parseSeasonId } from "@/contracts/season";
+import {
+  gameTypeForGamePhase,
+  parseGamePhase,
+} from "@/contracts/season-phase";
 import { getGamesByDate, listGameDates } from "@/data/games";
 import { listSeasons } from "@/data/seasons";
 
@@ -16,6 +20,7 @@ type GamesPageProps = {
   searchParams: Promise<{
     season?: string | string[];
     date?: string | string[];
+    phase?: string | string[];
   }>;
 };
 
@@ -23,11 +28,13 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
   const seasons = await listSeasons();
   const requested = await searchParams;
   const requestedSeason = firstValue(requested.season);
+  const phase = parseGamePhase(firstValue(requested.phase));
+  const gameType = gameTypeForGamePhase(phase);
   const parsedSeason = parseSeasonId(requestedSeason);
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
   const gameDates = selectedSeason
-    ? await listGameDates(selectedSeason.id)
+    ? await listGameDates(selectedSeason.id, gameType)
     : [];
   const requestedDate = parseGameDate(firstValue(requested.date));
   const selectedDate =
@@ -35,7 +42,7 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
     gameDates[0]?.date;
   const games =
     selectedSeason && selectedDate
-      ? await getGamesByDate(selectedSeason.id, selectedDate)
+      ? await getGamesByDate(selectedSeason.id, selectedDate, gameType)
       : [];
   const selectedDateIndex = gameDates.findIndex(
     (entry) => entry.date === selectedDate,
@@ -46,8 +53,6 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
     selectedDateIndex >= 0
       ? gameDates[selectedDateIndex + 1]?.date
       : undefined;
-  const playoffGames = games.filter((game) => game.gameType === 3).length;
-  const completedGames = games.filter(hasFinalScore).length;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -57,7 +62,7 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
         <WorkspacePageHeader
           eyebrow="Schedule and results"
           title={
-            selectedDate ? formatDate(selectedDate) : "No schedule available"
+            selectedDate ? formatDate(selectedDate) : "No Schedule Available"
           }
           description="Every NHL matchup, final score, and shot total from the selected date, using the team name active in that season."
           action={
@@ -66,12 +71,20 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
               selectedSeasonId={selectedSeason?.id}
               gameDates={gameDates}
               selectedDate={selectedDate}
+              phase={phase}
             />
           }
         />
 
         {selectedSeason && selectedDate ? (
           <>
+            <SeasonPhaseFilter
+              active={phase}
+              path="/games"
+              params={{ season: selectedSeason.id }}
+              includeAll
+              label="Schedule phase"
+            />
             <div className="workspace-date-navigation">
               <p>
                 {selectedSeason.label} season · {gameDates.length} game dates
@@ -81,37 +94,15 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
                   label="← Older"
                   seasonId={selectedSeason.id}
                   date={olderDate}
+                  phase={phase}
                 />
                 <DateLink
                   label="Newer →"
                   seasonId={selectedSeason.id}
                   date={newerDate}
+                  phase={phase}
                 />
               </nav>
-            </div>
-
-            <div className="workspace-metric-grid">
-              <WorkspaceMetric
-                label="Games"
-                value={String(games.length)}
-                detail="Scheduled on selected date"
-              />
-              <WorkspaceMetric
-                label="Completed"
-                value={`${completedGames} of ${games.length}`}
-                detail="Games with a final score"
-              />
-              <WorkspaceMetric
-                label="Schedule type"
-                value={
-                  playoffGames === games.length
-                    ? "Playoffs"
-                    : playoffGames > 0
-                      ? "Regular + playoffs"
-                      : "Regular season"
-                }
-                detail={selectedSeason.label}
-              />
             </div>
 
             {games.length > 0 ? (
@@ -141,14 +132,17 @@ function GamePicker({
   selectedSeasonId,
   gameDates,
   selectedDate,
+  phase,
 }: {
   seasons: Array<{ id: number; label: string }>;
   selectedSeasonId: number | undefined;
   gameDates: Array<{ date: string; gameCount: number }>;
   selectedDate: string | undefined;
+  phase: string;
 }) {
   return (
     <form method="get" className="workspace-game-picker">
+      <input type="hidden" name="phase" value={phase} />
       <label>
         Season
         <select name="season" defaultValue={selectedSeasonId}>
@@ -237,16 +231,18 @@ function DateLink({
   label,
   seasonId,
   date,
+  phase,
 }: {
   label: string;
   seasonId: number;
   date: string | undefined;
+  phase: string;
 }) {
   const className = "workspace-date-link";
 
   return date ? (
     <Link
-      href={`/games?season=${seasonId}&date=${date}`}
+      href={`/games?season=${seasonId}&date=${date}&phase=${phase}`}
       className={className}
     >
       {label}

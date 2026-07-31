@@ -2,12 +2,18 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SeasonPicker } from "@/app/_components/season-picker";
+import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { parseNhlId } from "@/contracts/entity";
 import type { TeamGameLogEntry } from "@/contracts/game-log";
 import { parseSeasonId } from "@/contracts/season";
+import {
+  gameTypeForPhase,
+  parseSeasonPhase,
+  seasonPhaseLabel,
+} from "@/contracts/season-phase";
 import { getTeamGameLog } from "@/data/game-logs";
 import { listSeasons } from "@/data/seasons";
 import { listTeamSeasonIds } from "@/data/teams";
@@ -16,7 +22,10 @@ export const dynamic = "force-dynamic";
 
 type TeamGamesPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ season?: string | string[] }>;
+  searchParams: Promise<{
+    season?: string | string[];
+    phase?: string | string[];
+  }>;
 };
 
 export default async function TeamGamesPage({
@@ -36,9 +45,9 @@ export default async function TeamGamesPage({
   const availableSeasons = seasons.filter((season) =>
     availableSeasonIds.has(season.id),
   );
-  const requestedSeason = parseSeasonId(
-    firstValue((await searchParams).season),
-  );
+  const pageParams = await searchParams;
+  const requestedSeason = parseSeasonId(firstValue(pageParams.season));
+  const phase = parseSeasonPhase(firstValue(pageParams.phase));
   const selectedSeason =
     availableSeasons.find((season) => season.id === requestedSeason) ??
     availableSeasons[0];
@@ -52,8 +61,10 @@ export default async function TeamGamesPage({
     notFound();
   }
 
-  const recentGames = log.games.slice(0, 10);
-  const recent = summarizeRecentTeamGames(recentGames);
+  const games = log.games.filter(
+    (game) => game.gameType === gameTypeForPhase(phase),
+  );
+  const recentGames = games.slice(0, 10);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -61,7 +72,7 @@ export default async function TeamGamesPage({
 
       <section className="py-10">
         <Link
-          href={`/teams/${log.team.nhlTeamId}?season=${selectedSeason.id}`}
+          href={`/teams/${log.team.nhlTeamId}?season=${selectedSeason.id}&phase=${phase}`}
           className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
         >
           ← {log.team.name}
@@ -70,10 +81,10 @@ export default async function TeamGamesPage({
         <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
-              {log.team.abbreviation} · Regular season and playoffs
+              {log.team.abbreviation} · {seasonPhaseLabel(phase)}
             </p>
             <h2 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-              Game log
+              Game Log
             </h2>
             <p className="mt-4 text-base text-slate-400">
               {selectedSeason.label} results, shot totals, and five-on-five
@@ -82,9 +93,16 @@ export default async function TeamGamesPage({
           </div>
           <SeasonPicker
             seasons={availableSeasons}
-            selectedSeasonId={selectedSeason.id}
-          />
+              selectedSeasonId={selectedSeason.id}
+              params={{ phase }}
+            />
         </div>
+
+        <SeasonPhaseFilter
+          active={phase}
+          path={`/teams/${log.team.nhlTeamId}/games`}
+          params={{ season: selectedSeason.id }}
+        />
 
         <section className="mt-10">
           <div className="flex flex-wrap items-end justify-between gap-3">
@@ -93,7 +111,7 @@ export default async function TeamGamesPage({
                 Recent form
               </p>
               <h3 className="mt-2 text-2xl font-semibold text-white">
-                Last {recentGames.length} games
+                Last {recentGames.length} Games
               </h3>
             </div>
             <p className="text-sm text-slate-500">
@@ -101,35 +119,8 @@ export default async function TeamGamesPage({
             </p>
           </div>
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <SummaryCard
-              label="Record"
-              value={`${recent.wins}-${recent.losses}-${recent.overtimeLosses}`}
-              detail="W-L-OTL"
-            />
-            <SummaryCard
-              label="Goals"
-              value={`${recent.goalsFor}–${recent.goalsAgainst}`}
-              detail="For–against"
-            />
-            <SummaryCard
-              label="Goal differential"
-              value={formatSigned(recent.goalsFor - recent.goalsAgainst)}
-              detail="Across this window"
-            />
-            <SummaryCard
-              label="5v5 xG%"
-              value={formatPercentage(recent.averageXGoalsPercentage)}
-              detail={
-                recent.advancedGames > 0
-                  ? `${recent.advancedGames} games available`
-                  : "Not available"
-              }
-            />
-          </div>
-
           <div
-            className="mt-4 flex flex-wrap gap-2"
+            className="mt-5 flex flex-wrap gap-2"
             aria-label="Recent game results"
           >
             {recentGames.map((game) => (
@@ -152,11 +143,11 @@ export default async function TeamGamesPage({
                 Full season
               </p>
               <h3 className="mt-2 text-2xl font-semibold text-white">
-                All games
+                {seasonPhaseLabel(phase)} Games
               </h3>
             </div>
             <p className="text-sm text-slate-500">
-              {log.games.length} completed games
+              {games.length} completed games
             </p>
           </div>
 
@@ -202,7 +193,7 @@ export default async function TeamGamesPage({
                     </tr>
                   </thead>
                   <tbody>
-                    {log.games.map((game) => (
+                    {games.map((game) => (
                       <TeamGameRow
                         key={game.nhlGameId}
                         game={game}
@@ -283,26 +274,6 @@ function TeamGameRow({
   );
 }
 
-function SummaryCard({
-  label,
-  value,
-  detail,
-}: {
-  label: string;
-  value: string;
-  detail: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <p className="text-xs uppercase tracking-[0.14em] text-slate-500">
-        {label}
-      </p>
-      <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
-      <p className="mt-1 text-xs text-slate-500">{detail}</p>
-    </div>
-  );
-}
-
 function NumericCell({
   value,
   sortValue,
@@ -322,32 +293,6 @@ function NumericCell({
   );
 }
 
-function summarizeRecentTeamGames(games: TeamGameLogEntry[]) {
-  const advanced = games.filter(
-    (game) => game.fiveOnFiveXGoalsPercentage !== null,
-  );
-
-  return {
-    wins: games.filter((game) => game.result === "W").length,
-    losses: games.filter((game) => game.result === "L").length,
-    overtimeLosses: games.filter((game) => game.result === "OTL").length,
-    goalsFor: games.reduce((total, game) => total + game.score, 0),
-    goalsAgainst: games.reduce(
-      (total, game) => total + game.opponentScore,
-      0,
-    ),
-    averageXGoalsPercentage:
-      advanced.length > 0
-        ? advanced.reduce(
-            (total, game) =>
-              total + (game.fiveOnFiveXGoalsPercentage ?? 0),
-            0,
-          ) / advanced.length
-        : null,
-    advancedGames: advanced.length,
-  };
-}
-
 function formatDate(value: string): string {
   return new Intl.DateTimeFormat("en-CA", {
     month: "short",
@@ -363,10 +308,6 @@ function formatPercentage(value: number | null): string {
 
 function formatDecimal(value: number | null): string {
   return value === null ? "—" : value.toFixed(2);
-}
-
-function formatSigned(value: number): string {
-  return value > 0 ? `+${value}` : String(value);
 }
 
 function resultClassName(result: TeamGameLogEntry["result"]): string {

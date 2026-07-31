@@ -104,7 +104,7 @@ function ScoringSummary({
   return (
     <section className="mt-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h3 className="text-xl font-semibold text-white">Scoring summary</h3>
+        <h3 className="text-xl font-semibold text-white">Scoring Summary</h3>
         <p className="text-sm text-slate-500">
           {goals.length} {goals.length === 1 ? "goal" : "goals"}
         </p>

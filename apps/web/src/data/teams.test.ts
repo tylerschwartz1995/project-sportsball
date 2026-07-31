@@ -44,7 +44,7 @@ describe("listTeamsBySeason", () => {
 
     expect(queryMock).toHaveBeenCalledWith(
       expect.stringContaining("stats.season_id = $1"),
-      [20252026],
+      [20252026, 2],
     );
     expect(result[0]).toMatchObject({
       team: {
@@ -58,6 +58,17 @@ describe("listTeamsBySeason", () => {
         goalsFor: 296,
       },
     });
+  });
+
+  it("selects playoff team totals when requested", async () => {
+    queryMock.mockResolvedValue([]);
+
+    await listTeamsBySeason(20252026, 3);
+
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("stats.game_type = $2"),
+      [20252026, 3],
+    );
   });
 });
 

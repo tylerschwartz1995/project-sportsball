@@ -1,8 +1,10 @@
 # Schedules and results
 
 The games page at `/games` exposes the ingested NHL schedule one day at a
-time. A visitor can select any stored season and game date, move to the next
-older or newer game date, and see regular-season or playoff matchups.
+time. A visitor can select any stored season, choose all games, regular season,
+or playoffs, move to the next older or newer game date, and see the matching
+schedule. When future dates exist, the next upcoming date is selected first;
+otherwise the latest completed date is selected.
 
 Each result shows:
 
@@ -22,6 +24,10 @@ The underlying read model keeps one game as the response grain. The
 `team_game_stats` rows into one typed `GameSummary`. Result rows are left
 joins, so scheduled games can appear before their scores and box scores have
 been ingested.
+
+Team profiles also query the next five stored future games for the selected
+season phase. Historical or completed seasons show an explicit no-upcoming-games
+message and retain a link to the full league schedule.
 
 ## HTTP endpoint
 

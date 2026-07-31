@@ -117,25 +117,26 @@ const goalieSelect = `
 
 export async function listPlayersBySeason(
   seasonId: number,
+  gameType = 2,
 ): Promise<PlayerSeasonIndex> {
   const [skaterRows, goalieRows] = await Promise.all([
     query<SkaterRow>(
       `
         ${skaterSelect}
         WHERE stats.season_id = $1
-          AND stats.game_type = 2
+          AND stats.game_type = $2
         ORDER BY stats.points DESC, stats.goals DESC, player.display_name
       `,
-      [seasonId],
+      [seasonId, gameType],
     ),
     query<GoalieRow>(
       `
         ${goalieSelect}
         WHERE stats.season_id = $1
-          AND stats.game_type = 2
+          AND stats.game_type = $2
         ORDER BY stats.games_played DESC, stats.wins DESC, player.display_name
       `,
-      [seasonId],
+      [seasonId, gameType],
     ),
   ]);
 

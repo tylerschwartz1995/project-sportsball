@@ -18,7 +18,7 @@ describe("game queries", () => {
     queryMock.mockReset();
   });
 
-  it("lists game dates newest first with a parameterized season", async () => {
+  it("lists schedule dates using the query's upcoming-first order", async () => {
     queryMock.mockResolvedValue([
       { game_date: "2026-06-14", game_count: 1 },
       { game_date: "2026-06-11", game_count: 1 },
@@ -29,8 +29,8 @@ describe("game queries", () => {
       { date: "2026-06-11", gameCount: 1 },
     ]);
     expect(queryMock).toHaveBeenCalledWith(
-      expect.stringContaining("WHERE season_id = $1"),
-      [20252026],
+      expect.stringContaining("game_date >= CURRENT_DATE"),
+      [20252026, null],
     );
   });
 
@@ -64,7 +64,7 @@ describe("game queries", () => {
 
     expect(queryMock).toHaveBeenCalledWith(
       expect.stringContaining("game.game_date = $2::date"),
-      [20252026, "2026-06-14"],
+      [20252026, "2026-06-14", null],
     );
     expect(result[0]).toMatchObject({
       nhlGameId: 2025030416,
@@ -78,6 +78,24 @@ describe("game queries", () => {
         score: 0,
       },
     });
+  });
+
+  it("filters dates and games by season phase when requested", async () => {
+    queryMock.mockResolvedValue([]);
+
+    await listGameDates(20252026, 3);
+    await getGamesByDate(20252026, "2026-06-14", 3);
+
+    expect(queryMock).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("game_type = $2"),
+      [20252026, 3],
+    );
+    expect(queryMock).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("game.game_type = $3"),
+      [20252026, "2026-06-14", 3],
+    );
   });
 
   it("loads the latest game date for a season without a second query", async () => {

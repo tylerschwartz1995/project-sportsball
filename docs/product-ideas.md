@@ -117,3 +117,80 @@ acquisition method becomes available.
 New sources should be added only when they improve a defined product feature or
 model evaluation. The existing NHL and MoneyPuck history is sufficient for
 baseline team, game, and player modelling.
+
+## 5. Historical contracts and salary-cap analysis
+
+**Status:** Proposed
+
+Add current and historical player contract information so team and player pages
+can explain performance in the context of roster cost. The product should
+support cap hit, annual salary, contract term, signing status, expiry type,
+retained salary, buyouts, injured-reserve treatment, and team-level cap
+commitments where reliable source coverage permits.
+
+Potential product features include:
+
+- contract history and remaining term on player profiles;
+- current and historical cap tables on team profiles;
+- cost per goal, point, win, and goals saved above expected;
+- surplus-value estimates that compare performance with cap hit;
+- expiring-contract and future-cap-commitment views;
+- trade-deadline and roster-construction analysis.
+
+Before ingestion, evaluate source licensing, historical completeness, handling
+of two-way contracts and performance bonuses, and the NHL CBA rules needed to
+reproduce team cap positions accurately. Contract facts should be stored with
+effective dates so historical pages never display a player's current contract
+as if it applied to an earlier season.
+
+## 6. Strength of schedule
+
+**Status:** Proposed
+
+Add both forward-looking and backward-looking schedule difficulty to team
+profiles.
+
+- Upcoming strength of schedule should summarize the quality of remaining
+  opponents, home/away mix, travel, rest, and back-to-back games.
+- Completed strength of schedule should show the quality of opponents already
+  faced and help contextualize the team's record and underlying performance.
+- Methodology must be time-aware: opponent strength should use only information
+  available at the date being evaluated, particularly when the feature is used
+  for predictive modelling.
+- Let visitors inspect the supporting games and switch between standings-based,
+  goal-differential, expected-goal, and model-based definitions.
+
+## 7. Transactions explorer
+
+**Status:** Proposed
+
+Add a dedicated transactions page covering trades, signings, waivers, recalls,
+assignments, injured-reserve moves, retirements, and other roster changes.
+
+- Filter by date, season, team, player, and transaction type.
+- Link every transaction to the affected player and team profiles.
+- Preserve the team identity and contract context that applied on the
+  transaction date.
+- Add a readable trade view that groups every asset in a multi-team deal,
+  including draft picks, retained salary, and conditional terms when available.
+- Support historical team timelines and player-movement histories.
+- Evaluate source licensing and completeness before ingestion, especially for
+  older roster moves and conditional trade details.
+
+## 8. Homepage information redesign
+
+**Status:** Proposed
+
+Redesign the league homepage once the primary directories and visualizations
+are mature. The current overview is useful as navigation but does not yet tell
+a strong analytical story.
+
+- Replace generic summary cards with information-rich league context.
+- Prioritize live or latest results, the next scheduled games, standings
+  movement, and meaningful statistical trends.
+- Add compact plots only where they reveal change, distribution, or an unusual
+  result that a single number cannot explain.
+- Let visitors move directly from each insight to the supporting table, game,
+  team, or player page.
+- Keep the homepage sport-neutral enough to become the entry point for multiple
+  leagues later without flattening sport-specific information.
