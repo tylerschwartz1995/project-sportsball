@@ -873,6 +873,81 @@ html[data-theme="light"]
   gap: 1.4rem;
 }
 
+.workspace-player-plot-controls,
+.workspace-direct-comparison-selectors {
+  display: grid;
+  gap: 0.65rem;
+  border-bottom: 1px solid var(--border);
+  margin: 0 0.5rem 1rem;
+  padding: 0 0 1rem;
+}
+
+.workspace-team-process-control {
+  border-bottom: 1px solid var(--border);
+  margin: 0 0.5rem 1rem;
+  padding: 0 0 1rem;
+}
+
+.workspace-player-plot-controls label,
+.workspace-direct-comparison-selectors label,
+.workspace-team-process-control label {
+  display: grid;
+  gap: 0.38rem;
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.64rem;
+  font-weight: 650;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.workspace-player-plot-controls select,
+.workspace-direct-comparison-selectors select,
+.workspace-team-process-control select {
+  min-width: 0;
+  min-height: 2.55rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  padding: 0.55rem 2rem 0.55rem 0.7rem;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.workspace-team-process-control select {
+  width: 100%;
+}
+
+.workspace-player-plot-controls button,
+.workspace-direct-comparison-selectors button {
+  min-height: 2.55rem;
+  align-self: end;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.55rem;
+  padding: 0.55rem 0.8rem;
+  background: transparent;
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.workspace-player-plot-controls button:hover,
+.workspace-direct-comparison-selectors button:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.workspace-direct-comparison-selectors button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 .workspace-player-comparison-grid > div {
   min-width: 0;
 }
@@ -898,6 +973,111 @@ html[data-theme="light"]
 .workspace-player-comparison-chart,
 .workspace-player-distribution-chart {
   height: 25rem;
+}
+
+.workspace-direct-comparison {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-panel);
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: var(--table-background);
+  box-shadow: 0 16px 40px var(--shadow);
+}
+
+.workspace-direct-comparison > header {
+  display: grid;
+  gap: 0.65rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 1rem;
+}
+
+.workspace-direct-comparison > header > div > p {
+  color: var(--accent-secondary);
+  font-family: var(--font-geist-mono);
+  font-size: 0.65rem;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.workspace-direct-comparison > header h4 {
+  margin-top: 0.3rem;
+  color: var(--foreground);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.workspace-direct-comparison > header > p,
+.workspace-direct-comparison-empty {
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
+.workspace-direct-comparison-selectors {
+  border-bottom: 0;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.workspace-direct-comparison-empty {
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  padding: 1.2rem 0.2rem 0.2rem;
+}
+
+.workspace-direct-comparison-table {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  margin-top: 1rem;
+}
+
+.workspace-direct-comparison-table table {
+  width: 100%;
+  min-width: 40rem;
+  border-collapse: collapse;
+}
+
+.workspace-direct-comparison-table th,
+.workspace-direct-comparison-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 0.9rem;
+  text-align: right;
+}
+
+.workspace-direct-comparison-table th:first-child {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-align: left;
+}
+
+.workspace-direct-comparison-table thead th {
+  background: var(--surface-subtle);
+  color: var(--foreground);
+  font-size: 0.78rem;
+}
+
+.workspace-direct-comparison-table thead th span {
+  display: block;
+  margin-top: 0.15rem;
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.64rem;
+}
+
+.workspace-direct-comparison-table td {
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.workspace-direct-comparison-table tbody tr:last-child th,
+.workspace-direct-comparison-table tbody tr:last-child td {
+  border-bottom: 0;
 }
 
 @media (min-width: 640px) {
@@ -934,6 +1114,31 @@ html[data-theme="light"]
 
   .workspace-comparison-key {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-player-plot-controls,
+  .workspace-direct-comparison-selectors {
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: end;
+  }
+
+  .workspace-team-process-control {
+    max-width: 25rem;
+  }
+
+  .workspace-direct-comparison {
+    padding: 1.25rem;
+  }
+
+  .workspace-direct-comparison > header {
+    grid-template-columns: minmax(12rem, auto) minmax(16rem, 1fr);
+    align-items: end;
+  }
+
+  .workspace-direct-comparison > header > p {
+    justify-self: end;
+    max-width: 38rem;
+    text-align: right;
   }
 }
 

@@ -47,12 +47,19 @@ The league analytics route includes:
 - an interactive team results-versus-process scatterplot that compares
   five-on-five expected-goal share with regular-season points percentage or
   playoff win percentage;
+- selectable five-on-five xG, Corsi, and Fenwick process measures plus direct
+  two-team comparison across results and every available process metric;
 - quadrant filters for strong, outperforming, underperforming, and struggling
   teams, with fixed axes and exact-value tooltips;
 - skater expected-versus-actual scoring rates with forward/defense filters and
   a finishing distribution around expectation;
 - goalie expected-workload versus goals-saved-above-expected rates with
   positive/negative performance filters and a GSAx distribution;
+- independent horizontal- and vertical-axis selectors covering scoring,
+  possession, shot quality, workload, and goalie results, with distributions
+  that follow the selected vertical metric;
+- direct two-player comparisons across every available plot metric, games, and
+  minutes for the current qualifying population;
 - team xG%, Corsi%, Fenwick%, expected goals, and actual goals;
 - skater game score, on-ice xG% and Corsi%, individual expected goals, goals,
   and points;
@@ -125,6 +132,6 @@ interpret shot-quality, possession, individual, on-ice, and goalie metrics.
 ## Future analytics presentation
 
 - cross-season advanced comparisons;
-- selectable metrics and direct player-to-player comparisons;
+- saved comparison views and shareable plot URLs;
 - richer filters and shot-map filtering;
 - rolling-window and score-state line-combination splits.

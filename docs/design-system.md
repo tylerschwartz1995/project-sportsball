@@ -91,8 +91,18 @@ and a pre-render bootstrap applies it before the interface is painted.
   legend explains both the color and interpretation of every group.
 - Player comparison plots normalize counting metrics to per-60-minute rates
   before placing players with different workloads on the same axes.
-  Distributions use the same fixed, zero-centered bins while filtering so
-  changes in shape reflect the selected population rather than a rescaled axis.
+  Distributions use the same fixed bins while filtering, with signed metrics
+  centered on zero, so changes in shape reflect the selected population rather
+  than a rescaled axis.
+- Selectable-metric plots keep axis labels, tooltips, reference lines,
+  distributions, and screen-reader tables synchronized with the current
+  metric choices. Direct comparisons retain the same statistical grain and
+  disclose player-team splits instead of silently combining them.
+- Plot controls are an application-wide convention, not an advanced-analytics
+  exception. Comparison plots expose interchangeable measures and direct
+  subjects; time-series plots preserve time on the horizontal axis and expose
+  window, venue, and series controls; spatial plots use event-level selection
+  and contextual detail.
 - Every interactive chart includes a plain-language description and a
   screen-reader table containing the same values.
 - Charts should reveal change, comparison, or distribution. Static headline

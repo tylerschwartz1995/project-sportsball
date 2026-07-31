@@ -9,17 +9,28 @@ export const TEAM_COMPARISON_GROUPS = [
   "struggling",
 ] as const;
 
+export const TEAM_PROCESS_METRICS = [
+  "expectedGoalSharePercentage",
+  "corsiSharePercentage",
+  "fenwickSharePercentage",
+] as const;
+
 export type TeamComparisonGroup =
   (typeof TEAM_COMPARISON_GROUPS)[number];
+export type TeamProcessMetric = (typeof TEAM_PROCESS_METRICS)[number];
 
 export type TeamComparisonPoint = {
   nhlTeamId: number;
   abbreviation: string;
   name: string;
   gamesPlayed: number;
-  expectedGoalSharePercentage: number;
   resultPercentage: number;
   resultLabel: "Points Percentage" | "Win Percentage";
+  processMetrics: Partial<Record<TeamProcessMetric, number>>;
+};
+
+export type TeamPlotPoint = TeamComparisonPoint & {
+  processPercentage: number;
   gapPercentagePoints: number;
   group: Exclude<TeamComparisonGroup, "all">;
 };
@@ -35,16 +46,30 @@ export function buildTeamComparisonPoints(
 
   return advancedRows.flatMap((advancedRow) => {
     const teamRow = teamsByNhlId.get(advancedRow.team.nhlTeamId);
-    const expectedGoalShare = advancedRow.expectedGoalsPercentage;
-    if (
-      !teamRow ||
-      expectedGoalShare === null ||
-      teamRow.stats.gamesPlayed === 0
-    ) {
+    if (!teamRow || teamRow.stats.gamesPlayed === 0) {
       return [];
     }
 
-    const expectedGoalSharePercentage = expectedGoalShare * 100;
+    const processMetrics: Partial<Record<TeamProcessMetric, number>> = {};
+    setPercentage(
+      processMetrics,
+      "expectedGoalSharePercentage",
+      advancedRow.expectedGoalsPercentage,
+    );
+    setPercentage(
+      processMetrics,
+      "corsiSharePercentage",
+      advancedRow.corsiPercentage,
+    );
+    setPercentage(
+      processMetrics,
+      "fenwickSharePercentage",
+      advancedRow.fenwickPercentage,
+    );
+    if (Object.keys(processMetrics).length === 0) {
+      return [];
+    }
+
     const resultPercentage =
       phase === "regular"
         ? (teamRow.stats.standingsPoints /
@@ -62,24 +87,42 @@ export function buildTeamComparisonPoints(
         abbreviation: advancedRow.team.abbreviation,
         name: advancedRow.team.name,
         gamesPlayed: teamRow.stats.gamesPlayed,
-        expectedGoalSharePercentage,
         resultPercentage,
         resultLabel,
-        gapPercentagePoints:
-          resultPercentage - expectedGoalSharePercentage,
-        group: comparisonGroup(
-          expectedGoalSharePercentage,
-          resultPercentage,
-        ),
+        processMetrics,
       },
     ];
   }).sort((left, right) => left.abbreviation.localeCompare(right.abbreviation));
 }
 
-export function filterTeamComparisonPoints(
+export function buildTeamPlotPoints(
   points: TeamComparisonPoint[],
+  metric: TeamProcessMetric,
+): TeamPlotPoint[] {
+  return points.flatMap((point) => {
+    const processPercentage = point.processMetrics[metric];
+    if (processPercentage === undefined) {
+      return [];
+    }
+    return [
+      {
+        ...point,
+        processPercentage,
+        gapPercentagePoints:
+          point.resultPercentage - processPercentage,
+        group: comparisonGroup(
+          processPercentage,
+          point.resultPercentage,
+        ),
+      },
+    ];
+  });
+}
+
+export function filterTeamComparisonPoints(
+  points: TeamPlotPoint[],
   group: TeamComparisonGroup,
-): TeamComparisonPoint[] {
+): TeamPlotPoint[] {
   return group === "all"
     ? points
     : points.filter((point) => point.group === group);
@@ -101,17 +144,27 @@ export function comparisonDomain(values: number[]): [number, number] {
 }
 
 function comparisonGroup(
-  expectedGoalSharePercentage: number,
+  processPercentage: number,
   resultPercentage: number,
 ): Exclude<TeamComparisonGroup, "all"> {
-  if (expectedGoalSharePercentage >= 50 && resultPercentage >= 50) {
+  if (processPercentage >= 50 && resultPercentage >= 50) {
     return "strong";
   }
-  if (expectedGoalSharePercentage < 50 && resultPercentage >= 50) {
+  if (processPercentage < 50 && resultPercentage >= 50) {
     return "outperforming";
   }
-  if (expectedGoalSharePercentage >= 50 && resultPercentage < 50) {
+  if (processPercentage >= 50 && resultPercentage < 50) {
     return "underperforming";
   }
   return "struggling";
+}
+
+function setPercentage(
+  metrics: Partial<Record<TeamProcessMetric, number>>,
+  key: TeamProcessMetric,
+  value: number | null,
+) {
+  if (value !== null) {
+    metrics[key] = value * 100;
+  }
 }
