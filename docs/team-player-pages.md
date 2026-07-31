@@ -93,8 +93,12 @@ metrics, source attribution, and coverage behavior.
 
 Team profiles present the essential traditional information first: a selected
 season-phase summary, the next stored scheduled games, the game-log link, and
-sortable official skater and goalie splits. Advanced team metrics follow those
-raw statistics. Covered regular seasons then show forward lines and defensive
-pairings with at least 50 five-on-five minutes together. These link to the
-league-wide season rankings, which default to a 100-minute minimum and allow
-alternate thresholds.
+an interactive rolling team-form plot. The plot compares all-situations goal
+share with five-on-five expected-goal share over a selectable 5-, 10-, or
+20-game window. It recomputes each share from the underlying rolling totals,
+shows smaller early-season sample sizes, and follows the selected regular-season
+or playoff phase. Sortable official skater and goalie splits follow the trend.
+Advanced team metrics remain below those raw statistics. Covered regular
+seasons then show forward lines and defensive pairings with at least 50
+five-on-five minutes together. These link to the league-wide season rankings,
+which default to a 100-minute minimum and allow alternate thresholds.

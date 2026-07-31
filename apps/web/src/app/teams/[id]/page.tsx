@@ -8,6 +8,7 @@ import { SeasonUnitTables } from "@/app/_components/season-unit-tables";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamRollingPerformanceChart } from "@/app/_components/team-rolling-performance-chart";
 import {
   DataTableShell,
   MetricTile,
@@ -23,6 +24,7 @@ import {
 import type { TeamSeasonStats } from "@/contracts/team";
 import type { GameSummary } from "@/contracts/game";
 import { getMoneyPuckTeamSeason } from "@/data/advanced";
+import { getTeamGameLog } from "@/data/game-logs";
 import { getUpcomingGamesForTeam } from "@/data/games";
 import { listSeasons } from "@/data/seasons";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
@@ -68,7 +70,7 @@ export default async function TeamPage({
     notFound();
   }
 
-  const [detail, advanced, units, upcomingGames] = await Promise.all([
+  const [detail, advanced, units, upcomingGames, gameLog] = await Promise.all([
     getTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType),
     getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id, gameType),
     getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
@@ -81,6 +83,7 @@ export default async function TeamPage({
       selectedSeason.id,
       gameType,
     ),
+    getTeamGameLog(nhlTeamId, selectedSeason.id),
   ]);
   if (!detail) {
     notFound();
@@ -150,6 +153,7 @@ export default async function TeamPage({
           className="workspace-scroll-nav"
         >
           <SectionLink href="#overview" label="Overview" />
+          <SectionLink href="#trends" label="Trends" />
           <SectionLink href="#skaters" label="Skaters" />
           <SectionLink href="#goalies" label="Goalies" />
           <SectionLink href="#advanced" label="Advanced" />
@@ -190,6 +194,36 @@ export default async function TeamPage({
             View games →
           </span>
         </Link>
+
+        <section id="trends" className="mt-12 scroll-mt-6">
+          <SectionHeader
+            eyebrow="Rolling performance"
+            title="Team Form"
+            description="Actual goal share shows the scoreboard result. Five-on-five expected-goal share estimates which team created the stronger shot quality; above 50% means this team held the edge."
+            tone="violet"
+          />
+          <div className="workspace-chart-panel mt-6">
+            <TeamRollingPerformanceChart
+              games={
+                gameLog?.games
+                  .filter((game) => game.gameType === gameType)
+                  .map((game) => ({
+                    nhlGameId: game.nhlGameId,
+                    gameDate: game.gameDate,
+                    isHome: game.isHome,
+                    opponent: game.opponent,
+                    score: game.score,
+                    opponentScore: game.opponentScore,
+                    result: game.result,
+                    fiveOnFiveXGoalsFor: game.fiveOnFiveXGoalsFor,
+                    fiveOnFiveXGoalsAgainst:
+                      game.fiveOnFiveXGoalsAgainst,
+                  })) ?? []
+              }
+              teamName={detail.team.name}
+            />
+          </div>
+        </section>
 
         <section id="skaters" className="mt-12 scroll-mt-6">
           <SectionHeader
