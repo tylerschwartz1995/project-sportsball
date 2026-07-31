@@ -868,6 +868,38 @@ html[data-theme="light"]
   font-size: 0.72rem;
 }
 
+.workspace-player-comparison-grid {
+  display: grid;
+  gap: 1.4rem;
+}
+
+.workspace-player-comparison-grid > div {
+  min-width: 0;
+}
+
+.workspace-comparison-plot-heading {
+  min-height: 3.9rem;
+  padding: 0 0.5rem;
+}
+
+.workspace-comparison-plot-heading h5 {
+  color: var(--foreground);
+  font-size: 0.84rem;
+  font-weight: 700;
+}
+
+.workspace-comparison-plot-heading p {
+  margin-top: 0.22rem;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.workspace-player-comparison-chart,
+.workspace-player-distribution-chart {
+  height: 25rem;
+}
+
 @media (min-width: 640px) {
   .workspace-chart-panel {
     padding: 1.25rem 1.25rem 1rem;
@@ -906,6 +938,10 @@ html[data-theme="light"]
 }
 
 @media (min-width: 1024px) {
+  .workspace-player-comparison-grid {
+    grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.85fr);
+  }
+
   .workspace-comparison-key {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }

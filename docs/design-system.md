@@ -89,6 +89,10 @@ and a pre-render bootstrap applies it before the interface is painted.
   never appears to move when its comparison group changes. Meaningful
   horizontal and vertical baselines define plain-language quadrants, and the
   legend explains both the color and interpretation of every group.
+- Player comparison plots normalize counting metrics to per-60-minute rates
+  before placing players with different workloads on the same axes.
+  Distributions use the same fixed, zero-centered bins while filtering so
+  changes in shape reflect the selected population rather than a rescaled axis.
 - Every interactive chart includes a plain-language description and a
   screen-reader table containing the same values.
 - Charts should reveal change, comparison, or distribution. Static headline

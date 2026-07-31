@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
+import { PlayerComparisonPlots } from "@/app/_components/player-comparison-plots";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
@@ -30,6 +31,10 @@ import {
 import { listSeasons } from "@/data/seasons";
 import { listTeamsBySeason } from "@/data/teams";
 import { firstQueryValue } from "@/lib/directory";
+import {
+  buildGoalieComparisonPoints,
+  buildSkaterComparisonPoints,
+} from "@/lib/player-comparison";
 import { buildTeamComparisonPoints } from "@/lib/team-comparison";
 
 export const dynamic = "force-dynamic";
@@ -108,6 +113,18 @@ export default async function AnalyticsPage({
           phase,
         )
       : [];
+  const skaterComparisonPoints =
+    type === "skaters"
+      ? buildSkaterComparisonPoints(
+          rows as AdvancedSkaterLeaderboardRow[],
+        )
+      : [];
+  const goalieComparisonPoints =
+    type === "goalies"
+      ? buildGoalieComparisonPoints(
+          rows as AdvancedGoalieLeaderboardRow[],
+        )
+      : [];
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -154,12 +171,6 @@ export default async function AnalyticsPage({
 
             {hasCoverage ? (
               <>
-                {type === "teams" ? (
-                  <TeamComparisonScatterplot
-                    points={comparisonPoints}
-                    phase={phase}
-                  />
-                ) : null}
                 <AnalyticsFilters
                   seasonId={selectedSeason.id}
                   type={type}
@@ -167,6 +178,24 @@ export default async function AnalyticsPage({
                   minimumMinutes={minimumMinutes}
                   phase={phase}
                 />
+                {type === "teams" ? (
+                  <TeamComparisonScatterplot
+                    points={comparisonPoints}
+                    phase={phase}
+                  />
+                ) : null}
+                {type === "skaters" ? (
+                  <PlayerComparisonPlots
+                    kind="skater"
+                    points={skaterComparisonPoints}
+                  />
+                ) : null}
+                {type === "goalies" ? (
+                  <PlayerComparisonPlots
+                    kind="goalie"
+                    points={goalieComparisonPoints}
+                  />
+                ) : null}
                 <LeaderboardTable
                   type={type}
                   rows={rows}
