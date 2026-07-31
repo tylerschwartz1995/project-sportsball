@@ -33,7 +33,8 @@ The current read-only slice provides:
   expandable play-by-play timelines, advanced team/player results, shot maps,
   forward lines, and defensive pairings;
 - a sortable team directory and team detail pages with official
-  player splits, MoneyPuck season metrics, and cross-season upcoming schedules;
+  player splits, MoneyPuck season metrics, cross-season upcoming schedules, and
+  time-aware completed and remaining strength-of-schedule analysis;
 - complete player leaderboards with minimum-stat and birth-region filters,
   plus player profiles with separate regular-season/playoff history and
   situation-filtered MoneyPuck season metrics;

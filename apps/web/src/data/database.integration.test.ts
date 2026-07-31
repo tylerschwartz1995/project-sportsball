@@ -14,6 +14,7 @@ import {
   getHistoricalPlayerSeasons,
 } from "@/data/history";
 import { getGamePlayByPlay } from "@/data/play-by-play";
+import { getTeamScheduleStrength } from "@/data/schedule-strength";
 import { listSeasons } from "@/data/seasons";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
 import { getStandings } from "@/data/standings";
@@ -115,6 +116,20 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     });
     expect(team?.skaters.length).toBeGreaterThan(20);
     expect(team?.goalies.length).toBeGreaterThan(1);
+
+    const scheduleStrength = await getTeamScheduleStrength(12, seasons[0].id);
+    expect(scheduleStrength.games).toHaveLength(82);
+    expect(scheduleStrength.games.every((game) => game.completed)).toBe(true);
+    expect(
+      scheduleStrength.games.some(
+        (game) => game.opponentPointsPercentage !== null,
+      ),
+    ).toBe(true);
+    expect(
+      scheduleStrength.games.some(
+        (game) => game.opponentExpectedGoalsPercentage !== null,
+      ),
+    ).toBe(true);
 
     const players = await listPlayersBySeason(seasons[0].id);
     expect(players.skaters).toHaveLength(940);

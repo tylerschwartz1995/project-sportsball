@@ -4,10 +4,12 @@ import { notFound } from "next/navigation";
 import { TeamAdvancedAnalytics } from "@/app/_components/advanced-analytics";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
+import { ScheduleStrength } from "@/app/_components/schedule-strength";
 import { SeasonUnitTables } from "@/app/_components/season-unit-tables";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogo } from "@/app/_components/team-logo";
 import { TeamRollingPerformanceChart } from "@/app/_components/team-rolling-performance-chart";
 import {
   DataTableShell,
@@ -16,6 +18,7 @@ import {
 } from "@/app/_components/ui-primitives";
 import { parseNhlId } from "@/contracts/entity";
 import { parseSeasonId } from "@/contracts/season";
+import { parseScheduleStrengthMetric } from "@/contracts/schedule-strength";
 import {
   gameTypeForPhase,
   parseSeasonPhase,
@@ -27,6 +30,7 @@ import { getMoneyPuckTeamSeason } from "@/data/advanced";
 import { getTeamGameLog } from "@/data/game-logs";
 import { getUpcomingGamesForTeamAcrossSeasons } from "@/data/games";
 import { listSeasons } from "@/data/seasons";
+import { getTeamScheduleStrength } from "@/data/schedule-strength";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
 import { getTeamSeasonDetail, listTeamSeasonIds } from "@/data/teams";
 
@@ -37,6 +41,7 @@ type TeamPageProps = {
   searchParams: Promise<{
     season?: string | string[];
     phase?: string | string[];
+    sos?: string | string[];
   }>;
 };
 
@@ -60,6 +65,9 @@ export default async function TeamPage({
   const pageParams = await searchParams;
   const requestedSeason = firstValue(pageParams.season);
   const phase = parseSeasonPhase(firstValue(pageParams.phase));
+  const scheduleStrengthMetric = parseScheduleStrengthMetric(
+    firstValue(pageParams.sos),
+  );
   const gameType = gameTypeForPhase(phase);
   const parsedSeason = parseSeasonId(requestedSeason);
   const selectedSeason =
@@ -70,17 +78,21 @@ export default async function TeamPage({
     notFound();
   }
 
-  const [detail, advanced, units, upcomingGames, gameLog] = await Promise.all([
-    getTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType),
-    getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id, gameType),
-    getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
-      teamNhlId: nhlTeamId,
-      minimumIceTimeSeconds: 3_000,
-      limit: 100,
-    }),
-    getUpcomingGamesForTeamAcrossSeasons(nhlTeamId),
-    getTeamGameLog(nhlTeamId, selectedSeason.id),
-  ]);
+  const [detail, advanced, units, upcomingGames, gameLog, scheduleStrength] =
+    await Promise.all([
+      getTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType),
+      getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id, gameType),
+      getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
+        teamNhlId: nhlTeamId,
+        minimumIceTimeSeconds: 3_000,
+        limit: 100,
+      }),
+      getUpcomingGamesForTeamAcrossSeasons(nhlTeamId),
+      getTeamGameLog(nhlTeamId, selectedSeason.id),
+      phase === "regular"
+        ? getTeamScheduleStrength(nhlTeamId, selectedSeason.id)
+        : Promise.resolve(null),
+    ]);
   if (!detail) {
     notFound();
   }
@@ -106,15 +118,14 @@ export default async function TeamPage({
           </span>
           <div className="relative grid gap-8 lg:grid-cols-[1fr_22rem] lg:items-end">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-              <div
-                aria-hidden="true"
-                className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl border border-cyan-300/25 bg-cyan-300/[0.08] font-mono text-2xl font-semibold text-cyan-100 shadow-[inset_0_1px_0_rgb(255_255_255/0.08)]"
-              >
-                {detail.team.abbreviation}
-              </div>
+              <TeamLogo
+                name={detail.team.name}
+                abbreviation={detail.team.abbreviation}
+                nhlTeamId={detail.team.nhlTeamId}
+              />
               <div>
                 <p className="font-mono text-xs uppercase tracking-[0.18em] text-cyan-300">
-                  Team profile · NHL {detail.team.nhlTeamId}
+                  Team profile
                 </p>
                 <h1 className="mt-2 text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">
                   {detail.team.name}
@@ -132,7 +143,7 @@ export default async function TeamPage({
             <SeasonPicker
               seasons={availableSeasons}
               selectedSeasonId={selectedSeason.id}
-              params={{ phase }}
+              params={{ phase, sos: scheduleStrengthMetric }}
               className="relative !max-w-none border-white/15 bg-slate-950/55"
             />
           </div>
@@ -150,6 +161,9 @@ export default async function TeamPage({
         >
           <SectionLink href="#overview" label="Overview" />
           <SectionLink href="#schedule" label="Schedule" />
+          {scheduleStrength ? (
+            <SectionLink href="#schedule-strength" label="Strength" />
+          ) : null}
           <SectionLink href="#trends" label="Trends" />
           <SectionLink href="#skaters" label="Skaters" />
           <SectionLink href="#goalies" label="Goalies" />
@@ -172,6 +186,14 @@ export default async function TeamPage({
           games={upcomingGames}
           teamNhlId={detail.team.nhlTeamId}
         />
+
+        {scheduleStrength ? (
+          <ScheduleStrength
+            data={scheduleStrength}
+            metric={scheduleStrengthMetric}
+            phase={phase}
+          />
+        ) : null}
 
         <Link
           href={`/teams/${detail.team.nhlTeamId}/games?season=${selectedSeason.id}&phase=${phase}`}
@@ -493,15 +515,11 @@ function UpcomingSchedule({
                   <SortableHeader label="Date" sortKey="date" align="left" defaultDirection="asc" />
                   <SortableHeader label="Matchup" sortKey="matchup" align="left" defaultDirection="asc" />
                   <SortableHeader label="Season" sortKey="season" align="left" />
-                  <SortableHeader label="Phase" sortKey="phase" align="left" defaultDirection="asc" />
-                  <SortableHeader label="Status" sortKey="status" align="left" defaultDirection="asc" />
                 </tr>
               </thead>
               <tbody>{games.map((game) => {
                 const isHome = game.homeTeam.nhlTeamId === teamNhlId;
                 const opponent = isHome ? game.awayTeam : game.homeTeam;
-                const phase = game.gameType === 3 ? "Playoffs" : "Regular Season";
-                const status = scheduleStateLabel(game.state);
                 return <tr key={game.nhlGameId}>
                   <td data-sort-value={game.startTimeUtc}><Link href={`/games/${game.nhlGameId}`}>{formatScheduleDate(game.startTimeUtc)}</Link></td>
                   <td data-sort-value={opponent.name}>
@@ -509,8 +527,6 @@ function UpcomingSchedule({
                     <Link href={`/teams/${opponent.nhlTeamId}?season=${game.seasonId}`}>{opponent.name}</Link>
                   </td>
                   <td data-sort-value={game.seasonId}>{formatSeasonId(game.seasonId)}</td>
-                  <td data-sort-value={phase}>{phase}</td>
-                  <td data-sort-value={status}>{status}</td>
                 </tr>;
               })}</tbody>
             </table>
@@ -531,13 +547,6 @@ function formatSeasonId(seasonId: number) {
   const start = Math.floor(seasonId / 10_000);
   const end = seasonId % 10_000;
   return `${start}\u2013${String(end).slice(2)}`;
-}
-
-function scheduleStateLabel(state: string) {
-  if (state === "FUT" || state === "PRE") return "Scheduled";
-  if (state === "LIVE" || state === "CRIT") return "Live";
-  if (state === "FINAL" || state === "OFF") return "Final";
-  return state;
 }
 
 function SectionLink({ href, label }: { href: string; label: string }) {

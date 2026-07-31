@@ -206,7 +206,7 @@ as if it applied to an earlier season.
 
 ## 6. Strength of schedule
 
-**Status:** Proposed
+**Status:** Initial version implemented
 
 Add both forward-looking and backward-looking schedule difficulty to team
 profiles.
@@ -220,6 +220,13 @@ profiles.
   for predictive modelling.
 - Let visitors inspect the supporting games and switch between standings-based,
   goal-differential, expected-goal, and model-based definitions.
+
+Team profiles now include completed and remaining regular-season schedule
+difficulty with standings-based, goal-differential, and five-on-five
+expected-goal definitions. Each opponent rating uses only games played before
+the matchup, and the supporting schedule exposes home/away mix, rest days, and
+back-to-backs. Travel distance and a model-based definition remain future work
+until venue coordinates and a governed prediction model are available.
 
 ## 7. Transactions explorer
 
