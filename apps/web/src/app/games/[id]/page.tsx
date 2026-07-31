@@ -89,7 +89,6 @@ export default async function GamePage({ params }: GamePageProps) {
           <div className="workspace-game-hero-footer">
             <span>{formatDate(game.gameDate)}</span>
             <span>{formatTime(game.startTimeUtc)}</span>
-            <span>NHL game {game.nhlGameId}</span>
           </div>
         </div>
 

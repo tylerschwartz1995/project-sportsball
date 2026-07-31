@@ -2699,16 +2699,21 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-upcoming-list a {
   display: grid;
-  grid-template-columns: minmax(8.5rem, 1fr) auto;
-  gap: 0.2rem 0.8rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.25rem 1rem;
   border-bottom: 1px solid var(--border);
-  padding: 0.75rem 0;
+  padding: 0.75rem 1.1rem;
+  color: var(--foreground);
+  text-decoration: none;
+  transition: background 150ms ease;
 }
 
 .workspace-upcoming-list a:last-child { border-bottom: 0; }
+.workspace-upcoming-list a:hover { background: var(--surface-subtle); }
 .workspace-upcoming-list time { color: var(--muted); font-size: 0.77rem; }
-.workspace-upcoming-list span { color: var(--foreground); font-size: 0.88rem; }
-.workspace-upcoming-list small { grid-column: 2; grid-row: 1 / span 2; align-self: center; color: var(--accent); }
+.workspace-upcoming-list span { min-width: 0; color: var(--foreground); font-size: 0.88rem; }
+.workspace-upcoming-list small { grid-column: 2; grid-row: 1 / span 2; color: var(--accent); text-align: right; white-space: nowrap; }
 
 .workspace-home-explore {
   display: grid;
