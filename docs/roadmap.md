@@ -79,7 +79,8 @@ were implemented on July 30, 2026.
   trends.
 - [x] Add rolling skater-production and goalie-performance trends.
 - [x] Add the first league team results-versus-process scatterplot.
-- [ ] Add player comparison and distribution views.
+- [x] Add skater and goalie comparison and distribution views.
+- [ ] Add selectable plot metrics and direct player-to-player comparisons.
 
 ## Milestone 6: daily operation
 
