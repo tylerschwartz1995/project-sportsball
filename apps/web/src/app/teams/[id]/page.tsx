@@ -485,22 +485,37 @@ function UpcomingSchedule({
         }
       />
       {games.length > 0 ? (
-        <div className="workspace-table-scroll mt-5">
-          <table className="workspace-table">
-            <thead><tr><th>Date</th><th>Matchup</th><th>Season</th><th>Phase</th><th>Status</th></tr></thead>
-            <tbody>{games.map((game) => {
-              const isHome = game.homeTeam.nhlTeamId === teamNhlId;
-              const opponent = isHome ? game.awayTeam : game.homeTeam;
-              return <tr key={game.nhlGameId}>
-                <td><Link href={`/games/${game.nhlGameId}`}>{formatScheduleDate(game.startTimeUtc)}</Link></td>
-                <td>{isHome ? "vs" : "at"} {opponent.name}</td>
-                <td>{formatSeasonId(game.seasonId)}</td>
-                <td>{game.gameType === 3 ? "Playoffs" : "Regular Season"}</td>
-                <td>{game.state === "FUT" ? "Scheduled" : game.state}</td>
-              </tr>;
-            })}</tbody>
-          </table>
-        </div>
+        <SortableTable defaultSortKey="date" defaultDirection="asc">
+          <div className="workspace-table-scroll mt-5">
+            <table className="workspace-table">
+              <thead>
+                <tr>
+                  <SortableHeader label="Date" sortKey="date" align="left" defaultDirection="asc" />
+                  <SortableHeader label="Matchup" sortKey="matchup" align="left" defaultDirection="asc" />
+                  <SortableHeader label="Season" sortKey="season" align="left" />
+                  <SortableHeader label="Phase" sortKey="phase" align="left" defaultDirection="asc" />
+                  <SortableHeader label="Status" sortKey="status" align="left" defaultDirection="asc" />
+                </tr>
+              </thead>
+              <tbody>{games.map((game) => {
+                const isHome = game.homeTeam.nhlTeamId === teamNhlId;
+                const opponent = isHome ? game.awayTeam : game.homeTeam;
+                const phase = game.gameType === 3 ? "Playoffs" : "Regular Season";
+                const status = scheduleStateLabel(game.state);
+                return <tr key={game.nhlGameId}>
+                  <td data-sort-value={game.startTimeUtc}><Link href={`/games/${game.nhlGameId}`}>{formatScheduleDate(game.startTimeUtc)}</Link></td>
+                  <td data-sort-value={opponent.name}>
+                    {isHome ? "vs" : "at"}{" "}
+                    <Link href={`/teams/${opponent.nhlTeamId}?season=${game.seasonId}`}>{opponent.name}</Link>
+                  </td>
+                  <td data-sort-value={game.seasonId}>{formatSeasonId(game.seasonId)}</td>
+                  <td data-sort-value={phase}>{phase}</td>
+                  <td data-sort-value={status}>{status}</td>
+                </tr>;
+              })}</tbody>
+            </table>
+          </div>
+        </SortableTable>
       ) : null}
       <Link
         href={firstGame ? `/games?season=${firstGame.seasonId}&date=${firstGame.gameDate}&phase=${firstGame.gameType === 3 ? "playoffs" : "regular"}` : "/games"}
@@ -516,6 +531,13 @@ function formatSeasonId(seasonId: number) {
   const start = Math.floor(seasonId / 10_000);
   const end = seasonId % 10_000;
   return `${start}\u2013${String(end).slice(2)}`;
+}
+
+function scheduleStateLabel(state: string) {
+  if (state === "FUT" || state === "PRE") return "Scheduled";
+  if (state === "LIVE" || state === "CRIT") return "Live";
+  if (state === "FINAL" || state === "OFF") return "Final";
+  return state;
 }
 
 function SectionLink({ href, label }: { href: string; label: string }) {

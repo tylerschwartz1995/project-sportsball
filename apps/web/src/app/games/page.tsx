@@ -117,14 +117,16 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
                 ))}
               </div>
             ) : (
-              <div className="mt-8 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
-                No games are available for this date.
+              <div className="workspace-empty-state mt-8">
+                <strong>No games on this date.</strong>
+                <span>Choose another stored game date to view its schedule and results.</span>
               </div>
             )}
           </>
         ) : (
-          <div className="mt-10 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
-            No game schedule is available.
+          <div className="workspace-empty-state mt-10">
+            <strong>No schedule is available.</strong>
+            <span>The selected season and phase do not contain stored game dates.</span>
           </div>
         )}
       </section>
