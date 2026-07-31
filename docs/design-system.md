@@ -73,6 +73,9 @@ and a pre-render bootstrap applies it before the interface is painted.
   derived or model-based measures.
 - Axes use percentages or explicit units, restrained horizontal grid lines, and
   a labeled reference line when a meaningful baseline exists.
+- When two series use materially different units, a color-matched axis appears
+  on each side. Tooltips must repeat the full metric names and formatted units
+  so the dual scale cannot be mistaken for a direct numerical comparison.
 - Tooltips identify the date, subject, observed result, values, and rolling
   sample size. Color is never the only way to distinguish a series.
 - Rolling charts aggregate the component totals inside each window instead of

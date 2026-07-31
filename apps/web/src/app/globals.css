@@ -646,6 +646,38 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
   padding: 0 0.5rem 0.9rem;
 }
 
+.workspace-player-chart-header {
+  display: grid;
+  gap: 0.65rem;
+  border-bottom: 1px solid var(--border);
+  margin: -0.15rem 0.5rem 1rem;
+  padding: 0.2rem 0 1rem;
+}
+
+.workspace-player-chart-header > div > p {
+  color: var(--accent-secondary);
+  font-family: var(--font-geist-mono);
+  font-size: 0.65rem;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.workspace-player-chart-header h4 {
+  margin-top: 0.3rem;
+  color: var(--foreground);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.workspace-player-chart-header > p {
+  max-width: 36rem;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.5;
+}
+
 .workspace-chart-toolbar > p {
   max-width: 42rem;
   color: var(--muted);
@@ -802,6 +834,16 @@ html[data-theme="light"]
   .workspace-chart-toolbar {
     grid-template-columns: minmax(13rem, 1fr) auto;
     align-items: center;
+  }
+
+  .workspace-player-chart-header {
+    grid-template-columns: minmax(12rem, auto) minmax(16rem, 1fr);
+    align-items: end;
+  }
+
+  .workspace-player-chart-header > p {
+    justify-self: end;
+    text-align: right;
   }
 
   .workspace-chart-filters {

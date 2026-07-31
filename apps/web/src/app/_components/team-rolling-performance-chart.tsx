@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import {
   CartesianGrid,
   Legend,
@@ -15,14 +15,20 @@ import {
 } from "recharts";
 
 import {
+  ChartFilterButton,
+  ChartFilterGroup,
+} from "@/app/_components/chart-controls";
+import {
   buildRollingTeamPerformance,
-  filterTeamPerformanceGames,
-  TEAM_PERFORMANCE_WINDOWS,
   type RollingTeamPerformancePoint,
   type TeamPerformanceGame,
-  type TeamPerformanceVenue,
-  type TeamPerformanceWindow,
 } from "@/lib/team-performance";
+import {
+  filterGamesByVenue,
+  ROLLING_WINDOWS,
+  type PerformanceVenue,
+  type RollingWindow,
+} from "@/lib/rolling-performance";
 
 type TeamRollingPerformanceChartProps = {
   games: TeamPerformanceGame[];
@@ -33,12 +39,12 @@ export function TeamRollingPerformanceChart({
   games,
   teamName,
 }: TeamRollingPerformanceChartProps) {
-  const [windowSize, setWindowSize] = useState<TeamPerformanceWindow>(10);
-  const [venue, setVenue] = useState<TeamPerformanceVenue>("all");
+  const [windowSize, setWindowSize] = useState<RollingWindow>(10);
+  const [venue, setVenue] = useState<PerformanceVenue>("all");
   const [showGoalShare, setShowGoalShare] = useState(true);
   const [showExpectedGoalShare, setShowExpectedGoalShare] = useState(true);
   const filteredGames = useMemo(
-    () => filterTeamPerformanceGames(games, venue),
+    () => filterGamesByVenue(games, venue),
     [games, venue],
   );
   const data = useMemo(
@@ -48,6 +54,10 @@ export function TeamRollingPerformanceChart({
   const hasExpectedGoalData = data.some(
     (point) => point.fiveOnFiveExpectedGoalSharePercentage !== null,
   );
+  const effectiveShowExpectedGoalShare =
+    showExpectedGoalShare && hasExpectedGoalData;
+  const effectiveShowGoalShare =
+    showGoalShare || !effectiveShowExpectedGoalShare;
 
   if (games.length === 0) {
     return (
@@ -66,8 +76,8 @@ export function TeamRollingPerformanceChart({
         </p>
         <div className="workspace-chart-filters">
           <ChartFilterGroup label="Window">
-            {TEAM_PERFORMANCE_WINDOWS.map((option) => (
-              <FilterButton
+            {ROLLING_WINDOWS.map((option) => (
+              <ChartFilterButton
                 key={option}
                 active={windowSize === option}
                 label={`${option} Games`}
@@ -84,7 +94,7 @@ export function TeamRollingPerformanceChart({
                 ["away", "Away"],
               ] as const
             ).map(([value, label]) => (
-              <FilterButton
+              <ChartFilterButton
                 key={value}
                 active={venue === value}
                 label={label}
@@ -94,17 +104,21 @@ export function TeamRollingPerformanceChart({
           </ChartFilterGroup>
 
           <ChartFilterGroup label="Series">
-            <FilterButton
-              active={showGoalShare}
-              disabled={showGoalShare && !showExpectedGoalShare}
+            <ChartFilterButton
+              active={effectiveShowGoalShare}
+              disabled={
+                effectiveShowGoalShare &&
+                !effectiveShowExpectedGoalShare
+              }
               label="Goals"
               onClick={() => setShowGoalShare((visible) => !visible)}
             />
-            <FilterButton
-              active={showExpectedGoalShare && hasExpectedGoalData}
+            <ChartFilterButton
+              active={effectiveShowExpectedGoalShare}
               disabled={
                 !hasExpectedGoalData ||
-                (showExpectedGoalShare && !showGoalShare)
+                (effectiveShowExpectedGoalShare &&
+                  !effectiveShowGoalShare)
               }
               label="5v5 xG"
               onClick={() =>
@@ -123,9 +137,8 @@ export function TeamRollingPerformanceChart({
             teamName,
             windowSize,
             venue,
-            showGoalShare,
-            showExpectedGoalShare:
-              showExpectedGoalShare && hasExpectedGoalData,
+            showGoalShare: effectiveShowGoalShare,
+            showExpectedGoalShare: effectiveShowExpectedGoalShare,
           })}
         >
           <ResponsiveContainer width="100%" height="100%">
@@ -173,9 +186,9 @@ export function TeamRollingPerformanceChart({
               <Tooltip
                 content={
                   <PerformanceTooltip
-                    showGoalShare={showGoalShare}
+                    showGoalShare={effectiveShowGoalShare}
                     showExpectedGoalShare={
-                      showExpectedGoalShare && hasExpectedGoalData
+                      effectiveShowExpectedGoalShare
                     }
                   />
                 }
@@ -193,7 +206,7 @@ export function TeamRollingPerformanceChart({
                   </span>
                 )}
               />
-              {showGoalShare ? (
+              {effectiveShowGoalShare ? (
                 <Line
                   type="monotone"
                   dataKey="goalSharePercentage"
@@ -206,7 +219,7 @@ export function TeamRollingPerformanceChart({
                   isAnimationActive={false}
                 />
               ) : null}
-              {showExpectedGoalShare && hasExpectedGoalData ? (
+              {effectiveShowExpectedGoalShare ? (
                 <Line
                   type="monotone"
                   dataKey="fiveOnFiveExpectedGoalSharePercentage"
@@ -244,8 +257,8 @@ export function TeamRollingPerformanceChart({
             <th>Date</th>
             <th>Opponent</th>
             <th>Result</th>
-            {showGoalShare ? <th>Goal Share</th> : null}
-            {showExpectedGoalShare && hasExpectedGoalData ? (
+            {effectiveShowGoalShare ? <th>Goal Share</th> : null}
+            {effectiveShowExpectedGoalShare ? (
               <th>5v5 Expected-Goal Share</th>
             ) : null}
           </tr>
@@ -260,10 +273,10 @@ export function TeamRollingPerformanceChart({
               <td>
                 {point.result} {point.scoreLabel}
               </td>
-              {showGoalShare ? (
+              {effectiveShowGoalShare ? (
                 <td>{formatPercentage(point.goalSharePercentage)}</td>
               ) : null}
-              {showExpectedGoalShare && hasExpectedGoalData ? (
+              {effectiveShowExpectedGoalShare ? (
                 <td>
                   {formatPercentage(
                     point.fiveOnFiveExpectedGoalSharePercentage,
@@ -275,44 +288,6 @@ export function TeamRollingPerformanceChart({
         </tbody>
       </table>
     </>
-  );
-}
-
-function ChartFilterGroup({
-  label,
-  children,
-}: {
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <fieldset className="workspace-chart-filter-group">
-      <legend>{label}</legend>
-      <div>{children}</div>
-    </fieldset>
-  );
-}
-
-function FilterButton({
-  active,
-  disabled = false,
-  label,
-  onClick,
-}: {
-  active: boolean;
-  disabled?: boolean;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      disabled={disabled}
-      onClick={onClick}
-    >
-      {label}
-    </button>
   );
 }
 
@@ -377,8 +352,8 @@ function chartAriaLabel({
   showExpectedGoalShare,
 }: {
   teamName: string;
-  windowSize: TeamPerformanceWindow;
-  venue: TeamPerformanceVenue;
+  windowSize: RollingWindow;
+  venue: PerformanceVenue;
   showGoalShare: boolean;
   showExpectedGoalShare: boolean;
 }): string {
