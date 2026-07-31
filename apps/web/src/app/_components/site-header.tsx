@@ -9,6 +9,7 @@ type SiteHeaderProps = {
     | "games"
     | "teams"
     | "players"
+    | "drafts"
     | "playoffs"
     | "analytics";
 };
@@ -19,6 +20,7 @@ const links = [
   { id: "games", href: "/games", label: "Games" },
   { id: "teams", href: "/teams", label: "Teams" },
   { id: "players", href: "/players", label: "Players" },
+  { id: "drafts", href: "/drafts", label: "Drafts" },
   { id: "playoffs", href: "/playoffs", label: "Playoffs" },
   { id: "analytics", href: "/analytics", label: "Analytics" },
 ] as const;
@@ -64,7 +66,7 @@ function Brand({ compact = false }: { compact?: boolean }) {
       {compact ? null : (
         <span>
           <strong>Sportsball</strong>
-          <small>NHL data workspace</small>
+          <small>NHL statistics &amp; analysis</small>
         </span>
       )}
     </Link>

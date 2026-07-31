@@ -34,6 +34,10 @@ The current read-only slice provides:
 - complete player leaderboards with minimum-stat and birth-region filters,
   plus player profiles with separate regular-season/playoff history and
   situation-filtered MoneyPuck season metrics;
+- a searchable two-to-four-player comparison page combining official totals
+  with available advanced metrics;
+- a draft-outcomes page with pick-value plots, tracked player outcomes, and
+  team drafting-production summaries for the stored NHL player universe;
 - a historical playoff bracket and postseason scoring-leader page that falls
   back to standings-based projected matchups before playoff games begin;
 - team and player game logs with last-ten form summaries, traditional

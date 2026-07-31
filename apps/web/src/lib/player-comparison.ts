@@ -2,6 +2,7 @@ import type {
   AdvancedGoalieLeaderboardRow,
   AdvancedSkaterLeaderboardRow,
 } from "@/contracts/advanced-leaderboard";
+import type { PlayerComparisonMetric } from "@/contracts/player-comparison-view";
 
 export const SKATER_METRIC_KEYS = [
   "individualExpectedGoalsPer60",
@@ -299,6 +300,20 @@ export function buildDistribution(
   }
 
   return bins;
+}
+
+export function formatComparisonValue(
+  value: number | null,
+  metric: PlayerComparisonMetric,
+): string {
+  if (value === null) return "—";
+  if (metric.unit === "percentage") return `${(value * 100).toFixed(1)}%`;
+  if (metric.unit === "savePercentage") {
+    return value.toFixed(3).replace(/^0/, "");
+  }
+  if (metric.unit === "decimal") return value.toFixed(2);
+  if (metric.unit === "signed") return value > 0 ? `+${value}` : String(value);
+  return Math.round(value).toLocaleString("en-CA");
 }
 
 function setRate<Key extends string>(

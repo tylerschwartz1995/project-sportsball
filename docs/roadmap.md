@@ -91,6 +91,11 @@ were implemented on July 30, 2026.
 - [x] Separate regular-season and playoff history on player profiles and make
   rolling player plots single-metric views with official and advanced options.
 - [x] Increase table and plot typography for comfortable reading at 100% zoom.
+- [x] Add a dedicated official-and-advanced player comparison workflow.
+- [x] Reorganize player-directory filters into search, performance, and
+  dependent birthplace groups.
+- [x] Add the first draft-outcomes and team drafting-production workspace for
+  NHL players represented in stored history.
 - [ ] Add saved comparison views and shareable plot URLs.
 
 ## Milestone 6: daily operation
