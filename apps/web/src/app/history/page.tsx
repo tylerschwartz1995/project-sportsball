@@ -198,7 +198,7 @@ function HistoryFiltersForm({
         </label>
         <label>Birth Country
           <select name="country" defaultValue={filters.country ?? ""}>
-            <option value="">All Known and Unknown</option>
+            <option value="">All</option>
             {options.countries.map((value) => <option key={value} value={value}>{countryLabel(value)}</option>)}
           </select>
         </label>

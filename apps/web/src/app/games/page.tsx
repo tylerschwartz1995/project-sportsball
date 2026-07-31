@@ -8,8 +8,8 @@ import {
 import { parseGameDate, type GameSummary } from "@/contracts/game";
 import { parseSeasonId } from "@/contracts/season";
 import {
-  gameTypeForGamePhase,
-  parseGamePhase,
+  gameTypeForPhase,
+  parseSeasonPhase,
 } from "@/contracts/season-phase";
 import { getGamesByDate, listGameDates } from "@/data/games";
 import { listScheduleSeasons } from "@/data/seasons";
@@ -28,8 +28,8 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
   const seasons = await listScheduleSeasons();
   const requested = await searchParams;
   const requestedSeason = firstValue(requested.season);
-  const phase = parseGamePhase(firstValue(requested.phase));
-  const gameType = gameTypeForGamePhase(phase);
+  const phase = parseSeasonPhase(firstValue(requested.phase));
+  const gameType = gameTypeForPhase(phase);
   const parsedSeason = parseSeasonId(requestedSeason);
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
@@ -87,7 +87,6 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
               active={phase}
               path="/games"
               params={{ season: selectedSeason.id }}
-              includeAll
               label="Schedule phase"
             />
             <div className="workspace-date-navigation">
