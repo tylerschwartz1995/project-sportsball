@@ -2749,7 +2749,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-home-insights {
   display: grid;
   gap: 1rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 @media (min-width: 1024px) {
