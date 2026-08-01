@@ -247,8 +247,9 @@ function BracketTeam({
             nhlTeamId={team.nhlTeamId}
             abbreviation={team.abbreviation}
             name={team.name}
-            size="tiny"
+            size="compact"
             decorative
+            prominent
           />
           <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
             {team.name}
@@ -256,7 +257,7 @@ function BracketTeam({
           {showWins ? <strong>{wins}</strong> : null}
         </>
       ) : (
-        <span>To Be Determined</span>
+        <span className="workspace-bracket-tbd">To Be Determined</span>
       )}
     </div>
   );
