@@ -18,7 +18,7 @@ Last checked against the repository on August 1, 2026.
 | Contracts and salary-cap analysis | Not implemented | There are no contract or cap models, migrations, ingestion clients, queries, or pages. |
 | Strength of schedule | Expanded non-model version implemented | Team pages provide time-aware completed and remaining difficulty using points percentage, goal differential, and five-on-five expected-goal share, with supporting games, venue, rest, back-to-back, and estimated travel context. A governed model-based rating remains. |
 | Transactions explorer | Not implemented | There are no transaction models, ingestion jobs, queries, or routes. |
-| Homepage information redesign | Initial redesign implemented | Results, upcoming games, standings, scoring leaders, advanced analytics, and archive destinations are live. Standings movement and league-wide trend insights remain. |
+| Homepage information redesign | Expanded redesign implemented | Results, upcoming games, standings, last-ten movement, latest-30 league trends, scoring leaders, advanced analytics, and archive destinations are live. Further insights can be added only when they reveal a distinct, evidence-linked pattern. |
 | Complete draft history | Partially implemented | Draft analysis uses profile draft metadata for players in the stored NHL universe. A complete selection archive and true draft denominators are not present. |
 | Historical records and best seasons | Expanded traditional version implemented | Career and single-season skater, goalie, and team tables support phase, range, participation, position, team, birthplace, and total/rate filters. Era adjustment, milestones, age curves, multi-season peaks, franchise aggregation, and advanced historical rankings remain. |
 | Saved comparisons and shareable plot state | Partially implemented | The dedicated player comparison restores season, phase, player type, and two-to-four selected players from its URL. Analytics plot controls, rolling-chart controls, named local saves, and copy-link actions are not persisted. |
@@ -300,16 +300,21 @@ assignments, injured-reserve moves, retirements, and other roster changes.
 
 ## 8. Homepage information redesign
 
-**Status:** Initial redesign implemented; trend insights remain proposed
+**Status:** Expanded redesign implemented
 
 The local MVP homepage now prioritizes latest results, upcoming games,
 standings, scoring leaders, advanced analytics, and direct archive navigation.
-It uses dense lists and tables rather than low-information summary cards.
+It uses dense lists and tables rather than low-information summary cards. A
+standings-movement panel shows the current top six teams' exact point outcomes
+over their last 10 games and compares that segment with the preceding 10. A
+league-trends panel compares the latest 30 completed games with the prior 30
+for scoring, home wins, one-goal results, and extra-time frequency, and links
+to the supporting results and highest-scoring game.
+
 Potential post-MVP extensions include:
 
 - Add compact plots only where they reveal change, distribution, or an unusual
   result that a single number cannot explain.
-- Add standings movement and meaningful league-wide statistical trends.
 - Let visitors move directly from each insight to the supporting table, game,
   team, or player page.
 - Keep the homepage sport-neutral enough to become the entry point for multiple

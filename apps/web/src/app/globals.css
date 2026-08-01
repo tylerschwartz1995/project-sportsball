@@ -2713,6 +2713,181 @@ html[data-theme="light"] .workspace-analytics-filters button {
   align-items: start;
 }
 
+.workspace-home-insights {
+  display: grid;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .workspace-home-insights {
+    grid-template-columns: minmax(0, 1.18fr) minmax(22rem, 0.82fr);
+  }
+}
+
+.workspace-home-movement,
+.workspace-home-trend-rows {
+  display: grid;
+}
+
+.workspace-home-movement > a {
+  display: grid;
+  grid-template-columns: 1.3rem 1.5rem minmax(8rem, 1fr) auto minmax(5.5rem, auto);
+  align-items: center;
+  gap: 0.6rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.68rem 1rem;
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.workspace-home-movement > a:last-child,
+.workspace-home-trend-rows > a:last-child {
+  border-bottom: 0;
+}
+
+.workspace-home-movement > a:hover,
+.workspace-home-trend-rows > a:hover {
+  background: var(--surface-subtle);
+}
+
+.workspace-home-movement-rank {
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.7rem;
+}
+
+.workspace-home-movement-team,
+.workspace-home-movement-change {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.workspace-home-movement-team b,
+.workspace-home-movement-change b {
+  overflow: hidden;
+  font-size: 0.77rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-home-movement-team small,
+.workspace-home-movement-change small,
+.workspace-home-trends > p,
+.workspace-home-trend-rows small,
+.workspace-home-game-highlight small {
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+
+.workspace-home-movement-change {
+  text-align: right;
+}
+
+.workspace-home-movement-change b {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+}
+
+.workspace-home-form {
+  display: flex;
+  gap: 0.18rem;
+}
+
+.workspace-home-form i {
+  width: 0.42rem;
+  height: 1.25rem;
+  border-radius: 0.12rem;
+  background: var(--border-strong);
+}
+
+.workspace-home-form i[data-points="2"] {
+  background: var(--positive);
+}
+
+.workspace-home-form i[data-points="1"] {
+  background: var(--accent-secondary);
+}
+
+.workspace-home-trends > p {
+  border-bottom: 1px solid var(--border);
+  padding: 0.7rem 1rem;
+}
+
+.workspace-home-trend-rows > a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(5.2rem, auto);
+  align-items: center;
+  gap: 0.7rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.workspace-home-trend-rows span {
+  display: grid;
+  gap: 0.15rem;
+}
+
+.workspace-home-trend-rows b {
+  font-size: 0.76rem;
+}
+
+.workspace-home-trend-rows strong,
+.workspace-home-trend-rows em {
+  font-family: var(--font-geist-mono);
+  font-size: 0.74rem;
+  font-style: normal;
+  text-align: right;
+}
+
+.workspace-home-trend-rows strong {
+  color: var(--accent);
+}
+
+.workspace-home-trend-rows em[data-direction="up"] {
+  color: var(--positive);
+}
+
+.workspace-home-trend-rows em[data-direction="down"] {
+  color: var(--negative);
+}
+
+.workspace-home-trend-rows em[data-direction="flat"] {
+  color: var(--muted);
+}
+
+.workspace-home-game-highlight {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--border);
+  padding: 0.8rem 1rem;
+  color: var(--accent-secondary);
+  font-size: 0.72rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.workspace-home-game-highlight span {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.workspace-home-game-highlight b {
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 0.76rem;
+}
+
+.workspace-home-insight-empty {
+  padding: 1rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
 @media (min-width: 1024px) {
   .workspace-home-primary {
     grid-template-columns: 1fr 1fr 0.9fr;
@@ -3190,6 +3365,22 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
   .workspace-standing-list small {
     display: none;
+  }
+
+  .workspace-home-movement > a {
+    grid-template-columns: 1.3rem 1.5rem minmax(0, 1fr) auto;
+  }
+
+  .workspace-home-form {
+    display: none;
+  }
+
+  .workspace-home-trend-rows > a {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .workspace-home-trend-rows em {
+    grid-column: 2;
   }
 }
 

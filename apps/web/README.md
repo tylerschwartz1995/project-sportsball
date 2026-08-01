@@ -21,8 +21,8 @@ call NHL or MoneyPuck endpoints while rendering user requests.
 
 The current read-only slice provides:
 
-- a server-rendered league homepage with recent results, standings and scoring
-  leader snapshots;
+- a server-rendered league homepage with recent results, standings, last-ten
+  movement, latest-30 league trends, and scoring-leader snapshots;
 - dedicated sortable NHL standings with overall, conference, and division
   views plus a filterable cumulative-points plot;
 - a server-rendered schedule and results page with season/date navigation;

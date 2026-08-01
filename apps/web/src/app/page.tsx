@@ -1,5 +1,9 @@
 import Link from "next/link";
 
+import {
+  HomeLeagueTrends,
+  HomeStandingsMovement,
+} from "@/app/_components/homepage-insights";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
@@ -10,11 +14,22 @@ import {
 import type { GameSummary } from "@/contracts/game";
 import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
-import { getLatestGamesForSeason, getUpcomingGames } from "@/data/games";
+import {
+  getLatestGamesForSeason,
+  getRecentCompletedGames,
+  getUpcomingGames,
+} from "@/data/games";
 import { listSkaterLeadersBySeason } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
-import { getStandings } from "@/data/standings";
+import {
+  getStandings,
+  getStandingsPointsHistory,
+} from "@/data/standings";
 import { firstQueryValue } from "@/lib/directory";
+import {
+  buildLeagueTrendSummary,
+  buildStandingsMovement,
+} from "@/lib/homepage-insights";
 
 export const dynamic = "force-dynamic";
 
@@ -28,17 +43,31 @@ export default async function Home({ searchParams }: HomeProps) {
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
-  const [standings, scoringLeaders, latestGames, upcomingGames] = selectedSeason
+  const [
+    standings,
+    standingsHistory,
+    scoringLeaders,
+    latestGames,
+    recentGames,
+    upcomingGames,
+  ] = selectedSeason
     ? await Promise.all([
         getStandings(selectedSeason.id),
+        getStandingsPointsHistory(selectedSeason.id),
         listSkaterLeadersBySeason(selectedSeason.id, 5),
         getLatestGamesForSeason(selectedSeason.id),
+        getRecentCompletedGames(selectedSeason.id),
         getUpcomingGames(6),
       ])
-    : [[], [], [], []];
+    : [[], [], [], [], [], []];
 
   const latestDate = latestGames[0]?.gameDate;
   const leagueLeader = standings[0];
+  const standingsMovement = buildStandingsMovement(
+    standings,
+    standingsHistory,
+  );
+  const leagueTrends = buildLeagueTrendSummary(recentGames);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -139,6 +168,37 @@ export default async function Home({ searchParams }: HomeProps) {
                     </Link>
                   ))}
                 </div>
+              </WorkspacePanel>
+            </div>
+
+            <div className="workspace-home-insights mt-5">
+              <WorkspacePanel
+                title="Standings Movement"
+                description="Current top six and the exact points earned in each club's last 10 games, compared with its preceding 10."
+                action={
+                  <Link href={`/standings?season=${selectedSeason.id}`}>
+                    Points history →
+                  </Link>
+                }
+              >
+                <HomeStandingsMovement
+                  entries={standingsMovement}
+                  seasonId={selectedSeason.id}
+                />
+              </WorkspacePanel>
+              <WorkspacePanel
+                title="League Trends"
+                description="Latest 30 completed regular-season games versus the preceding 30, calculated from stored results."
+                action={
+                  <Link href={`/games?season=${selectedSeason.id}`}>
+                    All results →
+                  </Link>
+                }
+              >
+                <HomeLeagueTrends
+                  summary={leagueTrends}
+                  seasonId={selectedSeason.id}
+                />
               </WorkspacePanel>
             </div>
 
