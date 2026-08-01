@@ -9,6 +9,7 @@ import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo } from "@/app/_components/team-logo";
+import { ViewTabs } from "@/app/_components/view-tabs";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -22,11 +23,14 @@ import { firstQueryValue, paginate, parsePage } from "@/lib/directory";
 
 export const dynamic = "force-dynamic";
 
+type DraftView = "board" | "pick-value" | "teams" | "overview";
+
 type DraftsPageProps = {
   searchParams: Promise<{
     year?: string | string[];
     team?: string | string[];
     page?: string | string[];
+    view?: string | string[];
   }>;
 };
 
@@ -36,6 +40,7 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
   const allYears = yearParam === "all";
   const draftYear = parseDraftYear(yearParam);
   const team = firstQueryValue(params.team) ?? "";
+  const view = parseDraftView(firstQueryValue(params.view));
   const analytics = await getDraftAnalytics(
     draftYear,
     team || null,
@@ -82,6 +87,7 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
               selectedYear={analytics.selectedDraftYear}
               selectedTeam={team}
               allYears={analytics.allYears}
+              view={view}
             />
           }
         />
@@ -90,8 +96,20 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
           <strong>Coverage:</strong> every official NHL Records selection from {firstDraftYear ?? "—"} through {lastDraftYear ?? "—"}, including nullable player IDs and selections marked removed outright. NHL appearance and 100-game rates use the complete board as their denominator; career outcomes come from stored official regular-season summaries through 2025–26.
         </div>
 
+        <ViewTabs
+          active={view}
+          ariaLabel="Draft history views"
+          tabs={draftViewTabs({
+            year: analytics.allYears
+              ? "all"
+              : (analytics.selectedDraftYear ?? "all"),
+            team,
+          })}
+        />
+
         {analytics.outcomes.length > 0 ? (
           <>
+            {view === "overview" ? (
             <section
               className="workspace-draft-insights"
               aria-label="Draft highlights"
@@ -104,17 +122,19 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
                 </div>
               ))}
             </section>
+            ) : null}
 
-            {plotOutcomes.length > 0 ? (
+            {view === "pick-value" && plotOutcomes.length > 0 ? (
               <div className="mt-7">
                 <DraftOutcomePlot outcomes={plotOutcomes} />
               </div>
-            ) : (
+            ) : view === "pick-value" ? (
               <div className="workspace-coverage-note mt-7">
                 <strong>Pick-value plot:</strong> choose one draft year or one drafting team to keep the interactive chart focused. The complete all-years board remains available below.
               </div>
-            )}
+            ) : null}
 
+            {view === "teams" ? (
             <WorkspacePanel
               className="mt-7"
               title="Team Drafting Performance"
@@ -122,7 +142,10 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
             >
               <TeamPerformanceTable rows={analytics.teamPerformance} />
             </WorkspacePanel>
+            ) : null}
 
+            {view === "board" ? (
+            <>
             <WorkspacePanel
               className="mt-7"
               title="Complete Draft Board"
@@ -139,8 +162,11 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
                   ? "all"
                   : (analytics.selectedDraftYear ?? undefined),
                 team: team || undefined,
+                view,
               }}
             />
+            </>
+            ) : null}
           </>
         ) : (
           <div className="workspace-empty-state">
@@ -158,17 +184,20 @@ function DraftFilters({
   selectedYear,
   selectedTeam,
   allYears,
+  view,
 }: {
   years: number[];
   teams: string[];
   selectedYear: number | null;
   selectedTeam: string;
   allYears: boolean;
+  view: DraftView;
 }) {
   const firstYear = years.at(-1);
   const lastYear = years[0];
   return (
     <form method="get" className="workspace-draft-filters">
+      <input type="hidden" name="view" value={view} />
       <label>
         Draft Year
         <select
@@ -197,7 +226,7 @@ function DraftFilters({
         </select>
       </label>
       <button type="submit">Apply</button>
-      <Link href="/drafts">Reset</Link>
+      <Link href={`/drafts?view=${view}`}>Reset</Link>
     </form>
   );
 }
@@ -416,6 +445,34 @@ function maxBy<T>(values: T[], getValue: (value: T) => number): T | undefined {
     }
   }
   return result;
+}
+
+function draftViewTabs({
+  year,
+  team,
+}: {
+  year: number | "all";
+  team: string;
+}) {
+  return [
+    { id: "board" as const, label: "Draft Board" },
+    { id: "pick-value" as const, label: "Pick Value" },
+    { id: "teams" as const, label: "Team Performance" },
+    { id: "overview" as const, label: "Overview" },
+  ].map((tab) => {
+    const params = new URLSearchParams({
+      year: String(year),
+      view: tab.id,
+    });
+    if (team) params.set("team", team);
+    return { ...tab, href: `/drafts?${params.toString()}` };
+  });
+}
+
+function parseDraftView(value: string | undefined): DraftView {
+  return value === "pick-value" || value === "teams" || value === "overview"
+    ? value
+    : "board";
 }
 
 function parseDraftYear(value: string | undefined): number | null {

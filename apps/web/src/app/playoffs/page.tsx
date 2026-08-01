@@ -5,6 +5,7 @@ import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
+import { ViewTabs } from "@/app/_components/view-tabs";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -25,8 +26,13 @@ import {
 
 export const dynamic = "force-dynamic";
 
+type PlayoffView = "bracket" | "skaters" | "goalies";
+
 type PlayoffsPageProps = {
-  searchParams: Promise<{ season?: string | string[] }>;
+  searchParams: Promise<{
+    season?: string | string[];
+    view?: string | string[];
+  }>;
 };
 
 export default async function PlayoffsPage({
@@ -35,14 +41,23 @@ export default async function PlayoffsPage({
   const params = await searchParams;
   const seasons = await listSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
+  const view = parsePlayoffView(firstQueryValue(params.view));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
   const [standings, games, leaders, goalieLeaders] = selectedSeason
     ? await Promise.all([
-        getStandings(selectedSeason.id),
-        getGamesForSeasonByType(selectedSeason.id, 3),
-        getPlayoffScoringLeaders(selectedSeason.id),
-        listGoalieLeadersBySeason(selectedSeason.id, 25, 3),
+        view === "bracket"
+          ? getStandings(selectedSeason.id)
+          : Promise.resolve([]),
+        view === "bracket"
+          ? getGamesForSeasonByType(selectedSeason.id, 3)
+          : Promise.resolve([]),
+        view === "skaters"
+          ? getPlayoffScoringLeaders(selectedSeason.id)
+          : Promise.resolve([]),
+        view === "goalies"
+          ? listGoalieLeadersBySeason(selectedSeason.id, 25, 3)
+          : Promise.resolve([]),
       ])
     : [[], [], [], []];
   const isProjection = !games.some(
@@ -62,20 +77,48 @@ export default async function PlayoffsPage({
           eyebrow="League / Postseason"
           title={`${selectedSeason?.label ?? "No Season"} Playoffs`}
           description={
-            isProjection
-              ? "Projected first-round matchups based on the selected season's current standings."
-              : "The stored NHL postseason bracket, series results, and leading scorers."
+            view === "bracket"
+              ? isProjection
+                ? "Projected first-round matchups based on the selected season's current standings."
+                : "The stored NHL postseason bracket and series results."
+              : "Official stored NHL postseason leaders."
           }
           action={
             <SeasonPicker
               seasons={seasons}
               selectedSeasonId={selectedSeason?.id}
+              params={{ view }}
             />
           }
         />
 
-        {selectedSeason && standings.length > 0 ? (
+        {selectedSeason ? (
+          <ViewTabs
+            active={view}
+            ariaLabel="Playoff views"
+            tabs={[
+              {
+                id: "bracket",
+                label: "Bracket",
+                href: `/playoffs?season=${selectedSeason.id}&view=bracket`,
+              },
+              {
+                id: "skaters",
+                label: "Skater Leaders",
+                href: `/playoffs?season=${selectedSeason.id}&view=skaters`,
+              },
+              {
+                id: "goalies",
+                label: "Goalie Leaders",
+                href: `/playoffs?season=${selectedSeason.id}&view=goalies`,
+              },
+            ]}
+          />
+        ) : null}
+
+        {selectedSeason ? (
           <>
+            {view === "bracket" && standings.length > 0 ? (
             <WorkspacePanel
               className="mt-7"
               title={isProjection ? "Projected Bracket" : "Playoff Bracket"}
@@ -91,7 +134,15 @@ export default async function PlayoffsPage({
                 isProjection={isProjection}
               />
             </WorkspacePanel>
+            ) : null}
 
+            {view === "bracket" && standings.length === 0 ? (
+              <div className="workspace-empty-state mt-7">
+                Standings are not available to build this playoff view.
+              </div>
+            ) : null}
+
+            {view === "skaters" ? (
             <WorkspacePanel
               className="mt-7"
               title="Leading Scorers"
@@ -161,15 +212,18 @@ export default async function PlayoffsPage({
                 </div>
               )}
             </WorkspacePanel>
+            ) : null}
 
+            {view === "goalies" ? (
             <PlayoffGoalieLeaders
               goalies={goalieLeaders}
               seasonId={selectedSeason.id}
             />
+            ) : null}
           </>
         ) : (
           <div className="workspace-empty-state">
-            Standings are not available to build this playoff view.
+            No playoff season is available.
           </div>
         )}
       </section>
@@ -420,4 +474,8 @@ function NumberCell({ value }: { value: number }) {
 
 function formatSavePercentage(value: number | null): string {
   return value === null ? "—" : value.toFixed(3).replace(/^0/, "");
+}
+
+function parsePlayoffView(value: string | undefined): PlayoffView {
+  return value === "skaters" || value === "goalies" ? value : "bracket";
 }

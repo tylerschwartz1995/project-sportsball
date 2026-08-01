@@ -37,10 +37,15 @@ primitives live in `apps/web/src/app/_components/ui-primitives.tsx`.
 Every detail page should follow the same sequence:
 
 1. identity and current context;
-2. a compact set of decision-useful headline statistics;
-3. primary raw data;
-4. derived or model-based analytics;
-5. specialized breakdowns and exploration links.
+2. URL-backed tabs when the page contains distinct information modes;
+3. only the content belonging to the selected tab;
+4. supporting definitions and exploration links for that selected view.
+
+Tabs are page views, not scroll shortcuts. They preserve season and phase
+context, expose the active view with `aria-current`, and support browser
+back/forward navigation. Closely related summaries and tables may remain
+together; separate tasks such as a draft board, pick-value plot, and team
+performance comparison should not be stacked into one long page.
 
 Traditional statistics use cyan accents. Advanced statistics use violet accents
 and retain provider attribution and definition links.
@@ -69,7 +74,8 @@ and a pre-render bootstrap applies it before the interface is painted.
   explanatory copy, and no more than one primary action.
 - Metric tiles use a short label, a dominant tabular value, and optional context.
 - Table shells provide one consistent border, background, radius, and scrolling
-  boundary. Numeric columns remain sortable and right-aligned.
+  boundary. Numeric columns remain sortable and centered beneath their column
+  headings.
 - Missing values display an em dash. Missing datasets use an explanatory state
   rather than a zero.
 

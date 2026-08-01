@@ -63,7 +63,7 @@ export function ScheduleStrength({
           (option) => (
             <Link
               key={option}
-              href={`/teams/${data.teamNhlId}?season=${data.seasonId}&phase=${phase}&sos=${option}#schedule-strength`}
+              href={`/teams/${data.teamNhlId}?season=${data.seasonId}&phase=${phase}&view=strength&sos=${option}`}
               aria-current={metric === option ? "page" : undefined}
             >
               {metricDefinitions[option].label}

@@ -4,6 +4,10 @@ import { ShotMaps } from "@/app/_components/shot-map";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo } from "@/app/_components/team-logo";
+import {
+  ViewTabs,
+  type ViewTab,
+} from "@/app/_components/view-tabs";
 import type {
   MoneyPuckGameAnalytics,
   MoneyPuckGameTeam,
@@ -12,10 +16,14 @@ import type {
   MoneyPuckSkaterGameSituation,
 } from "@/contracts/advanced-game";
 
+export type GameAdvancedView = "teams" | "shots" | "players" | "combinations";
+
 export function GameAdvancedAnalytics({
   data,
+  view,
 }: {
   data: MoneyPuckGameAnalytics;
+  view: GameAdvancedView;
 }) {
   const hasTeamData = data.teamSituations.length > 0;
   const hasPlayerData =
@@ -28,6 +36,40 @@ export function GameAdvancedAnalytics({
     return <GameAdvancedUnavailable seasonId={data.game.seasonId} />;
   }
 
+  const tabs: ViewTab<GameAdvancedView>[] = [
+    hasTeamData
+      ? {
+          id: "teams",
+          label: "Team Stats",
+          href: gameAdvancedHref(data.game.nhlGameId, "teams"),
+        }
+      : null,
+    hasShotData
+      ? {
+          id: "shots",
+          label: "Shot Maps",
+          href: gameAdvancedHref(data.game.nhlGameId, "shots"),
+        }
+      : null,
+    hasPlayerData
+      ? {
+          id: "players",
+          label: "Players",
+          href: gameAdvancedHref(data.game.nhlGameId, "players"),
+        }
+      : null,
+    hasUnitData
+      ? {
+          id: "combinations",
+          label: "Combinations",
+          href: gameAdvancedHref(data.game.nhlGameId, "combinations"),
+        }
+      : null,
+  ].filter((tab): tab is ViewTab<GameAdvancedView> => tab !== null);
+  const activeView = tabs.some((tab) => tab.id === view)
+    ? view
+    : tabs[0].id;
+
   return (
     <section className="workspace-section-divider">
       <SectionHeading
@@ -36,7 +78,14 @@ export function GameAdvancedAnalytics({
         description="Expected goals, possession, shot quality, and on-ice combinations from the stored MoneyPuck game files."
       />
 
-      {hasTeamData ? (
+      <ViewTabs
+        active={activeView}
+        ariaLabel="Advanced analytics views"
+        tabs={tabs}
+        secondary
+      />
+
+      {activeView === "teams" && hasTeamData ? (
         <TeamGameAnalytics
           rows={data.teamSituations}
           awayTeam={data.game.awayTeam}
@@ -44,7 +93,7 @@ export function GameAdvancedAnalytics({
         />
       ) : null}
 
-      {hasShotData ? (
+      {activeView === "shots" && hasShotData ? (
         <Subsection
           title="Shot Maps"
           description="All MoneyPuck modeled goals, saved shots, and misses. Coordinates are normalized so each team attacks the net at right."
@@ -57,26 +106,26 @@ export function GameAdvancedAnalytics({
         </Subsection>
       ) : null}
 
-      {hasPlayerData ? (
+      {activeView === "players" && hasPlayerData ? (
         <PlayerGameAnalytics
           skaters={data.skaterSituations}
           goalies={data.goalieSituations}
           seasonId={data.game.seasonId}
         />
-      ) : data.game.gameType !== 3 ? (
+      ) : activeView === "players" && data.game.gameType !== 3 ? (
         <CoverageNote>
           No MoneyPuck player-game records are stored for this regular-season
           game.
         </CoverageNote>
       ) : null}
 
-      {hasUnitData ? (
+      {activeView === "combinations" && hasUnitData ? (
         <UnitAnalytics
           forwardLines={data.forwardLines}
           defensivePairings={data.defensivePairings}
           seasonId={data.game.seasonId}
         />
-      ) : data.game.gameType !== 3 ? (
+      ) : activeView === "combinations" && data.game.gameType !== 3 ? (
         <CoverageNote>
           No five-on-five forward-line or defensive-pairing records are stored
           for this game.
@@ -86,6 +135,13 @@ export function GameAdvancedAnalytics({
       <MetricDefinitions seasonId={data.game.seasonId} />
     </section>
   );
+}
+
+function gameAdvancedHref(
+  nhlGameId: number,
+  view: GameAdvancedView,
+): string {
+  return `/games/${nhlGameId}?view=advanced&advancedView=${view}`;
 }
 
 function TeamGameAnalytics({

@@ -1520,9 +1520,20 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
 }
 
 .workspace-scroll-nav a:hover,
-.workspace-scroll-nav a:first-child {
+.workspace-scroll-nav a[aria-current="page"] {
   background: var(--surface-raised);
   color: var(--foreground);
+}
+
+.workspace-scroll-nav.is-secondary {
+  margin-top: 0.9rem;
+  border-color: color-mix(in srgb, var(--accent-secondary) 22%, var(--border));
+  background: color-mix(in srgb, var(--accent-secondary) 4%, var(--surface));
+}
+
+.workspace-scroll-nav.is-secondary a[aria-current="page"] {
+  background: color-mix(in srgb, var(--accent-secondary) 13%, var(--surface-raised));
+  color: var(--accent-secondary);
 }
 
 .workspace-chart-panel {

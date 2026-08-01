@@ -66,7 +66,7 @@ export default async function UnitPage({
             description={`${detail.team.name} game-by-game results for every stored regular-season appearance by this combination.`}
             action={
               <Link
-                href={`/teams/${detail.team.nhlTeamId}?season=${seasonId}#combinations`}
+                href={`/teams/${detail.team.nhlTeamId}?season=${seasonId}&phase=regular&view=combinations`}
                 className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:border-cyan-300/40 hover:text-cyan-200"
               >
                 <TeamLogo {...detail.team} size="tiny" decorative />

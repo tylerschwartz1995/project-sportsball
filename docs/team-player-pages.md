@@ -90,7 +90,9 @@ log begins with a compact chronological form strip, then shows the full table
 for the selected regular-season or playoff phase. Advanced columns use a dash
 when MoneyPuck coverage is unavailable and include an inline coverage note.
 
-Player profiles also visualize rolling performance after every appearance.
+Player profiles use URL-backed Overview, Trends, Advanced, All-Time Records,
+and Season History views so only one distinct task is presented at a time.
+The Trends view visualizes rolling performance after every appearance.
 The chart shows one selected metric at a time to avoid overlapping scales.
 Skaters can choose official scoring and shot rates or individual expected
 goals, game score, and on-ice expected-goal share. Goalies can choose official
@@ -105,17 +107,18 @@ Team and player detail pages also show the available MoneyPuck season summaries.
 See [Advanced analytics presentation](advanced-analytics.md) for the initial
 metrics, source attribution, and coverage behavior.
 
-Team profiles present the essential traditional information first: a selected
-season-phase summary, the next stored scheduled games, the game-log link, and
-an interactive rolling team-form plot. The plot compares all-situations goal
-share with five-on-five expected-goal share over a selectable 5-, 10-, or
+Team profiles use URL-backed Overview, Schedule, Strength, Trends, Skaters,
+Goalies, Advanced, and Combinations views. Changing views preserves season and
+regular-season/playoff context and fetches only the data needed by the selected
+view. The Trends view compares all-situations goal share with five-on-five
+expected-goal share over a selectable 5-, 10-, or
 20-game window. Readers can filter the rolling sample to all, home, or away
 games and independently show either available series. Venue filtering happens
 before the rolling calculation. The plot recomputes each share from the
 underlying rolling totals, shows smaller early-season sample sizes, and follows
-the selected regular-season or playoff phase. Sortable official skater and
-goalie splits follow the trend.
-Advanced team metrics remain below those raw statistics. Covered regular
-seasons then show forward lines and defensive pairings with at least 50
+the selected regular-season or playoff phase. Dedicated Skaters and Goalies
+views contain the sortable official splits. The Advanced view contains team
+metrics, while covered regular seasons expose forward lines and defensive
+pairings with at least 50
 five-on-five minutes together. These link to the league-wide season rankings,
 which default to a 100-minute minimum and allow alternate thresholds.

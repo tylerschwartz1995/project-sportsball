@@ -5,6 +5,7 @@ import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
+import { ViewTabs } from "@/app/_components/view-tabs";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -40,6 +41,8 @@ import {
 
 export const dynamic = "force-dynamic";
 
+type HistoryDisplay = "career" | "seasons";
+
 type HistoryPageProps = {
   searchParams: Promise<{
     phase?: string | string[];
@@ -51,6 +54,7 @@ type HistoryPageProps = {
     position?: string | string[];
     team?: string | string[];
     country?: string | string[];
+    display?: string | string[];
   }>;
 };
 
@@ -58,6 +62,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
   const params = await searchParams;
   const phase = parseSeasonPhase(firstValue(params.phase));
   const view = parseHistoryView(firstValue(params.view));
+  const display = parseHistoryDisplay(firstValue(params.display));
   const metric = parseHistoryMetric(view, firstValue(params.metric));
   const filters = parseHistoryFilters({
     startYear: firstValue(params.startYear),
@@ -95,7 +100,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
           <SeasonPhaseFilter
             active={phase}
             path="/history"
-            params={historyParams(view, metric, filters)}
+            params={historyParams(view, metric, filters, display)}
           />
         </div>
 
@@ -105,6 +110,13 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
           phase={phase}
           filters={filters}
           options={filterOptions}
+          display={display}
+        />
+
+        <ViewTabs
+          active={display}
+          ariaLabel="Historical ranking views"
+          tabs={historyDisplayTabs(view, leaders.metric, phase, filters)}
         />
 
         {leaders.view === "skaters" ? (
@@ -113,6 +125,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
             seasons={leaders.seasons}
             phase={phase}
             metric={leaders.metric}
+            display={display}
           />
         ) : leaders.view === "goalies" ? (
           <GoalieHistory
@@ -120,6 +133,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
             seasons={leaders.seasons}
             phase={phase}
             metric={leaders.metric}
+            display={display}
           />
         ) : (
           <TeamHistory
@@ -127,6 +141,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
             seasons={leaders.seasons}
             phase={phase}
             metric={leaders.metric}
+            display={display}
           />
         )}
       </section>
@@ -140,16 +155,19 @@ function HistoryFiltersForm({
   phase,
   filters,
   options,
+  display,
 }: {
   view: HistoryView;
   metric: HistoryMetric;
   phase: SeasonPhase;
   filters: HistoryFilters;
   options: HistoryFilterOptions;
+  display: HistoryDisplay;
 }) {
   return (
     <form action="/history" method="get" className="workspace-player-filters">
       <input type="hidden" name="phase" value={phase} />
+      <input type="hidden" name="display" value={display} />
 
       <fieldset className="workspace-player-filter-group is-primary">
         <legend>Find Historical Leaders</legend>
@@ -261,7 +279,7 @@ function HistoryFiltersForm({
       <div className="workspace-player-filter-actions">
         <button type="submit">Show History</button>
         <Link
-          href={`/history?phase=${phase}&view=${view}`}
+          href={`/history?phase=${phase}&view=${view}&display=${display}`}
           className="workspace-directory-reset"
         >
           Clear Filters
@@ -276,14 +294,17 @@ function SkaterHistory({
   seasons,
   phase,
   metric,
+  display,
 }: {
   careers: HistoricalSkaterCareer[];
   seasons: HistoricalSkaterSeason[];
   phase: SeasonPhase;
   metric: SkaterHistoryMetric;
+  display: HistoryDisplay;
 }) {
   return (
     <>
+      {display === "career" ? (
       <WorkspacePanel
         className="mt-7"
         title="Career Leaders"
@@ -322,7 +343,9 @@ function SkaterHistory({
           </div>
         </SortableTable>
       </WorkspacePanel>
+      ) : null}
 
+      {display === "seasons" ? (
       <WorkspacePanel
         className="mt-7"
         title="Best Single Seasons"
@@ -368,18 +391,21 @@ function SkaterHistory({
           </div>
         </SortableTable>
       </WorkspacePanel>
+      ) : null}
     </>
   );
 }
 
-function GoalieHistory({ careers, seasons, phase, metric }: {
+function GoalieHistory({ careers, seasons, phase, metric, display }: {
   careers: HistoricalGoalieCareer[];
   seasons: HistoricalGoalieSeason[];
   phase: SeasonPhase;
   metric: GoalieHistoryMetric;
+  display: HistoryDisplay;
 }) {
   return (
     <>
+      {display === "career" ? (
       <WorkspacePanel className="mt-7" title="Career Leaders" description={`Top ${seasonPhaseLabel(phase).toLowerCase()} goalie careers.`}>
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
@@ -408,6 +434,8 @@ function GoalieHistory({ careers, seasons, phase, metric }: {
           </div>
         </SortableTable>
       </WorkspacePanel>
+      ) : null}
+      {display === "seasons" ? (
       <WorkspacePanel className="mt-7" title="Best Single Seasons" description={`Top individual ${seasonPhaseLabel(phase).toLowerCase()} goalie seasons. Save percentage is available from 1955–56 onward.`}>
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
@@ -447,18 +475,21 @@ function GoalieHistory({ careers, seasons, phase, metric }: {
           </div>
         </SortableTable>
       </WorkspacePanel>
+      ) : null}
     </>
   );
 }
 
-function TeamHistory({ careers, seasons, phase, metric }: {
+function TeamHistory({ careers, seasons, phase, metric, display }: {
   careers: HistoricalTeamCareer[];
   seasons: HistoricalTeamSeason[];
   phase: SeasonPhase;
   metric: TeamHistoryMetric;
+  display: HistoryDisplay;
 }) {
   return (
     <>
+      {display === "career" ? (
       <WorkspacePanel className="mt-7" title="Team Identity Totals" description="Totals follow the NHL source team identity. A future franchise-history pass will combine relocations and renames into lineages.">
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
@@ -496,6 +527,8 @@ function TeamHistory({ careers, seasons, phase, metric }: {
           </div>
         </SortableTable>
       </WorkspacePanel>
+      ) : null}
+      {display === "seasons" ? (
       <WorkspacePanel className="mt-7" title="Best Team Seasons" description={`The strongest team ${seasonPhaseLabel(phase).toLowerCase()} seasons by the selected metric.`}>
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
@@ -535,6 +568,7 @@ function TeamHistory({ careers, seasons, phase, metric }: {
           </div>
         </SortableTable>
       </WorkspacePanel>
+      ) : null}
     </>
   );
 }
@@ -596,10 +630,12 @@ function historyParams(
   view: HistoryView,
   metric: HistoryMetric,
   filters: HistoryFilters,
+  display: HistoryDisplay,
 ) {
   return {
     view,
     metric,
+    display,
     startYear: filters.startYear,
     endYear: filters.endYear,
     minimumGames: filters.minimumGames,
@@ -607,6 +643,31 @@ function historyParams(
     team: filters.team ?? undefined,
     country: filters.country ?? undefined,
   };
+}
+
+function historyDisplayTabs(
+  view: HistoryView,
+  metric: HistoryMetric,
+  phase: SeasonPhase,
+  filters: HistoryFilters,
+) {
+  return ([
+    { id: "career" as const, label: "Career Leaders" },
+    { id: "seasons" as const, label: "Best Single Seasons" },
+  ]).map((tab) => {
+    const params = new URLSearchParams();
+    for (const [name, value] of Object.entries(
+      historyParams(view, metric, filters, tab.id),
+    )) {
+      if (value !== undefined) params.set(name, String(value));
+    }
+    params.set("phase", phase);
+    return { ...tab, href: `/history?${params.toString()}` };
+  });
+}
+
+function parseHistoryDisplay(value: string | undefined): HistoryDisplay {
+  return value === "seasons" ? "seasons" : "career";
 }
 function firstValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;

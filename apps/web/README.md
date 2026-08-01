@@ -58,6 +58,8 @@ The current read-only slice provides:
 - selectable, keyboard-accessible shot-map events with shooter, result, time,
   goalie, and shot-quality details;
 - immediate column sorting on every statistics table;
+- URL-backed single-view tabs for long team, player, game, standings,
+  postseason, draft, and historical-leader pages;
 
 Team, player and game summaries link to their supporting detail pages. Team
 profile season selectors only offer seasons in which that team has stored

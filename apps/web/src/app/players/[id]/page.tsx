@@ -9,6 +9,7 @@ import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogoStack } from "@/app/_components/team-logo";
+import { ViewTabs } from "@/app/_components/view-tabs";
 import { parseNhlId } from "@/contracts/entity";
 import type {
   GoalieSeasonSummary,
@@ -32,11 +33,19 @@ import { listSeasons } from "@/data/seasons";
 
 export const dynamic = "force-dynamic";
 
+type PlayerView =
+  | "overview"
+  | "trends"
+  | "advanced"
+  | "records"
+  | "seasons";
+
 type PlayerPageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{
     season?: string | string[];
     phase?: string | string[];
+    view?: string | string[];
   }>;
 };
 
@@ -44,15 +53,20 @@ export default async function PlayerPage({
   params,
   searchParams,
 }: PlayerPageProps) {
-  const nhlPlayerId = parseNhlId((await params).id);
+  const [routeParams, pageParams] = await Promise.all([params, searchParams]);
+  const nhlPlayerId = parseNhlId(routeParams.id);
   if (nhlPlayerId === null) {
     notFound();
   }
 
+  const view = parsePlayerView(firstValue(pageParams.view));
+
   const [detail, seasons, historical] = await Promise.all([
     getPlayerDetail(nhlPlayerId),
     listSeasons(),
-    getHistoricalPlayerSeasons(nhlPlayerId),
+    view === "records"
+      ? getHistoricalPlayerSeasons(nhlPlayerId)
+      : Promise.resolve({ skaters: [], goalies: [] }),
   ]);
   if (!detail) {
     notFound();
@@ -65,7 +79,6 @@ export default async function PlayerPage({
   const careerSeasons = seasons.filter((season) =>
     careerSeasonIds.has(season.id),
   );
-  const pageParams = await searchParams;
   const requestedSeason = parseSeasonId(firstValue(pageParams.season));
   const phase = parseSeasonPhase(firstValue(pageParams.phase));
   const selectedSeason =
@@ -87,10 +100,12 @@ export default async function PlayerPage({
   const profile = detail.profile;
   const [advanced, gameLog] = selectedSeason
     ? await Promise.all([
-        phase === "regular"
+        view === "advanced" && phase === "regular"
           ? getMoneyPuckPlayerSeason(nhlPlayerId, selectedSeason.id)
           : Promise.resolve(null),
-        getPlayerGameLog(nhlPlayerId, selectedSeason.id),
+        view === "trends"
+          ? getPlayerGameLog(nhlPlayerId, selectedSeason.id)
+          : Promise.resolve(null),
       ])
     : [null, null];
   const gameType = gameTypeForPhase(phase);
@@ -179,7 +194,7 @@ export default async function PlayerPage({
               <SeasonPicker
                 seasons={careerSeasons}
                 selectedSeasonId={selectedSeason?.id}
-                params={{ phase }}
+                params={{ phase, view }}
               />
             </div>
           ) : null}
@@ -189,10 +204,24 @@ export default async function PlayerPage({
           <SeasonPhaseFilter
             active={phase}
             path={`/players/${profile.nhlPlayerId}`}
-            params={{ season: selectedSeason.id }}
+            params={{ season: selectedSeason.id, view }}
           />
         ) : null}
 
+        {selectedSeason ? (
+          <ViewTabs
+            active={view}
+            ariaLabel={`${profile.name} views`}
+            tabs={playerViewTabs({
+              nhlPlayerId: profile.nhlPlayerId,
+              seasonId: selectedSeason.id,
+              phase,
+            })}
+          />
+        ) : null}
+
+        {view === "overview" ? (
+        <>
         <dl className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <ProfileStat
             label="Born"
@@ -266,7 +295,11 @@ export default async function PlayerPage({
             <span className="shrink-0 text-cyan-300">View games →</span>
           </Link>
         ) : null}
+        </>
+        ) : null}
 
+        {view === "trends" ? (
+        <>
         {skaterPerformanceGames.length > 0 ||
         goaliePerformanceGames.length > 0 ? (
           <section className="mt-12">
@@ -293,7 +326,17 @@ export default async function PlayerPage({
             </div>
           </section>
         ) : null}
+        {skaterPerformanceGames.length === 0 &&
+        goaliePerformanceGames.length === 0 ? (
+          <div className="workspace-empty-state mt-8">
+            No game-by-game performance is available for this selection.
+          </div>
+        ) : null}
+        </>
+        ) : null}
 
+        {view === "advanced" ? (
+        <>
         {advanced ? (
           <PlayerAdvancedAnalytics
             key={`${profile.nhlPlayerId}-${selectedSeason?.id}`}
@@ -306,7 +349,16 @@ export default async function PlayerPage({
             skater and goalie panels remain regular-season only.
           </p>
         ) : null}
+        {phase === "regular" && !advanced ? (
+          <div className="workspace-empty-state mt-8">
+            Advanced player data is not available for this selection.
+          </div>
+        ) : null}
+        </>
+        ) : null}
 
+        {view === "records" ? (
+        <>
         {historical.skaters.length > 0 ? (
           <section className="mt-12">
             <SectionTitle
@@ -342,7 +394,16 @@ export default async function PlayerPage({
             </div>
           </section>
         ) : null}
+        {historical.skaters.length === 0 && historical.goalies.length === 0 ? (
+          <div className="workspace-empty-state mt-8">
+            No all-time season records are available for this player.
+          </div>
+        ) : null}
+        </>
+        ) : null}
 
+        {view === "seasons" ? (
+        <>
         {detail.skaterSeasons.length > 0 ? (
           <section className="mt-12">
             <SectionTitle
@@ -374,7 +435,6 @@ export default async function PlayerPage({
             </div>
           </section>
         ) : null}
-
         {detail.goalieSeasons.length > 0 ? (
           <section className="mt-12">
             <SectionTitle
@@ -405,6 +465,8 @@ export default async function PlayerPage({
               </HistoryGroup>
             </div>
           </section>
+        ) : null}
+        </>
         ) : null}
       </section>
     </main>
@@ -737,6 +799,36 @@ function formatSavePercentage(value: number | null): string {
 
 function formatHistoricalSeason(seasonId: number): string {
   return `${Math.floor(seasonId / 10_000)}–${String(seasonId % 10_000).slice(-2)}`;
+}
+
+function playerViewTabs({
+  nhlPlayerId,
+  seasonId,
+  phase,
+}: {
+  nhlPlayerId: number;
+  seasonId: number;
+  phase: "regular" | "playoffs";
+}) {
+  return [
+    { id: "overview" as const, label: "Overview" },
+    { id: "trends" as const, label: "Trends" },
+    { id: "advanced" as const, label: "Advanced" },
+    { id: "records" as const, label: "All-Time Records" },
+    { id: "seasons" as const, label: "Season History" },
+  ].map((tab) => ({
+    ...tab,
+    href: `/players/${nhlPlayerId}?season=${seasonId}&phase=${phase}&view=${tab.id}`,
+  }));
+}
+
+function parsePlayerView(value: string | undefined): PlayerView {
+  return value === "trends" ||
+    value === "advanced" ||
+    value === "records" ||
+    value === "seasons"
+    ? value
+    : "overview";
 }
 
 function firstValue(value: string | string[] | undefined): string | undefined {

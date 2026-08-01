@@ -102,6 +102,8 @@ Status values reflect the repository at local MVP sign-off on July 31, 2026.
   identity and true NHL appearance and 100-game denominators.
 - [x] Add an initial historical records workspace with career and single-season
   skater, goalie, and team leaderboards.
+- [x] Replace long stacks of unrelated detail-page sections with URL-backed
+  single-view tabs, including nested game-analytics views.
 
 Saved comparison collections and additional shareable plot state remain
 post-MVP enhancements rather than release requirements.
