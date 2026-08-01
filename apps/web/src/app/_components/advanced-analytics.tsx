@@ -12,6 +12,7 @@ import type {
 } from "@/contracts/advanced";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogo } from "@/app/_components/team-logo";
 
 export function TeamAdvancedAnalytics({
   data,
@@ -226,7 +227,7 @@ function SkaterAdvancedTable({
                   key={`${row.team.nhlTeamId}-${row.situation}`}
                   className="border-b border-white/[0.06] text-slate-300 last:border-0"
                 >
-                  <TextCell value={row.team.abbreviation} />
+                  <TeamCell team={row.team} />
                   <TextCell value={situationLabel(row.situation)} />
                   <ValueCell
                     value={formatPercentage(
@@ -307,7 +308,7 @@ function GoalieAdvancedTable({
                   key={`${row.team.nhlTeamId}-${row.situation}`}
                   className="border-b border-white/[0.06] text-slate-300 last:border-0"
                 >
-                  <TextCell value={row.team.abbreviation} />
+                  <TeamCell team={row.team} />
                   <TextCell value={situationLabel(row.situation)} />
                   <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} />
                   <ValueCell value={formatDecimal(row.goalsAgainst)} />
@@ -443,6 +444,17 @@ function MetricHeader({
 
 function TextCell({ value }: { value: string }) {
   return <td className="px-4 py-3 text-left font-medium text-white">{value}</td>;
+}
+
+function TeamCell({ team }: { team: MoneyPuckSkaterSituation["team"] }) {
+  return (
+    <td className="px-4 py-3 text-left font-medium text-white">
+      <span className="inline-flex items-center gap-2">
+        <TeamLogo {...team} size="tiny" decorative />
+        {team.abbreviation}
+      </span>
+    </td>
+  );
 }
 
 function ValueCell({

@@ -13,6 +13,8 @@ import {
   type TooltipContentProps,
 } from "recharts";
 
+import { TeamLogo } from "@/app/_components/team-logo";
+
 type DraftMetric = "careerGames" | "careerPoints" | "careerWins";
 type RoundGroup = "all" | "1" | "2" | "3plus";
 
@@ -192,9 +194,16 @@ function DraftTooltip({
 
   return (
     <div className="workspace-chart-tooltip">
-      <p className="workspace-chart-tooltip-date">
-        {point.draftYear} · {point.draftTeamAbbreviation} · Pick #
-        {point.draftOverallPick}
+      <p className="workspace-chart-tooltip-date inline-flex items-center gap-1.5">
+        <TeamLogo
+          abbreviation={point.draftTeamAbbreviation}
+          size="tiny"
+          decorative
+        />
+        <span>
+          {point.draftYear} · {point.draftTeamAbbreviation} · Pick #
+          {point.draftOverallPick}
+        </span>
       </p>
       <p className="workspace-chart-tooltip-game">{point.name}</p>
       <dl>

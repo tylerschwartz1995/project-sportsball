@@ -6,6 +6,7 @@ import { GamePlayByPlayView } from "@/app/_components/play-by-play";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogo } from "@/app/_components/team-logo";
 import {
   DataTableShell,
   SectionHeader,
@@ -145,20 +146,30 @@ function ScoreTeam({
 }) {
   return (
     <div className="workspace-game-score-team" data-align={align}>
-      <div>
-        <small>
-          {team.abbreviation}
-        </small>
-        <Link
-          href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
-        >
-          {team.name}
-        </Link>
-        <p>
-          {team.shotsOnGoal === null
-            ? "Shots unavailable"
-            : `${team.shotsOnGoal} shots`}
-        </p>
+      <div className="workspace-game-score-identity">
+        <TeamLogo
+          nhlTeamId={team.nhlTeamId}
+          abbreviation={team.abbreviation}
+          name={team.name}
+          size="profile"
+          decorative
+          prominent
+        />
+        <div>
+          <small>
+            {team.abbreviation}
+          </small>
+          <Link
+            href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
+          >
+            {team.name}
+          </Link>
+          <p>
+            {team.shotsOnGoal === null
+              ? "Shots unavailable"
+              : `${team.shotsOnGoal} shots`}
+          </p>
+        </div>
       </div>
       <strong>
         {team.score ?? "—"}
@@ -181,9 +192,19 @@ function TeamBoxScore({
         title={team.name}
         description="Official NHL player results for this game."
         action={
-          <p className="text-sm text-slate-500">
-          {team.skaters.length} skaters · {team.goalies.length} goalies
-          </p>
+          <div className="flex items-center gap-3">
+            <TeamLogo
+              nhlTeamId={team.nhlTeamId}
+              abbreviation={team.abbreviation}
+              name={team.name}
+              size="compact"
+              decorative
+              prominent
+            />
+            <p className="text-sm text-slate-500">
+              {team.skaters.length} skaters · {team.goalies.length} goalies
+            </p>
+          </div>
         }
       />
 
@@ -191,14 +212,14 @@ function TeamBoxScore({
       <SkaterTable
         players={team.skaters}
         seasonId={seasonId}
-        teamName={team.name}
+        team={team}
       />
 
       <h3 className="mt-8 text-lg font-semibold text-white">Goalies</h3>
       <GoalieTable
         players={team.goalies}
         seasonId={seasonId}
-        teamName={team.name}
+        team={team}
       />
     </section>
   );
@@ -207,18 +228,18 @@ function TeamBoxScore({
 function SkaterTable({
   players,
   seasonId,
-  teamName,
+  team,
 }: {
   players: GameSkaterStats[];
   seasonId: number;
-  teamName: string;
+  team: GameBoxScoreTeam;
 }) {
   return (
     <DataTableShell>
       <SortableTable defaultSortKey="points">
       <div className="workspace-table-scroll">
         <table className="workspace-table min-w-[940px]">
-          <caption className="sr-only">{teamName} skater box score</caption>
+          <caption className="sr-only">{team.name} skater box score</caption>
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
               <SortableHeader label="Player" sortKey="player" align="left" defaultDirection="asc" />
@@ -240,18 +261,23 @@ function SkaterTable({
                 className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
               >
                 <td className="px-4 py-3">
-                  <Link
-                    href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
-                    className="font-medium text-white transition hover:text-cyan-200"
-                  >
-                    {player.name}
-                  </Link>
-                  <span className="ml-2 text-xs text-slate-500">
-                    {player.sweaterNumber === null
-                      ? ""
-                      : `#${player.sweaterNumber} · `}
-                    {player.position}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <TeamLogo {...team} size="tiny" decorative />
+                    <div>
+                      <Link
+                        href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
+                        className="font-medium text-white transition hover:text-cyan-200"
+                      >
+                        {player.name}
+                      </Link>
+                      <span className="ml-2 text-xs text-slate-500">
+                        {player.sweaterNumber === null
+                          ? ""
+                          : `#${player.sweaterNumber} · `}
+                        {player.position}
+                      </span>
+                    </div>
+                  </div>
                 </td>
                 <NumericCell value={player.goals} />
                 <NumericCell value={player.assists} />
@@ -275,18 +301,18 @@ function SkaterTable({
 function GoalieTable({
   players,
   seasonId,
-  teamName,
+  team,
 }: {
   players: GameGoalieStats[];
   seasonId: number;
-  teamName: string;
+  team: GameBoxScoreTeam;
 }) {
   return (
     <DataTableShell>
       <SortableTable defaultSortKey="shotsAgainst">
       <div className="workspace-table-scroll">
         <table className="workspace-table min-w-[900px]">
-          <caption className="sr-only">{teamName} goalie box score</caption>
+          <caption className="sr-only">{team.name} goalie box score</caption>
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
               <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" />
@@ -307,15 +333,20 @@ function GoalieTable({
                 className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
               >
                 <td className="px-4 py-3">
-                  <Link
-                    href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
-                    className="font-medium text-white transition hover:text-cyan-200"
-                  >
-                    {player.name}
-                  </Link>
-                  <span className="ml-2 text-xs text-slate-500">
-                    {player.starter ? "Starter" : "Backup"}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <TeamLogo {...team} size="tiny" decorative />
+                    <div>
+                      <Link
+                        href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
+                        className="font-medium text-white transition hover:text-cyan-200"
+                      >
+                        {player.name}
+                      </Link>
+                      <span className="ml-2 text-xs text-slate-500">
+                        {player.starter ? "Starter" : "Backup"}
+                      </span>
+                    </div>
+                  </div>
                 </td>
                 <NumericCell value={player.decision ?? "—"} />
                 <NumericCell value={player.shotsAgainst} />

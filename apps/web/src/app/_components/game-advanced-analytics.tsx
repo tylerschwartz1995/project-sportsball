@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ShotMaps } from "@/app/_components/shot-map";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogo } from "@/app/_components/team-logo";
 import type {
   MoneyPuckGameAnalytics,
   MoneyPuckGameTeam,
@@ -109,22 +110,22 @@ function TeamGameAnalytics({
     <div className="mt-8">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <ComparisonCard
-          team={awayTeam.abbreviation}
+          team={awayTeam}
           label="Expected goals"
           value={formatDecimal(away?.expectedGoalsFor ?? null)}
         />
         <ComparisonCard
-          team={homeTeam.abbreviation}
+          team={homeTeam}
           label="Expected goals"
           value={formatDecimal(home?.expectedGoalsFor ?? null)}
         />
         <ComparisonCard
-          team={awayTeam.abbreviation}
+          team={awayTeam}
           label="xG share"
           value={formatPercentage(away?.expectedGoalsPercentage ?? null)}
         />
         <ComparisonCard
-          team={homeTeam.abbreviation}
+          team={homeTeam}
           label="xG share"
           value={formatPercentage(home?.expectedGoalsPercentage ?? null)}
         />
@@ -158,7 +159,7 @@ function TeamGameAnalytics({
                     key={`${row.team.nhlTeamId}-${row.situation}`}
                     className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
                   >
-                    <TextCell value={row.team.abbreviation} />
+                    <TeamCell team={row.team} />
                     <TextCell value={situationLabel(row.situation)} />
                     <ValueCell
                       value={formatPercentage(row.expectedGoalsPercentage)}
@@ -245,14 +246,17 @@ function PlayerGameAnalytics({
                       className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
                     >
                       <td className="px-4 py-3 text-left">
-                        <Link
-                          href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
-                          className="font-medium text-white transition hover:text-violet-200"
-                        >
-                          {row.player.name}
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          <TeamLogo {...row.team} size="tiny" decorative />
+                          <Link
+                            href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
+                            className="font-medium text-white transition hover:text-violet-200"
+                          >
+                            {row.player.name}
+                          </Link>
+                        </div>
                       </td>
-                      <TextCell value={row.team.abbreviation} />
+                      <TeamCell team={row.team} />
                       <TextCell value={row.position ?? "—"} />
                       <ValueCell value={formatTimeOnIce(row.iceTimeSeconds)} />
                       <ValueCell value={formatDecimal(row.gameScore)} highlight />
@@ -310,14 +314,17 @@ function PlayerGameAnalytics({
                       className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
                     >
                       <td className="px-4 py-3 text-left">
-                        <Link
-                          href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
-                          className="font-medium text-white transition hover:text-violet-200"
-                        >
-                          {row.player.name}
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          <TeamLogo {...row.team} size="tiny" decorative />
+                          <Link
+                            href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
+                            className="font-medium text-white transition hover:text-violet-200"
+                          >
+                            {row.player.name}
+                          </Link>
+                        </div>
                       </td>
-                      <TextCell value={row.team.abbreviation} />
+                      <TeamCell team={row.team} />
                       <ValueCell value={formatTimeOnIce(row.iceTimeSeconds)} />
                       <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} />
                       <ValueCell value={formatDecimal(row.goalsAgainst, 0)} />
@@ -419,7 +426,7 @@ function UnitTable({
                   key={`${row.team.nhlTeamId}-${row.unitType}-${row.sourceLineId}`}
                   className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
                 >
-                  <TextCell value={row.team.abbreviation} />
+                  <TeamCell team={row.team} />
                   <td className="px-4 py-3 text-left">
                     <div className="flex flex-wrap gap-x-1">
                       {row.players.map((player, index) => (
@@ -508,13 +515,22 @@ function ComparisonCard({
   label,
   value,
 }: {
-  team: string;
+  team: MoneyPuckGameTeam;
   label: string;
   value: string;
 }) {
   return (
     <article className="rounded-2xl border border-violet-300/15 bg-violet-300/[0.06] p-5">
-      <p className="font-mono text-xs font-semibold text-violet-300">{team}</p>
+      <p className="flex items-center gap-2 font-mono text-xs font-semibold text-violet-300">
+        <TeamLogo
+          nhlTeamId={team.nhlTeamId}
+          abbreviation={team.abbreviation}
+          name={team.name}
+          size="tiny"
+          decorative
+        />
+        {team.abbreviation}
+      </p>
       <p className="mt-2 text-xs uppercase tracking-[0.12em] text-violet-200/60">
         {label}
       </p>
@@ -544,6 +560,17 @@ function MetricHeader({
 
 function TextCell({ value }: { value: string }) {
   return <td className="px-4 py-3 text-left font-medium text-white">{value}</td>;
+}
+
+function TeamCell({ team }: { team: MoneyPuckGameTeam }) {
+  return (
+    <td className="px-4 py-3 text-left font-medium text-white">
+      <span className="inline-flex items-center gap-2">
+        <TeamLogo {...team} size="tiny" decorative />
+        {team.abbreviation}
+      </span>
+    </td>
+  );
 }
 
 function ValueCell({

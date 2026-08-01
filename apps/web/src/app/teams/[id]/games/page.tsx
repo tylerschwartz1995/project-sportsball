@@ -6,6 +6,7 @@ import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogo } from "@/app/_components/team-logo";
 import { parseNhlId } from "@/contracts/entity";
 import type { TeamGameLogEntry } from "@/contracts/game-log";
 import { parseSeasonId } from "@/contracts/season";
@@ -79,7 +80,9 @@ export default async function TeamGamesPage({
         </Link>
 
         <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
+          <div className="flex items-center gap-4">
+            <TeamLogo {...log.team} size="compact" decorative />
+            <div>
             <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
               {log.team.abbreviation} · {seasonPhaseLabel(phase)}
             </p>
@@ -90,6 +93,7 @@ export default async function TeamGamesPage({
               {selectedSeason.label} results, shot totals, and five-on-five
               expected-goal share.
             </p>
+            </div>
           </div>
           <SeasonPicker
             seasons={availableSeasons}
@@ -238,12 +242,15 @@ function TeamGameRow({
       <td className="px-3 py-3">{game.gameType === 3 ? "Playoffs" : "Regular"}</td>
       <td className="px-3 py-3">{game.isHome ? "Home" : "Away"}</td>
       <td className="px-3 py-3">
-        <Link
-          href={`/teams/${game.opponent.nhlTeamId}?season=${seasonId}`}
-          className="transition hover:text-cyan-200"
-        >
-          {game.opponent.abbreviation}
-        </Link>
+        <div className="flex items-center gap-2">
+          <TeamLogo {...game.opponent} size="tiny" decorative />
+          <Link
+            href={`/teams/${game.opponent.nhlTeamId}?season=${seasonId}`}
+            className="transition hover:text-cyan-200"
+          >
+            {game.opponent.abbreviation}
+          </Link>
+        </div>
       </td>
       <td className="px-3 py-3 font-semibold" data-sort-value={game.result}>
         <span className={resultTextClassName(game.result)}>{game.result}</span>

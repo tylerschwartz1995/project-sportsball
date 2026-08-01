@@ -8,6 +8,7 @@ import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamComparisonScatterplot } from "@/app/_components/team-comparison-scatterplot";
+import { TeamLogo } from "@/app/_components/team-logo";
 import { DataTableShell } from "@/app/_components/ui-primitives";
 import {
   WorkspacePageHeader,
@@ -17,6 +18,7 @@ import type {
   AdvancedSkaterLeaderboardRow,
   AdvancedTeamLeaderboardRow,
 } from "@/contracts/advanced-leaderboard";
+import type { TeamIdentity } from "@/contracts/team";
 import { parseSeasonId } from "@/contracts/season";
 import {
   gameTypeForPhase,
@@ -362,6 +364,7 @@ function TeamLeaderboard({
                 href={`/teams/${row.team.nhlTeamId}?season=${seasonId}&phase=${phase}`}
                 name={row.team.name}
                 detail={row.team.abbreviation}
+                team={row.team}
               />
               <ValueCell value={String(row.gamesPlayed)} />
               <ValueCell value={formatMinutes(row.iceTimeSeconds)} />
@@ -418,11 +421,13 @@ function SkaterLeaderboard({
                 href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
                 name={row.player.name}
                 detail={row.player.position ?? "Skater"}
+                team={row.team}
               />
               <EntityCell
                 href={`/teams/${row.team.nhlTeamId}?season=${seasonId}`}
                 name={row.team.abbreviation}
                 detail={row.team.name}
+                team={row.team}
               />
               <ValueCell value={String(row.gamesPlayed)} />
               <ValueCell value={formatMinutes(row.iceTimeSeconds)} />
@@ -477,11 +482,13 @@ function GoalieLeaderboard({
                 href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
                 name={row.player.name}
                 detail="Goalie"
+                team={row.team}
               />
               <EntityCell
                 href={`/teams/${row.team.nhlTeamId}?season=${seasonId}`}
                 name={row.team.abbreviation}
                 detail={row.team.name}
+                team={row.team}
               />
               <ValueCell value={String(row.gamesPlayed)} />
               <ValueCell value={formatMinutes(row.iceTimeSeconds)} />
@@ -528,22 +535,29 @@ function EntityCell({
   href,
   name,
   detail,
+  team,
 }: {
   href: string;
   name: string;
   detail: string;
+  team?: TeamIdentity;
 }) {
   return (
     <td className="px-4 py-3 text-left">
-      <Link
-        href={href}
-        className="font-medium text-white transition hover:text-violet-200"
-      >
-        {name}
-      </Link>
-      <span className="mt-0.5 block max-w-48 truncate text-xs text-slate-600">
-        {detail}
-      </span>
+      <div className="flex items-center gap-2">
+        {team ? <TeamLogo {...team} size="tiny" decorative /> : null}
+        <div>
+          <Link
+            href={href}
+            className="font-medium text-white transition hover:text-violet-200"
+          >
+            {name}
+          </Link>
+          <span className="mt-0.5 block max-w-48 truncate text-xs text-slate-600">
+            {detail}
+          </span>
+        </div>
+      </div>
     </td>
   );
 }

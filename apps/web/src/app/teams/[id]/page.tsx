@@ -280,15 +280,24 @@ export default async function TeamPage({
                         className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
                       >
                         <td className="px-4 py-3">
-                          <Link
-                            href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                            className="font-medium text-white transition hover:text-cyan-200"
-                          >
-                            {player.name}
-                          </Link>
-                          <span className="ml-2 text-xs text-slate-500">
-                            {player.position}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <TeamLogo
+                              {...detail.team}
+                              size="tiny"
+                              decorative
+                            />
+                            <div>
+                              <Link
+                                href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
+                                className="font-medium text-white transition hover:text-cyan-200"
+                              >
+                                {player.name}
+                              </Link>
+                              <span className="ml-2 text-xs text-slate-500">
+                                {player.position}
+                              </span>
+                            </div>
+                          </div>
                         </td>
                         <NumericCell value={player.gamesPlayed} />
                         <NumericCell value={player.goals} />
@@ -349,12 +358,15 @@ export default async function TeamPage({
                         className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
                       >
                         <td className="px-4 py-3">
-                          <Link
-                            href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                            className="font-medium text-white transition hover:text-cyan-200"
-                          >
-                            {player.name}
-                          </Link>
+                          <div className="flex items-center gap-2">
+                            <TeamLogo {...detail.team} size="tiny" decorative />
+                            <Link
+                              href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
+                              className="font-medium text-white transition hover:text-cyan-200"
+                            >
+                              {player.name}
+                            </Link>
+                          </div>
                         </td>
                         <NumericCell value={player.gamesPlayed} />
                         <NumericCell value={player.gamesStarted} />
@@ -523,8 +535,11 @@ function UpcomingSchedule({
                 return <tr key={game.nhlGameId}>
                   <td data-sort-value={game.startTimeUtc}><Link href={`/games/${game.nhlGameId}`}>{formatScheduleDate(game.startTimeUtc)}</Link></td>
                   <td data-sort-value={opponent.name}>
-                    {isHome ? "vs" : "at"}{" "}
-                    <Link href={`/teams/${opponent.nhlTeamId}?season=${game.seasonId}`}>{opponent.name}</Link>
+                    <span className="inline-flex items-center gap-2">
+                      <TeamLogo {...opponent} size="tiny" decorative />
+                      <span>{isHome ? "vs" : "at"}</span>
+                      <Link href={`/teams/${opponent.nhlTeamId}?season=${game.seasonId}`}>{opponent.name}</Link>
+                    </span>
                   </td>
                   <td data-sort-value={game.seasonId}>{formatSeasonId(game.seasonId)}</td>
                 </tr>;

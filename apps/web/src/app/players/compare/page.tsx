@@ -5,6 +5,7 @@ import { PlayerComparisonPicker } from "@/app/_components/player-comparison-pick
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
+import { TeamLogoStack } from "@/app/_components/team-logo";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -255,6 +256,7 @@ function buildSkaterEntry(
     nhlPlayerId: player.nhlPlayerId,
     name: player.name,
     position: player.position,
+    teams: player.teams,
     values: {
       gamesPlayed: player.gamesPlayed,
       goals: player.goals,
@@ -298,6 +300,7 @@ function buildGoalieEntry(
     nhlPlayerId: player.nhlPlayerId,
     name: player.name,
     position: player.position,
+    teams: player.teams,
     values: {
       gamesPlayed: player.gamesPlayed,
       gamesStarted: player.gamesStarted,
@@ -335,6 +338,7 @@ function ComparisonTable({
             <th>Metric</th>
             {players.map((player) => (
               <th key={player.nhlPlayerId}>
+                <TeamLogoStack teams={player.teams} />
                 <Link
                   href={`/players/${player.nhlPlayerId}?season=${seasonId}&phase=${phase}`}
                 >

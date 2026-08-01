@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogo } from "@/app/_components/team-logo";
 import { MetricTile, SectionHeader } from "@/app/_components/ui-primitives";
 import type {
   ScheduleStrengthGame,
@@ -218,10 +219,21 @@ function ScheduleGamesTable({
                       </Link>
                     </td>
                     <td data-sort-value={game.opponentName} className="workspace-team-cell">
-                      <Link href={`/teams/${game.opponentNhlTeamId}?season=${seasonId}`}>
-                        {game.opponentName}
-                      </Link>
-                      <small>{game.opponentAbbreviation}</small>
+                      <div className="flex items-center gap-2">
+                        <TeamLogo
+                          nhlTeamId={game.opponentNhlTeamId}
+                          abbreviation={game.opponentAbbreviation}
+                          name={game.opponentName}
+                          size="compact"
+                          decorative
+                        />
+                        <div>
+                          <Link href={`/teams/${game.opponentNhlTeamId}?season=${seasonId}`}>
+                            {game.opponentName}
+                          </Link>
+                          <small>{game.opponentAbbreviation}</small>
+                        </div>
+                      </div>
                     </td>
                     <td data-sort-value={game.isHome ? "home" : "away"}>
                       {game.isHome ? "Home" : "Away"}

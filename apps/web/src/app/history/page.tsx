@@ -4,6 +4,7 @@ import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -286,9 +287,16 @@ function SkaterHistory({
               <tbody>
                 {seasons.map((row) => (
                   <tr key={`${row.nhlPlayerId}-${row.seasonId}`}>
-                    <td className="workspace-team-cell"><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link></td>
+                    <td className="workspace-team-cell">
+                      <div className="flex items-center gap-2">
+                        <TeamLogoStack abbreviations={row.teamAbbreviations} />
+                        <Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link>
+                      </div>
+                    </td>
                     <td data-sort-value={row.seasonId}>{formatSeason(row.seasonId)}</td>
-                    <td>{row.teamAbbreviations ?? "—"}</td>
+                    <td data-sort-value={row.teamAbbreviations ?? ""}>
+                      <TeamLogoStack abbreviations={row.teamAbbreviations} />
+                    </td>
                     <NumberCell value={row.gamesPlayed} />
                     <NumberCell value={row.goals} />
                     <NumberCell value={row.assists} />
@@ -358,9 +366,16 @@ function GoalieHistory({ careers, seasons, phase, metric }: {
               </tr></thead>
               <tbody>{seasons.map((row) => (
                 <tr key={`${row.nhlPlayerId}-${row.seasonId}`}>
-                  <td className="workspace-team-cell"><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link></td>
+                  <td className="workspace-team-cell">
+                    <div className="flex items-center gap-2">
+                      <TeamLogoStack abbreviations={row.teamAbbreviations} />
+                      <Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link>
+                    </div>
+                  </td>
                   <td data-sort-value={row.seasonId}>{formatSeason(row.seasonId)}</td>
-                  <td>{row.teamAbbreviations ?? "—"}</td>
+                  <td data-sort-value={row.teamAbbreviations ?? ""}>
+                    <TeamLogoStack abbreviations={row.teamAbbreviations} />
+                  </td>
                   <NumberCell value={row.gamesPlayed} />
                   <NumberCell value={row.wins} highlight />
                   <NumberCell value={row.losses} />
@@ -402,7 +417,12 @@ function TeamHistory({ careers, seasons, phase, metric }: {
               </tr></thead>
               <tbody>{careers.map((row) => (
                 <tr key={row.nhlTeamId}>
-                  <td className="workspace-team-cell"><strong>{row.name}</strong></td>
+                  <td className="workspace-team-cell">
+                    <span className="inline-flex items-center gap-2">
+                      <TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="compact" decorative />
+                      <strong>{row.name}</strong>
+                    </span>
+                  </td>
                   <NumberCell value={row.seasonsPlayed} />
                   <NumberCell value={row.gamesPlayed} />
                   <NumberCell value={row.wins} />
@@ -435,7 +455,12 @@ function TeamHistory({ careers, seasons, phase, metric }: {
               </tr></thead>
               <tbody>{seasons.map((row) => (
                 <tr key={`${row.nhlTeamId}-${row.seasonId}`}>
-                  <td className="workspace-team-cell"><strong>{row.name}</strong></td>
+                  <td className="workspace-team-cell">
+                    <span className="inline-flex items-center gap-2">
+                      <TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="compact" decorative />
+                      <strong>{row.name}</strong>
+                    </span>
+                  </td>
                   <td data-sort-value={row.seasonId}>{formatSeason(row.seasonId)}</td>
                   <NumberCell value={row.gamesPlayed} />
                   <NumberCell value={row.wins} />

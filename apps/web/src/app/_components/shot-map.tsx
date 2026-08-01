@@ -6,6 +6,7 @@ import type {
   MoneyPuckGameTeam,
   MoneyPuckShot,
 } from "@/contracts/advanced-game";
+import { TeamLogo } from "@/app/_components/team-logo";
 import { formatMoneyPuckPeriodClock } from "@/lib/moneypuck-shot";
 
 export function ShotMaps({
@@ -61,11 +62,14 @@ function TeamShotMap({
   return (
     <figure className="surface-panel overflow-hidden">
       <figcaption className="flex flex-wrap items-end justify-between gap-3 border-b border-white/[0.07] px-5 py-4">
-        <div>
+        <div className="flex items-center gap-3">
+          <TeamLogo {...team} size="compact" decorative />
+          <div>
           <p className="font-mono text-xs uppercase tracking-[0.14em] text-slate-500">
             {team.abbreviation} attempts
           </p>
           <p className="mt-1 font-semibold text-white">{team.name}</p>
+          </div>
         </div>
         <p className="text-right text-sm tabular-nums text-slate-400">
           {shots.length} attempts · {goals} goals · {expectedGoals.toFixed(2)}{" "}

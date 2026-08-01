@@ -11,6 +11,8 @@ import {
   YAxis,
 } from "recharts";
 
+import { TeamLogo } from "@/app/_components/team-logo";
+
 import type {
   StandingsEntry,
   StandingsPointsHistoryPoint,
@@ -161,6 +163,13 @@ export function StandingsPointsChart({
       <div className="workspace-chart-legend">
         {selectedTeams.map((team, index) => (
           <span key={team.nhlTeamId}>
+            <TeamLogo
+              nhlTeamId={team.nhlTeamId}
+              abbreviation={team.teamAbbreviation}
+              name={team.teamName}
+              size="tiny"
+              decorative
+            />
             <i style={{ backgroundColor: COLORS[index % COLORS.length] }} />
             {team.teamAbbreviation}
           </span>

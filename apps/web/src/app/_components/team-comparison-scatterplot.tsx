@@ -18,6 +18,7 @@ import {
   ChartFilterButton,
   ChartFilterGroup,
 } from "@/app/_components/chart-controls";
+import { TeamLogo } from "@/app/_components/team-logo";
 import {
   buildTeamPlotPoints,
   comparisonDomain,
@@ -333,7 +334,16 @@ function TeamComparisonTooltip({
         {groupLabel(point.group)}
       </p>
       <p className="workspace-chart-tooltip-game">
-        {point.name} · {point.abbreviation}
+        <span className="inline-flex items-center gap-1.5">
+          <TeamLogo
+            nhlTeamId={point.nhlTeamId}
+            abbreviation={point.abbreviation}
+            name={point.name}
+            size="tiny"
+            decorative
+          />
+          {point.name} · {point.abbreviation}
+        </span>
       </p>
       <dl>
         <div>
@@ -415,11 +425,17 @@ function DirectTeamComparison({
                 <th>Metric</th>
                 <th>
                   {first.name}
-                  <span>{first.abbreviation}</span>
+                  <span className="flex items-center justify-center gap-1.5">
+                    <TeamLogo {...first} size="tiny" decorative />
+                    {first.abbreviation}
+                  </span>
                 </th>
                 <th>
                   {second.name}
-                  <span>{second.abbreviation}</span>
+                  <span className="flex items-center justify-center gap-1.5">
+                    <TeamLogo {...second} size="tiny" decorative />
+                    {second.abbreviation}
+                  </span>
                 </th>
               </tr>
             </thead>

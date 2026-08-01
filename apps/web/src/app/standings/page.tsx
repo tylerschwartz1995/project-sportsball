@@ -5,6 +5,7 @@ import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { StandingsPointsChart } from "@/app/_components/standings-points-chart";
+import { TeamLogo } from "@/app/_components/team-logo";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -189,15 +190,30 @@ function StandingsTable({
                     {rankForView(team, view)}
                   </td>
                   <td className="workspace-team-cell">
-                    <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
-                      {team.teamName}
-                    </Link>
-                    {team.clinchIndicator ? (
-                      <span>{team.clinchIndicator}</span>
-                    ) : null}
-                    <small>
-                      {team.teamAbbreviation} · {team.divisionName}
-                    </small>
+                    <div className="flex items-center gap-2">
+                      <TeamLogo
+                        nhlTeamId={team.nhlTeamId}
+                        abbreviation={team.teamAbbreviation}
+                        name={team.teamName}
+                        size="compact"
+                        decorative
+                      />
+                      <div>
+                        <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
+                          {team.teamName}
+                        </Link>
+                        <small>
+                          <span>
+                            {team.teamAbbreviation} · {team.divisionName}
+                          </span>
+                          {team.clinchIndicator ? (
+                            <span className="workspace-clinch-indicator">
+                              {team.clinchIndicator}
+                            </span>
+                          ) : null}
+                        </small>
+                      </div>
+                    </div>
                   </td>
                   <NumericCell value={team.gamesPlayed} />
                   <NumericCell value={team.wins} />

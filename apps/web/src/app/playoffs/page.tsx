@@ -4,6 +4,7 @@ import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -127,7 +128,9 @@ export default async function PlayoffsPage({
                                 {player.name}
                               </Link>
                             </td>
-                            <td>{player.teamAbbreviation}</td>
+                            <td data-sort-value={player.teamAbbreviation}>
+                              <TeamLogoStack abbreviations={player.teamAbbreviation} />
+                            </td>
                             <NumberCell value={player.gamesPlayed} />
                             <NumberCell value={player.goals} />
                             <NumberCell value={player.assists} />
@@ -240,6 +243,13 @@ function BracketTeam({
       {team ? (
         <>
           <small>{team.seedLabel ?? team.abbreviation}</small>
+          <TeamLogo
+            nhlTeamId={team.nhlTeamId}
+            abbreviation={team.abbreviation}
+            name={team.name}
+            size="tiny"
+            decorative
+          />
           <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
             {team.name}
           </Link>
