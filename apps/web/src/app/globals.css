@@ -29,7 +29,7 @@
 }
 
 html {
-  font-size: 17px;
+  font-size: 18px;
 }
 
 html[data-theme="light"] {
@@ -102,7 +102,7 @@ body {
   border-radius: 0.45rem;
   background: var(--accent);
   color: var(--background);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 750;
   text-decoration: none;
   transform: translateY(calc(-100% - 1rem));
@@ -134,7 +134,32 @@ body {
 
 @media (min-width: 1280px) {
   body {
-    padding-left: 14.5rem;
+    padding-left: 13.75rem;
+  }
+}
+
+main.max-w-7xl {
+  max-width: 90rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+main.max-w-7xl > section {
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  main.max-w-7xl {
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  main.max-w-7xl {
+    padding-right: 1.75rem;
+    padding-left: 1.75rem;
   }
 }
 
@@ -143,7 +168,7 @@ body {
   inset: 0 auto 0 0;
   z-index: 50;
   display: none;
-  width: 14.5rem;
+  width: 13.75rem;
   flex-direction: column;
   border-right: 1px solid var(--border);
   padding: 1.25rem 0.85rem;
@@ -176,7 +201,7 @@ body {
   background: var(--accent);
   color: var(--background);
   font-family: var(--font-geist-mono);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   font-weight: 800;
 }
 
@@ -190,20 +215,20 @@ html[data-theme="light"] .workspace-brand > span:first-child {
 }
 
 .workspace-brand strong {
-  font-size: 0.98rem;
+  font-size: 1.04rem;
   letter-spacing: -0.025em;
 }
 
 .workspace-brand small {
   margin-top: 0.12rem;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: 0.78rem;
 }
 
 .workspace-primary-nav {
   display: grid;
   gap: 0.25rem;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
 }
 
 .workspace-primary-nav a {
@@ -214,7 +239,7 @@ html[data-theme="light"] .workspace-brand > span:first-child {
   border-radius: 0.55rem;
   padding: 0 0.65rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   font-weight: 550;
   text-decoration: none;
   transition:
@@ -242,7 +267,7 @@ html[data-theme="light"] .workspace-brand > span:first-child {
   background: var(--surface-subtle);
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 700;
 }
 
@@ -258,7 +283,7 @@ html[data-theme="light"] .workspace-brand > span:first-child {
   gap: 0.5rem;
   padding: 0 0.5rem;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
 }
 
 .workspace-data-status > span {
@@ -276,7 +301,7 @@ html[data-theme="light"] .workspace-brand > span:first-child {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 0.75rem;
-  margin: -1.5rem -1rem 0;
+  margin: -0.5rem -1rem 0;
   border-bottom: 1px solid var(--border);
   padding: 0.7rem 1rem;
   background: color-mix(in srgb, var(--sidebar-background) 92%, transparent);
@@ -285,10 +310,10 @@ html[data-theme="light"] .workspace-brand > span:first-child {
 
 @media (min-width: 640px) {
   .workspace-mobile-header {
-    margin-right: -2rem;
-    margin-left: -2rem;
-    padding-right: 2rem;
-    padding-left: 2rem;
+    margin-right: -1.5rem;
+    margin-left: -1.5rem;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
   }
 }
 
@@ -311,7 +336,7 @@ html[data-theme="light"] .workspace-brand > span:first-child {
   border-radius: 0.45rem;
   padding: 0.45rem 0.55rem;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   text-decoration: none;
 }
 
@@ -333,7 +358,7 @@ html[data-theme="light"] .workspace-brand > span:first-child {
   color: var(--foreground);
   cursor: pointer;
   font: inherit;
-  font-size: 0.78rem;
+  font-size: 0.84rem;
 }
 
 .theme-toggle-icon {
@@ -363,7 +388,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-page-header {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
   align-items: flex-start;
 }
 
@@ -378,16 +403,16 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-eyebrow {
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.68rem;
+  font-size: 0.84rem;
   font-weight: 650;
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .workspace-page-header h1 {
-  margin-top: 0.55rem;
+  margin-top: 0.35rem;
   color: var(--foreground);
-  font-size: clamp(2rem, 5vw, 3.25rem);
+  font-size: clamp(2rem, 4.5vw, 3rem);
   font-weight: 650;
   letter-spacing: -0.045em;
   line-height: 1;
@@ -395,9 +420,9 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-description {
   max-width: 44rem;
-  margin-top: 0.8rem;
+  margin-top: 0.55rem;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   line-height: 1.65;
 }
 
@@ -415,25 +440,25 @@ html[data-theme="light"] .theme-toggle-label::after {
   justify-content: space-between;
   gap: 1rem;
   border-bottom: 1px solid var(--border);
-  padding: 1rem 1.1rem;
+  padding: 0.8rem 0.95rem;
 }
 
 .workspace-panel-header h3 {
   color: var(--foreground);
-  font-size: 0.92rem;
+  font-size: 1rem;
   font-weight: 650;
 }
 
 .workspace-panel-header p {
   margin-top: 0.25rem;
   color: var(--muted);
-  font-size: 0.74rem;
+  font-size: 0.84rem;
 }
 
 .workspace-panel-header a {
   flex: 0 0 auto;
   color: var(--accent);
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   font-weight: 600;
 }
 
@@ -453,7 +478,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-season-picker label {
   flex: 1;
   color: var(--muted);
-  font-size: 0.74rem;
+  font-size: 0.84rem;
   font-weight: 600;
 }
 
@@ -466,7 +491,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   background: var(--surface-raised);
   color: var(--foreground);
   font: inherit;
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   outline: none;
 }
 
@@ -479,7 +504,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   color: var(--background);
   cursor: pointer;
   font: inherit;
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   font-weight: 700;
 }
 
@@ -490,7 +515,7 @@ html[data-theme="light"] .workspace-season-picker button {
 .workspace-directory-controls {
   display: grid;
   gap: 0.75rem;
-  margin-top: 2rem;
+  margin-top: 1.25rem;
   border: 1px solid var(--border);
   border-radius: 0.8rem;
   padding: 1rem;
@@ -513,7 +538,7 @@ html[data-theme="light"] .workspace-season-picker button {
 
 .workspace-directory-controls label {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
@@ -547,7 +572,7 @@ html[data-theme="light"] .workspace-season-picker button {
   place-items: center;
   border-radius: 0.5rem;
   padding: 0 1rem;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: 700;
   text-decoration: none;
 }
@@ -595,7 +620,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   border-radius: 0.55rem;
   padding: 0 0.9rem;
   color: var(--foreground);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 700;
   text-decoration: none;
 }
@@ -608,7 +633,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 .workspace-player-filters {
   display: grid;
   gap: 0;
-  margin-top: 2rem;
+  margin-top: 1.25rem;
   border: 1px solid var(--border);
   border-radius: 0.85rem;
   background: var(--surface);
@@ -626,7 +651,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   float: left;
   width: 100%;
   color: var(--foreground);
-  font-size: 0.92rem;
+  font-size: 1rem;
   font-weight: 720;
 }
 
@@ -634,7 +659,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   clear: both;
   margin-top: 0.25rem;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   line-height: 1.45;
 }
 
@@ -648,7 +673,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-player-filter-group label {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   font-weight: 620;
 }
 
@@ -688,7 +713,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   min-height: 2.65rem;
   border-radius: 0.5rem;
   padding: 0 1rem;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 700;
 }
 
@@ -752,7 +777,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-back-link {
   color: var(--accent);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 650;
   text-decoration: none;
 }
@@ -778,7 +803,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 .workspace-player-picker-heading p {
   color: var(--accent-secondary);
   font-family: var(--font-geist-mono);
-  font-size: 0.7rem;
+  font-size: 0.84rem;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -792,7 +817,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-player-picker-heading > span {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
 }
 
 .workspace-player-picker-search {
@@ -803,7 +828,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-player-picker-search label {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: 650;
 }
 
@@ -859,7 +884,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 .workspace-player-picker-results span,
 .workspace-player-picker-no-results {
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
 }
 
 .workspace-player-picker-no-results {
@@ -887,13 +912,13 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-player-picker-selected strong {
   color: var(--foreground);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
 }
 
 .workspace-player-picker-selected small {
   grid-column: 1;
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: 0.84rem;
 }
 
 .workspace-player-picker-selected button {
@@ -908,7 +933,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-player-picker-selected > p {
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
 }
 
 .workspace-player-picker-actions {
@@ -923,7 +948,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   place-items: center;
   border-radius: 0.5rem;
   padding: 0 0.9rem;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
@@ -946,7 +971,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 }
 
 .workspace-player-direct-chart {
-  height: 26rem;
+  height: 23rem;
 }
 
 .workspace-comparison-matrix thead th {
@@ -969,7 +994,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   margin-top: 0.2rem;
   color: var(--muted);
   font-family: var(--font-geist-sans);
-  font-size: 0.68rem;
+  font-size: 0.84rem;
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
@@ -1006,7 +1031,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-draft-filters label {
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.84rem;
   font-weight: 650;
 }
 
@@ -1029,7 +1054,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   place-items: center;
   border-radius: 0.48rem;
   padding: 0 0.75rem;
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   font-weight: 700;
 }
 
@@ -1050,7 +1075,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   padding: 0.8rem 0.95rem;
   background: var(--surface-subtle);
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   line-height: 1.55;
 }
 
@@ -1074,7 +1099,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-unit-filter label {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
@@ -1096,7 +1121,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   border-radius: 0.48rem;
   padding: 0 0.9rem;
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
@@ -1122,13 +1147,13 @@ html[data-theme="light"] .workspace-directory-controls button {
   padding: 1.25rem;
   background: var(--surface);
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   line-height: 1.55;
 }
 
 .workspace-empty-state strong {
   color: var(--foreground);
-  font-size: 0.95rem;
+  font-size: 1.02rem;
 }
 
 .workspace-loading-shell {
@@ -1210,7 +1235,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 .workspace-draft-insights {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-top: 1.5rem;
+  margin-top: 1.1rem;
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
 }
@@ -1229,7 +1254,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 .workspace-draft-insights small {
   display: block;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
 }
 
 .workspace-draft-insights strong {
@@ -1249,7 +1274,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 }
 
 .workspace-draft-outcome-chart {
-  height: 31rem;
+  height: 27rem;
 }
 
 @media (max-width: 800px) {
@@ -1292,7 +1317,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   max-width: 100%;
   gap: 0.25rem;
   overflow-x: auto;
-  margin-top: 1.5rem;
+  margin-top: 1rem;
   border: 1px solid var(--border);
   border-radius: 0.65rem;
   padding: 0.25rem;
@@ -1303,7 +1328,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   border-radius: 0.45rem;
   padding: 0.58rem 0.9rem;
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 680;
   text-decoration: none;
 }
@@ -1317,9 +1342,11 @@ html[data-theme="light"] .workspace-directory-controls button {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 0.75rem;
-  margin-top: 1.5rem;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 1rem;
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   padding: 0.6rem 0.7rem 0.6rem 1rem;
@@ -1329,7 +1356,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-phase-filter > span {
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   font-weight: 650;
 }
 
@@ -1345,7 +1372,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   border-radius: 0.42rem;
   padding: 0.48rem 0.72rem;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: 0.84rem;
   font-weight: 650;
   text-decoration: none;
 }
@@ -1382,7 +1409,7 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
   border-radius: 0.45rem;
   padding: 0.55rem 0.75rem;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   text-decoration: none;
 }
 
@@ -1396,29 +1423,29 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: var(--radius-panel);
-  padding: 1rem 0.75rem 0.8rem;
+  padding: 0.85rem 0.75rem 0.7rem;
   background: var(--table-background);
   box-shadow: 0 16px 40px var(--shadow);
 }
 
 .workspace-chart-toolbar {
   display: grid;
-  gap: 0.9rem;
-  padding: 0 0.5rem 0.9rem;
+  gap: 0.7rem;
+  padding: 0 0.5rem 0.7rem;
 }
 
 .workspace-player-chart-header {
   display: grid;
   gap: 0.65rem;
   border-bottom: 1px solid var(--border);
-  margin: -0.15rem 0.5rem 1rem;
-  padding: 0.2rem 0 1rem;
+  margin: -0.1rem 0.5rem 0.75rem;
+  padding: 0.15rem 0 0.75rem;
 }
 
 .workspace-player-chart-header > div > p {
   color: var(--accent-secondary);
   font-family: var(--font-geist-mono);
-  font-size: 0.65rem;
+  font-size: 0.84rem;
   font-weight: 650;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1436,14 +1463,14 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
 .workspace-player-chart-header > p {
   max-width: 36rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   line-height: 1.5;
 }
 
 .workspace-chart-toolbar > p {
   max-width: 42rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   line-height: 1.5;
 }
 
@@ -1463,7 +1490,7 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
   margin-bottom: 0.35rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.7rem;
+  font-size: 0.84rem;
   font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1487,7 +1514,7 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
   background: transparent;
   color: var(--muted);
   font: inherit;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   font-weight: 650;
   cursor: pointer;
 }
@@ -1514,7 +1541,7 @@ html[data-theme="light"]
 
 .workspace-chart {
   width: 100%;
-  height: 21rem;
+  height: 18rem;
 }
 
 .workspace-chart-metric-select,
@@ -1525,7 +1552,7 @@ html[data-theme="light"]
   gap: 0.35rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 650;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1541,7 +1568,7 @@ html[data-theme="light"]
   color: var(--foreground);
   font: inherit;
   font-family: var(--font-geist-sans);
-  font-size: 0.86rem;
+  font-size: 0.94rem;
   letter-spacing: 0;
   text-transform: none;
 }
@@ -1552,7 +1579,7 @@ html[data-theme="light"]
   gap: 0.55rem 1rem;
   padding: 0.25rem 0.75rem 0.65rem;
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
 }
 
 .workspace-chart-legend span {
@@ -1569,7 +1596,7 @@ html[data-theme="light"]
 
 .workspace-chart-legend-label {
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
 }
 
 .workspace-chart-tooltip {
@@ -1585,14 +1612,14 @@ html[data-theme="light"]
 .workspace-chart-tooltip-date {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.74rem;
+  font-size: 0.84rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
 
 .workspace-chart-tooltip-game {
   margin-top: 0.3rem;
-  font-size: 0.92rem;
+  font-size: 1rem;
   font-weight: 650;
 }
 
@@ -1611,19 +1638,19 @@ html[data-theme="light"]
 
 .workspace-chart-tooltip dt {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
 }
 
 .workspace-chart-tooltip dd {
   font-family: var(--font-geist-mono);
-  font-size: 0.86rem;
+  font-size: 0.94rem;
   font-weight: 700;
 }
 
 .workspace-chart-tooltip-sample {
   margin-top: 0.65rem;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
 }
 
 .workspace-chart-empty {
@@ -1635,15 +1662,15 @@ html[data-theme="light"]
 .workspace-chart-coverage {
   padding: 0.35rem 0.5rem 0.2rem;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.84rem;
 }
 
 .workspace-comparison-panel {
-  margin-top: 1.5rem;
+  margin-top: 1.1rem;
 }
 
 .workspace-comparison-chart {
-  height: 29rem;
+  height: 25rem;
 }
 
 .workspace-comparison-key {
@@ -1670,14 +1697,14 @@ html[data-theme="light"]
 
 .workspace-comparison-key p {
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: 0.84rem;
   line-height: 1.45;
 }
 
 .workspace-comparison-key b {
   display: block;
   color: var(--foreground);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
 }
 
 .workspace-player-comparison-grid {
@@ -1707,7 +1734,7 @@ html[data-theme="light"]
   gap: 0.38rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.64rem;
+  font-size: 0.84rem;
   font-weight: 650;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -1724,7 +1751,7 @@ html[data-theme="light"]
   background: var(--surface-raised);
   color: var(--foreground);
   font-family: var(--font-geist-sans);
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   font-weight: 600;
   letter-spacing: normal;
   text-transform: none;
@@ -1744,7 +1771,7 @@ html[data-theme="light"]
   background: transparent;
   color: var(--foreground);
   font: inherit;
-  font-size: 0.74rem;
+  font-size: 0.84rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -1771,27 +1798,27 @@ html[data-theme="light"]
 
 .workspace-comparison-plot-heading h5 {
   color: var(--foreground);
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   font-weight: 700;
 }
 
 .workspace-comparison-plot-heading p {
   margin-top: 0.22rem;
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: 0.84rem;
   line-height: 1.45;
 }
 
 .workspace-player-comparison-chart,
 .workspace-player-distribution-chart {
-  height: 25rem;
+  height: 23rem;
 }
 
 .workspace-direct-comparison {
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: var(--radius-panel);
-  margin-top: 1.5rem;
+  margin-top: 1.1rem;
   padding: 1rem;
   background: var(--table-background);
   box-shadow: 0 16px 40px var(--shadow);
@@ -1807,7 +1834,7 @@ html[data-theme="light"]
 .workspace-direct-comparison > header > div > p {
   color: var(--accent-secondary);
   font-family: var(--font-geist-mono);
-  font-size: 0.65rem;
+  font-size: 0.84rem;
   font-weight: 650;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1823,7 +1850,7 @@ html[data-theme="light"]
 .workspace-direct-comparison > header > p,
 .workspace-direct-comparison-empty {
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   line-height: 1.5;
 }
 
@@ -1861,7 +1888,7 @@ html[data-theme="light"]
 
 .workspace-direct-comparison-table th:first-child {
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 600;
   text-align: left;
 }
@@ -1869,7 +1896,7 @@ html[data-theme="light"]
 .workspace-direct-comparison-table thead th {
   background: var(--surface-subtle);
   color: var(--foreground);
-  font-size: 0.78rem;
+  font-size: 0.84rem;
 }
 
 .workspace-direct-comparison-table thead th span {
@@ -1877,13 +1904,13 @@ html[data-theme="light"]
   margin-top: 0.15rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.64rem;
+  font-size: 0.84rem;
 }
 
 .workspace-direct-comparison-table td {
   color: var(--foreground);
   font-family: var(--font-geist-mono);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   font-weight: 700;
 }
 
@@ -1894,7 +1921,7 @@ html[data-theme="light"]
 
 @media (min-width: 640px) {
   .workspace-chart-panel {
-    padding: 1.25rem 1.25rem 1rem;
+    padding: 1rem 1rem 0.8rem;
   }
 
   .workspace-chart-toolbar {
@@ -1917,11 +1944,11 @@ html[data-theme="light"]
   }
 
   .workspace-chart {
-    height: 23rem;
+    height: 20rem;
   }
 
   .workspace-comparison-chart {
-    height: 31rem;
+    height: 27rem;
   }
 
   .workspace-comparison-key {
@@ -1992,7 +2019,7 @@ html[data-theme="light"]
 .workspace-game-picker label,
 .workspace-history-filter label {
   color: var(--muted);
-  font-size: 0.74rem;
+  font-size: 0.84rem;
   font-weight: 600;
 }
 
@@ -2006,7 +2033,7 @@ html[data-theme="light"]
   background: var(--surface-raised);
   color: var(--foreground);
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   outline: none;
 }
 
@@ -2025,7 +2052,7 @@ html[data-theme="light"]
   color: var(--background);
   cursor: pointer;
   font: inherit;
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   font-weight: 750;
 }
 
@@ -2037,7 +2064,7 @@ html[data-theme="light"] .workspace-history-filter button {
 .workspace-history-controls {
   display: grid;
   gap: 0.8rem;
-  margin-top: 1.5rem;
+  margin-top: 1.1rem;
   border: 1px solid var(--border);
   border-radius: 0.9rem;
   padding: 1rem;
@@ -2059,7 +2086,7 @@ html[data-theme="light"] .workspace-history-filter button {
 
 .workspace-history-controls label {
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   font-weight: 650;
 }
 
@@ -2073,7 +2100,7 @@ html[data-theme="light"] .workspace-history-filter button {
   background: var(--surface-raised);
   color: var(--foreground);
   font: inherit;
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   outline: none;
 }
 
@@ -2096,7 +2123,7 @@ html[data-theme="light"] .workspace-history-filter button {
   justify-content: center;
   border-radius: 0.5rem;
   padding: 0 0.9rem;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   font-weight: 750;
 }
 
@@ -2118,12 +2145,12 @@ html[data-theme="light"] .workspace-history-filter button {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  margin-top: 1.75rem;
+  margin-top: 1.25rem;
 }
 
 .workspace-date-navigation > p {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.84rem;
 }
 
 .workspace-date-navigation nav {
@@ -2136,7 +2163,7 @@ html[data-theme="light"] .workspace-history-filter button {
   border-radius: 0.5rem;
   padding: 0.5rem 0.7rem;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   font-weight: 650;
   text-decoration: none;
 }
@@ -2153,7 +2180,7 @@ span.workspace-date-link {
 .workspace-game-grid {
   display: grid;
   gap: 0.75rem;
-  margin-top: 2rem;
+  margin-top: 1.25rem;
 }
 
 @media (min-width: 900px) {
@@ -2178,7 +2205,7 @@ span.workspace-date-link {
   gap: 0.75rem;
   padding: 0.7rem 1rem;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: 0.84rem;
 }
 
 .workspace-game-card-header {
@@ -2227,13 +2254,13 @@ span.workspace-date-link {
 .workspace-game-team-abbreviation {
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   font-weight: 700;
 }
 
 .workspace-game-team a {
   color: var(--foreground);
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   font-weight: 650;
   text-decoration: none;
 }
@@ -2245,7 +2272,7 @@ span.workspace-date-link {
 .workspace-game-team p {
   margin-top: 0.15rem;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: 0.84rem;
 }
 
 .workspace-game-team strong {
@@ -2256,7 +2283,7 @@ span.workspace-date-link {
 
 .workspace-game-hero {
   overflow: hidden;
-  margin-top: 1.5rem;
+  margin-top: 1.1rem;
   border: 1px solid var(--border);
   border-radius: 1rem;
   background:
@@ -2275,7 +2302,7 @@ span.workspace-date-link {
   border-color: var(--border);
   padding: 0.8rem 1.2rem;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
 }
 
 .workspace-game-hero-meta {
@@ -2306,7 +2333,7 @@ span.workspace-date-link {
 .workspace-game-hero-at {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.68rem;
+  font-size: 0.84rem;
   letter-spacing: 0.14em;
   text-align: center;
   text-transform: uppercase;
@@ -2337,7 +2364,7 @@ span.workspace-date-link {
 .workspace-game-score-team small {
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   font-weight: 700;
 }
 
@@ -2353,7 +2380,7 @@ span.workspace-date-link {
 .workspace-game-score-team p {
   margin-top: 0.45rem;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
 }
 
 .workspace-game-score-team > strong {
@@ -2368,9 +2395,9 @@ span.workspace-date-link {
 }
 
 .workspace-section-divider {
-  margin-top: 3rem;
+  margin-top: 2rem;
   border-top: 1px solid var(--border);
-  padding-top: 3rem;
+  padding-top: 2rem;
 }
 
 .workspace-timeline-period {
@@ -2384,7 +2411,7 @@ span.workspace-date-link {
 .workspace-analytics-tabs {
   width: fit-content;
   max-width: 100%;
-  margin-top: 2rem;
+  margin-top: 1.25rem;
 }
 
 .workspace-analytics-tabs a:first-child {
@@ -2428,7 +2455,7 @@ span.workspace-date-link {
 
 .workspace-analytics-filters label {
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   font-weight: 600;
 }
 
@@ -2441,7 +2468,7 @@ span.workspace-date-link {
   background: var(--surface-raised);
   color: var(--foreground);
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   outline: none;
 }
 
@@ -2462,7 +2489,7 @@ span.workspace-date-link {
   color: var(--background);
   cursor: pointer;
   font: inherit;
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   font-weight: 750;
 }
 
@@ -2472,8 +2499,8 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-guide-groups {
   display: grid;
-  gap: 1.5rem;
-  margin-top: 2rem;
+  gap: 1.1rem;
+  margin-top: 1.25rem;
 }
 
 .workspace-guide-group {
@@ -2500,7 +2527,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   max-width: 48rem;
   margin-top: 0.35rem;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   line-height: 1.55;
 }
 
@@ -2535,18 +2562,18 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-guide-card h3 {
   color: var(--accent-secondary);
   font-family: var(--font-geist-mono);
-  font-size: 0.95rem;
+  font-size: 1.02rem;
 }
 
 .workspace-guide-card strong {
   color: var(--foreground);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
 }
 
 .workspace-guide-card > p {
   margin-top: 0.65rem;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   line-height: 1.6;
 }
 
@@ -2558,7 +2585,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-guide-note {
-  margin-top: 1.5rem;
+  margin-top: 1.1rem;
   border: 1px solid
     color-mix(in srgb, var(--accent-secondary) 35%, var(--border));
   border-radius: 0.8rem;
@@ -2568,7 +2595,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-guide-note h2 {
   color: var(--foreground);
-  font-size: 0.9rem;
+  font-size: 0.98rem;
   font-weight: 700;
 }
 
@@ -2576,7 +2603,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   max-width: 58rem;
   margin-top: 0.4rem;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   line-height: 1.6;
 }
 
@@ -2589,7 +2616,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-guide-note a {
   color: var(--accent-secondary);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   font-weight: 650;
 }
 
@@ -2604,7 +2631,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   align-items: center;
   gap: 0.8rem;
   border-bottom: 1px solid var(--border);
-  padding: 0.75rem 1.1rem;
+  padding: 0.65rem 0.95rem;
   color: var(--foreground);
   text-decoration: none;
   transition: background 150ms ease;
@@ -2649,21 +2676,21 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-result-matchup > span[aria-hidden="true"] {
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
 }
 
 .workspace-result-row small {
   color: var(--muted);
-  font-size: 0.67rem;
+  font-size: 0.84rem;
 }
 
 .workspace-result-row b {
-  font-size: 0.78rem;
+  font-size: 0.84rem;
 }
 
 .workspace-result-row strong {
   font-family: var(--font-geist-mono);
-  font-size: 0.9rem;
+  font-size: 0.98rem;
 }
 
 .workspace-standing-list a {
@@ -2672,7 +2699,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   gap: 0.65rem;
   align-items: center;
   border-bottom: 1px solid var(--border);
-  padding: 0.7rem 1.1rem;
+  padding: 0.62rem 0.95rem;
   color: var(--foreground);
   text-decoration: none;
   transition: background 150ms ease;
@@ -2685,37 +2712,38 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-standing-list span {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
 }
 
 .workspace-standing-list b {
   overflow: hidden;
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .workspace-standing-list small {
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: 0.84rem;
 }
 
 .workspace-standing-list strong {
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   text-align: right;
 }
 
 .workspace-home-primary {
   display: grid;
-  gap: 1.25rem;
+  gap: 1rem;
   align-items: start;
+  margin-top: 1.15rem;
 }
 
 .workspace-home-insights {
   display: grid;
-  gap: 1.25rem;
+  gap: 1rem;
   align-items: start;
 }
 
@@ -2754,7 +2782,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-home-movement-rank {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.7rem;
+  font-size: 0.84rem;
 }
 
 .workspace-home-movement-team,
@@ -2766,7 +2794,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-home-movement-team b,
 .workspace-home-movement-change b {
   overflow: hidden;
-  font-size: 0.77rem;
+  font-size: 0.84rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2777,7 +2805,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-home-trend-rows small,
 .workspace-home-game-highlight small {
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: 0.84rem;
 }
 
 .workspace-home-movement-change {
@@ -2831,13 +2859,13 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-home-trend-rows b {
-  font-size: 0.76rem;
+  font-size: 0.84rem;
 }
 
 .workspace-home-trend-rows strong,
 .workspace-home-trend-rows em {
   font-family: var(--font-geist-mono);
-  font-size: 0.74rem;
+  font-size: 0.84rem;
   font-style: normal;
   text-align: right;
 }
@@ -2866,7 +2894,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   border-top: 1px solid var(--border);
   padding: 0.8rem 1rem;
   color: var(--accent-secondary);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 650;
   text-decoration: none;
 }
@@ -2879,18 +2907,33 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-home-game-highlight b {
   color: var(--foreground);
   font-family: var(--font-geist-mono);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
 }
 
 .workspace-home-insight-empty {
   padding: 1rem;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 0.84rem;
 }
 
 @media (min-width: 1024px) {
   .workspace-home-primary {
-    grid-template-columns: 1fr 1fr 0.9fr;
+    grid-template-columns: minmax(0, 0.95fr) minmax(25rem, 1.05fr);
+  }
+
+  .workspace-home-primary > :nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .workspace-home-primary > :nth-child(2) {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .workspace-home-primary > :nth-child(3) {
+    grid-column: 1;
+    grid-row: 2;
   }
 }
 
@@ -2908,7 +2951,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-upcoming-list a:last-child { border-bottom: 0; }
 .workspace-upcoming-list a:hover { background: var(--surface-subtle); }
-.workspace-upcoming-list time { color: var(--muted); font-size: 0.77rem; }
+.workspace-upcoming-list time { color: var(--muted); font-size: 0.84rem; }
 .workspace-upcoming-list span { min-width: 0; color: var(--foreground); font-size: 0.88rem; }
 .workspace-upcoming-list small { grid-column: 2; grid-row: 1 / span 2; color: var(--accent); text-align: right; white-space: nowrap; }
 
@@ -2935,8 +2978,8 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-home-explore a:hover { border-color: var(--accent); background: var(--surface-raised); }
 .workspace-home-explore span { display: grid; gap: 0.2rem; }
 .workspace-home-explore b { color: var(--foreground); }
-.workspace-home-explore small { color: var(--muted); font-size: 0.77rem; }
-.workspace-home-explore strong { color: var(--accent); font-size: 0.8rem; white-space: nowrap; }
+.workspace-home-explore small { color: var(--muted); font-size: 0.84rem; }
+.workspace-home-explore strong { color: var(--accent); font-size: 0.88rem; white-space: nowrap; }
 
 .workspace-leader-grid {
   display: grid;
@@ -2963,13 +3006,13 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-leader-grid span {
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.69rem;
+  font-size: 0.84rem;
 }
 
 .workspace-leader-grid b {
   overflow: hidden;
   margin-top: 0.65rem;
-  font-size: 0.82rem;
+  font-size: 0.9rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2978,7 +3021,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   overflow: hidden;
   margin-top: 0.22rem;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: 0.84rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2987,7 +3030,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   margin-top: 1.1rem;
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.9rem;
+  font-size: 0.98rem;
 }
 
 .workspace-analytics-link {
@@ -3001,7 +3044,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   padding: 0.9rem 1rem;
   background: color-mix(in srgb, var(--accent-secondary) 6%, var(--surface));
   color: var(--accent-secondary);
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   font-weight: 650;
   text-decoration: none;
 }
@@ -3013,24 +3056,24 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-analytics-link b {
   color: var(--foreground);
-  font-size: 0.84rem;
+  font-size: 0.92rem;
 }
 
 .workspace-analytics-link small {
   margin-top: 0.25rem;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.84rem;
   font-weight: 400;
 }
 
 .workspace-empty-state {
-  margin-top: 1.5rem;
+  margin-top: 1.1rem;
   border: 1px solid color-mix(in srgb, #d97706 30%, var(--border));
   border-radius: 0.75rem;
   padding: 1rem;
   background: color-mix(in srgb, #d97706 8%, var(--surface));
   color: var(--foreground);
-  font-size: 0.84rem;
+  font-size: 0.92rem;
 }
 
 .workspace-table-scroll {
@@ -3058,7 +3101,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   width: 100%;
   border-collapse: collapse;
   color: var(--foreground);
-  font-size: 0.88rem;
+  font-size: 0.96rem;
 }
 
 .workspace-table thead {
@@ -3066,7 +3109,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   background: var(--surface-raised);
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.74rem;
+  font-size: 0.84rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -3130,7 +3173,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   border-radius: 999px;
   padding: 0 0.25rem;
   color: var(--accent);
-  font-size: 0.6rem;
+  font-size: 0.7rem;
   font-weight: 750;
   line-height: 1;
   text-transform: uppercase;
@@ -3142,7 +3185,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   gap: 0.4rem;
   margin-top: 0.18rem;
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: 0.84rem;
 }
 
 .workspace-sticky-team-cell {
@@ -3182,6 +3225,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 @media (max-width: 520px) {
   .workspace-phase-filter {
+    width: 100%;
     align-items: stretch;
     flex-direction: column;
   }
@@ -3221,7 +3265,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   border-top: 1px solid var(--border);
   padding: 0.7rem 1rem;
   color: var(--muted);
-  font-size: 0.74rem;
+  font-size: 0.84rem;
   line-height: 1.5;
 }
 
@@ -3245,7 +3289,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   margin-bottom: 0.8rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.76rem;
+  font-size: 0.84rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -3281,7 +3325,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-bracket-series small {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.68rem;
+  font-size: 0.84rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
@@ -3289,7 +3333,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-bracket-series a {
   overflow: hidden;
   color: var(--foreground);
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   font-weight: 620;
   text-decoration: none;
   text-overflow: ellipsis;
@@ -3318,7 +3362,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-bracket-tbd {
   grid-column: 1 / -1;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.88rem;
 }
 
 .workspace-bracket-series.is-empty {
@@ -3344,10 +3388,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 @media (max-width: 520px) {
-  html {
-    font-size: 16.5px;
-  }
-
   .workspace-result-row {
     grid-template-columns: 1fr;
     gap: 0.65rem;

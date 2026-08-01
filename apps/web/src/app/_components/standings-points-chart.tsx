@@ -125,14 +125,14 @@ export function StandingsPointsChart({
               dataKey="date"
               tickFormatter={formatDate}
               minTickGap={42}
-              tick={{ fill: "#94a3b8", fontSize: 13 }}
+              tick={{ fill: "#94a3b8", fontSize: 15 }}
               axisLine={{ stroke: "rgba(148,163,184,0.2)" }}
               tickLine={false}
             />
             <YAxis
               allowDecimals={false}
               width={42}
-              tick={{ fill: "#94a3b8", fontSize: 13 }}
+              tick={{ fill: "#94a3b8", fontSize: 15 }}
               axisLine={false}
               tickLine={false}
             />
@@ -142,7 +142,7 @@ export function StandingsPointsChart({
                 background: "#081626",
                 border: "1px solid rgba(148,163,184,0.24)",
                 borderRadius: 12,
-                fontSize: 14,
+                fontSize: 15,
               }}
             />
             {selectedTeams.map((team, index) => (

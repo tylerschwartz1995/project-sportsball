@@ -26,8 +26,8 @@ competing with it.
   labels, identifiers, and technical metadata. Tabular numerals are required
   for comparable statistics.
 - **Shape:** 16-pixel primary panel radius and 12-pixel nested-control radius.
-- **Spacing:** sections use a 48-pixel desktop rhythm, compressing naturally on
-  small screens.
+- **Spacing:** page sections use a compact 32-pixel rhythm, compressing
+  naturally on small screens so useful content remains close to its controls.
 
 The canonical CSS tokens live in `apps/web/src/app/globals.css`. Reusable React
 primitives live in `apps/web/src/app/_components/ui-primitives.tsx`.

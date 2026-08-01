@@ -862,7 +862,7 @@ function formatMetric(
 
 const axisTick = {
   fill: "var(--chart-label)",
-  fontSize: 13,
+  fontSize: 15,
 };
 
 function axisLabel(
@@ -875,6 +875,6 @@ function axisLabel(
     position,
     offset,
     fill: "var(--chart-label)",
-    fontSize: 12,
+    fontSize: 14,
   };
 }
