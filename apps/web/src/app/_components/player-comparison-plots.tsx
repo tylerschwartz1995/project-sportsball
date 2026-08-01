@@ -504,7 +504,8 @@ export function PlayerComparisonPlots(props: PlayerComparisonPlotsProps) {
           filtering so player positions do not shift with the population.
         </p>
 
-        <table className="sr-only">
+        <div className="sr-only">
+          <table>
           <caption>Selected player plot values</caption>
           <thead>
             <tr>
@@ -524,7 +525,8 @@ export function PlayerComparisonPlots(props: PlayerComparisonPlotsProps) {
               </tr>
             ))}
           </tbody>
-        </table>
+          </table>
+        </div>
       </section>
 
       <DirectPlayerComparison

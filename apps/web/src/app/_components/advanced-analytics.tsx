@@ -450,7 +450,7 @@ function TeamCell({ team }: { team: MoneyPuckSkaterSituation["team"] }) {
   return (
     <td className="px-4 py-3 text-left font-medium text-white">
       <span className="inline-flex items-center gap-2">
-        <TeamLogo {...team} size="tiny" decorative />
+        <TeamLogo {...team} size="compact" decorative prominent />
         {team.abbreviation}
       </span>
     </td>

@@ -420,7 +420,8 @@ function PlayerPerformanceTable({
   windowSize: RollingWindow;
 }) {
   return (
-    <table className="sr-only">
+    <div className="sr-only">
+      <table>
       <caption>
         {playerName} rolling {venue === "all" ? "" : `${venue} `}
         {metric.label.toLowerCase()} using up to {windowSize} games per point
@@ -447,7 +448,8 @@ function PlayerPerformanceTable({
           </tr>
         ))}
       </tbody>
-    </table>
+      </table>
+    </div>
   );
 }
 

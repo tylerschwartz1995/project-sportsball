@@ -103,11 +103,13 @@ export function TeamLogoStack({
   abbreviations,
   max = 4,
   size = "tiny",
+  prominent = false,
 }: {
   teams?: TeamLogoIdentity[];
   abbreviations?: string | null;
   max?: number;
-  size?: "tiny" | "compact";
+  size?: "tiny" | "compact" | "profile";
+  prominent?: boolean;
 }) {
   const resolvedTeams: TeamLogoIdentity[] = teams?.length
     ? teams
@@ -141,6 +143,7 @@ export function TeamLogoStack({
           {...team}
           size={size}
           decorative
+          prominent={prominent}
         />
       ))}
       {uniqueTeams.length > max ? (
