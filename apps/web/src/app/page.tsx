@@ -255,7 +255,7 @@ export default async function Home({ searchParams }: HomeProps) {
               <nav className="workspace-home-explore" aria-label="Explore Sportsball">
                 <HomeDestination href="/history" title="Historical Leaders" detail="Career records and best seasons since 1917–18" />
                 <HomeDestination href={`/playoffs?season=${selectedSeason.id}`} title="Playoffs" detail="Bracket, projected matchups, and postseason leaders" />
-                <HomeDestination href={`/drafts?season=${selectedSeason.id}`} title="Draft Outcomes" detail="Pick value and team drafting performance" />
+                <HomeDestination href="/drafts" title="Draft History" detail="Complete boards and team drafting performance" />
                 <HomeDestination href={`/players/compare?season=${selectedSeason.id}`} title="Compare Players" detail="Official and advanced metrics side by side" />
               </nav>
             </WorkspacePanel>

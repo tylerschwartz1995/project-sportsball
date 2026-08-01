@@ -1,12 +1,19 @@
 export type DraftPlayerOutcome = {
-  nhlPlayerId: number;
+  nhlPlayerId: number | null;
   name: string;
   position: string | null;
   birthCountry: string | null;
+  amateurLeague: string | null;
+  amateurClubName: string | null;
   draftYear: number;
   draftTeamAbbreviation: string;
-  draftRound: number | null;
-  draftOverallPick: number | null;
+  originalPickOwnerAbbreviation: string;
+  pickOwnerHistory: string;
+  draftRound: number;
+  draftPickInRound: number;
+  draftOverallPick: number;
+  removedOutright: boolean;
+  removedOutrightReason: string | null;
   firstSeasonId: number | null;
   lastSeasonId: number | null;
   seasonsPlayed: number;
@@ -19,8 +26,11 @@ export type DraftPlayerOutcome = {
 
 export type DraftTeamPerformance = {
   teamAbbreviation: string;
-  trackedDraftees: number;
+  selections: number;
   playersWithNhlGames: number;
+  appearanceRate: number;
+  hundredGamePlayers: number;
+  hundredGameRate: number;
   totalGames: number;
   averageGames: number;
   totalPoints: number;
@@ -33,4 +43,6 @@ export type DraftAnalytics = {
   teamPerformance: DraftTeamPerformance[];
   draftYears: number[];
   teamAbbreviations: string[];
+  selectedDraftYear: number | null;
+  allYears: boolean;
 };

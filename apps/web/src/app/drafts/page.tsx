@@ -18,11 +18,7 @@ import type {
   DraftTeamPerformance,
 } from "@/contracts/draft";
 import { getDraftAnalytics } from "@/data/drafts";
-import {
-  firstQueryValue,
-  paginate,
-  parsePage,
-} from "@/lib/directory";
+import { firstQueryValue, paginate, parsePage } from "@/lib/directory";
 
 export const dynamic = "force-dynamic";
 
@@ -36,36 +32,40 @@ type DraftsPageProps = {
 
 export default async function DraftsPage({ searchParams }: DraftsPageProps) {
   const params = await searchParams;
-  const draftYear = parseDraftYear(firstQueryValue(params.year));
+  const yearParam = firstQueryValue(params.year);
+  const allYears = yearParam === "all";
+  const draftYear = parseDraftYear(yearParam);
   const team = firstQueryValue(params.team) ?? "";
   const analytics = await getDraftAnalytics(
     draftYear,
     team || null,
+    allYears,
   );
   const outcomePage = paginate(
     analytics.outcomes,
     parsePage(firstQueryValue(params.page)),
     100,
   );
-  const insights = buildInsights(analytics.outcomes, analytics.teamPerformance);
-  const plotOutcomes: DraftPlotOutcome[] = analytics.outcomes.flatMap(
-    (outcome) =>
-      outcome.draftOverallPick === null
-        ? []
-        : [
-            {
-              name: outcome.name,
-              position: outcome.position,
-              draftYear: outcome.draftYear,
-              draftTeamAbbreviation: outcome.draftTeamAbbreviation,
-              draftRound: outcome.draftRound,
-              draftOverallPick: outcome.draftOverallPick,
-              careerGames: outcome.careerGames,
-              careerPoints: outcome.careerPoints,
-              careerWins: outcome.careerWins,
-            },
-          ],
+  const insights = buildInsights(
+    analytics.outcomes,
+    analytics.teamPerformance,
   );
+  const plotOutcomes: DraftPlotOutcome[] =
+    analytics.allYears && !team
+      ? []
+      : analytics.outcomes.map((outcome) => ({
+          name: outcome.name,
+          position: outcome.position,
+          draftYear: outcome.draftYear,
+          draftTeamAbbreviation: outcome.draftTeamAbbreviation,
+          draftRound: outcome.draftRound,
+          draftOverallPick: outcome.draftOverallPick,
+          careerGames: outcome.careerGames,
+          careerPoints: outcome.careerPoints,
+          careerWins: outcome.careerWins,
+        }));
+  const firstDraftYear = analytics.draftYears.at(-1);
+  const lastDraftYear = analytics.draftYears[0];
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -73,29 +73,29 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
       <section className="py-8 sm:py-10">
         <WorkspacePageHeader
           eyebrow="League / Drafts"
-          title="NHL Draft Outcomes"
-          description="Explore how drafted players in Sportsball's stored NHL history performed, where value emerged, and which teams accumulated the most NHL production."
+          title="NHL Draft History"
+          description="Browse every official selection, including players who never appeared in the NHL, and compare team outcomes with complete draft denominators."
           action={
             <DraftFilters
               years={analytics.draftYears}
               teams={analytics.teamAbbreviations}
-              selectedYear={draftYear}
+              selectedYear={analytics.selectedDraftYear}
               selectedTeam={team}
+              allYears={analytics.allYears}
             />
           }
         />
 
         <div className="workspace-coverage-note mt-6">
-          <strong>Coverage:</strong> this first version evaluates drafted
-          players who appear in the stored NHL player universe from 2005
-          onward. It is not yet a complete record of every draft selection, so
-          it does not calculate organizational hit rates for players who never
-          reached the NHL.
+          <strong>Coverage:</strong> every official NHL Records selection from {firstDraftYear ?? "—"} through {lastDraftYear ?? "—"}, including nullable player IDs and selections marked removed outright. NHL appearance and 100-game rates use the complete board as their denominator; career outcomes come from stored official regular-season summaries through 2025–26.
         </div>
 
         {analytics.outcomes.length > 0 ? (
           <>
-            <section className="workspace-draft-insights" aria-label="Draft highlights">
+            <section
+              className="workspace-draft-insights"
+              aria-label="Draft highlights"
+            >
               {insights.map((insight) => (
                 <div key={insight.label}>
                   <span>{insight.label}</span>
@@ -105,22 +105,28 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
               ))}
             </section>
 
-            <div className="mt-7">
-              <DraftOutcomePlot outcomes={plotOutcomes} />
-            </div>
+            {plotOutcomes.length > 0 ? (
+              <div className="mt-7">
+                <DraftOutcomePlot outcomes={plotOutcomes} />
+              </div>
+            ) : (
+              <div className="workspace-coverage-note mt-7">
+                <strong>Pick-value plot:</strong> choose one draft year or one drafting team to keep the interactive chart focused. The complete all-years board remains available below.
+              </div>
+            )}
 
             <WorkspacePanel
               className="mt-7"
-              title="Team Drafting Production"
-              description="Production by original drafting team for the selected draft years and filters. Totals cover regular-season NHL results stored since 2005–06."
+              title="Team Drafting Performance"
+              description="True selection, NHL appearance, and 100-game rates by the club recorded as making each pick. Career totals use stored official regular-season results."
             >
               <TeamPerformanceTable rows={analytics.teamPerformance} />
             </WorkspacePanel>
 
             <WorkspacePanel
               className="mt-7"
-              title="Player Draft Outcomes"
-              description={`Showing ${outcomePage.firstItem}–${outcomePage.lastItem} of ${outcomePage.totalItems} tracked drafted players.`}
+              title="Complete Draft Board"
+              description={`Showing ${outcomePage.firstItem}–${outcomePage.lastItem} of ${outcomePage.totalItems} official selections, including ${analytics.outcomes.filter((outcome) => outcome.careerGames === 0).length.toLocaleString("en-CA")} with no stored NHL appearance.`}
             >
               <OutcomeTable rows={outcomePage.items} />
             </WorkspacePanel>
@@ -129,14 +135,16 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
               currentPage={outcomePage.currentPage}
               totalPages={outcomePage.totalPages}
               params={{
-                year: draftYear ?? undefined,
+                year: analytics.allYears
+                  ? "all"
+                  : (analytics.selectedDraftYear ?? undefined),
                 team: team || undefined,
               }}
             />
           </>
         ) : (
           <div className="workspace-empty-state">
-            No drafted players match the selected filters.
+            No draft selections match the selected filters.
           </div>
         )}
       </section>
@@ -149,18 +157,27 @@ function DraftFilters({
   teams,
   selectedYear,
   selectedTeam,
+  allYears,
 }: {
   years: number[];
   teams: string[];
   selectedYear: number | null;
   selectedTeam: string;
+  allYears: boolean;
 }) {
+  const firstYear = years.at(-1);
+  const lastYear = years[0];
   return (
     <form method="get" className="workspace-draft-filters">
       <label>
         Draft Year
-        <select name="year" defaultValue={selectedYear ?? ""}>
-          <option value="">All Drafts Since 2005</option>
+        <select
+          name="year"
+          defaultValue={allYears ? "all" : (selectedYear ?? "")}
+        >
+          <option value="all">
+            All Drafts ({firstYear ?? "—"}–{lastYear ?? "—"})
+          </option>
           {years.map((year) => (
             <option key={year} value={year}>
               {year} Draft
@@ -187,9 +204,9 @@ function DraftFilters({
 
 function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
   return (
-    <SortableTable defaultSortKey="games">
+    <SortableTable defaultSortKey="hundred-rate">
       <div className="workspace-table-scroll">
-        <table className="workspace-table min-w-[820px]">
+        <table className="workspace-table min-w-[1180px]">
           <thead>
             <tr>
               <SortableHeader
@@ -198,10 +215,13 @@ function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
                 align="left"
                 defaultDirection="asc"
               />
-              <SortableHeader label="Tracked" sortKey="tracked" />
-              <SortableHeader label="With GP" sortKey="players" />
+              <SortableHeader label="Selections" sortKey="selections" />
+              <SortableHeader label="NHL Players" sortKey="players" />
+              <SortableHeader label="Appearance %" sortKey="appearance-rate" />
+              <SortableHeader label="100 GP" sortKey="hundred" />
+              <SortableHeader label="100 GP %" sortKey="hundred-rate" />
               <SortableHeader label="NHL GP" sortKey="games" />
-              <SortableHeader label="Avg GP" sortKey="average" />
+              <SortableHeader label="GP / Pick" sortKey="average" />
               <SortableHeader label="Skater PTS" sortKey="points" />
               <SortableHeader label="Goalie W" sortKey="wins" />
               <SortableHeader label="Late Regulars" sortKey="late" />
@@ -212,12 +232,19 @@ function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
               <tr key={team.teamAbbreviation}>
                 <td className="workspace-team-cell">
                   <span className="inline-flex items-center gap-2">
-                    <TeamLogo abbreviation={team.teamAbbreviation} size="compact" decorative />
+                    <TeamLogo
+                      abbreviation={team.teamAbbreviation}
+                      size="compact"
+                      decorative
+                    />
                     <strong>{team.teamAbbreviation}</strong>
                   </span>
                 </td>
-                <NumberCell value={team.trackedDraftees} />
+                <NumberCell value={team.selections} />
                 <NumberCell value={team.playersWithNhlGames} />
+                <NumberCell value={formatPercentage(team.appearanceRate)} />
+                <NumberCell value={team.hundredGamePlayers} />
+                <NumberCell value={formatPercentage(team.hundredGameRate)} />
                 <NumberCell value={team.totalGames.toLocaleString("en-CA")} />
                 <NumberCell value={Math.round(team.averageGames)} />
                 <NumberCell value={team.totalPoints.toLocaleString("en-CA")} />
@@ -229,9 +256,7 @@ function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
         </table>
       </div>
       <div className="workspace-table-note">
-        “Late regulars” are round-four-or-later players with at least 100
-        stored regular-season NHL games. Team abbreviations reflect the
-        original draft record.
+        “Appearance” means at least one stored regular-season NHL game. “100 GP” uses all official selections as the denominator. “Late regulars” are round-four-or-later selections with at least 100 games. Team and pick-owner codes are retained from the original draft record.
       </div>
     </SortableTable>
   );
@@ -239,9 +264,9 @@ function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
 
 function OutcomeTable({ rows }: { rows: DraftPlayerOutcome[] }) {
   return (
-    <SortableTable defaultSortKey="pick" defaultDirection="asc">
+    <SortableTable defaultSortKey="overall" defaultDirection="asc">
       <div className="workspace-table-scroll">
-        <table className="workspace-table min-w-[980px]">
+        <table className="workspace-table min-w-[1480px]">
           <thead>
             <tr>
               <SortableHeader
@@ -257,8 +282,12 @@ function OutcomeTable({ rows }: { rows: DraftPlayerOutcome[] }) {
                 align="left"
                 defaultDirection="asc"
               />
+              <SortableHeader label="Pick From" sortKey="owner" />
               <SortableHeader label="Rd" sortKey="round" />
-              <SortableHeader label="Pick" sortKey="pick" />
+              <SortableHeader label="Rd Pick" sortKey="round-pick" />
+              <SortableHeader label="Overall" sortKey="overall" />
+              <SortableHeader label="Pos" sortKey="position" />
+              <SortableHeader label="Country" sortKey="country" />
               <SortableHeader label="Seasons" sortKey="seasons" />
               <SortableHeader label="GP" sortKey="games" />
               <SortableHeader label="G" sortKey="goals" />
@@ -269,29 +298,56 @@ function OutcomeTable({ rows }: { rows: DraftPlayerOutcome[] }) {
           </thead>
           <tbody>
             {rows.map((player) => (
-              <tr key={player.nhlPlayerId}>
+              <tr key={`${player.draftYear}-${player.draftOverallPick}`}>
                 <td className="workspace-team-cell">
-                  <div className="flex items-center gap-2">
-                    <TeamLogo abbreviation={player.draftTeamAbbreviation} size="compact" decorative />
-                    <div>
+                  <div>
+                    {player.nhlPlayerId === null ? (
+                      <strong>{player.name}</strong>
+                    ) : (
                       <Link href={`/players/${player.nhlPlayerId}`}>
                         {player.name}
                       </Link>
-                      <small>
-                        {player.position ?? "—"} · {player.birthCountry ?? "—"}
-                      </small>
-                    </div>
+                    )}
+                    <small>
+                      {[
+                        player.amateurClubName,
+                        player.amateurLeague,
+                        player.removedOutright
+                          ? player.removedOutrightReason
+                            ? `Rights removed: ${player.removedOutrightReason}`
+                            : "Rights removed"
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ") || "No amateur club recorded"}
+                    </small>
                   </div>
                 </td>
                 <NumberCell value={player.draftYear} />
                 <td>
                   <span className="inline-flex items-center gap-2">
-                    <TeamLogo abbreviation={player.draftTeamAbbreviation} size="tiny" decorative />
+                    <TeamLogo
+                      abbreviation={player.draftTeamAbbreviation}
+                      size="tiny"
+                      decorative
+                    />
                     {player.draftTeamAbbreviation}
                   </span>
                 </td>
-                <NumberCell value={player.draftRound ?? "—"} />
-                <NumberCell value={player.draftOverallPick ?? "—"} />
+                <td
+                  className="workspace-number-cell"
+                  title={player.pickOwnerHistory}
+                >
+                  {player.originalPickOwnerAbbreviation ===
+                  player.draftTeamAbbreviation
+                    ? "—"
+                    : player.originalPickOwnerAbbreviation}
+                </td>
+                <NumberCell value={player.draftRound} />
+                <NumberCell value={player.draftPickInRound} />
+                <NumberCell value={player.draftOverallPick} />
+                <NumberCell value={player.position ?? "—"} />
+                <NumberCell value={player.birthCountry ?? "—"} />
                 <NumberCell value={player.seasonsPlayed} />
                 <NumberCell value={player.careerGames} />
                 <NumberCell value={player.careerGoals} />
@@ -305,6 +361,9 @@ function OutcomeTable({ rows }: { rows: DraftPlayerOutcome[] }) {
           </tbody>
         </table>
       </div>
+      <div className="workspace-table-note">
+        “Pick From” shows the original owner when the NHL record contains a traded-pick chain; hover the code for the complete chain. Players without a canonical NHL result link remain in the board and carry zero outcome totals.
+      </div>
     </SortableTable>
   );
 }
@@ -313,41 +372,34 @@ function buildInsights(
   outcomes: DraftPlayerOutcome[],
   teams: DraftTeamPerformance[],
 ) {
-  const mostGames = maxBy(outcomes, (player) => player.careerGames);
-  const mostPoints = maxBy(outcomes, (player) => player.careerPoints);
-  const lateValue = maxBy(
-    outcomes.filter((player) => (player.draftRound ?? 0) >= 4),
-    (player) => player.careerGames,
-  );
+  const selections = outcomes.length;
+  const appearances = outcomes.filter((player) => player.careerGames > 0).length;
+  const hundredGamePlayers = outcomes.filter(
+    (player) => player.careerGames >= 100,
+  ).length;
   const topTeam = maxBy(teams, (team) => team.totalGames);
 
   return [
     {
-      label: "Most NHL Games",
-      value: mostGames?.name ?? "—",
-      detail: mostGames
-        ? `${mostGames.careerGames.toLocaleString("en-CA")} GP · Pick #${mostGames.draftOverallPick ?? "—"}`
-        : "No result",
+      label: "Official Selections",
+      value: selections.toLocaleString("en-CA"),
+      detail: "Complete filtered draft denominator",
     },
     {
-      label: "Most Skater Points",
-      value: mostPoints?.name ?? "—",
-      detail: mostPoints
-        ? `${mostPoints.careerPoints.toLocaleString("en-CA")} PTS · ${mostPoints.draftYear} draft`
-        : "No result",
+      label: "NHL Appearances",
+      value: formatPercentage(appearances / selections),
+      detail: `${appearances.toLocaleString("en-CA")} selections reached one game`,
     },
     {
-      label: "Late-Round Value",
-      value: lateValue?.name ?? "—",
-      detail: lateValue
-        ? `Round ${lateValue.draftRound} · ${lateValue.careerGames.toLocaleString("en-CA")} GP`
-        : "No result",
+      label: "100-Game Players",
+      value: formatPercentage(hundredGamePlayers / selections),
+      detail: `${hundredGamePlayers.toLocaleString("en-CA")} selections reached 100 games`,
     },
     {
       label: "Most Combined Games",
       value: topTeam?.teamAbbreviation ?? "—",
       detail: topTeam
-        ? `${topTeam.totalGames.toLocaleString("en-CA")} GP from tracked draftees`
+        ? `${topTeam.totalGames.toLocaleString("en-CA")} GP from ${topTeam.selections.toLocaleString("en-CA")} picks`
         : "No result",
     },
   ];
@@ -369,7 +421,12 @@ function maxBy<T>(values: T[], getValue: (value: T) => number): T | undefined {
 function parseDraftYear(value: string | undefined): number | null {
   if (!value || !/^\d{4}$/.test(value)) return null;
   const parsed = Number(value);
-  return parsed >= 2005 && parsed <= 2025 ? parsed : null;
+  return parsed >= 1963 ? parsed : null;
+}
+
+function formatPercentage(value: number): string {
+  if (!Number.isFinite(value)) return "—";
+  return `${(value * 100).toFixed(1)}%`;
 }
 
 function NumberCell({ value }: { value: number | string }) {

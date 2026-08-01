@@ -18,6 +18,7 @@ The NHL website currently uses JSON endpoints under:
 
 - `https://api-web.nhle.com/v1`
 - `https://api.nhle.com/stats/rest`
+- `https://records.nhl.com/site/api`
 
 Implemented endpoint families include:
 
@@ -28,6 +29,7 @@ Implemented endpoint families include:
 - `/player/{player-id}/landing`
 - `/gamecenter/{game-id}/boxscore`
 - `/gamecenter/{game-id}/play-by-play`
+- `/draft`
 
 Schedules, box scores, play-by-play, profiles, and standings have been
 backfilled across 2005–06 through 2025–26. Early play-by-play is less detailed
@@ -35,6 +37,10 @@ than modern data; for example, some events do not include shot coordinates.
 The NHL Stats summary reports provide traditional skater, goalie, and team
 season totals from 1917–18 through 2025–26. The published 2026–27 schedule is
 also stored, including all future games through April 10, 2027.
+The NHL Records draft feed supplies every official selection from the first
+1963 draft through 2026, including non-NHL players and original pick-ownership
+history. Its ingestion and outcome definitions are documented in
+[Complete NHL draft history](draft-history.md).
 
 Play-by-play normalization and its resumable historical backfill are documented
 in [Play-by-play ingestion](play-by-play.md).
@@ -93,6 +99,7 @@ provider limitations are documented in
 | Schedule index | 2005–06 through the published 2026–27 schedule |
 | Results, box scores, and detailed game statistics | 2005–06 onward as games are completed |
 | Traditional team, skater, and goalie season summaries | 1917–18 onward |
+| NHL draft selections | Every official selection, 1963 through 2026 |
 | Standings | 2005–06 onward |
 | Play-by-play | 2005–06 onward, with fields varying by season |
 | MoneyPuck season-summary advanced statistics | 2008–09 onward |
