@@ -95,7 +95,6 @@ export default async function Home({ searchParams }: HomeProps) {
             <div className="workspace-home-primary mt-7">
               <WorkspacePanel
                 title={latestDate ? `Results · ${formatDate(latestDate)}` : "Results"}
-                description="Most recent stored game date"
                 action={
                   <Link
                     href={
@@ -121,7 +120,6 @@ export default async function Home({ searchParams }: HomeProps) {
 
               <WorkspacePanel
                 title="Next Games"
-                description="Earliest scheduled matchups across the league"
                 action={
                   <Link href={upcomingGames[0] ? `/games?season=${upcomingGames[0].seasonId}&date=${upcomingGames[0].gameDate}` : "/games"}>
                     Full Schedule →
@@ -205,7 +203,6 @@ export default async function Home({ searchParams }: HomeProps) {
             <WorkspacePanel
               className="mt-5"
               title="Scoring Leaders"
-              description="Regular-season points leaders"
               action={
                 <Link href={`/players?season=${selectedSeason.id}`}>
                   All Players →
@@ -250,7 +247,6 @@ export default async function Home({ searchParams }: HomeProps) {
             <WorkspacePanel
               className="mt-5"
               title="Explore the NHL Archive"
-              description="Move from today's league picture into deeper historical and analytical views."
             >
               <nav className="workspace-home-explore" aria-label="Explore Sportsball">
                 <HomeDestination href="/history" title="Historical Leaders" detail="Career records and best seasons since 1917–18" />

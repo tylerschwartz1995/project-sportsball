@@ -153,23 +153,25 @@ export default async function AnalyticsPage({
 
         {selectedSeason ? (
           <>
-            <AnalyticsSectionTabs seasonId={selectedSeason.id} active={type} />
+            <div className="workspace-context-navs">
+              <AnalyticsSectionTabs seasonId={selectedSeason.id} active={type} />
 
-            {type === "teams" ? (
-              <SeasonPhaseFilter
-                active={phase}
-                path="/analytics"
-                params={{
-                  season: selectedSeason.id,
-                  type,
-                  situation,
-                }}
-              />
-            ) : (
-              <p className="mt-5 text-sm text-slate-500">
-                Player-level MoneyPuck leaderboards are regular-season only.
-              </p>
-            )}
+              {type === "teams" ? (
+                <SeasonPhaseFilter
+                  active={phase}
+                  path="/analytics"
+                  params={{
+                    season: selectedSeason.id,
+                    type,
+                    situation,
+                  }}
+                />
+              ) : (
+                <p className="text-sm text-slate-500">
+                  Player-level MoneyPuck leaderboards are regular-season only.
+                </p>
+              )}
+            </div>
 
             {hasCoverage ? (
               <>

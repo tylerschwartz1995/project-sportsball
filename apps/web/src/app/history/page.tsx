@@ -91,27 +91,29 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
           select whole seasons in which that player represented the team.
         </div>
 
-        <SeasonPhaseFilter
-          active={phase}
-          path="/history"
-          params={historyParams(view, metric, filters)}
-        />
+        <div className="workspace-context-navs">
+          <SeasonPhaseFilter
+            active={phase}
+            path="/history"
+            params={historyParams(view, metric, filters)}
+          />
 
-        <nav className="workspace-standings-scope" aria-label="Historical leader type">
-          {(["skaters", "goalies", "teams"] as const).map((option) => (
-            <Link
-              key={option}
-              href={historyHref(option, phase, filters)}
-              aria-current={view === option ? "page" : undefined}
-            >
-              {option === "skaters"
-                ? "Skaters"
-                : option === "goalies"
-                  ? "Goalies"
-                  : "Teams"}
-            </Link>
-          ))}
-        </nav>
+          <nav className="workspace-standings-scope" aria-label="Historical leader type">
+            {(["skaters", "goalies", "teams"] as const).map((option) => (
+              <Link
+                key={option}
+                href={historyHref(option, phase, filters)}
+                aria-current={view === option ? "page" : undefined}
+              >
+                {option === "skaters"
+                  ? "Skaters"
+                  : option === "goalies"
+                    ? "Goalies"
+                    : "Teams"}
+              </Link>
+            ))}
+          </nav>
+        </div>
 
         <HistoryFiltersForm
           view={view}

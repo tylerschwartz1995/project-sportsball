@@ -114,7 +114,7 @@ export function StandingsPointsChart({
           </select>
         </label>
       </div>
-      <div className="workspace-chart h-[430px]">
+      <div className="workspace-chart">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}

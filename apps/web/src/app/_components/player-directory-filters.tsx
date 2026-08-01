@@ -88,7 +88,6 @@ export function PlayerDirectoryFilters({
 
       <fieldset className="workspace-player-filter-group is-primary">
         <legend>Find Players</legend>
-        <p>Search by name or position, then choose the player group.</p>
         <div>
           <label className="is-wide">
             Player Search
@@ -111,7 +110,6 @@ export function PlayerDirectoryFilters({
 
       <fieldset className="workspace-player-filter-group">
         <legend>Minimum Season Totals</legend>
-        <p>Only show players who meet every entered threshold.</p>
         <div>
           <NumberFilter
             label="Games Played"
@@ -151,7 +149,6 @@ export function PlayerDirectoryFilters({
                   min="0"
                   max="1"
                   step="0.001"
-                  placeholder=".900"
                   defaultValue={filters.minSavePercentage}
                 />
               </label>
@@ -162,12 +159,8 @@ export function PlayerDirectoryFilters({
 
       <fieldset className="workspace-player-filter-group">
         <legend>Birthplace</legend>
-        <p>
-          Choose a country first; province/state and city then narrow to valid
-          locations.
-        </p>
         <div>
-          <label>
+          <label className="is-country">
             Country
             <select
               name="country"

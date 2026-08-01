@@ -126,7 +126,7 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
                 <WorkspacePanel
                   className="mt-5"
                   title={`${seasonPhaseLabel(phase)} Comparison`}
-                  description="Select any heading to sort. The team column stays visible while scrolling on smaller screens."
+                  description="Select any heading to sort."
                 >
                   <SortableTable
                     defaultSortKey={sort}

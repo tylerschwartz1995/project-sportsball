@@ -84,30 +84,32 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
 
         {selectedSeason && selectedDate ? (
           <>
-            <SeasonPhaseFilter
-              active={phase}
-              path="/games"
-              params={{ season: selectedSeason.id }}
-              label="Schedule phase"
-            />
-            <div className="workspace-date-navigation">
-              <p>
-                {selectedSeason.label} season · {gameDates.length} game dates
-              </p>
-              <nav aria-label="Game date navigation">
-                <DateLink
-                  label="← Older"
-                  seasonId={selectedSeason.id}
-                  date={olderDate}
-                  phase={phase}
-                />
-                <DateLink
-                  label="Newer →"
-                  seasonId={selectedSeason.id}
-                  date={newerDate}
-                  phase={phase}
-                />
-              </nav>
+            <div className="workspace-context-navs is-schedule">
+              <SeasonPhaseFilter
+                active={phase}
+                path="/games"
+                params={{ season: selectedSeason.id }}
+                label="Schedule phase"
+              />
+              <div className="workspace-date-navigation">
+                <p>
+                  {selectedSeason.label} season · {gameDates.length} game dates
+                </p>
+                <nav aria-label="Game date navigation">
+                  <DateLink
+                    label="← Older"
+                    seasonId={selectedSeason.id}
+                    date={olderDate}
+                    phase={phase}
+                  />
+                  <DateLink
+                    label="Newer →"
+                    seasonId={selectedSeason.id}
+                    date={newerDate}
+                    phase={phase}
+                  />
+                </nav>
+              </div>
             </div>
 
             {games.length > 0 ? (

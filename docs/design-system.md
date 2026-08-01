@@ -53,6 +53,13 @@ width. The shell owns sport context, primary navigation, data status, and the
 theme control; pages own their season and dataset controls.
 
 Light and dark modes use semantic tokens rather than separate component markup.
+
+Filters show their active defaults instead of presenting blank controls.
+Numeric thresholds use `0` when no minimum is active, while select controls use
+a clear `All …` or named default. Phase selectors keep their context in an
+accessible label without repeating it beside self-explanatory options. Helper
+text is reserved for information that is not already expressed by the adjacent
+heading or field labels.
 Dark is the first-visit default, an explicit selection persists on the device,
 and a pre-render bootstrap applies it before the interface is painted.
 

@@ -86,12 +86,12 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
   );
   const requestedPage = parsePage(firstQueryValue(params.page));
   const filters = {
-    minGames: firstQueryValue(params.minGames) ?? "",
-    minGoals: firstQueryValue(params.minGoals) ?? "",
-    minAssists: firstQueryValue(params.minAssists) ?? "",
-    minPoints: firstQueryValue(params.minPoints) ?? "",
-    minWins: firstQueryValue(params.minWins) ?? "",
-    minSavePercentage: firstQueryValue(params.minSavePercentage) ?? "",
+    minGames: firstQueryValue(params.minGames) ?? "0",
+    minGoals: firstQueryValue(params.minGoals) ?? "0",
+    minAssists: firstQueryValue(params.minAssists) ?? "0",
+    minPoints: firstQueryValue(params.minPoints) ?? "0",
+    minWins: firstQueryValue(params.minWins) ?? "0",
+    minSavePercentage: firstQueryValue(params.minSavePercentage) ?? "0",
     country: firstQueryValue(params.country) ?? "",
     region: firstQueryValue(params.region) ?? "",
     city: firstQueryValue(params.city) ?? "",

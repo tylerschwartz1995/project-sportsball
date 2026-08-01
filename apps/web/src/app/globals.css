@@ -201,7 +201,7 @@ main.max-w-7xl > section {
   background: var(--accent);
   color: var(--background);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 800;
 }
 
@@ -283,7 +283,7 @@ html[data-theme="light"] .workspace-brand > span:first-child {
   gap: 0.5rem;
   padding: 0 0.5rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-data-status > span {
@@ -336,7 +336,7 @@ html[data-theme="light"] .workspace-brand > span:first-child {
   border-radius: 0.45rem;
   padding: 0.45rem 0.55rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   text-decoration: none;
 }
 
@@ -358,7 +358,7 @@ html[data-theme="light"] .workspace-brand > span:first-child {
   color: var(--foreground);
   cursor: pointer;
   font: inherit;
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .theme-toggle-icon {
@@ -403,7 +403,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-eyebrow {
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -452,13 +452,13 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-panel-header p {
   margin-top: 0.25rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-panel-header a {
   flex: 0 0 auto;
   color: var(--accent);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
@@ -478,7 +478,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-season-picker label {
   flex: 1;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
@@ -504,7 +504,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   color: var(--background);
   cursor: pointer;
   font: inherit;
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
@@ -644,7 +644,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   min-width: 0;
   border: 0;
   border-bottom: 1px solid var(--border);
-  padding: 1.1rem;
+  padding: 0.9rem;
 }
 
 .workspace-player-filter-group legend {
@@ -655,36 +655,28 @@ html[data-theme="light"] .workspace-directory-controls button {
   font-weight: 720;
 }
 
-.workspace-player-filter-group > p {
-  clear: both;
-  margin-top: 0.25rem;
-  color: var(--muted);
-  font-size: 0.84rem;
-  line-height: 1.45;
-}
-
 .workspace-player-filter-group > div {
   display: grid;
   clear: both;
   min-width: 0;
-  gap: 0.75rem;
-  margin-top: 0.85rem;
+  gap: 0.65rem;
+  margin-top: 0.6rem;
 }
 
 .workspace-player-filter-group label {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 620;
 }
 
 .workspace-player-filter-group input,
 .workspace-player-filter-group select {
   width: 100%;
-  min-height: 2.65rem;
-  margin-top: 0.42rem;
+  min-height: 2.55rem;
+  margin-top: 0.35rem;
   border: 1px solid var(--border);
   border-radius: 0.5rem;
-  padding: 0.6rem 0.7rem;
+  padding: 0.55rem 0.65rem;
   background: var(--surface-raised);
   color: var(--foreground);
   font: inherit;
@@ -706,7 +698,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   flex-wrap: wrap;
   align-items: center;
   gap: 0.65rem;
-  padding: 1rem 1.1rem;
+  padding: 0.75rem 0.9rem;
 }
 
 .workspace-player-filter-actions > * {
@@ -766,7 +758,11 @@ html[data-theme="light"] .workspace-directory-controls button {
   }
 
   .workspace-player-filter-group:nth-of-type(3) > div {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-player-filter-group:nth-of-type(3) .is-country {
+    grid-column: 1 / -1;
   }
 
   .workspace-player-filter-actions {
@@ -803,7 +799,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 .workspace-player-picker-heading p {
   color: var(--accent-secondary);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 700;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -884,7 +880,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 .workspace-player-picker-results span,
 .workspace-player-picker-no-results {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-player-picker-no-results {
@@ -918,7 +914,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 .workspace-player-picker-selected small {
   grid-column: 1;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-player-picker-selected button {
@@ -994,7 +990,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   margin-top: 0.2rem;
   color: var(--muted);
   font-family: var(--font-geist-sans);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 500;
   letter-spacing: 0;
   text-transform: none;
@@ -1031,7 +1027,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-draft-filters label {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
 }
 
@@ -1054,7 +1050,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   place-items: center;
   border-radius: 0.48rem;
   padding: 0 0.75rem;
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
@@ -1254,7 +1250,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 .workspace-draft-insights small {
   display: block;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-draft-insights strong {
@@ -1343,36 +1339,26 @@ html[data-theme="light"] .workspace-directory-controls button {
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
-  gap: 0.75rem;
   width: fit-content;
   max-width: 100%;
-  margin-top: 1rem;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  padding: 0.6rem 0.7rem 0.6rem 1rem;
-  background: var(--surface);
-  box-shadow: 0 8px 24px var(--shadow);
-}
-
-.workspace-phase-filter > span {
-  color: var(--muted);
-  font-size: 0.84rem;
-  font-weight: 650;
+  margin-top: 0.8rem;
 }
 
 .workspace-phase-filter > div {
   display: flex;
   gap: 0.2rem;
+  border: 1px solid var(--border);
   border-radius: 0.55rem;
   padding: 0.2rem;
-  background: var(--surface-raised);
+  background: var(--surface);
+  box-shadow: 0 8px 24px var(--shadow);
 }
 
 .workspace-phase-filter a {
   border-radius: 0.42rem;
   padding: 0.48rem 0.72rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
   text-decoration: none;
 }
@@ -1388,6 +1374,25 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
   color: #fff;
+}
+
+.workspace-context-navs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.8rem;
+}
+
+.workspace-context-navs > .workspace-phase-filter,
+.workspace-context-navs > .workspace-standings-scope,
+.workspace-context-navs > .workspace-analytics-tabs,
+.workspace-context-navs > .workspace-date-navigation {
+  margin-top: 0;
+}
+
+.workspace-context-navs.is-schedule > .workspace-date-navigation {
+  flex: 1 1 28rem;
 }
 
 .workspace-scroll-nav {
@@ -1445,7 +1450,7 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
 .workspace-player-chart-header > div > p {
   color: var(--accent-secondary);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1490,7 +1495,7 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
   margin-bottom: 0.35rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -1552,7 +1557,7 @@ html[data-theme="light"]
   gap: 0.35rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1612,7 +1617,7 @@ html[data-theme="light"]
 .workspace-chart-tooltip-date {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
@@ -1650,7 +1655,7 @@ html[data-theme="light"]
 .workspace-chart-tooltip-sample {
   margin-top: 0.65rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-chart-empty {
@@ -1662,7 +1667,7 @@ html[data-theme="light"]
 .workspace-chart-coverage {
   padding: 0.35rem 0.5rem 0.2rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-comparison-panel {
@@ -1697,14 +1702,14 @@ html[data-theme="light"]
 
 .workspace-comparison-key p {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   line-height: 1.45;
 }
 
 .workspace-comparison-key b {
   display: block;
   color: var(--foreground);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-player-comparison-grid {
@@ -1734,7 +1739,7 @@ html[data-theme="light"]
   gap: 0.38rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
   letter-spacing: 0.07em;
   text-transform: uppercase;
@@ -1751,7 +1756,7 @@ html[data-theme="light"]
   background: var(--surface-raised);
   color: var(--foreground);
   font-family: var(--font-geist-sans);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 600;
   letter-spacing: normal;
   text-transform: none;
@@ -1771,7 +1776,7 @@ html[data-theme="light"]
   background: transparent;
   color: var(--foreground);
   font: inherit;
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
 }
@@ -1805,7 +1810,7 @@ html[data-theme="light"]
 .workspace-comparison-plot-heading p {
   margin-top: 0.22rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   line-height: 1.45;
 }
 
@@ -1834,7 +1839,7 @@ html[data-theme="light"]
 .workspace-direct-comparison > header > div > p {
   color: var(--accent-secondary);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1850,7 +1855,7 @@ html[data-theme="light"]
 .workspace-direct-comparison > header > p,
 .workspace-direct-comparison-empty {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   line-height: 1.5;
 }
 
@@ -1888,7 +1893,7 @@ html[data-theme="light"]
 
 .workspace-direct-comparison-table th:first-child {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 600;
   text-align: left;
 }
@@ -1896,7 +1901,7 @@ html[data-theme="light"]
 .workspace-direct-comparison-table thead th {
   background: var(--surface-subtle);
   color: var(--foreground);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-direct-comparison-table thead th span {
@@ -1904,13 +1909,13 @@ html[data-theme="light"]
   margin-top: 0.15rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-direct-comparison-table td {
   color: var(--foreground);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
@@ -1944,7 +1949,7 @@ html[data-theme="light"]
   }
 
   .workspace-chart {
-    height: 20rem;
+    height: 18rem;
   }
 
   .workspace-comparison-chart {
@@ -2019,7 +2024,7 @@ html[data-theme="light"]
 .workspace-game-picker label,
 .workspace-history-filter label {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
@@ -2052,7 +2057,7 @@ html[data-theme="light"]
   color: var(--background);
   cursor: pointer;
   font: inherit;
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 750;
 }
 
@@ -2086,7 +2091,7 @@ html[data-theme="light"] .workspace-history-filter button {
 
 .workspace-history-controls label {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
 }
 
@@ -2150,7 +2155,7 @@ html[data-theme="light"] .workspace-history-filter button {
 
 .workspace-date-navigation > p {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-date-navigation nav {
@@ -2163,7 +2168,7 @@ html[data-theme="light"] .workspace-history-filter button {
   border-radius: 0.5rem;
   padding: 0.5rem 0.7rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
   text-decoration: none;
 }
@@ -2205,7 +2210,7 @@ span.workspace-date-link {
   gap: 0.75rem;
   padding: 0.7rem 1rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-game-card-header {
@@ -2254,7 +2259,7 @@ span.workspace-date-link {
 .workspace-game-team-abbreviation {
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
@@ -2272,7 +2277,7 @@ span.workspace-date-link {
 .workspace-game-team p {
   margin-top: 0.15rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-game-team strong {
@@ -2302,7 +2307,7 @@ span.workspace-date-link {
   border-color: var(--border);
   padding: 0.8rem 1.2rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-game-hero-meta {
@@ -2333,7 +2338,7 @@ span.workspace-date-link {
 .workspace-game-hero-at {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   letter-spacing: 0.14em;
   text-align: center;
   text-transform: uppercase;
@@ -2364,7 +2369,7 @@ span.workspace-date-link {
 .workspace-game-score-team small {
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
@@ -2380,7 +2385,7 @@ span.workspace-date-link {
 .workspace-game-score-team p {
   margin-top: 0.45rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-game-score-team > strong {
@@ -2455,7 +2460,7 @@ span.workspace-date-link {
 
 .workspace-analytics-filters label {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 600;
 }
 
@@ -2489,7 +2494,7 @@ span.workspace-date-link {
   color: var(--background);
   cursor: pointer;
   font: inherit;
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 750;
 }
 
@@ -2527,7 +2532,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   max-width: 48rem;
   margin-top: 0.35rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   line-height: 1.55;
 }
 
@@ -2573,7 +2578,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-guide-card > p {
   margin-top: 0.65rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   line-height: 1.6;
 }
 
@@ -2603,7 +2608,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   max-width: 58rem;
   margin-top: 0.4rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   line-height: 1.6;
 }
 
@@ -2616,7 +2621,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-guide-note a {
   color: var(--accent-secondary);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
 }
 
@@ -2676,16 +2681,16 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-result-matchup > span[aria-hidden="true"] {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-result-row small {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-result-row b {
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-result-row strong {
@@ -2712,7 +2717,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-standing-list span {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-standing-list b {
@@ -2724,7 +2729,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-standing-list small {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-standing-list strong {
@@ -2782,7 +2787,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-home-movement-rank {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-home-movement-team,
@@ -2794,7 +2799,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-home-movement-team b,
 .workspace-home-movement-change b {
   overflow: hidden;
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -2805,7 +2810,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-home-trend-rows small,
 .workspace-home-game-highlight small {
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-home-movement-change {
@@ -2859,13 +2864,13 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-home-trend-rows b {
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-home-trend-rows strong,
 .workspace-home-trend-rows em {
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-style: normal;
   text-align: right;
 }
@@ -2894,7 +2899,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   border-top: 1px solid var(--border);
   padding: 0.8rem 1rem;
   color: var(--accent-secondary);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
   text-decoration: none;
 }
@@ -2907,13 +2912,13 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-home-game-highlight b {
   color: var(--foreground);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-home-insight-empty {
   padding: 1rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 @media (min-width: 1024px) {
@@ -2951,7 +2956,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-upcoming-list a:last-child { border-bottom: 0; }
 .workspace-upcoming-list a:hover { background: var(--surface-subtle); }
-.workspace-upcoming-list time { color: var(--muted); font-size: 0.84rem; }
+.workspace-upcoming-list time { color: var(--muted); font-size: 0.88rem; }
 .workspace-upcoming-list span { min-width: 0; color: var(--foreground); font-size: 0.88rem; }
 .workspace-upcoming-list small { grid-column: 2; grid-row: 1 / span 2; color: var(--accent); text-align: right; white-space: nowrap; }
 
@@ -2978,7 +2983,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-home-explore a:hover { border-color: var(--accent); background: var(--surface-raised); }
 .workspace-home-explore span { display: grid; gap: 0.2rem; }
 .workspace-home-explore b { color: var(--foreground); }
-.workspace-home-explore small { color: var(--muted); font-size: 0.84rem; }
+.workspace-home-explore small { color: var(--muted); font-size: 0.88rem; }
 .workspace-home-explore strong { color: var(--accent); font-size: 0.88rem; white-space: nowrap; }
 
 .workspace-leader-grid {
@@ -2990,7 +2995,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   display: grid;
   min-width: 0;
   border-right: 1px solid var(--border);
-  padding: 1rem;
+  padding: 0.75rem 0.8rem;
   color: var(--foreground);
   text-decoration: none;
 }
@@ -3006,31 +3011,31 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-leader-grid span {
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-leader-grid b {
   overflow: hidden;
-  margin-top: 0.65rem;
-  font-size: 0.9rem;
+  margin-top: 0.4rem;
+  font-size: 0.96rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .workspace-leader-grid small {
   overflow: hidden;
-  margin-top: 0.22rem;
+  margin-top: 0.18rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .workspace-leader-grid strong {
-  margin-top: 1.1rem;
+  margin-top: 0.55rem;
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.98rem;
+  font-size: 1.1rem;
 }
 
 .workspace-analytics-link {
@@ -3044,7 +3049,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   padding: 0.9rem 1rem;
   background: color-mix(in srgb, var(--accent-secondary) 6%, var(--surface));
   color: var(--accent-secondary);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 650;
   text-decoration: none;
 }
@@ -3062,7 +3067,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-analytics-link small {
   margin-top: 0.25rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 400;
 }
 
@@ -3109,7 +3114,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   background: var(--surface-raised);
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -3185,7 +3190,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   gap: 0.4rem;
   margin-top: 0.18rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
 }
 
 .workspace-sticky-team-cell {
@@ -3265,7 +3270,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   border-top: 1px solid var(--border);
   padding: 0.7rem 1rem;
   color: var(--muted);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   line-height: 1.5;
 }
 
@@ -3289,7 +3294,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   margin-bottom: 0.8rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -3325,7 +3330,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-bracket-series small {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
