@@ -6,6 +6,7 @@ import typer
 
 from sportsball.clients.moneypuck.client import MoneyPuckClient
 from sportsball.clients.nhl.client import NhlClient
+from sportsball.clients.nhl.records_client import NhlRecordsClient
 from sportsball.clients.nhl.stats_client import NhlStatsClient
 from sportsball.ingestion.orchestration.boxscore_backfill import backfill_boxscores
 from sportsball.ingestion.orchestration.boxscores import ingest_boxscore
@@ -14,6 +15,7 @@ from sportsball.ingestion.orchestration.daily_update import (
     DailyUpdateOptions,
     run_daily_update,
 )
+from sportsball.ingestion.orchestration.drafts import ingest_draft_history
 from sportsball.ingestion.orchestration.game_outcomes import backfill_game_outcomes
 from sportsball.ingestion.orchestration.historical_seasons import ingest_historical_seasons
 from sportsball.ingestion.orchestration.moneypuck_lines import (
@@ -691,6 +693,30 @@ def ingest_historical_seasons_command(start_season: int, end_season: int) -> Non
         f"run={result.run_id} seasons={result.start_season}-{result.end_season} "
         f"skaters={result.skaters_processed} goalies={result.goalies_processed} "
         f"teams={result.teams_processed} total={result.records_processed}"
+    )
+
+
+@app.command("ingest-draft-history")
+def ingest_draft_history_command(start_year: int, end_year: int) -> None:
+    """Ingest every NHL draft selection in an inclusive year range."""
+
+    def echo_progress(draft_year: int) -> None:
+        typer.echo(f"draft={draft_year} fetched")
+
+    with NhlRecordsClient() as client:
+        try:
+            result = ingest_draft_history(
+                start_year,
+                end_year,
+                client,
+                on_draft_complete=echo_progress,
+            )
+        except ValueError as error:
+            raise typer.BadParameter(str(error)) from error
+    typer.echo(
+        f"run={result.run_id} drafts={result.start_year}-{result.end_year} "
+        f"drafts_processed={result.drafts_processed} "
+        f"selections_processed={result.selections_processed}"
     )
 
 

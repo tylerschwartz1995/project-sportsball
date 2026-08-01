@@ -19,7 +19,7 @@ Last checked against the repository on August 1, 2026.
 | Strength of schedule | Expanded non-model version implemented | Team pages provide time-aware completed and remaining difficulty using points percentage, goal differential, and five-on-five expected-goal share, with supporting games, venue, rest, back-to-back, and estimated travel context. A governed model-based rating remains. |
 | Transactions explorer | Not implemented | There are no transaction models, ingestion jobs, queries, or routes. |
 | Homepage information redesign | Expanded redesign implemented | Results, upcoming games, standings, last-ten movement, latest-30 league trends, scoring leaders, advanced analytics, and archive destinations are live. Further insights can be added only when they reveal a distinct, evidence-linked pattern. |
-| Complete draft history | Partially implemented | Draft analysis uses profile draft metadata for players in the stored NHL universe. A complete selection archive and true draft denominators are not present. |
+| Complete draft history | Complete archive implemented | Every official NHL selection from 1963–2026 is stored, including non-NHL players, nullable source IDs, historical team codes, and traded-pick ownership. Draft boards and team NHL-appearance and 100-game rates use all 13,152 selections as the denominator. |
 | Historical records and best seasons | Expanded traditional version implemented | Career and single-season skater, goalie, and team tables support phase, range, participation, position, team, birthplace, and total/rate filters. Era adjustment, milestones, age curves, multi-season peaks, franchise aggregation, and advanced historical rankings remain. |
 | Saved comparisons and shareable plot state | Partially implemented | The dedicated player comparison restores season, phase, player type, and two-to-four selected players from its URL. Analytics plot controls, rolling-chart controls, named local saves, and copy-link actions are not persisted. |
 
@@ -322,22 +322,25 @@ Potential post-MVP extensions include:
 
 ## 9. Complete draft history and team drafting performance
 
-**Status:** Partially implemented
+**Status:** Complete archive implemented; advanced modeling remains proposed
 
-The first Drafts page compares career outcomes for drafted players represented
-in Sportsball's stored NHL player universe, including pick-position plots,
-player outcomes, late-round value, and team production. This is useful for
-players who reached the NHL, but it is not a complete draft-board archive.
+The Drafts workspace now covers all 13,152 official NHL selections across the
+64 drafts from 1963 through 2026. The archive retains players who never appeared
+in the NHL, nullable NHL player links, selections marked removed outright,
+historical drafting-team codes, and exact traded-pick ownership chains. Each
+year provides a complete round-by-round board, while an explicit all-years view
+pages through the full archive.
 
-The complete version should ingest every selection from each supported NHL
-draft, including players who never appeared in the NHL. That additional
-denominator is required before publishing true team hit rates or comparing
-draft efficiency fairly.
+Career outcomes join to NHL-published all-time regular-season summaries.
+Organizational tables publish NHL-appearance and 100-game rates using every
+selection as the denominator, plus games per selection, total games, skater
+points, goalie wins, and late-round regulars. The latest draft with a stored NHL
+outcome is the default analysis view; future and newly completed drafts remain
+selectable even when their current outcome is zero.
 
 Potential extensions include:
 
-- a complete round-by-round board for every draft;
-- NHL appearance, 100-game, and star-player hit rates by team and pick range;
+- star-player hit rates by team and pick range with a governed definition;
 - era- and opportunity-adjusted value above expected draft position;
 - comparisons between drafting teams, general managers, and scouting eras;
 - re-drafts using realized career outcomes;

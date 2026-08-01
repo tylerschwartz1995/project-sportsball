@@ -328,6 +328,63 @@ class Player(Base):
     profile_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
+class DraftSelection(Base):
+    """One official NHL draft selection, including non-NHL players."""
+
+    __tablename__ = "draft_selections"
+    __table_args__ = (
+        UniqueConstraint("nhl_record_id", name="uq_draft_selections_nhl_record"),
+        UniqueConstraint(
+            "draft_year",
+            "overall_pick_number",
+            name="uq_draft_selections_year_overall_pick",
+        ),
+        CheckConstraint("round_number > 0", name="ck_draft_selections_round"),
+        CheckConstraint("pick_in_round > 0", name="ck_draft_selections_pick_in_round"),
+        CheckConstraint(
+            "overall_pick_number > 0",
+            name="ck_draft_selections_overall_pick",
+        ),
+        Index(
+            "ix_draft_selections_year_team",
+            "draft_year",
+            "drafting_team_abbrev",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    nhl_record_id: Mapped[int] = mapped_column(Integer)
+    draft_master_id: Mapped[int] = mapped_column(Integer)
+    draft_year: Mapped[int] = mapped_column(SmallInteger, index=True)
+    draft_date: Mapped[date] = mapped_column(Date)
+    round_number: Mapped[int] = mapped_column(SmallInteger)
+    pick_in_round: Mapped[int] = mapped_column(SmallInteger)
+    overall_pick_number: Mapped[int] = mapped_column(SmallInteger)
+    drafting_team_id: Mapped[int | None] = mapped_column(ForeignKey("teams.id"))
+    drafting_team_nhl_id: Mapped[int] = mapped_column(Integer)
+    drafting_team_abbrev: Mapped[str] = mapped_column(String(10))
+    original_pick_owner_abbrev: Mapped[str] = mapped_column(String(10))
+    pick_owner_history: Mapped[str] = mapped_column(String(100))
+    player_id: Mapped[int | None] = mapped_column(ForeignKey("players.id"), index=True)
+    nhl_player_id: Mapped[int | None] = mapped_column(BigInteger, index=True)
+    central_scouting_player_id: Mapped[int | None] = mapped_column(Integer)
+    player_name: Mapped[str] = mapped_column(String(200))
+    first_name: Mapped[str | None] = mapped_column(String(100))
+    last_name: Mapped[str] = mapped_column(String(100))
+    position: Mapped[str | None] = mapped_column(String(10))
+    country_code: Mapped[str | None] = mapped_column(String(10))
+    birth_date: Mapped[date | None] = mapped_column(Date)
+    birth_place: Mapped[str | None] = mapped_column(String(150))
+    height_in_inches: Mapped[int | None] = mapped_column(SmallInteger)
+    weight_in_pounds: Mapped[int | None] = mapped_column(SmallInteger)
+    shoots_catches: Mapped[str | None] = mapped_column(String(2))
+    amateur_league: Mapped[str | None] = mapped_column(String(50))
+    amateur_club_name: Mapped[str | None] = mapped_column(String(150))
+    supplemental_draft: Mapped[bool] = mapped_column(Boolean, default=False)
+    removed_outright: Mapped[bool] = mapped_column(Boolean, default=False)
+    removed_outright_reason: Mapped[str | None] = mapped_column(String(200))
+
+
 class PlayerProfileBackfillPlayer(Base):
     """Durable processing state for one player's profile import."""
 

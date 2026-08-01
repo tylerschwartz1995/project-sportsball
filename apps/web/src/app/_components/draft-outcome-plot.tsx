@@ -79,8 +79,8 @@ export function DraftOutcomePlot({
           <h3>Draft Position and NHL Outcome</h3>
         </div>
         <p>
-          Each point is a drafted player represented in the stored NHL player
-          universe. Earlier picks appear toward the left.
+          Each point is an official selection. Players without a stored NHL
+          appearance remain visible at zero; earlier picks appear to the left.
         </p>
       </header>
       <div className="workspace-chart-toolbar">

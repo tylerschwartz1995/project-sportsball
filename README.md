@@ -48,8 +48,8 @@ cumulative points history. Player discovery includes minimum-stat and birth
 region filters, and a dedicated playoffs workspace presents the historical
 bracket, scoring leaders, or projected first-round matchups before play begins.
 Player comparisons now combine official and available advanced season metrics,
-while the first draft-outcomes page evaluates pick value and team production
-for drafted players represented in stored NHL history.
+while the draft-history workspace covers all 13,152 official selections from
+1963 through 2026 and evaluates team outcomes with true selection denominators.
 MoneyPuck presentation is implemented on team, player, and game pages,
 including game-level expected-goal and possession tables, shot maps, forward
 lines, and defensive pairings. Shot-map events can be selected to inspect
@@ -139,6 +139,18 @@ uv run --project pipeline --frozen sportsball \
 This paginates NHL Stats reports, retains audited source payloads, and preserves
 era-specific unavailable values as `NULL` rather than zero.
 
+Ingest every official NHL draft selection across an inclusive year range:
+
+```bash
+uv run --project pipeline --frozen sportsball \
+  ingest-draft-history 1963 2026
+```
+
+The range is replaced transactionally only after every draft board validates.
+Raw boards, traded-pick history, nullable NHL player links, and selections that
+never reached the league are retained. See
+[Complete NHL draft history](docs/draft-history.md).
+
 Ingest traditional team, skater, and goalie statistics for a completed game:
 
 ```bash
@@ -225,6 +237,7 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 - [Player statistics data dictionary](docs/player-statistics.md)
 - [Season-statistics definitions and refresh behavior](docs/season-statistics.md)
 - [All-time historical season statistics](docs/historical-statistics.md)
+- [Complete NHL draft history](docs/draft-history.md)
 - [Play-by-play ingestion and event definitions](docs/play-by-play.md)
 - [Player profile ingestion](docs/player-profiles.md)
 - [Team identity and franchise history](docs/team-identities.md)

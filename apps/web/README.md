@@ -41,8 +41,9 @@ The current read-only slice provides:
   situation-filtered MoneyPuck season metrics;
 - a searchable two-to-four-player comparison page combining official totals
   with available advanced metrics;
-- a draft-outcomes page with pick-value plots, tracked player outcomes, and
-  team drafting-production summaries for the stored NHL player universe;
+- a complete 1963–2026 draft archive with every official selection,
+  traded-pick history, pick-value plots, and true team appearance and 100-game
+  rates;
 - a historical playoff bracket and postseason scoring-leader page that falls
   back to standings-based projected matchups before playoff games begin;
 - team and player game logs with last-ten form summaries, traditional

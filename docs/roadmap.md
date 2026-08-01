@@ -98,6 +98,8 @@ Status values reflect the repository at local MVP sign-off on July 31, 2026.
   dependent birthplace groups.
 - [x] Add the first draft-outcomes and team drafting-production workspace for
   NHL players represented in stored history.
+- [x] Expand drafts to every official 1963–2026 selection with traded-pick
+  identity and true NHL appearance and 100-game denominators.
 - [x] Add an initial historical records workspace with career and single-season
   skater, goalie, and team leaderboards.
 
