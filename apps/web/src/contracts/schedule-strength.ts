@@ -27,6 +27,8 @@ export type ScheduleStrengthGame = {
   opponentExpectedGoalsPercentage: number | null;
   restDays: number | null;
   isBackToBack: boolean;
+  siteName: string | null;
+  travelDistanceKm: number | null;
 };
 
 export type TeamScheduleStrength = {

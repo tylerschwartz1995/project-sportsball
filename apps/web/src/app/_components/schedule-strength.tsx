@@ -109,6 +109,10 @@ export function ScheduleStrength({
         the number of full off-days since this team&apos;s previous game; a
         back-to-back has no full off-day. Until an opponent has a result in the
         selected season, its rating falls back to the previous stored season.
+        Travel uses great-circle distance between each game&apos;s home market,
+        beginning at the selected team&apos;s home market. Because the schedule
+        source does not retain venue coordinates, neutral-site games and arena
+        changes are estimates rather than exact itineraries.
       </p>
     </section>
   );
@@ -132,6 +136,13 @@ function ScheduleSummary({
       : null;
   const homeGames = games.filter((game) => game.isHome).length;
   const backToBacks = games.filter((game) => game.isBackToBack).length;
+  const travelLegs = games
+    .map((game) => game.travelDistanceKm)
+    .filter((distance): distance is number => distance !== null);
+  const totalTravel = travelLegs.reduce(
+    (total, distance) => total + distance,
+    0,
+  );
 
   return (
     <article className="surface-panel p-5 sm:p-6">
@@ -141,7 +152,7 @@ function ScheduleSummary({
           {games.length} games
         </span>
       </div>
-      <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+      <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
         <MetricTile
           label={`Avg. ${metricDefinitions[metric].shortLabel}`}
           value={formatMetric(average, metric)}
@@ -161,6 +172,15 @@ function ScheduleSummary({
           label="Back-to-backs"
           value={backToBacks}
           detail="No full off-day"
+        />
+        <MetricTile
+          label="Estimated travel"
+          value={travelLegs.length > 0 ? formatDistance(totalTravel) : "—"}
+          detail={
+            travelLegs.length > 0
+              ? `${formatDistance(totalTravel / travelLegs.length)} per mapped leg`
+              : "No mapped travel legs"
+          }
         />
         <MetricTile
           label="Rated games"
@@ -192,7 +212,7 @@ function ScheduleGamesTable({
       </summary>
       <SortableTable defaultSortKey="date" defaultDirection={open ? "asc" : "desc"}>
         <div className="workspace-table-scroll border-t border-white/[0.07]">
-          <table className="workspace-table min-w-[800px]">
+          <table className="workspace-table min-w-[940px]">
             <thead>
               <tr>
                 <SortableHeader label="Date" sortKey="date" align="left" defaultDirection="asc" />
@@ -201,6 +221,7 @@ function ScheduleGamesTable({
                 <SortableHeader label={metricDefinitions[metric].shortLabel} sortKey="strength" />
                 <SortableHeader label="Prior GP" sortKey="sample" />
                 <SortableHeader label="Rest" sortKey="rest" />
+                <SortableHeader label="Travel" sortKey="travel" />
                 <SortableHeader label="Result" sortKey="result" align="left" />
               </tr>
             </thead>
@@ -237,6 +258,7 @@ function ScheduleGamesTable({
                     </td>
                     <td data-sort-value={game.isHome ? "home" : "away"}>
                       {game.isHome ? "Home" : "Away"}
+                      {game.siteName ? <small>{game.siteName}</small> : null}
                     </td>
                     <td data-sort-value={strength ?? ""} className="text-right font-medium tabular-nums text-cyan-100">
                       {formatMetric(strength, metric)}
@@ -254,6 +276,11 @@ function ScheduleGamesTable({
                     </td>
                     <td data-sort-value={game.restDays ?? ""} className="text-right tabular-nums">
                       {game.isBackToBack ? "B2B" : game.restDays === null ? "—" : `${game.restDays}d`}
+                    </td>
+                    <td data-sort-value={game.travelDistanceKm ?? ""} className="text-right tabular-nums">
+                      {game.travelDistanceKm === null
+                        ? "—"
+                        : formatDistance(game.travelDistanceKm)}
                     </td>
                     <td data-sort-value={result}>{result}</td>
                   </tr>
@@ -316,6 +343,10 @@ function difficultyLabel(
 
 function formatPercentage(value: number): string {
   return `${(value * 100).toFixed(1)}%`;
+}
+
+function formatDistance(value: number): string {
+  return `${Math.round(value).toLocaleString("en-CA")} km`;
 }
 
 function formatDate(value: string): string {

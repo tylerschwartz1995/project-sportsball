@@ -5,6 +5,7 @@ import type {
   TeamScheduleStrength,
 } from "@/contracts/schedule-strength";
 import { query } from "@/data/database";
+import { calculateScheduleTravel } from "@/lib/travel";
 
 type ScheduleStrengthRow = {
   nhl_game_id: number;
@@ -196,10 +197,15 @@ export async function getTeamScheduleStrength(
     [nhlTeamId, seasonId],
   );
 
+  const games = rows.map(mapScheduleStrengthGame);
+  const travel = calculateScheduleTravel(nhlTeamId, games);
   return {
     seasonId,
     teamNhlId: nhlTeamId,
-    games: rows.map(mapScheduleStrengthGame),
+    games: games.map((game, index) => ({
+      ...game,
+      ...travel[index],
+    })),
   };
 }
 
@@ -228,5 +234,7 @@ function mapScheduleStrengthGame(
       row.opponent_expected_goals_percentage,
     restDays: row.rest_days,
     isBackToBack: row.is_back_to_back,
+    siteName: null,
+    travelDistanceKm: null,
   };
 }
