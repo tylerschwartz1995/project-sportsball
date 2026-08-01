@@ -68,6 +68,8 @@ describe("getTeamScheduleStrength", () => {
           opponentExpectedGoalsPercentage: 0.532,
           restDays: 1,
           isBackToBack: false,
+          siteName: "Vancouver, BC",
+          travelDistanceKm: 0,
         },
       ],
     });

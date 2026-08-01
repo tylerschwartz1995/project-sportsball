@@ -16,7 +16,7 @@ Last checked against the repository on August 1, 2026.
 | Line-combination explorer | Expanded version implemented | Season and rolling 10-, 20-, and 40-team-game rankings support league/team scope, unit type, minimum ice time, sorting, and drill-down to supporting games. Situational splits, teammate networks, player/linemate comparison, and cross-season views remain. |
 | Additional modelling data | Not implemented; deferred | No injury, transaction, contract, projected-lineup, or betting-market source is ingested. Source evaluation remains gated on production daily automation and a defined modelling use case. |
 | Contracts and salary-cap analysis | Not implemented | There are no contract or cap models, migrations, ingestion clients, queries, or pages. |
-| Strength of schedule | Initial version implemented | Team pages provide time-aware completed and remaining difficulty using points percentage, goal differential, and five-on-five expected-goal share, with supporting games, venue, rest, and back-to-back context. Travel and model-based ratings remain. |
+| Strength of schedule | Expanded non-model version implemented | Team pages provide time-aware completed and remaining difficulty using points percentage, goal differential, and five-on-five expected-goal share, with supporting games, venue, rest, back-to-back, and estimated travel context. A governed model-based rating remains. |
 | Transactions explorer | Not implemented | There are no transaction models, ingestion jobs, queries, or routes. |
 | Homepage information redesign | Initial redesign implemented | Results, upcoming games, standings, scoring leaders, advanced analytics, and archive destinations are live. Standings movement and league-wide trend insights remain. |
 | Complete draft history | Partially implemented | Draft analysis uses profile draft metadata for players in the stored NHL universe. A complete selection archive and true draft denominators are not present. |
@@ -251,7 +251,7 @@ as if it applied to an earlier season.
 
 ## 6. Strength of schedule
 
-**Status:** Initial version implemented
+**Status:** Expanded non-model version implemented
 
 Add both forward-looking and backward-looking schedule difficulty to team
 profiles.
@@ -270,8 +270,12 @@ Team profiles now include completed and remaining regular-season schedule
 difficulty with standings-based, goal-differential, and five-on-five
 expected-goal definitions. Each opponent rating uses only games played before
 the matchup, and the supporting schedule exposes home/away mix, rest days, and
-back-to-backs. Travel distance and a model-based definition remain future work
-until venue coordinates and a governed prediction model are available.
+back-to-backs. The schedule also estimates great-circle travel between
+consecutive home markets, including completed and remaining totals plus each
+supporting leg. The NHL schedule archive does not retain venue coordinates, so
+neutral-site games and historical arena changes remain documented estimates.
+A model-based definition remains future work until a governed prediction model
+is available.
 
 ## 7. Transactions explorer
 
