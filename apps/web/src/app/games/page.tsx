@@ -82,7 +82,7 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
           }
         />
 
-        {selectedSeason && selectedDate ? (
+        {selectedSeason ? (
           <>
             <div className="workspace-context-navs is-schedule">
               <SeasonPhaseFilter
@@ -112,7 +112,7 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
               </div>
             </div>
 
-            {games.length > 0 ? (
+            {selectedDate && games.length > 0 ? (
               <div className="workspace-game-grid">
                 {games.map((game) => (
                   <GameCard key={game.id} game={game} />
@@ -120,8 +120,16 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
               </div>
             ) : (
               <div className="workspace-empty-state mt-8">
-                <strong>No games on this date.</strong>
-                <span>Choose another stored game date to view its schedule and results.</span>
+                <strong>
+                  {selectedDate
+                    ? "No games on this date."
+                    : "No schedule is available for this phase."}
+                </strong>
+                <span>
+                  {selectedDate
+                    ? "Choose another stored game date to view its schedule and results."
+                    : "Switch between Regular Season and Playoffs above to view another phase."}
+                </span>
               </div>
             )}
           </>

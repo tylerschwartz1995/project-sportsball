@@ -4,11 +4,13 @@ export function WorkspacePageHeader({
   eyebrow,
   title,
   description,
+  descriptionClassName = "",
   action,
 }: {
   eyebrow: string;
   title: string;
   description: string;
+  descriptionClassName?: string;
   action?: ReactNode;
 }) {
   return (
@@ -16,7 +18,9 @@ export function WorkspacePageHeader({
       <div>
         <p className="workspace-eyebrow">{eyebrow}</p>
         <h1>{title}</h1>
-        <p className="workspace-description">{description}</p>
+        <p className={`workspace-description ${descriptionClassName}`}>
+          {description}
+        </p>
       </div>
       {action}
     </header>

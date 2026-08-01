@@ -321,7 +321,7 @@ function GoalieTable({
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
               <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" />
-              <SortableHeader label="DEC" sortKey="decision" align="right" defaultDirection="asc" />
+              <SortableHeader label="DEC" sortKey="decision" defaultDirection="asc" />
               <SortableHeader label="SA" sortKey="shotsAgainst" />
               <SortableHeader label="SV" sortKey="saves" />
               <SortableHeader label="GA" sortKey="goalsAgainst" defaultDirection="asc" />
@@ -398,7 +398,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`px-3 py-3 text-right tabular-nums ${
+      className={`px-3 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-cyan-200" : "text-slate-300"
       }`}
     >

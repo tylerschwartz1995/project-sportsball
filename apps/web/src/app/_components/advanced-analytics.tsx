@@ -427,10 +427,10 @@ function AdvancedUnavailable({
 
 function MetricHeader({
   label,
-  align = "right",
+  align = "center",
 }: {
   label: string;
-  align?: "left" | "right";
+  align?: "left" | "center" | "right";
 }) {
   return (
     <SortableHeader
@@ -466,7 +466,7 @@ function ValueCell({
 }) {
   return (
     <td
-      className={`px-4 py-3 text-right tabular-nums ${
+      className={`px-4 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-violet-200" : "text-slate-300"
       }`}
     >

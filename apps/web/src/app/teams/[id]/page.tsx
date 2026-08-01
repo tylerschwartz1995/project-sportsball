@@ -589,7 +589,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`px-3 py-3 text-right tabular-nums ${
+      className={`px-3 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-cyan-200" : "text-slate-300"
       }`}
     >

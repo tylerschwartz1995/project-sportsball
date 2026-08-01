@@ -1,3 +1,5 @@
+"use client";
+
 import type { SeasonSummary } from "@/contracts/season";
 
 type SeasonPickerProps = {
@@ -28,6 +30,7 @@ export function SeasonPicker({
         <select
           name="season"
           defaultValue={selectedSeasonId}
+          onChange={(event) => event.currentTarget.form?.requestSubmit()}
         >
           {seasons.map((season) => (
             <option key={season.id} value={season.id}>
@@ -36,11 +39,6 @@ export function SeasonPicker({
           ))}
         </select>
       </label>
-      <button
-        type="submit"
-      >
-        View
-      </button>
     </form>
   );
 }

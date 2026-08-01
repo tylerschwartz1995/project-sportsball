@@ -32,7 +32,7 @@ The current read-only slice provides:
 - individual game pages with traditional box scores, scoring summaries,
   expandable play-by-play timelines, advanced team/player results, shot maps,
   forward lines, and defensive pairings;
-- a sortable team directory and team detail pages with official
+- a conference-and-division team directory and team detail pages with official
   player splits, MoneyPuck season metrics, cross-season upcoming schedules, and
   time-aware completed and remaining strength-of-schedule analysis with rest,
   back-to-back, and estimated travel context;
@@ -44,8 +44,9 @@ The current read-only slice provides:
 - a complete 1963–2026 draft archive with every official selection,
   traded-pick history, pick-value plots, and true team appearance and 100-game
   rates;
-- a historical playoff bracket and postseason scoring-leader page that falls
-  back to standings-based projected matchups before playoff games begin;
+- a historical playoff bracket and postseason skater-and-goalie leader page
+  that falls back to standings-based projected matchups before playoff games
+  begin;
 - team and player game logs with last-ten form summaries, traditional
   box-score metrics, and available MoneyPuck game analytics;
 - league-wide MoneyPuck team, skater, and goalie leaderboards with situation

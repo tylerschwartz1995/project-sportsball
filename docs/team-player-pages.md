@@ -3,8 +3,8 @@
 The core website exposes traditional season and game statistics through six
 server-rendered routes:
 
-- `/teams?season=20252026&phase=regular` provides a sortable
-  comparison table for every participating team;
+- `/teams?season=20252026` provides a clickable directory grouped vertically
+  by division, with the Western and Eastern conferences side by side;
 - `/teams/12?season=20252026` shows one team's season and roster splits;
 - `/teams/12/games?season=20252026` shows one team's complete game log and
   recent form;
@@ -19,11 +19,12 @@ functions for future consumers.
 
 ## Statistical grains
 
-The team directory uses `team_season_stats`, whose grain is one team, season,
-and NHL game type. Regular season and playoffs remain separate. Team detail
-pages add the NHL-published rows from `official_skater_season_stats` and
-`official_goalie_season_stats`. Those are team splits, so a traded player's
-contribution to that particular club remains visible.
+The team directory combines regular-season `team_season_stats` participation
+with the final stored standings snapshot to assign each club to its conference
+and division. Team detail pages add the NHL-published rows from
+`official_skater_season_stats` and `official_goalie_season_stats`. Those are
+team splits, so a traded player's contribution to that particular club remains
+visible.
 
 The player directory uses the Polars-derived `skater_season_stats` and
 `goalie_season_stats`. Their grain is one player, season, and game type. A
@@ -67,22 +68,22 @@ season in which it did not participate.
 
 ## Directory controls
 
-Team and player directories support URL-based season phase, sorting, and
-pagination. The team page intentionally omits search because the full league
-fits in one comparison table. Player pages retain name/position search and add
-minimum-stat plus birth-country, province/state, and city filters. Filters use
-ordinary query parameters, so a result can be bookmarked, shared, and restored
-with browser navigation. Player pages show 50 results per page and separate
-skater and goalie views.
+The team directory supports URL-based season selection and loads the selected
+season immediately. It intentionally omits search, phase, sorting, and
+pagination because every club fits in one browsable conference-and-division
+directory. Player pages retain URL-based phase, sorting, pagination,
+name/position search, minimum-stat, and birth-country, province/state, and city
+filters. Player pages show 50 results per page and separate skater and goalie
+views.
 
 Every statistics table uses a shared client-side sorter. Column-heading buttons
 reorder the visible rows immediately without a route transition; clicking the
 active heading reverses its direction. This applies to standings, the player
 directory, team rosters, player histories, box scores, advanced game
-comparisons, and MoneyPuck season tables. The team directory uses a responsive
-comparison table with a sticky team column, sortable headings, and explicit
-small-screen sort controls. The underlying traditional-stat response contracts
-and statistical grains are unchanged.
+comparisons, and MoneyPuck season tables. The team directory instead uses
+clickable cards because standings already provide the sortable league-wide
+comparison. The underlying traditional-stat response contracts and statistical
+grains are unchanged.
 
 Team and player profile pages link to their selected-season game log. Each game
 log begins with a compact chronological form strip, then shows the full table

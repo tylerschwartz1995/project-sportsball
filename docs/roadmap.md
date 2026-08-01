@@ -31,8 +31,8 @@ Status values reflect the repository at local MVP sign-off on July 31, 2026.
 - [x] Add a league overview dashboard, dedicated standings route, and
   historical season selector.
 - [x] Add schedules and results.
-- [x] Add a responsive, sortable team comparison directory plus team and player
-  detail pages.
+- [x] Add a conference-and-division team directory plus team and player detail
+  pages.
 - [x] Add game and box-score pages.
 - [x] Add search, sorting, pagination, and complete mobile layouts.
 

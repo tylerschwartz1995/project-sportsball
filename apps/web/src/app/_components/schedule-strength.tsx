@@ -260,10 +260,10 @@ function ScheduleGamesTable({
                       {game.isHome ? "Home" : "Away"}
                       {game.siteName ? <small>{game.siteName}</small> : null}
                     </td>
-                    <td data-sort-value={strength ?? ""} className="text-right font-medium tabular-nums text-cyan-100">
+                    <td data-sort-value={strength ?? ""} className="text-center font-medium tabular-nums text-cyan-100">
                       {formatMetric(strength, metric)}
                     </td>
-                    <td data-sort-value={game.opponentPriorGames} className="text-right tabular-nums">
+                    <td data-sort-value={game.opponentPriorGames} className="text-center tabular-nums">
                       {game.opponentPriorGames}
                       {ratingSeasonId !== null && ratingSeasonId !== seasonId ? (
                         <span
@@ -274,10 +274,10 @@ function ScheduleGamesTable({
                         </span>
                       ) : null}
                     </td>
-                    <td data-sort-value={game.restDays ?? ""} className="text-right tabular-nums">
+                    <td data-sort-value={game.restDays ?? ""} className="text-center tabular-nums">
                       {game.isBackToBack ? "B2B" : game.restDays === null ? "—" : `${game.restDays}d`}
                     </td>
-                    <td data-sort-value={game.travelDistanceKm ?? ""} className="text-right tabular-nums">
+                    <td data-sort-value={game.travelDistanceKm ?? ""} className="text-center tabular-nums">
                       {game.travelDistanceKm === null
                         ? "—"
                         : formatDistance(game.travelDistanceKm)}

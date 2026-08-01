@@ -155,21 +155,11 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
           title={`${selectedSeason?.label ?? "No Season"} Players`}
           description={`Complete Polars-derived ${seasonPhaseLabel(phase).toLowerCase()} totals for every participating skater and goalie. Traded-player rows combine all teams.`}
           action={
-            <div className="workspace-page-actions">
-              {selectedSeason ? (
-                <Link
-                  href={`/players/compare?season=${selectedSeason.id}&phase=${phase}&type=${category}`}
-                  className="workspace-secondary-action"
-                >
-                  Compare Players
-                </Link>
-              ) : null}
-              <SeasonPicker
-                seasons={seasons}
-                selectedSeasonId={selectedSeason?.id}
-                params={{ phase }}
-              />
-            </div>
+            <SeasonPicker
+              seasons={seasons}
+              selectedSeasonId={selectedSeason?.id}
+              params={{ phase }}
+            />
           }
         />
 
@@ -728,7 +718,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`px-3 py-3 text-right tabular-nums ${
+      className={`px-3 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-cyan-200" : "text-slate-300"
       }`}
     >

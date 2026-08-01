@@ -292,7 +292,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`px-3 py-3 text-right tabular-nums ${highlight ? "font-semibold text-white" : ""}`}
+      className={`px-3 py-3 text-center tabular-nums ${highlight ? "font-semibold text-white" : ""}`}
       data-sort-value={sortValue ?? value ?? ""}
     >
       {value ?? "—"}

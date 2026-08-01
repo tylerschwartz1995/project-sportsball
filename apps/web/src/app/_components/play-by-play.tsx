@@ -233,7 +233,7 @@ function ScoringSummary({
                           {goalTypeLabel(goal, awayTeam, homeTeam)}
                         </td>
                         <td
-                          className="px-4 py-3 text-right font-semibold tabular-nums text-white"
+                          className="px-4 py-3 text-center font-semibold tabular-nums text-white"
                           data-sort-value={
                             (goal.awayScore ?? 0) + (goal.homeScore ?? 0)
                           }

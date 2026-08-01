@@ -10,9 +10,11 @@ import {
   WorkspacePanel,
 } from "@/app/_components/workspace-primitives";
 import type { PlayoffRound, PlayoffSeries } from "@/contracts/playoffs";
+import type { GoalieSeasonSummary } from "@/contracts/player";
 import { parseSeasonId } from "@/contracts/season";
 import { getGamesForSeasonByType } from "@/data/games";
 import { getPlayoffScoringLeaders } from "@/data/playoffs";
+import { listGoalieLeadersBySeason } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
 import { getStandings } from "@/data/standings";
 import { firstQueryValue } from "@/lib/directory";
@@ -35,13 +37,14 @@ export default async function PlayoffsPage({
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
-  const [standings, games, leaders] = selectedSeason
+  const [standings, games, leaders, goalieLeaders] = selectedSeason
     ? await Promise.all([
         getStandings(selectedSeason.id),
         getGamesForSeasonByType(selectedSeason.id, 3),
         getPlayoffScoringLeaders(selectedSeason.id),
+        listGoalieLeadersBySeason(selectedSeason.id, 25, 3),
       ])
-    : [[], [], []];
+    : [[], [], [], []];
   const isProjection = !games.some(
     (game) =>
       game.homeTeam.score !== null &&
@@ -109,7 +112,7 @@ export default async function PlayoffsPage({
                           <SortableHeader
                             label="Team"
                             sortKey="team"
-                            align="left"
+                            align="center"
                             defaultDirection="asc"
                           />
                           <SortableHeader label="GP" sortKey="games" />
@@ -128,8 +131,16 @@ export default async function PlayoffsPage({
                                 {player.name}
                               </Link>
                             </td>
-                            <td data-sort-value={player.teamAbbreviation}>
-                              <TeamLogoStack abbreviations={player.teamAbbreviation} />
+                            <td
+                              className="workspace-logo-cell"
+                              data-sort-value={player.teamAbbreviation}
+                            >
+                              <span>
+                                <TeamLogoStack
+                                  abbreviations={player.teamAbbreviation}
+                                />
+                                {player.teamAbbreviation}
+                              </span>
                             </td>
                             <NumberCell value={player.gamesPlayed} />
                             <NumberCell value={player.goals} />
@@ -150,6 +161,11 @@ export default async function PlayoffsPage({
                 </div>
               )}
             </WorkspacePanel>
+
+            <PlayoffGoalieLeaders
+              goalies={goalieLeaders}
+              seasonId={selectedSeason.id}
+            />
           </>
         ) : (
           <div className="workspace-empty-state">
@@ -158,6 +174,98 @@ export default async function PlayoffsPage({
         )}
       </section>
     </main>
+  );
+}
+
+function PlayoffGoalieLeaders({
+  goalies,
+  seasonId,
+}: {
+  goalies: GoalieSeasonSummary[];
+  seasonId: number;
+}) {
+  return (
+    <WorkspacePanel
+      className="mt-7"
+      title="Goalie Leaders"
+      description="Official playoff goalie totals from stored season summaries."
+    >
+      {goalies.length > 0 ? (
+        <SortableTable defaultSortKey="wins">
+          <div className="workspace-table-scroll">
+            <table className="workspace-table min-w-[820px]">
+              <thead>
+                <tr>
+                  <SortableHeader
+                    label="Goalie"
+                    sortKey="name"
+                    align="left"
+                    defaultDirection="asc"
+                  />
+                  <SortableHeader
+                    label="Team"
+                    sortKey="team"
+                    align="center"
+                    defaultDirection="asc"
+                  />
+                  <SortableHeader label="GP" sortKey="games" />
+                  <SortableHeader label="GS" sortKey="gamesStarted" />
+                  <SortableHeader label="W" sortKey="wins" />
+                  <SortableHeader label="L" sortKey="losses" />
+                  <SortableHeader label="OTL" sortKey="overtimeLosses" />
+                  <SortableHeader label="GA" sortKey="goalsAgainst" />
+                  <SortableHeader label="SV" sortKey="saves" />
+                  <SortableHeader label="SV%" sortKey="savePercentage" />
+                </tr>
+              </thead>
+              <tbody>
+                {goalies.map((goalie) => (
+                  <tr key={goalie.nhlPlayerId}>
+                    <td className="workspace-team-cell">
+                      <Link
+                        href={`/players/${goalie.nhlPlayerId}?season=${seasonId}&phase=playoffs`}
+                      >
+                        {goalie.name}
+                      </Link>
+                    </td>
+                    <td
+                      className="workspace-logo-cell"
+                      data-sort-value={goalie.teams
+                        .map((team) => team.abbreviation)
+                        .join("/")}
+                    >
+                      <span>
+                        <TeamLogoStack teams={goalie.teams} />
+                        {goalie.teams
+                          .map((team) => team.abbreviation)
+                          .join("/")}
+                      </span>
+                    </td>
+                    <NumberCell value={goalie.gamesPlayed} />
+                    <NumberCell value={goalie.gamesStarted} />
+                    <NumberCell value={goalie.wins} />
+                    <NumberCell value={goalie.losses} />
+                    <NumberCell value={goalie.overtimeLosses} />
+                    <NumberCell value={goalie.goalsAgainst} />
+                    <NumberCell value={goalie.saves} />
+                    <td
+                      className="workspace-points-cell"
+                      data-sort-value={goalie.savePercentage ?? ""}
+                    >
+                      {formatSavePercentage(goalie.savePercentage)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </SortableTable>
+      ) : (
+        <div className="workspace-empty-state compact">
+          Playoff goalie leaders will appear after postseason games begin.
+        </div>
+      )}
+    </WorkspacePanel>
   );
 }
 
@@ -170,14 +278,53 @@ function PlayoffBracket({
   seasonId: number;
   isProjection: boolean;
 }) {
+  const firstRound = rounds.find((round) => round.round === 1)?.series ?? [];
+  const secondRound = rounds.find((round) => round.round === 2)?.series ?? [];
+  const conferenceFinals =
+    rounds.find((round) => round.round === 3)?.series ?? [];
+  const final = rounds.find((round) => round.round === 4)?.series ?? [];
+  const stages = [
+    {
+      id: "western-first",
+      name: "West First Round",
+      series: firstRound.filter((series) => series.matchup >= 5),
+    },
+    {
+      id: "western-second",
+      name: "West Second Round",
+      series: secondRound.filter((series) => series.matchup >= 3),
+    },
+    {
+      id: "western-final",
+      name: "West Final",
+      series: conferenceFinals.filter((series) => series.matchup === 2),
+    },
+    { id: "stanley-cup-final", name: "Stanley Cup Final", series: final },
+    {
+      id: "eastern-final",
+      name: "East Final",
+      series: conferenceFinals.filter((series) => series.matchup === 1),
+    },
+    {
+      id: "eastern-second",
+      name: "East Second Round",
+      series: secondRound.filter((series) => series.matchup <= 2),
+    },
+    {
+      id: "eastern-first",
+      name: "East First Round",
+      series: firstRound.filter((series) => series.matchup <= 4),
+    },
+  ];
+
   return (
     <div className="workspace-bracket-scroll">
       <div className="workspace-bracket">
-        {rounds.map((round) => (
-          <section key={round.round} className="workspace-bracket-round">
-            <h3>{round.name}</h3>
+        {stages.map((stage) => (
+          <section key={stage.id} className="workspace-bracket-round">
+            <h3>{stage.name}</h3>
             <div>
-              {round.series.map((series) => (
+              {stage.series.map((series) => (
                 <Series
                   key={series.id}
                   series={series}
@@ -242,17 +389,21 @@ function BracketTeam({
     <div className={winner ? "is-winner" : ""}>
       {team ? (
         <>
-          <small>{team.seedLabel ?? team.abbreviation}</small>
+          <small>{team.seedLabel ?? ""}</small>
           <TeamLogo
             nhlTeamId={team.nhlTeamId}
             abbreviation={team.abbreviation}
             name={team.name}
-            size="compact"
+            size="tiny"
             decorative
             prominent
           />
-          <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
-            {team.name}
+          <Link
+            href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
+            aria-label={team.name}
+            title={team.name}
+          >
+            {team.abbreviation}
           </Link>
           {showWins ? <strong>{wins}</strong> : null}
         </>
@@ -265,4 +416,8 @@ function BracketTeam({
 
 function NumberCell({ value }: { value: number }) {
   return <td className="workspace-number-cell">{value}</td>;
+}
+
+function formatSavePercentage(value: number | null): string {
+  return value === null ? "—" : value.toFixed(3).replace(/^0/, "");
 }

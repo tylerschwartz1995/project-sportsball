@@ -105,13 +105,6 @@ export default async function StandingsPage({
               )}
             </nav>
 
-            <div className="mt-7">
-              <StandingsPointsChart
-                history={pointsHistory}
-                standings={standings}
-              />
-            </div>
-
             <div className="mt-7 grid gap-7">
               {groups.map((group) => (
                 <StandingsTable
@@ -130,6 +123,13 @@ export default async function StandingsPage({
                   snapshotDate={leader.snapshotDate}
                 />
               ))}
+            </div>
+
+            <div className="mt-7">
+              <StandingsPointsChart
+                history={pointsHistory}
+                standings={standings}
+              />
             </div>
           </>
         ) : (

@@ -97,22 +97,6 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
             path="/history"
             params={historyParams(view, metric, filters)}
           />
-
-          <nav className="workspace-standings-scope" aria-label="Historical leader type">
-            {(["skaters", "goalies", "teams"] as const).map((option) => (
-              <Link
-                key={option}
-                href={historyHref(option, phase, filters)}
-                aria-current={view === option ? "page" : undefined}
-              >
-                {option === "skaters"
-                  ? "Skaters"
-                  : option === "goalies"
-                    ? "Goalies"
-                    : "Teams"}
-              </Link>
-            ))}
-          </nav>
         </div>
 
         <HistoryFiltersForm
@@ -164,51 +148,124 @@ function HistoryFiltersForm({
   options: HistoryFilterOptions;
 }) {
   return (
-    <form method="get" className="workspace-history-controls">
-      <input type="hidden" name="view" value={view} />
+    <form action="/history" method="get" className="workspace-player-filters">
       <input type="hidden" name="phase" value={phase} />
-      <label>
-        Ranking Metric
-        <select name="metric" defaultValue={metric}>
-          {metricOptions(view).map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label>Start Season
-        <input name="startYear" type="number" min="1917" max="2025" defaultValue={filters.startYear} />
-      </label>
-      <label>End Season
-        <input name="endYear" type="number" min="1917" max="2025" defaultValue={filters.endYear} />
-      </label>
-      <label>Minimum Games
-        <input name="minimumGames" type="number" min="0" max="5000" defaultValue={filters.minimumGames} />
-      </label>
-      {view === "skaters" ? <label>Position
-        <select name="position" defaultValue={filters.position ?? ""}>
-          <option value="">All Positions</option>
-          {options.positions.map((value) => <option key={value} value={value}>{positionLabel(value)}</option>)}
-        </select>
-      </label> : null}
-      {view !== "teams" ? <>
-        <label>Team
-          <select name="team" defaultValue={filters.team ?? ""}>
-            <option value="">All Teams</option>
-            {options.teams.map((value) => <option key={value} value={value}>{value}</option>)}
-          </select>
-        </label>
-        <label>Birth Country
-          <select name="country" defaultValue={filters.country ?? ""}>
-            <option value="">All</option>
-            {options.countries.map((value) => <option key={value} value={value}>{countryLabel(value)}</option>)}
-          </select>
-        </label>
-      </> : null}
-      <div className="workspace-history-actions">
-        <button type="submit">Apply Filters</button>
-        <Link href={`/history?phase=${phase}&view=${view}`}>Reset</Link>
+
+      <fieldset className="workspace-player-filter-group is-primary">
+        <legend>Find Historical Leaders</legend>
+        <div>
+          <label>
+            Leader Type
+            <select name="view" defaultValue={view}>
+              <option value="skaters">Skaters</option>
+              <option value="goalies">Goalies</option>
+              <option value="teams">Teams</option>
+            </select>
+          </label>
+          <label>
+            Ranking Metric
+            <select name="metric" defaultValue={metric}>
+              {metricOptions(view).map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset className="workspace-player-filter-group">
+        <legend>Time Period</legend>
+        <div>
+          <label>
+            Start Season
+            <input
+              name="startYear"
+              type="number"
+              min="1917"
+              max="2025"
+              defaultValue={filters.startYear}
+            />
+          </label>
+          <label>
+            End Season
+            <input
+              name="endYear"
+              type="number"
+              min="1917"
+              max="2025"
+              defaultValue={filters.endYear}
+            />
+          </label>
+          <label>
+            Minimum Games
+            <input
+              name="minimumGames"
+              type="number"
+              min="0"
+              max="5000"
+              defaultValue={filters.minimumGames}
+            />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset className="workspace-player-filter-group">
+        <legend>Player Filters</legend>
+        {view === "teams" ? (
+          <p className="workspace-filter-group-note">
+            Player filters do not apply to historical team rankings.
+          </p>
+        ) : (
+          <div>
+            {view === "skaters" ? (
+              <label>
+                Position
+                <select name="position" defaultValue={filters.position ?? ""}>
+                  <option value="">All Positions</option>
+                  {options.positions.map((value) => (
+                    <option key={value} value={value}>
+                      {positionLabel(value)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+            <label>
+              Team
+              <select name="team" defaultValue={filters.team ?? ""}>
+                <option value="">All Teams</option>
+                {options.teams.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Birth Country
+              <select name="country" defaultValue={filters.country ?? ""}>
+                <option value="">All Countries</option>
+                {options.countries.map((value) => (
+                  <option key={value} value={value}>
+                    {countryLabel(value)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        )}
+      </fieldset>
+
+      <div className="workspace-player-filter-actions">
+        <button type="submit">Show History</button>
+        <Link
+          href={`/history?phase=${phase}&view=${view}`}
+          className="workspace-directory-reset"
+        >
+          Clear Filters
+        </Link>
       </div>
     </form>
   );
@@ -550,23 +607,6 @@ function historyParams(
     team: filters.team ?? undefined,
     country: filters.country ?? undefined,
   };
-}
-function historyHref(
-  view: HistoryView,
-  phase: SeasonPhase,
-  filters: HistoryFilters,
-): string {
-  const params = new URLSearchParams({
-    phase,
-    view,
-    startYear: String(filters.startYear),
-    endYear: String(filters.endYear),
-    minimumGames: String(filters.minimumGames),
-  });
-  if (view === "skaters" && filters.position) params.set("position", filters.position);
-  if (view !== "teams" && filters.team) params.set("team", filters.team);
-  if (view !== "teams" && filters.country) params.set("country", filters.country);
-  return `/history?${params.toString()}`;
 }
 function firstValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
