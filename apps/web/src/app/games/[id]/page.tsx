@@ -262,7 +262,12 @@ function SkaterTable({
               >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <TeamLogo {...team} size="tiny" decorative />
+                    <TeamLogo
+                      {...team}
+                      size="compact"
+                      decorative
+                      prominent
+                    />
                     <div>
                       <Link
                         href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
@@ -334,7 +339,12 @@ function GoalieTable({
               >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-2">
-                    <TeamLogo {...team} size="tiny" decorative />
+                    <TeamLogo
+                      {...team}
+                      size="compact"
+                      decorative
+                      prominent
+                    />
                     <div>
                       <Link
                         href={`/players/${player.nhlPlayerId}?season=${seasonId}`}

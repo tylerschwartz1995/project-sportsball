@@ -248,7 +248,8 @@ export function TeamRollingPerformanceChart({
         </p>
       ) : null}
 
-      <table className="sr-only">
+      <div className="sr-only">
+        <table>
         <caption>
           {teamName} rolling {venue === "all" ? "" : `${venue} `}performance,
           using up to {windowSize} games per point
@@ -287,7 +288,8 @@ export function TeamRollingPerformanceChart({
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
     </>
   );
 }

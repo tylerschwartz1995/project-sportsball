@@ -145,14 +145,20 @@ export default async function PlayerPage({
 
         <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
-              {profile.position ?? "Player"}
-            </p>
-            <div className="mt-3 flex items-center gap-3">
-              <TeamLogoStack teams={selectedTeams} size="compact" />
-              <h1 className="text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-                {profile.name}
-              </h1>
+            <div className="flex items-center gap-4 sm:gap-5">
+              <TeamLogoStack
+                teams={selectedTeams}
+                size="profile"
+                prominent
+              />
+              <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+                <h1 className="text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
+                  {profile.name}
+                </h1>
+                <span className="rounded-full border border-cyan-300/25 bg-cyan-300/[0.08] px-2.5 py-1 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">
+                  {profile.position ?? "Player"}
+                </span>
+              </div>
             </div>
             <p className="mt-4 text-base text-slate-400">
               {selectedSeason
@@ -534,7 +540,12 @@ function SkaterHistory({
       headers={["Season", "Team(s)", "GP", "G", "A", "PTS", "+/-", "PIM"]}
       rows={rows.map((row) => [
         seasonLabels.get(row.seasonId) ?? String(row.seasonId),
-        <TeamLogoStack key={`teams-${row.seasonId}-${row.gameType}`} teams={row.teams} />,
+        <TeamLogoStack
+          key={`teams-${row.seasonId}-${row.gameType}`}
+          teams={row.teams}
+          size="compact"
+          prominent
+        />,
         row.gamesPlayed,
         row.goals,
         row.assists,
@@ -558,7 +569,12 @@ function GoalieHistory({
       headers={["Season", "Team(s)", "GP", "GS", "W", "L", "OTL", "SV%"]}
       rows={rows.map((row) => [
         seasonLabels.get(row.seasonId) ?? String(row.seasonId),
-        <TeamLogoStack key={`teams-${row.seasonId}-${row.gameType}`} teams={row.teams} />,
+        <TeamLogoStack
+          key={`teams-${row.seasonId}-${row.gameType}`}
+          teams={row.teams}
+          size="compact"
+          prominent
+        />,
         row.gamesPlayed,
         row.gamesStarted,
         row.wins,
@@ -576,7 +592,12 @@ function HistoricalSkaterTable({ rows }: { rows: HistoricalSkaterSeason[] }) {
       headers={["Season", "Team(s)", "GP", "G", "A", "PTS", "P/GP"]}
       rows={rows.map((row) => [
         formatHistoricalSeason(row.seasonId),
-        <TeamLogoStack key={`teams-${row.seasonId}-${row.gameType}`} abbreviations={row.teamAbbreviations} />,
+        <TeamLogoStack
+          key={`teams-${row.seasonId}-${row.gameType}`}
+          abbreviations={row.teamAbbreviations}
+          size="compact"
+          prominent
+        />,
         row.gamesPlayed,
         row.goals,
         row.assists,
@@ -593,7 +614,12 @@ function HistoricalGoalieTable({ rows }: { rows: HistoricalGoalieSeason[] }) {
       headers={["Season", "Team(s)", "GP", "W", "L", "SO", "GAA", "SV%"]}
       rows={rows.map((row) => [
         formatHistoricalSeason(row.seasonId),
-        <TeamLogoStack key={`teams-${row.seasonId}-${row.gameType}`} abbreviations={row.teamAbbreviations} />,
+        <TeamLogoStack
+          key={`teams-${row.seasonId}-${row.gameType}`}
+          abbreviations={row.teamAbbreviations}
+          size="compact"
+          prominent
+        />,
         row.gamesPlayed,
         row.wins,
         row.losses,
@@ -621,44 +647,44 @@ function HistoryTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+    <div className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
       <SortableTable defaultSortKey={headers[0]} defaultDirection="desc">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[700px] text-sm">
-          <thead>
-            <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
-              {headers.map((header, index) => (
-                <SortableHeader
-                  key={header}
-                  label={header}
-                  sortKey={header}
-                  align={index === 0 ? "left" : "right"}
-                  defaultDirection={index === 0 ? "asc" : "desc"}
-                />
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, rowIndex) => (
-              <tr
-                key={`${String(row[0])}-${rowIndex}`}
-                className="border-b border-white/[0.06] text-slate-300 last:border-0"
-              >
-                {row.map((value, index) => (
-                  <td
-                    key={`${headers[index]}-${index}`}
-                    className={`px-4 py-3 tabular-nums ${
-                      index === 0 ? "text-left" : "text-right"
-                    } ${index === 4 ? "font-semibold text-cyan-200" : ""}`}
-                  >
-                    {value}
-                  </td>
+        <div className="min-w-0 max-w-full overflow-x-auto">
+          <table className="w-full min-w-[700px] text-sm">
+            <thead>
+              <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+                {headers.map((header, index) => (
+                  <SortableHeader
+                    key={header}
+                    label={header}
+                    sortKey={header}
+                    align={index === 0 ? "left" : "right"}
+                    defaultDirection={index === 0 ? "asc" : "desc"}
+                  />
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {rows.map((row, rowIndex) => (
+                <tr
+                  key={`${String(row[0])}-${rowIndex}`}
+                  className="border-b border-white/[0.06] text-slate-300 last:border-0"
+                >
+                  {row.map((value, index) => (
+                    <td
+                      key={`${headers[index]}-${index}`}
+                      className={`px-4 py-3 tabular-nums ${
+                        index === 0 ? "text-left" : "text-right"
+                      } ${index === 4 ? "font-semibold text-cyan-200" : ""}`}
+                    >
+                      {value}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </SortableTable>
     </div>
   );
@@ -672,7 +698,7 @@ function HistoryGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div>
+    <div className="min-w-0">
       <h4 className="mb-3 text-sm font-semibold text-white">{title}</h4>
       {children}
     </div>

@@ -545,7 +545,9 @@ function EntityCell({
   return (
     <td className="px-4 py-3 text-left">
       <div className="flex items-center gap-2">
-        {team ? <TeamLogo {...team} size="tiny" decorative /> : null}
+        {team ? (
+          <TeamLogo {...team} size="compact" decorative prominent />
+        ) : null}
         <div>
           <Link
             href={href}

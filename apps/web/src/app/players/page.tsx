@@ -243,7 +243,11 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                               >
                                 <td className="px-4 py-3">
                                   <div className="flex items-center gap-2">
-                                    <TeamLogoStack teams={player.teams} />
+                                    <TeamLogoStack
+                                      teams={player.teams}
+                                      size="compact"
+                                      prominent
+                                    />
                                     <div>
                                       <PlayerLink
                                         playerId={player.nhlPlayerId}
@@ -344,7 +348,11 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                               >
                                 <td className="px-4 py-3">
                                   <div className="flex items-center gap-2">
-                                    <TeamLogoStack teams={player.teams} />
+                                    <TeamLogoStack
+                                      teams={player.teams}
+                                      size="compact"
+                                      prominent
+                                    />
                                     <PlayerLink
                                       playerId={player.nhlPlayerId}
                                       seasonId={selectedSeason.id}
@@ -564,17 +572,17 @@ function MobileSkaterCard({
     <article className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-2">
-          <TeamLogoStack teams={player.teams} size="compact" />
+          <TeamLogoStack teams={player.teams} size="compact" prominent />
           <div>
-          <PlayerLink
-            playerId={player.nhlPlayerId}
-            seasonId={seasonId}
-            name={player.name}
-            phase={phase}
-          />
-          <p className="mt-1 text-xs text-slate-500">
-            {player.position ?? "Skater"} · {player.gamesPlayed} games
-          </p>
+            <PlayerLink
+              playerId={player.nhlPlayerId}
+              seasonId={seasonId}
+              name={player.name}
+              phase={phase}
+            />
+            <p className="mt-1 text-xs text-slate-500">
+              {player.position ?? "Skater"} · {player.gamesPlayed} games
+            </p>
           </div>
         </div>
         <div className="text-right">
@@ -609,17 +617,17 @@ function MobileGoalieCard({
     <article className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-2">
-          <TeamLogoStack teams={player.teams} size="compact" />
+          <TeamLogoStack teams={player.teams} size="compact" prominent />
           <div>
-          <PlayerLink
-            playerId={player.nhlPlayerId}
-            seasonId={seasonId}
-            name={player.name}
-            phase={phase}
-          />
-          <p className="mt-1 text-xs text-slate-500">
-            {player.gamesPlayed} games · {player.gamesStarted} starts
-          </p>
+            <PlayerLink
+              playerId={player.nhlPlayerId}
+              seasonId={seasonId}
+              name={player.name}
+              phase={phase}
+            />
+            <p className="mt-1 text-xs text-slate-500">
+              {player.gamesPlayed} games · {player.gamesStarted} starts
+            </p>
           </div>
         </div>
         <div className="text-right">

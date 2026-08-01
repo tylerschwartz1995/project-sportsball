@@ -284,7 +284,8 @@ export function TeamComparisonScatterplot({
         ))}
       </div>
 
-      <table className="sr-only">
+      <div className="sr-only">
+        <table>
         <caption>Team comparison plot values</caption>
         <thead>
           <tr>
@@ -308,7 +309,8 @@ export function TeamComparisonScatterplot({
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
       </section>
 
       <DirectTeamComparison points={points} />

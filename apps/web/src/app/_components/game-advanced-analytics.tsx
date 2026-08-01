@@ -247,7 +247,12 @@ function PlayerGameAnalytics({
                     >
                       <td className="px-4 py-3 text-left">
                         <div className="flex items-center gap-2">
-                          <TeamLogo {...row.team} size="tiny" decorative />
+                          <TeamLogo
+                            {...row.team}
+                            size="compact"
+                            decorative
+                            prominent
+                          />
                           <Link
                             href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
                             className="font-medium text-white transition hover:text-violet-200"
@@ -315,7 +320,12 @@ function PlayerGameAnalytics({
                     >
                       <td className="px-4 py-3 text-left">
                         <div className="flex items-center gap-2">
-                          <TeamLogo {...row.team} size="tiny" decorative />
+                          <TeamLogo
+                            {...row.team}
+                            size="compact"
+                            decorative
+                            prominent
+                          />
                           <Link
                             href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
                             className="font-medium text-white transition hover:text-violet-200"
@@ -566,7 +576,7 @@ function TeamCell({ team }: { team: MoneyPuckGameTeam }) {
   return (
     <td className="px-4 py-3 text-left font-medium text-white">
       <span className="inline-flex items-center gap-2">
-        <TeamLogo {...team} size="tiny" decorative />
+        <TeamLogo {...team} size="compact" decorative prominent />
         {team.abbreviation}
       </span>
     </td>

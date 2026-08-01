@@ -283,8 +283,9 @@ export default async function TeamPage({
                           <div className="flex items-center gap-2">
                             <TeamLogo
                               {...detail.team}
-                              size="tiny"
+                              size="compact"
                               decorative
+                              prominent
                             />
                             <div>
                               <Link
@@ -359,7 +360,12 @@ export default async function TeamPage({
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <TeamLogo {...detail.team} size="tiny" decorative />
+                            <TeamLogo
+                              {...detail.team}
+                              size="compact"
+                              decorative
+                              prominent
+                            />
                             <Link
                               href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
                               className="font-medium text-white transition hover:text-cyan-200"
