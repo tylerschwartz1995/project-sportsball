@@ -186,6 +186,27 @@ export async function getLatestGamesForSeason(
   return rows.map(mapGame);
 }
 
+export async function getRecentCompletedGames(
+  seasonId: number,
+  gameType = 2,
+  limit = 60,
+): Promise<GameSummary[]> {
+  const rows = await query<GameRow>(
+    `
+      ${gameSelect}
+      WHERE game.season_id = $1
+        AND game.game_type = $2
+        AND game.state IN ('FINAL', 'OFF')
+        AND away_stats.score IS NOT NULL
+        AND home_stats.score IS NOT NULL
+      ORDER BY game.start_time_utc DESC, game.nhl_id DESC
+      LIMIT $3
+    `,
+    [seasonId, gameType, Math.min(120, Math.max(1, limit))],
+  );
+  return rows.map(mapGame);
+}
+
 export async function getGamesForSeasonByType(
   seasonId: number,
   gameType: number,

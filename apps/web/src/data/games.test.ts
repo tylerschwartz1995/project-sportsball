@@ -10,6 +10,7 @@ import {
   getGameBoxScore,
   getGamesByDate,
   getLatestGamesForSeason,
+  getRecentCompletedGames,
   getUpcomingGamesForTeamAcrossSeasons,
   getUpcomingGames,
   listGameDates,
@@ -108,6 +109,20 @@ describe("game queries", () => {
     expect(queryMock).toHaveBeenCalledWith(
       expect.stringContaining("SELECT MAX(latest.game_date)"),
       [20252026],
+    );
+  });
+
+  it("loads a bounded recent completed-game sample", async () => {
+    queryMock.mockResolvedValue([]);
+
+    await getRecentCompletedGames(20252026, 2, 500);
+
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("game.state IN ('FINAL', 'OFF')"),
+      [20252026, 2, 120],
+    );
+    expect(queryMock.mock.calls[0]?.[0]).toContain(
+      "ORDER BY game.start_time_utc DESC",
     );
   });
 
