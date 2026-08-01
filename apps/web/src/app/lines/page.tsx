@@ -9,15 +9,19 @@ import {
 import { parseSeasonId } from "@/contracts/season";
 import { listSeasons } from "@/data/seasons";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
+import { listTeamsBySeason } from "@/data/teams";
 
 export const dynamic = "force-dynamic";
 
-const ICE_TIME_OPTIONS = [0, 50, 100, 200, 300] as const;
+const ICE_TIME_OPTIONS = [0, 20, 50, 100, 200, 300] as const;
+const WINDOW_OPTIONS = [10, 20, 40] as const;
 
 type LinesPageProps = {
   searchParams: Promise<{
     season?: string | string[];
     minimum?: string | string[];
+    team?: string | string[];
+    window?: string | string[];
   }>;
 };
 
@@ -33,11 +37,30 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
   )
     ? requestedMinimum
     : 100;
-  const units = selectedSeason
-    ? await getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
-        minimumIceTimeSeconds: minimumMinutes * 60,
-      })
-    : { forwardLines: [], defensivePairings: [] };
+  const requestedTeam = Number(firstValue(params.team));
+  const requestedTeamId =
+    Number.isSafeInteger(requestedTeam) && requestedTeam > 0
+      ? requestedTeam
+      : undefined;
+  const requestedWindow = Number(firstValue(params.window));
+  const rollingGames = WINDOW_OPTIONS.includes(
+    requestedWindow as (typeof WINDOW_OPTIONS)[number],
+  )
+    ? (requestedWindow as (typeof WINDOW_OPTIONS)[number])
+    : undefined;
+  const [teams, units] = selectedSeason
+    ? await Promise.all([
+        listTeamsBySeason(selectedSeason.id),
+        getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
+          minimumIceTimeSeconds: minimumMinutes * 60,
+          teamNhlId: requestedTeamId,
+          rollingGames,
+        }),
+      ])
+    : [[], { forwardLines: [], defensivePairings: [] }];
+  const selectedTeam = teams.find(
+    ({ team }) => team.nhlTeamId === requestedTeamId,
+  )?.team;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -52,6 +75,11 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
             <SeasonPicker
               seasons={seasons}
               selectedSeasonId={selectedSeason?.id}
+              params={{
+                minimum: minimumMinutes,
+                team: selectedTeam?.nhlTeamId,
+                window: rollingGames,
+              }}
             />
           }
         />
@@ -64,12 +92,15 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
           <>
             <WorkspacePanel
               className="mt-8"
-              title="Usage Filter"
-              description="Set the minimum five-on-five ice time required to appear in both tables."
+              title="Combination Scope"
+              description="Compare full-season results or each team's most recent 10, 20, or 40 regular-season games. Rolling windows use the last team games in the selected season, then recompute every rate from the supporting totals."
             >
-              <MinimumIceTimeFilter
+              <CombinationFilters
                 seasonId={selectedSeason.id}
                 selectedMinutes={minimumMinutes}
+                teams={teams.map(({ team }) => team)}
+                selectedTeamId={selectedTeam?.nhlTeamId}
+                rollingGames={rollingGames}
               />
             </WorkspacePanel>
             <div className="mt-10">
@@ -98,12 +129,18 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
   );
 }
 
-function MinimumIceTimeFilter({
+function CombinationFilters({
   seasonId,
   selectedMinutes,
+  teams,
+  selectedTeamId,
+  rollingGames,
 }: {
   seasonId: number;
   selectedMinutes: number;
+  teams: Array<{ nhlTeamId: number; name: string }>;
+  selectedTeamId: number | undefined;
+  rollingGames: (typeof WINDOW_OPTIONS)[number] | undefined;
 }) {
   return (
     <form
@@ -111,6 +148,28 @@ function MinimumIceTimeFilter({
       className="workspace-unit-filter"
     >
       <input type="hidden" name="season" value={seasonId} />
+      <label>
+        Team
+        <select name="team" defaultValue={selectedTeamId ?? ""}>
+          <option value="">All teams</option>
+          {teams.map((team) => (
+            <option key={team.nhlTeamId} value={team.nhlTeamId}>
+              {team.name}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label>
+        Sample
+        <select name="window" defaultValue={rollingGames ?? ""}>
+          <option value="">Full season</option>
+          {WINDOW_OPTIONS.map((games) => (
+            <option key={games} value={games}>
+              Last {games} team games
+            </option>
+          ))}
+        </select>
+      </label>
       <label>
         Minimum five-on-five TOI
         <select
@@ -127,7 +186,7 @@ function MinimumIceTimeFilter({
       <button
         type="submit"
       >
-        Apply
+        Explore
       </button>
     </form>
   );
