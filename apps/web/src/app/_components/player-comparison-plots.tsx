@@ -586,16 +586,6 @@ function DirectPlayerComparison({
           disabledKey={secondKey}
           onChange={setFirstKey}
         />
-        <button
-          type="button"
-          disabled={!firstKey && !secondKey}
-          onClick={() => {
-            setFirstKey(secondKey);
-            setSecondKey(firstKey);
-          }}
-        >
-          Swap Players
-        </button>
         <PlayerSelector
           label="Player B"
           value={secondKey}
@@ -612,27 +602,31 @@ function DirectPlayerComparison({
               <tr>
                 <th>Metric</th>
                 <th>
-                  {first.name}
-                  <span className="flex items-center justify-center gap-1.5">
-                    <TeamLogo
-                      nhlTeamId={first.nhlTeamId}
-                      abbreviation={first.teamAbbreviation}
-                      size="tiny"
-                      decorative
-                    />
-                    {first.teamAbbreviation}
+                  <span className="workspace-direct-comparison-identity">
+                    <span>{first.name}</span>
+                    <span className="workspace-direct-comparison-identity-meta">
+                      <TeamLogo
+                        nhlTeamId={first.nhlTeamId}
+                        abbreviation={first.teamAbbreviation}
+                        size="tiny"
+                        decorative
+                      />
+                      {first.teamAbbreviation}
+                    </span>
                   </span>
                 </th>
                 <th>
-                  {second.name}
-                  <span className="flex items-center justify-center gap-1.5">
-                    <TeamLogo
-                      nhlTeamId={second.nhlTeamId}
-                      abbreviation={second.teamAbbreviation}
-                      size="tiny"
-                      decorative
-                    />
-                    {second.teamAbbreviation}
+                  <span className="workspace-direct-comparison-identity">
+                    <span>{second.name}</span>
+                    <span className="workspace-direct-comparison-identity-meta">
+                      <TeamLogo
+                        nhlTeamId={second.nhlTeamId}
+                        abbreviation={second.teamAbbreviation}
+                        size="tiny"
+                        decorative
+                      />
+                      {second.teamAbbreviation}
+                    </span>
                   </span>
                 </th>
               </tr>

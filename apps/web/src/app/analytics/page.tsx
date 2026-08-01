@@ -182,6 +182,12 @@ export default async function AnalyticsPage({
                   minimumMinutes={minimumMinutes}
                   phase={phase}
                 />
+                <LeaderboardTable
+                  type={type}
+                  rows={rows}
+                  seasonId={selectedSeason.id}
+                  phase={phase}
+                />
                 {type === "teams" ? (
                   <TeamComparisonScatterplot
                     points={comparisonPoints}
@@ -200,12 +206,6 @@ export default async function AnalyticsPage({
                     points={goalieComparisonPoints}
                   />
                 ) : null}
-                <LeaderboardTable
-                  type={type}
-                  rows={rows}
-                  seasonId={selectedSeason.id}
-                  phase={phase}
-                />
                 <AnalyticsGuide seasonId={selectedSeason.id} />
               </>
             ) : (

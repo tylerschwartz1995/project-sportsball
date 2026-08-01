@@ -400,16 +400,6 @@ function DirectTeamComparison({
           disabledId={secondId}
           onChange={setFirstId}
         />
-        <button
-          type="button"
-          disabled={!firstId && !secondId}
-          onClick={() => {
-            setFirstId(secondId);
-            setSecondId(firstId);
-          }}
-        >
-          Swap Teams
-        </button>
         <TeamSelector
           label="Team B"
           value={secondId}
@@ -426,17 +416,21 @@ function DirectTeamComparison({
               <tr>
                 <th>Metric</th>
                 <th>
-                  {first.name}
-                  <span className="flex items-center justify-center gap-1.5">
-                    <TeamLogo {...first} size="tiny" decorative />
-                    {first.abbreviation}
+                  <span className="workspace-direct-comparison-identity">
+                    <span>{first.name}</span>
+                    <span className="workspace-direct-comparison-identity-meta">
+                      <TeamLogo {...first} size="tiny" decorative />
+                      {first.abbreviation}
+                    </span>
                   </span>
                 </th>
                 <th>
-                  {second.name}
-                  <span className="flex items-center justify-center gap-1.5">
-                    <TeamLogo {...second} size="tiny" decorative />
-                    {second.abbreviation}
+                  <span className="workspace-direct-comparison-identity">
+                    <span>{second.name}</span>
+                    <span className="workspace-direct-comparison-identity-meta">
+                      <TeamLogo {...second} size="tiny" decorative />
+                      {second.abbreviation}
+                    </span>
                   </span>
                 </th>
               </tr>
