@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SiteHeader } from "@/app/_components/site-header";
+import { SortableHeader } from "@/app/_components/sortable-header";
+import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo } from "@/app/_components/team-logo";
 import {
   WorkspacePageHeader,
@@ -79,62 +81,124 @@ export default async function UnitPage({
           title="Supporting Games"
           description={`${detail.games.length} games, newest first. Percentages are MoneyPuck's game-level five-on-five values.`}
         >
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-sm">
+          <SortableTable defaultSortKey="date" defaultDirection="desc">
+            <div className="workspace-table-scroll">
+            <table className="workspace-table workspace-unit-games-table min-w-[900px]">
               <caption className="sr-only">Supporting combination games</caption>
               <thead>
-                <tr className="border-b border-white/10 text-xs uppercase tracking-[0.12em] text-slate-400">
-                  <th className="px-4 py-3 text-left">Date</th>
-                  <th className="px-4 py-3 text-left">Opponent</th>
-                  <th className="px-4 py-3 text-right">Score</th>
-                  <th className="px-4 py-3 text-right">TOI</th>
-                  <th className="px-4 py-3 text-right">xG%</th>
-                  <th className="px-4 py-3 text-right">CF%</th>
-                  <th className="px-4 py-3 text-right">xGF–xGA</th>
-                  <th className="px-4 py-3 text-right">GF–GA</th>
-                  <th className="px-4 py-3 text-right">SOG–SA</th>
+                <tr>
+                  <SortableHeader label="Date" sortKey="date" align="left" defaultDirection="desc" />
+                  <SortableHeader label="Opponent" sortKey="opponent" align="left" defaultDirection="asc" />
+                  <SortableHeader label="Score" sortKey="score" />
+                  <SortableHeader label="TOI" sortKey="toi" />
+                  <SortableHeader label="xG%" sortKey="xgPercentage" />
+                  <SortableHeader label="CF%" sortKey="corsiPercentage" />
+                  <SortableHeader label="xGF–xGA" sortKey="xgDifferential" />
+                  <SortableHeader label="GF–GA" sortKey="goalDifferential" />
+                  <SortableHeader label="SOG–SA" sortKey="shotDifferential" />
                 </tr>
               </thead>
               <tbody>
                 {detail.games.map((game) => (
-                  <GameRow key={game.nhlGameId} game={game} />
+                  <GameRow
+                    key={game.nhlGameId}
+                    game={game}
+                    seasonId={seasonId}
+                  />
                 ))}
               </tbody>
             </table>
-          </div>
+            </div>
+          </SortableTable>
         </WorkspacePanel>
       </section>
     </main>
   );
 }
 
-function GameRow({ game }: { game: MoneyPuckUnitGameStats }) {
+function GameRow({
+  game,
+  seasonId,
+}: {
+  game: MoneyPuckUnitGameStats;
+  seasonId: number;
+}) {
   return (
-    <tr className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]">
-      <td className="px-4 py-3 text-left">
-        <Link href={`/games/${game.nhlGameId}`} className="font-medium text-white hover:text-cyan-200">
+    <tr>
+      <td data-sort-value={game.gameDate}>
+        <Link href={`/games/${game.nhlGameId}`} className="workspace-table-link">
           {formatDate(game.gameDate)}
         </Link>
       </td>
-      <td className="px-4 py-3 text-left">
+      <td data-sort-value={game.opponent.name}>
         <span className="inline-flex items-center gap-2">
           <TeamLogo {...game.opponent} size="tiny" decorative />
-          {game.isHome ? "vs" : "at"} {game.opponent.abbreviation}
+          {game.isHome ? "vs" : "at"}{" "}
+          <Link
+            href={`/teams/${game.opponent.nhlTeamId}?season=${seasonId}`}
+            className="workspace-table-link"
+          >
+            {game.opponent.abbreviation}
+          </Link>
         </span>
       </td>
-      <Value value={formatScore(game)} />
-      <Value value={formatTime(game.iceTimeSeconds)} />
-      <Value value={formatPercentage(game.expectedGoalsPercentage)} highlight />
-      <Value value={formatPercentage(game.corsiPercentage)} />
-      <Value value={formatPair(game.expectedGoalsFor, game.expectedGoalsAgainst)} />
-      <Value value={formatPair(game.goalsFor, game.goalsAgainst, 0)} />
-      <Value value={formatPair(game.shotsOnGoalFor, game.shotsOnGoalAgainst, 0)} />
+      <Value value={formatScore(game)} sortValue={scoreDifferential(game)} />
+      <Value
+        value={formatTime(game.iceTimeSeconds)}
+        sortValue={game.iceTimeSeconds}
+      />
+      <Value
+        value={formatPercentage(game.expectedGoalsPercentage)}
+        sortValue={game.expectedGoalsPercentage}
+        highlight
+      />
+      <Value
+        value={formatPercentage(game.corsiPercentage)}
+        sortValue={game.corsiPercentage}
+      />
+      <Value
+        value={formatPair(game.expectedGoalsFor, game.expectedGoalsAgainst)}
+        sortValue={difference(
+          game.expectedGoalsFor,
+          game.expectedGoalsAgainst,
+        )}
+      />
+      <Value
+        value={formatPair(game.goalsFor, game.goalsAgainst, 0)}
+        sortValue={difference(game.goalsFor, game.goalsAgainst)}
+      />
+      <Value
+        value={formatPair(
+          game.shotsOnGoalFor,
+          game.shotsOnGoalAgainst,
+          0,
+        )}
+        sortValue={difference(
+          game.shotsOnGoalFor,
+          game.shotsOnGoalAgainst,
+        )}
+      />
     </tr>
   );
 }
 
-function Value({ value, highlight = false }: { value: string; highlight?: boolean }) {
-  return <td className={`px-4 py-3 text-right tabular-nums ${highlight ? "font-semibold text-violet-200" : ""}`}>{value}</td>;
+function Value({
+  value,
+  sortValue,
+  highlight = false,
+}: {
+  value: string;
+  sortValue: number | null;
+  highlight?: boolean;
+}) {
+  return (
+    <td
+      data-sort-value={sortValue ?? ""}
+      className={highlight ? "workspace-points-cell" : undefined}
+    >
+      {value}
+    </td>
+  );
 }
 
 function parseUnitRoute(value: string): {
@@ -163,6 +227,14 @@ function formatScore(game: MoneyPuckUnitGameStats): string {
   return game.teamScore === null || game.opponentScore === null
     ? "—"
     : `${game.teamScore}–${game.opponentScore}`;
+}
+
+function scoreDifferential(game: MoneyPuckUnitGameStats): number | null {
+  return difference(game.teamScore, game.opponentScore);
+}
+
+function difference(left: number | null, right: number | null): number | null {
+  return left === null || right === null ? null : left - right;
 }
 
 function formatTime(value: number): string {

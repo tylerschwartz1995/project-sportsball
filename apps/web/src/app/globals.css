@@ -2909,6 +2909,25 @@ html[data-theme="light"] .workspace-analytics-filters button {
   background: var(--surface-subtle);
 }
 
+.workspace-unit-games-table tbody td {
+  padding: 0.68rem 0.8rem;
+}
+
+.workspace-unit-games-table tbody td:not(:first-child):not(:nth-child(2)) {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.workspace-table-link {
+  color: var(--foreground);
+  font-weight: 620;
+  text-decoration: none;
+}
+
+.workspace-table-link:hover {
+  color: var(--accent);
+}
+
 .workspace-rank-cell {
   padding: 0.68rem 0.8rem;
   color: var(--muted);
