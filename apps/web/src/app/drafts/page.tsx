@@ -8,6 +8,7 @@ import { Pagination } from "@/app/_components/pagination";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogo } from "@/app/_components/team-logo";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -210,7 +211,10 @@ function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
             {rows.map((team) => (
               <tr key={team.teamAbbreviation}>
                 <td className="workspace-team-cell">
-                  <strong>{team.teamAbbreviation}</strong>
+                  <span className="inline-flex items-center gap-2">
+                    <TeamLogo abbreviation={team.teamAbbreviation} size="compact" decorative />
+                    <strong>{team.teamAbbreviation}</strong>
+                  </span>
                 </td>
                 <NumberCell value={team.trackedDraftees} />
                 <NumberCell value={team.playersWithNhlGames} />
@@ -267,15 +271,25 @@ function OutcomeTable({ rows }: { rows: DraftPlayerOutcome[] }) {
             {rows.map((player) => (
               <tr key={player.nhlPlayerId}>
                 <td className="workspace-team-cell">
-                  <Link href={`/players/${player.nhlPlayerId}`}>
-                    {player.name}
-                  </Link>
-                  <small>
-                    {player.position ?? "—"} · {player.birthCountry ?? "—"}
-                  </small>
+                  <div className="flex items-center gap-2">
+                    <TeamLogo abbreviation={player.draftTeamAbbreviation} size="compact" decorative />
+                    <div>
+                      <Link href={`/players/${player.nhlPlayerId}`}>
+                        {player.name}
+                      </Link>
+                      <small>
+                        {player.position ?? "—"} · {player.birthCountry ?? "—"}
+                      </small>
+                    </div>
+                  </div>
                 </td>
                 <NumberCell value={player.draftYear} />
-                <td>{player.draftTeamAbbreviation}</td>
+                <td>
+                  <span className="inline-flex items-center gap-2">
+                    <TeamLogo abbreviation={player.draftTeamAbbreviation} size="tiny" decorative />
+                    {player.draftTeamAbbreviation}
+                  </span>
+                </td>
                 <NumberCell value={player.draftRound ?? "—"} />
                 <NumberCell value={player.draftOverallPick ?? "—"} />
                 <NumberCell value={player.seasonsPlayed} />

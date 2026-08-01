@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogo } from "@/app/_components/team-logo";
 import type { GameTeamSummary } from "@/contracts/game";
 import type {
   GamePlayByPlay,
@@ -192,18 +193,26 @@ function ScoringSummary({
                         </td>
                         <td className="px-4 py-3">
                           {goal.ownerTeam ? (
-                            <Link
-                              href={`/teams/${goal.ownerTeam.nhlTeamId}?season=${seasonId}`}
-                              className="font-medium text-white transition hover:text-cyan-200"
-                            >
-                              {goal.ownerTeam.abbreviation}
-                            </Link>
+                            <span className="inline-flex items-center gap-2">
+                              <TeamLogo {...goal.ownerTeam} size="tiny" decorative />
+                              <Link
+                                href={`/teams/${goal.ownerTeam.nhlTeamId}?season=${seasonId}`}
+                                className="font-medium text-white transition hover:text-cyan-200"
+                              >
+                                {goal.ownerTeam.abbreviation}
+                              </Link>
+                            </span>
                           ) : (
                             "—"
                           )}
                         </td>
                         <td className="px-4 py-3">
-                          <PlayerLink player={scorer} seasonId={seasonId} />
+                          <span className="inline-flex items-center gap-2">
+                            {goal.ownerTeam ? (
+                              <TeamLogo {...goal.ownerTeam} size="tiny" decorative />
+                            ) : null}
+                            <PlayerLink player={scorer} seasonId={seasonId} />
+                          </span>
                         </td>
                         <td className="px-4 py-3">
                           {assists.length > 0 ? (
@@ -330,12 +339,15 @@ function TimelineEvent({
           {humanize(event.typeDescription)}
         </p>
         {event.ownerTeam ? (
-          <Link
-            href={`/teams/${event.ownerTeam.nhlTeamId}?season=${seasonId}`}
-            className="mt-1 inline-block text-xs text-cyan-300 transition hover:text-cyan-200"
-          >
-            {event.ownerTeam.abbreviation}
-          </Link>
+          <span className="mt-1 inline-flex items-center gap-1.5">
+            <TeamLogo {...event.ownerTeam} size="tiny" decorative />
+            <Link
+              href={`/teams/${event.ownerTeam.nhlTeamId}?season=${seasonId}`}
+              className="text-xs text-cyan-300 transition hover:text-cyan-200"
+            >
+              {event.ownerTeam.abbreviation}
+            </Link>
+          </span>
         ) : null}
       </div>
       <div>

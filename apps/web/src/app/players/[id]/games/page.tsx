@@ -6,6 +6,7 @@ import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogo } from "@/app/_components/team-logo";
 import { parseNhlId } from "@/contracts/entity";
 import type {
   GoalieGameLogEntry,
@@ -434,21 +435,27 @@ function GameIdentityCells({
       </td>
       <td className="px-3 py-3">{game.gameType === 3 ? "Playoffs" : "Regular"}</td>
       <td className="px-3 py-3">
-        <Link
-          href={`/teams/${game.team.nhlTeamId}?season=${seasonId}`}
-          className="transition hover:text-cyan-200"
-        >
-          {game.team.abbreviation}
-        </Link>
+        <div className="flex items-center gap-2">
+          <TeamLogo {...game.team} size="tiny" decorative />
+          <Link
+            href={`/teams/${game.team.nhlTeamId}?season=${seasonId}`}
+            className="transition hover:text-cyan-200"
+          >
+            {game.team.abbreviation}
+          </Link>
+        </div>
       </td>
       <td className="px-3 py-3">{game.isHome ? "Home" : "Away"}</td>
       <td className="px-3 py-3">
-        <Link
-          href={`/teams/${game.opponent.nhlTeamId}?season=${seasonId}`}
-          className="transition hover:text-cyan-200"
-        >
-          {game.opponent.abbreviation}
-        </Link>
+        <div className="flex items-center gap-2">
+          <TeamLogo {...game.opponent} size="tiny" decorative />
+          <Link
+            href={`/teams/${game.opponent.nhlTeamId}?season=${seasonId}`}
+            className="transition hover:text-cyan-200"
+          >
+            {game.opponent.abbreviation}
+          </Link>
+        </div>
       </td>
       <NumericCell
         value={

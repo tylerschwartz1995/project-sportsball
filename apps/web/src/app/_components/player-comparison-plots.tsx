@@ -20,6 +20,7 @@ import {
   ChartFilterButton,
   ChartFilterGroup,
 } from "@/app/_components/chart-controls";
+import { TeamLogo } from "@/app/_components/team-logo";
 import {
   buildDistribution,
   buildPlotPoints,
@@ -610,11 +611,27 @@ function DirectPlayerComparison({
                 <th>Metric</th>
                 <th>
                   {first.name}
-                  <span>{first.teamAbbreviation}</span>
+                  <span className="flex items-center justify-center gap-1.5">
+                    <TeamLogo
+                      nhlTeamId={first.nhlTeamId}
+                      abbreviation={first.teamAbbreviation}
+                      size="tiny"
+                      decorative
+                    />
+                    {first.teamAbbreviation}
+                  </span>
                 </th>
                 <th>
                   {second.name}
-                  <span>{second.teamAbbreviation}</span>
+                  <span className="flex items-center justify-center gap-1.5">
+                    <TeamLogo
+                      nhlTeamId={second.nhlTeamId}
+                      abbreviation={second.teamAbbreviation}
+                      size="tiny"
+                      decorative
+                    />
+                    {second.teamAbbreviation}
+                  </span>
                 </th>
               </tr>
             </thead>
@@ -699,7 +716,16 @@ function PlayerMetricTooltip({
   return (
     <div className="workspace-chart-tooltip">
       <p className="workspace-chart-tooltip-date">
-        {point.teamAbbreviation} ·{" "}
+        <span className="inline-flex items-center gap-1.5">
+          <TeamLogo
+            nhlTeamId={point.nhlTeamId}
+            abbreviation={point.teamAbbreviation}
+            size="tiny"
+            decorative
+          />
+          {point.teamAbbreviation}
+        </span>{" "}
+        ·{" "}
         {point.kind === "skater" ? point.position ?? "Skater" : "Goalie"}
       </p>
       <p className="workspace-chart-tooltip-game">{point.name}</p>

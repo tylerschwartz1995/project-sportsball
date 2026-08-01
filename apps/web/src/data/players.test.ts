@@ -27,6 +27,15 @@ describe("listPlayersBySeason", () => {
           game_type: 2,
           games_played: 82,
           teams_played_for: 1,
+          teams: [
+            {
+              id: 22,
+              nhlTeamId: 22,
+              franchiseId: 25,
+              abbreviation: "EDM",
+              name: "Edmonton Oilers",
+            },
+          ],
           goals: 48,
           assists: 90,
           points: 138,
@@ -48,6 +57,15 @@ describe("listPlayersBySeason", () => {
           game_type: 2,
           games_played: 30,
           teams_played_for: 1,
+          teams: [
+            {
+              id: 12,
+              nhlTeamId: 12,
+              franchiseId: 26,
+              abbreviation: "CAR",
+              name: "Carolina Hurricanes",
+            },
+          ],
           games_started: 28,
           wins: 20,
           losses: 8,
@@ -69,6 +87,9 @@ describe("listPlayersBySeason", () => {
           kind: "skater",
           nhlPlayerId: 8478402,
           points: 138,
+          teams: [
+            expect.objectContaining({ abbreviation: "EDM" }),
+          ],
         },
       ],
       goalies: [
@@ -76,6 +97,9 @@ describe("listPlayersBySeason", () => {
           kind: "goalie",
           nhlPlayerId: 8475883,
           savePercentage: 0.9125,
+          teams: [
+            expect.objectContaining({ abbreviation: "CAR" }),
+          ],
         },
       ],
     });
@@ -84,6 +108,12 @@ describe("listPlayersBySeason", () => {
       1,
       expect.stringContaining("stats.game_type = $2"),
       [20252026, 2],
+    );
+    expect(queryMock.mock.calls[0]?.[0]).toContain(
+      "official_skater_season_stats",
+    );
+    expect(queryMock.mock.calls[1]?.[0]).toContain(
+      "official_goalie_season_stats",
     );
   });
 
@@ -114,6 +144,15 @@ describe("listPlayersBySeason", () => {
         game_type: 2,
         games_played: 82,
         teams_played_for: 1,
+        teams: [
+          {
+            id: 22,
+            nhlTeamId: 22,
+            franchiseId: 25,
+            abbreviation: "EDM",
+            name: "Edmonton Oilers",
+          },
+        ],
         goals: 48,
         assists: 90,
         points: 138,

@@ -7,6 +7,7 @@ import type {
   PlayerSeasonIndex,
   SkaterSeasonSummary,
 } from "@/contracts/player";
+import type { TeamIdentity } from "@/contracts/team";
 import { query } from "@/data/database";
 
 type PlayerProfileRow = {
@@ -40,6 +41,7 @@ type SkaterRow = {
   game_type: number;
   games_played: number;
   teams_played_for: number;
+  teams: TeamIdentity[];
   goals: number;
   assists: number;
   points: number;
@@ -63,6 +65,7 @@ type GoalieRow = {
   game_type: number;
   games_played: number;
   teams_played_for: number;
+  teams: TeamIdentity[];
   games_started: number;
   wins: number;
   losses: number;
@@ -86,6 +89,26 @@ const skaterSelect = `
     stats.game_type,
     stats.games_played,
     stats.teams_played_for,
+    COALESCE((
+      SELECT jsonb_agg(
+        jsonb_build_object(
+          'id', team.id,
+          'nhlTeamId', team.nhl_id,
+          'franchiseId', team.franchise_id,
+          'abbreviation', COALESCE(team_season.abbreviation, team.abbreviation),
+          'name', COALESCE(team_season.full_name, team.name)
+        )
+        ORDER BY split.games_played DESC, team.name
+      )
+      FROM official_skater_season_stats AS split
+      JOIN teams AS team ON team.id = split.team_id
+      LEFT JOIN team_seasons AS team_season
+        ON team_season.team_id = team.id
+       AND team_season.season_id = split.season_id
+      WHERE split.player_id = stats.player_id
+        AND split.season_id = stats.season_id
+        AND split.game_type = stats.game_type
+    ), '[]'::jsonb) AS teams,
     stats.goals,
     stats.assists,
     stats.points,
@@ -113,6 +136,26 @@ const goalieSelect = `
     stats.game_type,
     stats.games_played,
     stats.teams_played_for,
+    COALESCE((
+      SELECT jsonb_agg(
+        jsonb_build_object(
+          'id', team.id,
+          'nhlTeamId', team.nhl_id,
+          'franchiseId', team.franchise_id,
+          'abbreviation', COALESCE(team_season.abbreviation, team.abbreviation),
+          'name', COALESCE(team_season.full_name, team.name)
+        )
+        ORDER BY split.games_played DESC, team.name
+      )
+      FROM official_goalie_season_stats AS split
+      JOIN teams AS team ON team.id = split.team_id
+      LEFT JOIN team_seasons AS team_season
+        ON team_season.team_id = team.id
+       AND team_season.season_id = split.season_id
+      WHERE split.player_id = stats.player_id
+        AND split.season_id = stats.season_id
+        AND split.game_type = stats.game_type
+    ), '[]'::jsonb) AS teams,
     stats.games_started,
     stats.wins,
     stats.losses,
@@ -279,6 +322,7 @@ function mapSkater(row: SkaterRow): SkaterSeasonSummary {
     gameType: row.game_type,
     gamesPlayed: row.games_played,
     teamsPlayedFor: row.teams_played_for,
+    teams: row.teams ?? [],
     goals: row.goals,
     assists: row.assists,
     points: row.points,
@@ -305,6 +349,7 @@ function mapGoalie(row: GoalieRow): GoalieSeasonSummary {
     gameType: row.game_type,
     gamesPlayed: row.games_played,
     teamsPlayedFor: row.teams_played_for,
+    teams: row.teams ?? [],
     gamesStarted: row.games_started,
     wins: row.wins,
     losses: row.losses,

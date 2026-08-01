@@ -18,6 +18,7 @@ import {
   ChartFilterButton,
   ChartFilterGroup,
 } from "@/app/_components/chart-controls";
+import { TeamLogo } from "@/app/_components/team-logo";
 import {
   buildRollingTeamPerformance,
   type RollingTeamPerformancePoint,
@@ -314,9 +315,14 @@ function PerformanceTooltip({
       <p className="workspace-chart-tooltip-date">
         {formatFullDate(point.gameDate)}
       </p>
-      <p className="workspace-chart-tooltip-game">
-        {point.result} {point.scoreLabel} · {point.venueLabel}{" "}
-        {point.opponentAbbreviation}
+      <p className="workspace-chart-tooltip-game flex items-center gap-1.5">
+        <span>{point.result} {point.scoreLabel} · {point.venueLabel}</span>
+        <TeamLogo
+          abbreviation={point.opponentAbbreviation}
+          size="tiny"
+          decorative
+        />
+        <span>{point.opponentAbbreviation}</span>
       </p>
       <dl>
         {showGoalShare ? (

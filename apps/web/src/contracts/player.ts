@@ -1,3 +1,5 @@
+import type { TeamIdentity } from "@/contracts/team";
+
 export type PlayerProfile = {
   id: number;
   nhlPlayerId: number;
@@ -28,6 +30,7 @@ export type SkaterSeasonSummary = {
   gameType: number;
   gamesPlayed: number;
   teamsPlayedFor: number;
+  teams: TeamIdentity[];
   goals: number;
   assists: number;
   points: number;
@@ -52,6 +55,7 @@ export type GoalieSeasonSummary = {
   gameType: number;
   gamesPlayed: number;
   teamsPlayedFor: number;
+  teams: TeamIdentity[];
   gamesStarted: number;
   wins: number;
   losses: number;

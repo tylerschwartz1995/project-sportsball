@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogo } from "@/app/_components/team-logo";
 import type {
   MoneyPuckSeasonUnitLeaders,
   MoneyPuckSeasonUnitStats,
@@ -107,16 +108,23 @@ function SeasonUnitTable({
                     >
                       {showTeam ? (
                         <td className="px-4 py-3 text-left">
-                          <Link
-                            href={`/teams/${row.team.nhlTeamId}?season=${seasonId}`}
-                            className="font-medium text-white transition hover:text-violet-200"
-                          >
-                            {row.team.abbreviation}
-                          </Link>
+                          <div className="flex items-center gap-2">
+                            <TeamLogo {...row.team} size="tiny" decorative />
+                            <Link
+                              href={`/teams/${row.team.nhlTeamId}?season=${seasonId}`}
+                              className="font-medium text-white transition hover:text-violet-200"
+                            >
+                              {row.team.abbreviation}
+                            </Link>
+                          </div>
                         </td>
                       ) : null}
                       <td className="px-4 py-3 text-left">
-                        <div className="flex flex-wrap gap-x-1">
+                        <div className="flex items-center gap-2">
+                          {!showTeam ? (
+                            <TeamLogo {...row.team} size="tiny" decorative />
+                          ) : null}
+                          <div className="flex flex-wrap gap-x-1">
                           {row.players.map((player, index) => (
                             <span key={player.nhlPlayerId}>
                               {index > 0 ? (
@@ -130,6 +138,7 @@ function SeasonUnitTable({
                               </Link>
                             </span>
                           ))}
+                          </div>
                         </div>
                       </td>
                       <ValueCell value={String(row.gamesPlayed)} />

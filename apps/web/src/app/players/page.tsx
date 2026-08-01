@@ -7,6 +7,7 @@ import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamLogoStack } from "@/app/_components/team-logo";
 import {
   WorkspacePageHeader,
 } from "@/app/_components/workspace-primitives";
@@ -241,15 +242,20 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                 className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
                               >
                                 <td className="px-4 py-3">
-                                  <PlayerLink
-                                    playerId={player.nhlPlayerId}
-                                    seasonId={selectedSeason.id}
-                                    name={player.name}
-                                    phase={phase}
-                                  />
-                                  <span className="ml-2 text-xs text-slate-500">
-                                    {player.position}
-                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    <TeamLogoStack teams={player.teams} />
+                                    <div>
+                                      <PlayerLink
+                                        playerId={player.nhlPlayerId}
+                                        seasonId={selectedSeason.id}
+                                        name={player.name}
+                                        phase={phase}
+                                      />
+                                      <span className="ml-2 text-xs text-slate-500">
+                                        {player.position}
+                                      </span>
+                                    </div>
+                                  </div>
                                 </td>
                                 <NumericCell value={player.gamesPlayed} />
                                 <NumericCell value={player.goals} />
@@ -337,12 +343,15 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                 className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
                               >
                                 <td className="px-4 py-3">
-                                  <PlayerLink
-                                    playerId={player.nhlPlayerId}
-                                    seasonId={selectedSeason.id}
-                                    name={player.name}
-                                    phase={phase}
-                                  />
+                                  <div className="flex items-center gap-2">
+                                    <TeamLogoStack teams={player.teams} />
+                                    <PlayerLink
+                                      playerId={player.nhlPlayerId}
+                                      seasonId={selectedSeason.id}
+                                      name={player.name}
+                                      phase={phase}
+                                    />
+                                  </div>
                                 </td>
                                 <NumericCell value={player.gamesPlayed} />
                                 <NumericCell value={player.gamesStarted} />
@@ -554,7 +563,9 @@ function MobileSkaterCard({
   return (
     <article className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
       <div className="flex items-start justify-between gap-4">
-        <div>
+        <div className="flex items-start gap-2">
+          <TeamLogoStack teams={player.teams} size="compact" />
+          <div>
           <PlayerLink
             playerId={player.nhlPlayerId}
             seasonId={seasonId}
@@ -564,6 +575,7 @@ function MobileSkaterCard({
           <p className="mt-1 text-xs text-slate-500">
             {player.position ?? "Skater"} · {player.gamesPlayed} games
           </p>
+          </div>
         </div>
         <div className="text-right">
           <p className="text-2xl font-semibold tabular-nums text-cyan-200">
@@ -596,7 +608,9 @@ function MobileGoalieCard({
   return (
     <article className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
       <div className="flex items-start justify-between gap-4">
-        <div>
+        <div className="flex items-start gap-2">
+          <TeamLogoStack teams={player.teams} size="compact" />
+          <div>
           <PlayerLink
             playerId={player.nhlPlayerId}
             seasonId={seasonId}
@@ -606,6 +620,7 @@ function MobileGoalieCard({
           <p className="mt-1 text-xs text-slate-500">
             {player.gamesPlayed} games · {player.gamesStarted} starts
           </p>
+          </div>
         </div>
         <div className="text-right">
           <p className="text-2xl font-semibold tabular-nums text-cyan-200">

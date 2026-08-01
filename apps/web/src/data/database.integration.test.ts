@@ -138,6 +138,13 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
       nhlPlayerId: 8478402,
       name: "Connor McDavid",
       points: 138,
+      teams: [
+        {
+          nhlTeamId: 22,
+          abbreviation: "EDM",
+          name: "Edmonton Oilers",
+        },
+      ],
     });
 
     const player = await getPlayerDetail(8478402);

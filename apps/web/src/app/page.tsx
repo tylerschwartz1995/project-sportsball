@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
+import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -125,6 +126,13 @@ export default async function Home({ searchParams }: HomeProps) {
                       href={`/teams/${team.nhlTeamId}?season=${selectedSeason.id}`}
                     >
                       <span>{team.leagueRank}</span>
+                      <TeamLogo
+                        nhlTeamId={team.nhlTeamId}
+                        abbreviation={team.teamAbbreviation}
+                        name={team.teamName}
+                        size="tiny"
+                        decorative
+                      />
                       <b>{team.teamName}</b>
                       <small>{formatRecord(team)}</small>
                       <strong>{team.points}</strong>
@@ -151,7 +159,10 @@ export default async function Home({ searchParams }: HomeProps) {
                     href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
                   >
                     <span>#{index + 1}</span>
-                    <b>{player.name}</b>
+                    <b className="flex items-center gap-2">
+                      <TeamLogoStack teams={player.teams} />
+                      {player.name}
+                    </b>
                     <small>
                       {player.position ?? "Skater"} · {player.gamesPlayed} GP
                     </small>
@@ -201,7 +212,12 @@ function UpcomingGame({ game }: { game: GameSummary }) {
   return (
     <Link href={`/games/${game.nhlGameId}`}>
       <time dateTime={game.startTimeUtc}>{formatUpcomingTime(game.startTimeUtc)}</time>
-      <span><b>{game.awayTeam.abbreviation}</b> at <b>{game.homeTeam.abbreviation}</b></span>
+      <span className="inline-flex items-center gap-1.5">
+        <TeamLogo {...game.awayTeam} size="tiny" decorative />
+        <b>{game.awayTeam.abbreviation}</b> at
+        <TeamLogo {...game.homeTeam} size="tiny" decorative />
+        <b>{game.homeTeam.abbreviation}</b>
+      </span>
       <small>{game.gameType === 3 ? "Playoffs" : formatSeason(game.seasonId)}</small>
     </Link>
   );
@@ -220,6 +236,7 @@ function GameResult({ game }: { game: GameSummary }) {
       </span>
       <span className="workspace-result-matchup">
         <span>
+          <TeamLogo {...game.awayTeam} size="tiny" decorative />
           <b>{game.awayTeam.abbreviation}</b>
           <strong>{game.awayTeam.score ?? "—"}</strong>
         </span>
@@ -227,6 +244,7 @@ function GameResult({ game }: { game: GameSummary }) {
         <span>
           <strong>{game.homeTeam.score ?? "—"}</strong>
           <b>{game.homeTeam.abbreviation}</b>
+          <TeamLogo {...game.homeTeam} size="tiny" decorative />
         </span>
       </span>
     </Link>

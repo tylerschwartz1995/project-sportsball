@@ -1,3 +1,5 @@
+import type { TeamIdentity } from "@/contracts/team";
+
 export type PlayerComparisonMetric = {
   key: string;
   label: string;
@@ -9,6 +11,7 @@ export type PlayerComparisonEntry = {
   nhlPlayerId: number;
   name: string;
   position: string | null;
+  teams: TeamIdentity[];
   values: Record<string, number | null>;
 };
 

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { SiteHeader } from "@/app/_components/site-header";
+import { TeamLogo } from "@/app/_components/team-logo";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import {
   WorkspacePageHeader,
@@ -213,9 +214,14 @@ function TeamLine({
 }) {
   return (
     <div className="workspace-game-team">
-      <span className="workspace-game-team-abbreviation">
-        {team.abbreviation}
-      </span>
+      <TeamLogo
+        nhlTeamId={team.nhlTeamId}
+        abbreviation={team.abbreviation}
+        name={team.name}
+        size="compact"
+        decorative
+        prominent
+      />
       <div>
         <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
           {team.name}
