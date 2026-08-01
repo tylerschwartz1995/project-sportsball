@@ -7,6 +7,7 @@ vi.mock("@/data/database", () => ({
 }));
 
 import {
+  getMoneyPuckUnitDetail,
   getMoneyPuckSeasonUnitLeaders,
   listMoneyPuckSeasonUnits,
 } from "@/data/season-units";
@@ -32,6 +33,7 @@ describe("MoneyPuck season unit queries", () => {
       [20252026, "line", 12_000, null, 100],
     );
     expect(result.forwardLines[0]).toMatchObject({
+      unitKey: "8478427:8478866:8482809",
       team: { abbreviation: "CAR" },
       players: [
         { name: "Sebastian Aho" },
@@ -60,10 +62,61 @@ describe("MoneyPuck season unit queries", () => {
       500,
     ]);
   });
+
+  it("aggregates rolling team-game windows from canonical game units", async () => {
+    queryMock.mockResolvedValue([lineRow]);
+
+    const result = await listMoneyPuckSeasonUnits(20252026, "line", {
+      teamNhlId: 12,
+      minimumIceTimeSeconds: 1_200,
+      rollingGames: 20,
+    });
+
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("DENSE_RANK() OVER"),
+      [20252026, "line", 1_200, 12, 100, 20],
+    );
+    expect(result[0]?.gamesPlayed).toBe(40);
+  });
+
+  it("loads the supporting games for one canonical combination", async () => {
+    queryMock.mockResolvedValue([unitGameRow]);
+
+    const result = await getMoneyPuckUnitDetail(
+      20252026,
+      12,
+      "line",
+      [8482809, 8478427, 8478866],
+    );
+
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("FROM matching_units AS matching"),
+      [20252026, 12, "line", [8478427, 8478866, 8482809]],
+    );
+    expect(result).toMatchObject({
+      team: { abbreviation: "CAR" },
+      unitType: "line",
+      games: [
+        {
+          nhlGameId: 2025020001,
+          opponent: { abbreviation: "NJD" },
+          expectedGoalsPercentage: 0.61,
+        },
+      ],
+    });
+  });
+
+  it("rejects malformed combination requests before querying", async () => {
+    await expect(
+      getMoneyPuckUnitDetail(20252026, 12, "line", [1, 2]),
+    ).resolves.toBeNull();
+    expect(queryMock).not.toHaveBeenCalled();
+  });
 });
 
 const lineRow = {
   season_id: 20252026,
+  unit_key: "8478427:8478866:8482809",
   team_id: 12,
   nhl_team_id: 12,
   franchise_id: 26,
@@ -88,4 +141,18 @@ const lineRow = {
   shots_on_goal_against: 140,
   high_danger_x_goals_for: 10,
   high_danger_x_goals_against: 6,
+};
+
+const unitGameRow = {
+  ...lineRow,
+  nhl_game_id: 2025020001,
+  game_date: "2025-10-09",
+  is_home: true,
+  opponent_team_id: 1,
+  opponent_nhl_team_id: 1,
+  opponent_franchise_id: 23,
+  opponent_abbreviation: "NJD",
+  opponent_name: "New Jersey Devils",
+  team_score: 4,
+  opponent_score: 2,
 };

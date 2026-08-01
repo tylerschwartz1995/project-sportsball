@@ -120,25 +120,33 @@ function SeasonUnitTable({
                         </td>
                       ) : null}
                       <td className="px-4 py-3 text-left">
-                        <div className="flex items-center gap-2">
-                          {!showTeam ? (
-                            <TeamLogo {...row.team} size="tiny" decorative />
-                          ) : null}
-                          <div className="flex flex-wrap gap-x-1">
-                          {row.players.map((player, index) => (
-                            <span key={player.nhlPlayerId}>
-                              {index > 0 ? (
-                                <span className="text-slate-600"> / </span>
-                              ) : null}
-                              <Link
-                                href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
-                                className="font-medium text-white transition hover:text-violet-200"
-                              >
-                                {player.name}
-                              </Link>
-                            </span>
-                          ))}
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            {!showTeam ? (
+                              <TeamLogo {...row.team} size="tiny" decorative />
+                            ) : null}
+                            <div className="flex flex-wrap gap-x-1">
+                              {row.players.map((player, index) => (
+                                <span key={player.nhlPlayerId}>
+                                  {index > 0 ? (
+                                    <span className="text-slate-600"> / </span>
+                                  ) : null}
+                                  <Link
+                                    href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
+                                    className="font-medium text-white transition hover:text-violet-200"
+                                  >
+                                    {player.name}
+                                  </Link>
+                                </span>
+                              ))}
+                            </div>
                           </div>
+                          <Link
+                            href={`/lines/${row.unitType}-${row.players.map((player) => player.nhlPlayerId).join("-")}?season=${seasonId}&team=${row.team.nhlTeamId}`}
+                            className="shrink-0 text-xs font-semibold text-cyan-300 transition hover:text-cyan-200"
+                          >
+                            Games →
+                          </Link>
                         </div>
                       </td>
                       <ValueCell value={String(row.gamesPlayed)} />

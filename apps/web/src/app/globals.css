@@ -1064,16 +1064,15 @@ html[data-theme="light"] .workspace-directory-controls button {
 }
 
 .workspace-unit-filter {
-  display: flex;
+  display: grid;
   width: 100%;
-  max-width: 24rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) auto;
   align-items: end;
   gap: 0.7rem;
   padding: 1rem 1.1rem;
 }
 
 .workspace-unit-filter label {
-  flex: 1;
   color: var(--muted);
   font-size: 0.8rem;
   font-weight: 600;
@@ -1107,6 +1106,12 @@ html[data-theme="light"] .workspace-directory-controls button {
   background: var(--accent);
   color: var(--background);
   cursor: pointer;
+}
+
+@media (max-width: 760px) {
+  .workspace-unit-filter {
+    grid-template-columns: 1fr;
+  }
 }
 
 .workspace-empty-state {

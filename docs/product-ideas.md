@@ -5,9 +5,34 @@ of the current delivery slice. Each idea should capture the user value, data
 requirements, and a likely path to implementation before it becomes scheduled
 work.
 
+## Implementation status audit
+
+Last checked against the repository on August 1, 2026.
+
+| Idea | Current status | Implemented boundary |
+| --- | --- | --- |
+| Historical query explorer | Foundation available; explorer not implemented | Historical box scores, play-by-play, game logs, profiles, franchise identifiers, and deterministic read-only queries exist. There is no historical-query route, structured event/streak query layer, saved query, or conversational interface. |
+| Multi-sport platform | Not started | Shared interface primitives exist, but the schema, ingestion clients, routes, terminology, and navigation remain NHL-specific. |
+| Line-combination explorer | Expanded version implemented | Season and rolling 10-, 20-, and 40-team-game rankings support league/team scope, unit type, minimum ice time, sorting, and drill-down to supporting games. Situational splits, teammate networks, player/linemate comparison, and cross-season views remain. |
+| Additional modelling data | Not implemented; deferred | No injury, transaction, contract, projected-lineup, or betting-market source is ingested. Source evaluation remains gated on production daily automation and a defined modelling use case. |
+| Contracts and salary-cap analysis | Not implemented | There are no contract or cap models, migrations, ingestion clients, queries, or pages. |
+| Strength of schedule | Initial version implemented | Team pages provide time-aware completed and remaining difficulty using points percentage, goal differential, and five-on-five expected-goal share, with supporting games, venue, rest, and back-to-back context. Travel and model-based ratings remain. |
+| Transactions explorer | Not implemented | There are no transaction models, ingestion jobs, queries, or routes. |
+| Homepage information redesign | Initial redesign implemented | Results, upcoming games, standings, scoring leaders, advanced analytics, and archive destinations are live. Standings movement and league-wide trend insights remain. |
+| Complete draft history | Partially implemented | Draft analysis uses profile draft metadata for players in the stored NHL universe. A complete selection archive and true draft denominators are not present. |
+| Historical records and best seasons | Expanded traditional version implemented | Career and single-season skater, goalie, and team tables support phase, range, participation, position, team, birthplace, and total/rate filters. Era adjustment, milestones, age curves, multi-season peaks, franchise aggregation, and advanced historical rankings remain. |
+| Saved comparisons and shareable plot state | Partially implemented | The dedicated player comparison restores season, phase, player type, and two-to-four selected players from its URL. Analytics plot controls, rolling-chart controls, named local saves, and copy-link actions are not persisted. |
+
 ## 1. Historical query explorer
 
-**Status:** Proposed
+**Status:** Foundation available; explorer not implemented
+
+The repository already provides the main source facts and supporting detail
+experiences: complete stored box scores and play-by-play from 2005–06 onward,
+game logs, player and team profiles, franchise identifiers, metric definitions,
+and typed read-only application queries. No `/explore` or equivalent route,
+structured event/streak query contract, derived event index, saved-query
+storage, natural-language interpretation, or conversational interface exists.
 
 Let a visitor query historical NHL events, statistics, streaks, and outliers in
 plain language or with structured filters. The result should answer questions
@@ -115,7 +140,12 @@ exactly why a game matched.
 
 ## 2. Multi-sport platform
 
-**Status:** Long-term
+**Status:** Long-term; not started
+
+The current product remains NHL-only. Some visual and workspace primitives are
+sport-neutral, but database entities, source clients, statistics contracts,
+routes, labels, and navigation do not yet carry explicit sport and league
+dimensions. No second-sport ingestion or user-facing selector is implemented.
 
 Expand Sportsball beyond hockey so one site can eventually support multiple
 sports and leagues without making every experience look or behave like NHL
@@ -148,26 +178,37 @@ abstractions.
 
 ## 3. Line-combination explorer
 
-**Status:** Partially implemented
+**Status:** Expanded version implemented
 
-Season-level forward-line and defensive-pairing rankings are implemented with
-season, team, minimum-ice-time, and sortable metric controls. Potential future
-extensions include:
+Forward-line and defensive-pairing rankings are implemented with season,
+league/team, minimum-ice-time, and sortable metric controls. Visitors can use
+full-season results or rolling samples covering each team's latest 10, 20, or
+40 regular-season games. Every combination links to its supporting game log,
+including opponent, venue, score, usage, expected-goal, possession, goal, and
+shot results. Percentages are recomputed from the totals in the selected
+window.
 
-- rolling 10-, 20-, and 40-game combination results;
+Potential future extensions include:
+
 - home/away, tied/trailing/leading, and score-adjusted splits;
 - teammate-network visualizations showing how frequently players skate
   together;
 - comparison of a player's results across different linemates;
 - cross-season leaderboards and franchise-history views;
-- interactive drill-down from a season aggregate to its supporting games.
+- direct comparison of multiple combinations in one view.
 
 These should continue to use the canonical game-level unit facts and explicit
 sample-size thresholds.
 
 ## 4. Additional modelling data
 
-**Status:** Evaluate after daily automation
+**Status:** Not implemented; evaluate after production daily automation
+
+The ingestion package currently contains NHL and MoneyPuck clients only. It has
+no injury, transaction, contract, salary-cap, projected-lineup, or betting-odds
+models, migrations, ingestion commands, or stored datasets. The local audited
+daily coordinator is implemented, but scheduled production operation is still
+deferred.
 
 Potential additions include injuries, transactions, salary-cap and contract
 data, projected lineups, and betting-market odds. Each source needs a licensing,
@@ -181,7 +222,11 @@ baseline team, game, and player modelling.
 
 ## 5. Historical contracts and salary-cap analysis
 
-**Status:** Proposed
+**Status:** Not implemented; proposed
+
+No contract or salary-cap schema, migration, source client, ingestion job,
+query contract, or user-facing view is implemented. Player-profile draft and
+biographical fields should not be mistaken for contract history.
 
 Add current and historical player contract information so team and player pages
 can explain performance in the context of roster cost. The product should
@@ -230,7 +275,11 @@ until venue coordinates and a governed prediction model are available.
 
 ## 7. Transactions explorer
 
-**Status:** Proposed
+**Status:** Not implemented; proposed
+
+No transaction schema, migration, source client, ingestion command, query, or
+route is implemented. Player-team associations in game and season statistics
+describe participation, not roster-move history, and cannot power this feature.
 
 Add a dedicated transactions page covering trades, signings, waivers, recalls,
 assignments, injured-reserve moves, retirements, and other roster changes.
@@ -323,7 +372,14 @@ lineage, and era-adjusted views remain backlog.
 
 ## 11. Saved comparisons and shareable plot state
 
-**Status:** Proposed
+**Status:** Partially implemented
+
+The dedicated `/players/compare` workflow already encodes and restores season,
+regular-season/playoff phase, skater/goalie type, and two-to-four selected
+players in the URL. Those comparison links can be shared directly. The broader
+analytics scatterplots and rolling-performance charts still keep their metric,
+group, venue, and rolling-window controls only in client state. There is no
+copy-link action, named local collection, or server-side saved comparison.
 
 Let visitors preserve a useful player or team comparison and share the exact
 plot configuration with another person.

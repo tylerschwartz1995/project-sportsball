@@ -49,8 +49,9 @@ The current read-only slice provides:
 - league-wide MoneyPuck team, skater, and goalie leaderboards with situation
   and minimum-ice-time controls plus persistent section navigation and a
   centralized advanced-metric guide;
-- season-level forward-line and defensive-pairing rankings with team and
-  minimum-ice-time filters;
+- season and rolling 10-, 20-, and 40-team-game forward-line and
+  defensive-pairing rankings with league/team and minimum-ice-time filters,
+  plus drill-down to every supporting game;
 - selectable, keyboard-accessible shot-map events with shooter, result, time,
   goalie, and shot-quality details;
 - immediate column sorting on every statistics table;
