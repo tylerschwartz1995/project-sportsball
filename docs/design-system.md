@@ -73,6 +73,16 @@ and a pre-render bootstrap applies it before the interface is painted.
 - Section headings contain one eyebrow, one descriptive title, optional
   explanatory copy, and no more than one primary action.
 - Metric tiles use a short label, a dominant tabular value, and optional context.
+- Desktop component width follows the amount of information being presented.
+  Use the compact width for short leader, schedule, and two-entity comparison
+  tables; use the standard width for medium statistical tables; reserve the
+  full page width for standings, draft boards, brackets, schedules, and
+  analytics tables whose column count genuinely requires it. Keep intentional
+  whitespace outside compact data instead of expanding gaps between related
+  values.
+- Related compact datasets of equal importance share an equal-width desktop
+  row when shown together, then stack when the viewport can no longer support
+  a readable side-by-side presentation.
 - Table shells provide one consistent border, background, radius, and scrolling
   boundary. Numeric columns remain sortable and centered beneath their column
   headings.

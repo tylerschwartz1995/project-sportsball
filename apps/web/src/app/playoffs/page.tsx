@@ -145,6 +145,7 @@ export default async function PlayoffsPage({
             {view === "skaters" ? (
             <WorkspacePanel
               className="mt-7"
+              width="compact"
               title="Leading Scorers"
               description="Official playoff scoring totals from stored box scores."
             >
@@ -241,6 +242,7 @@ function PlayoffGoalieLeaders({
   return (
     <WorkspacePanel
       className="mt-7"
+      width="standard"
       title="Goalie Leaders"
       description="Official playoff goalie totals from stored season summaries."
     >

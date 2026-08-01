@@ -307,6 +307,7 @@ function SkaterHistory({
       {display === "career" ? (
       <WorkspacePanel
         className="mt-7"
+        width="standard"
         title="Career Leaders"
         description={`Top ${seasonPhaseLabel(phase).toLowerCase()} skater careers for the selected ranking metric.`}
       >
@@ -348,6 +349,7 @@ function SkaterHistory({
       {display === "seasons" ? (
       <WorkspacePanel
         className="mt-7"
+        width="standard"
         title="Best Single Seasons"
         description={`The strongest individual ${seasonPhaseLabel(phase).toLowerCase()} seasons for the selected ranking metric.`}
       >
@@ -406,7 +408,7 @@ function GoalieHistory({ careers, seasons, phase, metric, display }: {
   return (
     <>
       {display === "career" ? (
-      <WorkspacePanel className="mt-7" title="Career Leaders" description={`Top ${seasonPhaseLabel(phase).toLowerCase()} goalie careers.`}>
+      <WorkspacePanel className="mt-7" width="compact" title="Career Leaders" description={`Top ${seasonPhaseLabel(phase).toLowerCase()} goalie careers.`}>
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
             <table className="workspace-table min-w-[700px]">
@@ -436,7 +438,7 @@ function GoalieHistory({ careers, seasons, phase, metric, display }: {
       </WorkspacePanel>
       ) : null}
       {display === "seasons" ? (
-      <WorkspacePanel className="mt-7" title="Best Single Seasons" description={`Top individual ${seasonPhaseLabel(phase).toLowerCase()} goalie seasons. Save percentage is available from 1955–56 onward.`}>
+      <WorkspacePanel className="mt-7" width="standard" title="Best Single Seasons" description={`Top individual ${seasonPhaseLabel(phase).toLowerCase()} goalie seasons. Save percentage is available from 1955–56 onward.`}>
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
             <table className="workspace-table min-w-[900px]">
@@ -490,7 +492,7 @@ function TeamHistory({ careers, seasons, phase, metric, display }: {
   return (
     <>
       {display === "career" ? (
-      <WorkspacePanel className="mt-7" title="Team Identity Totals" description="Totals follow the NHL source team identity. A future franchise-history pass will combine relocations and renames into lineages.">
+      <WorkspacePanel className="mt-7" width="standard" title="Team Identity Totals" description="Totals follow the NHL source team identity. A future franchise-history pass will combine relocations and renames into lineages.">
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
             <table className="workspace-table min-w-[760px]">

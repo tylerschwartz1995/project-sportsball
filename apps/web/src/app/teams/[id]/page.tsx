@@ -249,7 +249,7 @@ export default async function TeamPage({
         ) : null}
 
         {view === "trends" ? (
-        <section className="mt-8">
+        <section className="workspace-width-standard mt-8">
           <SectionHeader
             eyebrow="Rolling performance"
             title="Team Form"
@@ -281,7 +281,7 @@ export default async function TeamPage({
         ) : null}
 
         {view === "skaters" ? (
-        <section className="mt-8">
+        <section className="workspace-width-standard mt-8">
           <SectionHeader
             eyebrow="Official NHL splits"
             title="Skaters"
@@ -356,7 +356,7 @@ export default async function TeamPage({
         ) : null}
 
         {view === "goalies" ? (
-        <section className="mt-8">
+        <section className="workspace-width-standard mt-8">
           <SectionHeader
             eyebrow="Official NHL splits"
             title="Goalies"
@@ -558,7 +558,10 @@ function UpcomingSchedule({
 }) {
   const firstGame = games[0];
   return (
-    <section id="schedule" className="mt-8 scroll-mt-6">
+    <section
+      id="schedule"
+      className="workspace-width-compact mt-8 scroll-mt-6"
+    >
       <SectionHeader
         eyebrow="Schedule"
         title="Upcoming Games"
@@ -571,7 +574,7 @@ function UpcomingSchedule({
       {games.length > 0 ? (
         <SortableTable defaultSortKey="date" defaultDirection="asc">
           <div className="workspace-table-scroll mt-5">
-            <table className="workspace-table">
+            <table className="workspace-table workspace-table-schedule">
               <thead>
                 <tr>
                   <SortableHeader label="Date" sortKey="date" align="left" defaultDirection="asc" />
