@@ -212,6 +212,7 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 
 ## Documentation
 
+- [Agent working agreement](AGENTS.md)
 - [Data sources and coverage](docs/data-sources.md)
 - [Architecture](docs/architecture.md)
 - [Implementation roadmap](docs/roadmap.md)
