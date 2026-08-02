@@ -82,7 +82,15 @@ Game results left-join `team_game_stats`, allowing the same contract to
 represent completed games and future scheduled games whose scores are not yet
 available. Each game team also carries a point-in-time phase record derived
 from completed results: final games include that result, while scheduled games
-stop at the latest completed matchup before their start time.
+stop at the latest completed matchup before their start time. Bounded recent-
+game reads select their candidate game identifiers before deriving those
+records, so the record calculation only runs for rows that will be returned.
+
+The homepage keeps its season list in the shared Next.js data cache for one
+hour and its six-query season package for five minutes. The page remains
+dynamically rendered, while repeat visits avoid recalculating unchanged
+standings, trends, leaders, results, and upcoming-game records. A cold cache
+still reads PostgreSQL directly and never depends on an internal HTTP request.
 
 `history.ts` reads the dedicated all-time summary tables for career totals and
 best seasons. Metric names are selected from strict allowlists before they are

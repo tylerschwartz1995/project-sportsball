@@ -242,18 +242,32 @@ export async function getRecentCompletedGames(
   gameType = 2,
   limit = 60,
 ): Promise<GameSummary[]> {
+  const boundedLimit = Math.min(120, Math.max(1, Math.trunc(limit)));
   const rows = await query<GameRow>(
     `
+      WITH recent_games AS MATERIALIZED (
+        SELECT recent.id
+        FROM games AS recent
+        JOIN team_game_stats AS recent_away_stats
+          ON recent_away_stats.game_id = recent.id
+         AND recent_away_stats.team_id = recent.away_team_id
+        JOIN team_game_stats AS recent_home_stats
+          ON recent_home_stats.game_id = recent.id
+         AND recent_home_stats.team_id = recent.home_team_id
+        WHERE recent.season_id = $1
+          AND recent.game_type = $2
+          AND recent.state IN ('FINAL', 'OFF')
+          AND recent_away_stats.score IS NOT NULL
+          AND recent_home_stats.score IS NOT NULL
+        ORDER BY recent.start_time_utc DESC, recent.nhl_id DESC
+        LIMIT $3
+      )
       ${gameSelect}
-      WHERE game.season_id = $1
-        AND game.game_type = $2
-        AND game.state IN ('FINAL', 'OFF')
-        AND away_stats.score IS NOT NULL
-        AND home_stats.score IS NOT NULL
+      JOIN recent_games
+        ON recent_games.id = game.id
       ORDER BY game.start_time_utc DESC, game.nhl_id DESC
-      LIMIT $3
     `,
-    [seasonId, gameType, Math.min(120, Math.max(1, limit))],
+    [seasonId, gameType, boundedLimit],
   );
   return rows.map(mapGame);
 }
