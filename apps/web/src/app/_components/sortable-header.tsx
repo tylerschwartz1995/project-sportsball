@@ -9,6 +9,8 @@ type SortableHeaderProps = {
   sortKey: string;
   align?: "left" | "center" | "right";
   defaultDirection?: SortDirection;
+  description?: string;
+  nowrap?: boolean;
 };
 
 export function SortableHeader({
@@ -16,6 +18,8 @@ export function SortableHeader({
   sortKey,
   align = "center",
   defaultDirection = "desc",
+  description,
+  nowrap = false,
 }: SortableHeaderProps) {
   const { key, direction, sort } = useSortableTable();
   const isActive = key === sortKey;
@@ -41,7 +45,11 @@ export function SortableHeader({
       <button
         type="button"
         onClick={(event) => sort(event, sortKey, defaultDirection)}
+        title={description}
+        aria-label={description ? `${label}: ${description}` : undefined}
         className={`flex w-full items-center gap-1 rounded-sm transition hover:text-cyan-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 ${
+          nowrap ? "whitespace-nowrap" : ""
+        } ${
           align === "left"
             ? "justify-start"
             : align === "center"

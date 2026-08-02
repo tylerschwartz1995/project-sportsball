@@ -25,6 +25,66 @@ export const dynamic = "force-dynamic";
 
 type DraftView = "board" | "pick-value" | "teams" | "overview";
 
+const teamPerformanceColumns = [
+  {
+    label: "Team",
+    sortKey: "team",
+    align: "left",
+    defaultDirection: "asc",
+    description: "Drafting team recorded for each selection",
+  },
+  {
+    label: "Picks",
+    sortKey: "selections",
+    description: "Total official selections made",
+  },
+  {
+    label: "NHL Players",
+    sortKey: "players",
+    description: "Selections who played at least one NHL game",
+  },
+  {
+    label: "NHL Rate",
+    sortKey: "appearance-rate",
+    description: "Percentage of selections who played in the NHL",
+  },
+  {
+    label: "100+ Players",
+    sortKey: "hundred",
+    description: "Selections who played at least 100 NHL games",
+  },
+  {
+    label: "100+ Rate",
+    sortKey: "hundred-rate",
+    description: "Percentage of all selections who reached 100 NHL games",
+  },
+  {
+    label: "Total GP",
+    sortKey: "games",
+    description: "Combined regular-season NHL games played",
+  },
+  {
+    label: "GP per Pick",
+    sortKey: "average",
+    description: "Average regular-season NHL games per selection",
+  },
+  {
+    label: "Skater Points",
+    sortKey: "points",
+    description: "Combined regular-season points by drafted skaters",
+  },
+  {
+    label: "Goalie Wins",
+    sortKey: "wins",
+    description: "Combined regular-season wins by drafted goalies",
+  },
+  {
+    label: "Late-Round Hits",
+    sortKey: "late",
+    description: "Round-four-or-later selections who reached 100 NHL games",
+  },
+] as const;
+
 type DraftsPageProps = {
   searchParams: Promise<{
     year?: string | string[];
@@ -238,22 +298,9 @@ function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
         <table className="workspace-table workspace-table-dense min-w-[1180px]">
           <thead>
             <tr>
-              <SortableHeader
-                label="Team"
-                sortKey="team"
-                align="left"
-                defaultDirection="asc"
-              />
-              <SortableHeader label="Selections" sortKey="selections" />
-              <SortableHeader label="NHL Players" sortKey="players" />
-              <SortableHeader label="Appearance %" sortKey="appearance-rate" />
-              <SortableHeader label="100 GP" sortKey="hundred" />
-              <SortableHeader label="100 GP %" sortKey="hundred-rate" />
-              <SortableHeader label="NHL GP" sortKey="games" />
-              <SortableHeader label="GP / Pick" sortKey="average" />
-              <SortableHeader label="Skater PTS" sortKey="points" />
-              <SortableHeader label="Goalie W" sortKey="wins" />
-              <SortableHeader label="Late Regulars" sortKey="late" />
+              {teamPerformanceColumns.map((column) => (
+                <SortableHeader key={column.sortKey} {...column} nowrap />
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -285,7 +332,7 @@ function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
         </table>
       </div>
       <div className="workspace-table-note">
-        “Appearance” means at least one stored regular-season NHL game. “100 GP” uses all official selections as the denominator. “Late regulars” are round-four-or-later selections with at least 100 games. Team and pick-owner codes are retained from the original draft record.
+        “NHL rate” means the share of selections who played at least one stored regular-season NHL game. “100+ rate” uses every official selection as its denominator. “Late-round hits” are round-four-or-later selections with at least 100 games. Team and pick-owner codes are retained from the original draft record.
       </div>
     </SortableTable>
   );
@@ -322,7 +369,7 @@ function OutcomeTable({ rows }: { rows: DraftPlayerOutcome[] }) {
               <SortableHeader label="G" sortKey="goals" />
               <SortableHeader label="A" sortKey="assists" />
               <SortableHeader label="PTS" sortKey="points" />
-              <SortableHeader label="Goalie W" sortKey="wins" />
+              <SortableHeader label="Goalie Wins" sortKey="wins" nowrap />
             </tr>
           </thead>
           <tbody>
