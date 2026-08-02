@@ -603,8 +603,8 @@ function AnalyticsGuide({ seasonId }: { seasonId: number }) {
           expected goals. <strong className="text-slate-200">CF%</strong> is the
           share of all shot attempts, while{" "}
           <strong className="text-slate-200">FF%</strong> excludes blocked
-          attempts. <strong className="text-slate-200">ixG</strong> estimates
-          the goals created by an individual player&apos;s shots.{" "}
+          attempts. <strong className="text-slate-200">ixG</strong>{" "}
+          estimates the goals created by an individual player&apos;s shots.{" "}
           <strong className="text-slate-200">GSAx</strong> is expected goals
           against minus actual goals against; positive is better.
         </p>
