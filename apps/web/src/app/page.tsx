@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 
 import {
   HomeLeagueTrends,
@@ -38,9 +39,27 @@ type HomeProps = {
   searchParams: Promise<{ season?: string | string[] }>;
 };
 
+const loadHomeSeasons = unstable_cache(listSeasons, ["home-seasons"], {
+  revalidate: 3_600,
+});
+
+const loadHomeSeasonData = unstable_cache(
+  async (seasonId: number) =>
+    Promise.all([
+      getStandings(seasonId),
+      getStandingsPointsHistory(seasonId),
+      listSkaterLeadersBySeason(seasonId, 5),
+      getLatestGamesForSeason(seasonId),
+      getRecentCompletedGames(seasonId),
+      getUpcomingGames(6),
+    ]),
+  ["home-season-data"],
+  { revalidate: 300 },
+);
+
 export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
-  const seasons = await listSeasons();
+  const seasons = await loadHomeSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
@@ -52,14 +71,7 @@ export default async function Home({ searchParams }: HomeProps) {
     recentGames,
     upcomingGames,
   ] = selectedSeason
-    ? await Promise.all([
-        getStandings(selectedSeason.id),
-        getStandingsPointsHistory(selectedSeason.id),
-        listSkaterLeadersBySeason(selectedSeason.id, 5),
-        getLatestGamesForSeason(selectedSeason.id),
-        getRecentCompletedGames(selectedSeason.id),
-        getUpcomingGames(6),
-      ])
+    ? await loadHomeSeasonData(selectedSeason.id)
     : [[], [], [], [], [], []];
 
   const latestDate = latestGames[0]?.gameDate;

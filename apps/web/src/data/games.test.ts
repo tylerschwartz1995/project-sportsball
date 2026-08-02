@@ -127,15 +127,17 @@ describe("game queries", () => {
   it("loads a bounded recent completed-game sample", async () => {
     queryMock.mockResolvedValue([]);
 
-    await getRecentCompletedGames(20252026, 2, 500);
+    await getRecentCompletedGames(20252026, 2, 500.8);
 
     expect(queryMock).toHaveBeenCalledWith(
-      expect.stringContaining("game.state IN ('FINAL', 'OFF')"),
+      expect.stringContaining("recent.state IN ('FINAL', 'OFF')"),
       [20252026, 2, 120],
     );
-    expect(queryMock.mock.calls[0]?.[0]).toContain(
-      "ORDER BY game.start_time_utc DESC",
-    );
+    const recentQuery = queryMock.mock.calls[0]?.[0] as string;
+    expect(recentQuery).toContain("WITH recent_games AS MATERIALIZED");
+    expect(recentQuery).toContain("JOIN recent_games");
+    expect(recentQuery.match(/LIMIT \$3/g)).toHaveLength(1);
+    expect(recentQuery).toContain("ORDER BY game.start_time_utc DESC");
   });
 
   it("loads a team's future schedule across season boundaries", async () => {
