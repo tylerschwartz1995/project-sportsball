@@ -20,6 +20,7 @@ import type {
 } from "@/contracts/draft";
 import { getDraftAnalytics } from "@/data/drafts";
 import { firstQueryValue, paginate, parsePage } from "@/lib/directory";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
 
@@ -422,7 +423,7 @@ function OutcomeTable({ rows }: { rows: DraftPlayerOutcome[] }) {
                 <NumberCell value={player.draftRound} />
                 <NumberCell value={player.draftPickInRound} />
                 <NumberCell value={player.draftOverallPick} />
-                <NumberCell value={player.position ?? "—"} />
+                <NumberCell value={formatPlayerPosition(player.position)} />
                 <NumberCell value={player.birthCountry ?? "—"} />
                 <NumberCell value={player.seasonsPlayed} />
                 <NumberCell value={player.careerGames} />

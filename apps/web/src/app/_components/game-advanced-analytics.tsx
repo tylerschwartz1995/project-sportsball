@@ -15,6 +15,7 @@ import type {
   MoneyPuckGoalieGameSituation,
   MoneyPuckSkaterGameSituation,
 } from "@/contracts/advanced-game";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 export type GameAdvancedView = "teams" | "shots" | "players" | "combinations";
 
@@ -313,7 +314,10 @@ function PlayerGameAnalytics({
                         </div>
                       </td>
                       <TeamCell team={row.team} />
-                      <TextCell value={row.position ?? "—"} align="center" />
+                      <TextCell
+                        value={formatPlayerPosition(row.position)}
+                        align="center"
+                      />
                       <ValueCell value={formatTimeOnIce(row.iceTimeSeconds)} />
                       <ValueCell value={formatDecimal(row.gameScore)} highlight />
                       <ValueCell

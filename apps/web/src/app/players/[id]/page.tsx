@@ -30,6 +30,7 @@ import { getPlayerGameLog } from "@/data/game-logs";
 import { getPlayerDetail } from "@/data/players";
 import { getHistoricalPlayerSeasons } from "@/data/history";
 import { listSeasons } from "@/data/seasons";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
 
@@ -171,7 +172,7 @@ export default async function PlayerPage({
                   {profile.name}
                 </h1>
                 <span className="rounded-full border border-cyan-300/25 bg-cyan-300/[0.08] px-2.5 py-1 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">
-                  {profile.position ?? "Player"}
+                  {formatPlayerPosition(profile.position, "Player")}
                 </span>
               </div>
             </div>

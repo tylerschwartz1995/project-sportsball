@@ -30,6 +30,7 @@ import { listPlayersBySeason } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
 import { firstQueryValue } from "@/lib/directory";
 import { formatComparisonValue } from "@/lib/player-comparison";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
 
@@ -345,7 +346,7 @@ function ComparisonTable({
                 >
                   {player.name}
                 </Link>
-                <small>{player.position ?? "Player"}</small>
+                <small>{formatPlayerPosition(player.position, "Player")}</small>
               </th>
             ))}
           </tr>

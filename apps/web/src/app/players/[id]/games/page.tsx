@@ -23,6 +23,7 @@ import {
   listPlayerGameSeasonIds,
 } from "@/data/game-logs";
 import { listSeasons } from "@/data/seasons";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
 
@@ -93,7 +94,8 @@ export default async function PlayerGamesPage({
         <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
-              {log.profile.position ?? "Player"} · {seasonPhaseLabel(phase)}
+              {formatPlayerPosition(log.profile.position, "Player")} ·{" "}
+              {seasonPhaseLabel(phase)}
             </p>
             <h2 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
               Game Log
