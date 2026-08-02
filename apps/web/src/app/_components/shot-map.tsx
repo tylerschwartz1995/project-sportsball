@@ -61,7 +61,7 @@ function TeamShotMap({
 
   return (
     <figure className="surface-panel flex h-full flex-col overflow-hidden">
-      <figcaption className="grid gap-3 border-b border-white/[0.07] px-5 py-4 2xl:grid-cols-[minmax(0,1fr)_max-content] 2xl:items-center 2xl:gap-5">
+      <figcaption className="border-b border-white/[0.07] px-5 py-4">
         <div className="flex min-w-0 items-center gap-3">
           <TeamLogo {...team} size="compact" decorative />
           <div className="min-w-0">
@@ -71,12 +71,12 @@ function TeamShotMap({
             <p className="mt-1 whitespace-nowrap font-semibold text-white">
               {team.name}
             </p>
+            <p className="mt-2 whitespace-nowrap text-sm tabular-nums text-slate-400">
+              {shots.length} attempts · {goals} goals ·{" "}
+              {expectedGoals.toFixed(2)} xG
+            </p>
           </div>
         </div>
-        <p className="whitespace-nowrap text-sm tabular-nums text-slate-400 2xl:text-right">
-          {shots.length} attempts · {goals} goals · {expectedGoals.toFixed(2)}{" "}
-          xG
-        </p>
       </figcaption>
 
       <div className="flex flex-1 flex-col p-4">
