@@ -37,6 +37,7 @@ import {
   buildGoalieComparisonPoints,
   buildSkaterComparisonPoints,
 } from "@/lib/player-comparison";
+import { formatPlayerPosition } from "@/lib/player-position";
 import { buildTeamComparisonPoints } from "@/lib/team-comparison";
 
 export const dynamic = "force-dynamic";
@@ -436,7 +437,7 @@ function SkaterLeaderboard({
               <EntityCell
                 href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
                 name={row.player.name}
-                detail={row.player.position ?? "Skater"}
+                detail={formatPlayerPosition(row.player.position, "Skater")}
                 team={row.team}
               />
               <ValueCell value={String(row.gamesPlayed)} />

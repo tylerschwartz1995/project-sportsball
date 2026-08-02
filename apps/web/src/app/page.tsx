@@ -32,6 +32,7 @@ import {
   buildLeagueTrendSummary,
   buildStandingsMovement,
 } from "@/lib/homepage-insights";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
 
@@ -234,7 +235,8 @@ export default async function Home({ searchParams }: HomeProps) {
                       {player.name}
                     </b>
                     <small>
-                      {player.position ?? "Skater"} · {player.gamesPlayed} GP
+                      {formatPlayerPosition(player.position, "Skater")} ·{" "}
+                      {player.gamesPlayed} GP
                     </small>
                     <strong>{player.points} PTS</strong>
                   </Link>

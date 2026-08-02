@@ -39,6 +39,7 @@ import {
   parseHistoryMetric,
   parseHistoryView,
 } from "@/data/history";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
 
@@ -352,7 +353,7 @@ function SkaterHistory({
                   <tr key={row.nhlPlayerId}>
                     <td className="workspace-team-cell"><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link></td>
                     <td className="workspace-position-cell">
-                      {row.position ?? "—"}
+                      {formatPlayerPosition(row.position)}
                     </td>
                     <NumberCell value={row.seasonsPlayed} />
                     <NumberCell value={row.gamesPlayed} />

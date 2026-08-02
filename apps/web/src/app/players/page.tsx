@@ -32,6 +32,7 @@ import {
   parsePage,
   parseSortDirection,
 } from "@/lib/directory";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
 
@@ -115,7 +116,12 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
     sortSkaters(
       players.skaters.filter(
         (player) =>
-          matchesSearch(query, player.name, player.position) &&
+          matchesSearch(
+            query,
+            player.name,
+            player.position,
+            formatPlayerPosition(player.position),
+          ) &&
           matchesBirthplace(player, filters) &&
           player.gamesPlayed >= minGames &&
           player.goals >= minGoals &&
@@ -250,7 +256,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                         phase={phase}
                                       />
                                       <span className="ml-2 text-xs text-slate-500">
-                                        {player.position}
+                                        {formatPlayerPosition(player.position)}
                                       </span>
                                     </div>
                                   </div>
@@ -579,7 +585,8 @@ function MobileSkaterCard({
               phase={phase}
             />
             <p className="mt-1 text-xs text-slate-500">
-              {player.position ?? "Skater"} · {player.gamesPlayed} games
+              {formatPlayerPosition(player.position, "Skater")} ·{" "}
+              {player.gamesPlayed} games
             </p>
           </div>
         </div>

@@ -38,6 +38,7 @@ import { listSeasons } from "@/data/seasons";
 import { getTeamScheduleStrength } from "@/data/schedule-strength";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
 import { getTeamSeasonDetail, listTeamSeasonIds } from "@/data/teams";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
 
@@ -332,7 +333,7 @@ export default async function TeamPage({
                               {player.name}
                             </Link>
                             <span className="ml-2 text-xs text-slate-500">
-                              {player.position}
+                              {formatPlayerPosition(player.position)}
                             </span>
                           </div>
                         </td>

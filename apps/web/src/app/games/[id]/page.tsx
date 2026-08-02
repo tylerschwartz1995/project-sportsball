@@ -26,6 +26,7 @@ import {
 import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";
 import { getGameBoxScore } from "@/data/games";
 import { getGamePlayByPlay } from "@/data/play-by-play";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
 
@@ -327,7 +328,7 @@ function SkaterTable({
                         {player.sweaterNumber === null
                           ? ""
                           : `#${player.sweaterNumber} · `}
-                        {player.position}
+                        {formatPlayerPosition(player.position)}
                       </span>
                   </div>
                 </td>

@@ -14,6 +14,7 @@ import {
 } from "recharts";
 
 import { TeamLogo } from "@/app/_components/team-logo";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 type DraftMetric = "careerGames" | "careerPoints" | "careerWins";
 type RoundGroup = "all" | "1" | "2" | "3plus";
@@ -214,7 +215,7 @@ function DraftTooltip({
         <div>
           <dt>Round / Position</dt>
           <dd>
-            {point.draftRound ?? "—"} / {point.position ?? "—"}
+            {point.draftRound ?? "—"} / {formatPlayerPosition(point.position)}
           </dd>
         </div>
       </dl>

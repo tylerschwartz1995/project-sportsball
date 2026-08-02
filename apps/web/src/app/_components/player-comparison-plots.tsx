@@ -37,6 +37,7 @@ import {
   type PlotPoint,
   type SkaterComparisonPoint,
 } from "@/lib/player-comparison";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 type PlayerComparisonPlotsProps =
   | {
@@ -722,7 +723,9 @@ function PlayerMetricTooltip({
           {point.teamAbbreviation}
         </span>{" "}
         ·{" "}
-        {point.kind === "skater" ? point.position ?? "Skater" : "Goalie"}
+        {point.kind === "skater"
+          ? formatPlayerPosition(point.position, "Skater")
+          : "Goalie"}
       </p>
       <p className="workspace-chart-tooltip-game">{point.name}</p>
       <dl>

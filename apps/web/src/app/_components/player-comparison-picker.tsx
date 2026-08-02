@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import type { PlayerComparisonOption } from "@/contracts/player-comparison-view";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 export function PlayerComparisonPicker({
   options,
@@ -33,7 +34,10 @@ export function PlayerComparisonPicker({
             .filter(
               (option) =>
                 !selectedIds.includes(option.nhlPlayerId) &&
-                `${option.name} ${option.position ?? ""}`
+                `${option.name} ${option.position ?? ""} ${formatPlayerPosition(
+                  option.position,
+                  "",
+                )}`
                   .toLocaleLowerCase("en-CA")
                   .includes(normalizedQuery),
             )
@@ -78,7 +82,7 @@ export function PlayerComparisonPicker({
                 }}
               >
                 <strong>{option.name}</strong>
-                <span>{option.position ?? "Player"}</span>
+                <span>{formatPlayerPosition(option.position, "Player")}</span>
               </button>
             ))}
           </div>
@@ -97,7 +101,7 @@ export function PlayerComparisonPicker({
             return (
               <span key={playerId}>
                 <strong>{player.name}</strong>
-                <small>{player.position ?? "Player"}</small>
+                <small>{formatPlayerPosition(player.position, "Player")}</small>
                 <button
                   type="button"
                   aria-label={`Remove ${player.name}`}
