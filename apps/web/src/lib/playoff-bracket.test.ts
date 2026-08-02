@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import type { GameSummary, GameTeamSummary } from "@/contracts/game";
 import type { StandingsEntry } from "@/contracts/standings";
 import {
+  buildActualBracket,
   buildProjectedBracket,
   parsePlayoffGameNumber,
 } from "@/lib/playoff-bracket";
@@ -37,6 +39,28 @@ describe("buildProjectedBracket", () => {
         .flatMap(seriesAbbreviations)
         .every((team) => team.startsWith("W")),
     ).toBe(true);
+    expect(firstRound.every((series) => series.games.length === 0)).toBe(true);
+  });
+});
+
+describe("buildActualBracket", () => {
+  it("keeps each series' games in chronological order with its score", () => {
+    const carolina = gameTeam(12, "CAR", "Carolina Hurricanes");
+    const newJersey = gameTeam(1, "NJD", "New Jersey Devils");
+    const games = [
+      playoffGame(2024030112, "2025-04-22", carolina, 3, newJersey, 2),
+      playoffGame(2024030111, "2025-04-20", newJersey, 1, carolina, 4),
+    ];
+
+    const series = buildActualBracket(games)[0].series[0];
+
+    expect(series.teamOne?.abbreviation).toBe("CAR");
+    expect(series.teamOneWins).toBe(2);
+    expect(series.teamTwoWins).toBe(0);
+    expect(series.games.map((game) => game.nhlGameId)).toEqual([
+      2024030111,
+      2024030112,
+    ]);
   });
 });
 
@@ -101,4 +125,42 @@ function seriesAbbreviations(
   return [series.teamOne?.abbreviation, series.teamTwo?.abbreviation].filter(
     (team): team is string => Boolean(team),
   );
+}
+
+function gameTeam(
+  nhlTeamId: number,
+  abbreviation: string,
+  name: string,
+): GameTeamSummary {
+  return {
+    id: nhlTeamId,
+    nhlTeamId,
+    abbreviation,
+    name,
+    record: { wins: 0, losses: 0, overtimeLosses: 0 },
+    score: null,
+    shotsOnGoal: null,
+  };
+}
+
+function playoffGame(
+  nhlGameId: number,
+  gameDate: string,
+  awayTeam: GameTeamSummary,
+  awayScore: number,
+  homeTeam: GameTeamSummary,
+  homeScore: number,
+): GameSummary {
+  return {
+    id: nhlGameId,
+    nhlGameId,
+    seasonId: 20242025,
+    gameType: 3,
+    gameDate,
+    startTimeUtc: `${gameDate}T23:00:00Z`,
+    state: "FINAL",
+    lastPeriodType: "REG",
+    awayTeam: { ...awayTeam, score: awayScore },
+    homeTeam: { ...homeTeam, score: homeScore },
+  };
 }

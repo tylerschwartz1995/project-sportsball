@@ -5,6 +5,23 @@ export type PlayoffBracketTeam = {
   seedLabel: string | null;
 };
 
+export type PlayoffSeriesGameTeam = {
+  nhlTeamId: number;
+  abbreviation: string;
+  name: string;
+  score: number | null;
+};
+
+export type PlayoffSeriesGame = {
+  nhlGameId: number;
+  gameDate: string;
+  startTimeUtc: string;
+  state: string;
+  lastPeriodType: string | null;
+  awayTeam: PlayoffSeriesGameTeam;
+  homeTeam: PlayoffSeriesGameTeam;
+};
+
 export type PlayoffSeries = {
   id: string;
   round: number;
@@ -14,6 +31,7 @@ export type PlayoffSeries = {
   teamOneWins: number;
   teamTwoWins: number;
   winnerNhlTeamId: number | null;
+  games: PlayoffSeriesGame[];
 };
 
 export type PlayoffRound = {
