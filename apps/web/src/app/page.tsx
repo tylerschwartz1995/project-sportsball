@@ -309,16 +309,16 @@ function GameResult({ game }: { game: GameSummary }) {
       <span className="workspace-result-matchup">
         <span>
           <TeamLogo {...game.awayTeam} size="tiny" decorative />
-          <b>{game.awayTeam.abbreviation}</b>
           <TeamGameRecord record={game.awayTeam.record} />
+          <b>{game.awayTeam.abbreviation}</b>
           <strong>{game.awayTeam.score ?? "—"}</strong>
         </span>
         <span aria-hidden="true">–</span>
         <span>
           <strong>{game.homeTeam.score ?? "—"}</strong>
-          <TeamGameRecord record={game.homeTeam.record} />
           <b>{game.homeTeam.abbreviation}</b>
           <TeamLogo {...game.homeTeam} size="tiny" decorative />
+          <TeamGameRecord record={game.homeTeam.record} />
         </span>
       </span>
     </Link>
