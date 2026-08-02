@@ -290,7 +290,7 @@ export function PlayerRollingPerformanceChart(
                 dataKey="gameDate"
                 tickFormatter={formatAxisDate}
                 stroke="var(--chart-axis)"
-                tick={{ fill: "var(--chart-label)", fontSize: 15 }}
+                tick={{ fill: "var(--chart-label)", fontSize: "0.84rem" }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
                 interval="preserveStartEnd"
@@ -303,7 +303,7 @@ export function PlayerRollingPerformanceChart(
                   fill: metric.advanced
                     ? "var(--chart-secondary)"
                     : "var(--chart-primary)",
-                  fontSize: 15,
+                  fontSize: "0.84rem",
                 }}
                 tickLine={false}
                 axisLine={false}

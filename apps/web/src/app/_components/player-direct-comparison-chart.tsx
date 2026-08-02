@@ -84,7 +84,7 @@ export function PlayerDirectComparisonChart({
               <CartesianGrid stroke="var(--chart-grid)" vertical={false} />
               <XAxis
                 dataKey="name"
-                tick={{ fill: "var(--chart-label)", fontSize: 15 }}
+                tick={{ fill: "var(--chart-label)", fontSize: "0.84rem" }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
               />
@@ -92,7 +92,7 @@ export function PlayerDirectComparisonChart({
                 tickFormatter={(value) =>
                   formatComparisonValue(value, metric)
                 }
-                tick={{ fill: "var(--chart-label)", fontSize: 15 }}
+                tick={{ fill: "var(--chart-label)", fontSize: "0.84rem" }}
                 tickLine={false}
                 axisLine={false}
                 width={62}
@@ -109,7 +109,7 @@ export function PlayerDirectComparisonChart({
                   background: "var(--surface-raised)",
                   border: "1px solid var(--border-strong)",
                   borderRadius: 12,
-                  fontSize: 15,
+                  fontSize: "0.84rem",
                 }}
               />
               <Bar

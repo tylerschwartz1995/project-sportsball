@@ -24,7 +24,9 @@ competing with it.
 - **State colors:** emerald for positive status and rose for negative results.
 - **Typography:** Geist Sans for interface and reading; Geist Mono for compact
   labels, identifiers, and technical metadata. Tabular numerals are required
-  for comparable statistics.
+  for comparable statistics. The desktop root scale grows gradually from 18
+  to 20 pixels as the viewport widens, so typography, controls, logos, and
+  rem-based component geometry remain visually balanced on larger monitors.
 - **Shape:** 16-pixel primary panel radius and 12-pixel nested-control radius.
 - **Spacing:** page sections use a compact 32-pixel rhythm, compressing
   naturally on small screens so useful content remains close to its controls.
@@ -82,6 +84,10 @@ and a pre-render bootstrap applies it before the interface is painted.
   values. The ordinary desktop canvas stops growing at 80rem so even wide data
   remains coherent on ultrawide monitors; exceptionally dense tables scroll
   inside that canvas rather than stretching indefinitely.
+- Store the canvas and compact, standard, and data-width boundaries as shared
+  CSS tokens. Width tiers scale with the desktop root size, preserving their
+  information hierarchy while avoiding tiny content in a wide application
+  shell. Do not add viewport-specific font overrides to individual pages.
 - Column width follows meaning: ranks, logos, positions, dates, seasons, and
   numeric values remain content-sized and on one line. Primary team, player,
   matchup, and metric labels use a stable readable track instead of absorbing

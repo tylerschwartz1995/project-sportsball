@@ -26,10 +26,20 @@
   --chart-reference: rgb(255 255 255 / 0.32);
   --chart-primary: #67e8f9;
   --chart-secondary: #c4b5fd;
+  --workspace-canvas-max: 80rem;
+  --workspace-width-compact: 50rem;
+  --workspace-width-standard: 56rem;
+  --workspace-width-data: 64rem;
 }
 
 html {
-  font-size: 18px;
+  /*
+   * Keep normal desktops at the established readable baseline, then scale the
+   * whole interface modestly on larger screens. Because component geometry is
+   * rem-based, type, controls, logos, and their spacing grow together instead
+   * of leaving small content inside an increasingly wide canvas.
+   */
+  font-size: clamp(18px, calc(16px + 0.2vw), 20px);
 }
 
 html[data-theme="light"] {
@@ -242,7 +252,7 @@ body {
 }
 
 main.max-w-7xl {
-  max-width: 80rem;
+  max-width: var(--workspace-canvas-max);
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
@@ -553,15 +563,15 @@ html[data-theme="light"] .theme-toggle-label::after {
 }
 
 .workspace-width-compact {
-  max-width: 50rem;
+  max-width: var(--workspace-width-compact);
 }
 
 .workspace-width-standard {
-  max-width: 56rem;
+  max-width: var(--workspace-width-standard);
 }
 
 .workspace-width-data {
-  max-width: 64rem;
+  max-width: var(--workspace-width-data);
 }
 
 .workspace-player-overview-block {
