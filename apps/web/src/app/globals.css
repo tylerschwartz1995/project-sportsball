@@ -4137,6 +4137,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   background: var(--surface);
   color: var(--foreground);
   box-shadow: 0 28px 90px rgb(0 0 0 / 0.5);
+  outline: none;
 }
 
 .workspace-series-dialog-card {
@@ -4212,10 +4213,10 @@ html[data-theme="light"] .workspace-analytics-filters button {
   align-items: center;
   gap: 0.8rem;
   min-width: 0;
-  border: 1px solid transparent;
+  border: 1px solid var(--border);
   border-radius: 0.8rem;
   padding: 0.55rem;
-  background: transparent;
+  background: var(--surface-raised);
   color: var(--foreground);
   text-decoration: none;
   transition:
@@ -4618,7 +4619,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-series-game {
   display: grid;
-  grid-template-columns: 10rem minmax(0, 1fr) auto;
+  grid-template-columns: 12.5rem minmax(0, 1fr) auto;
   align-items: center;
   gap: 1rem;
   border: 1px solid var(--border);
@@ -4655,6 +4656,20 @@ html[data-theme="light"] .workspace-analytics-filters button {
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+
+.workspace-series-game-result {
+  display: flex !important;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.22rem;
+}
+
+.workspace-series-game-result small {
+  color: var(--muted);
+  font-size: 0.69rem;
+  font-weight: 650;
+  white-space: nowrap;
 }
 
 .workspace-series-game-state.is-final {

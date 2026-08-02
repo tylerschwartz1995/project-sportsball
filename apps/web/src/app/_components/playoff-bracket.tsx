@@ -220,6 +220,7 @@ function SeriesDialog({
 
     if (selected && !dialog.open) {
       dialog.showModal();
+      dialog.focus();
     } else if (!selected && dialog.open) {
       dialog.close();
     }
@@ -265,6 +266,7 @@ function SeriesDialog({
     <dialog
       ref={dialogRef}
       className="workspace-series-dialog"
+      tabIndex={-1}
       aria-label={series ? `${formatMatchup(series)} series details` : undefined}
       onClose={onClose}
       onKeyDown={(event) => {
@@ -462,7 +464,7 @@ function SeriesOverview({
         />
         <ComparisonRow
           left={formatPercentage(summary.teamOne.shotShare)}
-          label="Shot Share"
+          label="Shot-on-Goal Share"
           right={formatPercentage(summary.teamTwo.shotShare)}
         />
         {hasTeamAnalytics ? (
@@ -490,7 +492,7 @@ function SeriesOverview({
               left={formatDecimal(
                 teamOneAnalytics?.fiveOnFive?.expectedGoalsFor ?? null,
               )}
-              label="Five-On-Five xG"
+              label="Five-On-Five Expected Goals"
               right={formatDecimal(
                 teamTwoAnalytics?.fiveOnFive?.expectedGoalsFor ?? null,
               )}
@@ -589,12 +591,56 @@ function SeriesGames({
   series: PlayoffSeries;
   isProjection: boolean;
 }) {
+  const { gamesWithProgress } = series.games.reduce<{
+    teamOneWins: number;
+    teamTwoWins: number;
+    gamesWithProgress: Array<{
+      game: PlayoffSeriesGame;
+      seriesProgress: string | null;
+    }>;
+  }>(
+    (progress, game) => {
+      const isCompleted =
+        game.awayTeam.score !== null && game.homeTeam.score !== null;
+      const winningTeamId = isCompleted
+        ? game.awayTeam.score! > game.homeTeam.score!
+          ? game.awayTeam.nhlTeamId
+          : game.homeTeam.nhlTeamId
+        : null;
+      const teamOneWins =
+        progress.teamOneWins +
+        (winningTeamId === series.teamOne?.nhlTeamId ? 1 : 0);
+      const teamTwoWins =
+        progress.teamTwoWins +
+        (winningTeamId === series.teamTwo?.nhlTeamId ? 1 : 0);
+
+      return {
+        teamOneWins,
+        teamTwoWins,
+        gamesWithProgress: [
+          ...progress.gamesWithProgress,
+          {
+            game,
+            seriesProgress: isCompleted
+              ? formatSeriesProgress(series, teamOneWins, teamTwoWins)
+              : null,
+          },
+        ],
+      };
+    },
+    { teamOneWins: 0, teamTwoWins: 0, gamesWithProgress: [] },
+  );
+
   return (
     <section className="workspace-series-games" aria-label="Series games">
       {series.games.length > 0 ? (
         <div>
-          {series.games.map((game) => (
-            <SeriesGame key={game.nhlGameId} game={game} />
+          {gamesWithProgress.map(({ game, seriesProgress }) => (
+            <SeriesGame
+              key={game.nhlGameId}
+              game={game}
+              seriesProgress={seriesProgress}
+            />
           ))}
         </div>
       ) : (
@@ -770,17 +816,17 @@ function SeriesSkaterTable({
           <thead>
             <tr>
               <SortableHeader label="Player" sortKey="player" align="left" />
-              <SortableHeader label="Pos" sortKey="position" />
-              <SortableHeader label="GP" sortKey="games" />
-              <SortableHeader label="G" sortKey="goals" />
-              <SortableHeader label="A" sortKey="assists" />
-              <SortableHeader label="PTS" sortKey="points" />
-              <SortableHeader label="+/-" sortKey="plusMinus" />
-              <SortableHeader label="PIM" sortKey="penaltyMinutes" />
-              <SortableHeader label="S" sortKey="shots" />
-              <SortableHeader label="HIT" sortKey="hits" />
-              <SortableHeader label="BLK" sortKey="blocks" />
-              <SortableHeader label="TOI" sortKey="timeOnIce" />
+              <SortableHeader label="Pos" sortKey="position" description="Position" />
+              <SortableHeader label="GP" sortKey="games" description="Games played" />
+              <SortableHeader label="G" sortKey="goals" description="Goals" />
+              <SortableHeader label="A" sortKey="assists" description="Assists" />
+              <SortableHeader label="PTS" sortKey="points" description="Points" />
+              <SortableHeader label="+/-" sortKey="plusMinus" description="Plus/minus" />
+              <SortableHeader label="PIM" sortKey="penaltyMinutes" description="Penalty minutes" />
+              <SortableHeader label="SOG" sortKey="shots" description="Shots on goal" />
+              <SortableHeader label="HIT" sortKey="hits" description="Hits" />
+              <SortableHeader label="BLK" sortKey="blocks" description="Blocked shots" />
+              <SortableHeader label="TOI" sortKey="timeOnIce" description="Total time on ice" />
             </tr>
           </thead>
           <tbody>
@@ -826,15 +872,15 @@ function SeriesGoalieTable({
           <thead>
             <tr>
               <SortableHeader label="Goalie" sortKey="player" align="left" />
-              <SortableHeader label="GP" sortKey="games" />
-              <SortableHeader label="GS" sortKey="starts" />
-              <SortableHeader label="W" sortKey="wins" />
-              <SortableHeader label="L" sortKey="losses" />
-              <SortableHeader label="GA" sortKey="goalsAgainst" />
-              <SortableHeader label="SA" sortKey="shotsAgainst" />
-              <SortableHeader label="SV" sortKey="saves" />
-              <SortableHeader label="SV%" sortKey="savePercentage" />
-              <SortableHeader label="TOI" sortKey="timeOnIce" />
+              <SortableHeader label="GP" sortKey="games" description="Games played" />
+              <SortableHeader label="GS" sortKey="starts" description="Games started" />
+              <SortableHeader label="W" sortKey="wins" description="Wins" />
+              <SortableHeader label="L" sortKey="losses" description="Losses" />
+              <SortableHeader label="GA" sortKey="goalsAgainst" description="Goals against" />
+              <SortableHeader label="SA" sortKey="shotsAgainst" description="Shots against" />
+              <SortableHeader label="SV" sortKey="saves" description="Saves" />
+              <SortableHeader label="SV%" sortKey="savePercentage" description="Save percentage" />
+              <SortableHeader label="TOI" sortKey="timeOnIce" description="Total time on ice" />
             </tr>
           </thead>
           <tbody>
@@ -1075,7 +1121,13 @@ function SeriesTeam({
   );
 }
 
-function SeriesGame({ game }: { game: PlayoffSeriesGame }) {
+function SeriesGame({
+  game,
+  seriesProgress,
+}: {
+  game: PlayoffSeriesGame;
+  seriesProgress: string | null;
+}) {
   const gameNumber = game.nhlGameId % 10;
   const state = formatSeriesGameState(game);
   const isFinal = state.startsWith("Final");
@@ -1097,10 +1149,13 @@ function SeriesGame({ game }: { game: PlayoffSeriesGame }) {
       <div className="workspace-series-game-meta">
         <strong>Game {gameNumber}</strong>
         <time dateTime={game.startTimeUtc}>{formatGameDate(game)}</time>
-        <span
-          className={`workspace-series-game-state${isFinal ? " is-final" : ""}`}
-        >
-          {state}
+        <span className="workspace-series-game-result">
+          <span
+            className={`workspace-series-game-state${isFinal ? " is-final" : ""}`}
+          >
+            {state}
+          </span>
+          {seriesProgress ? <small>{seriesProgress}</small> : null}
         </span>
       </div>
       <div className="workspace-series-game-score">
@@ -1152,13 +1207,37 @@ function formatSeriesMastheadStatus(
   isProjection: boolean,
 ): string {
   if (isProjection) return "Projected Matchup";
-  if (series.winnerNhlTeamId) return "Final";
+  if (series.winnerNhlTeamId) {
+    const winner =
+      series.teamOne?.nhlTeamId === series.winnerNhlTeamId
+        ? series.teamOne
+        : series.teamTwo;
+    return `${winner?.abbreviation ?? "Series"} Wins`;
+  }
   if (series.games.length === 0) return "Not Started";
   if (series.teamOneWins === series.teamTwoWins) return "Series Tied";
 
   const leader =
     series.teamOneWins > series.teamTwoWins ? series.teamOne : series.teamTwo;
   return `${leader?.abbreviation ?? "Leader"} Leads`;
+}
+
+function formatSeriesProgress(
+  series: PlayoffSeries,
+  teamOneWins: number,
+  teamTwoWins: number,
+): string {
+  if (teamOneWins === teamTwoWins) {
+    return `Series Tied ${teamOneWins}–${teamTwoWins}`;
+  }
+
+  const teamOneLeads = teamOneWins > teamTwoWins;
+  const leader = teamOneLeads ? series.teamOne : series.teamTwo;
+  const leaderWins = Math.max(teamOneWins, teamTwoWins);
+  const trailerWins = Math.min(teamOneWins, teamTwoWins);
+  return leaderWins === 4
+    ? `${leader?.abbreviation ?? "Winner"} Wins Series ${leaderWins}–${trailerWins}`
+    : `${leader?.abbreviation ?? "Leader"} Leads ${leaderWins}–${trailerWins}`;
 }
 
 function formatSeriesGameState(game: PlayoffSeriesGame): string {
