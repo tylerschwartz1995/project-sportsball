@@ -564,6 +564,117 @@ html[data-theme="light"] .theme-toggle-label::after {
   max-width: 64rem;
 }
 
+.workspace-player-overview-block {
+  width: 100%;
+  max-width: 64rem;
+}
+
+.workspace-player-profile-facts {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.workspace-player-profile-fact {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  padding: 0.75rem 0.85rem;
+  background: var(--surface);
+}
+
+.workspace-player-profile-fact dt,
+.workspace-player-season-metric dt {
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.workspace-player-profile-fact dd {
+  margin-top: 0.35rem;
+  color: var(--foreground);
+  font-size: 0.92rem;
+  font-weight: 620;
+  line-height: 1.4;
+}
+
+.workspace-player-season-totals {
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+  box-shadow: 0 10px 28px var(--shadow);
+}
+
+.workspace-player-season-totals-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.workspace-player-season-totals-header h4 {
+  color: var(--foreground);
+  font-weight: 650;
+}
+
+.workspace-player-season-totals-header span {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.workspace-player-season-totals-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem 1rem;
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+}
+
+.workspace-player-season-metric {
+  min-width: 0;
+}
+
+.workspace-player-season-metric dd {
+  margin-top: 0.2rem;
+  color: var(--foreground);
+  font-size: 1rem;
+  font-weight: 680;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (min-width: 640px) {
+  .workspace-player-profile-facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-player-season-totals-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .workspace-player-profile-facts {
+    grid-template-columns:
+      minmax(15rem, 1.5fr) minmax(8rem, 0.75fr)
+      minmax(8rem, 0.75fr) minmax(16rem, 1.5fr);
+  }
+
+  .workspace-player-season-totals-grid {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+  }
+
+  .workspace-player-season-metric + .workspace-player-season-metric {
+    border-left: 1px solid var(--border);
+    padding-left: 0.75rem;
+  }
+}
+
 .workspace-panel-header {
   display: flex;
   align-items: flex-end;

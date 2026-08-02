@@ -97,6 +97,9 @@ and a pre-render bootstrap applies it before the interface is painted.
 - Multi-section historical filters use the full data canvas. Their sections
   share one equal-height desktop row, actions sit in a dedicated footer, and
   the filters, tabs, and results keep the same outer edges.
+- Player overview facts and selected-season totals use a compact data-width
+  block. Short profile facts remain information-sized, and season metrics use
+  one dense desktop row instead of stretching sparse values across the canvas.
 - Long statistical tables use tighter vertical cell padding without reducing
   the established application font size. Short schedules and comparisons keep
   their normal row rhythm.

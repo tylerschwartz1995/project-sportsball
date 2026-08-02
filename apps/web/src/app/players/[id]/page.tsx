@@ -222,7 +222,7 @@ export default async function PlayerPage({
 
         {view === "overview" ? (
         <>
-        <dl className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <dl className="workspace-player-overview-block workspace-player-profile-facts mt-8">
           <ProfileStat
             label="Born"
             value={
@@ -247,13 +247,12 @@ export default async function PlayerPage({
         </dl>
 
         {regularSkater || playoffSkater ? (
-          <section className="mt-12">
+          <section className="workspace-player-overview-block mt-8">
             <SectionTitle
               eyebrow="Selected season"
               title="Skater Totals"
-              detail="Combined across teams played for"
             />
-            <div className="mt-5">
+            <div className="mt-4">
               <SkaterPanel
                 title={seasonPhaseLabel(phase)}
                 stats={phase === "playoffs" ? playoffSkater : regularSkater}
@@ -263,13 +262,12 @@ export default async function PlayerPage({
         ) : null}
 
         {regularGoalie || playoffGoalie ? (
-          <section className="mt-12">
+          <section className="workspace-player-overview-block mt-8">
             <SectionTitle
               eyebrow="Selected season"
               title="Goalie Totals"
-              detail="Combined across teams played for"
             />
-            <div className="mt-5">
+            <div className="mt-4">
               <GoaliePanel
                 title={seasonPhaseLabel(phase)}
                 stats={phase === "playoffs" ? playoffGoalie : regularGoalie}
@@ -281,7 +279,7 @@ export default async function PlayerPage({
         {selectedSeason ? (
           <Link
             href={`/players/${profile.nhlPlayerId}/games?season=${selectedSeason.id}&phase=${phase}`}
-            className="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.06] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.09]"
+            className="workspace-player-overview-block mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.06] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.09]"
           >
             <span>
               <span className="block font-medium text-white">
@@ -475,11 +473,9 @@ export default async function PlayerPage({
 
 function ProfileStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <dt className="text-xs uppercase tracking-[0.14em] text-slate-500">
-        {label}
-      </dt>
-      <dd className="mt-2 text-sm font-medium text-white">{value}</dd>
+    <div className="workspace-player-profile-fact">
+      <dt>{label}</dt>
+      <dd>{value}</dd>
     </div>
   );
 }
@@ -491,7 +487,7 @@ function SectionTitle({
 }: {
   eyebrow: string;
   title: string;
-  detail: string;
+  detail?: string;
 }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-3">
@@ -501,7 +497,7 @@ function SectionTitle({
         </p>
         <h3 className="mt-2 text-2xl font-semibold text-white">{title}</h3>
       </div>
-      <p className="text-sm text-slate-500">{detail}</p>
+      {detail ? <p className="text-sm text-slate-500">{detail}</p> : null}
     </div>
   );
 }
@@ -517,14 +513,14 @@ function SkaterPanel({
     return <EmptyPanel title={title} />;
   }
   return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-      <div className="flex items-baseline justify-between">
-        <h4 className="font-semibold text-white">{title}</h4>
-        <span className="font-mono text-lg text-cyan-200">
+    <article className="workspace-player-season-totals">
+      <div className="workspace-player-season-totals-header">
+        <h4>{title}</h4>
+        <span>
           {stats.points} PTS
         </span>
       </div>
-      <dl className="mt-6 grid grid-cols-3 gap-4 sm:grid-cols-4">
+      <dl className="workspace-player-season-totals-grid">
         <Metric label="GP" value={stats.gamesPlayed} />
         <Metric label="G" value={stats.goals} />
         <Metric label="A" value={stats.assists} />
@@ -549,14 +545,14 @@ function GoaliePanel({
     return <EmptyPanel title={title} />;
   }
   return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-      <div className="flex items-baseline justify-between">
-        <h4 className="font-semibold text-white">{title}</h4>
-        <span className="font-mono text-lg text-cyan-200">
+    <article className="workspace-player-season-totals">
+      <div className="workspace-player-season-totals-header">
+        <h4>{title}</h4>
+        <span>
           {formatSavePercentage(stats.savePercentage)} SV%
         </span>
       </div>
-      <dl className="mt-6 grid grid-cols-3 gap-4 sm:grid-cols-4">
+      <dl className="workspace-player-season-totals-grid">
         <Metric label="GP" value={stats.gamesPlayed} />
         <Metric label="GS" value={stats.gamesStarted} />
         <Metric label="W" value={stats.wins} />
@@ -581,11 +577,9 @@ function EmptyPanel({ title }: { title: string }) {
 
 function Metric({ label, value }: { label: string; value: number | string }) {
   return (
-    <div>
-      <dt className="text-xs uppercase tracking-[0.12em] text-slate-500">
-        {label}
-      </dt>
-      <dd className="mt-1 font-semibold tabular-nums text-white">{value}</dd>
+    <div className="workspace-player-season-metric">
+      <dt>{label}</dt>
+      <dd>{value}</dd>
     </div>
   );
 }
