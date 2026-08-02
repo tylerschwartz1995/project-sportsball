@@ -31,21 +31,83 @@ export type PlayoffSeriesTeamAnalytics = {
   fiveOnFive: PlayoffSeriesSituationAnalytics | null;
 };
 
-export type PlayoffSeriesPlayerLeader = {
+export type PlayoffSeriesSkaterStats = {
+  nhlPlayerId: number;
+  name: string;
+  nhlTeamId: number;
+  teamAbbreviation: string;
+  position: string;
+  gamesPlayed: number;
+  goals: number;
+  assists: number;
+  points: number;
+  plusMinus: number;
+  penaltyMinutes: number;
+  hits: number;
+  powerPlayGoals: number;
+  shotsOnGoal: number;
+  blockedShots: number;
+  takeaways: number;
+  giveaways: number;
+  timeOnIceSeconds: number | null;
+};
+
+export type PlayoffSeriesGoalieStats = {
   nhlPlayerId: number;
   name: string;
   nhlTeamId: number;
   teamAbbreviation: string;
   gamesPlayed: number;
+  gamesStarted: number;
+  wins: number;
+  losses: number;
+  goalsAgainst: number;
+  shotsAgainst: number;
+  saves: number;
+  savePercentage: number | null;
+  timeOnIceSeconds: number | null;
+};
+
+export type PlayoffSeriesAdvancedSkaterStats = {
+  nhlPlayerId: number;
+  name: string;
+  nhlTeamId: number;
+  teamAbbreviation: string;
+  shotAttempts: number;
+  shotsOnGoal: number;
   goals: number;
-  assists: number;
-  points: number;
+  expectedGoals: number;
+  goalsAboveExpected: number;
+  shootingPercentage: number | null;
+  averageShotDistance: number | null;
+  rushAttempts: number;
+  reboundAttempts: number;
+};
+
+export type PlayoffSeriesAdvancedGoalieStats = {
+  nhlPlayerId: number;
+  name: string;
+  nhlTeamId: number;
+  teamAbbreviation: string;
+  shotsAgainst: number;
+  goalsAgainst: number;
+  saves: number;
+  expectedGoalsAgainst: number;
+  goalsSavedAboveExpected: number;
+  savePercentage: number | null;
+  expectedSavePercentage: number | null;
+};
+
+export type PlayoffSeriesPlayerStatsPackage = {
+  skaters: PlayoffSeriesSkaterStats[];
+  goalies: PlayoffSeriesGoalieStats[];
+  advancedSkaters: PlayoffSeriesAdvancedSkaterStats[];
+  advancedGoalies: PlayoffSeriesAdvancedGoalieStats[];
 };
 
 export type PlayoffSeriesInsights = {
   id: string;
   teamAnalytics: PlayoffSeriesTeamAnalytics[];
-  playerLeaders: PlayoffSeriesPlayerLeader[];
 };
 
 export type PlayoffSeriesGame = {
@@ -69,7 +131,6 @@ export type PlayoffSeries = {
   winnerNhlTeamId: number | null;
   games: PlayoffSeriesGame[];
   teamAnalytics: PlayoffSeriesTeamAnalytics[];
-  playerLeaders: PlayoffSeriesPlayerLeader[];
 };
 
 export type PlayoffRound = {

@@ -52,6 +52,7 @@ apps/web/src/
 └── app/
     ├── api/games/route.ts
     ├── api/games/[id]/route.ts
+    ├── api/playoffs/series/route.ts
     ├── api/players/route.ts
     ├── api/seasons/route.ts
     ├── api/standings/route.ts
@@ -131,10 +132,14 @@ above expected before returning serializable contracts to the pages.
 
 `standings.ts` also derives each team's cumulative regular-season points after
 every stored result for the standings history plot. `playoffs.ts` aggregates
-official playoff box-score scoring plus series-specific player leaders and
-MoneyPuck team-game metrics. The playoff page groups NHL playoff game
+official playoff box-score scoring plus series-specific MoneyPuck team-game
+metrics. The playoff page groups NHL playoff game
 identifiers into series and rounds, then attaches those aggregates to the
 matching series in one pass rather than repeating analytics queries per game.
+Complete official and shot-model player series tables load through the bounded
+`/api/playoffs/series` endpoint only after a player tab is opened, keeping the
+initial bracket response compact. The four player queries run in parallel and
+are scoped to one validated season, round, and matchup.
 If no postseason game has been completed, the page constructs the current
 first-round projection from the official standings snapshot instead.
 
