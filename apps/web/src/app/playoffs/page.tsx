@@ -14,7 +14,10 @@ import {
 import type { GoalieSeasonSummary } from "@/contracts/player";
 import { parseSeasonId } from "@/contracts/season";
 import { getGamesForSeasonByType } from "@/data/games";
-import { getPlayoffScoringLeaders } from "@/data/playoffs";
+import {
+  getPlayoffScoringLeaders,
+  getPlayoffSeriesInsights,
+} from "@/data/playoffs";
 import { listGoalieLeadersBySeason } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
 import { getStandings } from "@/data/standings";
@@ -22,6 +25,7 @@ import { firstQueryValue } from "@/lib/directory";
 import {
   buildActualBracket,
   buildProjectedBracket,
+  attachPlayoffSeriesInsights,
 } from "@/lib/playoff-bracket";
 
 export const dynamic = "force-dynamic";
@@ -44,13 +48,16 @@ export default async function PlayoffsPage({
   const view = parsePlayoffView(firstQueryValue(params.view));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
-  const [standings, games, leaders, goalieLeaders] = selectedSeason
+  const [standings, games, seriesInsights, leaders, goalieLeaders] = selectedSeason
     ? await Promise.all([
         view === "bracket"
           ? getStandings(selectedSeason.id)
           : Promise.resolve([]),
         view === "bracket"
           ? getGamesForSeasonByType(selectedSeason.id, 3)
+          : Promise.resolve([]),
+        view === "bracket"
+          ? getPlayoffSeriesInsights(selectedSeason.id)
           : Promise.resolve([]),
         view === "skaters"
           ? getPlayoffScoringLeaders(selectedSeason.id)
@@ -59,15 +66,18 @@ export default async function PlayoffsPage({
           ? listGoalieLeadersBySeason(selectedSeason.id, 25, 3)
           : Promise.resolve([]),
       ])
-    : [[], [], [], []];
+    : [[], [], [], [], []];
   const isProjection = !games.some(
     (game) =>
       game.homeTeam.score !== null &&
       game.awayTeam.score !== null,
   );
-  const rounds = isProjection
+  const baseRounds = isProjection
     ? buildProjectedBracket(standings)
     : buildActualBracket(games);
+  const rounds = isProjection
+    ? baseRounds
+    : attachPlayoffSeriesInsights(baseRounds, seriesInsights);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">

@@ -4,6 +4,7 @@ import type {
   PlayoffRound,
   PlayoffSeries,
   PlayoffSeriesGame,
+  PlayoffSeriesInsights,
 } from "@/contracts/playoffs";
 import type { StandingsEntry } from "@/contracts/standings";
 
@@ -35,6 +36,27 @@ export function buildActualBracket(games: GameSummary[]): PlayoffRound[] {
             seriesGames,
           )
         : placeholder;
+    }),
+  }));
+}
+
+export function attachPlayoffSeriesInsights(
+  rounds: PlayoffRound[],
+  insights: PlayoffSeriesInsights[],
+): PlayoffRound[] {
+  const insightsBySeries = new Map(insights.map((entry) => [entry.id, entry]));
+
+  return rounds.map((round) => ({
+    ...round,
+    series: round.series.map((series) => {
+      const entry = insightsBySeries.get(series.id);
+      return entry
+        ? {
+            ...series,
+            teamAnalytics: entry.teamAnalytics,
+            playerLeaders: entry.playerLeaders,
+          }
+        : series;
     }),
   }));
 }
@@ -143,6 +165,8 @@ function buildEmptyRounds(): PlayoffRound[] {
       teamTwoWins: 0,
       winnerNhlTeamId: null,
       games: [],
+      teamAnalytics: [],
+      playerLeaders: [],
     })),
   }));
 }
@@ -186,6 +210,8 @@ function seriesFromGames(
           ? teamTwo.nhlTeamId
           : null,
     games: sorted.map(gameToSeriesGame),
+    teamAnalytics: [],
+    playerLeaders: [],
   };
 }
 
@@ -201,12 +227,14 @@ function gameToSeriesGame(game: GameSummary): PlayoffSeriesGame {
       abbreviation: game.awayTeam.abbreviation,
       name: game.awayTeam.name,
       score: game.awayTeam.score,
+      shotsOnGoal: game.awayTeam.shotsOnGoal,
     },
     homeTeam: {
       nhlTeamId: game.homeTeam.nhlTeamId,
       abbreviation: game.homeTeam.abbreviation,
       name: game.homeTeam.name,
       score: game.homeTeam.score,
+      shotsOnGoal: game.homeTeam.shotsOnGoal,
     },
   };
 }
@@ -228,6 +256,8 @@ function projectedSeries(
     teamTwoWins: 0,
     winnerNhlTeamId: null,
     games: [],
+    teamAnalytics: [],
+    playerLeaders: [],
   };
 }
 
