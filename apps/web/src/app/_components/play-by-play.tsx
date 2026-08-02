@@ -33,7 +33,7 @@ export function GamePlayByPlayView({
   return (
     <section
       id="scoring"
-      className="workspace-section-divider scroll-mt-6"
+      className="workspace-section-divider workspace-width-data scroll-mt-6"
     >
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
@@ -119,7 +119,16 @@ function ScoringSummary({
         <div className="data-table-shell mt-4">
           <SortableTable defaultSortKey="gameTime" defaultDirection="asc">
             <div className="workspace-table-scroll">
-              <table className="workspace-table min-w-[900px]">
+              <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1150px]">
+                <colgroup>
+                  <col className="workspace-col-period" />
+                  <col className="workspace-col-time" />
+                  <col className="workspace-col-team" />
+                  <col className="workspace-col-entity" />
+                  <col className="workspace-col-assists" />
+                  <col className="workspace-col-event" />
+                  <col className="workspace-col-score" />
+                </colgroup>
                 <thead>
                   <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                     <SortableHeader
@@ -207,14 +216,11 @@ function ScoringSummary({
                           )}
                         </td>
                         <td className="px-4 py-3">
-                          <span className="inline-flex items-center gap-2">
-                            {goal.ownerTeam ? (
-                              <TeamLogo {...goal.ownerTeam} size="tiny" decorative />
-                            ) : null}
+                          <span className="workspace-entity-name">
                             <PlayerLink player={scorer} seasonId={seasonId} />
                           </span>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-4 py-3 leading-6">
                           {assists.length > 0 ? (
                             <span className="flex flex-wrap gap-x-2 gap-y-1">
                               {assists.map((player) => (
@@ -233,7 +239,7 @@ function ScoringSummary({
                           {goalTypeLabel(goal, awayTeam, homeTeam)}
                         </td>
                         <td
-                          className="px-4 py-3 text-right font-semibold tabular-nums text-white"
+                          className="whitespace-nowrap px-4 py-3 text-center font-semibold tabular-nums text-white"
                           data-sort-value={
                             (goal.awayScore ?? 0) + (goal.homeScore ?? 0)
                           }

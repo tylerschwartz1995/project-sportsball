@@ -6,6 +6,7 @@ import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { StandingsPointsChart } from "@/app/_components/standings-points-chart";
 import { TeamLogo } from "@/app/_components/team-logo";
+import { ViewTabs } from "@/app/_components/view-tabs";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -26,6 +27,7 @@ import {
 export const dynamic = "force-dynamic";
 
 type StandingsView = "overall" | "conference" | "division";
+type StandingsDisplay = "standings" | "progress";
 
 type StandingsPageProps = {
   searchParams: Promise<{
@@ -33,6 +35,7 @@ type StandingsPageProps = {
     sort?: string | string[];
     dir?: string | string[];
     view?: string | string[];
+    display?: string | string[];
   }>;
 };
 
@@ -53,12 +56,15 @@ export default async function StandingsPage({
     activeSort === "rank" || activeSort === "team" ? "asc" : "desc",
   );
   const view = parseView(firstQueryValue(params.view));
+  const display = parseStandingsDisplay(firstQueryValue(params.display));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
   const [standings, pointsHistory] = selectedSeason
     ? await Promise.all([
         getStandings(selectedSeason.id),
-        getStandingsPointsHistory(selectedSeason.id),
+        display === "progress"
+          ? getStandingsPointsHistory(selectedSeason.id)
+          : Promise.resolve([]),
       ])
     : [[], []];
   const leader = standings[0];
@@ -81,37 +87,51 @@ export default async function StandingsPage({
             <SeasonPicker
               seasons={seasons}
               selectedSeasonId={selectedSeason?.id}
-              params={{ view }}
+              params={{ view, display }}
             />
           }
         />
 
         {leader && selectedSeason ? (
           <>
-            <nav
-              className="workspace-standings-scope"
-              aria-label="Standings view"
-            >
-              {(["overall", "conference", "division"] as const).map(
-                (option) => (
-                  <Link
-                    key={option}
-                    href={`/standings?season=${selectedSeason.id}&view=${option}`}
-                    aria-current={view === option ? "page" : undefined}
-                  >
-                    {capitalize(option)}
-                  </Link>
-                ),
-              )}
-            </nav>
-
-            <div className="mt-7">
-              <StandingsPointsChart
-                history={pointsHistory}
-                standings={standings}
-              />
+            <div className="workspace-width-standard">
+              <nav
+                className="workspace-standings-scope"
+                aria-label="Standings view"
+              >
+                {(["overall", "conference", "division"] as const).map(
+                  (option) => (
+                    <Link
+                      key={option}
+                      href={`/standings?season=${selectedSeason.id}&view=${option}&display=${display}`}
+                      aria-current={view === option ? "page" : undefined}
+                    >
+                      {capitalize(option)}
+                    </Link>
+                  ),
+                )}
+              </nav>
             </div>
 
+            <ViewTabs
+              active={display}
+              ariaLabel="Standings content views"
+              width="standard"
+              tabs={[
+                {
+                  id: "standings",
+                  label: "Standings Tables",
+                  href: `/standings?season=${selectedSeason.id}&view=${view}&display=standings&sort=${activeSort}&dir=${direction}`,
+                },
+                {
+                  id: "progress",
+                  label: "Points Progression",
+                  href: `/standings?season=${selectedSeason.id}&view=${view}&display=progress`,
+                },
+              ]}
+            />
+
+            {display === "standings" ? (
             <div className="mt-7 grid gap-7">
               {groups.map((group) => (
                 <StandingsTable
@@ -131,6 +151,16 @@ export default async function StandingsPage({
                 />
               ))}
             </div>
+            ) : null}
+
+            {display === "progress" ? (
+            <div className="mt-7">
+              <StandingsPointsChart
+                history={pointsHistory}
+                standings={standings}
+              />
+            </div>
+            ) : null}
           </>
         ) : (
           <div className="workspace-empty-state">
@@ -163,13 +193,21 @@ function StandingsTable({
     <WorkspacePanel
       title={label}
       description="Select any column heading to sort the current table"
+      width="standard"
     >
       <SortableTable
         defaultSortKey={defaultSortKey}
         defaultDirection={defaultDirection}
       >
         <div className="workspace-table-scroll">
-          <table className="workspace-table min-w-[760px]">
+          <table className="workspace-table workspace-table-dense workspace-table-semantic workspace-standings-table min-w-[900px]">
+            <colgroup>
+              <col className="workspace-col-rank" />
+              <col className="workspace-col-entity" />
+              <col className="workspace-col-stat" span={7} />
+              <col className="workspace-col-differential" />
+              <col className="workspace-col-number" />
+            </colgroup>
             <thead>
               <tr>
                 {standingsColumns.map((column) => (
@@ -195,7 +233,7 @@ function StandingsTable({
                         nhlTeamId={team.nhlTeamId}
                         abbreviation={team.teamAbbreviation}
                         name={team.teamName}
-                        size="compact"
+                        size="tiny"
                         decorative
                       />
                       <div>
@@ -261,6 +299,10 @@ const standingsColumns: Array<{
 
 function parseView(value: string | undefined): StandingsView {
   return value === "conference" || value === "division" ? value : "overall";
+}
+
+function parseStandingsDisplay(value: string | undefined): StandingsDisplay {
+  return value === "progress" ? "progress" : "standings";
 }
 
 function buildGroups(

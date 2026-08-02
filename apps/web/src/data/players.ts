@@ -222,6 +222,26 @@ export async function listSkaterLeadersBySeason(
   return rows.map(mapSkater);
 }
 
+export async function listGoalieLeadersBySeason(
+  seasonId: number,
+  limit = 25,
+  gameType = 2,
+): Promise<GoalieSeasonSummary[]> {
+  const safeLimit = Math.max(1, Math.min(Math.trunc(limit), 100));
+  const rows = await query<GoalieRow>(
+    `
+      ${goalieSelect}
+      WHERE stats.season_id = $1
+        AND stats.game_type = $2
+      ORDER BY stats.wins DESC, stats.games_played DESC, player.display_name
+      LIMIT $3
+    `,
+    [seasonId, gameType, safeLimit],
+  );
+
+  return rows.map(mapGoalie);
+}
+
 export async function getPlayerDetail(
   nhlPlayerId: number,
 ): Promise<PlayerDetail | null> {

@@ -10,7 +10,12 @@ import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo } from "@/app/_components/team-logo";
+import { TeamGameRecord } from "@/app/_components/team-game-record";
 import { TeamRollingPerformanceChart } from "@/app/_components/team-rolling-performance-chart";
+import {
+  ViewTabs,
+  type ViewTab,
+} from "@/app/_components/view-tabs";
 import {
   DataTableShell,
   MetricTile,
@@ -36,12 +41,23 @@ import { getTeamSeasonDetail, listTeamSeasonIds } from "@/data/teams";
 
 export const dynamic = "force-dynamic";
 
+type TeamView =
+  | "overview"
+  | "schedule"
+  | "strength"
+  | "trends"
+  | "skaters"
+  | "goalies"
+  | "advanced"
+  | "combinations";
+
 type TeamPageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{
     season?: string | string[];
     phase?: string | string[];
     sos?: string | string[];
+    view?: string | string[];
   }>;
 };
 
@@ -65,6 +81,7 @@ export default async function TeamPage({
   const pageParams = await searchParams;
   const requestedSeason = firstValue(pageParams.season);
   const phase = parseSeasonPhase(firstValue(pageParams.phase));
+  const requestedView = parseTeamView(firstValue(pageParams.view));
   const scheduleStrengthMetric = parseScheduleStrengthMetric(
     firstValue(pageParams.sos),
   );
@@ -78,24 +95,40 @@ export default async function TeamPage({
     notFound();
   }
 
+  const view = normalizeTeamView(requestedView, selectedSeason.id, phase);
+
   const [detail, advanced, units, upcomingGames, gameLog, scheduleStrength] =
     await Promise.all([
       getTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType),
-      getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id, gameType),
-      getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
-        teamNhlId: nhlTeamId,
-        minimumIceTimeSeconds: 3_000,
-        limit: 100,
-      }),
-      getUpcomingGamesForTeamAcrossSeasons(nhlTeamId),
-      getTeamGameLog(nhlTeamId, selectedSeason.id),
-      phase === "regular"
+      view === "advanced"
+        ? getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id, gameType)
+        : Promise.resolve(null),
+      view === "combinations"
+        ? getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
+            teamNhlId: nhlTeamId,
+            minimumIceTimeSeconds: 3_000,
+            limit: 100,
+          })
+        : Promise.resolve(null),
+      view === "schedule"
+        ? getUpcomingGamesForTeamAcrossSeasons(nhlTeamId)
+        : Promise.resolve([]),
+      view === "trends"
+        ? getTeamGameLog(nhlTeamId, selectedSeason.id)
+        : Promise.resolve(null),
+      view === "strength" && phase === "regular"
         ? getTeamScheduleStrength(nhlTeamId, selectedSeason.id)
         : Promise.resolve(null),
     ]);
   if (!detail) {
     notFound();
   }
+  const viewTabs = teamViewTabs({
+    nhlTeamId: detail.team.nhlTeamId,
+    seasonId: selectedSeason.id,
+    phase,
+    scheduleStrengthMetric,
+  });
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -143,7 +176,7 @@ export default async function TeamPage({
             <SeasonPicker
               seasons={availableSeasons}
               selectedSeasonId={selectedSeason.id}
-              params={{ phase, sos: scheduleStrengthMetric }}
+              params={{ phase, sos: scheduleStrengthMetric, view }}
               className="relative !max-w-none border-white/15 bg-slate-950/55"
             />
           </div>
@@ -152,42 +185,57 @@ export default async function TeamPage({
         <SeasonPhaseFilter
           active={phase}
           path={`/teams/${detail.team.nhlTeamId}`}
-          params={{ season: selectedSeason.id }}
+          params={{
+            season: selectedSeason.id,
+            sos: scheduleStrengthMetric,
+            view,
+          }}
         />
 
-        <nav
-          aria-label={`${detail.team.name} page sections`}
-          className="workspace-scroll-nav"
-        >
-          <SectionLink href="#overview" label="Overview" />
-          <SectionLink href="#schedule" label="Schedule" />
-          {scheduleStrength ? (
-            <SectionLink href="#schedule-strength" label="Strength" />
-          ) : null}
-          <SectionLink href="#trends" label="Trends" />
-          <SectionLink href="#skaters" label="Skaters" />
-          <SectionLink href="#goalies" label="Goalies" />
-          <SectionLink href="#advanced" label="Advanced" />
-          {selectedSeason.id >= 20082009 && phase === "regular" ? (
-            <SectionLink href="#combinations" label="Combinations" />
-          ) : null}
-        </nav>
-
-        <div id="overview" className="mt-8 scroll-mt-6">
-          <SeasonPanel
-            title={seasonPhaseLabel(phase)}
-            stats={
-              phase === "playoffs" ? detail.playoffs : detail.regularSeason
-            }
-          />
-        </div>
-
-        <UpcomingSchedule
-          games={upcomingGames}
-          teamNhlId={detail.team.nhlTeamId}
+        <ViewTabs
+          active={view}
+          ariaLabel={`${detail.team.name} views`}
+          tabs={viewTabs}
         />
 
-        {scheduleStrength ? (
+        {view === "overview" ? (
+          <div className="workspace-width-compact mt-8">
+            <SeasonPanel
+              title={seasonPhaseLabel(phase)}
+              stats={
+                phase === "playoffs" ? detail.playoffs : detail.regularSeason
+              }
+            />
+          </div>
+        ) : null}
+
+        {view === "schedule" ? (
+          <>
+            <UpcomingSchedule
+              games={upcomingGames}
+              teamNhlId={detail.team.nhlTeamId}
+            />
+            <Link
+              href={`/teams/${detail.team.nhlTeamId}/games?season=${selectedSeason.id}&phase=${phase}`}
+              className="workspace-width-compact group mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.055] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.085]"
+            >
+              <span>
+                <span className="block font-medium text-white">
+                  Explore the {selectedSeason.label} game log
+                </span>
+                <span className="mt-1 block text-sm text-slate-400">
+                  Results, recent form, shot totals, and five-on-five expected
+                  goals.
+                </span>
+              </span>
+              <span className="shrink-0 text-cyan-300 transition group-hover:translate-x-0.5">
+                View games →
+              </span>
+            </Link>
+          </>
+        ) : null}
+
+        {view === "strength" && scheduleStrength ? (
           <ScheduleStrength
             data={scheduleStrength}
             metric={scheduleStrengthMetric}
@@ -195,24 +243,14 @@ export default async function TeamPage({
           />
         ) : null}
 
-        <Link
-          href={`/teams/${detail.team.nhlTeamId}/games?season=${selectedSeason.id}&phase=${phase}`}
-          className="group mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.055] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.085]"
-        >
-          <span>
-            <span className="block font-medium text-white">
-              Explore the {selectedSeason.label} game log
-            </span>
-            <span className="mt-1 block text-sm text-slate-400">
-              Results, recent form, shot totals, and five-on-five expected goals.
-            </span>
-          </span>
-          <span className="shrink-0 text-cyan-300 transition group-hover:translate-x-0.5">
-            View games →
-          </span>
-        </Link>
+        {view === "strength" && !scheduleStrength ? (
+          <div className="workspace-empty-state mt-8">
+            Schedule-strength data is not available for this selection.
+          </div>
+        ) : null}
 
-        <section id="trends" className="mt-12 scroll-mt-6">
+        {view === "trends" ? (
+        <section className="workspace-width-data mt-8">
           <SectionHeader
             eyebrow="Rolling performance"
             title="Team Form"
@@ -241,8 +279,10 @@ export default async function TeamPage({
             />
           </div>
         </section>
+        ) : null}
 
-        <section id="skaters" className="mt-12 scroll-mt-6">
+        {view === "skaters" ? (
+        <section className="workspace-width-standard mt-8">
           <SectionHeader
             eyebrow="Official NHL splits"
             title="Skaters"
@@ -256,7 +296,11 @@ export default async function TeamPage({
           <DataTableShell>
             <SortableTable defaultSortKey="points">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[720px] text-sm">
+                <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[720px]">
+                  <colgroup>
+                    <col className="workspace-col-entity" />
+                    <col className="workspace-col-number" span={6} />
+                  </colgroup>
                   <thead>
                     <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
                       <SortableHeader
@@ -280,24 +324,16 @@ export default async function TeamPage({
                         className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
                       >
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <TeamLogo
-                              {...detail.team}
-                              size="compact"
-                              decorative
-                              prominent
-                            />
-                            <div>
-                              <Link
-                                href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                                className="font-medium text-white transition hover:text-cyan-200"
-                              >
-                                {player.name}
-                              </Link>
-                              <span className="ml-2 text-xs text-slate-500">
-                                {player.position}
-                              </span>
-                            </div>
+                          <div>
+                            <Link
+                              href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
+                              className="workspace-entity-name font-medium text-white transition hover:text-cyan-200"
+                            >
+                              {player.name}
+                            </Link>
+                            <span className="ml-2 text-xs text-slate-500">
+                              {player.position}
+                            </span>
                           </div>
                         </td>
                         <NumericCell value={player.gamesPlayed} />
@@ -314,8 +350,10 @@ export default async function TeamPage({
             </SortableTable>
           </DataTableShell>
         </section>
+        ) : null}
 
-        <section id="goalies" className="mt-12 scroll-mt-6">
+        {view === "goalies" ? (
+        <section className="workspace-width-standard mt-8">
           <SectionHeader
             eyebrow="Official NHL splits"
             title="Goalies"
@@ -329,7 +367,13 @@ export default async function TeamPage({
           <DataTableShell>
             <SortableTable defaultSortKey="savePercentage">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[760px] text-sm">
+                <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
+                  <colgroup>
+                    <col className="workspace-col-entity" />
+                    <col className="workspace-col-number" span={6} />
+                    <col className="workspace-col-percentage" />
+                    <col className="workspace-col-number" />
+                  </colgroup>
                   <thead>
                     <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
                       <SortableHeader
@@ -359,16 +403,10 @@ export default async function TeamPage({
                         className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
                       >
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <TeamLogo
-                              {...detail.team}
-                              size="compact"
-                              decorative
-                              prominent
-                            />
+                          <div>
                             <Link
                               href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                              className="font-medium text-white transition hover:text-cyan-200"
+                              className="workspace-entity-name font-medium text-white transition hover:text-cyan-200"
                             >
                               {player.name}
                             </Link>
@@ -395,16 +433,19 @@ export default async function TeamPage({
             </SortableTable>
           </DataTableShell>
         </section>
+        ) : null}
 
-        <div id="advanced" className="scroll-mt-6">
+        {view === "advanced" ? (
+        <div>
           <TeamAdvancedAnalytics
             data={advanced}
             seasonId={selectedSeason.id}
           />
         </div>
+        ) : null}
 
-        {selectedSeason.id >= 20082009 && phase === "regular" ? (
-          <section id="combinations" className="mt-12 scroll-mt-6">
+        {view === "combinations" ? (
+          <section className="mt-8">
             <SectionHeader
               eyebrow="Five-on-five combinations"
               title="Season Lines and Pairings"
@@ -421,7 +462,7 @@ export default async function TeamPage({
             />
             <div className="mt-6">
               <SeasonUnitTables
-                data={units}
+                data={units ?? { forwardLines: [], defensivePairings: [] }}
                 seasonId={selectedSeason.id}
                 showTeam={false}
               />
@@ -455,7 +496,7 @@ function SeasonPanel({
   const isPlayoffs = stats.gameType === 3;
 
   return (
-    <article className="surface-panel p-5 sm:p-6">
+    <article className="surface-panel workspace-season-panel">
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/[0.08] pb-5">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.16em] text-slate-500">
@@ -514,7 +555,10 @@ function UpcomingSchedule({
 }) {
   const firstGame = games[0];
   return (
-    <section id="schedule" className="mt-8 scroll-mt-6">
+    <section
+      id="schedule"
+      className="workspace-width-compact mt-8 scroll-mt-6"
+    >
       <SectionHeader
         eyebrow="Schedule"
         title="Upcoming Games"
@@ -526,8 +570,13 @@ function UpcomingSchedule({
       />
       {games.length > 0 ? (
         <SortableTable defaultSortKey="date" defaultDirection="asc">
-          <div className="workspace-table-scroll mt-5">
-            <table className="workspace-table">
+          <div className="data-table-shell workspace-table-scroll mt-5">
+            <table className="workspace-table workspace-table-dense workspace-table-schedule workspace-table-semantic">
+              <colgroup>
+                <col className="workspace-col-date" />
+                <col />
+                <col className="workspace-col-season" />
+              </colgroup>
               <thead>
                 <tr>
                   <SortableHeader label="Date" sortKey="date" align="left" defaultDirection="asc" />
@@ -545,6 +594,7 @@ function UpcomingSchedule({
                       <TeamLogo {...opponent} size="tiny" decorative />
                       <span>{isHome ? "vs" : "at"}</span>
                       <Link href={`/teams/${opponent.nhlTeamId}?season=${game.seasonId}`}>{opponent.name}</Link>
+                      <TeamGameRecord record={opponent.record} />
                     </span>
                   </td>
                   <td data-sort-value={game.seasonId}>{formatSeasonId(game.seasonId)}</td>
@@ -570,14 +620,78 @@ function formatSeasonId(seasonId: number) {
   return `${start}\u2013${String(end).slice(2)}`;
 }
 
-function SectionLink({ href, label }: { href: string; label: string }) {
-  return (
-    <a
-      href={href}
-    >
-      {label}
-    </a>
-  );
+function teamViewTabs({
+  nhlTeamId,
+  seasonId,
+  phase,
+  scheduleStrengthMetric,
+}: {
+  nhlTeamId: number;
+  seasonId: number;
+  phase: "regular" | "playoffs";
+  scheduleStrengthMetric: string;
+}): ViewTab<TeamView>[] {
+  const tabs: Array<{ id: TeamView; label: string }> = [
+    { id: "overview", label: "Overview" },
+    { id: "schedule", label: "Schedule" },
+    { id: "strength", label: "Strength" },
+    { id: "trends", label: "Trends" },
+    { id: "skaters", label: "Skaters" },
+    { id: "goalies", label: "Goalies" },
+    { id: "advanced", label: "Advanced" },
+    { id: "combinations", label: "Combinations" },
+  ];
+
+  return tabs
+    .filter(
+      (tab) =>
+        (tab.id !== "strength" || phase === "regular") &&
+        (tab.id !== "combinations" ||
+          (seasonId >= 20082009 && phase === "regular")),
+    )
+    .map((tab) => {
+      const params = new URLSearchParams({
+        season: String(seasonId),
+        phase,
+        view: tab.id,
+      });
+      if (tab.id === "strength") {
+        params.set("sos", scheduleStrengthMetric);
+      }
+      return {
+        ...tab,
+        href: `/teams/${nhlTeamId}?${params.toString()}`,
+      };
+    });
+}
+
+function parseTeamView(value: string | undefined): TeamView {
+  const views: TeamView[] = [
+    "overview",
+    "schedule",
+    "strength",
+    "trends",
+    "skaters",
+    "goalies",
+    "advanced",
+    "combinations",
+  ];
+  return views.includes(value as TeamView) ? (value as TeamView) : "overview";
+}
+
+function normalizeTeamView(
+  view: TeamView,
+  seasonId: number,
+  phase: "regular" | "playoffs",
+): TeamView {
+  if (view === "strength" && phase !== "regular") return "overview";
+  if (
+    view === "combinations" &&
+    (phase !== "regular" || seasonId < 20082009)
+  ) {
+    return "overview";
+  }
+  return view;
 }
 
 function NumericCell({
@@ -589,7 +703,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`px-3 py-3 text-right tabular-nums ${
+      className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-cyan-200" : "text-slate-300"
       }`}
     >

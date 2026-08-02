@@ -9,6 +9,7 @@ import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogoStack } from "@/app/_components/team-logo";
+import { ViewTabs } from "@/app/_components/view-tabs";
 import { parseNhlId } from "@/contracts/entity";
 import type {
   GoalieSeasonSummary,
@@ -32,11 +33,19 @@ import { listSeasons } from "@/data/seasons";
 
 export const dynamic = "force-dynamic";
 
+type PlayerView =
+  | "overview"
+  | "trends"
+  | "advanced"
+  | "records"
+  | "seasons";
+
 type PlayerPageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{
     season?: string | string[];
     phase?: string | string[];
+    view?: string | string[];
   }>;
 };
 
@@ -44,15 +53,20 @@ export default async function PlayerPage({
   params,
   searchParams,
 }: PlayerPageProps) {
-  const nhlPlayerId = parseNhlId((await params).id);
+  const [routeParams, pageParams] = await Promise.all([params, searchParams]);
+  const nhlPlayerId = parseNhlId(routeParams.id);
   if (nhlPlayerId === null) {
     notFound();
   }
 
+  const view = parsePlayerView(firstValue(pageParams.view));
+
   const [detail, seasons, historical] = await Promise.all([
     getPlayerDetail(nhlPlayerId),
     listSeasons(),
-    getHistoricalPlayerSeasons(nhlPlayerId),
+    view === "records"
+      ? getHistoricalPlayerSeasons(nhlPlayerId)
+      : Promise.resolve({ skaters: [], goalies: [] }),
   ]);
   if (!detail) {
     notFound();
@@ -65,7 +79,6 @@ export default async function PlayerPage({
   const careerSeasons = seasons.filter((season) =>
     careerSeasonIds.has(season.id),
   );
-  const pageParams = await searchParams;
   const requestedSeason = parseSeasonId(firstValue(pageParams.season));
   const phase = parseSeasonPhase(firstValue(pageParams.phase));
   const selectedSeason =
@@ -87,10 +100,12 @@ export default async function PlayerPage({
   const profile = detail.profile;
   const [advanced, gameLog] = selectedSeason
     ? await Promise.all([
-        phase === "regular"
+        view === "advanced" && phase === "regular"
           ? getMoneyPuckPlayerSeason(nhlPlayerId, selectedSeason.id)
           : Promise.resolve(null),
-        getPlayerGameLog(nhlPlayerId, selectedSeason.id),
+        view === "trends"
+          ? getPlayerGameLog(nhlPlayerId, selectedSeason.id)
+          : Promise.resolve(null),
       ])
     : [null, null];
   const gameType = gameTypeForPhase(phase);
@@ -179,7 +194,7 @@ export default async function PlayerPage({
               <SeasonPicker
                 seasons={careerSeasons}
                 selectedSeasonId={selectedSeason?.id}
-                params={{ phase }}
+                params={{ phase, view }}
               />
             </div>
           ) : null}
@@ -189,11 +204,25 @@ export default async function PlayerPage({
           <SeasonPhaseFilter
             active={phase}
             path={`/players/${profile.nhlPlayerId}`}
-            params={{ season: selectedSeason.id }}
+            params={{ season: selectedSeason.id, view }}
           />
         ) : null}
 
-        <dl className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {selectedSeason ? (
+          <ViewTabs
+            active={view}
+            ariaLabel={`${profile.name} views`}
+            tabs={playerViewTabs({
+              nhlPlayerId: profile.nhlPlayerId,
+              seasonId: selectedSeason.id,
+              phase,
+            })}
+          />
+        ) : null}
+
+        {view === "overview" ? (
+        <>
+        <dl className="workspace-player-overview-block workspace-player-profile-facts mt-8">
           <ProfileStat
             label="Born"
             value={
@@ -218,13 +247,12 @@ export default async function PlayerPage({
         </dl>
 
         {regularSkater || playoffSkater ? (
-          <section className="mt-12">
+          <section className="workspace-player-overview-block mt-8">
             <SectionTitle
               eyebrow="Selected season"
               title="Skater Totals"
-              detail="Combined across teams played for"
             />
-            <div className="mt-5">
+            <div className="mt-4">
               <SkaterPanel
                 title={seasonPhaseLabel(phase)}
                 stats={phase === "playoffs" ? playoffSkater : regularSkater}
@@ -234,13 +262,12 @@ export default async function PlayerPage({
         ) : null}
 
         {regularGoalie || playoffGoalie ? (
-          <section className="mt-12">
+          <section className="workspace-player-overview-block mt-8">
             <SectionTitle
               eyebrow="Selected season"
               title="Goalie Totals"
-              detail="Combined across teams played for"
             />
-            <div className="mt-5">
+            <div className="mt-4">
               <GoaliePanel
                 title={seasonPhaseLabel(phase)}
                 stats={phase === "playoffs" ? playoffGoalie : regularGoalie}
@@ -252,7 +279,7 @@ export default async function PlayerPage({
         {selectedSeason ? (
           <Link
             href={`/players/${profile.nhlPlayerId}/games?season=${selectedSeason.id}&phase=${phase}`}
-            className="mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.06] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.09]"
+            className="workspace-player-overview-block mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.06] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.09]"
           >
             <span>
               <span className="block font-medium text-white">
@@ -266,10 +293,14 @@ export default async function PlayerPage({
             <span className="shrink-0 text-cyan-300">View games →</span>
           </Link>
         ) : null}
+        </>
+        ) : null}
 
+        {view === "trends" ? (
+        <>
         {skaterPerformanceGames.length > 0 ||
         goaliePerformanceGames.length > 0 ? (
-          <section className="mt-12">
+          <section className="workspace-width-standard mt-12">
             <SectionTitle
               eyebrow="Rolling performance"
               title="Player Form"
@@ -293,7 +324,17 @@ export default async function PlayerPage({
             </div>
           </section>
         ) : null}
+        {skaterPerformanceGames.length === 0 &&
+        goaliePerformanceGames.length === 0 ? (
+          <div className="workspace-empty-state mt-8">
+            No game-by-game performance is available for this selection.
+          </div>
+        ) : null}
+        </>
+        ) : null}
 
+        {view === "advanced" ? (
+        <>
         {advanced ? (
           <PlayerAdvancedAnalytics
             key={`${profile.nhlPlayerId}-${selectedSeason?.id}`}
@@ -306,9 +347,18 @@ export default async function PlayerPage({
             skater and goalie panels remain regular-season only.
           </p>
         ) : null}
+        {phase === "regular" && !advanced ? (
+          <div className="workspace-empty-state mt-8">
+            Advanced player data is not available for this selection.
+          </div>
+        ) : null}
+        </>
+        ) : null}
 
+        {view === "records" ? (
+        <>
         {historical.skaters.length > 0 ? (
-          <section className="mt-12">
+          <section className="workspace-width-standard mt-12">
             <SectionTitle
               eyebrow="All-time NHL record"
               title="Historical Skater Seasons"
@@ -326,7 +376,7 @@ export default async function PlayerPage({
         ) : null}
 
         {historical.goalies.length > 0 ? (
-          <section className="mt-12">
+          <section className="workspace-width-standard mt-12">
             <SectionTitle
               eyebrow="All-time NHL record"
               title="Historical Goalie Seasons"
@@ -342,9 +392,18 @@ export default async function PlayerPage({
             </div>
           </section>
         ) : null}
+        {historical.skaters.length === 0 && historical.goalies.length === 0 ? (
+          <div className="workspace-empty-state mt-8">
+            No all-time season records are available for this player.
+          </div>
+        ) : null}
+        </>
+        ) : null}
 
+        {view === "seasons" ? (
+        <>
         {detail.skaterSeasons.length > 0 ? (
-          <section className="mt-12">
+          <section className="workspace-width-standard mt-12">
             <SectionTitle
               eyebrow="Career history"
               title="Skater Seasons"
@@ -374,9 +433,8 @@ export default async function PlayerPage({
             </div>
           </section>
         ) : null}
-
         {detail.goalieSeasons.length > 0 ? (
-          <section className="mt-12">
+          <section className="workspace-width-standard mt-12">
             <SectionTitle
               eyebrow="Career history"
               title="Goalie Seasons"
@@ -406,6 +464,8 @@ export default async function PlayerPage({
             </div>
           </section>
         ) : null}
+        </>
+        ) : null}
       </section>
     </main>
   );
@@ -413,11 +473,9 @@ export default async function PlayerPage({
 
 function ProfileStat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <dt className="text-xs uppercase tracking-[0.14em] text-slate-500">
-        {label}
-      </dt>
-      <dd className="mt-2 text-sm font-medium text-white">{value}</dd>
+    <div className="workspace-player-profile-fact">
+      <dt>{label}</dt>
+      <dd>{value}</dd>
     </div>
   );
 }
@@ -429,7 +487,7 @@ function SectionTitle({
 }: {
   eyebrow: string;
   title: string;
-  detail: string;
+  detail?: string;
 }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-3">
@@ -439,7 +497,7 @@ function SectionTitle({
         </p>
         <h3 className="mt-2 text-2xl font-semibold text-white">{title}</h3>
       </div>
-      <p className="text-sm text-slate-500">{detail}</p>
+      {detail ? <p className="text-sm text-slate-500">{detail}</p> : null}
     </div>
   );
 }
@@ -455,14 +513,14 @@ function SkaterPanel({
     return <EmptyPanel title={title} />;
   }
   return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-      <div className="flex items-baseline justify-between">
-        <h4 className="font-semibold text-white">{title}</h4>
-        <span className="font-mono text-lg text-cyan-200">
+    <article className="workspace-player-season-totals">
+      <div className="workspace-player-season-totals-header">
+        <h4>{title}</h4>
+        <span>
           {stats.points} PTS
         </span>
       </div>
-      <dl className="mt-6 grid grid-cols-3 gap-4 sm:grid-cols-4">
+      <dl className="workspace-player-season-totals-grid">
         <Metric label="GP" value={stats.gamesPlayed} />
         <Metric label="G" value={stats.goals} />
         <Metric label="A" value={stats.assists} />
@@ -487,14 +545,14 @@ function GoaliePanel({
     return <EmptyPanel title={title} />;
   }
   return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-      <div className="flex items-baseline justify-between">
-        <h4 className="font-semibold text-white">{title}</h4>
-        <span className="font-mono text-lg text-cyan-200">
+    <article className="workspace-player-season-totals">
+      <div className="workspace-player-season-totals-header">
+        <h4>{title}</h4>
+        <span>
           {formatSavePercentage(stats.savePercentage)} SV%
         </span>
       </div>
-      <dl className="mt-6 grid grid-cols-3 gap-4 sm:grid-cols-4">
+      <dl className="workspace-player-season-totals-grid">
         <Metric label="GP" value={stats.gamesPlayed} />
         <Metric label="GS" value={stats.gamesStarted} />
         <Metric label="W" value={stats.wins} />
@@ -519,11 +577,9 @@ function EmptyPanel({ title }: { title: string }) {
 
 function Metric({ label, value }: { label: string; value: number | string }) {
   return (
-    <div>
-      <dt className="text-xs uppercase tracking-[0.12em] text-slate-500">
-        {label}
-      </dt>
-      <dd className="mt-1 font-semibold tabular-nums text-white">{value}</dd>
+    <div className="workspace-player-season-metric">
+      <dt>{label}</dt>
+      <dd>{value}</dd>
     </div>
   );
 }
@@ -543,8 +599,7 @@ function SkaterHistory({
         <TeamLogoStack
           key={`teams-${row.seasonId}-${row.gameType}`}
           teams={row.teams}
-          size="compact"
-          prominent
+          size="tiny"
         />,
         row.gamesPlayed,
         row.goals,
@@ -572,8 +627,7 @@ function GoalieHistory({
         <TeamLogoStack
           key={`teams-${row.seasonId}-${row.gameType}`}
           teams={row.teams}
-          size="compact"
-          prominent
+          size="tiny"
         />,
         row.gamesPlayed,
         row.gamesStarted,
@@ -595,8 +649,7 @@ function HistoricalSkaterTable({ rows }: { rows: HistoricalSkaterSeason[] }) {
         <TeamLogoStack
           key={`teams-${row.seasonId}-${row.gameType}`}
           abbreviations={row.teamAbbreviations}
-          size="compact"
-          prominent
+          size="tiny"
         />,
         row.gamesPlayed,
         row.goals,
@@ -617,8 +670,7 @@ function HistoricalGoalieTable({ rows }: { rows: HistoricalGoalieSeason[] }) {
         <TeamLogoStack
           key={`teams-${row.seasonId}-${row.gameType}`}
           abbreviations={row.teamAbbreviations}
-          size="compact"
-          prominent
+          size="tiny"
         />,
         row.gamesPlayed,
         row.wins,
@@ -650,7 +702,12 @@ function HistoryTable({
     <div className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
       <SortableTable defaultSortKey={headers[0]} defaultDirection="desc">
         <div className="min-w-0 max-w-full overflow-x-auto">
-          <table className="w-full min-w-[700px] text-sm">
+          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[700px]">
+            <colgroup>
+              <col className="workspace-col-season" />
+              <col className="workspace-col-team" />
+              <col className="workspace-col-number" span={Math.max(headers.length - 2, 0)} />
+            </colgroup>
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                 {headers.map((header, index) => (
@@ -674,6 +731,8 @@ function HistoryTable({
                     <td
                       key={`${headers[index]}-${index}`}
                       className={`px-4 py-3 tabular-nums ${
+                        index >= 2 ? "workspace-semantic-number " : ""
+                      }${
                         index === 0 ? "text-left" : "text-right"
                       } ${index === 4 ? "font-semibold text-cyan-200" : ""}`}
                     >
@@ -737,6 +796,36 @@ function formatSavePercentage(value: number | null): string {
 
 function formatHistoricalSeason(seasonId: number): string {
   return `${Math.floor(seasonId / 10_000)}–${String(seasonId % 10_000).slice(-2)}`;
+}
+
+function playerViewTabs({
+  nhlPlayerId,
+  seasonId,
+  phase,
+}: {
+  nhlPlayerId: number;
+  seasonId: number;
+  phase: "regular" | "playoffs";
+}) {
+  return [
+    { id: "overview" as const, label: "Overview" },
+    { id: "trends" as const, label: "Trends" },
+    { id: "advanced" as const, label: "Advanced" },
+    { id: "records" as const, label: "All-Time Records" },
+    { id: "seasons" as const, label: "Season History" },
+  ].map((tab) => ({
+    ...tab,
+    href: `/players/${nhlPlayerId}?season=${seasonId}&phase=${phase}&view=${tab.id}`,
+  }));
+}
+
+function parsePlayerView(value: string | undefined): PlayerView {
+  return value === "trends" ||
+    value === "advanced" ||
+    value === "records" ||
+    value === "seasons"
+    ? value
+    : "overview";
 }
 
 function firstValue(value: string | string[] | undefined): string | undefined {

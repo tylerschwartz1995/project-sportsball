@@ -189,6 +189,7 @@ export default async function PlayerComparePage({
                 </div>
                 <WorkspacePanel
                   className="mt-7"
+                  width="compact"
                   title="Complete Comparison"
                   description="A dash means the metric is unavailable for that player, season, phase, or MoneyPuck coverage."
                 >

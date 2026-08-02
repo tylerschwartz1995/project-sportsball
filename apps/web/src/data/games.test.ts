@@ -52,12 +52,18 @@ describe("game queries", () => {
         away_nhl_team_id: 12,
         away_abbreviation: "CAR",
         away_name: "Carolina Hurricanes",
+        away_wins: 16,
+        away_losses: 6,
+        away_overtime_losses: 0,
         away_score: 3,
         away_shots_on_goal: 29,
         home_team_id: 31,
         home_nhl_team_id: 54,
         home_abbreviation: "VGK",
         home_name: "Vegas Golden Knights",
+        home_wins: 14,
+        home_losses: 8,
+        home_overtime_losses: 0,
         home_score: 0,
         home_shots_on_goal: 24,
       },
@@ -69,15 +75,21 @@ describe("game queries", () => {
       expect.stringContaining("game.game_date = $2::date"),
       [20252026, "2026-06-14", null],
     );
+    const gameQuery = queryMock.mock.calls[0]?.[0] as string;
+    expect(gameQuery).toContain("record_game.game_type = game.game_type");
+    expect(gameQuery).toContain("<= (game.start_time_utc, game.nhl_id)");
+    expect(gameQuery).toContain("IN ('OT', 'SO')");
     expect(result[0]).toMatchObject({
       nhlGameId: 2025030416,
       gameType: 3,
       awayTeam: {
         abbreviation: "CAR",
+        record: { wins: 16, losses: 6, overtimeLosses: 0 },
         score: 3,
       },
       homeTeam: {
         abbreviation: "VGK",
+        record: { wins: 14, losses: 8, overtimeLosses: 0 },
         score: 0,
       },
     });
@@ -135,7 +147,9 @@ describe("game queries", () => {
       expect.stringContaining("game.start_time_utc > NOW()"),
       [8, 10],
     );
-    expect(queryMock.mock.calls[0]?.[0]).not.toContain("game.season_id =");
+    expect(queryMock.mock.calls[0]?.[0]).not.toContain(
+      "WHERE game.season_id = $2",
+    );
   });
 
   it("loads the next league games without a season boundary", async () => {
@@ -163,12 +177,18 @@ describe("game queries", () => {
           away_nhl_team_id: 12,
           away_abbreviation: "CAR",
           away_name: "Carolina Hurricanes",
+          away_wins: 16,
+          away_losses: 6,
+          away_overtime_losses: 0,
           away_score: 3,
           away_shots_on_goal: 23,
           home_team_id: 11096,
           home_nhl_team_id: 54,
           home_abbreviation: "VGK",
           home_name: "Vegas Golden Knights",
+          home_wins: 14,
+          home_losses: 8,
+          home_overtime_losses: 0,
           home_score: 0,
           home_shots_on_goal: 22,
         },
@@ -225,6 +245,7 @@ describe("game queries", () => {
       nhlGameId: 2025030416,
       awayTeam: {
         abbreviation: "CAR",
+        record: { wins: 16, losses: 6, overtimeLosses: 0 },
         skaters: [
           {
             nhlPlayerId: 8482809,
@@ -242,6 +263,7 @@ describe("game queries", () => {
       },
       homeTeam: {
         abbreviation: "VGK",
+        record: { wins: 14, losses: 8, overtimeLosses: 0 },
         skaters: [],
         goalies: [],
       },

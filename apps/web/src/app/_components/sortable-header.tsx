@@ -14,7 +14,7 @@ type SortableHeaderProps = {
 export function SortableHeader({
   label,
   sortKey,
-  align = "right",
+  align = "center",
   defaultDirection = "desc",
 }: SortableHeaderProps) {
   const { key, direction, sort } = useSortableTable();
@@ -41,12 +41,20 @@ export function SortableHeader({
       <button
         type="button"
         onClick={(event) => sort(event, sortKey, defaultDirection)}
-        className="inline-flex items-center gap-1.5 rounded-sm transition hover:text-cyan-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300"
+        className={`flex w-full items-center gap-1 rounded-sm transition hover:text-cyan-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 ${
+          align === "left"
+            ? "justify-start"
+            : align === "center"
+              ? "justify-center"
+              : "justify-end"
+        }`}
       >
         {label}
         <span
           aria-hidden="true"
-          className={isActive ? "text-cyan-300" : "text-slate-700"}
+          className={`shrink-0 ${
+            isActive ? "text-cyan-300" : "text-slate-700"
+          }`}
         >
           {isActive ? (direction === "asc" ? "↑" : "↓") : "↕"}
         </span>

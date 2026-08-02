@@ -68,7 +68,15 @@ function SeasonUnitTable({
         <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
           <SortableTable defaultSortKey="xgPercentage">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1000px] text-sm">
+              <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1500px]">
+                <colgroup>
+                  {showTeam ? <col className="workspace-col-team" /> : null}
+                  <col className="workspace-col-season-unit" />
+                  <col className="workspace-col-number" />
+                  <col className="workspace-col-time" />
+                  <col className="workspace-col-percentage" span={2} />
+                  <col className="workspace-col-number" span={6} />
+                </colgroup>
                 <caption className="sr-only">
                   {title} season rankings
                 </caption>
@@ -120,12 +128,12 @@ function SeasonUnitTable({
                         </td>
                       ) : null}
                       <td className="px-4 py-3 text-left">
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-2">
+                        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+                          <div className="flex min-w-0 items-center gap-2">
                             {!showTeam ? (
                               <TeamLogo {...row.team} size="tiny" decorative />
                             ) : null}
-                            <div className="flex flex-wrap gap-x-1">
+                            <div className="flex whitespace-nowrap">
                               {row.players.map((player, index) => (
                                 <span key={player.nhlPlayerId}>
                                   {index > 0 ? (
@@ -189,7 +197,7 @@ function ValueCell({
 }) {
   return (
     <td
-      className={`px-4 py-3 text-right tabular-nums ${
+      className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-violet-200" : "text-slate-300"
       }`}
     >

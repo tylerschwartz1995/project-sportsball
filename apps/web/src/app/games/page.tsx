@@ -1,12 +1,18 @@
 import Link from "next/link";
 
+import { GamePicker } from "@/app/_components/game-picker";
 import { SiteHeader } from "@/app/_components/site-header";
+import { TeamGameRecord } from "@/app/_components/team-game-record";
 import { TeamLogo } from "@/app/_components/team-logo";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import {
   WorkspacePageHeader,
 } from "@/app/_components/workspace-primitives";
-import { parseGameDate, type GameSummary } from "@/contracts/game";
+import {
+  formatGameState,
+  parseGameDate,
+  type GameSummary,
+} from "@/contracts/game";
 import { parseSeasonId } from "@/contracts/season";
 import {
   gameTypeForPhase,
@@ -82,35 +88,34 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
           }
         />
 
-        {selectedSeason && selectedDate ? (
+        {selectedSeason ? (
           <>
-            <SeasonPhaseFilter
-              active={phase}
-              path="/games"
-              params={{ season: selectedSeason.id }}
-              label="Schedule phase"
-            />
-            <div className="workspace-date-navigation">
-              <p>
-                {selectedSeason.label} season · {gameDates.length} game dates
-              </p>
-              <nav aria-label="Game date navigation">
-                <DateLink
-                  label="← Older"
-                  seasonId={selectedSeason.id}
-                  date={olderDate}
-                  phase={phase}
-                />
-                <DateLink
-                  label="Newer →"
-                  seasonId={selectedSeason.id}
-                  date={newerDate}
-                  phase={phase}
-                />
-              </nav>
+            <div className="workspace-context-navs is-schedule">
+              <SeasonPhaseFilter
+                active={phase}
+                path="/games"
+                params={{ season: selectedSeason.id }}
+                label="Schedule phase"
+              />
+              <div className="workspace-date-navigation">
+                <nav aria-label="Game date navigation">
+                  <DateLink
+                    label="← Older"
+                    seasonId={selectedSeason.id}
+                    date={olderDate}
+                    phase={phase}
+                  />
+                  <DateLink
+                    label="Newer →"
+                    seasonId={selectedSeason.id}
+                    date={newerDate}
+                    phase={phase}
+                  />
+                </nav>
+              </div>
             </div>
 
-            {games.length > 0 ? (
+            {selectedDate && games.length > 0 ? (
               <div className="workspace-game-grid">
                 {games.map((game) => (
                   <GameCard key={game.id} game={game} />
@@ -118,8 +123,16 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
               </div>
             ) : (
               <div className="workspace-empty-state mt-8">
-                <strong>No games on this date.</strong>
-                <span>Choose another stored game date to view its schedule and results.</span>
+                <strong>
+                  {selectedDate
+                    ? "No games on this date."
+                    : "No schedule is available for this phase."}
+                </strong>
+                <span>
+                  {selectedDate
+                    ? "Choose another stored game date to view its schedule and results."
+                    : "Switch between Regular Season and Playoffs above to view another phase."}
+                </span>
               </div>
             )}
           </>
@@ -134,48 +147,6 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
   );
 }
 
-function GamePicker({
-  seasons,
-  selectedSeasonId,
-  gameDates,
-  selectedDate,
-  phase,
-}: {
-  seasons: Array<{ id: number; label: string }>;
-  selectedSeasonId: number | undefined;
-  gameDates: Array<{ date: string; gameCount: number }>;
-  selectedDate: string | undefined;
-  phase: string;
-}) {
-  return (
-    <form method="get" className="workspace-game-picker">
-      <input type="hidden" name="phase" value={phase} />
-      <label>
-        Season
-        <select name="season" defaultValue={selectedSeasonId}>
-          {seasons.map((season) => (
-            <option key={season.id} value={season.id}>
-              {season.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label>
-        Game date
-        <select name="date" defaultValue={selectedDate}>
-          {gameDates.map((entry) => (
-            <option key={entry.date} value={entry.date}>
-              {entry.date} · {entry.gameCount}{" "}
-              {entry.gameCount === 1 ? "game" : "games"}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button type="submit">View</button>
-    </form>
-  );
-}
-
 function GameCard({ game }: { game: GameSummary }) {
   const completed = hasFinalScore(game);
 
@@ -186,12 +157,12 @@ function GameCard({ game }: { game: GameSummary }) {
           {game.gameType === 3 ? "Playoffs" : "Regular season"}
         </span>
         <strong data-complete={completed}>
-          {completed ? finalLabel(game.lastPeriodType) : gameStateLabel(game.state)}
+          {completed ? finalLabel(game.lastPeriodType) : formatGameState(game.state)}
         </strong>
       </div>
       <div className="workspace-game-card-teams">
-        <TeamLine team={game.awayTeam} seasonId={game.seasonId} />
-        <TeamLine team={game.homeTeam} seasonId={game.seasonId} />
+        <TeamLine team={game.awayTeam} seasonId={game.seasonId} side="away" />
+        <TeamLine team={game.homeTeam} seasonId={game.seasonId} side="home" />
       </div>
       <div className="workspace-game-card-footer">
         <span>{formatTime(game.startTimeUtc)}</span>
@@ -208,9 +179,11 @@ function GameCard({ game }: { game: GameSummary }) {
 function TeamLine({
   team,
   seasonId,
+  side,
 }: {
   team: GameSummary["awayTeam"];
   seasonId: number;
+  side: "away" | "home";
 }) {
   return (
     <div className="workspace-game-team">
@@ -223,9 +196,13 @@ function TeamLine({
         prominent
       />
       <div>
-        <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
-          {team.name}
-        </Link>
+        <div className="workspace-game-team-name">
+          <span className="workspace-game-team-venue">{side}</span>
+          <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
+            {team.name}
+          </Link>
+          <TeamGameRecord record={team.record} />
+        </div>
         <p>
           {team.shotsOnGoal === null
             ? "Shots unavailable"
@@ -268,12 +245,6 @@ function DateLink({
 
 function hasFinalScore(game: GameSummary): boolean {
   return game.awayTeam.score !== null && game.homeTeam.score !== null;
-}
-
-function gameStateLabel(state: string): string {
-  if (state === "FUT" || state === "PRE") return "Scheduled";
-  if (state === "LIVE" || state === "CRIT") return "Live";
-  return state;
 }
 
 function finalLabel(lastPeriodType: string | null): string {

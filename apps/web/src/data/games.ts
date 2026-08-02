@@ -27,12 +27,18 @@ type GameRow = {
   away_nhl_team_id: number;
   away_abbreviation: string;
   away_name: string;
+  away_wins: number;
+  away_losses: number;
+  away_overtime_losses: number;
   away_score: number | null;
   away_shots_on_goal: number | null;
   home_team_id: number;
   home_nhl_team_id: number;
   home_abbreviation: string;
   home_name: string;
+  home_wins: number;
+  home_losses: number;
+  home_overtime_losses: number;
   home_score: number | null;
   home_shots_on_goal: number | null;
 };
@@ -79,6 +85,43 @@ type GameGoalieRow = {
   time_on_ice_seconds: number | null;
 };
 
+function gameRecordJoin(side: "away" | "home"): string {
+  return `
+    LEFT JOIN LATERAL (
+      SELECT
+        COUNT(*) FILTER (
+          WHERE record_stats.score > record_opponent.score
+        )::integer AS wins,
+        COUNT(*) FILTER (
+          WHERE record_stats.score < record_opponent.score
+            AND NOT (
+              record_game.game_type = 2
+              AND COALESCE(record_game.last_period_type, 'REG') IN ('OT', 'SO')
+            )
+        )::integer AS losses,
+        COUNT(*) FILTER (
+          WHERE record_stats.score < record_opponent.score
+            AND record_game.game_type = 2
+            AND COALESCE(record_game.last_period_type, 'REG') IN ('OT', 'SO')
+        )::integer AS overtime_losses
+      FROM games AS record_game
+      JOIN team_game_stats AS record_stats
+        ON record_stats.game_id = record_game.id
+       AND record_stats.team_id = game.${side}_team_id
+      JOIN team_game_stats AS record_opponent
+        ON record_opponent.game_id = record_game.id
+       AND record_opponent.team_id <> record_stats.team_id
+      WHERE record_game.season_id = game.season_id
+        AND record_game.game_type = game.game_type
+        AND record_game.state IN ('FINAL', 'OFF')
+        AND record_stats.score IS NOT NULL
+        AND record_opponent.score IS NOT NULL
+        AND (record_game.start_time_utc, record_game.nhl_id)
+          <= (game.start_time_utc, game.nhl_id)
+    ) AS ${side}_record ON true
+  `;
+}
+
 const gameSelect = `
   SELECT
     game.id::integer AS id,
@@ -93,12 +136,18 @@ const gameSelect = `
     away_team.nhl_id AS away_nhl_team_id,
     COALESCE(away_team_season.abbreviation, away_team.abbreviation) AS away_abbreviation,
     COALESCE(away_team_season.full_name, away_team.name) AS away_name,
+    COALESCE(away_record.wins, 0)::integer AS away_wins,
+    COALESCE(away_record.losses, 0)::integer AS away_losses,
+    COALESCE(away_record.overtime_losses, 0)::integer AS away_overtime_losses,
     away_stats.score AS away_score,
     away_stats.shots_on_goal AS away_shots_on_goal,
     home_team.id::integer AS home_team_id,
     home_team.nhl_id AS home_nhl_team_id,
     COALESCE(home_team_season.abbreviation, home_team.abbreviation) AS home_abbreviation,
     COALESCE(home_team_season.full_name, home_team.name) AS home_name,
+    COALESCE(home_record.wins, 0)::integer AS home_wins,
+    COALESCE(home_record.losses, 0)::integer AS home_losses,
+    COALESCE(home_record.overtime_losses, 0)::integer AS home_overtime_losses,
     home_stats.score AS home_score,
     home_stats.shots_on_goal AS home_shots_on_goal
   FROM games AS game
@@ -118,6 +167,8 @@ const gameSelect = `
   LEFT JOIN team_game_stats AS home_stats
     ON home_stats.game_id = game.id
    AND home_stats.team_id = game.home_team_id
+  ${gameRecordJoin("away")}
+  ${gameRecordJoin("home")}
 `;
 
 export async function listGameDates(
@@ -406,6 +457,11 @@ function mapGame(row: GameRow): GameSummary {
       nhlTeamId: row.away_nhl_team_id,
       abbreviation: row.away_abbreviation,
       name: row.away_name,
+      record: {
+        wins: row.away_wins,
+        losses: row.away_losses,
+        overtimeLosses: row.away_overtime_losses,
+      },
       score: row.away_score,
       shotsOnGoal: row.away_shots_on_goal,
     },
@@ -414,6 +470,11 @@ function mapGame(row: GameRow): GameSummary {
       nhlTeamId: row.home_nhl_team_id,
       abbreviation: row.home_abbreviation,
       name: row.home_name,
+      record: {
+        wins: row.home_wins,
+        losses: row.home_losses,
+        overtimeLosses: row.home_overtime_losses,
+      },
       score: row.home_score,
       shotsOnGoal: row.home_shots_on_goal,
     },

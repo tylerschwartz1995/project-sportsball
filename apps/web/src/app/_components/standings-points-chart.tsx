@@ -38,29 +38,20 @@ export function StandingsPointsChart({
   history,
   standings,
 }: StandingsPointsChartProps) {
-  const groups = useMemo(
-    () => [
-      { value: "league", label: "League" },
-      ...uniqueOptions(standings, "conferenceName", "Conference"),
-      ...uniqueOptions(standings, "divisionName", "Division"),
-    ],
-    [standings],
-  );
-  const [group, setGroup] = useState("league");
-  const [teamSelection, setTeamSelection] = useState("leaders");
-  const eligibleTeams = useMemo(
+  const divisions = useMemo(() => divisionOptions(standings), [standings]);
+  const [division, setDivision] = useState("");
+  const activeDivision = divisions.some(
+    (option) => option.value === division,
+  )
+    ? division
+    : (divisions[0]?.value ?? "");
+  const selectedTeams = useMemo(
     () =>
       standings
-        .filter((team) => matchesGroup(team, group))
+        .filter((team) => team.divisionName === activeDivision)
         .sort((left, right) => left.leagueRank - right.leagueRank),
-    [group, standings],
+    [activeDivision, standings],
   );
-  const selectedTeams =
-    teamSelection === "leaders"
-      ? eligibleTeams.slice(0, 8)
-      : eligibleTeams.filter(
-          (team) => String(team.nhlTeamId) === teamSelection,
-        );
   const chartData = useMemo(
     () => buildChartData(history, selectedTeams),
     [history, selectedTeams],
@@ -78,43 +69,26 @@ export function StandingsPointsChart({
           <h3>Points Over Time</h3>
         </div>
         <p>
-          Follow the current leaders together or isolate one club. Points are
-          accumulated from stored regular-season results.
+          Follow every team in the selected division. Points are accumulated
+          from stored regular-season results.
         </p>
       </header>
       <div className="workspace-chart-toolbar">
         <label className="workspace-chart-metric-select">
-          Group
+          Division
           <select
-            value={group}
-            onChange={(event) => {
-              setGroup(event.target.value);
-              setTeamSelection("leaders");
-            }}
+            value={activeDivision}
+            onChange={(event) => setDivision(event.target.value)}
           >
-            {groups.map((option) => (
+            {divisions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
           </select>
         </label>
-        <label className="workspace-chart-metric-select">
-          Teams
-          <select
-            value={teamSelection}
-            onChange={(event) => setTeamSelection(event.target.value)}
-          >
-            <option value="leaders">Current Top 8</option>
-            {eligibleTeams.map((team) => (
-              <option key={team.nhlTeamId} value={team.nhlTeamId}>
-                {team.teamName}
-              </option>
-            ))}
-          </select>
-        </label>
       </div>
-      <div className="workspace-chart h-[430px]">
+      <div className="workspace-chart">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}
@@ -125,14 +99,14 @@ export function StandingsPointsChart({
               dataKey="date"
               tickFormatter={formatDate}
               minTickGap={42}
-              tick={{ fill: "#94a3b8", fontSize: 13 }}
+              tick={{ fill: "#94a3b8", fontSize: "0.84rem" }}
               axisLine={{ stroke: "rgba(148,163,184,0.2)" }}
               tickLine={false}
             />
             <YAxis
               allowDecimals={false}
               width={42}
-              tick={{ fill: "#94a3b8", fontSize: 13 }}
+              tick={{ fill: "#94a3b8", fontSize: "0.84rem" }}
               axisLine={false}
               tickLine={false}
             />
@@ -142,7 +116,7 @@ export function StandingsPointsChart({
                 background: "#081626",
                 border: "1px solid rgba(148,163,184,0.24)",
                 borderRadius: 12,
-                fontSize: 14,
+                fontSize: "0.84rem",
               }}
             />
             {selectedTeams.map((team, index) => (
@@ -179,31 +153,19 @@ export function StandingsPointsChart({
   );
 }
 
-function uniqueOptions(
-  standings: StandingsEntry[],
-  key: "conferenceName" | "divisionName",
-  suffix: string,
-) {
+function divisionOptions(standings: StandingsEntry[]) {
   return [
     ...new Set(
       standings
-        .map((team) => team[key])
+        .map((team) => team.divisionName)
         .filter((value): value is string => Boolean(value)),
     ),
   ]
     .sort()
     .map((value) => ({
-      value: `${key}:${value}`,
-      label: `${value} ${suffix}`,
+      value,
+      label: `${value} Division`,
     }));
-}
-
-function matchesGroup(team: StandingsEntry, group: string): boolean {
-  if (group === "league") return true;
-  const [key, value] = group.split(":", 2);
-  return key === "conferenceName"
-    ? team.conferenceName === value
-    : team.divisionName === value;
 }
 
 function buildChartData(

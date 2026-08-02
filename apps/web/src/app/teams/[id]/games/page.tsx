@@ -158,7 +158,7 @@ export default async function TeamGamesPage({
           <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
             <SortableTable defaultSortKey="date">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[1040px] text-sm">
+                <table className="workspace-table-dense w-full min-w-[1040px] text-sm">
                   <thead>
                     <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                       <SortableHeader
@@ -292,7 +292,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`px-3 py-3 text-right tabular-nums ${highlight ? "font-semibold text-white" : ""}`}
+      className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${highlight ? "font-semibold text-white" : ""}`}
       data-sort-value={sortValue ?? value ?? ""}
     >
       {value ?? "—"}

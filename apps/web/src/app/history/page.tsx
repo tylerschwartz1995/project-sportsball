@@ -5,9 +5,11 @@ import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
+import { ViewTabs } from "@/app/_components/view-tabs";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
+  type WorkspaceWidth,
 } from "@/app/_components/workspace-primitives";
 import type {
   GoalieHistoryMetric,
@@ -40,6 +42,8 @@ import {
 
 export const dynamic = "force-dynamic";
 
+type HistoryDisplay = "career" | "seasons";
+
 type HistoryPageProps = {
   searchParams: Promise<{
     phase?: string | string[];
@@ -51,6 +55,7 @@ type HistoryPageProps = {
     position?: string | string[];
     team?: string | string[];
     country?: string | string[];
+    display?: string | string[];
   }>;
 };
 
@@ -58,6 +63,8 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
   const params = await searchParams;
   const phase = parseSeasonPhase(firstValue(params.phase));
   const view = parseHistoryView(firstValue(params.view));
+  const display = parseHistoryDisplay(firstValue(params.display));
+  const contentWidth: WorkspaceWidth = "wide";
   const metric = parseHistoryMetric(view, firstValue(params.metric));
   const filters = parseHistoryFilters({
     startYear: firstValue(params.startYear),
@@ -91,27 +98,13 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
           select whole seasons in which that player represented the team.
         </div>
 
-        <SeasonPhaseFilter
-          active={phase}
-          path="/history"
-          params={historyParams(view, metric, filters)}
-        />
-
-        <nav className="workspace-standings-scope" aria-label="Historical leader type">
-          {(["skaters", "goalies", "teams"] as const).map((option) => (
-            <Link
-              key={option}
-              href={historyHref(option, phase, filters)}
-              aria-current={view === option ? "page" : undefined}
-            >
-              {option === "skaters"
-                ? "Skaters"
-                : option === "goalies"
-                  ? "Goalies"
-                  : "Teams"}
-            </Link>
-          ))}
-        </nav>
+        <div className="workspace-context-navs">
+          <SeasonPhaseFilter
+            active={phase}
+            path="/history"
+            params={historyParams(view, metric, filters, display)}
+          />
+        </div>
 
         <HistoryFiltersForm
           view={view}
@@ -119,6 +112,15 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
           phase={phase}
           filters={filters}
           options={filterOptions}
+          display={display}
+          width={contentWidth}
+        />
+
+        <ViewTabs
+          active={display}
+          ariaLabel="Historical ranking views"
+          tabs={historyDisplayTabs(view, leaders.metric, phase, filters)}
+          width={contentWidth}
         />
 
         {leaders.view === "skaters" ? (
@@ -127,6 +129,8 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
             seasons={leaders.seasons}
             phase={phase}
             metric={leaders.metric}
+            display={display}
+            width={contentWidth}
           />
         ) : leaders.view === "goalies" ? (
           <GoalieHistory
@@ -134,6 +138,8 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
             seasons={leaders.seasons}
             phase={phase}
             metric={leaders.metric}
+            display={display}
+            width={contentWidth}
           />
         ) : (
           <TeamHistory
@@ -141,6 +147,8 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
             seasons={leaders.seasons}
             phase={phase}
             metric={leaders.metric}
+            display={display}
+            width={contentWidth}
           />
         )}
       </section>
@@ -154,59 +162,142 @@ function HistoryFiltersForm({
   phase,
   filters,
   options,
+  display,
+  width,
 }: {
   view: HistoryView;
   metric: HistoryMetric;
   phase: SeasonPhase;
   filters: HistoryFilters;
   options: HistoryFilterOptions;
+  display: HistoryDisplay;
+  width: WorkspaceWidth;
 }) {
+  const widthClass =
+    width === "wide" ? "" : ` workspace-width-${width}`;
+
   return (
-    <form method="get" className="workspace-history-controls">
-      <input type="hidden" name="view" value={view} />
+    <form
+      action="/history"
+      method="get"
+      className={`workspace-player-filters workspace-history-filters${
+        view === "teams" ? " is-team-history" : ""
+      }${widthClass}`}
+    >
       <input type="hidden" name="phase" value={phase} />
-      <label>
-        Ranking Metric
-        <select name="metric" defaultValue={metric}>
-          {metricOptions(view).map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label>Start Season
-        <input name="startYear" type="number" min="1917" max="2025" defaultValue={filters.startYear} />
-      </label>
-      <label>End Season
-        <input name="endYear" type="number" min="1917" max="2025" defaultValue={filters.endYear} />
-      </label>
-      <label>Minimum Games
-        <input name="minimumGames" type="number" min="0" max="5000" defaultValue={filters.minimumGames} />
-      </label>
-      {view === "skaters" ? <label>Position
-        <select name="position" defaultValue={filters.position ?? ""}>
-          <option value="">All Positions</option>
-          {options.positions.map((value) => <option key={value} value={value}>{positionLabel(value)}</option>)}
-        </select>
-      </label> : null}
-      {view !== "teams" ? <>
-        <label>Team
-          <select name="team" defaultValue={filters.team ?? ""}>
-            <option value="">All Teams</option>
-            {options.teams.map((value) => <option key={value} value={value}>{value}</option>)}
-          </select>
-        </label>
-        <label>Birth Country
-          <select name="country" defaultValue={filters.country ?? ""}>
-            <option value="">All</option>
-            {options.countries.map((value) => <option key={value} value={value}>{countryLabel(value)}</option>)}
-          </select>
-        </label>
-      </> : null}
-      <div className="workspace-history-actions">
-        <button type="submit">Apply Filters</button>
-        <Link href={`/history?phase=${phase}&view=${view}`}>Reset</Link>
+      <input type="hidden" name="display" value={display} />
+
+      <fieldset className="workspace-player-filter-group is-primary">
+        <legend>Find Historical Leaders</legend>
+        <div>
+          <label>
+            Leader Type
+            <select name="view" defaultValue={view}>
+              <option value="skaters">Skaters</option>
+              <option value="goalies">Goalies</option>
+              <option value="teams">Teams</option>
+            </select>
+          </label>
+          <label>
+            Ranking Metric
+            <select name="metric" defaultValue={metric}>
+              {metricOptions(view).map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset className="workspace-player-filter-group">
+        <legend>Time Period</legend>
+        <div>
+          <label>
+            Start Season
+            <input
+              name="startYear"
+              type="number"
+              min="1917"
+              max="2025"
+              defaultValue={filters.startYear}
+            />
+          </label>
+          <label>
+            End Season
+            <input
+              name="endYear"
+              type="number"
+              min="1917"
+              max="2025"
+              defaultValue={filters.endYear}
+            />
+          </label>
+          <label>
+            Minimum Games
+            <input
+              name="minimumGames"
+              type="number"
+              min="0"
+              max="5000"
+              defaultValue={filters.minimumGames}
+            />
+          </label>
+        </div>
+      </fieldset>
+
+      {view !== "teams" ? (
+        <fieldset className="workspace-player-filter-group">
+          <legend>Player Filters</legend>
+          <div>
+            {view === "skaters" ? (
+              <label>
+                Position
+                <select name="position" defaultValue={filters.position ?? ""}>
+                  <option value="">All Positions</option>
+                  {options.positions.map((value) => (
+                    <option key={value} value={value}>
+                      {positionLabel(value)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            ) : null}
+            <label>
+              Team
+              <select name="team" defaultValue={filters.team ?? ""}>
+                <option value="">All Teams</option>
+                {options.teams.map((value) => (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Birth Country
+              <select name="country" defaultValue={filters.country ?? ""}>
+                <option value="">All Countries</option>
+                {options.countries.map((value) => (
+                  <option key={value} value={value}>
+                    {countryLabel(value)}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+        </fieldset>
+      ) : null}
+
+      <div className="workspace-player-filter-actions">
+        <button type="submit">Show History</button>
+        <Link
+          href={`/history?phase=${phase}&view=${view}&display=${display}`}
+          className="workspace-directory-reset"
+        >
+          Clear Filters
+        </Link>
       </div>
     </form>
   );
@@ -217,26 +308,37 @@ function SkaterHistory({
   seasons,
   phase,
   metric,
+  display,
+  width,
 }: {
   careers: HistoricalSkaterCareer[];
   seasons: HistoricalSkaterSeason[];
   phase: SeasonPhase;
   metric: SkaterHistoryMetric;
+  display: HistoryDisplay;
+  width: WorkspaceWidth;
 }) {
   return (
     <>
+      {display === "career" ? (
       <WorkspacePanel
         className="mt-7"
+        width={width}
         title="Career Leaders"
         description={`Top ${seasonPhaseLabel(phase).toLowerCase()} skater careers for the selected ranking metric.`}
       >
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table min-w-[760px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
+              <colgroup>
+                <col className="workspace-col-entity" />
+                <col className="workspace-col-position" />
+                <col className="workspace-col-number" span={6} />
+              </colgroup>
               <thead>
                 <tr>
                   <SortableHeader label="Player" sortKey="player" align="left" />
-                  <SortableHeader label="Pos" sortKey="position" align="left" />
+                  <SortableHeader label="Pos" sortKey="position" />
                   <SortableHeader label="Seasons" sortKey="seasons" />
                   <SortableHeader label="GP" sortKey="games" />
                   <SortableHeader label="G" sortKey="goals" />
@@ -249,7 +351,9 @@ function SkaterHistory({
                 {careers.map((row) => (
                   <tr key={row.nhlPlayerId}>
                     <td className="workspace-team-cell"><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link></td>
-                    <td>{row.position ?? "—"}</td>
+                    <td className="workspace-position-cell">
+                      {row.position ?? "—"}
+                    </td>
                     <NumberCell value={row.seasonsPlayed} />
                     <NumberCell value={row.gamesPlayed} />
                     <NumberCell value={row.goals} />
@@ -263,20 +367,27 @@ function SkaterHistory({
           </div>
         </SortableTable>
       </WorkspacePanel>
+      ) : null}
 
+      {display === "seasons" ? (
       <WorkspacePanel
         className="mt-7"
+        width={width}
         title="Best Single Seasons"
         description={`The strongest individual ${seasonPhaseLabel(phase).toLowerCase()} seasons for the selected ranking metric.`}
       >
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table min-w-[860px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
+              <colgroup>
+                <col className="workspace-col-entity" />
+                <col className="workspace-col-season" />
+                <col className="workspace-col-number" span={5} />
+              </colgroup>
               <thead>
                 <tr>
                   <SortableHeader label="Player" sortKey="player" align="left" />
                   <SortableHeader label="Season" sortKey="season" align="left" />
-                  <SortableHeader label="Team(s)" sortKey="teams" align="left" />
                   <SortableHeader label="GP" sortKey="games" />
                   <SortableHeader label="G" sortKey="goals" />
                   <SortableHeader label="A" sortKey="assists" />
@@ -294,9 +405,6 @@ function SkaterHistory({
                       </div>
                     </td>
                     <td data-sort-value={row.seasonId}>{formatSeason(row.seasonId)}</td>
-                    <td data-sort-value={row.teamAbbreviations ?? ""}>
-                      <TeamLogoStack abbreviations={row.teamAbbreviations} />
-                    </td>
                     <NumberCell value={row.gamesPlayed} />
                     <NumberCell value={row.goals} />
                     <NumberCell value={row.assists} />
@@ -309,22 +417,31 @@ function SkaterHistory({
           </div>
         </SortableTable>
       </WorkspacePanel>
+      ) : null}
     </>
   );
 }
 
-function GoalieHistory({ careers, seasons, phase, metric }: {
+function GoalieHistory({ careers, seasons, phase, metric, display, width }: {
   careers: HistoricalGoalieCareer[];
   seasons: HistoricalGoalieSeason[];
   phase: SeasonPhase;
   metric: GoalieHistoryMetric;
+  display: HistoryDisplay;
+  width: WorkspaceWidth;
 }) {
   return (
     <>
-      <WorkspacePanel className="mt-7" title="Career Leaders" description={`Top ${seasonPhaseLabel(phase).toLowerCase()} goalie careers.`}>
+      {display === "career" ? (
+      <WorkspacePanel className="mt-7" width={width} title="Career Leaders" description={`Top ${seasonPhaseLabel(phase).toLowerCase()} goalie careers.`}>
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table min-w-[700px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[700px]">
+              <colgroup>
+                <col className="workspace-col-entity" />
+                <col className="workspace-col-number" span={5} />
+                <col className="workspace-col-percentage" />
+              </colgroup>
               <thead><tr>
                 <SortableHeader label="Goalie" sortKey="goalie" align="left" />
                 <SortableHeader label="Seasons" sortKey="seasons" />
@@ -349,14 +466,21 @@ function GoalieHistory({ careers, seasons, phase, metric }: {
           </div>
         </SortableTable>
       </WorkspacePanel>
-      <WorkspacePanel className="mt-7" title="Best Single Seasons" description={`Top individual ${seasonPhaseLabel(phase).toLowerCase()} goalie seasons. Save percentage is available from 1955–56 onward.`}>
+      ) : null}
+      {display === "seasons" ? (
+      <WorkspacePanel className="mt-7" width={width} title="Best Single Seasons" description={`Top individual ${seasonPhaseLabel(phase).toLowerCase()} goalie seasons. Save percentage is available from 1955–56 onward.`}>
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table min-w-[900px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[820px]">
+              <colgroup>
+                <col className="workspace-col-entity" />
+                <col className="workspace-col-season" />
+                <col className="workspace-col-number" span={5} />
+                <col className="workspace-col-percentage" />
+              </colgroup>
               <thead><tr>
                 <SortableHeader label="Goalie" sortKey="goalie" align="left" />
                 <SortableHeader label="Season" sortKey="season" align="left" />
-                <SortableHeader label="Team(s)" sortKey="teams" align="left" />
                 <SortableHeader label="GP" sortKey="games" />
                 <SortableHeader label="W" sortKey="wins" />
                 <SortableHeader label="L" sortKey="losses" />
@@ -373,9 +497,6 @@ function GoalieHistory({ careers, seasons, phase, metric }: {
                     </div>
                   </td>
                   <td data-sort-value={row.seasonId}>{formatSeason(row.seasonId)}</td>
-                  <td data-sort-value={row.teamAbbreviations ?? ""}>
-                    <TeamLogoStack abbreviations={row.teamAbbreviations} />
-                  </td>
                   <NumberCell value={row.gamesPlayed} />
                   <NumberCell value={row.wins} highlight />
                   <NumberCell value={row.losses} />
@@ -388,22 +509,31 @@ function GoalieHistory({ careers, seasons, phase, metric }: {
           </div>
         </SortableTable>
       </WorkspacePanel>
+      ) : null}
     </>
   );
 }
 
-function TeamHistory({ careers, seasons, phase, metric }: {
+function TeamHistory({ careers, seasons, phase, metric, display, width }: {
   careers: HistoricalTeamCareer[];
   seasons: HistoricalTeamSeason[];
   phase: SeasonPhase;
   metric: TeamHistoryMetric;
+  display: HistoryDisplay;
+  width: WorkspaceWidth;
 }) {
   return (
     <>
-      <WorkspacePanel className="mt-7" title="Team Identity Totals" description="Totals follow the NHL source team identity. A future franchise-history pass will combine relocations and renames into lineages.">
+      {display === "career" ? (
+      <WorkspacePanel className="mt-7" width={width} title="Team Identity Totals" description="Totals follow the NHL source team identity. A future franchise-history pass will combine relocations and renames into lineages.">
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table min-w-[760px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
+              <colgroup>
+                <col className="workspace-col-entity" />
+                <col className="workspace-col-number" span={7} />
+                <col className="workspace-col-percentage" />
+              </colgroup>
               <thead><tr>
                 <SortableHeader label="Team" sortKey="team" align="left" />
                 <SortableHeader label="Seasons" sortKey="seasons" />
@@ -419,7 +549,7 @@ function TeamHistory({ careers, seasons, phase, metric }: {
                 <tr key={row.nhlTeamId}>
                   <td className="workspace-team-cell">
                     <span className="inline-flex items-center gap-2">
-                      <TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="compact" decorative />
+                      <TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="tiny" decorative />
                       <strong>{row.name}</strong>
                     </span>
                   </td>
@@ -437,10 +567,19 @@ function TeamHistory({ careers, seasons, phase, metric }: {
           </div>
         </SortableTable>
       </WorkspacePanel>
-      <WorkspacePanel className="mt-7" title="Best Team Seasons" description={`The strongest team ${seasonPhaseLabel(phase).toLowerCase()} seasons by the selected metric.`}>
+      ) : null}
+      {display === "seasons" ? (
+      <WorkspacePanel className="mt-7" width={width} title="Best Team Seasons" description={`The strongest team ${seasonPhaseLabel(phase).toLowerCase()} seasons by the selected metric.`}>
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table min-w-[900px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
+              <colgroup>
+                <col className="workspace-col-entity" />
+                <col className="workspace-col-season" />
+                <col className="workspace-col-number" span={6} />
+                <col className="workspace-col-percentage" />
+                <col className="workspace-col-number" />
+              </colgroup>
               <thead><tr>
                 <SortableHeader label="Team" sortKey="team" align="left" />
                 <SortableHeader label="Season" sortKey="season" align="left" />
@@ -457,7 +596,7 @@ function TeamHistory({ careers, seasons, phase, metric }: {
                 <tr key={`${row.nhlTeamId}-${row.seasonId}`}>
                   <td className="workspace-team-cell">
                     <span className="inline-flex items-center gap-2">
-                      <TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="compact" decorative />
+                      <TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="tiny" decorative />
                       <strong>{row.name}</strong>
                     </span>
                   </td>
@@ -476,6 +615,7 @@ function TeamHistory({ careers, seasons, phase, metric }: {
           </div>
         </SortableTable>
       </WorkspacePanel>
+      ) : null}
     </>
   );
 }
@@ -537,10 +677,12 @@ function historyParams(
   view: HistoryView,
   metric: HistoryMetric,
   filters: HistoryFilters,
+  display: HistoryDisplay,
 ) {
   return {
     view,
     metric,
+    display,
     startYear: filters.startYear,
     endYear: filters.endYear,
     minimumGames: filters.minimumGames,
@@ -549,22 +691,30 @@ function historyParams(
     country: filters.country ?? undefined,
   };
 }
-function historyHref(
+
+function historyDisplayTabs(
   view: HistoryView,
+  metric: HistoryMetric,
   phase: SeasonPhase,
   filters: HistoryFilters,
-): string {
-  const params = new URLSearchParams({
-    phase,
-    view,
-    startYear: String(filters.startYear),
-    endYear: String(filters.endYear),
-    minimumGames: String(filters.minimumGames),
+) {
+  return ([
+    { id: "career" as const, label: "Career Leaders" },
+    { id: "seasons" as const, label: "Best Single Seasons" },
+  ]).map((tab) => {
+    const params = new URLSearchParams();
+    for (const [name, value] of Object.entries(
+      historyParams(view, metric, filters, tab.id),
+    )) {
+      if (value !== undefined) params.set(name, String(value));
+    }
+    params.set("phase", phase);
+    return { ...tab, href: `/history?${params.toString()}` };
   });
-  if (view === "skaters" && filters.position) params.set("position", filters.position);
-  if (view !== "teams" && filters.team) params.set("team", filters.team);
-  if (view !== "teams" && filters.country) params.set("country", filters.country);
-  return `/history?${params.toString()}`;
+}
+
+function parseHistoryDisplay(value: string | undefined): HistoryDisplay {
+  return value === "seasons" ? "seasons" : "career";
 }
 function firstValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;

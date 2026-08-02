@@ -21,10 +21,10 @@ const links = [
   { id: "games", href: "/games", label: "Games" },
   { id: "teams", href: "/teams", label: "Teams" },
   { id: "players", href: "/players", label: "Players" },
+  { id: "analytics", href: "/analytics", label: "Analytics" },
+  { id: "playoffs", href: "/playoffs", label: "Playoffs" },
   { id: "drafts", href: "/drafts", label: "Drafts" },
   { id: "history", href: "/history", label: "History" },
-  { id: "playoffs", href: "/playoffs", label: "Playoffs" },
-  { id: "analytics", href: "/analytics", label: "Analytics" },
 ] as const;
 
 export function SiteHeader({ active }: SiteHeaderProps) {

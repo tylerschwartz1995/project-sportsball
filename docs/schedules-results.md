@@ -11,6 +11,9 @@ Each result shows:
 - the historical team name and abbreviation active in that season;
 - away and home scores;
 - away and home shots on goal;
+- each club's season-phase record at that point in the schedule: after the
+  result for completed games and through the latest earlier result for
+  scheduled games;
 - whether the game ended in regulation, overtime, or a shootout;
 - the recorded UTC start time and NHL game identifier.
 
@@ -21,9 +24,11 @@ wherever the provider publishes coverage.
 
 The underlying read model keeps one game as the response grain. The
 `getGamesByDate()` query joins the two participating teams and their
-`team_game_stats` rows into one typed `GameSummary`. Result rows are left
-joins, so scheduled games can appear before their scores and box scores have
-been ingested.
+`team_game_stats` rows into one typed `GameSummary`. The same read derives each
+club's cumulative wins, regulation losses, and overtime/shootout losses from
+completed games in the matching season and phase. Result rows are left joins,
+so scheduled games can appear before their scores and box scores have been
+ingested.
 
 Team profiles query their next ten stored future games across season boundaries,
 independent of the season selected for the statistics above them. This allows a

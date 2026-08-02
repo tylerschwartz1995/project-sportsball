@@ -31,8 +31,8 @@ Status values reflect the repository at local MVP sign-off on July 31, 2026.
 - [x] Add a league overview dashboard, dedicated standings route, and
   historical season selector.
 - [x] Add schedules and results.
-- [x] Add a responsive, sortable team comparison directory plus team and player
-  detail pages.
+- [x] Add a conference-and-division team directory plus team and player detail
+  pages.
 - [x] Add game and box-score pages.
 - [x] Add search, sorting, pagination, and complete mobile layouts.
 
@@ -102,6 +102,12 @@ Status values reflect the repository at local MVP sign-off on July 31, 2026.
   identity and true NHL appearance and 100-game denominators.
 - [x] Add an initial historical records workspace with career and single-season
   skater, goalie, and team leaderboards.
+- [x] Replace long stacks of unrelated detail-page sections with URL-backed
+  single-view tabs, including nested game-analytics views.
+- [x] Match desktop component and column widths to information density with
+  shared compact, standard, and wide layouts, balanced peer panels, denser
+  long tables, aligned home sections, compact filters and summaries, stable
+  entity/stat columns, and an ultrawide-screen ceiling.
 
 Saved comparison collections and additional shareable plot state remain
 post-MVP enhancements rather than release requirements.

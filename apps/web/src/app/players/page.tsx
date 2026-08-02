@@ -86,12 +86,12 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
   );
   const requestedPage = parsePage(firstQueryValue(params.page));
   const filters = {
-    minGames: firstQueryValue(params.minGames) ?? "",
-    minGoals: firstQueryValue(params.minGoals) ?? "",
-    minAssists: firstQueryValue(params.minAssists) ?? "",
-    minPoints: firstQueryValue(params.minPoints) ?? "",
-    minWins: firstQueryValue(params.minWins) ?? "",
-    minSavePercentage: firstQueryValue(params.minSavePercentage) ?? "",
+    minGames: firstQueryValue(params.minGames) ?? "0",
+    minGoals: firstQueryValue(params.minGoals) ?? "0",
+    minAssists: firstQueryValue(params.minAssists) ?? "0",
+    minPoints: firstQueryValue(params.minPoints) ?? "0",
+    minWins: firstQueryValue(params.minWins) ?? "0",
+    minSavePercentage: firstQueryValue(params.minSavePercentage) ?? "0",
     country: firstQueryValue(params.country) ?? "",
     region: firstQueryValue(params.region) ?? "",
     city: firstQueryValue(params.city) ?? "",
@@ -155,21 +155,11 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
           title={`${selectedSeason?.label ?? "No Season"} Players`}
           description={`Complete Polars-derived ${seasonPhaseLabel(phase).toLowerCase()} totals for every participating skater and goalie. Traded-player rows combine all teams.`}
           action={
-            <div className="workspace-page-actions">
-              {selectedSeason ? (
-                <Link
-                  href={`/players/compare?season=${selectedSeason.id}&phase=${phase}&type=${category}`}
-                  className="workspace-secondary-action"
-                >
-                  Compare Players
-                </Link>
-              ) : null}
-              <SeasonPicker
-                seasons={seasons}
-                selectedSeasonId={selectedSeason?.id}
-                params={{ phase }}
-              />
-            </div>
+            <SeasonPicker
+              seasons={seasons}
+              selectedSeasonId={selectedSeason?.id}
+              params={{ phase }}
+            />
           }
         />
 
@@ -217,7 +207,12 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         defaultDirection={direction}
                       >
                       <div className="overflow-x-auto">
-                        <table className="w-full min-w-[880px] text-sm">
+                        <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
+                          <colgroup>
+                            <col className="workspace-col-entity" />
+                            <col className="workspace-col-stat" span={7} />
+                            <col className="workspace-col-number" />
+                          </colgroup>
                           <thead>
                             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
                               <SortableHeader
@@ -241,12 +236,11 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                 key={player.nhlPlayerId}
                                 className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
                               >
-                                <td className="px-4 py-3">
+                                <td className="workspace-entity-name px-4 py-3">
                                   <div className="flex items-center gap-2">
                                     <TeamLogoStack
                                       teams={player.teams}
-                                      size="compact"
-                                      prominent
+                                      size="tiny"
                                     />
                                     <div>
                                       <PlayerLink
@@ -322,7 +316,12 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         defaultDirection={direction}
                       >
                       <div className="overflow-x-auto">
-                        <table className="w-full min-w-[880px] text-sm">
+                        <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
+                          <colgroup>
+                            <col className="workspace-col-entity" />
+                            <col className="workspace-col-stat" span={7} />
+                            <col className="workspace-col-percentage" />
+                          </colgroup>
                           <thead>
                             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
                               <SortableHeader
@@ -346,12 +345,11 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                 key={player.nhlPlayerId}
                                 className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
                               >
-                                <td className="px-4 py-3">
+                                <td className="workspace-entity-name px-4 py-3">
                                   <div className="flex items-center gap-2">
                                     <TeamLogoStack
                                       teams={player.teams}
-                                      size="compact"
-                                      prominent
+                                      size="tiny"
                                     />
                                     <PlayerLink
                                       playerId={player.nhlPlayerId}
@@ -728,7 +726,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`px-3 py-3 text-right tabular-nums ${
+      className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-cyan-200" : "text-slate-300"
       }`}
     >

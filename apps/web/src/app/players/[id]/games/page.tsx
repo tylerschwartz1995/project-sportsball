@@ -236,7 +236,7 @@ function SkaterGameTable({
     >
       <SortableTable defaultSortKey="date">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1380px] text-sm">
+          <table className="workspace-table-dense w-full min-w-[1380px] text-sm">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                 <LogHeaders goalie={false} />
@@ -301,7 +301,7 @@ function GoalieGameTable({
     >
       <SortableTable defaultSortKey="date">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1220px] text-sm">
+          <table className="workspace-table-dense w-full min-w-[1220px] text-sm">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                 <LogHeaders goalie />
@@ -516,7 +516,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`px-3 py-3 text-right tabular-nums ${highlight ? "font-semibold text-white" : ""}`}
+      className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${highlight ? "font-semibold text-white" : ""}`}
       data-sort-value={sortValue ?? value ?? ""}
     >
       {value ?? "—"}

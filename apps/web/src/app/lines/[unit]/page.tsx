@@ -66,7 +66,7 @@ export default async function UnitPage({
             description={`${detail.team.name} game-by-game results for every stored regular-season appearance by this combination.`}
             action={
               <Link
-                href={`/teams/${detail.team.nhlTeamId}?season=${seasonId}#combinations`}
+                href={`/teams/${detail.team.nhlTeamId}?season=${seasonId}&phase=regular&view=combinations`}
                 className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm font-semibold text-white transition hover:border-cyan-300/40 hover:text-cyan-200"
               >
                 <TeamLogo {...detail.team} size="tiny" decorative />
@@ -83,7 +83,7 @@ export default async function UnitPage({
         >
           <SortableTable defaultSortKey="date" defaultDirection="desc">
             <div className="workspace-table-scroll">
-            <table className="workspace-table workspace-unit-games-table min-w-[900px]">
+            <table className="workspace-table workspace-table-dense workspace-unit-games-table min-w-[900px]">
               <caption className="sr-only">Supporting combination games</caption>
               <thead>
                 <tr>
@@ -194,7 +194,7 @@ function Value({
   return (
     <td
       data-sort-value={sortValue ?? ""}
-      className={highlight ? "workspace-points-cell" : undefined}
+      className={highlight ? "workspace-points-cell" : "workspace-semantic-number"}
     >
       {value}
     </td>

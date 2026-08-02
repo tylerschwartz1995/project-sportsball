@@ -60,10 +60,12 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
       gameDate: "2026-06-14",
       awayTeam: {
         abbreviation: "CAR",
+        record: expect.objectContaining({ wins: expect.any(Number) }),
         score: 3,
       },
       homeTeam: {
         abbreviation: "VGK",
+        record: expect.objectContaining({ losses: expect.any(Number) }),
         score: 0,
       },
     });
@@ -84,6 +86,8 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     expect(boxScore?.homeTeam.skaters).toHaveLength(18);
     expect(boxScore?.awayTeam.goalies).toHaveLength(2);
     expect(boxScore?.homeTeam.goalies).toHaveLength(2);
+    expect(boxScore?.awayTeam.record).toEqual(games[0].awayTeam.record);
+    expect(boxScore?.homeTeam.record).toEqual(games[0].homeTeam.record);
 
     const playByPlay = await getGamePlayByPlay(games[0].nhlGameId);
     expect(playByPlay.events.length).toBeGreaterThan(300);

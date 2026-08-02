@@ -153,23 +153,25 @@ export default async function AnalyticsPage({
 
         {selectedSeason ? (
           <>
-            <AnalyticsSectionTabs seasonId={selectedSeason.id} active={type} />
+            <div className="workspace-context-navs">
+              <AnalyticsSectionTabs seasonId={selectedSeason.id} active={type} />
 
-            {type === "teams" ? (
-              <SeasonPhaseFilter
-                active={phase}
-                path="/analytics"
-                params={{
-                  season: selectedSeason.id,
-                  type,
-                  situation,
-                }}
-              />
-            ) : (
-              <p className="mt-5 text-sm text-slate-500">
-                Player-level MoneyPuck leaderboards are regular-season only.
-              </p>
-            )}
+              {type === "teams" ? (
+                <SeasonPhaseFilter
+                  active={phase}
+                  path="/analytics"
+                  params={{
+                    season: selectedSeason.id,
+                    type,
+                    situation,
+                  }}
+                />
+              ) : (
+                <p className="text-sm text-slate-500">
+                  Player-level MoneyPuck leaderboards are regular-season only.
+                </p>
+              )}
+            </div>
 
             {hasCoverage ? (
               <>
@@ -178,6 +180,12 @@ export default async function AnalyticsPage({
                   type={type}
                   situation={situation}
                   minimumMinutes={minimumMinutes}
+                  phase={phase}
+                />
+                <LeaderboardTable
+                  type={type}
+                  rows={rows}
+                  seasonId={selectedSeason.id}
                   phase={phase}
                 />
                 {type === "teams" ? (
@@ -198,12 +206,6 @@ export default async function AnalyticsPage({
                     points={goalieComparisonPoints}
                   />
                 ) : null}
-                <LeaderboardTable
-                  type={type}
-                  rows={rows}
-                  seasonId={selectedSeason.id}
-                  phase={phase}
-                />
                 <AnalyticsGuide seasonId={selectedSeason.id} />
               </>
             ) : (
@@ -339,7 +341,14 @@ function TeamLeaderboard({
       description="Team results"
       defaultSortKey="xgPercentage"
     >
-      <table className="workspace-table min-w-[920px]">
+      <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[920px]">
+        <colgroup>
+          <col className="workspace-col-entity" />
+          <col className="workspace-col-number" />
+          <col className="workspace-col-time" />
+          <col className="workspace-col-percentage" span={3} />
+          <col className="workspace-col-number" span={4} />
+        </colgroup>
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Team" sortKey="team" align="left" defaultDirection="asc" />
@@ -393,14 +402,21 @@ function SkaterLeaderboard({
   return (
     <LeaderboardFrame
       count={rows.length}
-      description="Player-team rows"
+      description="Player results"
       defaultSortKey="gameScore"
     >
-      <table className="workspace-table min-w-[1080px]">
+      <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[980px]">
+        <colgroup>
+          <col className="workspace-col-entity" />
+          <col className="workspace-col-number" />
+          <col className="workspace-col-time" />
+          <col className="workspace-col-split" />
+          <col className="workspace-col-percentage" span={2} />
+          <col className="workspace-col-number" span={3} />
+        </colgroup>
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Player" sortKey="player" align="left" defaultDirection="asc" />
-            <SortableHeader label="Team" sortKey="team" align="left" defaultDirection="asc" />
             <SortableHeader label="GP" sortKey="games" />
             <SortableHeader label="TOI" sortKey="iceTime" />
             <SortableHeader label="Game score" sortKey="gameScore" />
@@ -421,12 +437,6 @@ function SkaterLeaderboard({
                 href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
                 name={row.player.name}
                 detail={row.player.position ?? "Skater"}
-                team={row.team}
-              />
-              <EntityCell
-                href={`/teams/${row.team.nhlTeamId}?season=${seasonId}`}
-                name={row.team.abbreviation}
-                detail={row.team.name}
                 team={row.team}
               />
               <ValueCell value={String(row.gamesPlayed)} />
@@ -455,14 +465,22 @@ function GoalieLeaderboard({
   return (
     <LeaderboardFrame
       count={rows.length}
-      description="Goalie-team rows"
+      description="Goalie results"
       defaultSortKey="goalsSaved"
     >
-      <table className="workspace-table min-w-[900px]">
+      <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[860px]">
+        <colgroup>
+          <col className="workspace-col-entity" />
+          <col className="workspace-col-number" />
+          <col className="workspace-col-time" />
+          <col className="workspace-col-differential" />
+          <col className="workspace-col-number" span={2} />
+          <col className="workspace-col-split" />
+          <col className="workspace-col-number" />
+        </colgroup>
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" />
-            <SortableHeader label="Team" sortKey="team" align="left" defaultDirection="asc" />
             <SortableHeader label="GP" sortKey="games" />
             <SortableHeader label="TOI" sortKey="iceTime" />
             <SortableHeader label="GSAx" sortKey="goalsSaved" />
@@ -482,12 +500,6 @@ function GoalieLeaderboard({
                 href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
                 name={row.player.name}
                 detail="Goalie"
-                team={row.team}
-              />
-              <EntityCell
-                href={`/teams/${row.team.nhlTeamId}?season=${seasonId}`}
-                name={row.team.abbreviation}
-                detail={row.team.name}
                 team={row.team}
               />
               <ValueCell value={String(row.gamesPlayed)} />
@@ -546,12 +558,12 @@ function EntityCell({
     <td className="px-4 py-3 text-left">
       <div className="flex items-center gap-2">
         {team ? (
-          <TeamLogo {...team} size="compact" decorative prominent />
+          <TeamLogo {...team} size="tiny" decorative />
         ) : null}
         <div>
           <Link
             href={href}
-            className="font-medium text-white transition hover:text-violet-200"
+            className="workspace-entity-name font-medium text-white transition hover:text-violet-200"
           >
             {name}
           </Link>
@@ -573,7 +585,7 @@ function ValueCell({
 }) {
   return (
     <td
-      className={`px-4 py-3 text-right tabular-nums ${
+      className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-violet-200" : "text-slate-300"
       }`}
     >
@@ -591,8 +603,8 @@ function AnalyticsGuide({ seasonId }: { seasonId: number }) {
           expected goals. <strong className="text-slate-200">CF%</strong> is the
           share of all shot attempts, while{" "}
           <strong className="text-slate-200">FF%</strong> excludes blocked
-          attempts. <strong className="text-slate-200">ixG</strong> estimates
-          the goals created by an individual player&apos;s shots.{" "}
+          attempts. <strong className="text-slate-200">ixG</strong>{" "}
+          estimates the goals created by an individual player&apos;s shots.{" "}
           <strong className="text-slate-200">GSAx</strong> is expected goals
           against minus actual goals against; positive is better.
         </p>

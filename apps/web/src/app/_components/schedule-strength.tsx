@@ -63,7 +63,7 @@ export function ScheduleStrength({
           (option) => (
             <Link
               key={option}
-              href={`/teams/${data.teamNhlId}?season=${data.seasonId}&phase=${phase}&sos=${option}#schedule-strength`}
+              href={`/teams/${data.teamNhlId}?season=${data.seasonId}&phase=${phase}&view=strength&sos=${option}`}
               aria-current={metric === option ? "page" : undefined}
             >
               {metricDefinitions[option].label}
@@ -145,14 +145,14 @@ function ScheduleSummary({
   );
 
   return (
-    <article className="surface-panel p-5 sm:p-6">
+    <article className="surface-panel flex h-full flex-col p-5 sm:p-6">
       <div className="flex items-center justify-between gap-4">
         <h4 className="font-semibold text-white">{title}</h4>
         <span className="text-sm tabular-nums text-slate-500">
           {games.length} games
         </span>
       </div>
-      <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">
+      <dl className="mt-4 grid flex-1 auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3">
         <MetricTile
           label={`Avg. ${metricDefinitions[metric].shortLabel}`}
           value={formatMetric(average, metric)}
@@ -212,7 +212,17 @@ function ScheduleGamesTable({
       </summary>
       <SortableTable defaultSortKey="date" defaultDirection={open ? "asc" : "desc"}>
         <div className="workspace-table-scroll border-t border-white/[0.07]">
-          <table className="workspace-table min-w-[940px]">
+          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1040px]">
+            <colgroup>
+              <col className="workspace-col-date" />
+              <col className="workspace-col-entity" />
+              <col className="workspace-col-time" />
+              <col className="workspace-col-split" />
+              <col className="workspace-col-number" />
+              <col className="workspace-col-time" />
+              <col className="workspace-col-split" />
+              <col className="workspace-col-split" />
+            </colgroup>
             <thead>
               <tr>
                 <SortableHeader label="Date" sortKey="date" align="left" defaultDirection="asc" />
@@ -245,7 +255,7 @@ function ScheduleGamesTable({
                           nhlTeamId={game.opponentNhlTeamId}
                           abbreviation={game.opponentAbbreviation}
                           name={game.opponentName}
-                          size="compact"
+                          size="tiny"
                           decorative
                         />
                         <div>
@@ -260,10 +270,10 @@ function ScheduleGamesTable({
                       {game.isHome ? "Home" : "Away"}
                       {game.siteName ? <small>{game.siteName}</small> : null}
                     </td>
-                    <td data-sort-value={strength ?? ""} className="text-right font-medium tabular-nums text-cyan-100">
+                    <td data-sort-value={strength ?? ""} className="workspace-semantic-number text-center font-medium tabular-nums text-cyan-100">
                       {formatMetric(strength, metric)}
                     </td>
-                    <td data-sort-value={game.opponentPriorGames} className="text-right tabular-nums">
+                    <td data-sort-value={game.opponentPriorGames} className="workspace-semantic-number text-center tabular-nums">
                       {game.opponentPriorGames}
                       {ratingSeasonId !== null && ratingSeasonId !== seasonId ? (
                         <span
@@ -274,10 +284,10 @@ function ScheduleGamesTable({
                         </span>
                       ) : null}
                     </td>
-                    <td data-sort-value={game.restDays ?? ""} className="text-right tabular-nums">
+                    <td data-sort-value={game.restDays ?? ""} className="workspace-semantic-number text-center tabular-nums">
                       {game.isBackToBack ? "B2B" : game.restDays === null ? "—" : `${game.restDays}d`}
                     </td>
-                    <td data-sort-value={game.travelDistanceKm ?? ""} className="text-right tabular-nums">
+                    <td data-sort-value={game.travelDistanceKm ?? ""} className="workspace-semantic-number text-center tabular-nums">
                       {game.travelDistanceKm === null
                         ? "—"
                         : formatDistance(game.travelDistanceKm)}

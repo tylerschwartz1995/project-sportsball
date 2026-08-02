@@ -70,7 +70,7 @@ export function TeamRollingPerformanceChart({
 
   return (
     <>
-      <div className="workspace-chart-toolbar">
+      <div className="workspace-chart-toolbar workspace-team-chart-toolbar">
         <p>
           Filters are applied before each rolling window is calculated. For
           example, 10 Away Games means the team&apos;s latest 10 away games.
@@ -157,7 +157,7 @@ export function TeamRollingPerformanceChart({
                 dataKey="gameDate"
                 tickFormatter={formatAxisDate}
                 stroke="var(--chart-axis)"
-                tick={{ fill: "var(--chart-label)", fontSize: 13 }}
+                tick={{ fill: "var(--chart-label)", fontSize: "0.84rem" }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
                 interval="preserveStartEnd"
@@ -168,7 +168,7 @@ export function TeamRollingPerformanceChart({
                 ticks={[0, 25, 50, 75, 100]}
                 tickFormatter={(value: number) => `${value}%`}
                 stroke="var(--chart-axis)"
-                tick={{ fill: "var(--chart-label)", fontSize: 13 }}
+                tick={{ fill: "var(--chart-label)", fontSize: "0.84rem" }}
                 tickLine={false}
                 axisLine={false}
                 width={52}
@@ -181,7 +181,7 @@ export function TeamRollingPerformanceChart({
                   value: "50%",
                   position: "insideTopLeft",
                   fill: "var(--chart-label)",
-                  fontSize: 12,
+                  fontSize: "0.78rem",
                 }}
               />
               <Tooltip

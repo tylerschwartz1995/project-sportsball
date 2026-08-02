@@ -24,10 +24,12 @@ competing with it.
 - **State colors:** emerald for positive status and rose for negative results.
 - **Typography:** Geist Sans for interface and reading; Geist Mono for compact
   labels, identifiers, and technical metadata. Tabular numerals are required
-  for comparable statistics.
+  for comparable statistics. The desktop root scale grows gradually from 18
+  to 20 pixels as the viewport widens, so typography, controls, logos, and
+  rem-based component geometry remain visually balanced on larger monitors.
 - **Shape:** 16-pixel primary panel radius and 12-pixel nested-control radius.
-- **Spacing:** sections use a 48-pixel desktop rhythm, compressing naturally on
-  small screens.
+- **Spacing:** page sections use a compact 32-pixel rhythm, compressing
+  naturally on small screens so useful content remains close to its controls.
 
 The canonical CSS tokens live in `apps/web/src/app/globals.css`. Reusable React
 primitives live in `apps/web/src/app/_components/ui-primitives.tsx`.
@@ -37,10 +39,15 @@ primitives live in `apps/web/src/app/_components/ui-primitives.tsx`.
 Every detail page should follow the same sequence:
 
 1. identity and current context;
-2. a compact set of decision-useful headline statistics;
-3. primary raw data;
-4. derived or model-based analytics;
-5. specialized breakdowns and exploration links.
+2. URL-backed tabs when the page contains distinct information modes;
+3. only the content belonging to the selected tab;
+4. supporting definitions and exploration links for that selected view.
+
+Tabs are page views, not scroll shortcuts. They preserve season and phase
+context, expose the active view with `aria-current`, and support browser
+back/forward navigation. Closely related summaries and tables may remain
+together; separate tasks such as a draft board, pick-value plot, and team
+performance comparison should not be stacked into one long page.
 
 Traditional statistics use cyan accents. Advanced statistics use violet accents
 and retain provider attribution and definition links.
@@ -53,6 +60,13 @@ width. The shell owns sport context, primary navigation, data status, and the
 theme control; pages own their season and dataset controls.
 
 Light and dark modes use semantic tokens rather than separate component markup.
+
+Filters show their active defaults instead of presenting blank controls.
+Numeric thresholds use `0` when no minimum is active, while select controls use
+a clear `All …` or named default. Phase selectors keep their context in an
+accessible label without repeating it beside self-explanatory options. Helper
+text is reserved for information that is not already expressed by the adjacent
+heading or field labels.
 Dark is the first-visit default, an explicit selection persists on the device,
 and a pre-render bootstrap applies it before the interface is painted.
 
@@ -61,8 +75,51 @@ and a pre-render bootstrap applies it before the interface is painted.
 - Section headings contain one eyebrow, one descriptive title, optional
   explanatory copy, and no more than one primary action.
 - Metric tiles use a short label, a dominant tabular value, and optional context.
+- Desktop component width follows the amount of information being presented.
+  Use the compact width for short leader, schedule, and two-entity comparison
+  tables; use the standard width for standings and medium statistical tables;
+  reserve the full page width for draft boards, brackets, and analytics tables
+  whose column count genuinely requires it. Keep intentional
+  whitespace outside compact data instead of expanding gaps between related
+  values. The ordinary desktop canvas stops growing at 80rem so even wide data
+  remains coherent on ultrawide monitors; exceptionally dense tables scroll
+  inside that canvas rather than stretching indefinitely.
+- Store the canvas and compact, standard, and data-width boundaries as shared
+  CSS tokens. Width tiers scale with the desktop root size, preserving their
+  information hierarchy while avoiding tiny content in a wide application
+  shell. Do not add viewport-specific font overrides to individual pages.
+- Column width follows meaning: ranks, logos, positions, dates, seasons, and
+  numeric values remain content-sized and on one line. Primary team, player,
+  matchup, and metric labels use a stable readable track instead of absorbing
+  every unused pixel. Headings, filters, tabs, pagination, and notes align with
+  the width of the data they control.
+- Peer panels share the same column grid and vertical edges. Metric cards wrap
+  into fewer columns before their labels or context become cramped; a
+  low-control filter stays compact rather than inheriting a full form width.
+- Related tab views keep the same outer width when their internal dataset
+  changes; genuinely wide tables scroll inside that boundary. Selection-only
+  schedule filters apply immediately instead of requiring a redundant View
+  action.
+- Multi-section historical filters use the full data canvas. Their sections
+  share one equal-height desktop row, actions sit in a dedicated footer, and
+  the filters, tabs, and results keep the same outer edges.
+- Player overview facts and selected-season totals use a compact data-width
+  block. Short profile facts remain information-sized, and season metrics use
+  one dense desktop row instead of stretching sparse values across the canvas.
+- Long statistical tables use tighter vertical cell padding without reducing
+  the established application font size. Short schedules and comparisons keep
+  their normal row rhythm.
+- Related compact datasets of equal importance share an equal-width desktop
+  row when shown together, then stack when the viewport can no longer support
+  a readable side-by-side presentation.
+- When one metric is derived directly from another comparison, combine them
+  into one visual rather than repeating team identities across peer cards.
+  Game expected-goal totals and xG share use one away-to-home comparison with
+  centered, prominent team identities, exact values, a labeled differential,
+  and a proportional bar aligned to the comparison content.
 - Table shells provide one consistent border, background, radius, and scrolling
-  boundary. Numeric columns remain sortable and right-aligned.
+  boundary. Numeric columns remain sortable and centered beneath their column
+  headings.
 - Missing values display an em dash. Missing datasets use an explanatory state
   rather than a zero.
 
@@ -85,10 +142,14 @@ and a pre-render bootstrap applies it before the interface is painted.
   therefore compare true home-only or away-only rolling samples rather than
   hiding points from an all-games calculation. Series controls always keep at
   least one available line visible.
+- Standings progression compares every team in one selected division. Current
+  divisions show eight clubs; historical seasons preserve the division size
+  that existed in that season. No separate team selector is shown.
 - League comparison scatterplots use fixed axes while filtering so a subject
   never appears to move when its comparison group changes. Meaningful
   horizontal and vertical baselines define plain-language quadrants, and the
-  legend explains both the color and interpretation of every group.
+  legend explains both the color and interpretation of every group. A direct
+  comparison attached to the plot shares its outer edges with that plot.
 - Player comparison plots normalize counting metrics to per-60-minute rates
   before placing players with different workloads on the same axes.
   Distributions use the same fixed bins while filtering, with signed metrics

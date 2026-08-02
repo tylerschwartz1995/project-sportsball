@@ -1,21 +1,27 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { GameAdvancedAnalytics } from "@/app/_components/game-advanced-analytics";
+import {
+  GameAdvancedAnalytics,
+  type GameAdvancedView,
+} from "@/app/_components/game-advanced-analytics";
 import { GamePlayByPlayView } from "@/app/_components/play-by-play";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamGameRecord } from "@/app/_components/team-game-record";
 import { TeamLogo } from "@/app/_components/team-logo";
+import { ViewTabs } from "@/app/_components/view-tabs";
 import {
   DataTableShell,
   SectionHeader,
 } from "@/app/_components/ui-primitives";
 import { parseNhlId } from "@/contracts/entity";
-import type {
-  GameBoxScoreTeam,
-  GameGoalieStats,
-  GameSkaterStats,
+import {
+  formatGameState,
+  type GameBoxScoreTeam,
+  type GameGoalieStats,
+  type GameSkaterStats,
 } from "@/contracts/game";
 import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";
 import { getGameBoxScore } from "@/data/games";
@@ -23,11 +29,17 @@ import { getGamePlayByPlay } from "@/data/play-by-play";
 
 export const dynamic = "force-dynamic";
 
+type GameView = "scoring" | "box-score" | "advanced";
+
 type GamePageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{
+    view?: string | string[];
+    advancedView?: string | string[];
+  }>;
 };
 
-export default async function GamePage({ params }: GamePageProps) {
+export default async function GamePage({ params, searchParams }: GamePageProps) {
   const nhlGameId = parseNhlId((await params).id);
   if (nhlGameId === null) {
     notFound();
@@ -49,6 +61,39 @@ export default async function GamePage({ params }: GamePageProps) {
     game.homeTeam.skaters.length > 0 ||
     game.awayTeam.goalies.length > 0 ||
     game.homeTeam.goalies.length > 0;
+  const pageParams = await searchParams;
+  const requestedView = parseGameView(firstValue(pageParams.view));
+  const view = normalizeGameView(requestedView, {
+    scoring: playByPlay.events.length > 0,
+    boxScore: hasBoxScore,
+    advanced: Boolean(advanced),
+  });
+  const advancedView = parseGameAdvancedView(
+    firstValue(pageParams.advancedView),
+  );
+  const tabs = [
+    playByPlay.events.length > 0
+      ? {
+          id: "scoring" as const,
+          label: "Scoring & Timeline",
+          href: `/games/${game.nhlGameId}?view=scoring`,
+        }
+      : null,
+    hasBoxScore
+      ? {
+          id: "box-score" as const,
+          label: "Box Score",
+          href: `/games/${game.nhlGameId}?view=box-score`,
+        }
+      : null,
+    advanced
+      ? {
+          id: "advanced" as const,
+          label: "Advanced Analytics",
+          href: `/games/${game.nhlGameId}?view=advanced&advancedView=${advancedView}`,
+        }
+      : null,
+  ].filter((tab): tab is NonNullable<typeof tab> => tab !== null);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -71,7 +116,7 @@ export default async function GamePage({ params }: GamePageProps) {
               {game.awayTeam.name} at {game.homeTeam.name}
             </h1>
             <strong>
-              {completed ? finalLabel(game.lastPeriodType) : game.state}
+              {completed ? finalLabel(game.lastPeriodType) : formatGameState(game.state)}
             </strong>
           </div>
 
@@ -93,41 +138,38 @@ export default async function GamePage({ params }: GamePageProps) {
           </div>
         </div>
 
-        <nav
-          aria-label="Game page sections"
-          className="workspace-scroll-nav"
-        >
-          {playByPlay.events.length > 0 ? (
-            <a href="#scoring">Scoring & timeline</a>
-          ) : null}
-          {hasBoxScore ? <a href="#box-score">Box score</a> : null}
-          {advanced ? <a href="#advanced">Advanced analytics</a> : null}
-        </nav>
-
-        <GamePlayByPlayView
-          data={playByPlay}
-          awayTeam={game.awayTeam}
-          homeTeam={game.homeTeam}
-          seasonId={game.seasonId}
+        <ViewTabs
+          active={view}
+          ariaLabel="Game views"
+          tabs={tabs}
         />
 
-        {hasBoxScore ? (
+        {view === "scoring" ? (
+          <GamePlayByPlayView
+            data={playByPlay}
+            awayTeam={game.awayTeam}
+            homeTeam={game.homeTeam}
+            seasonId={game.seasonId}
+          />
+        ) : null}
+
+        {view === "box-score" && hasBoxScore ? (
           <div
             id="box-score"
-            className="mt-12 space-y-14 scroll-mt-6"
+            className="workspace-width-standard mt-12 space-y-14 scroll-mt-6"
           >
             <TeamBoxScore team={game.awayTeam} seasonId={game.seasonId} />
             <TeamBoxScore team={game.homeTeam} seasonId={game.seasonId} />
           </div>
-        ) : (
+        ) : view === "box-score" ? (
           <div className="mt-10 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
             The player box score is not available yet.
           </div>
-        )}
+        ) : null}
 
-        {advanced ? (
-          <div id="advanced" className="scroll-mt-6">
-            <GameAdvancedAnalytics data={advanced} />
+        {view === "advanced" && advanced ? (
+          <div>
+            <GameAdvancedAnalytics data={advanced} view={advancedView} />
           </div>
         ) : null}
       </section>
@@ -157,13 +199,21 @@ function ScoreTeam({
         />
         <div>
           <small>
-            {team.abbreviation}
+            {align === "right" ? "Home" : "Away"} · {team.abbreviation}
           </small>
-          <Link
-            href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
-          >
-            {team.name}
-          </Link>
+          <div className="workspace-game-score-name">
+            {align === "right" ? (
+              <TeamGameRecord record={team.record} />
+            ) : null}
+            <Link
+              href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
+            >
+              {team.name}
+            </Link>
+            {align === "left" ? (
+              <TeamGameRecord record={team.record} />
+            ) : null}
+          </div>
           <p>
             {team.shotsOnGoal === null
               ? "Shots unavailable"
@@ -238,7 +288,12 @@ function SkaterTable({
     <DataTableShell>
       <SortableTable defaultSortKey="points">
       <div className="workspace-table-scroll">
-        <table className="workspace-table min-w-[940px]">
+        <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[940px]">
+          <colgroup>
+            <col className="workspace-col-entity" />
+            <col className="workspace-col-stat" span={8} />
+            <col className="workspace-col-time" />
+          </colgroup>
           <caption className="sr-only">{team.name} skater box score</caption>
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
@@ -261,17 +316,10 @@ function SkaterTable({
                 className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
               >
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <TeamLogo
-                      {...team}
-                      size="compact"
-                      decorative
-                      prominent
-                    />
-                    <div>
+                  <div>
                       <Link
                         href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
-                        className="font-medium text-white transition hover:text-cyan-200"
+                        className="workspace-entity-name font-medium text-white transition hover:text-cyan-200"
                       >
                         {player.name}
                       </Link>
@@ -281,7 +329,6 @@ function SkaterTable({
                           : `#${player.sweaterNumber} · `}
                         {player.position}
                       </span>
-                    </div>
                   </div>
                 </td>
                 <NumericCell value={player.goals} />
@@ -316,12 +363,19 @@ function GoalieTable({
     <DataTableShell>
       <SortableTable defaultSortKey="shotsAgainst">
       <div className="workspace-table-scroll">
-        <table className="workspace-table min-w-[900px]">
+        <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
+          <colgroup>
+            <col className="workspace-col-entity" />
+            <col className="workspace-col-stat" span={4} />
+            <col className="workspace-col-percentage" />
+            <col className="workspace-col-split" span={2} />
+            <col className="workspace-col-time" />
+          </colgroup>
           <caption className="sr-only">{team.name} goalie box score</caption>
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
               <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" />
-              <SortableHeader label="DEC" sortKey="decision" align="right" defaultDirection="asc" />
+              <SortableHeader label="DEC" sortKey="decision" defaultDirection="asc" />
               <SortableHeader label="SA" sortKey="shotsAgainst" />
               <SortableHeader label="SV" sortKey="saves" />
               <SortableHeader label="GA" sortKey="goalsAgainst" defaultDirection="asc" />
@@ -338,24 +392,16 @@ function GoalieTable({
                 className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
               >
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <TeamLogo
-                      {...team}
-                      size="compact"
-                      decorative
-                      prominent
-                    />
-                    <div>
+                  <div>
                       <Link
                         href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
-                        className="font-medium text-white transition hover:text-cyan-200"
+                        className="workspace-entity-name font-medium text-white transition hover:text-cyan-200"
                       >
                         {player.name}
                       </Link>
                       <span className="ml-2 text-xs text-slate-500">
                         {player.starter ? "Starter" : "Backup"}
                       </span>
-                    </div>
                   </div>
                 </td>
                 <NumericCell value={player.decision ?? "—"} />
@@ -398,7 +444,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`px-3 py-3 text-right tabular-nums ${
+      className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-cyan-200" : "text-slate-300"
       }`}
     >
@@ -443,4 +489,38 @@ function finalLabel(lastPeriodType: string | null): string {
   return lastPeriodType && lastPeriodType !== "REG"
     ? `Final · ${lastPeriodType}`
     : "Final";
+}
+
+function parseGameView(value: string | undefined): GameView {
+  return value === "scoring" || value === "box-score" || value === "advanced"
+    ? value
+    : "scoring";
+}
+
+function normalizeGameView(
+  view: GameView,
+  availability: {
+    scoring: boolean;
+    boxScore: boolean;
+    advanced: boolean;
+  },
+): GameView {
+  if (view === "scoring" && availability.scoring) return view;
+  if (view === "box-score" && availability.boxScore) return view;
+  if (view === "advanced" && availability.advanced) return view;
+  if (availability.scoring) return "scoring";
+  if (availability.boxScore) return "box-score";
+  return "advanced";
+}
+
+function parseGameAdvancedView(value: string | undefined): GameAdvancedView {
+  return value === "shots" ||
+    value === "players" ||
+    value === "combinations"
+    ? value
+    : "teams";
+}
+
+function firstValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
 }

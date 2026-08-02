@@ -48,7 +48,12 @@ export function buildProjectedBracket(
     (team) => team.conferenceName!,
   );
 
-  for (const [conference, teams] of conferences) {
+  const orderedConferences = [...conferences.entries()].sort(
+    ([left], [right]) =>
+      playoffConferenceOrder(left) - playoffConferenceOrder(right),
+  );
+
+  for (const [conference, teams] of orderedConferences) {
     const divisions = groupBy(
       teams.filter((team) => team.divisionName),
       (team) => team.divisionName!,
@@ -102,6 +107,12 @@ export function buildProjectedBracket(
     matchup: index + 1,
   }));
   return rounds;
+}
+
+function playoffConferenceOrder(conference: string): number {
+  if (conference.startsWith("Eastern")) return 0;
+  if (conference.startsWith("Western")) return 1;
+  return 2;
 }
 
 export function parsePlayoffGameNumber(nhlGameId: number): {

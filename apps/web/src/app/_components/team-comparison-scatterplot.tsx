@@ -198,7 +198,7 @@ export function TeamComparisonScatterplot({
                 tickFormatter={formatPercentage}
                 tick={{
                   fill: "var(--chart-label)",
-                  fontSize: 13,
+                  fontSize: "0.84rem",
                 }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
@@ -207,7 +207,7 @@ export function TeamComparisonScatterplot({
                   position: "insideBottom",
                   offset: -20,
                   fill: "var(--chart-label)",
-                  fontSize: 12,
+                  fontSize: "0.78rem",
                 }}
               />
               <YAxis
@@ -219,7 +219,7 @@ export function TeamComparisonScatterplot({
                 tickFormatter={formatPercentage}
                 tick={{
                   fill: "var(--chart-label)",
-                  fontSize: 13,
+                  fontSize: "0.84rem",
                 }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
@@ -230,7 +230,7 @@ export function TeamComparisonScatterplot({
                   position: "insideLeft",
                   offset: -8,
                   fill: "var(--chart-label)",
-                  fontSize: 12,
+                  fontSize: "0.78rem",
                 }}
               />
               <ZAxis range={[95, 95]} />
@@ -380,7 +380,7 @@ function DirectTeamComparison({
   const second = points.find((point) => String(point.nhlTeamId) === secondId);
 
   return (
-    <section className="workspace-direct-comparison">
+    <section className="workspace-direct-comparison workspace-team-direct-comparison">
       <header>
         <div>
           <p>Direct comparison</p>
@@ -400,16 +400,6 @@ function DirectTeamComparison({
           disabledId={secondId}
           onChange={setFirstId}
         />
-        <button
-          type="button"
-          disabled={!firstId && !secondId}
-          onClick={() => {
-            setFirstId(secondId);
-            setSecondId(firstId);
-          }}
-        >
-          Swap Teams
-        </button>
         <TeamSelector
           label="Team B"
           value={secondId}
@@ -426,15 +416,13 @@ function DirectTeamComparison({
               <tr>
                 <th>Metric</th>
                 <th>
-                  {first.name}
-                  <span className="flex items-center justify-center gap-1.5">
+                  <span className="workspace-direct-comparison-identity-meta">
                     <TeamLogo {...first} size="tiny" decorative />
                     {first.abbreviation}
                   </span>
                 </th>
                 <th>
-                  {second.name}
-                  <span className="flex items-center justify-center gap-1.5">
+                  <span className="workspace-direct-comparison-identity-meta">
                     <TeamLogo {...second} size="tiny" decorative />
                     {second.abbreviation}
                   </span>
