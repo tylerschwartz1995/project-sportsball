@@ -10,6 +10,9 @@ NHL game as its response grain and displays:
 - dressed backup goalies as `DNP` when they recorded no ice time;
 - an official NHL scoring summary and expandable period-by-period play
   timeline;
+- an interactive MoneyPuck Game Flow view for supported games, with
+  five-minute chance-quality pressure, cumulative expected goals, goal
+  context, and expected-goal totals by period;
 - MoneyPuck team and player game analytics where covered;
 - normalized shot maps with expected-goal event context;
 - regular-season five-on-five forward lines and defensive pairings.
@@ -42,6 +45,20 @@ playoffs; player-game and unit records are regular-season only.
 provider's chronological sort order, and groups semantic player roles beneath
 each event. The Server Component derives the scoring summary from normalized
 goal events and renders every stored play inside its period section.
+
+For games with MoneyPuck modeled shots, the scoring view also derives a
+serializable Game Flow package from the already-loaded shot and play-by-play
+records. Game Pressure compares the teams' summed expected goals over the
+previous five minutes of play and resets at each period boundary. Cumulative
+Chances sums the same shot probabilities from puck drop. Neither measure is a
+win probability, and neither makes another upstream request while rendering.
+Both chart views use game-relative expected-goal scales so quieter games remain
+readable without clipping unusually chance-heavy games. The pressure line is
+displayed as a trailing 30-second smoothed trend to reduce event-by-event steps;
+hover details continue to report the exact five-minute values.
+The chart marks goals, exposes exact values through
+pointer, touch, and keyboard interaction, and keeps period totals visible in a
+compact non-sortable table because chronological order is meaningful.
 
 All team names and abbreviations join through `team_seasons`, so a 2005–06 box
 score uses the identity active in 2005–06 rather than a later relocation or

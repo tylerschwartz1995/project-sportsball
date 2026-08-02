@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { GameFlowChart } from "@/app/_components/game-flow-chart";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo } from "@/app/_components/team-logo";
@@ -9,17 +10,20 @@ import type {
   PlayByPlayEvent,
   PlayByPlayPlayer,
 } from "@/contracts/play-by-play";
+import type { GameFlow } from "@/contracts/game-flow";
 
 export function GamePlayByPlayView({
   data,
   awayTeam,
   homeTeam,
   seasonId,
+  gameFlow,
 }: {
   data: GamePlayByPlay;
   awayTeam: GameTeamSummary;
   homeTeam: GameTeamSummary;
   seasonId: number;
+  gameFlow: GameFlow | null;
 }) {
   if (data.events.length === 0) {
     return null;
@@ -52,6 +56,16 @@ export function GamePlayByPlayView({
           {data.events.length} recorded plays
         </p>
       </div>
+
+      {gameFlow ? (
+        <GameFlowChart flow={gameFlow} />
+      ) : (
+        <p className="workspace-game-flow-unavailable">
+          Game Flow is unavailable for this game. MoneyPuck modeled-shot
+          coverage begins in 2007–08 and occasionally excludes individual
+          games.
+        </p>
+      )}
 
       <ScoringSummary
         goals={goals}

@@ -26,6 +26,8 @@
   --chart-reference: rgb(255 255 255 / 0.32);
   --chart-primary: #67e8f9;
   --chart-secondary: #c4b5fd;
+  --chart-puck: #020617;
+  --chart-puck-highlight: #64748b;
   --workspace-canvas-max: 80rem;
   --workspace-width-compact: 50rem;
   --workspace-width-standard: 56rem;
@@ -67,6 +69,8 @@ html[data-theme="light"] {
   --chart-reference: rgb(15 23 42 / 0.38);
   --chart-primary: #087c91;
   --chart-secondary: #6d4bc3;
+  --chart-puck: #020617;
+  --chart-puck-highlight: #64748b;
 }
 
 @theme inline {
@@ -3016,6 +3020,413 @@ span.workspace-date-link {
   border-radius: 0.75rem;
   background: var(--surface);
   box-shadow: 0 8px 22px var(--shadow);
+}
+
+.workspace-game-flow {
+  overflow: hidden;
+  margin-top: 2rem;
+  border: 1px solid
+    color-mix(in srgb, var(--accent-secondary) 26%, var(--border));
+  border-radius: var(--radius-panel);
+  background: var(--table-background);
+  box-shadow: 0 16px 40px var(--shadow);
+}
+
+.workspace-game-flow-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.1rem;
+}
+
+.workspace-game-flow-header > div:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.workspace-game-flow-header > div:first-child > p:first-child {
+  color: var(--accent-secondary);
+  font-family: var(--font-geist-mono);
+  font-size: 0.78rem;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.workspace-game-flow-header h3 {
+  margin-top: 0.25rem;
+  color: var(--foreground);
+  font-size: 1.3rem;
+  font-weight: 720;
+  letter-spacing: -0.025em;
+}
+
+.workspace-game-flow-header > div:first-child > p:last-child {
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.workspace-game-flow-key span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.workspace-game-flow-key i {
+  display: inline-block;
+  width: 0.78rem;
+  height: 0.18rem;
+  border-radius: 999px;
+  background: var(--chart-reference);
+}
+
+.workspace-game-flow [data-series="primary"] {
+  background: var(--chart-primary);
+}
+
+.workspace-game-flow [data-series="secondary"] {
+  background: var(--chart-secondary);
+}
+
+.workspace-game-flow [data-series="goal"] {
+  width: 0.58rem;
+  height: 0.58rem;
+  border: 1.5px solid var(--chart-label);
+  border-radius: 50%;
+  background: var(--chart-puck);
+}
+
+.workspace-game-flow-controls {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem 0.3rem;
+}
+
+.workspace-game-flow-controls > p {
+  max-width: none;
+  padding-bottom: 0.18rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.workspace-game-flow-chart {
+  position: relative;
+  width: 100%;
+  height: 21rem;
+  padding: 0 0.45rem;
+}
+
+.workspace-game-flow-pressure-axis {
+  position: absolute;
+  z-index: 2;
+  inset: 0 0.3rem 2.3rem auto;
+  width: 3.7rem;
+  pointer-events: none;
+}
+
+.workspace-game-flow-pressure-axis::before,
+.workspace-game-flow-pressure-axis::after {
+  position: absolute;
+  left: 0.35rem;
+  display: block;
+  content: "";
+  background: var(--chart-reference);
+}
+
+.workspace-game-flow-pressure-axis::before {
+  top: 31%;
+  bottom: 31%;
+  width: 1px;
+}
+
+.workspace-game-flow-pressure-axis::after {
+  top: 50%;
+  width: 0.48rem;
+  height: 1px;
+}
+
+.workspace-game-flow-pressure-axis > span {
+  position: absolute;
+  top: 21%;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.18rem;
+  transform: translateY(-50%);
+  font-family: var(--font-geist-mono);
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+.workspace-game-flow-pressure-axis > span[data-chart-side="above"] strong {
+  color: var(--chart-primary);
+}
+
+.workspace-game-flow-pressure-axis > span[data-chart-side="below"] {
+  top: 79%;
+}
+
+.workspace-game-flow-pressure-axis > span[data-chart-side="below"] strong {
+  color: var(--chart-secondary);
+}
+
+.workspace-game-flow-pressure-axis strong {
+  font-weight: 760;
+}
+
+.workspace-game-flow-pressure-axis b {
+  color: var(--chart-label);
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.workspace-game-flow-pressure-axis small {
+  position: absolute;
+  top: 50%;
+  left: 0.95rem;
+  transform: translateY(-50%);
+  color: var(--chart-label);
+  font-family: var(--font-geist-mono);
+  font-size: 0.61rem;
+  font-weight: 680;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.workspace-game-flow-goal-marker circle {
+  fill: var(--surface-raised);
+  stroke: var(--chart-label);
+  stroke-width: 1.5;
+}
+
+.workspace-game-flow-goal-marker[data-goal-series="primary"] circle {
+  stroke: var(--chart-primary);
+}
+
+.workspace-game-flow-goal-marker[data-goal-series="secondary"] circle {
+  stroke: var(--chart-secondary);
+}
+
+.workspace-game-flow-goal-marker ellipse,
+.workspace-game-flow-goal-marker path {
+  fill: var(--chart-puck);
+  stroke: var(--chart-puck-highlight);
+  stroke-width: 0.75;
+}
+
+.workspace-game-flow-goal-marker path:last-child {
+  fill: none;
+  stroke-width: 0.9;
+}
+
+.workspace-game-flow-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  border-top: 1px solid var(--border);
+  padding: 0.7rem 1.1rem;
+}
+
+.workspace-game-flow-tooltip-event {
+  display: grid;
+  gap: 0.2rem;
+  margin-top: 0.7rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.65rem;
+  font-size: 0.82rem;
+}
+
+.workspace-game-flow-tooltip.workspace-chart-tooltip {
+  min-width: 10.75rem;
+  border-radius: 0.6rem;
+  padding: 0.52rem 0.58rem;
+}
+
+.workspace-game-flow-tooltip .workspace-chart-tooltip-date {
+  font-size: 0.69rem;
+}
+
+.workspace-game-flow-tooltip .workspace-chart-tooltip-game {
+  margin-top: 0.16rem;
+  font-size: 0.82rem;
+}
+
+.workspace-game-flow-tooltip dl {
+  gap: 0.24rem;
+  margin-top: 0.42rem;
+}
+
+.workspace-game-flow-tooltip dt {
+  font-size: 0.7rem;
+}
+
+.workspace-game-flow-tooltip dd {
+  font-size: 0.76rem;
+}
+
+.workspace-game-flow-tooltip .workspace-game-flow-tooltip-event {
+  gap: 0.12rem;
+  margin-top: 0.42rem;
+  padding-top: 0.4rem;
+  font-size: 0.69rem;
+}
+
+.workspace-game-flow-tooltip .workspace-chart-tooltip-sample {
+  margin-top: 0.48rem;
+  font-size: 0.74rem;
+}
+
+.workspace-game-flow-tooltip-event strong {
+  color: var(--foreground);
+  font-weight: 680;
+}
+
+.workspace-game-flow-tooltip-event span {
+  color: var(--muted);
+}
+
+.workspace-game-flow-periods {
+  overflow-x: auto;
+  border-top: 1px solid var(--border);
+}
+
+.workspace-game-flow-periods table {
+  width: 100%;
+  min-width: 28rem;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.workspace-game-flow-periods caption {
+  padding: 0.85rem 1.1rem 0.45rem;
+  color: var(--foreground);
+  font-weight: 680;
+  text-align: left;
+}
+
+.workspace-game-flow-periods th,
+.workspace-game-flow-periods td {
+  border-top: 1px solid var(--border);
+  padding: 0.62rem 1.1rem;
+}
+
+.workspace-game-flow-periods thead th {
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-game-flow-periods th:first-child {
+  text-align: left;
+}
+
+.workspace-game-flow-periods th:not(:first-child),
+.workspace-game-flow-periods td {
+  text-align: right;
+}
+
+.workspace-game-flow-periods thead span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.workspace-game-flow-periods tbody th {
+  color: var(--muted);
+  font-weight: 550;
+}
+
+.workspace-game-flow-periods td {
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-game-flow-periods tfoot {
+  background: var(--surface-subtle);
+  font-weight: 700;
+}
+
+.workspace-game-flow-source,
+.workspace-game-flow-unavailable {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.workspace-game-flow-source {
+  border-top: 1px solid var(--border);
+  padding: 0.85rem 1.1rem 1rem;
+}
+
+.workspace-game-flow-source a {
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.workspace-game-flow-unavailable {
+  margin-top: 2rem;
+  border: 1px dashed var(--border);
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: var(--surface-subtle);
+}
+
+@media (max-width: 720px) {
+  .workspace-game-flow-header,
+  .workspace-game-flow-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .workspace-game-flow-controls > p {
+    text-align: left;
+    white-space: normal;
+  }
+
+  .workspace-game-flow-controls .workspace-chart-filter-group > div {
+    width: 100%;
+  }
+
+  .workspace-game-flow-controls .workspace-chart-filter-group button {
+    flex: 1 1 0;
+  }
+
+  .workspace-game-flow-chart {
+    height: 18rem;
+  }
+
+  .workspace-game-flow-pressure-axis {
+    right: 0.15rem;
+    width: 3.2rem;
+  }
+
+  .workspace-game-flow-pressure-axis > span {
+    font-size: 0.72rem;
+  }
+
+  .workspace-game-flow-pressure-axis small {
+    font-size: 0.54rem;
+  }
+
+  .workspace-game-flow-chart text[font-size="0.7rem"] {
+    display: none;
+  }
 }
 
 .workspace-analytics-tabs {
