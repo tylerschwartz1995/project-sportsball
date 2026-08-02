@@ -115,7 +115,8 @@ and a pre-render bootstrap applies it before the interface is painted.
 - When one metric is derived directly from another comparison, combine them
   into one visual rather than repeating team identities across peer cards.
   Game expected-goal totals and xG share use one away-to-home comparison with
-  exact values, a labeled differential, and a proportional bar.
+  centered, prominent team identities, exact values, a labeled differential,
+  and a proportional bar aligned to the comparison content.
 - Table shells provide one consistent border, background, radius, and scrolling
   boundary. Numeric columns remain sortable and centered beneath their column
   headings.

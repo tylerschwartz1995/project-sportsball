@@ -613,23 +613,27 @@ function ExpectedGoalsComparison({
     <article className="workspace-xg-comparison">
       <header className="workspace-xg-comparison-header">
         <p>Expected goals</p>
-        {advantage ? <span>{advantage}</span> : null}
       </header>
 
-      <dl className="workspace-xg-comparison-teams">
-        <ExpectedGoalsTeam
-          team={awayTeam}
-          expectedGoals={awayExpectedGoals}
-          share={awayShare}
-          side="away"
-        />
-        <ExpectedGoalsTeam
-          team={homeTeam}
-          expectedGoals={homeExpectedGoals}
-          share={homeShare}
-          side="home"
-        />
-      </dl>
+      <div className="workspace-xg-comparison-stage">
+        <dl className="workspace-xg-comparison-teams">
+          <ExpectedGoalsTeam
+            team={awayTeam}
+            expectedGoals={awayExpectedGoals}
+            share={awayShare}
+            side="away"
+          />
+          <ExpectedGoalsTeam
+            team={homeTeam}
+            expectedGoals={homeExpectedGoals}
+            share={homeShare}
+            side="home"
+          />
+        </dl>
+        {advantage ? (
+          <p className="workspace-xg-comparison-advantage">{advantage}</p>
+        ) : null}
+      </div>
 
       <div className="workspace-xg-share-bar" aria-hidden="true">
         <span style={{ width: `${awayBarShare}%` }} />
@@ -658,7 +662,7 @@ function ExpectedGoalsTeam({
   return (
     <div data-side={side}>
       <dt>
-        <TeamLogo {...team} size="compact" decorative />
+        <TeamLogo {...team} size="profile" decorative prominent />
         <span aria-hidden="true">{team.abbreviation}</span>
         <span className="sr-only">{team.name}</span>
       </dt>
