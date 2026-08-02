@@ -83,7 +83,7 @@ export default async function UnitPage({
         >
           <SortableTable defaultSortKey="date" defaultDirection="desc">
             <div className="workspace-table-scroll">
-            <table className="workspace-table workspace-unit-games-table min-w-[900px]">
+            <table className="workspace-table workspace-table-dense workspace-unit-games-table min-w-[900px]">
               <caption className="sr-only">Supporting combination games</caption>
               <thead>
                 <tr>
@@ -194,7 +194,7 @@ function Value({
   return (
     <td
       data-sort-value={sortValue ?? ""}
-      className={highlight ? "workspace-points-cell" : undefined}
+      className={highlight ? "workspace-points-cell" : "workspace-semantic-number"}
     >
       {value}
     </td>

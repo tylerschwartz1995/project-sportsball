@@ -295,7 +295,11 @@ export default async function TeamPage({
           <DataTableShell>
             <SortableTable defaultSortKey="points">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[720px] text-sm">
+                <table className="workspace-table-dense workspace-table-semantic w-full min-w-[720px] text-sm">
+                  <colgroup>
+                    <col />
+                    <col className="workspace-col-number" span={6} />
+                  </colgroup>
                   <thead>
                     <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
                       <SortableHeader
@@ -370,7 +374,13 @@ export default async function TeamPage({
           <DataTableShell>
             <SortableTable defaultSortKey="savePercentage">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[760px] text-sm">
+                <table className="workspace-table-dense workspace-table-semantic w-full min-w-[760px] text-sm">
+                  <colgroup>
+                    <col />
+                    <col className="workspace-col-number" span={6} />
+                    <col className="workspace-col-percentage" />
+                    <col className="workspace-col-number" />
+                  </colgroup>
                   <thead>
                     <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
                       <SortableHeader
@@ -574,7 +584,12 @@ function UpcomingSchedule({
       {games.length > 0 ? (
         <SortableTable defaultSortKey="date" defaultDirection="asc">
           <div className="workspace-table-scroll mt-5">
-            <table className="workspace-table workspace-table-schedule">
+            <table className="workspace-table workspace-table-schedule workspace-table-semantic">
+              <colgroup>
+                <col className="workspace-col-date" />
+                <col />
+                <col className="workspace-col-season" />
+              </colgroup>
               <thead>
                 <tr>
                   <SortableHeader label="Date" sortKey="date" align="left" defaultDirection="asc" />
@@ -700,7 +715,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`px-3 py-3 text-center tabular-nums ${
+      className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-cyan-200" : "text-slate-300"
       }`}
     >

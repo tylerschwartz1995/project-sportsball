@@ -242,7 +242,7 @@ body {
 }
 
 main.max-w-7xl {
-  max-width: 90rem;
+  max-width: 80rem;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
 }
@@ -1941,9 +1941,11 @@ html[data-theme="light"]
 
 .workspace-direct-comparison {
   overflow: hidden;
+  width: 100%;
+  max-width: 50rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-panel);
-  margin-top: 1.1rem;
+  margin: 1.1rem auto 0;
   padding: 1rem;
   background: var(--table-background);
   box-shadow: 0 16px 40px var(--shadow);
@@ -2002,6 +2004,7 @@ html[data-theme="light"]
   width: 100%;
   min-width: 40rem;
   border-collapse: collapse;
+  table-layout: fixed;
 }
 
 .workspace-direct-comparison-table th,
@@ -2012,6 +2015,7 @@ html[data-theme="light"]
 }
 
 .workspace-direct-comparison-table th:first-child {
+  width: 40%;
   color: var(--muted);
   font-size: 0.88rem;
   font-weight: 600;
@@ -3253,6 +3257,50 @@ html[data-theme="light"] .workspace-analytics-filters button {
   white-space: nowrap;
 }
 
+.workspace-table-semantic {
+  table-layout: fixed;
+}
+
+.workspace-col-date {
+  width: 12.5rem;
+}
+
+.workspace-col-season,
+.workspace-col-team {
+  width: 7rem;
+}
+
+.workspace-col-position {
+  width: 5rem;
+}
+
+.workspace-col-number {
+  width: 5.25rem;
+}
+
+.workspace-col-percentage {
+  width: 6rem;
+}
+
+.workspace-semantic-number,
+.workspace-number-cell,
+.workspace-points-cell {
+  width: 1%;
+  white-space: nowrap;
+}
+
+.workspace-position-cell {
+  width: 1%;
+  min-width: 5rem;
+  white-space: nowrap;
+}
+
+.workspace-table-dense tbody th,
+.workspace-table-dense tbody td {
+  padding-top: 0.52rem;
+  padding-bottom: 0.52rem;
+}
+
 .workspace-table thead {
   border-bottom: 1px solid var(--border);
   background: var(--surface-raised);
@@ -3296,6 +3344,8 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-rank-cell {
+  width: 1%;
+  min-width: 3.5rem;
   padding: 0.68rem 0.8rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
@@ -3402,6 +3452,8 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-logo-cell {
+  width: 1%;
+  min-width: 7.5rem;
   padding: 0.68rem 0.75rem;
   text-align: center;
   vertical-align: middle;

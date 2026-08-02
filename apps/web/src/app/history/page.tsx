@@ -9,6 +9,7 @@ import { ViewTabs } from "@/app/_components/view-tabs";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
+  type WorkspaceWidth,
 } from "@/app/_components/workspace-primitives";
 import type {
   GoalieHistoryMetric,
@@ -63,6 +64,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
   const phase = parseSeasonPhase(firstValue(params.phase));
   const view = parseHistoryView(firstValue(params.view));
   const display = parseHistoryDisplay(firstValue(params.display));
+  const contentWidth = historyContentWidth(view, display);
   const metric = parseHistoryMetric(view, firstValue(params.metric));
   const filters = parseHistoryFilters({
     startYear: firstValue(params.startYear),
@@ -111,12 +113,14 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
           filters={filters}
           options={filterOptions}
           display={display}
+          width={contentWidth}
         />
 
         <ViewTabs
           active={display}
           ariaLabel="Historical ranking views"
           tabs={historyDisplayTabs(view, leaders.metric, phase, filters)}
+          width={contentWidth}
         />
 
         {leaders.view === "skaters" ? (
@@ -126,6 +130,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
             phase={phase}
             metric={leaders.metric}
             display={display}
+            width={contentWidth}
           />
         ) : leaders.view === "goalies" ? (
           <GoalieHistory
@@ -134,6 +139,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
             phase={phase}
             metric={leaders.metric}
             display={display}
+            width={contentWidth}
           />
         ) : (
           <TeamHistory
@@ -142,6 +148,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
             phase={phase}
             metric={leaders.metric}
             display={display}
+            width={contentWidth}
           />
         )}
       </section>
@@ -156,6 +163,7 @@ function HistoryFiltersForm({
   filters,
   options,
   display,
+  width,
 }: {
   view: HistoryView;
   metric: HistoryMetric;
@@ -163,9 +171,17 @@ function HistoryFiltersForm({
   filters: HistoryFilters;
   options: HistoryFilterOptions;
   display: HistoryDisplay;
+  width: WorkspaceWidth;
 }) {
+  const widthClass =
+    width === "wide" ? "" : ` workspace-width-${width}`;
+
   return (
-    <form action="/history" method="get" className="workspace-player-filters">
+    <form
+      action="/history"
+      method="get"
+      className={`workspace-player-filters${widthClass}`}
+    >
       <input type="hidden" name="phase" value={phase} />
       <input type="hidden" name="display" value={display} />
 
@@ -295,25 +311,32 @@ function SkaterHistory({
   phase,
   metric,
   display,
+  width,
 }: {
   careers: HistoricalSkaterCareer[];
   seasons: HistoricalSkaterSeason[];
   phase: SeasonPhase;
   metric: SkaterHistoryMetric;
   display: HistoryDisplay;
+  width: WorkspaceWidth;
 }) {
   return (
     <>
       {display === "career" ? (
       <WorkspacePanel
         className="mt-7"
-        width="standard"
+        width={width}
         title="Career Leaders"
         description={`Top ${seasonPhaseLabel(phase).toLowerCase()} skater careers for the selected ranking metric.`}
       >
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table min-w-[760px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
+              <colgroup>
+                <col />
+                <col className="workspace-col-position" />
+                <col className="workspace-col-number" span={6} />
+              </colgroup>
               <thead>
                 <tr>
                   <SortableHeader label="Player" sortKey="player" align="left" />
@@ -330,7 +353,9 @@ function SkaterHistory({
                 {careers.map((row) => (
                   <tr key={row.nhlPlayerId}>
                     <td className="workspace-team-cell"><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link></td>
-                    <td>{row.position ?? "—"}</td>
+                    <td className="workspace-position-cell">
+                      {row.position ?? "—"}
+                    </td>
                     <NumberCell value={row.seasonsPlayed} />
                     <NumberCell value={row.gamesPlayed} />
                     <NumberCell value={row.goals} />
@@ -349,13 +374,19 @@ function SkaterHistory({
       {display === "seasons" ? (
       <WorkspacePanel
         className="mt-7"
-        width="standard"
+        width={width}
         title="Best Single Seasons"
         description={`The strongest individual ${seasonPhaseLabel(phase).toLowerCase()} seasons for the selected ranking metric.`}
       >
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table min-w-[860px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[860px]">
+              <colgroup>
+                <col />
+                <col className="workspace-col-season" />
+                <col className="workspace-col-team" />
+                <col className="workspace-col-number" span={5} />
+              </colgroup>
               <thead>
                 <tr>
                   <SortableHeader label="Player" sortKey="player" align="left" />
@@ -398,20 +429,26 @@ function SkaterHistory({
   );
 }
 
-function GoalieHistory({ careers, seasons, phase, metric, display }: {
+function GoalieHistory({ careers, seasons, phase, metric, display, width }: {
   careers: HistoricalGoalieCareer[];
   seasons: HistoricalGoalieSeason[];
   phase: SeasonPhase;
   metric: GoalieHistoryMetric;
   display: HistoryDisplay;
+  width: WorkspaceWidth;
 }) {
   return (
     <>
       {display === "career" ? (
-      <WorkspacePanel className="mt-7" width="compact" title="Career Leaders" description={`Top ${seasonPhaseLabel(phase).toLowerCase()} goalie careers.`}>
+      <WorkspacePanel className="mt-7" width={width} title="Career Leaders" description={`Top ${seasonPhaseLabel(phase).toLowerCase()} goalie careers.`}>
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table min-w-[700px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[700px]">
+              <colgroup>
+                <col />
+                <col className="workspace-col-number" span={5} />
+                <col className="workspace-col-percentage" />
+              </colgroup>
               <thead><tr>
                 <SortableHeader label="Goalie" sortKey="goalie" align="left" />
                 <SortableHeader label="Seasons" sortKey="seasons" />
@@ -438,10 +475,17 @@ function GoalieHistory({ careers, seasons, phase, metric, display }: {
       </WorkspacePanel>
       ) : null}
       {display === "seasons" ? (
-      <WorkspacePanel className="mt-7" width="standard" title="Best Single Seasons" description={`Top individual ${seasonPhaseLabel(phase).toLowerCase()} goalie seasons. Save percentage is available from 1955–56 onward.`}>
+      <WorkspacePanel className="mt-7" width={width} title="Best Single Seasons" description={`Top individual ${seasonPhaseLabel(phase).toLowerCase()} goalie seasons. Save percentage is available from 1955–56 onward.`}>
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table min-w-[900px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
+              <colgroup>
+                <col />
+                <col className="workspace-col-season" />
+                <col className="workspace-col-team" />
+                <col className="workspace-col-number" span={5} />
+                <col className="workspace-col-percentage" />
+              </colgroup>
               <thead><tr>
                 <SortableHeader label="Goalie" sortKey="goalie" align="left" />
                 <SortableHeader label="Season" sortKey="season" align="left" />
@@ -482,20 +526,26 @@ function GoalieHistory({ careers, seasons, phase, metric, display }: {
   );
 }
 
-function TeamHistory({ careers, seasons, phase, metric, display }: {
+function TeamHistory({ careers, seasons, phase, metric, display, width }: {
   careers: HistoricalTeamCareer[];
   seasons: HistoricalTeamSeason[];
   phase: SeasonPhase;
   metric: TeamHistoryMetric;
   display: HistoryDisplay;
+  width: WorkspaceWidth;
 }) {
   return (
     <>
       {display === "career" ? (
-      <WorkspacePanel className="mt-7" width="standard" title="Team Identity Totals" description="Totals follow the NHL source team identity. A future franchise-history pass will combine relocations and renames into lineages.">
+      <WorkspacePanel className="mt-7" width={width} title="Team Identity Totals" description="Totals follow the NHL source team identity. A future franchise-history pass will combine relocations and renames into lineages.">
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table min-w-[760px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
+              <colgroup>
+                <col />
+                <col className="workspace-col-number" span={7} />
+                <col className="workspace-col-percentage" />
+              </colgroup>
               <thead><tr>
                 <SortableHeader label="Team" sortKey="team" align="left" />
                 <SortableHeader label="Seasons" sortKey="seasons" />
@@ -531,10 +581,17 @@ function TeamHistory({ careers, seasons, phase, metric, display }: {
       </WorkspacePanel>
       ) : null}
       {display === "seasons" ? (
-      <WorkspacePanel className="mt-7" title="Best Team Seasons" description={`The strongest team ${seasonPhaseLabel(phase).toLowerCase()} seasons by the selected metric.`}>
+      <WorkspacePanel className="mt-7" width={width} title="Best Team Seasons" description={`The strongest team ${seasonPhaseLabel(phase).toLowerCase()} seasons by the selected metric.`}>
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table min-w-[900px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
+              <colgroup>
+                <col />
+                <col className="workspace-col-season" />
+                <col className="workspace-col-number" span={6} />
+                <col className="workspace-col-percentage" />
+                <col className="workspace-col-number" />
+              </colgroup>
               <thead><tr>
                 <SortableHeader label="Team" sortKey="team" align="left" />
                 <SortableHeader label="Season" sortKey="season" align="left" />
@@ -666,6 +723,15 @@ function historyDisplayTabs(
     params.set("phase", phase);
     return { ...tab, href: `/history?${params.toString()}` };
   });
+}
+
+function historyContentWidth(
+  view: HistoryView,
+  display: HistoryDisplay,
+): WorkspaceWidth {
+  if (view === "goalies" && display === "career") return "compact";
+  if (view === "teams" && display === "seasons") return "wide";
+  return "standard";
 }
 
 function parseHistoryDisplay(value: string | undefined): HistoryDisplay {

@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+export type WorkspaceWidth = "compact" | "standard" | "wide";
+
 export function WorkspacePageHeader({
   eyebrow,
   title,
@@ -40,7 +42,7 @@ export function WorkspacePanel({
   action?: ReactNode;
   children: ReactNode;
   className?: string;
-  width?: "compact" | "standard" | "wide";
+  width?: WorkspaceWidth;
 }) {
   const widthClass =
     width === "wide" ? "" : `workspace-width-${width}`;

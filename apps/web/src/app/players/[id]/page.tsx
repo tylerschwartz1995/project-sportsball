@@ -712,7 +712,7 @@ function HistoryTable({
     <div className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
       <SortableTable defaultSortKey={headers[0]} defaultDirection="desc">
         <div className="min-w-0 max-w-full overflow-x-auto">
-          <table className="w-full min-w-[700px] text-sm">
+          <table className="workspace-table-dense w-full min-w-[700px] text-sm">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                 {headers.map((header, index) => (
@@ -736,6 +736,8 @@ function HistoryTable({
                     <td
                       key={`${headers[index]}-${index}`}
                       className={`px-4 py-3 tabular-nums ${
+                        index >= 2 ? "workspace-semantic-number " : ""
+                      }${
                         index === 0 ? "text-left" : "text-right"
                       } ${index === 4 ? "font-semibold text-cyan-200" : ""}`}
                     >

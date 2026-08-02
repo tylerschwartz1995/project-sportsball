@@ -235,7 +235,7 @@ function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
   return (
     <SortableTable defaultSortKey="hundred-rate">
       <div className="workspace-table-scroll">
-        <table className="workspace-table min-w-[1180px]">
+        <table className="workspace-table workspace-table-dense min-w-[1180px]">
           <thead>
             <tr>
               <SortableHeader
@@ -295,7 +295,7 @@ function OutcomeTable({ rows }: { rows: DraftPlayerOutcome[] }) {
   return (
     <SortableTable defaultSortKey="overall" defaultDirection="asc">
       <div className="workspace-table-scroll">
-        <table className="workspace-table min-w-[1480px]">
+        <table className="workspace-table workspace-table-dense min-w-[1480px]">
           <thead>
             <tr>
               <SortableHeader

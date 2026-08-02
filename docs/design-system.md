@@ -79,7 +79,17 @@ and a pre-render bootstrap applies it before the interface is painted.
   full page width for standings, draft boards, brackets, schedules, and
   analytics tables whose column count genuinely requires it. Keep intentional
   whitespace outside compact data instead of expanding gaps between related
-  values.
+  values. The ordinary desktop canvas stops growing at 80rem so even wide data
+  remains coherent on ultrawide monitors; exceptionally dense tables scroll
+  inside that canvas rather than stretching indefinitely.
+- Column width follows meaning: ranks, logos, positions, dates, seasons, and
+  numeric values remain content-sized and on one line, while the primary team,
+  player, matchup, or metric label absorbs the remaining width. Headings,
+  filters, tabs, pagination, and notes align with the width of the data they
+  control.
+- Long statistical tables use tighter vertical cell padding without reducing
+  the established application font size. Short schedules and comparisons keep
+  their normal row rhythm.
 - Related compact datasets of equal importance share an equal-width desktop
   row when shown together, then stack when the viewport can no longer support
   a readable side-by-side presentation.

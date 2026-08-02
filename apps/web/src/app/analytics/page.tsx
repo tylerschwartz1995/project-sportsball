@@ -341,7 +341,7 @@ function TeamLeaderboard({
       description="Team results"
       defaultSortKey="xgPercentage"
     >
-      <table className="workspace-table min-w-[920px]">
+      <table className="workspace-table workspace-table-dense min-w-[920px]">
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Team" sortKey="team" align="left" defaultDirection="asc" />
@@ -398,7 +398,7 @@ function SkaterLeaderboard({
       description="Player-team rows"
       defaultSortKey="gameScore"
     >
-      <table className="workspace-table min-w-[1080px]">
+      <table className="workspace-table workspace-table-dense min-w-[1080px]">
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Player" sortKey="player" align="left" defaultDirection="asc" />
@@ -460,7 +460,7 @@ function GoalieLeaderboard({
       description="Goalie-team rows"
       defaultSortKey="goalsSaved"
     >
-      <table className="workspace-table min-w-[900px]">
+      <table className="workspace-table workspace-table-dense min-w-[900px]">
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" />
@@ -575,7 +575,7 @@ function ValueCell({
 }) {
   return (
     <td
-      className={`px-4 py-3 text-center tabular-nums ${
+      className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-violet-200" : "text-slate-300"
       }`}
     >

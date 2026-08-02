@@ -119,7 +119,7 @@ function ScoringSummary({
         <div className="data-table-shell mt-4">
           <SortableTable defaultSortKey="gameTime" defaultDirection="asc">
             <div className="workspace-table-scroll">
-              <table className="workspace-table min-w-[900px]">
+              <table className="workspace-table workspace-table-dense min-w-[900px]">
                 <thead>
                   <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                     <SortableHeader

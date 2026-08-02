@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import type { WorkspaceWidth } from "@/app/_components/workspace-primitives";
+
 export type ViewTab<T extends string = string> = {
   id: T;
   label: string;
@@ -11,16 +13,21 @@ export function ViewTabs<T extends string>({
   ariaLabel,
   tabs,
   secondary = false,
+  width = "wide",
 }: {
   active: T;
   ariaLabel: string;
   tabs: ViewTab<T>[];
   secondary?: boolean;
+  width?: WorkspaceWidth;
 }) {
+  const widthClass =
+    width === "wide" ? "" : ` workspace-width-${width}`;
+
   return (
     <nav
       aria-label={ariaLabel}
-      className={`workspace-scroll-nav${secondary ? " is-secondary" : ""}`}
+      className={`workspace-scroll-nav${secondary ? " is-secondary" : ""}${widthClass}`}
     >
       {tabs.map((tab) => (
         <Link

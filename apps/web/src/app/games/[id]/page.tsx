@@ -278,7 +278,7 @@ function SkaterTable({
     <DataTableShell>
       <SortableTable defaultSortKey="points">
       <div className="workspace-table-scroll">
-        <table className="workspace-table min-w-[940px]">
+        <table className="workspace-table workspace-table-dense min-w-[940px]">
           <caption className="sr-only">{team.name} skater box score</caption>
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
@@ -356,7 +356,7 @@ function GoalieTable({
     <DataTableShell>
       <SortableTable defaultSortKey="shotsAgainst">
       <div className="workspace-table-scroll">
-        <table className="workspace-table min-w-[900px]">
+        <table className="workspace-table workspace-table-dense min-w-[900px]">
           <caption className="sr-only">{team.name} goalie box score</caption>
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
@@ -438,7 +438,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`px-3 py-3 text-center tabular-nums ${
+      className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-cyan-200" : "text-slate-300"
       }`}
     >

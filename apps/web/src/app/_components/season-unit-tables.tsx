@@ -68,7 +68,7 @@ function SeasonUnitTable({
         <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
           <SortableTable defaultSortKey="xgPercentage">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1000px] text-sm">
+              <table className="workspace-table-dense w-full min-w-[1000px] text-sm">
                 <caption className="sr-only">
                   {title} season rankings
                 </caption>
@@ -189,7 +189,7 @@ function ValueCell({
 }) {
   return (
     <td
-      className={`px-4 py-3 text-center tabular-nums ${
+      className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-violet-200" : "text-slate-300"
       }`}
     >

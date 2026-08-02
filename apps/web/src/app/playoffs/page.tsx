@@ -96,6 +96,13 @@ export default async function PlayoffsPage({
           <ViewTabs
             active={view}
             ariaLabel="Playoff views"
+            width={
+              view === "skaters"
+                ? "compact"
+                : view === "goalies"
+                  ? "standard"
+                  : "wide"
+            }
             tabs={[
               {
                 id: "bracket",
@@ -152,7 +159,12 @@ export default async function PlayoffsPage({
               {leaders.length > 0 ? (
                 <SortableTable defaultSortKey="points">
                   <div className="workspace-table-scroll">
-                    <table className="workspace-table min-w-[680px]">
+                    <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[680px]">
+                      <colgroup>
+                        <col />
+                        <col className="workspace-col-team" />
+                        <col className="workspace-col-number" span={4} />
+                      </colgroup>
                       <thead>
                         <tr>
                           <SortableHeader
@@ -249,7 +261,13 @@ function PlayoffGoalieLeaders({
       {goalies.length > 0 ? (
         <SortableTable defaultSortKey="wins">
           <div className="workspace-table-scroll">
-            <table className="workspace-table min-w-[820px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[820px]">
+              <colgroup>
+                <col />
+                <col className="workspace-col-team" />
+                <col className="workspace-col-number" span={7} />
+                <col className="workspace-col-percentage" />
+              </colgroup>
               <thead>
                 <tr>
                   <SortableHeader

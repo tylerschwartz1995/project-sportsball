@@ -207,7 +207,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         defaultDirection={direction}
                       >
                       <div className="overflow-x-auto">
-                        <table className="w-full min-w-[880px] text-sm">
+                        <table className="workspace-table-dense w-full min-w-[880px] text-sm">
                           <thead>
                             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
                               <SortableHeader
@@ -312,7 +312,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         defaultDirection={direction}
                       >
                       <div className="overflow-x-auto">
-                        <table className="w-full min-w-[880px] text-sm">
+                        <table className="workspace-table-dense w-full min-w-[880px] text-sm">
                           <thead>
                             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
                               <SortableHeader
@@ -718,7 +718,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`px-3 py-3 text-center tabular-nums ${
+      className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-cyan-200" : "text-slate-300"
       }`}
     >

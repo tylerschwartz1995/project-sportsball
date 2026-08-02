@@ -190,7 +190,7 @@ function TeamGameAnalytics({
       <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
         <SortableTable>
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] text-sm">
+            <table className="workspace-table-dense w-full min-w-[900px] text-sm">
               <caption className="sr-only">
                 Team advanced statistics by game situation
               </caption>
@@ -276,7 +276,7 @@ function PlayerGameAnalytics({
         <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
           <SortableTable defaultSortKey="Game score">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1040px] text-sm">
+              <table className="workspace-table-dense w-full min-w-[1040px] text-sm">
                 <caption className="sr-only">
                   MoneyPuck skater game statistics
                 </caption>
@@ -352,7 +352,7 @@ function PlayerGameAnalytics({
         <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
           <SortableTable defaultSortKey="GSAx">
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px] text-sm">
+              <table className="workspace-table-dense w-full min-w-[800px] text-sm">
                 <caption className="sr-only">
                   MoneyPuck goalie game statistics
                 </caption>
@@ -468,7 +468,7 @@ function UnitTable({
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
       <SortableTable defaultSortKey="TOI">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] text-sm">
+          <table className="workspace-table-dense w-full min-w-[980px] text-sm">
             <caption className="sr-only">{title}</caption>
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
@@ -648,7 +648,7 @@ function ValueCell({
 }) {
   return (
     <td
-      className={`px-4 py-3 text-center tabular-nums ${
+      className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-violet-200" : "text-slate-300"
       }`}
     >

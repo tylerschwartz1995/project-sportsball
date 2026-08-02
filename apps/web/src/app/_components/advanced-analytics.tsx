@@ -54,7 +54,7 @@ export function TeamAdvancedAnalytics({
       <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
         <SortableTable>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-sm">
+          <table className="workspace-table-dense w-full min-w-[760px] text-sm">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                 <MetricHeader label="Situation" align="left" />
@@ -207,7 +207,7 @@ function SkaterAdvancedTable({
       <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
         <SortableTable>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[840px] text-sm">
+          <table className="workspace-table-dense w-full min-w-[840px] text-sm">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                 <MetricHeader label="Team" align="left" />
@@ -290,7 +290,7 @@ function GoalieAdvancedTable({
       <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
         <SortableTable>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-sm">
+          <table className="workspace-table-dense w-full min-w-[760px] text-sm">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                 <MetricHeader label="Team" align="left" />
@@ -466,7 +466,7 @@ function ValueCell({
 }) {
   return (
     <td
-      className={`px-4 py-3 text-center tabular-nums ${
+      className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-violet-200" : "text-slate-300"
       }`}
     >

@@ -196,7 +196,7 @@ function StandingsTable({
         defaultDirection={defaultDirection}
       >
         <div className="workspace-table-scroll">
-          <table className="workspace-table min-w-[760px]">
+          <table className="workspace-table workspace-table-dense min-w-[760px]">
             <thead>
               <tr>
                 {standingsColumns.map((column) => (

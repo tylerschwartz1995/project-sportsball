@@ -212,7 +212,7 @@ function ScheduleGamesTable({
       </summary>
       <SortableTable defaultSortKey="date" defaultDirection={open ? "asc" : "desc"}>
         <div className="workspace-table-scroll border-t border-white/[0.07]">
-          <table className="workspace-table min-w-[940px]">
+          <table className="workspace-table workspace-table-dense min-w-[940px]">
             <thead>
               <tr>
                 <SortableHeader label="Date" sortKey="date" align="left" defaultDirection="asc" />
@@ -260,10 +260,10 @@ function ScheduleGamesTable({
                       {game.isHome ? "Home" : "Away"}
                       {game.siteName ? <small>{game.siteName}</small> : null}
                     </td>
-                    <td data-sort-value={strength ?? ""} className="text-center font-medium tabular-nums text-cyan-100">
+                    <td data-sort-value={strength ?? ""} className="workspace-semantic-number text-center font-medium tabular-nums text-cyan-100">
                       {formatMetric(strength, metric)}
                     </td>
-                    <td data-sort-value={game.opponentPriorGames} className="text-center tabular-nums">
+                    <td data-sort-value={game.opponentPriorGames} className="workspace-semantic-number text-center tabular-nums">
                       {game.opponentPriorGames}
                       {ratingSeasonId !== null && ratingSeasonId !== seasonId ? (
                         <span
@@ -274,10 +274,10 @@ function ScheduleGamesTable({
                         </span>
                       ) : null}
                     </td>
-                    <td data-sort-value={game.restDays ?? ""} className="text-center tabular-nums">
+                    <td data-sort-value={game.restDays ?? ""} className="workspace-semantic-number text-center tabular-nums">
                       {game.isBackToBack ? "B2B" : game.restDays === null ? "—" : `${game.restDays}d`}
                     </td>
-                    <td data-sort-value={game.travelDistanceKm ?? ""} className="text-center tabular-nums">
+                    <td data-sort-value={game.travelDistanceKm ?? ""} className="workspace-semantic-number text-center tabular-nums">
                       {game.travelDistanceKm === null
                         ? "—"
                         : formatDistance(game.travelDistanceKm)}
