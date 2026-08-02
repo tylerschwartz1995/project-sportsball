@@ -640,9 +640,7 @@ function ExpectedGoalsComparison({
         <span style={{ width: `${100 - awayBarShare}%` }} />
       </div>
       <p className="sr-only">
-        {awayTeam.name} has {formatPercentage(awayShare)} of expected goals;
-        {" "}
-        {homeTeam.name} has {formatPercentage(homeShare)}.
+        {`${awayTeam.name} created ${formatPercentage(awayShare)} of the game's combined expected goals; ${homeTeam.name} created ${formatPercentage(homeShare)}.`}
       </p>
     </article>
   );
@@ -668,7 +666,7 @@ function ExpectedGoalsTeam({
       </dt>
       <dd>
         <strong>{formatDecimal(expectedGoals)}</strong>
-        <span>{formatPercentage(share)} share</span>
+        <span>{formatPercentage(share)} of combined xG</span>
       </dd>
     </div>
   );
