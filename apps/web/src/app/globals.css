@@ -1284,8 +1284,12 @@ html[data-theme="light"] .workspace-directory-controls button {
 }
 
 .workspace-comparison-matrix thead th {
-  padding: 0.75rem;
+  padding: 0.9rem 0.75rem;
   text-align: center;
+}
+
+.workspace-comparison-matrix .workspace-comparison-metric-column {
+  width: 28%;
 }
 
 .workspace-comparison-matrix thead th:first-child,
@@ -1294,8 +1298,28 @@ html[data-theme="light"] .workspace-directory-controls button {
 }
 
 .workspace-comparison-matrix thead a {
+  display: block;
   color: var(--foreground);
+  font-family: var(--font-geist-sans);
+  font-size: 1rem;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
   text-decoration: none;
+  text-transform: none;
+  white-space: nowrap;
+}
+
+.workspace-comparison-player-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.workspace-comparison-player-heading > div {
+  min-width: 0;
 }
 
 .workspace-comparison-matrix thead small {
