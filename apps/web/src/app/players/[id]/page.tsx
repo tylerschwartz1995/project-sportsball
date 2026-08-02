@@ -15,10 +15,6 @@ import type {
   GoalieSeasonSummary,
   SkaterSeasonSummary,
 } from "@/contracts/player";
-import type {
-  HistoricalGoalieSeason,
-  HistoricalSkaterSeason,
-} from "@/contracts/history";
 import { parseSeasonId } from "@/contracts/season";
 import {
   gameTypeForPhase,
@@ -28,7 +24,6 @@ import {
 import { getMoneyPuckPlayerSeason } from "@/data/advanced";
 import { getPlayerGameLog } from "@/data/game-logs";
 import { getPlayerDetail } from "@/data/players";
-import { getHistoricalPlayerSeasons } from "@/data/history";
 import { listSeasons } from "@/data/seasons";
 import { formatPlayerPosition } from "@/lib/player-position";
 
@@ -38,7 +33,6 @@ type PlayerView =
   | "overview"
   | "trends"
   | "advanced"
-  | "records"
   | "seasons";
 
 type PlayerPageProps = {
@@ -62,12 +56,9 @@ export default async function PlayerPage({
 
   const view = parsePlayerView(firstValue(pageParams.view));
 
-  const [detail, seasons, historical] = await Promise.all([
+  const [detail, seasons] = await Promise.all([
     getPlayerDetail(nhlPlayerId),
     listSeasons(),
-    view === "records"
-      ? getHistoricalPlayerSeasons(nhlPlayerId)
-      : Promise.resolve({ skaters: [], goalies: [] }),
   ]);
   if (!detail) {
     notFound();
@@ -356,51 +347,6 @@ export default async function PlayerPage({
         </>
         ) : null}
 
-        {view === "records" ? (
-        <>
-        {historical.skaters.length > 0 ? (
-          <section className="workspace-width-standard mt-12">
-            <SectionTitle
-              eyebrow="All-time NHL record"
-              title="Historical Skater Seasons"
-              detail={`${new Set(historical.skaters.map((row) => row.seasonId)).size} seasons · 1917–18 onward`}
-            />
-            <div className="mt-5 grid gap-6">
-              <HistoryGroup title="Regular Season">
-                <HistoricalSkaterTable rows={historical.skaters.filter((row) => row.gameType === 2)} />
-              </HistoryGroup>
-              <HistoryGroup title="Playoffs">
-                <HistoricalSkaterTable rows={historical.skaters.filter((row) => row.gameType === 3)} />
-              </HistoryGroup>
-            </div>
-          </section>
-        ) : null}
-
-        {historical.goalies.length > 0 ? (
-          <section className="workspace-width-standard mt-12">
-            <SectionTitle
-              eyebrow="All-time NHL record"
-              title="Historical Goalie Seasons"
-              detail={`${new Set(historical.goalies.map((row) => row.seasonId)).size} seasons · 1917–18 onward`}
-            />
-            <div className="mt-5 grid gap-6">
-              <HistoryGroup title="Regular Season">
-                <HistoricalGoalieTable rows={historical.goalies.filter((row) => row.gameType === 2)} />
-              </HistoryGroup>
-              <HistoryGroup title="Playoffs">
-                <HistoricalGoalieTable rows={historical.goalies.filter((row) => row.gameType === 3)} />
-              </HistoryGroup>
-            </div>
-          </section>
-        ) : null}
-        {historical.skaters.length === 0 && historical.goalies.length === 0 ? (
-          <div className="workspace-empty-state mt-8">
-            No all-time season records are available for this player.
-          </div>
-        ) : null}
-        </>
-        ) : null}
-
         {view === "seasons" ? (
         <>
         {detail.skaterSeasons.length > 0 ? (
@@ -641,49 +587,6 @@ function GoalieHistory({
   );
 }
 
-function HistoricalSkaterTable({ rows }: { rows: HistoricalSkaterSeason[] }) {
-  return (
-    <HistoryTable
-      headers={["Season", "Team(s)", "GP", "G", "A", "PTS", "P/GP"]}
-      rows={rows.map((row) => [
-        formatHistoricalSeason(row.seasonId),
-        <TeamLogoStack
-          key={`teams-${row.seasonId}-${row.gameType}`}
-          abbreviations={row.teamAbbreviations}
-          size="tiny"
-        />,
-        row.gamesPlayed,
-        row.goals,
-        row.assists,
-        row.points,
-        row.pointsPerGame.toFixed(2),
-      ])}
-    />
-  );
-}
-
-function HistoricalGoalieTable({ rows }: { rows: HistoricalGoalieSeason[] }) {
-  return (
-    <HistoryTable
-      headers={["Season", "Team(s)", "GP", "W", "L", "SO", "GAA", "SV%"]}
-      rows={rows.map((row) => [
-        formatHistoricalSeason(row.seasonId),
-        <TeamLogoStack
-          key={`teams-${row.seasonId}-${row.gameType}`}
-          abbreviations={row.teamAbbreviations}
-          size="tiny"
-        />,
-        row.gamesPlayed,
-        row.wins,
-        row.losses,
-        row.shutouts,
-        row.goalsAgainstAverage?.toFixed(2) ?? "—",
-        formatSavePercentage(row.savePercentage),
-      ])}
-    />
-  );
-}
-
 function HistoryTable({
   headers,
   rows,
@@ -795,10 +698,6 @@ function formatSavePercentage(value: number | null): string {
   return value === null ? "—" : value.toFixed(3).replace(/^0/, "");
 }
 
-function formatHistoricalSeason(seasonId: number): string {
-  return `${Math.floor(seasonId / 10_000)}–${String(seasonId % 10_000).slice(-2)}`;
-}
-
 function playerViewTabs({
   nhlPlayerId,
   seasonId,
@@ -812,7 +711,6 @@ function playerViewTabs({
     { id: "overview" as const, label: "Overview" },
     { id: "trends" as const, label: "Trends" },
     { id: "advanced" as const, label: "Advanced" },
-    { id: "records" as const, label: "All-Time Records" },
     { id: "seasons" as const, label: "Season History" },
   ].map((tab) => ({
     ...tab,
@@ -821,9 +719,12 @@ function playerViewTabs({
 }
 
 function parsePlayerView(value: string | undefined): PlayerView {
+  if (value === "records") {
+    return "seasons";
+  }
+
   return value === "trends" ||
     value === "advanced" ||
-    value === "records" ||
     value === "seasons"
     ? value
     : "overview";
