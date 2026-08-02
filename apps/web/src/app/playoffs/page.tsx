@@ -97,11 +97,9 @@ export default async function PlayoffsPage({
             active={view}
             ariaLabel="Playoff views"
             width={
-              view === "skaters"
+              view === "skaters" || view === "goalies"
                 ? "compact"
-                : view === "goalies"
-                  ? "standard"
-                  : "wide"
+                : "wide"
             }
             tabs={[
               {
@@ -161,7 +159,7 @@ export default async function PlayoffsPage({
                   <div className="workspace-table-scroll">
                     <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[680px]">
                       <colgroup>
-                        <col />
+                        <col className="workspace-col-entity" />
                         <col className="workspace-col-team" />
                         <col className="workspace-col-number" span={4} />
                       </colgroup>
@@ -254,7 +252,7 @@ function PlayoffGoalieLeaders({
   return (
     <WorkspacePanel
       className="mt-7"
-      width="standard"
+      width="compact"
       title="Goalie Leaders"
       description="Official playoff goalie totals from stored season summaries."
     >
@@ -263,9 +261,9 @@ function PlayoffGoalieLeaders({
           <div className="workspace-table-scroll">
             <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[820px]">
               <colgroup>
-                <col />
+                <col className="workspace-col-entity" />
                 <col className="workspace-col-team" />
-                <col className="workspace-col-number" span={7} />
+                <col className="workspace-col-stat" span={7} />
                 <col className="workspace-col-percentage" />
               </colgroup>
               <thead>

@@ -69,9 +69,11 @@ export function GameAdvancedAnalytics({
   const activeView = tabs.some((tab) => tab.id === view)
     ? view
     : tabs[0].id;
+  const widthClass =
+    activeView === "teams" ? " workspace-width-standard" : "";
 
   return (
-    <section className="workspace-section-divider">
+    <section className={`workspace-section-divider${widthClass}`}>
       <SectionHeading
         eyebrow="MoneyPuck game analytics"
         title="How the Game Was Played"
@@ -164,33 +166,33 @@ function TeamGameAnalytics({
 
   return (
     <div className="mt-8">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <ComparisonCard
-          team={awayTeam}
+      <div className="grid gap-3 sm:grid-cols-2">
+        <ComparisonMetric
           label="Expected goals"
-          value={formatDecimal(away?.expectedGoalsFor ?? null)}
+          awayTeam={awayTeam}
+          awayValue={formatDecimal(away?.expectedGoalsFor ?? null)}
+          homeTeam={homeTeam}
+          homeValue={formatDecimal(home?.expectedGoalsFor ?? null)}
         />
-        <ComparisonCard
-          team={homeTeam}
-          label="Expected goals"
-          value={formatDecimal(home?.expectedGoalsFor ?? null)}
-        />
-        <ComparisonCard
-          team={awayTeam}
+        <ComparisonMetric
           label="xG share"
-          value={formatPercentage(away?.expectedGoalsPercentage ?? null)}
-        />
-        <ComparisonCard
-          team={homeTeam}
-          label="xG share"
-          value={formatPercentage(home?.expectedGoalsPercentage ?? null)}
+          awayTeam={awayTeam}
+          awayValue={formatPercentage(away?.expectedGoalsPercentage ?? null)}
+          homeTeam={homeTeam}
+          homeValue={formatPercentage(home?.expectedGoalsPercentage ?? null)}
         />
       </div>
 
       <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
         <SortableTable>
           <div className="overflow-x-auto">
-            <table className="workspace-table-dense w-full min-w-[900px] text-sm">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
+              <colgroup>
+                <col className="workspace-col-team" />
+                <col className="workspace-col-label" />
+                <col className="workspace-col-percentage" span={3} />
+                <col className="workspace-col-number" span={6} />
+              </colgroup>
               <caption className="sr-only">
                 Team advanced statistics by game situation
               </caption>
@@ -276,7 +278,16 @@ function PlayerGameAnalytics({
         <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
           <SortableTable defaultSortKey="Game score">
             <div className="overflow-x-auto">
-              <table className="workspace-table-dense w-full min-w-[1040px] text-sm">
+              <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1040px]">
+                <colgroup>
+                  <col className="workspace-col-entity" />
+                  <col className="workspace-col-team" />
+                  <col className="workspace-col-position" />
+                  <col className="workspace-col-time" />
+                  <col className="workspace-col-split" />
+                  <col className="workspace-col-number" span={4} />
+                  <col className="workspace-col-percentage" span={2} />
+                </colgroup>
                 <caption className="sr-only">
                   MoneyPuck skater game statistics
                 </caption>
@@ -302,16 +313,10 @@ function PlayerGameAnalytics({
                       className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
                     >
                       <td className="px-4 py-3 text-left">
-                        <div className="flex items-center gap-2">
-                          <TeamLogo
-                            {...row.team}
-                            size="compact"
-                            decorative
-                            prominent
-                          />
+                        <div>
                           <Link
                             href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
-                            className="font-medium text-white transition hover:text-violet-200"
+                            className="workspace-entity-name font-medium text-white transition hover:text-violet-200"
                           >
                             {row.player.name}
                           </Link>
@@ -352,7 +357,16 @@ function PlayerGameAnalytics({
         <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
           <SortableTable defaultSortKey="GSAx">
             <div className="overflow-x-auto">
-              <table className="workspace-table-dense w-full min-w-[800px] text-sm">
+              <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[800px]">
+                <colgroup>
+                  <col className="workspace-col-entity" />
+                  <col className="workspace-col-team" />
+                  <col className="workspace-col-time" />
+                  <col className="workspace-col-number" span={2} />
+                  <col className="workspace-col-differential" />
+                  <col className="workspace-col-split" />
+                  <col className="workspace-col-number" />
+                </colgroup>
                 <caption className="sr-only">
                   MoneyPuck goalie game statistics
                 </caption>
@@ -375,16 +389,10 @@ function PlayerGameAnalytics({
                       className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
                     >
                       <td className="px-4 py-3 text-left">
-                        <div className="flex items-center gap-2">
-                          <TeamLogo
-                            {...row.team}
-                            size="compact"
-                            decorative
-                            prominent
-                          />
+                        <div>
                           <Link
                             href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
-                            className="font-medium text-white transition hover:text-violet-200"
+                            className="workspace-entity-name font-medium text-white transition hover:text-violet-200"
                           >
                             {row.player.name}
                           </Link>
@@ -468,7 +476,14 @@ function UnitTable({
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
       <SortableTable defaultSortKey="TOI">
         <div className="overflow-x-auto">
-          <table className="workspace-table-dense w-full min-w-[980px] text-sm">
+          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1320px]">
+            <colgroup>
+              <col className="workspace-col-team" />
+              <col className="workspace-col-unit-wide" />
+              <col className="workspace-col-time" />
+              <col className="workspace-col-percentage" span={3} />
+              <col className="workspace-col-number" span={6} />
+            </colgroup>
             <caption className="sr-only">{title}</caption>
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
@@ -494,7 +509,7 @@ function UnitTable({
                 >
                   <TeamCell team={row.team} />
                   <td className="px-4 py-3 text-left">
-                    <div className="flex flex-wrap gap-x-1">
+                    <div className="flex whitespace-nowrap">
                       {row.players.map((player, index) => (
                         <span key={player.nhlPlayerId}>
                           {index > 0 ? <span className="text-slate-600"> / </span> : null}
@@ -576,33 +591,40 @@ function Subsection({
   );
 }
 
-function ComparisonCard({
-  team,
+function ComparisonMetric({
   label,
-  value,
+  awayTeam,
+  awayValue,
+  homeTeam,
+  homeValue,
 }: {
-  team: MoneyPuckGameTeam;
   label: string;
-  value: string;
+  awayTeam: MoneyPuckGameTeam;
+  awayValue: string;
+  homeTeam: MoneyPuckGameTeam;
+  homeValue: string;
 }) {
   return (
-    <article className="rounded-2xl border border-violet-300/15 bg-violet-300/[0.06] p-5">
-      <p className="flex items-center gap-2 font-mono text-xs font-semibold text-violet-300">
-        <TeamLogo
-          nhlTeamId={team.nhlTeamId}
-          abbreviation={team.abbreviation}
-          name={team.name}
-          size="tiny"
-          decorative
-        />
-        {team.abbreviation}
-      </p>
-      <p className="mt-2 text-xs uppercase tracking-[0.12em] text-violet-200/60">
+    <article className="rounded-xl border border-violet-300/15 bg-violet-300/[0.06] p-4">
+      <p className="text-xs uppercase tracking-[0.12em] text-violet-200/70">
         {label}
       </p>
-      <p className="mt-3 text-2xl font-semibold tabular-nums text-white">
-        {value}
-      </p>
+      <dl className="mt-3 grid grid-cols-2 divide-x divide-white/10">
+        {[
+          { team: awayTeam, value: awayValue },
+          { team: homeTeam, value: homeValue },
+        ].map(({ team, value }) => (
+          <div key={team.nhlTeamId} className="px-3 first:pl-0 last:pr-0">
+            <dt className="flex items-center gap-2 font-mono text-xs font-semibold text-violet-300">
+              <TeamLogo {...team} size="tiny" decorative />
+              {team.abbreviation}
+            </dt>
+            <dd className="mt-2 text-xl font-semibold tabular-nums text-white">
+              {value}
+            </dd>
+          </div>
+        ))}
+      </dl>
     </article>
   );
 }
@@ -632,7 +654,7 @@ function TeamCell({ team }: { team: MoneyPuckGameTeam }) {
   return (
     <td className="px-4 py-3 text-left font-medium text-white">
       <span className="inline-flex items-center gap-2">
-        <TeamLogo {...team} size="compact" decorative prominent />
+        <TeamLogo {...team} size="tiny" decorative />
         {team.abbreviation}
       </span>
     </td>
@@ -667,7 +689,7 @@ function CoverageNote({ children }: { children: React.ReactNode }) {
 
 function MetricDefinitions({ seasonId }: { seasonId: number }) {
   return (
-    <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.025] p-5 text-sm leading-6 text-slate-400">
+    <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.025] p-4 text-sm leading-6 text-slate-400">
       <p>
         <strong className="text-slate-200">xG</strong> estimates shot quality.{" "}
         <strong className="text-slate-200">xG%</strong> is a team or on-ice

@@ -341,7 +341,14 @@ function TeamLeaderboard({
       description="Team results"
       defaultSortKey="xgPercentage"
     >
-      <table className="workspace-table workspace-table-dense min-w-[920px]">
+      <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[920px]">
+        <colgroup>
+          <col className="workspace-col-entity" />
+          <col className="workspace-col-number" />
+          <col className="workspace-col-time" />
+          <col className="workspace-col-percentage" span={3} />
+          <col className="workspace-col-number" span={4} />
+        </colgroup>
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Team" sortKey="team" align="left" defaultDirection="asc" />
@@ -398,7 +405,16 @@ function SkaterLeaderboard({
       description="Player-team rows"
       defaultSortKey="gameScore"
     >
-      <table className="workspace-table workspace-table-dense min-w-[1080px]">
+      <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1080px]">
+        <colgroup>
+          <col className="workspace-col-entity" />
+          <col className="workspace-col-team" />
+          <col className="workspace-col-number" />
+          <col className="workspace-col-time" />
+          <col className="workspace-col-split" />
+          <col className="workspace-col-percentage" span={2} />
+          <col className="workspace-col-number" span={3} />
+        </colgroup>
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Player" sortKey="player" align="left" defaultDirection="asc" />
@@ -460,7 +476,17 @@ function GoalieLeaderboard({
       description="Goalie-team rows"
       defaultSortKey="goalsSaved"
     >
-      <table className="workspace-table workspace-table-dense min-w-[900px]">
+      <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[940px]">
+        <colgroup>
+          <col className="workspace-col-entity" />
+          <col className="workspace-col-team" />
+          <col className="workspace-col-number" />
+          <col className="workspace-col-time" />
+          <col className="workspace-col-differential" />
+          <col className="workspace-col-number" span={2} />
+          <col className="workspace-col-split" />
+          <col className="workspace-col-number" />
+        </colgroup>
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" />
@@ -548,12 +574,12 @@ function EntityCell({
     <td className="px-4 py-3 text-left">
       <div className="flex items-center gap-2">
         {team ? (
-          <TeamLogo {...team} size="compact" decorative prominent />
+          <TeamLogo {...team} size="tiny" decorative />
         ) : null}
         <div>
           <Link
             href={href}
-            className="font-medium text-white transition hover:text-violet-200"
+            className="workspace-entity-name font-medium text-white transition hover:text-violet-200"
           >
             {name}
           </Link>

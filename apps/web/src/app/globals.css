@@ -545,7 +545,8 @@ html[data-theme="light"] .theme-toggle-label::after {
 }
 
 .workspace-width-compact,
-.workspace-width-standard {
+.workspace-width-standard,
+.workspace-width-data {
   width: 100%;
   margin-right: auto;
   margin-left: auto;
@@ -557,6 +558,10 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-width-standard {
   max-width: 56rem;
+}
+
+.workspace-width-data {
+  max-width: 64rem;
 }
 
 .workspace-panel-header {
@@ -884,6 +889,53 @@ html[data-theme="light"] .workspace-directory-controls button {
   .workspace-player-filter-actions {
     grid-column: 1 / -1;
     border-top: 1px solid var(--border);
+  }
+}
+
+.workspace-history-filters {
+  padding: 0.9rem;
+  gap: 0.9rem;
+}
+
+.workspace-history-filters .workspace-player-filter-group {
+  border: 0;
+  border-radius: 0.65rem;
+  padding: 0.75rem;
+  background: var(--surface-subtle);
+}
+
+.workspace-history-filters .workspace-player-filter-actions {
+  align-self: end;
+  border: 0;
+  padding: 0;
+}
+
+@media (min-width: 1024px) {
+  .workspace-history-filters {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .workspace-history-filters .workspace-player-filter-group:nth-of-type(1) {
+    grid-column: span 5;
+  }
+
+  .workspace-history-filters .workspace-player-filter-group:nth-of-type(2) {
+    grid-column: span 7;
+  }
+
+  .workspace-history-filters .workspace-player-filter-group:nth-of-type(3) {
+    grid-column: span 8;
+  }
+
+  .workspace-history-filters .workspace-player-filter-group:nth-of-type(2) > div,
+  .workspace-history-filters .workspace-player-filter-group:nth-of-type(3) > div {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .workspace-history-filters .workspace-player-filter-actions {
+    grid-column: span 4;
+    justify-content: flex-end;
   }
 }
 
@@ -2577,7 +2629,7 @@ span.workspace-date-link {
 
 .workspace-analytics-filters {
   display: grid;
-  max-width: 42rem;
+  max-width: 38rem;
   gap: 0.75rem;
   margin-top: 1rem;
   border: 1px solid var(--border);
@@ -2585,6 +2637,10 @@ span.workspace-date-link {
   padding: 0.85rem;
   background: var(--surface);
   box-shadow: 0 10px 28px var(--shadow);
+}
+
+.workspace-analytics-filters[data-type="teams"] {
+  max-width: 24rem;
 }
 
 @media (min-width: 640px) {
@@ -3063,7 +3119,8 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 @media (min-width: 1024px) {
   .workspace-home-primary {
-    grid-template-columns: minmax(0, 0.95fr) minmax(25rem, 1.05fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
   }
 
   .workspace-home-primary > :nth-child(1) {
@@ -3262,12 +3319,58 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-col-date {
-  width: 12.5rem;
+  width: 13.5rem;
 }
 
 .workspace-col-season,
 .workspace-col-team {
+  width: 6rem;
+}
+
+.workspace-col-entity {
+  width: 13.5rem;
+}
+
+.workspace-col-label {
+  width: 9rem;
+}
+
+.workspace-col-unit {
+  width: 18rem;
+}
+
+.workspace-col-unit-wide {
+  width: 26rem;
+}
+
+.workspace-col-period {
   width: 7rem;
+}
+
+.workspace-col-assists {
+  width: 14rem;
+}
+
+.workspace-col-event {
+  width: 11rem;
+}
+
+.workspace-col-score {
+  width: 7.5rem;
+}
+
+.workspace-col-rank,
+.workspace-col-stat {
+  width: 3.5rem;
+}
+
+.workspace-col-differential,
+.workspace-col-time {
+  width: 5rem;
+}
+
+.workspace-col-split {
+  width: 6rem;
 }
 
 .workspace-col-position {
@@ -3275,11 +3378,11 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-col-number {
-  width: 5.25rem;
+  width: 4rem;
 }
 
 .workspace-col-percentage {
-  width: 6rem;
+  width: 5.5rem;
 }
 
 .workspace-semantic-number,
@@ -3361,6 +3464,61 @@ html[data-theme="light"] .workspace-analytics-filters button {
   color: var(--foreground);
   font-weight: 620;
   text-decoration: none;
+}
+
+.workspace-table-semantic .workspace-team-cell > a,
+.workspace-table-semantic .workspace-team-cell strong,
+.workspace-entity-name {
+  white-space: nowrap;
+}
+
+.workspace-table-schedule tbody td {
+  padding: 0.58rem 0.75rem;
+  vertical-align: middle;
+}
+
+.workspace-table-schedule tbody td:nth-child(2) {
+  min-width: 18rem;
+}
+
+.workspace-table-schedule tbody td:nth-child(2) > span {
+  white-space: nowrap;
+}
+
+.workspace-season-panel {
+  padding: 1rem;
+}
+
+.workspace-season-panel > div:first-child {
+  padding-bottom: 0.8rem;
+}
+
+.workspace-season-panel dl {
+  margin-top: 0.8rem;
+}
+
+.workspace-season-panel dl > div {
+  padding: 0.8rem;
+}
+
+.workspace-season-panel dl dd {
+  margin-top: 0.45rem;
+}
+
+.workspace-season-panel dl p {
+  margin-top: 0.2rem;
+}
+
+.workspace-standings-table .workspace-rank-cell,
+.workspace-standings-table .workspace-team-cell,
+.workspace-standings-table .workspace-number-cell,
+.workspace-standings-table .workspace-points-cell {
+  padding-top: 0.42rem;
+  padding-bottom: 0.42rem;
+}
+
+.workspace-standings-table .workspace-team-cell small {
+  margin-top: 0.08rem;
 }
 
 .workspace-clinch-indicator {

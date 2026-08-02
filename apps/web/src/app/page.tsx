@@ -202,7 +202,6 @@ export default async function Home({ searchParams }: HomeProps) {
 
             <WorkspacePanel
               className="mt-5"
-              width="standard"
               title="Scoring Leaders"
               action={
                 <Link href={`/players?season=${selectedSeason.id}`}>

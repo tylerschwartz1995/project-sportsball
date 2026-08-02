@@ -33,6 +33,7 @@ export function TeamAdvancedAnalytics({
     <AdvancedSection
       title="Team Advanced Analytics"
       description="Possession and expected-goal results by game situation."
+      width="compact"
     >
       {fiveOnFive ? (
         <div className="grid gap-4 sm:grid-cols-3">
@@ -54,7 +55,12 @@ export function TeamAdvancedAnalytics({
       <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
         <SortableTable>
         <div className="overflow-x-auto">
-          <table className="workspace-table-dense w-full min-w-[760px] text-sm">
+          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
+            <colgroup>
+              <col className="workspace-col-entity" />
+              <col className="workspace-col-percentage" span={3} />
+              <col className="workspace-col-number" span={4} />
+            </colgroup>
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                 <MetricHeader label="Situation" align="left" />
@@ -120,6 +126,7 @@ export function PlayerAdvancedAnalytics({
     <AdvancedSection
       title="Player Advanced Analytics"
       description="MoneyPuck season metrics remain split by team. Select one game situation at a time."
+      width="standard"
     >
       <label className="workspace-advanced-situation-filter">
         Game situation
@@ -157,13 +164,15 @@ function AdvancedSection({
   title,
   description,
   children,
+  width,
 }: {
   title: string;
   description: string;
   children: React.ReactNode;
+  width: "compact" | "standard";
 }) {
   return (
-    <section className="mt-12">
+    <section className={`workspace-width-${width} mt-12`}>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
@@ -207,7 +216,13 @@ function SkaterAdvancedTable({
       <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
         <SortableTable>
         <div className="overflow-x-auto">
-          <table className="workspace-table-dense w-full min-w-[840px] text-sm">
+          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[840px]">
+            <colgroup>
+              <col className="workspace-col-team" />
+              <col className="workspace-col-label" />
+              <col className="workspace-col-percentage" span={3} />
+              <col className="workspace-col-number" span={4} />
+            </colgroup>
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                 <MetricHeader label="Team" align="left" />
@@ -290,7 +305,12 @@ function GoalieAdvancedTable({
       <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
         <SortableTable>
         <div className="overflow-x-auto">
-          <table className="workspace-table-dense w-full min-w-[760px] text-sm">
+          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
+            <colgroup>
+              <col className="workspace-col-team" />
+              <col className="workspace-col-label" />
+              <col className="workspace-col-number" span={5} />
+            </colgroup>
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                 <MetricHeader label="Team" align="left" />
@@ -356,11 +376,11 @@ function TeamAdvancedRow({ row }: { row: MoneyPuckTeamSituation }) {
 
 function AdvancedCard({ label, value }: { label: string; value: string }) {
   return (
-    <article className="rounded-2xl border border-violet-300/15 bg-violet-300/[0.06] p-5">
+    <article className="rounded-xl border border-violet-300/15 bg-violet-300/[0.06] p-4">
       <p className="text-xs uppercase tracking-[0.12em] text-violet-200/70">
         {label}
       </p>
-      <p className="mt-3 text-2xl font-semibold tabular-nums text-white">
+      <p className="mt-2 text-xl font-semibold tabular-nums text-white">
         {value}
       </p>
     </article>
@@ -369,7 +389,7 @@ function AdvancedCard({ label, value }: { label: string; value: string }) {
 
 function MetricDefinitions({ seasonId }: { seasonId: number }) {
   return (
-    <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.025] p-5 text-sm leading-6 text-slate-400">
+    <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.025] p-4 text-sm leading-6 text-slate-400">
       <p>
         <strong className="text-slate-200">xG%</strong> is the share of expected
         goals while the team or player was on the ice.{" "}
@@ -450,7 +470,7 @@ function TeamCell({ team }: { team: MoneyPuckSkaterSituation["team"] }) {
   return (
     <td className="px-4 py-3 text-left font-medium text-white">
       <span className="inline-flex items-center gap-2">
-        <TeamLogo {...team} size="compact" decorative prominent />
+        <TeamLogo {...team} size="tiny" decorative />
         {team.abbreviation}
       </span>
     </td>

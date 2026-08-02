@@ -302,7 +302,7 @@ export default async function PlayerPage({
         <>
         {skaterPerformanceGames.length > 0 ||
         goaliePerformanceGames.length > 0 ? (
-          <section className="mt-12">
+          <section className="workspace-width-standard mt-12">
             <SectionTitle
               eyebrow="Rolling performance"
               title="Player Form"
@@ -360,7 +360,7 @@ export default async function PlayerPage({
         {view === "records" ? (
         <>
         {historical.skaters.length > 0 ? (
-          <section className="mt-12">
+          <section className="workspace-width-standard mt-12">
             <SectionTitle
               eyebrow="All-time NHL record"
               title="Historical Skater Seasons"
@@ -378,7 +378,7 @@ export default async function PlayerPage({
         ) : null}
 
         {historical.goalies.length > 0 ? (
-          <section className="mt-12">
+          <section className="workspace-width-standard mt-12">
             <SectionTitle
               eyebrow="All-time NHL record"
               title="Historical Goalie Seasons"
@@ -405,7 +405,7 @@ export default async function PlayerPage({
         {view === "seasons" ? (
         <>
         {detail.skaterSeasons.length > 0 ? (
-          <section className="mt-12">
+          <section className="workspace-width-standard mt-12">
             <SectionTitle
               eyebrow="Career history"
               title="Skater Seasons"
@@ -436,7 +436,7 @@ export default async function PlayerPage({
           </section>
         ) : null}
         {detail.goalieSeasons.length > 0 ? (
-          <section className="mt-12">
+          <section className="workspace-width-standard mt-12">
             <SectionTitle
               eyebrow="Career history"
               title="Goalie Seasons"
@@ -605,8 +605,7 @@ function SkaterHistory({
         <TeamLogoStack
           key={`teams-${row.seasonId}-${row.gameType}`}
           teams={row.teams}
-          size="compact"
-          prominent
+          size="tiny"
         />,
         row.gamesPlayed,
         row.goals,
@@ -634,8 +633,7 @@ function GoalieHistory({
         <TeamLogoStack
           key={`teams-${row.seasonId}-${row.gameType}`}
           teams={row.teams}
-          size="compact"
-          prominent
+          size="tiny"
         />,
         row.gamesPlayed,
         row.gamesStarted,
@@ -657,8 +655,7 @@ function HistoricalSkaterTable({ rows }: { rows: HistoricalSkaterSeason[] }) {
         <TeamLogoStack
           key={`teams-${row.seasonId}-${row.gameType}`}
           abbreviations={row.teamAbbreviations}
-          size="compact"
-          prominent
+          size="tiny"
         />,
         row.gamesPlayed,
         row.goals,
@@ -679,8 +676,7 @@ function HistoricalGoalieTable({ rows }: { rows: HistoricalGoalieSeason[] }) {
         <TeamLogoStack
           key={`teams-${row.seasonId}-${row.gameType}`}
           abbreviations={row.teamAbbreviations}
-          size="compact"
-          prominent
+          size="tiny"
         />,
         row.gamesPlayed,
         row.wins,
@@ -712,7 +708,12 @@ function HistoryTable({
     <div className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
       <SortableTable defaultSortKey={headers[0]} defaultDirection="desc">
         <div className="min-w-0 max-w-full overflow-x-auto">
-          <table className="workspace-table-dense w-full min-w-[700px] text-sm">
+          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[700px]">
+            <colgroup>
+              <col className="workspace-col-season" />
+              <col className="workspace-col-team" />
+              <col className="workspace-col-number" span={Math.max(headers.length - 2, 0)} />
+            </colgroup>
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                 {headers.map((header, index) => (

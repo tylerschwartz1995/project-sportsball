@@ -263,7 +263,7 @@ function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
                   <span className="inline-flex items-center gap-2">
                     <TeamLogo
                       abbreviation={team.teamAbbreviation}
-                      size="compact"
+                      size="tiny"
                       decorative
                     />
                     <strong>{team.teamAbbreviation}</strong>

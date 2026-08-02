@@ -41,7 +41,7 @@ export function SortableHeader({
       <button
         type="button"
         onClick={(event) => sort(event, sortKey, defaultDirection)}
-        className={`relative flex w-full items-center gap-1.5 rounded-sm transition hover:text-cyan-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 ${
+        className={`flex w-full items-center gap-1 rounded-sm transition hover:text-cyan-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-300 ${
           align === "left"
             ? "justify-start"
             : align === "center"
@@ -52,9 +52,9 @@ export function SortableHeader({
         {label}
         <span
           aria-hidden="true"
-          className={`${
-            align === "center" ? "absolute right-0" : ""
-          } ${isActive ? "text-cyan-300" : "text-slate-700"}`}
+          className={`shrink-0 ${
+            isActive ? "text-cyan-300" : "text-slate-700"
+          }`}
         >
           {isActive ? (direction === "asc" ? "↑" : "↓") : "↕"}
         </span>

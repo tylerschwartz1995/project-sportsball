@@ -94,26 +94,29 @@ export default async function StandingsPage({
 
         {leader && selectedSeason ? (
           <>
-            <nav
-              className="workspace-standings-scope"
-              aria-label="Standings view"
-            >
-              {(["overall", "conference", "division"] as const).map(
-                (option) => (
-                  <Link
-                    key={option}
-                    href={`/standings?season=${selectedSeason.id}&view=${option}&display=${display}`}
-                    aria-current={view === option ? "page" : undefined}
-                  >
-                    {capitalize(option)}
-                  </Link>
-                ),
-              )}
-            </nav>
+            <div className="workspace-width-standard">
+              <nav
+                className="workspace-standings-scope"
+                aria-label="Standings view"
+              >
+                {(["overall", "conference", "division"] as const).map(
+                  (option) => (
+                    <Link
+                      key={option}
+                      href={`/standings?season=${selectedSeason.id}&view=${option}&display=${display}`}
+                      aria-current={view === option ? "page" : undefined}
+                    >
+                      {capitalize(option)}
+                    </Link>
+                  ),
+                )}
+              </nav>
+            </div>
 
             <ViewTabs
               active={display}
               ariaLabel="Standings content views"
+              width="standard"
               tabs={[
                 {
                   id: "standings",
@@ -190,13 +193,21 @@ function StandingsTable({
     <WorkspacePanel
       title={label}
       description="Select any column heading to sort the current table"
+      width="standard"
     >
       <SortableTable
         defaultSortKey={defaultSortKey}
         defaultDirection={defaultDirection}
       >
         <div className="workspace-table-scroll">
-          <table className="workspace-table workspace-table-dense min-w-[760px]">
+          <table className="workspace-table workspace-table-dense workspace-table-semantic workspace-standings-table min-w-[900px]">
+            <colgroup>
+              <col className="workspace-col-rank" />
+              <col className="workspace-col-entity" />
+              <col className="workspace-col-stat" span={7} />
+              <col className="workspace-col-differential" />
+              <col className="workspace-col-number" />
+            </colgroup>
             <thead>
               <tr>
                 {standingsColumns.map((column) => (
@@ -222,7 +233,7 @@ function StandingsTable({
                         nhlTeamId={team.nhlTeamId}
                         abbreviation={team.teamAbbreviation}
                         name={team.teamName}
-                        size="compact"
+                        size="tiny"
                         decorative
                       />
                       <div>

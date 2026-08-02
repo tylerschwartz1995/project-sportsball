@@ -207,7 +207,12 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         defaultDirection={direction}
                       >
                       <div className="overflow-x-auto">
-                        <table className="workspace-table-dense w-full min-w-[880px] text-sm">
+                        <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
+                          <colgroup>
+                            <col className="workspace-col-entity" />
+                            <col className="workspace-col-stat" span={7} />
+                            <col className="workspace-col-number" />
+                          </colgroup>
                           <thead>
                             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
                               <SortableHeader
@@ -231,12 +236,11 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                 key={player.nhlPlayerId}
                                 className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
                               >
-                                <td className="px-4 py-3">
+                                <td className="workspace-entity-name px-4 py-3">
                                   <div className="flex items-center gap-2">
                                     <TeamLogoStack
                                       teams={player.teams}
-                                      size="compact"
-                                      prominent
+                                      size="tiny"
                                     />
                                     <div>
                                       <PlayerLink
@@ -312,7 +316,12 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         defaultDirection={direction}
                       >
                       <div className="overflow-x-auto">
-                        <table className="workspace-table-dense w-full min-w-[880px] text-sm">
+                        <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
+                          <colgroup>
+                            <col className="workspace-col-entity" />
+                            <col className="workspace-col-stat" span={7} />
+                            <col className="workspace-col-percentage" />
+                          </colgroup>
                           <thead>
                             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
                               <SortableHeader
@@ -336,12 +345,11 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                 key={player.nhlPlayerId}
                                 className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
                               >
-                                <td className="px-4 py-3">
+                                <td className="workspace-entity-name px-4 py-3">
                                   <div className="flex items-center gap-2">
                                     <TeamLogoStack
                                       teams={player.teams}
-                                      size="compact"
-                                      prominent
+                                      size="tiny"
                                     />
                                     <PlayerLink
                                       playerId={player.nhlPlayerId}

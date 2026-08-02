@@ -154,7 +154,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
         {view === "box-score" && hasBoxScore ? (
           <div
             id="box-score"
-            className="mt-12 space-y-14 scroll-mt-6"
+            className="workspace-width-standard mt-12 space-y-14 scroll-mt-6"
           >
             <TeamBoxScore team={game.awayTeam} seasonId={game.seasonId} />
             <TeamBoxScore team={game.homeTeam} seasonId={game.seasonId} />
@@ -278,7 +278,12 @@ function SkaterTable({
     <DataTableShell>
       <SortableTable defaultSortKey="points">
       <div className="workspace-table-scroll">
-        <table className="workspace-table workspace-table-dense min-w-[940px]">
+        <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[940px]">
+          <colgroup>
+            <col className="workspace-col-entity" />
+            <col className="workspace-col-stat" span={8} />
+            <col className="workspace-col-time" />
+          </colgroup>
           <caption className="sr-only">{team.name} skater box score</caption>
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
@@ -301,17 +306,10 @@ function SkaterTable({
                 className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
               >
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <TeamLogo
-                      {...team}
-                      size="compact"
-                      decorative
-                      prominent
-                    />
-                    <div>
+                  <div>
                       <Link
                         href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
-                        className="font-medium text-white transition hover:text-cyan-200"
+                        className="workspace-entity-name font-medium text-white transition hover:text-cyan-200"
                       >
                         {player.name}
                       </Link>
@@ -321,7 +319,6 @@ function SkaterTable({
                           : `#${player.sweaterNumber} · `}
                         {player.position}
                       </span>
-                    </div>
                   </div>
                 </td>
                 <NumericCell value={player.goals} />
@@ -356,7 +353,14 @@ function GoalieTable({
     <DataTableShell>
       <SortableTable defaultSortKey="shotsAgainst">
       <div className="workspace-table-scroll">
-        <table className="workspace-table workspace-table-dense min-w-[900px]">
+        <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
+          <colgroup>
+            <col className="workspace-col-entity" />
+            <col className="workspace-col-stat" span={4} />
+            <col className="workspace-col-percentage" />
+            <col className="workspace-col-split" span={2} />
+            <col className="workspace-col-time" />
+          </colgroup>
           <caption className="sr-only">{team.name} goalie box score</caption>
           <thead>
             <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
@@ -378,24 +382,16 @@ function GoalieTable({
                 className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
               >
                 <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <TeamLogo
-                      {...team}
-                      size="compact"
-                      decorative
-                      prominent
-                    />
-                    <div>
+                  <div>
                       <Link
                         href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
-                        className="font-medium text-white transition hover:text-cyan-200"
+                        className="workspace-entity-name font-medium text-white transition hover:text-cyan-200"
                       >
                         {player.name}
                       </Link>
                       <span className="ml-2 text-xs text-slate-500">
                         {player.starter ? "Starter" : "Backup"}
                       </span>
-                    </div>
                   </div>
                 </td>
                 <NumericCell value={player.decision ?? "—"} />

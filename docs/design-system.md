@@ -75,18 +75,21 @@ and a pre-render bootstrap applies it before the interface is painted.
 - Metric tiles use a short label, a dominant tabular value, and optional context.
 - Desktop component width follows the amount of information being presented.
   Use the compact width for short leader, schedule, and two-entity comparison
-  tables; use the standard width for medium statistical tables; reserve the
-  full page width for standings, draft boards, brackets, schedules, and
-  analytics tables whose column count genuinely requires it. Keep intentional
+  tables; use the standard width for standings and medium statistical tables;
+  reserve the full page width for draft boards, brackets, and analytics tables
+  whose column count genuinely requires it. Keep intentional
   whitespace outside compact data instead of expanding gaps between related
   values. The ordinary desktop canvas stops growing at 80rem so even wide data
   remains coherent on ultrawide monitors; exceptionally dense tables scroll
   inside that canvas rather than stretching indefinitely.
 - Column width follows meaning: ranks, logos, positions, dates, seasons, and
-  numeric values remain content-sized and on one line, while the primary team,
-  player, matchup, or metric label absorbs the remaining width. Headings,
-  filters, tabs, pagination, and notes align with the width of the data they
-  control.
+  numeric values remain content-sized and on one line. Primary team, player,
+  matchup, and metric labels use a stable readable track instead of absorbing
+  every unused pixel. Headings, filters, tabs, pagination, and notes align with
+  the width of the data they control.
+- Peer panels share the same column grid and vertical edges. Metric cards wrap
+  into fewer columns before their labels or context become cramped; a
+  low-control filter stays compact rather than inheriting a full form width.
 - Long statistical tables use tighter vertical cell padding without reducing
   the established application font size. Short schedules and comparisons keep
   their normal row rhythm.

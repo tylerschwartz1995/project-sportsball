@@ -106,7 +106,8 @@ Status values reflect the repository at local MVP sign-off on July 31, 2026.
   single-view tabs, including nested game-analytics views.
 - [x] Match desktop component and column widths to information density with
   shared compact, standard, and wide layouts, balanced peer panels, denser
-  long tables, and an ultrawide-screen ceiling.
+  long tables, aligned home sections, compact filters and summaries, stable
+  entity/stat columns, and an ultrawide-screen ceiling.
 
 Saved comparison collections and additional shareable plot state remain
 post-MVP enhancements rather than release requirements.

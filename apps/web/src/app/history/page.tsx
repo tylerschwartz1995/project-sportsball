@@ -65,6 +65,8 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
   const view = parseHistoryView(firstValue(params.view));
   const display = parseHistoryDisplay(firstValue(params.display));
   const contentWidth = historyContentWidth(view, display);
+  const contentWidthClass =
+    contentWidth === "wide" ? "" : ` workspace-width-${contentWidth}`;
   const metric = parseHistoryMetric(view, firstValue(params.metric));
   const filters = parseHistoryFilters({
     startYear: firstValue(params.startYear),
@@ -90,7 +92,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
           description="Career leaders and the greatest individual and team seasons across the NHL's complete statistical history, beginning in 1917–18."
         />
 
-        <div className="workspace-coverage-note mt-6">
+        <div className={`workspace-coverage-note mt-6${contentWidthClass}`}>
           <strong>Coverage:</strong> basic scoring, goalie results, and team
           results begin in 1917–18. Later statistics retain their real source
           cutoffs—unavailable early-era values are never treated as zero.
@@ -98,7 +100,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
           select whole seasons in which that player represented the team.
         </div>
 
-        <div className="workspace-context-navs">
+        <div className={`workspace-context-navs${contentWidthClass}`}>
           <SeasonPhaseFilter
             active={phase}
             path="/history"
@@ -180,7 +182,7 @@ function HistoryFiltersForm({
     <form
       action="/history"
       method="get"
-      className={`workspace-player-filters${widthClass}`}
+      className={`workspace-player-filters workspace-history-filters${widthClass}`}
     >
       <input type="hidden" name="phase" value={phase} />
       <input type="hidden" name="display" value={display} />
@@ -333,7 +335,7 @@ function SkaterHistory({
           <div className="workspace-table-scroll">
             <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
               <colgroup>
-                <col />
+                <col className="workspace-col-entity" />
                 <col className="workspace-col-position" />
                 <col className="workspace-col-number" span={6} />
               </colgroup>
@@ -382,7 +384,7 @@ function SkaterHistory({
           <div className="workspace-table-scroll">
             <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[860px]">
               <colgroup>
-                <col />
+                <col className="workspace-col-entity" />
                 <col className="workspace-col-season" />
                 <col className="workspace-col-team" />
                 <col className="workspace-col-number" span={5} />
@@ -445,7 +447,7 @@ function GoalieHistory({ careers, seasons, phase, metric, display, width }: {
           <div className="workspace-table-scroll">
             <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[700px]">
               <colgroup>
-                <col />
+                <col className="workspace-col-entity" />
                 <col className="workspace-col-number" span={5} />
                 <col className="workspace-col-percentage" />
               </colgroup>
@@ -480,7 +482,7 @@ function GoalieHistory({ careers, seasons, phase, metric, display, width }: {
           <div className="workspace-table-scroll">
             <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
               <colgroup>
-                <col />
+                <col className="workspace-col-entity" />
                 <col className="workspace-col-season" />
                 <col className="workspace-col-team" />
                 <col className="workspace-col-number" span={5} />
@@ -542,7 +544,7 @@ function TeamHistory({ careers, seasons, phase, metric, display, width }: {
           <div className="workspace-table-scroll">
             <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
               <colgroup>
-                <col />
+                <col className="workspace-col-entity" />
                 <col className="workspace-col-number" span={7} />
                 <col className="workspace-col-percentage" />
               </colgroup>
@@ -561,7 +563,7 @@ function TeamHistory({ careers, seasons, phase, metric, display, width }: {
                 <tr key={row.nhlTeamId}>
                   <td className="workspace-team-cell">
                     <span className="inline-flex items-center gap-2">
-                      <TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="compact" decorative />
+                      <TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="tiny" decorative />
                       <strong>{row.name}</strong>
                     </span>
                   </td>
@@ -586,7 +588,7 @@ function TeamHistory({ careers, seasons, phase, metric, display, width }: {
           <div className="workspace-table-scroll">
             <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
               <colgroup>
-                <col />
+                <col className="workspace-col-entity" />
                 <col className="workspace-col-season" />
                 <col className="workspace-col-number" span={6} />
                 <col className="workspace-col-percentage" />
@@ -608,7 +610,7 @@ function TeamHistory({ careers, seasons, phase, metric, display, width }: {
                 <tr key={`${row.nhlTeamId}-${row.seasonId}`}>
                   <td className="workspace-team-cell">
                     <span className="inline-flex items-center gap-2">
-                      <TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="compact" decorative />
+                      <TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="tiny" decorative />
                       <strong>{row.name}</strong>
                     </span>
                   </td>

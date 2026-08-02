@@ -198,7 +198,7 @@ export default async function TeamPage({
         />
 
         {view === "overview" ? (
-          <div className="mt-8">
+          <div className="workspace-width-compact mt-8">
             <SeasonPanel
               title={seasonPhaseLabel(phase)}
               stats={
@@ -216,7 +216,7 @@ export default async function TeamPage({
             />
             <Link
               href={`/teams/${detail.team.nhlTeamId}/games?season=${selectedSeason.id}&phase=${phase}`}
-              className="group mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.055] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.085]"
+              className="workspace-width-compact group mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.055] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.085]"
             >
               <span>
                 <span className="block font-medium text-white">
@@ -295,9 +295,9 @@ export default async function TeamPage({
           <DataTableShell>
             <SortableTable defaultSortKey="points">
               <div className="overflow-x-auto">
-                <table className="workspace-table-dense workspace-table-semantic w-full min-w-[720px] text-sm">
+                <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[720px]">
                   <colgroup>
-                    <col />
+                    <col className="workspace-col-entity" />
                     <col className="workspace-col-number" span={6} />
                   </colgroup>
                   <thead>
@@ -323,24 +323,16 @@ export default async function TeamPage({
                         className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
                       >
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <TeamLogo
-                              {...detail.team}
-                              size="compact"
-                              decorative
-                              prominent
-                            />
-                            <div>
-                              <Link
-                                href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                                className="font-medium text-white transition hover:text-cyan-200"
-                              >
-                                {player.name}
-                              </Link>
-                              <span className="ml-2 text-xs text-slate-500">
-                                {player.position}
-                              </span>
-                            </div>
+                          <div>
+                            <Link
+                              href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
+                              className="workspace-entity-name font-medium text-white transition hover:text-cyan-200"
+                            >
+                              {player.name}
+                            </Link>
+                            <span className="ml-2 text-xs text-slate-500">
+                              {player.position}
+                            </span>
                           </div>
                         </td>
                         <NumericCell value={player.gamesPlayed} />
@@ -374,9 +366,9 @@ export default async function TeamPage({
           <DataTableShell>
             <SortableTable defaultSortKey="savePercentage">
               <div className="overflow-x-auto">
-                <table className="workspace-table-dense workspace-table-semantic w-full min-w-[760px] text-sm">
+                <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
                   <colgroup>
-                    <col />
+                    <col className="workspace-col-entity" />
                     <col className="workspace-col-number" span={6} />
                     <col className="workspace-col-percentage" />
                     <col className="workspace-col-number" />
@@ -410,16 +402,10 @@ export default async function TeamPage({
                         className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
                       >
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <TeamLogo
-                              {...detail.team}
-                              size="compact"
-                              decorative
-                              prominent
-                            />
+                          <div>
                             <Link
                               href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                              className="font-medium text-white transition hover:text-cyan-200"
+                              className="workspace-entity-name font-medium text-white transition hover:text-cyan-200"
                             >
                               {player.name}
                             </Link>
@@ -509,7 +495,7 @@ function SeasonPanel({
   const isPlayoffs = stats.gameType === 3;
 
   return (
-    <article className="surface-panel p-5 sm:p-6">
+    <article className="surface-panel workspace-season-panel">
       <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/[0.08] pb-5">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.16em] text-slate-500">
@@ -583,8 +569,8 @@ function UpcomingSchedule({
       />
       {games.length > 0 ? (
         <SortableTable defaultSortKey="date" defaultDirection="asc">
-          <div className="workspace-table-scroll mt-5">
-            <table className="workspace-table workspace-table-schedule workspace-table-semantic">
+          <div className="data-table-shell workspace-table-scroll mt-5">
+            <table className="workspace-table workspace-table-dense workspace-table-schedule workspace-table-semantic">
               <colgroup>
                 <col className="workspace-col-date" />
                 <col />
