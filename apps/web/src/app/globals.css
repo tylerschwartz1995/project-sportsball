@@ -4340,23 +4340,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
   padding: 1.2rem 1.5rem 1.5rem;
 }
 
-.workspace-series-context {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
-}
-
-.workspace-series-context span {
-  border: 1px solid var(--border);
-  border-radius: 999px;
-  padding: 0.35rem 0.65rem;
-  background: var(--surface-raised);
-  color: var(--muted);
-  font-family: var(--font-geist-mono);
-  font-size: 0.75rem;
-}
-
 .workspace-series-comparison {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.65fr) minmax(0, 1fr);

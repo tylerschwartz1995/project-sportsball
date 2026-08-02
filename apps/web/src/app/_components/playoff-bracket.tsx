@@ -423,15 +423,6 @@ function SeriesOverview({
 
   return (
     <section className="workspace-series-overview" aria-label="Series overview">
-      <div className="workspace-series-context">
-        <span>{summary.gamesPlayed} games</span>
-        <span>
-          {summary.oneGoalGames} one-goal {pluralizeGame(summary.oneGoalGames)}
-        </span>
-        <span>
-          {summary.overtimeGames} overtime {pluralizeGame(summary.overtimeGames)}
-        </span>
-      </div>
       <div className="workspace-series-comparison">
         <ComparisonTeamHeader team={summary.teamOne.team} />
         <span>Series Total</span>
@@ -1189,10 +1180,6 @@ function formatDecimal(value: number | null): string {
 
 function formatPercentage(value: number | null): string {
   return value === null ? "—" : `${(value * 100).toFixed(1)}%`;
-}
-
-function pluralizeGame(value: number): string {
-  return value === 1 ? "game" : "games";
 }
 
 function formatSigned(value: number): string {
