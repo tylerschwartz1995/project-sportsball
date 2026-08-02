@@ -7,7 +7,7 @@ work.
 
 ## Implementation status audit
 
-Last checked against the repository on August 1, 2026.
+Last checked against the repository on August 2, 2026.
 
 | Idea | Current status | Implemented boundary |
 | --- | --- | --- |
@@ -20,6 +20,7 @@ Last checked against the repository on August 1, 2026.
 | Transactions explorer | Not implemented | There are no transaction models, ingestion jobs, queries, or routes. |
 | Homepage information redesign | Expanded redesign implemented | Results, upcoming games, standings, last-ten movement, latest-30 league trends, scoring leaders, advanced analytics, and archive destinations are live. Further insights can be added only when they reveal a distinct, evidence-linked pattern. |
 | Complete draft history | Complete archive implemented | Every official NHL selection from 1963–2026 is stored, including non-NHL players, nullable source IDs, historical team codes, and traded-pick ownership. Draft boards and team NHL-appearance and 100-game rates use all 13,152 selections as the denominator. |
+| Draft class rankings | Not implemented | Complete draft boards and career outcomes are available, but there is no cross-year ranking, maturity adjustment, or governed composite score for comparing entire draft classes. |
 | Historical records and best seasons | Expanded traditional version implemented | Career and single-season skater, goalie, and team tables support phase, range, participation, position, team, birthplace, and total/rate filters. Era adjustment, milestones, age curves, multi-season peaks, franchise aggregation, and advanced historical rankings remain. |
 | Saved comparisons and shareable plot state | Partially implemented | The dedicated player comparison restores season, phase, player type, and two-to-four selected players from its URL. Analytics plot controls, rolling-chart controls, named local saves, and copy-link actions are not persisted. |
 
@@ -340,6 +341,11 @@ selectable even when their current outcome is zero.
 
 Potential extensions include:
 
+- a league-wide ranking of complete draft classes by realized NHL value, with
+  separate total-output, per-selection, and hit-rate views;
+- age- and maturity-adjusted comparisons so recent classes are not penalized
+  for having fewer completed career seasons and older classes do not win only
+  through longer observation windows;
 - star-player hit rates by team and pick range with a governed definition;
 - era- and opportunity-adjusted value above expected draft position;
 - comparisons between drafting teams, general managers, and scouting eras;
@@ -347,6 +353,13 @@ Potential extensions include:
 - country, league, position, and age patterns;
 - time-to-debut, peak value, career longevity, awards, and playoff outcomes;
 - team pages showing the best and worst draft classes in franchise history.
+
+The ranking should expose its component metrics rather than hide them behind a
+single unexplained score. Candidate inputs include NHL appearance rate,
+100-game rate, games per selection, skater points, goalie wins, star-player hit
+rate, and value above expected pick position. Visitors should be able to rank
+all draft years or compare a small set of classes side by side, then drill into
+the complete board that produced each result.
 
 Historical team identities and traded draft picks should be preserved so the
 page can distinguish the club that made the selection from the franchise that
