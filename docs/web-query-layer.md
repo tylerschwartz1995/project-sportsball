@@ -131,10 +131,12 @@ above expected before returning serializable contracts to the pages.
 
 `standings.ts` also derives each team's cumulative regular-season points after
 every stored result for the standings history plot. `playoffs.ts` aggregates
-official playoff box-score scoring, while the playoff page groups NHL playoff
-game identifiers into series and rounds. If no postseason game has been
-completed, the page constructs the current first-round projection from the
-official standings snapshot instead.
+official playoff box-score scoring plus series-specific player leaders and
+MoneyPuck team-game metrics. The playoff page groups NHL playoff game
+identifiers into series and rounds, then attaches those aggregates to the
+matching series in one pass rather than repeating analytics queries per game.
+If no postseason game has been completed, the page constructs the current
+first-round projection from the official standings snapshot instead.
 
 ## Configuration
 

@@ -4127,7 +4127,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-series-dialog {
-  width: min(56rem, calc(100vw - 2rem));
+  width: min(64rem, calc(100vw - 2rem));
   max-height: min(88vh, 54rem);
   margin: auto;
   overflow: auto;
@@ -4297,9 +4297,133 @@ html[data-theme="light"] .workspace-analytics-filters button {
   text-transform: uppercase;
 }
 
-.workspace-series-games {
+.workspace-series-tabs {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
   border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 0.5rem 1.5rem;
+  background: var(--surface-raised);
+}
+
+.workspace-series-tabs button {
+  flex: 0 0 auto;
+  border: 0;
+  border-radius: 0.55rem;
+  padding: 0.62rem 0.8rem;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 680;
+  cursor: pointer;
+}
+
+.workspace-series-tabs button:hover {
+  color: var(--foreground);
+  background: var(--surface-subtle);
+}
+
+.workspace-series-tabs button.is-active {
+  background: color-mix(in srgb, var(--accent) 15%, var(--surface-subtle));
+  color: var(--accent);
+}
+
+.workspace-series-tabs button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.workspace-series-panel {
+  min-height: 20rem;
   padding: 1.2rem 1.5rem 1.5rem;
+}
+
+.workspace-series-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.workspace-series-context span {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.35rem 0.65rem;
+  background: var(--surface-raised);
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.75rem;
+}
+
+.workspace-series-comparison {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.65fr) minmax(0, 1fr);
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  background: var(--surface-raised);
+}
+
+.workspace-series-comparison > span {
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.workspace-series-comparison-team {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 1rem;
+}
+
+.workspace-series-comparison-team.is-right {
+  flex-direction: row-reverse;
+}
+
+.workspace-series-comparison-team strong {
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 0.95rem;
+}
+
+.workspace-series-stat-row {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1fr) minmax(8rem, 0.65fr) minmax(0, 1fr);
+  align-items: center;
+  min-height: 3rem;
+  border-top: 1px solid var(--border);
+}
+
+.workspace-series-stat-row strong {
+  padding: 0 1rem;
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 1rem;
+  text-align: left;
+}
+
+.workspace-series-stat-row strong:last-child {
+  text-align: right;
+}
+
+.workspace-series-stat-row span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+  text-align: center;
+}
+
+.workspace-series-games {
+  padding: 0;
 }
 
 .workspace-series-games-heading {
@@ -4325,6 +4449,201 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-series-games > div {
   display: grid;
   gap: 0.55rem;
+}
+
+.workspace-series-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.workspace-series-section-heading h3 {
+  color: var(--foreground);
+  font-size: 1.05rem;
+  font-weight: 720;
+}
+
+.workspace-series-section-heading p,
+.workspace-series-section-heading > a {
+  margin-top: 0.18rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.workspace-series-section-heading > a {
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.workspace-series-section-heading > a:hover {
+  color: var(--accent);
+}
+
+.workspace-series-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.workspace-series-analytics-team {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  background: var(--surface-raised);
+}
+
+.workspace-series-analytics-team > header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.8rem;
+}
+
+.workspace-series-analytics-team > header small,
+.workspace-series-analytics-team > header strong {
+  display: block;
+}
+
+.workspace-series-analytics-team > header small {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.workspace-series-analytics-team > header strong {
+  margin-top: 0.08rem;
+  color: var(--foreground);
+  font-size: 0.92rem;
+}
+
+.workspace-series-analytics-group {
+  padding: 0.8rem;
+}
+
+.workspace-series-analytics-group + .workspace-series-analytics-group {
+  border-top: 1px solid var(--border);
+}
+
+.workspace-series-analytics-group h4 {
+  margin-bottom: 0.55rem;
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-series-analytics-group dl {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.workspace-series-analytics-group dl > div {
+  min-width: 0;
+}
+
+.workspace-series-analytics-group dt {
+  min-height: 2.2em;
+  color: var(--muted);
+  font-size: 0.68rem;
+  line-height: 1.15;
+}
+
+.workspace-series-analytics-group dd {
+  margin-top: 0.2rem;
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 1.05rem;
+  font-weight: 720;
+}
+
+.workspace-series-analytics-group > p {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.workspace-series-leaders ol {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+  list-style: none;
+}
+
+.workspace-series-leaders li {
+  display: grid;
+  grid-template-columns: 1.8rem 1.7rem minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  padding: 0.65rem;
+  background: var(--surface-raised);
+}
+
+.workspace-series-leader-rank {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: 0.72rem;
+}
+
+.workspace-series-leaders li > a {
+  min-width: 0;
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.workspace-series-leaders li > a:hover strong {
+  color: var(--accent);
+}
+
+.workspace-series-leaders li > a strong,
+.workspace-series-leaders li > a small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-series-leaders li > a strong {
+  font-size: 0.86rem;
+}
+
+.workspace-series-leaders li > a small {
+  margin-top: 0.05rem;
+  color: var(--muted);
+  font-size: 0.65rem;
+}
+
+.workspace-series-leader-line {
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.workspace-series-leaders li > b {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: 0.84rem;
+  white-space: nowrap;
+}
+
+.workspace-series-empty {
+  display: grid;
+  min-height: 12rem;
+  place-items: center;
+  border: 1px dashed var(--border);
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: center;
 }
 
 .workspace-series-game {
@@ -4415,15 +4734,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
   white-space: nowrap;
 }
 
-.workspace-series-games-empty {
-  border: 1px dashed var(--border);
-  border-radius: 0.75rem;
-  padding: 1rem;
-  color: var(--muted);
-  font-size: 0.9rem;
-  text-align: center;
-}
-
 @media (max-width: 720px) {
   .workspace-series-matchup {
     grid-template-columns: 1fr;
@@ -4439,6 +4749,11 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
   .workspace-series-game-link {
     justify-self: end;
+  }
+
+  .workspace-series-analytics-grid,
+  .workspace-series-leaders ol {
+    grid-template-columns: 1fr;
   }
 }
 

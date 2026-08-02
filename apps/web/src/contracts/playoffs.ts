@@ -10,6 +10,42 @@ export type PlayoffSeriesGameTeam = {
   abbreviation: string;
   name: string;
   score: number | null;
+  shotsOnGoal: number | null;
+};
+
+export type PlayoffSeriesSituationAnalytics = {
+  games: number;
+  expectedGoalsFor: number | null;
+  expectedGoalsAgainst: number | null;
+  expectedGoalsShare: number | null;
+  shotAttemptsFor: number | null;
+  shotAttemptsAgainst: number | null;
+  shotAttemptShare: number | null;
+};
+
+export type PlayoffSeriesTeamAnalytics = {
+  nhlTeamId: number;
+  abbreviation: string;
+  name: string;
+  allSituations: PlayoffSeriesSituationAnalytics | null;
+  fiveOnFive: PlayoffSeriesSituationAnalytics | null;
+};
+
+export type PlayoffSeriesPlayerLeader = {
+  nhlPlayerId: number;
+  name: string;
+  nhlTeamId: number;
+  teamAbbreviation: string;
+  gamesPlayed: number;
+  goals: number;
+  assists: number;
+  points: number;
+};
+
+export type PlayoffSeriesInsights = {
+  id: string;
+  teamAnalytics: PlayoffSeriesTeamAnalytics[];
+  playerLeaders: PlayoffSeriesPlayerLeader[];
 };
 
 export type PlayoffSeriesGame = {
@@ -32,6 +68,8 @@ export type PlayoffSeries = {
   teamTwoWins: number;
   winnerNhlTeamId: number | null;
   games: PlayoffSeriesGame[];
+  teamAnalytics: PlayoffSeriesTeamAnalytics[];
+  playerLeaders: PlayoffSeriesPlayerLeader[];
 };
 
 export type PlayoffRound = {

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { useEffect, useId, useRef, useState } from "react";
 
 import { TeamLogo } from "@/app/_components/team-logo";
@@ -11,12 +12,17 @@ import type {
   PlayoffSeries,
   PlayoffSeriesGame,
   PlayoffSeriesGameTeam,
+  PlayoffSeriesSituationAnalytics,
+  PlayoffSeriesTeamAnalytics,
 } from "@/contracts/playoffs";
+import { summarizePlayoffSeries } from "@/lib/playoff-series";
 
 type SelectedSeries = {
   roundName: string;
   series: PlayoffSeries;
 };
+
+type SeriesTab = "overview" | "games" | "analytics" | "leaders";
 
 const gameDateFormatter = new Intl.DateTimeFormat("en-CA", {
   month: "short",
@@ -99,6 +105,7 @@ export function PlayoffBracket({
       </div>
 
       <SeriesDialog
+        key={selected?.series.id ?? "closed"}
         selected={selected}
         seasonId={seasonId}
         isProjection={isProjection}
@@ -194,6 +201,8 @@ function SeriesDialog({
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+  const tabPanelId = useId();
+  const [activeTab, setActiveTab] = useState<SeriesTab>("overview");
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -264,32 +273,363 @@ function SeriesDialog({
             />
           </div>
 
-          <section className="workspace-series-games" aria-label="Series games">
-            <div className="workspace-series-games-heading">
-              <h3>Series Games</h3>
-              <span>
-                {series.games.length}{" "}
-                {series.games.length === 1 ? "game" : "games"}
-              </span>
-            </div>
-            {series.games.length > 0 ? (
-              <div>
-                {series.games.map((game) => (
-                  <SeriesGame key={game.nhlGameId} game={game} />
-                ))}
-              </div>
-            ) : (
-              <p className="workspace-series-games-empty">
-                {isProjection
-                  ? "Games will appear here once the playoff schedule is available."
-                  : "No games are stored for this series yet."}
-              </p>
-            )}
-          </section>
+          <SeriesTabs
+            activeTab={activeTab}
+            gameCount={series.games.length}
+            panelId={tabPanelId}
+            onSelect={setActiveTab}
+          />
+          <div
+            id={tabPanelId}
+            className="workspace-series-panel"
+            role="tabpanel"
+            aria-label={`${seriesTabLabel(activeTab)} series details`}
+          >
+            {activeTab === "overview" ? (
+              <SeriesOverview series={series} isProjection={isProjection} />
+            ) : null}
+            {activeTab === "games" ? (
+              <SeriesGames series={series} isProjection={isProjection} />
+            ) : null}
+            {activeTab === "analytics" ? (
+              <SeriesAnalytics series={series} />
+            ) : null}
+            {activeTab === "leaders" ? (
+              <SeriesLeaders series={series} seasonId={seasonId} />
+            ) : null}
+          </div>
         </div>
       ) : null}
     </dialog>
   );
+}
+
+function SeriesTabs({
+  activeTab,
+  gameCount,
+  panelId,
+  onSelect,
+}: {
+  activeTab: SeriesTab;
+  gameCount: number;
+  panelId: string;
+  onSelect: (tab: SeriesTab) => void;
+}) {
+  const tabs: { id: SeriesTab; label: string }[] = [
+    { id: "overview", label: "Overview" },
+    { id: "games", label: `Games (${gameCount})` },
+    { id: "analytics", label: "Team Analytics" },
+    { id: "leaders", label: "Player Leaders" },
+  ];
+
+  return (
+    <div className="workspace-series-tabs" role="tablist" aria-label="Series details">
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          type="button"
+          role="tab"
+          aria-selected={activeTab === tab.id}
+          aria-controls={panelId}
+          className={activeTab === tab.id ? "is-active" : ""}
+          onClick={() => onSelect(tab.id)}
+        >
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function SeriesOverview({
+  series,
+  isProjection,
+}: {
+  series: PlayoffSeries;
+  isProjection: boolean;
+}) {
+  const summary = summarizePlayoffSeries(series);
+
+  if (!summary) {
+    return (
+      <SeriesEmptyState>
+        {isProjection
+          ? "Series statistics will appear after the matchup begins."
+          : "Completed box scores are not available for this series yet."}
+      </SeriesEmptyState>
+    );
+  }
+
+  return (
+    <section className="workspace-series-overview" aria-label="Series overview">
+      <div className="workspace-series-context">
+        <span>{summary.gamesPlayed} games</span>
+        <span>
+          {summary.oneGoalGames} one-goal {pluralizeGame(summary.oneGoalGames)}
+        </span>
+        <span>
+          {summary.overtimeGames} overtime {pluralizeGame(summary.overtimeGames)}
+        </span>
+      </div>
+      <div className="workspace-series-comparison">
+        <ComparisonTeamHeader team={summary.teamOne.team} />
+        <span>Series Total</span>
+        <ComparisonTeamHeader team={summary.teamTwo.team} align="right" />
+        <ComparisonRow
+          left={String(summary.teamOne.wins)}
+          label="Wins"
+          right={String(summary.teamTwo.wins)}
+        />
+        <ComparisonRow
+          left={String(summary.teamOne.goals)}
+          label="Goals"
+          right={String(summary.teamTwo.goals)}
+        />
+        <ComparisonRow
+          left={summary.teamOne.goalsPerGame.toFixed(2)}
+          label="Goals Per Game"
+          right={summary.teamTwo.goalsPerGame.toFixed(2)}
+        />
+        <ComparisonRow
+          left={formatCount(summary.teamOne.shotsOnGoal)}
+          label="Shots On Goal"
+          right={formatCount(summary.teamTwo.shotsOnGoal)}
+        />
+        <ComparisonRow
+          left={formatDecimal(summary.teamOne.shotsPerGame)}
+          label="Shots Per Game"
+          right={formatDecimal(summary.teamTwo.shotsPerGame)}
+        />
+        <ComparisonRow
+          left={formatPercentage(summary.teamOne.shotShare)}
+          label="Shot Share"
+          right={formatPercentage(summary.teamTwo.shotShare)}
+        />
+      </div>
+    </section>
+  );
+}
+
+function ComparisonTeamHeader({
+  team,
+  align = "left",
+}: {
+  team: PlayoffBracketTeam;
+  align?: "left" | "right";
+}) {
+  return (
+    <div className={`workspace-series-comparison-team is-${align}`}>
+      <TeamLogo
+        nhlTeamId={team.nhlTeamId}
+        abbreviation={team.abbreviation}
+        name={team.name}
+        size="tiny"
+        decorative
+        prominent
+      />
+      <strong>{team.abbreviation}</strong>
+    </div>
+  );
+}
+
+function ComparisonRow({
+  left,
+  label,
+  right,
+}: {
+  left: string;
+  label: string;
+  right: string;
+}) {
+  return (
+    <div className="workspace-series-stat-row">
+      <strong>{left}</strong>
+      <span>{label}</span>
+      <strong>{right}</strong>
+    </div>
+  );
+}
+
+function SeriesGames({
+  series,
+  isProjection,
+}: {
+  series: PlayoffSeries;
+  isProjection: boolean;
+}) {
+  return (
+    <section className="workspace-series-games" aria-label="Series games">
+      <div className="workspace-series-games-heading">
+        <h3>Series Games</h3>
+        <span>
+          {series.games.length} {series.games.length === 1 ? "game" : "games"}
+        </span>
+      </div>
+      {series.games.length > 0 ? (
+        <div>
+          {series.games.map((game) => (
+            <SeriesGame key={game.nhlGameId} game={game} />
+          ))}
+        </div>
+      ) : (
+        <SeriesEmptyState>
+          {isProjection
+            ? "Games will appear here once the playoff schedule is available."
+            : "No games are stored for this series yet."}
+        </SeriesEmptyState>
+      )}
+    </section>
+  );
+}
+
+function SeriesAnalytics({ series }: { series: PlayoffSeries }) {
+  if (series.teamAnalytics.length === 0) {
+    return (
+      <SeriesEmptyState>
+        Advanced team-game data is unavailable for this series. MoneyPuck
+        playoff coverage begins in 2008–09.
+      </SeriesEmptyState>
+    );
+  }
+
+  const orderedTeams = [series.teamOne, series.teamTwo]
+    .filter((team): team is PlayoffBracketTeam => Boolean(team))
+    .map((team) =>
+      series.teamAnalytics.find(
+        (analytics) => analytics.nhlTeamId === team.nhlTeamId,
+      ),
+    )
+    .filter((team): team is PlayoffSeriesTeamAnalytics => Boolean(team));
+
+  return (
+    <section className="workspace-series-analytics" aria-label="Series team analytics">
+      <div className="workspace-series-section-heading">
+        <div>
+          <h3>Team Analytics</h3>
+          <p>Aggregated across every stored game in this series.</p>
+        </div>
+        <a href="https://moneypuck.com/" target="_blank" rel="noreferrer">
+          Data: MoneyPuck.com ↗
+        </a>
+      </div>
+      <div className="workspace-series-analytics-grid">
+        {orderedTeams.map((team) => (
+          <SeriesAnalyticsTeam key={team.nhlTeamId} team={team} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SeriesAnalyticsTeam({ team }: { team: PlayoffSeriesTeamAnalytics }) {
+  return (
+    <article className="workspace-series-analytics-team">
+      <header>
+        <TeamLogo
+          nhlTeamId={team.nhlTeamId}
+          abbreviation={team.abbreviation}
+          name={team.name}
+          size="compact"
+          decorative
+          prominent
+        />
+        <span>
+          <small>{team.abbreviation}</small>
+          <strong>{team.name}</strong>
+        </span>
+      </header>
+      <AnalyticsGroup title="All Situations" metrics={team.allSituations} />
+      <AnalyticsGroup title="Five-On-Five" metrics={team.fiveOnFive} />
+    </article>
+  );
+}
+
+function AnalyticsGroup({
+  title,
+  metrics,
+}: {
+  title: string;
+  metrics: PlayoffSeriesSituationAnalytics | null;
+}) {
+  return (
+    <div className="workspace-series-analytics-group">
+      <h4>{title}</h4>
+      {metrics ? (
+        <dl>
+          <div>
+            <dt>Expected Goals</dt>
+            <dd>{formatDecimal(metrics.expectedGoalsFor)}</dd>
+          </div>
+          <div>
+            <dt>xG Share</dt>
+            <dd>{formatPercentage(metrics.expectedGoalsShare)}</dd>
+          </div>
+          <div>
+            <dt>Shot-Attempt Share</dt>
+            <dd>{formatPercentage(metrics.shotAttemptShare)}</dd>
+          </div>
+        </dl>
+      ) : (
+        <p>Not available</p>
+      )}
+    </div>
+  );
+}
+
+function SeriesLeaders({
+  series,
+  seasonId,
+}: {
+  series: PlayoffSeries;
+  seasonId: number;
+}) {
+  if (series.playerLeaders.length === 0) {
+    return (
+      <SeriesEmptyState>
+        Player leaders will appear when official series box scores are stored.
+      </SeriesEmptyState>
+    );
+  }
+
+  return (
+    <section className="workspace-series-leaders" aria-label="Series player leaders">
+      <div className="workspace-series-section-heading">
+        <div>
+          <h3>Series Scoring Leaders</h3>
+          <p>Official totals from games in this matchup only.</p>
+        </div>
+      </div>
+      <ol>
+        {series.playerLeaders.map((player, index) => (
+          <li key={player.nhlPlayerId}>
+            <span className="workspace-series-leader-rank">#{index + 1}</span>
+            <TeamLogo
+              nhlTeamId={player.nhlTeamId}
+              abbreviation={player.teamAbbreviation}
+              name={player.teamAbbreviation}
+              size="tiny"
+              decorative
+              prominent
+            />
+            <Link
+              href={`/players/${player.nhlPlayerId}?season=${seasonId}&phase=playoffs`}
+            >
+              <strong>{player.name}</strong>
+              <small>{player.teamAbbreviation}</small>
+            </Link>
+            <span className="workspace-series-leader-line">
+              {player.goals} G · {player.assists} A
+            </span>
+            <b>{player.points} PTS</b>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function SeriesEmptyState({ children }: { children: ReactNode }) {
+  return <p className="workspace-series-empty">{children}</p>;
 }
 
 function SeriesTeam({
@@ -433,4 +773,28 @@ function formatSeriesGameState(game: PlayoffSeriesGame): string {
 
 function formatGameDate(game: PlayoffSeriesGame): string {
   return gameDateFormatter.format(new Date(`${game.gameDate}T12:00:00Z`));
+}
+
+function seriesTabLabel(tab: SeriesTab): string {
+  return tab === "analytics"
+    ? "Team analytics"
+    : tab === "leaders"
+      ? "Player leaders"
+      : tab[0].toUpperCase() + tab.slice(1);
+}
+
+function formatCount(value: number | null): string {
+  return value === null ? "—" : value.toLocaleString("en-CA");
+}
+
+function formatDecimal(value: number | null): string {
+  return value === null ? "—" : value.toFixed(2);
+}
+
+function formatPercentage(value: number | null): string {
+  return value === null ? "—" : `${(value * 100).toFixed(1)}%`;
+}
+
+function pluralizeGame(value: number): string {
+  return value === 1 ? "game" : "games";
 }

@@ -108,6 +108,14 @@ Game pages add:
 - sortable all-situations skater and goalie advanced results;
 - sortable five-on-five forward-line and defensive-pairing tables.
 
+Completed playoff series open into a tabbed series dashboard. Its team
+analytics aggregate the stored MoneyPuck team-game rows across only that
+matchup. All-situations and five-on-five expected-goal shares are calculated
+from summed expected goals for and against, while shot-attempt share is
+calculated from summed attempts rather than averaged game percentages. The
+series player-leader tab uses official NHL box-score totals because MoneyPuck
+player-game coverage is regular-season only.
+
 The line-ranking page and team pages display Polars-derived season aggregates.
 Player combinations are canonicalized before grouping, totals are summed across
 games, and xG% and CF% are recomputed from those totals. The default league
