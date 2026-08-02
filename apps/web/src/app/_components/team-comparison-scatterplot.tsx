@@ -416,21 +416,15 @@ function DirectTeamComparison({
               <tr>
                 <th>Metric</th>
                 <th>
-                  <span className="workspace-direct-comparison-identity">
-                    <span>{first.name}</span>
-                    <span className="workspace-direct-comparison-identity-meta">
-                      <TeamLogo {...first} size="tiny" decorative />
-                      {first.abbreviation}
-                    </span>
+                  <span className="workspace-direct-comparison-identity-meta">
+                    <TeamLogo {...first} size="tiny" decorative />
+                    {first.abbreviation}
                   </span>
                 </th>
                 <th>
-                  <span className="workspace-direct-comparison-identity">
-                    <span>{second.name}</span>
-                    <span className="workspace-direct-comparison-identity-meta">
-                      <TeamLogo {...second} size="tiny" decorative />
-                      {second.abbreviation}
-                    </span>
+                  <span className="workspace-direct-comparison-identity-meta">
+                    <TeamLogo {...second} size="tiny" decorative />
+                    {second.abbreviation}
                   </span>
                 </th>
               </tr>
