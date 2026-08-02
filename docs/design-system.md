@@ -125,6 +125,9 @@ and a pre-render bootstrap applies it before the interface is painted.
   therefore compare true home-only or away-only rolling samples rather than
   hiding points from an all-games calculation. Series controls always keep at
   least one available line visible.
+- Standings progression compares every team in one selected division. Current
+  divisions show eight clubs; historical seasons preserve the division size
+  that existed in that season. No separate team selector is shown.
 - League comparison scatterplots use fixed axes while filtering so a subject
   never appears to move when its comparison group changes. Meaningful
   horizontal and vertical baselines define plain-language quadrants, and the
