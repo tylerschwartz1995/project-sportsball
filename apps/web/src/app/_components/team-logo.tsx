@@ -74,11 +74,13 @@ export function TeamLogo({
     : size === "compact"
       ? "grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/70 bg-slate-50/95 p-1 shadow-sm"
       : "grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-md border border-white/70 bg-slate-50/95 p-0.5 shadow-sm";
-  const imageScale = prominent
-    ? size === "tiny"
-      ? "scale-[1.3]"
+  const imageScale = size === "tiny"
+    ? prominent
+      ? "scale-[1.55]"
       : "scale-[1.45]"
-    : "scale-[1.22]";
+    : prominent
+      ? "scale-[1.62]"
+      : "scale-[1.42]";
 
   return (
     <span className={className}>
