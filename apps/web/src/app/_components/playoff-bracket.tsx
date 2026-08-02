@@ -579,9 +579,6 @@ function SeriesGames({
     <section className="workspace-series-games" aria-label="Series games">
       <div className="workspace-series-games-heading">
         <h3>Series Games</h3>
-        <span>
-          {series.games.length} {series.games.length === 1 ? "game" : "games"}
-        </span>
       </div>
       {series.games.length > 0 ? (
         <div>

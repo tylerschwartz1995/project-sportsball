@@ -4449,10 +4449,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-series-games-heading {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
   margin-bottom: 0.75rem;
 }
 
@@ -4460,12 +4456,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
   color: var(--foreground);
   font-size: 1.05rem;
   font-weight: 720;
-}
-
-.workspace-series-games-heading span {
-  color: var(--muted);
-  font-family: var(--font-geist-mono);
-  font-size: 0.78rem;
 }
 
 .workspace-series-games > div {
