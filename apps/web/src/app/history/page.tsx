@@ -64,9 +64,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
   const phase = parseSeasonPhase(firstValue(params.phase));
   const view = parseHistoryView(firstValue(params.view));
   const display = parseHistoryDisplay(firstValue(params.display));
-  const contentWidth = historyContentWidth(view, display);
-  const contentWidthClass =
-    contentWidth === "wide" ? "" : ` workspace-width-${contentWidth}`;
+  const contentWidth: WorkspaceWidth = "wide";
   const metric = parseHistoryMetric(view, firstValue(params.metric));
   const filters = parseHistoryFilters({
     startYear: firstValue(params.startYear),
@@ -92,7 +90,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
           description="Career leaders and the greatest individual and team seasons across the NHL's complete statistical history, beginning in 1917–18."
         />
 
-        <div className={`workspace-coverage-note mt-6${contentWidthClass}`}>
+        <div className="workspace-coverage-note mt-6">
           <strong>Coverage:</strong> basic scoring, goalie results, and team
           results begin in 1917–18. Later statistics retain their real source
           cutoffs—unavailable early-era values are never treated as zero.
@@ -100,7 +98,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
           select whole seasons in which that player represented the team.
         </div>
 
-        <div className={`workspace-context-navs${contentWidthClass}`}>
+        <div className="workspace-context-navs">
           <SeasonPhaseFilter
             active={phase}
             path="/history"
@@ -182,7 +180,9 @@ function HistoryFiltersForm({
     <form
       action="/history"
       method="get"
-      className={`workspace-player-filters workspace-history-filters${widthClass}`}
+      className={`workspace-player-filters workspace-history-filters${
+        view === "teams" ? " is-team-history" : ""
+      }${widthClass}`}
     >
       <input type="hidden" name="phase" value={phase} />
       <input type="hidden" name="display" value={display} />
@@ -247,13 +247,9 @@ function HistoryFiltersForm({
         </div>
       </fieldset>
 
-      <fieldset className="workspace-player-filter-group">
-        <legend>Player Filters</legend>
-        {view === "teams" ? (
-          <p className="workspace-filter-group-note">
-            Player filters do not apply to historical team rankings.
-          </p>
-        ) : (
+      {view !== "teams" ? (
+        <fieldset className="workspace-player-filter-group">
+          <legend>Player Filters</legend>
           <div>
             {view === "skaters" ? (
               <label>
@@ -291,8 +287,8 @@ function HistoryFiltersForm({
               </select>
             </label>
           </div>
-        )}
-      </fieldset>
+        </fieldset>
+      ) : null}
 
       <div className="workspace-player-filter-actions">
         <button type="submit">Show History</button>
@@ -725,15 +721,6 @@ function historyDisplayTabs(
     params.set("phase", phase);
     return { ...tab, href: `/history?${params.toString()}` };
   });
-}
-
-function historyContentWidth(
-  view: HistoryView,
-  display: HistoryDisplay,
-): WorkspaceWidth {
-  if (view === "goalies" && display === "career") return "compact";
-  if (view === "teams" && display === "seasons") return "wide";
-  return "standard";
 }
 
 function parseHistoryDisplay(value: string | undefined): HistoryDisplay {

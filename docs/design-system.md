@@ -94,6 +94,9 @@ and a pre-render bootstrap applies it before the interface is painted.
   changes; genuinely wide tables scroll inside that boundary. Selection-only
   schedule filters apply immediately instead of requiring a redundant View
   action.
+- Multi-section historical filters use the full data canvas. Their sections
+  share one equal-height desktop row, actions sit in a dedicated footer, and
+  the filters, tabs, and results keep the same outer edges.
 - Long statistical tables use tighter vertical cell padding without reducing
   the established application font size. Short schedules and comparisons keep
   their normal row rhythm.

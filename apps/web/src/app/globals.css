@@ -913,7 +913,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 @media (min-width: 1024px) {
   .workspace-history-filters {
     grid-template-columns: repeat(12, minmax(0, 1fr));
-    align-items: start;
+    align-items: stretch;
   }
 
   .workspace-history-filters .workspace-player-filter-group:nth-of-type(1) {
@@ -925,7 +925,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   }
 
   .workspace-history-filters .workspace-player-filter-group:nth-of-type(3) {
-    grid-column: span 8;
+    grid-column: 1 / -1;
   }
 
   .workspace-history-filters .workspace-player-filter-group:nth-of-type(2) > div,
@@ -934,8 +934,32 @@ html[data-theme="light"] .workspace-directory-controls button {
   }
 
   .workspace-history-filters .workspace-player-filter-actions {
-    grid-column: span 4;
+    grid-column: 1 / -1;
     justify-content: flex-end;
+  }
+}
+
+@media (min-width: 1280px) {
+  .workspace-history-filters .workspace-player-filter-group:nth-of-type(1) {
+    grid-column: span 3;
+  }
+
+  .workspace-history-filters .workspace-player-filter-group:nth-of-type(2) {
+    grid-column: span 4;
+  }
+
+  .workspace-history-filters .workspace-player-filter-group:nth-of-type(3) {
+    grid-column: span 5;
+  }
+
+  .workspace-history-filters.is-team-history
+    .workspace-player-filter-group:nth-of-type(1) {
+    grid-column: span 4;
+  }
+
+  .workspace-history-filters.is-team-history
+    .workspace-player-filter-group:nth-of-type(2) {
+    grid-column: span 8;
   }
 }
 
