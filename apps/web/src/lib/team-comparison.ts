@@ -2,7 +2,6 @@ import type { AdvancedTeamLeaderboardRow } from "@/contracts/advanced-leaderboar
 import type { TeamSeasonSummary } from "@/contracts/team";
 
 export const TEAM_COMPARISON_GROUPS = [
-  "all",
   "strong",
   "outperforming",
   "underperforming",
@@ -32,7 +31,7 @@ export type TeamComparisonPoint = {
 export type TeamPlotPoint = TeamComparisonPoint & {
   processPercentage: number;
   gapPercentagePoints: number;
-  group: Exclude<TeamComparisonGroup, "all">;
+  group: TeamComparisonGroup;
 };
 
 export function buildTeamComparisonPoints(
@@ -119,15 +118,6 @@ export function buildTeamPlotPoints(
   });
 }
 
-export function filterTeamComparisonPoints(
-  points: TeamPlotPoint[],
-  group: TeamComparisonGroup,
-): TeamPlotPoint[] {
-  return group === "all"
-    ? points
-    : points.filter((point) => point.group === group);
-}
-
 export function comparisonDomain(values: number[]): [number, number] {
   if (values.length === 0) {
     return [40, 60];
@@ -146,7 +136,7 @@ export function comparisonDomain(values: number[]): [number, number] {
 function comparisonGroup(
   processPercentage: number,
   resultPercentage: number,
-): Exclude<TeamComparisonGroup, "all"> {
+): TeamComparisonGroup {
   if (processPercentage >= 50 && resultPercentage >= 50) {
     return "strong";
   }

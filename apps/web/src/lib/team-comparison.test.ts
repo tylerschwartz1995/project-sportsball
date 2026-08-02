@@ -6,7 +6,6 @@ import {
   buildTeamComparisonPoints,
   buildTeamPlotPoints,
   comparisonDomain,
-  filterTeamComparisonPoints,
 } from "@/lib/team-comparison";
 
 describe("buildTeamComparisonPoints", () => {
@@ -64,35 +63,34 @@ describe("buildTeamComparisonPoints", () => {
   });
 });
 
-describe("team comparison filters", () => {
-  const comparisonPoints = buildTeamComparisonPoints(
-    [
-      advancedRow(1, "AAA", 0.55),
-      advancedRow(2, "BBB", 0.45),
-      advancedRow(3, "CCC", 0.55),
-      advancedRow(4, "DDD", 0.45),
-    ],
-    [
-      teamRow(1, "AAA", 10, 12, 6),
-      teamRow(2, "BBB", 10, 12, 6),
-      teamRow(3, "CCC", 10, 8, 4),
-      teamRow(4, "DDD", 10, 8, 4),
-    ],
-    "regular",
-  );
-  const points = buildTeamPlotPoints(
-    comparisonPoints,
-    "expectedGoalSharePercentage",
-  );
+describe("team comparison plots", () => {
+  it("keeps every team while classifying the four plot quadrants", () => {
+    const comparison = buildTeamComparisonPoints(
+      [
+        advancedRow(1, "AAA", 0.55),
+        advancedRow(2, "BBB", 0.45),
+        advancedRow(3, "CCC", 0.55),
+        advancedRow(4, "DDD", 0.45),
+      ],
+      [
+        teamRow(1, "AAA", 10, 12, 6),
+        teamRow(2, "BBB", 10, 12, 6),
+        teamRow(3, "CCC", 10, 8, 4),
+        teamRow(4, "DDD", 10, 8, 4),
+      ],
+      "regular",
+    );
 
-  it("filters points by their result/process quadrant", () => {
-    expect(filterTeamComparisonPoints(points, "strong")).toHaveLength(1);
-    expect(filterTeamComparisonPoints(points, "outperforming")[0].abbreviation)
-      .toBe("BBB");
-    expect(filterTeamComparisonPoints(points, "underperforming")[0].abbreviation)
-      .toBe("CCC");
-    expect(filterTeamComparisonPoints(points, "struggling")[0].abbreviation)
-      .toBe("DDD");
+    expect(
+      buildTeamPlotPoints(comparison, "expectedGoalSharePercentage").map(
+        (point) => [point.abbreviation, point.group],
+      ),
+    ).toEqual([
+      ["AAA", "strong"],
+      ["BBB", "outperforming"],
+      ["CCC", "underperforming"],
+      ["DDD", "struggling"],
+    ]);
   });
 
   it("builds padded domains that always include the 50 percent baseline", () => {
