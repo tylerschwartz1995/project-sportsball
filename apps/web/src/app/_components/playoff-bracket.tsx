@@ -229,7 +229,13 @@ function SeriesDialog({
   const series = selected?.series ?? null;
   const needsPlayerStats = activeTab === "players" || activeTab === "advanced";
   const resetPanelScroll = () => {
-    if (panelRef.current) panelRef.current.scrollTop = 0;
+    const panel = panelRef.current;
+    if (!panel) return;
+
+    panel.scrollTo({ top: 0, left: 0 });
+    panel
+      .querySelector<HTMLElement>(".workspace-series-table-scroll")
+      ?.scrollTo({ top: 0, left: 0 });
   };
   const selectTab = (tab: SeriesTab) => {
     resetPanelScroll();
@@ -330,7 +336,7 @@ function SeriesDialog({
           <div
             ref={panelRef}
             id={tabPanelId}
-            className="workspace-series-panel"
+            className={`workspace-series-panel ${needsPlayerStats ? "is-table-view" : ""}`}
             role="tabpanel"
             aria-label={`${seriesTabLabel(activeTab)} series details`}
           >
@@ -810,7 +816,10 @@ function SeriesSkaterTable({
 }) {
   if (players.length === 0) return <SeriesEmptyState>No skater totals are available.</SeriesEmptyState>;
   return (
-    <SortableTable defaultSortKey="points">
+    <SortableTable
+      defaultSortKey="points"
+      className="workspace-series-table-region"
+    >
       <div className="workspace-series-table-scroll">
         <table className="workspace-series-table min-w-[920px]">
           <thead>
@@ -866,7 +875,10 @@ function SeriesGoalieTable({
 }) {
   if (players.length === 0) return <SeriesEmptyState>No goalie totals are available.</SeriesEmptyState>;
   return (
-    <SortableTable defaultSortKey="wins">
+    <SortableTable
+      defaultSortKey="wins"
+      className="workspace-series-table-region"
+    >
       <div className="workspace-series-table-scroll">
         <table className="workspace-series-table min-w-[760px]">
           <thead>
@@ -918,7 +930,10 @@ function SeriesAdvancedSkaterTable({
 }) {
   if (players.length === 0) return <SeriesEmptyState>No modeled skater shots are available.</SeriesEmptyState>;
   return (
-    <SortableTable defaultSortKey="expectedGoals">
+    <SortableTable
+      defaultSortKey="expectedGoals"
+      className="workspace-series-table-region"
+    >
       <div className="workspace-series-table-scroll">
         <table className="workspace-series-table min-w-[850px]">
           <thead>
@@ -974,7 +989,10 @@ function SeriesAdvancedGoalieTable({
 }) {
   if (players.length === 0) return <SeriesEmptyState>No modeled goalie shots are available.</SeriesEmptyState>;
   return (
-    <SortableTable defaultSortKey="goalsSavedAboveExpected">
+    <SortableTable
+      defaultSortKey="goalsSavedAboveExpected"
+      className="workspace-series-table-region"
+    >
       <div className="workspace-series-table-scroll">
         <table className="workspace-series-table min-w-[720px]">
           <thead>

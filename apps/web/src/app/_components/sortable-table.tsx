@@ -31,10 +31,12 @@ const SortableTableContext = createContext<SortableTableContextValue | null>(
 
 export function SortableTable({
   children,
+  className,
   defaultSortKey = "",
   defaultDirection = "desc",
 }: {
   children: ReactNode;
+  className?: string;
   defaultSortKey?: string;
   defaultDirection?: SortDirection;
 }) {
@@ -100,7 +102,7 @@ export function SortableTable({
 
   return (
     <SortableTableContext.Provider value={contextValue}>
-      <div>{children}</div>
+      <div className={className}>{children}</div>
     </SortableTableContext.Provider>
   );
 }
