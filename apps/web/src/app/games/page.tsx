@@ -93,9 +93,6 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
                 label="Schedule phase"
               />
               <div className="workspace-date-navigation">
-                <p>
-                  {selectedSeason.label} season · {gameDates.length} game dates
-                </p>
                 <nav aria-label="Game date navigation">
                   <DateLink
                     label="← Older"

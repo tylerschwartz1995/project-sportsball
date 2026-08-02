@@ -1561,6 +1561,7 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
 
 .workspace-context-navs.is-schedule > .workspace-date-navigation {
   flex: 1 1 28rem;
+  justify-content: flex-end;
 }
 
 .workspace-scroll-nav {
