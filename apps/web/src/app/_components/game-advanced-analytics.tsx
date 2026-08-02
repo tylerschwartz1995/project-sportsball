@@ -164,22 +164,14 @@ function TeamGameAnalytics({
 
   return (
     <div className="mt-8">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <ComparisonMetric
-          label="Expected goals"
-          awayTeam={awayTeam}
-          awayValue={formatDecimal(away?.expectedGoalsFor ?? null)}
-          homeTeam={homeTeam}
-          homeValue={formatDecimal(home?.expectedGoalsFor ?? null)}
-        />
-        <ComparisonMetric
-          label="xG share"
-          awayTeam={awayTeam}
-          awayValue={formatPercentage(away?.expectedGoalsPercentage ?? null)}
-          homeTeam={homeTeam}
-          homeValue={formatPercentage(home?.expectedGoalsPercentage ?? null)}
-        />
-      </div>
+      <ExpectedGoalsComparison
+        awayTeam={awayTeam}
+        awayExpectedGoals={away?.expectedGoalsFor ?? null}
+        awayShare={away?.expectedGoalsPercentage ?? null}
+        homeTeam={homeTeam}
+        homeExpectedGoals={home?.expectedGoalsFor ?? null}
+        homeShare={home?.expectedGoalsPercentage ?? null}
+      />
 
       <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
         <SortableTable>
@@ -589,41 +581,92 @@ function Subsection({
   );
 }
 
-function ComparisonMetric({
-  label,
+function ExpectedGoalsComparison({
   awayTeam,
-  awayValue,
+  awayExpectedGoals,
+  awayShare,
   homeTeam,
-  homeValue,
+  homeExpectedGoals,
+  homeShare,
 }: {
-  label: string;
   awayTeam: MoneyPuckGameTeam;
-  awayValue: string;
+  awayExpectedGoals: number | null;
+  awayShare: number | null;
   homeTeam: MoneyPuckGameTeam;
-  homeValue: string;
+  homeExpectedGoals: number | null;
+  homeShare: number | null;
+}) {
+  const awayBarShare = normalizedComparisonShare(
+    awayShare,
+    homeShare,
+    awayExpectedGoals,
+    homeExpectedGoals,
+  );
+  const differential = difference(awayExpectedGoals, homeExpectedGoals);
+  const advantage = expectedGoalsAdvantage(
+    differential,
+    awayTeam,
+    homeTeam,
+  );
+
+  return (
+    <article className="workspace-xg-comparison">
+      <header className="workspace-xg-comparison-header">
+        <p>Expected goals</p>
+        {advantage ? <span>{advantage}</span> : null}
+      </header>
+
+      <dl className="workspace-xg-comparison-teams">
+        <ExpectedGoalsTeam
+          team={awayTeam}
+          expectedGoals={awayExpectedGoals}
+          share={awayShare}
+          side="away"
+        />
+        <ExpectedGoalsTeam
+          team={homeTeam}
+          expectedGoals={homeExpectedGoals}
+          share={homeShare}
+          side="home"
+        />
+      </dl>
+
+      <div className="workspace-xg-share-bar" aria-hidden="true">
+        <span style={{ width: `${awayBarShare}%` }} />
+        <span style={{ width: `${100 - awayBarShare}%` }} />
+      </div>
+      <p className="sr-only">
+        {awayTeam.name} has {formatPercentage(awayShare)} of expected goals;
+        {" "}
+        {homeTeam.name} has {formatPercentage(homeShare)}.
+      </p>
+    </article>
+  );
+}
+
+function ExpectedGoalsTeam({
+  team,
+  expectedGoals,
+  share,
+  side,
+}: {
+  team: MoneyPuckGameTeam;
+  expectedGoals: number | null;
+  share: number | null;
+  side: "away" | "home";
 }) {
   return (
-    <article className="rounded-xl border border-violet-300/15 bg-violet-300/[0.06] p-4">
-      <p className="text-xs uppercase tracking-[0.12em] text-violet-200/70">
-        {label}
-      </p>
-      <dl className="mt-3 grid grid-cols-2 divide-x divide-white/10">
-        {[
-          { team: awayTeam, value: awayValue },
-          { team: homeTeam, value: homeValue },
-        ].map(({ team, value }) => (
-          <div key={team.nhlTeamId} className="px-3 first:pl-0 last:pr-0">
-            <dt className="flex items-center gap-2 font-mono text-xs font-semibold text-violet-300">
-              <TeamLogo {...team} size="tiny" decorative />
-              {team.abbreviation}
-            </dt>
-            <dd className="mt-2 text-xl font-semibold tabular-nums text-white">
-              {value}
-            </dd>
-          </div>
-        ))}
-      </dl>
-    </article>
+    <div data-side={side}>
+      <dt>
+        <TeamLogo {...team} size="compact" decorative />
+        <span aria-hidden="true">{team.abbreviation}</span>
+        <span className="sr-only">{team.name}</span>
+      </dt>
+      <dd>
+        <strong>{formatDecimal(expectedGoals)}</strong>
+        <span>{formatPercentage(share)} share</span>
+      </dd>
+    </div>
   );
 }
 
@@ -774,6 +817,48 @@ function difference(
   right: number | null,
 ): number | null {
   return left === null || right === null ? null : left - right;
+}
+
+function normalizedComparisonShare(
+  awayShare: number | null,
+  homeShare: number | null,
+  awayExpectedGoals: number | null,
+  homeExpectedGoals: number | null,
+): number {
+  if (awayShare !== null && homeShare !== null) {
+    const totalShare = awayShare + homeShare;
+    if (totalShare > 0) {
+      return Math.min(100, Math.max(0, (awayShare / totalShare) * 100));
+    }
+  }
+
+  if (awayExpectedGoals !== null && homeExpectedGoals !== null) {
+    const totalExpectedGoals = awayExpectedGoals + homeExpectedGoals;
+    if (totalExpectedGoals > 0) {
+      return Math.min(
+        100,
+        Math.max(0, (awayExpectedGoals / totalExpectedGoals) * 100),
+      );
+    }
+  }
+
+  return 50;
+}
+
+function expectedGoalsAdvantage(
+  differential: number | null,
+  awayTeam: MoneyPuckGameTeam,
+  homeTeam: MoneyPuckGameTeam,
+): string | null {
+  if (differential === null) {
+    return null;
+  }
+  if (Math.abs(differential) < 0.005) {
+    return "Even expected goals";
+  }
+
+  const leader = differential > 0 ? awayTeam : homeTeam;
+  return `${leader.abbreviation} +${Math.abs(differential).toFixed(2)} xG`;
 }
 
 function compareNullableDescending(

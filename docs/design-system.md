@@ -112,6 +112,10 @@ and a pre-render bootstrap applies it before the interface is painted.
 - Related compact datasets of equal importance share an equal-width desktop
   row when shown together, then stack when the viewport can no longer support
   a readable side-by-side presentation.
+- When one metric is derived directly from another comparison, combine them
+  into one visual rather than repeating team identities across peer cards.
+  Game expected-goal totals and xG share use one away-to-home comparison with
+  exact values, a labeled differential, and a proportional bar.
 - Table shells provide one consistent border, background, radius, and scrolling
   boundary. Numeric columns remain sortable and centered beneath their column
   headings.

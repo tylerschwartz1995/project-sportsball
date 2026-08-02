@@ -2751,6 +2751,126 @@ span.workspace-date-link {
   padding-top: 2rem;
 }
 
+.workspace-xg-comparison {
+  overflow: hidden;
+  border: 1px solid
+    color-mix(in srgb, var(--accent-secondary) 28%, var(--border));
+  border-radius: 0.8rem;
+  padding: 0.95rem 1rem 1rem;
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--chart-primary) 7%, transparent),
+      color-mix(in srgb, var(--chart-secondary) 7%, transparent)
+    ),
+    var(--surface);
+  box-shadow: 0 12px 30px var(--shadow);
+}
+
+.workspace-xg-comparison-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem 1rem;
+}
+
+.workspace-xg-comparison-header > p {
+  color: var(--accent-secondary);
+  font-family: var(--font-geist-mono);
+  font-size: 0.88rem;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.workspace-xg-comparison-header > span {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.28rem 0.55rem;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-xg-comparison-teams {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  margin-top: 0.85rem;
+}
+
+.workspace-xg-comparison-teams > div {
+  display: grid;
+  min-width: 0;
+  gap: 0.35rem;
+}
+
+.workspace-xg-comparison-teams > div[data-side="home"] {
+  justify-items: end;
+  text-align: right;
+}
+
+.workspace-xg-comparison-teams dt {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.workspace-xg-comparison-teams > div[data-side="home"] dt {
+  flex-direction: row-reverse;
+}
+
+.workspace-xg-comparison-teams dd {
+  display: grid;
+  gap: 0.05rem;
+}
+
+.workspace-xg-comparison-teams strong {
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 1.7rem;
+  font-weight: 720;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.workspace-xg-comparison-teams dd > span {
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-xg-share-bar {
+  display: flex;
+  overflow: hidden;
+  height: 0.6rem;
+  margin-top: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-raised);
+}
+
+.workspace-xg-share-bar > span {
+  min-width: 0;
+}
+
+.workspace-xg-share-bar > span:first-child {
+  background: var(--chart-primary);
+}
+
+.workspace-xg-share-bar > span:last-child {
+  background: var(--chart-secondary);
+}
+
 .workspace-timeline-period {
   overflow: hidden;
   border: 1px solid var(--border);
