@@ -54,7 +54,6 @@ export function attachPlayoffSeriesInsights(
         ? {
             ...series,
             teamAnalytics: entry.teamAnalytics,
-            playerLeaders: entry.playerLeaders,
           }
         : series;
     }),
@@ -166,7 +165,6 @@ function buildEmptyRounds(): PlayoffRound[] {
       winnerNhlTeamId: null,
       games: [],
       teamAnalytics: [],
-      playerLeaders: [],
     })),
   }));
 }
@@ -211,7 +209,6 @@ function seriesFromGames(
           : null,
     games: sorted.map(gameToSeriesGame),
     teamAnalytics: [],
-    playerLeaders: [],
   };
 }
 
@@ -257,7 +254,6 @@ function projectedSeries(
     winnerNhlTeamId: null,
     games: [],
     teamAnalytics: [],
-    playerLeaders: [],
   };
 }
 

@@ -4,17 +4,23 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { useEffect, useId, useRef, useState } from "react";
 
+import { SortableHeader } from "@/app/_components/sortable-header";
+import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo } from "@/app/_components/team-logo";
 import { formatGameState } from "@/contracts/game";
 import type {
   PlayoffBracketTeam,
   PlayoffRound,
   PlayoffSeries,
+  PlayoffSeriesAdvancedGoalieStats,
+  PlayoffSeriesAdvancedSkaterStats,
   PlayoffSeriesGame,
   PlayoffSeriesGameTeam,
-  PlayoffSeriesSituationAnalytics,
-  PlayoffSeriesTeamAnalytics,
+  PlayoffSeriesGoalieStats,
+  PlayoffSeriesPlayerStatsPackage,
+  PlayoffSeriesSkaterStats,
 } from "@/contracts/playoffs";
+import { formatPlayerPosition } from "@/lib/player-position";
 import { summarizePlayoffSeries } from "@/lib/playoff-series";
 
 type SelectedSeries = {
@@ -22,7 +28,8 @@ type SelectedSeries = {
   series: PlayoffSeries;
 };
 
-type SeriesTab = "overview" | "games" | "analytics" | "leaders";
+type SeriesTab = "overview" | "games" | "players" | "advanced";
+type PlayerStatsView = "skaters" | "goalies";
 
 const gameDateFormatter = new Intl.DateTimeFormat("en-CA", {
   month: "short",
@@ -203,6 +210,9 @@ function SeriesDialog({
   const titleId = useId();
   const tabPanelId = useId();
   const [activeTab, setActiveTab] = useState<SeriesTab>("overview");
+  const [playerStats, setPlayerStats] =
+    useState<PlayoffSeriesPlayerStatsPackage | null>(null);
+  const [playerStatsError, setPlayerStatsError] = useState(false);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -216,6 +226,33 @@ function SeriesDialog({
   }, [selected]);
 
   const series = selected?.series ?? null;
+  const needsPlayerStats = activeTab === "players" || activeTab === "advanced";
+
+  useEffect(() => {
+    if (!series || !needsPlayerStats || playerStats || playerStatsError) return;
+
+    const controller = new AbortController();
+    const params = new URLSearchParams({
+      season: String(seasonId),
+      round: String(series.round),
+      matchup: String(series.matchup),
+    });
+
+    fetch(`/api/playoffs/series?${params}`, { signal: controller.signal })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(`Series stats request failed: ${response.status}`);
+        return (await response.json()) as {
+          data: PlayoffSeriesPlayerStatsPackage;
+        };
+      })
+      .then((response) => setPlayerStats(response.data))
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setPlayerStatsError(true);
+      });
+
+    return () => controller.abort();
+  }, [needsPlayerStats, playerStats, playerStatsError, seasonId, series]);
 
   return (
     <dialog
@@ -276,6 +313,9 @@ function SeriesDialog({
           <SeriesTabs
             activeTab={activeTab}
             gameCount={series.games.length}
+            hasStarted={series.games.some(
+              (game) => game.awayTeam.score !== null && game.homeTeam.score !== null,
+            )}
             panelId={tabPanelId}
             onSelect={setActiveTab}
           />
@@ -291,11 +331,19 @@ function SeriesDialog({
             {activeTab === "games" ? (
               <SeriesGames series={series} isProjection={isProjection} />
             ) : null}
-            {activeTab === "analytics" ? (
-              <SeriesAnalytics series={series} />
+            {activeTab === "players" ? (
+              <SeriesPlayerStats
+                data={playerStats}
+                hasError={playerStatsError}
+                seasonId={seasonId}
+              />
             ) : null}
-            {activeTab === "leaders" ? (
-              <SeriesLeaders series={series} seasonId={seasonId} />
+            {activeTab === "advanced" ? (
+              <SeriesAdvancedStats
+                data={playerStats}
+                hasError={playerStatsError}
+                seasonId={seasonId}
+              />
             ) : null}
           </div>
         </div>
@@ -307,19 +355,25 @@ function SeriesDialog({
 function SeriesTabs({
   activeTab,
   gameCount,
+  hasStarted,
   panelId,
   onSelect,
 }: {
   activeTab: SeriesTab;
   gameCount: number;
+  hasStarted: boolean;
   panelId: string;
   onSelect: (tab: SeriesTab) => void;
 }) {
   const tabs: { id: SeriesTab; label: string }[] = [
     { id: "overview", label: "Overview" },
     { id: "games", label: `Games (${gameCount})` },
-    { id: "analytics", label: "Team Analytics" },
-    { id: "leaders", label: "Player Leaders" },
+    ...(hasStarted
+      ? [
+          { id: "players" as const, label: "Player Stats" },
+          { id: "advanced" as const, label: "Advanced Analytics" },
+        ]
+      : []),
   ];
 
   return (
@@ -349,6 +403,13 @@ function SeriesOverview({
   isProjection: boolean;
 }) {
   const summary = summarizePlayoffSeries(series);
+  const teamOneAnalytics = series.teamAnalytics.find(
+    (team) => team.nhlTeamId === series.teamOne?.nhlTeamId,
+  );
+  const teamTwoAnalytics = series.teamAnalytics.find(
+    (team) => team.nhlTeamId === series.teamTwo?.nhlTeamId,
+  );
+  const hasTeamAnalytics = Boolean(teamOneAnalytics && teamTwoAnalytics);
 
   if (!summary) {
     return (
@@ -405,7 +466,62 @@ function SeriesOverview({
           label="Shot Share"
           right={formatPercentage(summary.teamTwo.shotShare)}
         />
+        {hasTeamAnalytics ? (
+          <>
+            <ComparisonDivider />
+            <ComparisonRow
+              left={formatDecimal(
+                teamOneAnalytics?.allSituations?.expectedGoalsFor ?? null,
+              )}
+              label="Expected Goals"
+              right={formatDecimal(
+                teamTwoAnalytics?.allSituations?.expectedGoalsFor ?? null,
+              )}
+            />
+            <ComparisonRow
+              left={formatPercentage(
+                teamOneAnalytics?.allSituations?.expectedGoalsShare ?? null,
+              )}
+              label="xG Share"
+              right={formatPercentage(
+                teamTwoAnalytics?.allSituations?.expectedGoalsShare ?? null,
+              )}
+            />
+            <ComparisonRow
+              left={formatDecimal(
+                teamOneAnalytics?.fiveOnFive?.expectedGoalsFor ?? null,
+              )}
+              label="Five-On-Five xG"
+              right={formatDecimal(
+                teamTwoAnalytics?.fiveOnFive?.expectedGoalsFor ?? null,
+              )}
+            />
+            <ComparisonRow
+              left={formatPercentage(
+                teamOneAnalytics?.fiveOnFive?.expectedGoalsShare ?? null,
+              )}
+              label="Five-On-Five xG Share"
+              right={formatPercentage(
+                teamTwoAnalytics?.fiveOnFive?.expectedGoalsShare ?? null,
+              )}
+            />
+            <ComparisonRow
+              left={formatPercentage(
+                teamOneAnalytics?.fiveOnFive?.shotAttemptShare ?? null,
+              )}
+              label="Five-On-Five Shot-Attempt Share"
+              right={formatPercentage(
+                teamTwoAnalytics?.fiveOnFive?.shotAttemptShare ?? null,
+              )}
+            />
+          </>
+        ) : null}
       </div>
+      {hasTeamAnalytics ? null : (
+        <p className="workspace-series-overview-note">
+          Advanced team metrics are unavailable for this series.
+        </p>
+      )}
     </section>
   );
 }
@@ -450,6 +566,17 @@ function ComparisonRow({
   );
 }
 
+function ComparisonDivider() {
+  return (
+    <div className="workspace-series-comparison-divider">
+      <span>Advanced Team Analytics</span>
+      <a href="https://moneypuck.com/" target="_blank" rel="noreferrer">
+        MoneyPuck.com ↗
+      </a>
+    </div>
+  );
+}
+
 function SeriesGames({
   series,
   isProjection,
@@ -482,150 +609,419 @@ function SeriesGames({
   );
 }
 
-function SeriesAnalytics({ series }: { series: PlayoffSeries }) {
-  if (series.teamAnalytics.length === 0) {
+function SeriesPlayerStats({
+  data,
+  hasError,
+  seasonId,
+}: {
+  data: PlayoffSeriesPlayerStatsPackage | null;
+  hasError: boolean;
+  seasonId: number;
+}) {
+  const [view, setView] = useState<PlayerStatsView>("skaters");
+
+  if (hasError) {
     return (
       <SeriesEmptyState>
-        Advanced team-game data is unavailable for this series. MoneyPuck
-        playoff coverage begins in 2008–09.
+        Series player statistics are temporarily unavailable.
+      </SeriesEmptyState>
+    );
+  }
+  if (!data) return <SeriesLoadingState />;
+  if (data.skaters.length === 0 && data.goalies.length === 0) {
+    return (
+      <SeriesEmptyState>
+        Official player statistics are not available for this series.
       </SeriesEmptyState>
     );
   }
 
-  const orderedTeams = [series.teamOne, series.teamTwo]
-    .filter((team): team is PlayoffBracketTeam => Boolean(team))
-    .map((team) =>
-      series.teamAnalytics.find(
-        (analytics) => analytics.nhlTeamId === team.nhlTeamId,
-      ),
-    )
-    .filter((team): team is PlayoffSeriesTeamAnalytics => Boolean(team));
-
   return (
-    <section className="workspace-series-analytics" aria-label="Series team analytics">
+    <section className="workspace-series-player-stats" aria-label="Series player statistics">
       <div className="workspace-series-section-heading">
         <div>
-          <h3>Team Analytics</h3>
-          <p>Aggregated across every stored game in this series.</p>
+          <h3>Player Stats</h3>
+          <p>Official NHL totals from this series only.</p>
         </div>
-        <a href="https://moneypuck.com/" target="_blank" rel="noreferrer">
-          Data: MoneyPuck.com ↗
-        </a>
+        <StatsViewToggle value={view} onChange={setView} />
       </div>
-      <div className="workspace-series-analytics-grid">
-        {orderedTeams.map((team) => (
-          <SeriesAnalyticsTeam key={team.nhlTeamId} team={team} />
-        ))}
-      </div>
+      {view === "skaters" ? (
+        <SeriesSkaterTable players={data.skaters} seasonId={seasonId} />
+      ) : (
+        <SeriesGoalieTable players={data.goalies} seasonId={seasonId} />
+      )}
     </section>
   );
 }
 
-function SeriesAnalyticsTeam({ team }: { team: PlayoffSeriesTeamAnalytics }) {
+function SeriesAdvancedStats({
+  data,
+  hasError,
+  seasonId,
+}: {
+  data: PlayoffSeriesPlayerStatsPackage | null;
+  hasError: boolean;
+  seasonId: number;
+}) {
+  const [view, setView] = useState<PlayerStatsView>("skaters");
+
+  if (hasError) {
+    return (
+      <SeriesEmptyState>
+        Advanced player analytics are temporarily unavailable.
+      </SeriesEmptyState>
+    );
+  }
+  if (!data) return <SeriesLoadingState />;
+  if (data.advancedSkaters.length === 0 && data.advancedGoalies.length === 0) {
+    return (
+      <SeriesEmptyState>
+        Advanced player analytics are unavailable for this series. MoneyPuck
+        playoff shot coverage begins in 2007–08.
+      </SeriesEmptyState>
+    );
+  }
+
   return (
-    <article className="workspace-series-analytics-team">
-      <header>
-        <TeamLogo
-          nhlTeamId={team.nhlTeamId}
-          abbreviation={team.abbreviation}
-          name={team.name}
-          size="compact"
-          decorative
-          prominent
+    <section
+      className="workspace-series-player-stats"
+      aria-label="Series advanced player analytics"
+    >
+      <div className="workspace-series-section-heading">
+        <div>
+          <h3>Advanced Analytics</h3>
+          <p>MoneyPuck shot-model results from this series only.</p>
+        </div>
+        <StatsViewToggle value={view} onChange={setView} />
+      </div>
+      {view === "skaters" ? (
+        <SeriesAdvancedSkaterTable
+          players={data.advancedSkaters}
+          seasonId={seasonId}
         />
-        <span>
-          <small>{team.abbreviation}</small>
-          <strong>{team.name}</strong>
-        </span>
-      </header>
-      <AnalyticsGroup title="All Situations" metrics={team.allSituations} />
-      <AnalyticsGroup title="Five-On-Five" metrics={team.fiveOnFive} />
-    </article>
+      ) : (
+        <SeriesAdvancedGoalieTable
+          players={data.advancedGoalies}
+          seasonId={seasonId}
+        />
+      )}
+      <a
+        className="workspace-series-data-source"
+        href="https://moneypuck.com/"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Data: MoneyPuck.com ↗
+      </a>
+    </section>
   );
 }
 
-function AnalyticsGroup({
-  title,
-  metrics,
+function StatsViewToggle({
+  value,
+  onChange,
 }: {
-  title: string;
-  metrics: PlayoffSeriesSituationAnalytics | null;
+  value: PlayerStatsView;
+  onChange: (view: PlayerStatsView) => void;
 }) {
   return (
-    <div className="workspace-series-analytics-group">
-      <h4>{title}</h4>
-      {metrics ? (
-        <dl>
-          <div>
-            <dt>Expected Goals</dt>
-            <dd>{formatDecimal(metrics.expectedGoalsFor)}</dd>
-          </div>
-          <div>
-            <dt>xG Share</dt>
-            <dd>{formatPercentage(metrics.expectedGoalsShare)}</dd>
-          </div>
-          <div>
-            <dt>Shot-Attempt Share</dt>
-            <dd>{formatPercentage(metrics.shotAttemptShare)}</dd>
-          </div>
-        </dl>
-      ) : (
-        <p>Not available</p>
-      )}
+    <div className="workspace-series-stats-toggle" role="group" aria-label="Player type">
+      <button
+        type="button"
+        className={value === "skaters" ? "is-active" : ""}
+        aria-pressed={value === "skaters"}
+        onClick={() => onChange("skaters")}
+      >
+        Skaters
+      </button>
+      <button
+        type="button"
+        className={value === "goalies" ? "is-active" : ""}
+        aria-pressed={value === "goalies"}
+        onClick={() => onChange("goalies")}
+      >
+        Goalies
+      </button>
     </div>
   );
 }
 
-function SeriesLeaders({
-  series,
+function SeriesSkaterTable({
+  players,
   seasonId,
 }: {
-  series: PlayoffSeries;
+  players: PlayoffSeriesSkaterStats[];
   seasonId: number;
 }) {
-  if (series.playerLeaders.length === 0) {
-    return (
-      <SeriesEmptyState>
-        Player leaders will appear when official series box scores are stored.
-      </SeriesEmptyState>
-    );
-  }
-
+  if (players.length === 0) return <SeriesEmptyState>No skater totals are available.</SeriesEmptyState>;
   return (
-    <section className="workspace-series-leaders" aria-label="Series player leaders">
-      <div className="workspace-series-section-heading">
-        <div>
-          <h3>Series Scoring Leaders</h3>
-          <p>Official totals from games in this matchup only.</p>
-        </div>
+    <SortableTable defaultSortKey="points">
+      <div className="workspace-series-table-scroll">
+        <table className="workspace-series-table min-w-[920px]">
+          <thead>
+            <tr>
+              <SortableHeader label="Player" sortKey="player" align="left" />
+              <SortableHeader label="Pos" sortKey="position" />
+              <SortableHeader label="GP" sortKey="games" />
+              <SortableHeader label="G" sortKey="goals" />
+              <SortableHeader label="A" sortKey="assists" />
+              <SortableHeader label="PTS" sortKey="points" />
+              <SortableHeader label="+/-" sortKey="plusMinus" />
+              <SortableHeader label="PIM" sortKey="penaltyMinutes" />
+              <SortableHeader label="S" sortKey="shots" />
+              <SortableHeader label="HIT" sortKey="hits" />
+              <SortableHeader label="BLK" sortKey="blocks" />
+              <SortableHeader label="TOI" sortKey="timeOnIce" />
+            </tr>
+          </thead>
+          <tbody>
+            {players.map((player) => (
+              <tr key={player.nhlPlayerId}>
+                <SeriesPlayerCell player={player} seasonId={seasonId} />
+                <SeriesNumberCell value={player.position}>
+                  {formatPlayerPosition(player.position)}
+                </SeriesNumberCell>
+                <SeriesNumberCell value={player.gamesPlayed} />
+                <SeriesNumberCell value={player.goals} />
+                <SeriesNumberCell value={player.assists} />
+                <SeriesNumberCell value={player.points} highlight />
+                <SeriesNumberCell value={player.plusMinus} signed />
+                <SeriesNumberCell value={player.penaltyMinutes} />
+                <SeriesNumberCell value={player.shotsOnGoal} />
+                <SeriesNumberCell value={player.hits} />
+                <SeriesNumberCell value={player.blockedShots} />
+                <SeriesNumberCell value={player.timeOnIceSeconds}>
+                  {formatTimeOnIce(player.timeOnIceSeconds)}
+                </SeriesNumberCell>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
-      <ol>
-        {series.playerLeaders.map((player, index) => (
-          <li key={player.nhlPlayerId}>
-            <span className="workspace-series-leader-rank">#{index + 1}</span>
-            <TeamLogo
-              nhlTeamId={player.nhlTeamId}
-              abbreviation={player.teamAbbreviation}
-              name={player.teamAbbreviation}
-              size="tiny"
-              decorative
-              prominent
-            />
-            <Link
-              href={`/players/${player.nhlPlayerId}?season=${seasonId}&phase=playoffs`}
-            >
-              <strong>{player.name}</strong>
-              <small>{player.teamAbbreviation}</small>
-            </Link>
-            <span className="workspace-series-leader-line">
-              {player.goals} G · {player.assists} A
-            </span>
-            <b>{player.points} PTS</b>
-          </li>
-        ))}
-      </ol>
-    </section>
+    </SortableTable>
   );
+}
+
+function SeriesGoalieTable({
+  players,
+  seasonId,
+}: {
+  players: PlayoffSeriesGoalieStats[];
+  seasonId: number;
+}) {
+  if (players.length === 0) return <SeriesEmptyState>No goalie totals are available.</SeriesEmptyState>;
+  return (
+    <SortableTable defaultSortKey="wins">
+      <div className="workspace-series-table-scroll">
+        <table className="workspace-series-table min-w-[760px]">
+          <thead>
+            <tr>
+              <SortableHeader label="Goalie" sortKey="player" align="left" />
+              <SortableHeader label="GP" sortKey="games" />
+              <SortableHeader label="GS" sortKey="starts" />
+              <SortableHeader label="W" sortKey="wins" />
+              <SortableHeader label="L" sortKey="losses" />
+              <SortableHeader label="GA" sortKey="goalsAgainst" />
+              <SortableHeader label="SA" sortKey="shotsAgainst" />
+              <SortableHeader label="SV" sortKey="saves" />
+              <SortableHeader label="SV%" sortKey="savePercentage" />
+              <SortableHeader label="TOI" sortKey="timeOnIce" />
+            </tr>
+          </thead>
+          <tbody>
+            {players.map((player) => (
+              <tr key={player.nhlPlayerId}>
+                <SeriesPlayerCell player={player} seasonId={seasonId} />
+                <SeriesNumberCell value={player.gamesPlayed} />
+                <SeriesNumberCell value={player.gamesStarted} />
+                <SeriesNumberCell value={player.wins} highlight />
+                <SeriesNumberCell value={player.losses} />
+                <SeriesNumberCell value={player.goalsAgainst} />
+                <SeriesNumberCell value={player.shotsAgainst} />
+                <SeriesNumberCell value={player.saves} />
+                <SeriesNumberCell value={player.savePercentage}>
+                  {formatSavePercentage(player.savePercentage)}
+                </SeriesNumberCell>
+                <SeriesNumberCell value={player.timeOnIceSeconds}>
+                  {formatTimeOnIce(player.timeOnIceSeconds)}
+                </SeriesNumberCell>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </SortableTable>
+  );
+}
+
+function SeriesAdvancedSkaterTable({
+  players,
+  seasonId,
+}: {
+  players: PlayoffSeriesAdvancedSkaterStats[];
+  seasonId: number;
+}) {
+  if (players.length === 0) return <SeriesEmptyState>No modeled skater shots are available.</SeriesEmptyState>;
+  return (
+    <SortableTable defaultSortKey="expectedGoals">
+      <div className="workspace-series-table-scroll">
+        <table className="workspace-series-table min-w-[850px]">
+          <thead>
+            <tr>
+              <SortableHeader label="Player" sortKey="player" align="left" />
+              <SortableHeader label="iXG" sortKey="expectedGoals" description="Individual expected goals" />
+              <SortableHeader label="G" sortKey="goals" />
+              <SortableHeader label="G-xG" sortKey="goalsAboveExpected" />
+              <SortableHeader label="SOG" sortKey="shotsOnGoal" />
+              <SortableHeader label="ATT" sortKey="attempts" description="Shot attempts" />
+              <SortableHeader label="SH%" sortKey="shootingPercentage" />
+              <SortableHeader label="Rush" sortKey="rushAttempts" />
+              <SortableHeader label="REB" sortKey="reboundAttempts" description="Rebound attempts" />
+              <SortableHeader label="Avg Dist" sortKey="averageDistance" description="Average shot distance" />
+            </tr>
+          </thead>
+          <tbody>
+            {players.map((player) => (
+              <tr key={player.nhlPlayerId}>
+                <SeriesPlayerCell player={player} seasonId={seasonId} />
+                <SeriesNumberCell value={player.expectedGoals} highlight>
+                  {player.expectedGoals.toFixed(2)}
+                </SeriesNumberCell>
+                <SeriesNumberCell value={player.goals} />
+                <SeriesNumberCell value={player.goalsAboveExpected} signed>
+                  {formatSignedDecimal(player.goalsAboveExpected)}
+                </SeriesNumberCell>
+                <SeriesNumberCell value={player.shotsOnGoal} />
+                <SeriesNumberCell value={player.shotAttempts} />
+                <SeriesNumberCell value={player.shootingPercentage}>
+                  {formatPercentage(player.shootingPercentage)}
+                </SeriesNumberCell>
+                <SeriesNumberCell value={player.rushAttempts} />
+                <SeriesNumberCell value={player.reboundAttempts} />
+                <SeriesNumberCell value={player.averageShotDistance}>
+                  {formatDistance(player.averageShotDistance)}
+                </SeriesNumberCell>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </SortableTable>
+  );
+}
+
+function SeriesAdvancedGoalieTable({
+  players,
+  seasonId,
+}: {
+  players: PlayoffSeriesAdvancedGoalieStats[];
+  seasonId: number;
+}) {
+  if (players.length === 0) return <SeriesEmptyState>No modeled goalie shots are available.</SeriesEmptyState>;
+  return (
+    <SortableTable defaultSortKey="goalsSavedAboveExpected">
+      <div className="workspace-series-table-scroll">
+        <table className="workspace-series-table min-w-[720px]">
+          <thead>
+            <tr>
+              <SortableHeader label="Goalie" sortKey="player" align="left" />
+              <SortableHeader label="SA" sortKey="shotsAgainst" />
+              <SortableHeader label="GA" sortKey="goalsAgainst" />
+              <SortableHeader label="xGA" sortKey="expectedGoalsAgainst" />
+              <SortableHeader label="GSAx" sortKey="goalsSavedAboveExpected" description="Goals saved above expected" />
+              <SortableHeader label="SV" sortKey="saves" />
+              <SortableHeader label="SV%" sortKey="savePercentage" />
+              <SortableHeader label="xSV%" sortKey="expectedSavePercentage" description="Expected save percentage" />
+            </tr>
+          </thead>
+          <tbody>
+            {players.map((player) => (
+              <tr key={player.nhlPlayerId}>
+                <SeriesPlayerCell player={player} seasonId={seasonId} />
+                <SeriesNumberCell value={player.shotsAgainst} />
+                <SeriesNumberCell value={player.goalsAgainst} />
+                <SeriesNumberCell value={player.expectedGoalsAgainst}>
+                  {player.expectedGoalsAgainst.toFixed(2)}
+                </SeriesNumberCell>
+                <SeriesNumberCell value={player.goalsSavedAboveExpected} highlight signed>
+                  {formatSignedDecimal(player.goalsSavedAboveExpected)}
+                </SeriesNumberCell>
+                <SeriesNumberCell value={player.saves} />
+                <SeriesNumberCell value={player.savePercentage}>
+                  {formatSavePercentage(player.savePercentage)}
+                </SeriesNumberCell>
+                <SeriesNumberCell value={player.expectedSavePercentage}>
+                  {formatSavePercentage(player.expectedSavePercentage)}
+                </SeriesNumberCell>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </SortableTable>
+  );
+}
+
+type SeriesPlayerIdentity = {
+  nhlPlayerId: number;
+  name: string;
+  nhlTeamId: number;
+  teamAbbreviation: string;
+};
+
+function SeriesPlayerCell({
+  player,
+  seasonId,
+}: {
+  player: SeriesPlayerIdentity;
+  seasonId: number;
+}) {
+  return (
+    <td className="workspace-series-player-cell" data-sort-value={player.name}>
+      <span className="workspace-series-player-identity">
+        <TeamLogo
+          nhlTeamId={player.nhlTeamId}
+          abbreviation={player.teamAbbreviation}
+          name={player.teamAbbreviation}
+          size="tiny"
+          decorative
+          prominent
+        />
+        <Link href={`/players/${player.nhlPlayerId}?season=${seasonId}&phase=playoffs`}>
+          <strong>{player.name}</strong>
+          <small>{player.teamAbbreviation}</small>
+        </Link>
+      </span>
+    </td>
+  );
+}
+
+function SeriesNumberCell({
+  value,
+  children,
+  highlight = false,
+  signed = false,
+}: {
+  value: number | string | null;
+  children?: ReactNode;
+  highlight?: boolean;
+  signed?: boolean;
+}) {
+  const display =
+    children ??
+    (value === null ? "—" : signed && typeof value === "number" ? formatSigned(value) : value);
+  return (
+    <td
+      className={highlight ? "is-highlight" : undefined}
+      data-sort-value={value ?? undefined}
+    >
+      {display}
+    </td>
+  );
+}
+
+function SeriesLoadingState() {
+  return <p className="workspace-series-loading">Loading series statistics…</p>;
 }
 
 function SeriesEmptyState({ children }: { children: ReactNode }) {
@@ -776,10 +1172,10 @@ function formatGameDate(game: PlayoffSeriesGame): string {
 }
 
 function seriesTabLabel(tab: SeriesTab): string {
-  return tab === "analytics"
-    ? "Team analytics"
-    : tab === "leaders"
-      ? "Player leaders"
+  return tab === "advanced"
+    ? "Advanced analytics"
+    : tab === "players"
+      ? "Player stats"
       : tab[0].toUpperCase() + tab.slice(1);
 }
 
@@ -797,4 +1193,27 @@ function formatPercentage(value: number | null): string {
 
 function pluralizeGame(value: number): string {
   return value === 1 ? "game" : "games";
+}
+
+function formatSigned(value: number): string {
+  return value > 0 ? `+${value}` : String(value);
+}
+
+function formatSignedDecimal(value: number): string {
+  return `${value > 0 ? "+" : ""}${value.toFixed(2)}`;
+}
+
+function formatSavePercentage(value: number | null): string {
+  return value === null ? "—" : value.toFixed(3).replace(/^0/, "");
+}
+
+function formatDistance(value: number | null): string {
+  return value === null ? "—" : `${value.toFixed(1)} ft`;
+}
+
+function formatTimeOnIce(value: number | null): string {
+  if (value === null) return "—";
+  const minutes = Math.floor(value / 60);
+  const seconds = Math.round(value % 60);
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }

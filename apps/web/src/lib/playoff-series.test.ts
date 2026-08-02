@@ -50,7 +50,6 @@ function series(): PlayoffSeries {
     teamTwoWins: 0,
     winnerNhlTeamId: null,
     teamAnalytics: [],
-    playerLeaders: [],
     games: [
       {
         nhlGameId: 2024030111,

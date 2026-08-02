@@ -65,7 +65,7 @@ describe("buildActualBracket", () => {
     expect(series.games[0].awayTeam.shotsOnGoal).toBeNull();
   });
 
-  it("attaches series analytics and leaders without changing other series", () => {
+  it("attaches series analytics without changing other series", () => {
     const carolina = gameTeam(12, "CAR", "Carolina Hurricanes");
     const newJersey = gameTeam(1, "NJD", "New Jersey Devils");
     const rounds = buildActualBracket([
@@ -84,23 +84,10 @@ describe("buildActualBracket", () => {
             fiveOnFive: null,
           },
         ],
-        playerLeaders: [
-          {
-            nhlPlayerId: 99,
-            name: "Test Player",
-            nhlTeamId: 12,
-            teamAbbreviation: "CAR",
-            gamesPlayed: 1,
-            goals: 2,
-            assists: 1,
-            points: 3,
-          },
-        ],
       },
     ]);
 
     expect(enriched[0].series[0].teamAnalytics[0].abbreviation).toBe("CAR");
-    expect(enriched[0].series[0].playerLeaders[0].points).toBe(3);
     expect(enriched[0].series[1].teamAnalytics).toEqual([]);
   });
 });
