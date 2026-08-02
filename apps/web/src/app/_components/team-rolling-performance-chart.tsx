@@ -70,7 +70,7 @@ export function TeamRollingPerformanceChart({
 
   return (
     <>
-      <div className="workspace-chart-toolbar">
+      <div className="workspace-chart-toolbar workspace-team-chart-toolbar">
         <p>
           Filters are applied before each rolling window is calculated. For
           example, 10 Away Games means the team&apos;s latest 10 away games.

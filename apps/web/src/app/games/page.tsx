@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { GamePicker } from "@/app/_components/game-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { TeamLogo } from "@/app/_components/team-logo";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
@@ -141,48 +142,6 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
         )}
       </section>
     </main>
-  );
-}
-
-function GamePicker({
-  seasons,
-  selectedSeasonId,
-  gameDates,
-  selectedDate,
-  phase,
-}: {
-  seasons: Array<{ id: number; label: string }>;
-  selectedSeasonId: number | undefined;
-  gameDates: Array<{ date: string; gameCount: number }>;
-  selectedDate: string | undefined;
-  phase: string;
-}) {
-  return (
-    <form method="get" className="workspace-game-picker">
-      <input type="hidden" name="phase" value={phase} />
-      <label>
-        Season
-        <select name="season" defaultValue={selectedSeasonId}>
-          {seasons.map((season) => (
-            <option key={season.id} value={season.id}>
-              {season.label}
-            </option>
-          ))}
-        </select>
-      </label>
-      <label>
-        Game date
-        <select name="date" defaultValue={selectedDate}>
-          {gameDates.map((entry) => (
-            <option key={entry.date} value={entry.date}>
-              {entry.date} · {entry.gameCount}{" "}
-              {entry.gameCount === 1 ? "game" : "games"}
-            </option>
-          ))}
-        </select>
-      </label>
-      <button type="submit">View</button>
-    </form>
   );
 }
 

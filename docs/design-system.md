@@ -90,6 +90,10 @@ and a pre-render bootstrap applies it before the interface is painted.
 - Peer panels share the same column grid and vertical edges. Metric cards wrap
   into fewer columns before their labels or context become cramped; a
   low-control filter stays compact rather than inheriting a full form width.
+- Related tab views keep the same outer width when their internal dataset
+  changes; genuinely wide tables scroll inside that boundary. Selection-only
+  schedule filters apply immediately instead of requiring a redundant View
+  action.
 - Long statistical tables use tighter vertical cell padding without reducing
   the established application font size. Short schedules and comparisons keep
   their normal row rhythm.
@@ -124,7 +128,8 @@ and a pre-render bootstrap applies it before the interface is painted.
 - League comparison scatterplots use fixed axes while filtering so a subject
   never appears to move when its comparison group changes. Meaningful
   horizontal and vertical baselines define plain-language quadrants, and the
-  legend explains both the color and interpretation of every group.
+  legend explains both the color and interpretation of every group. A direct
+  comparison attached to the plot shares its outer edges with that plot.
 - Player comparison plots normalize counting metrics to per-60-minute rates
   before placing players with different workloads on the same axes.
   Distributions use the same fixed bins while filtering, with signed metrics

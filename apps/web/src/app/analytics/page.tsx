@@ -402,13 +402,12 @@ function SkaterLeaderboard({
   return (
     <LeaderboardFrame
       count={rows.length}
-      description="Player-team rows"
+      description="Player results"
       defaultSortKey="gameScore"
     >
-      <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1080px]">
+      <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[980px]">
         <colgroup>
           <col className="workspace-col-entity" />
-          <col className="workspace-col-team" />
           <col className="workspace-col-number" />
           <col className="workspace-col-time" />
           <col className="workspace-col-split" />
@@ -418,7 +417,6 @@ function SkaterLeaderboard({
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Player" sortKey="player" align="left" defaultDirection="asc" />
-            <SortableHeader label="Team" sortKey="team" align="left" defaultDirection="asc" />
             <SortableHeader label="GP" sortKey="games" />
             <SortableHeader label="TOI" sortKey="iceTime" />
             <SortableHeader label="Game score" sortKey="gameScore" />
@@ -439,12 +437,6 @@ function SkaterLeaderboard({
                 href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
                 name={row.player.name}
                 detail={row.player.position ?? "Skater"}
-                team={row.team}
-              />
-              <EntityCell
-                href={`/teams/${row.team.nhlTeamId}?season=${seasonId}`}
-                name={row.team.abbreviation}
-                detail={row.team.name}
                 team={row.team}
               />
               <ValueCell value={String(row.gamesPlayed)} />
@@ -473,13 +465,12 @@ function GoalieLeaderboard({
   return (
     <LeaderboardFrame
       count={rows.length}
-      description="Goalie-team rows"
+      description="Goalie results"
       defaultSortKey="goalsSaved"
     >
-      <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[940px]">
+      <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[860px]">
         <colgroup>
           <col className="workspace-col-entity" />
-          <col className="workspace-col-team" />
           <col className="workspace-col-number" />
           <col className="workspace-col-time" />
           <col className="workspace-col-differential" />
@@ -490,7 +481,6 @@ function GoalieLeaderboard({
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
             <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" />
-            <SortableHeader label="Team" sortKey="team" align="left" defaultDirection="asc" />
             <SortableHeader label="GP" sortKey="games" />
             <SortableHeader label="TOI" sortKey="iceTime" />
             <SortableHeader label="GSAx" sortKey="goalsSaved" />
@@ -510,12 +500,6 @@ function GoalieLeaderboard({
                 href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
                 name={row.player.name}
                 detail="Goalie"
-                team={row.team}
-              />
-              <EntityCell
-                href={`/teams/${row.team.nhlTeamId}?season=${seasonId}`}
-                name={row.team.abbreviation}
-                detail={row.team.name}
                 team={row.team}
               />
               <ValueCell value={String(row.gamesPlayed)} />

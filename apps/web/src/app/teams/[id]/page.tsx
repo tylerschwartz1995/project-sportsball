@@ -249,7 +249,7 @@ export default async function TeamPage({
         ) : null}
 
         {view === "trends" ? (
-        <section className="workspace-width-standard mt-8">
+        <section className="workspace-width-data mt-8">
           <SectionHeader
             eyebrow="Rolling performance"
             title="Team Form"

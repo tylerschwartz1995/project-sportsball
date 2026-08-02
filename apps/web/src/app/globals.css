@@ -2003,6 +2003,10 @@ html[data-theme="light"]
   box-shadow: 0 16px 40px var(--shadow);
 }
 
+.workspace-team-direct-comparison {
+  max-width: none;
+}
+
 .workspace-direct-comparison > header {
   display: grid;
   gap: 0.65rem;
@@ -2133,6 +2137,19 @@ html[data-theme="light"]
     justify-content: flex-end;
   }
 
+  .workspace-chart-toolbar.workspace-team-chart-toolbar {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .workspace-team-chart-toolbar > p {
+    max-width: 54rem;
+  }
+
+  .workspace-team-chart-toolbar .workspace-chart-filters {
+    justify-content: flex-start;
+  }
+
   .workspace-chart {
     height: 18rem;
   }
@@ -2203,7 +2220,7 @@ html[data-theme="light"]
 
 @media (min-width: 640px) {
   .workspace-game-picker {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr) auto;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
     align-items: end;
   }
 
@@ -2239,7 +2256,6 @@ html[data-theme="light"]
   border-color: color-mix(in srgb, var(--accent) 60%, var(--border));
 }
 
-.workspace-game-picker button,
 .workspace-history-filter button {
   min-height: 2.45rem;
   border: 0;
@@ -2253,7 +2269,6 @@ html[data-theme="light"]
   font-weight: 750;
 }
 
-html[data-theme="light"] .workspace-game-picker button,
 html[data-theme="light"] .workspace-history-filter button {
   color: #fff;
 }
@@ -3341,6 +3356,10 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-col-unit-wide {
   width: 26rem;
+}
+
+.workspace-col-season-unit {
+  width: 34rem;
 }
 
 .workspace-col-period {

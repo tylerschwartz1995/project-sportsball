@@ -69,11 +69,9 @@ export function GameAdvancedAnalytics({
   const activeView = tabs.some((tab) => tab.id === view)
     ? view
     : tabs[0].id;
-  const widthClass =
-    activeView === "teams" ? " workspace-width-standard" : "";
 
   return (
-    <section className={`workspace-section-divider${widthClass}`}>
+    <section className="workspace-section-divider workspace-width-standard">
       <SectionHeading
         eyebrow="MoneyPuck game analytics"
         title="How the Game Was Played"

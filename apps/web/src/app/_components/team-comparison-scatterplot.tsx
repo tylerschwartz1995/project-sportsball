@@ -380,7 +380,7 @@ function DirectTeamComparison({
   const second = points.find((point) => String(point.nhlTeamId) === secondId);
 
   return (
-    <section className="workspace-direct-comparison">
+    <section className="workspace-direct-comparison workspace-team-direct-comparison">
       <header>
         <div>
           <p>Direct comparison</p>
