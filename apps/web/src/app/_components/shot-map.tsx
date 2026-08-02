@@ -60,24 +60,26 @@ function TeamShotMap({
     shots.find((shot) => shotKey(shot) === selectedShotId) ?? null;
 
   return (
-    <figure className="surface-panel overflow-hidden">
-      <figcaption className="flex flex-wrap items-end justify-between gap-3 border-b border-white/[0.07] px-5 py-4">
-        <div className="flex items-center gap-3">
+    <figure className="surface-panel flex h-full flex-col overflow-hidden">
+      <figcaption className="grid gap-3 border-b border-white/[0.07] px-5 py-4 2xl:grid-cols-[minmax(0,1fr)_max-content] 2xl:items-center 2xl:gap-5">
+        <div className="flex min-w-0 items-center gap-3">
           <TeamLogo {...team} size="compact" decorative />
-          <div>
-          <p className="font-mono text-xs uppercase tracking-[0.14em] text-slate-500">
-            {team.abbreviation} attempts
-          </p>
-          <p className="mt-1 font-semibold text-white">{team.name}</p>
+          <div className="min-w-0">
+            <p className="font-mono text-xs uppercase tracking-[0.14em] text-slate-500">
+              {team.abbreviation} attempts
+            </p>
+            <p className="mt-1 whitespace-nowrap font-semibold text-white">
+              {team.name}
+            </p>
           </div>
         </div>
-        <p className="text-right text-sm tabular-nums text-slate-400">
+        <p className="whitespace-nowrap text-sm tabular-nums text-slate-400 2xl:text-right">
           {shots.length} attempts · {goals} goals · {expectedGoals.toFixed(2)}{" "}
           xG
         </p>
       </figcaption>
 
-      <div className="p-4">
+      <div className="flex flex-1 flex-col p-4">
         <svg
           viewBox="0 0 320 220"
           role="img"
@@ -201,7 +203,10 @@ function TeamShotMap({
         <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500">
           <LegendDot color={color} label="On goal" />
           <LegendDot color={color} label="Goal" solid />
-          <span>Circle size reflects expected-goal probability. Select a shot for details.</span>
+          <span>
+            Circle size reflects expected-goal probability. Select a shot for
+            details.
+          </span>
         </div>
 
         <ShotDetails shot={selectedShot} team={team} />
