@@ -21,8 +21,15 @@ export type GameTeamSummary = {
   nhlTeamId: number;
   abbreviation: string;
   name: string;
+  record: GameTeamRecord;
   score: number | null;
   shotsOnGoal: number | null;
+};
+
+export type GameTeamRecord = {
+  wins: number;
+  losses: number;
+  overtimeLosses: number;
 };
 
 export type GameSkaterStats = {
@@ -95,4 +102,14 @@ export function parseGameDate(value: string | null | undefined): string | null {
     parsed.getUTCDate() === day
     ? value
     : null;
+}
+
+export function formatGameTeamRecord(record: GameTeamRecord): string {
+  return `${record.wins}-${record.losses}-${record.overtimeLosses}`;
+}
+
+export function formatGameState(state: string): string {
+  if (state === "FUT" || state === "PRE") return "Scheduled";
+  if (state === "LIVE" || state === "CRIT") return "Live";
+  return state;
 }

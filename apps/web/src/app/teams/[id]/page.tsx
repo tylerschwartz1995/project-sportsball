@@ -10,6 +10,7 @@ import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo } from "@/app/_components/team-logo";
+import { TeamGameRecord } from "@/app/_components/team-game-record";
 import { TeamRollingPerformanceChart } from "@/app/_components/team-rolling-performance-chart";
 import {
   ViewTabs,
@@ -593,6 +594,7 @@ function UpcomingSchedule({
                       <TeamLogo {...opponent} size="tiny" decorative />
                       <span>{isHome ? "vs" : "at"}</span>
                       <Link href={`/teams/${opponent.nhlTeamId}?season=${game.seasonId}`}>{opponent.name}</Link>
+                      <TeamGameRecord record={opponent.record} />
                     </span>
                   </td>
                   <td data-sort-value={game.seasonId}>{formatSeasonId(game.seasonId)}</td>

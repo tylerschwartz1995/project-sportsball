@@ -80,7 +80,9 @@ request values into SQL. Standings and games join `team_seasons` so a
 historical request returns the name and abbreviation used in that season.
 Game results left-join `team_game_stats`, allowing the same contract to
 represent completed games and future scheduled games whose scores are not yet
-available.
+available. Each game team also carries a point-in-time phase record derived
+from completed results: final games include that result, while scheduled games
+stop at the latest completed matchup before their start time.
 
 `history.ts` reads the dedicated all-time summary tables for career totals and
 best seasons. Metric names are selected from strict allowlists before they are

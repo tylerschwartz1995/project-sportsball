@@ -2,12 +2,17 @@ import Link from "next/link";
 
 import { GamePicker } from "@/app/_components/game-picker";
 import { SiteHeader } from "@/app/_components/site-header";
+import { TeamGameRecord } from "@/app/_components/team-game-record";
 import { TeamLogo } from "@/app/_components/team-logo";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import {
   WorkspacePageHeader,
 } from "@/app/_components/workspace-primitives";
-import { parseGameDate, type GameSummary } from "@/contracts/game";
+import {
+  formatGameState,
+  parseGameDate,
+  type GameSummary,
+} from "@/contracts/game";
 import { parseSeasonId } from "@/contracts/season";
 import {
   gameTypeForPhase,
@@ -152,7 +157,7 @@ function GameCard({ game }: { game: GameSummary }) {
           {game.gameType === 3 ? "Playoffs" : "Regular season"}
         </span>
         <strong data-complete={completed}>
-          {completed ? finalLabel(game.lastPeriodType) : gameStateLabel(game.state)}
+          {completed ? finalLabel(game.lastPeriodType) : formatGameState(game.state)}
         </strong>
       </div>
       <div className="workspace-game-card-teams">
@@ -189,9 +194,12 @@ function TeamLine({
         prominent
       />
       <div>
-        <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
-          {team.name}
-        </Link>
+        <div className="workspace-game-team-name">
+          <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
+            {team.name}
+          </Link>
+          <TeamGameRecord record={team.record} />
+        </div>
         <p>
           {team.shotsOnGoal === null
             ? "Shots unavailable"
@@ -234,12 +242,6 @@ function DateLink({
 
 function hasFinalScore(game: GameSummary): boolean {
   return game.awayTeam.score !== null && game.homeTeam.score !== null;
-}
-
-function gameStateLabel(state: string): string {
-  if (state === "FUT" || state === "PRE") return "Scheduled";
-  if (state === "LIVE" || state === "CRIT") return "Live";
-  return state;
 }
 
 function finalLabel(lastPeriodType: string | null): string {

@@ -6,6 +6,7 @@ import {
 } from "@/app/_components/homepage-insights";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
+import { TeamGameRecord } from "@/app/_components/team-game-record";
 import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
 import {
   WorkspacePageHeader,
@@ -270,9 +271,12 @@ function UpcomingGame({ game }: { game: GameSummary }) {
       <time dateTime={game.startTimeUtc}>{formatUpcomingTime(game.startTimeUtc)}</time>
       <span className="inline-flex items-center gap-1.5">
         <TeamLogo {...game.awayTeam} size="tiny" decorative />
-        <b>{game.awayTeam.abbreviation}</b> at
+        <b>{game.awayTeam.abbreviation}</b>
+        <TeamGameRecord record={game.awayTeam.record} />
+        at
         <TeamLogo {...game.homeTeam} size="tiny" decorative />
         <b>{game.homeTeam.abbreviation}</b>
+        <TeamGameRecord record={game.homeTeam.record} />
       </span>
       <small>{game.gameType === 3 ? "Playoffs" : formatSeason(game.seasonId)}</small>
     </Link>
@@ -294,11 +298,13 @@ function GameResult({ game }: { game: GameSummary }) {
         <span>
           <TeamLogo {...game.awayTeam} size="tiny" decorative />
           <b>{game.awayTeam.abbreviation}</b>
+          <TeamGameRecord record={game.awayTeam.record} />
           <strong>{game.awayTeam.score ?? "—"}</strong>
         </span>
         <span aria-hidden="true">–</span>
         <span>
           <strong>{game.homeTeam.score ?? "—"}</strong>
+          <TeamGameRecord record={game.homeTeam.record} />
           <b>{game.homeTeam.abbreviation}</b>
           <TeamLogo {...game.homeTeam} size="tiny" decorative />
         </span>

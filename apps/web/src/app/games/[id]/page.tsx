@@ -9,6 +9,7 @@ import { GamePlayByPlayView } from "@/app/_components/play-by-play";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
+import { TeamGameRecord } from "@/app/_components/team-game-record";
 import { TeamLogo } from "@/app/_components/team-logo";
 import { ViewTabs } from "@/app/_components/view-tabs";
 import {
@@ -16,10 +17,11 @@ import {
   SectionHeader,
 } from "@/app/_components/ui-primitives";
 import { parseNhlId } from "@/contracts/entity";
-import type {
-  GameBoxScoreTeam,
-  GameGoalieStats,
-  GameSkaterStats,
+import {
+  formatGameState,
+  type GameBoxScoreTeam,
+  type GameGoalieStats,
+  type GameSkaterStats,
 } from "@/contracts/game";
 import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";
 import { getGameBoxScore } from "@/data/games";
@@ -114,7 +116,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
               {game.awayTeam.name} at {game.homeTeam.name}
             </h1>
             <strong>
-              {completed ? finalLabel(game.lastPeriodType) : game.state}
+              {completed ? finalLabel(game.lastPeriodType) : formatGameState(game.state)}
             </strong>
           </div>
 
@@ -199,11 +201,14 @@ function ScoreTeam({
           <small>
             {team.abbreviation}
           </small>
-          <Link
-            href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
-          >
-            {team.name}
-          </Link>
+          <div className="workspace-game-score-name">
+            <Link
+              href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
+            >
+              {team.name}
+            </Link>
+            <TeamGameRecord record={team.record} />
+          </div>
           <p>
             {team.shotsOnGoal === null
               ? "Shots unavailable"
