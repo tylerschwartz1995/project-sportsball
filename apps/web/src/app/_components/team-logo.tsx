@@ -70,10 +70,15 @@ export function TeamLogo({
   const [failedSrc, setFailedSrc] = useState<string | null>(null);
   const failed = failedSrc === src;
   const className = size === "profile"
-    ? "grid h-20 w-20 shrink-0 place-items-center rounded-2xl border border-white/70 bg-slate-50/95 p-2 shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_8px_24px_rgb(2_8_23/0.22)]"
+    ? "grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/70 bg-slate-50/95 p-2 shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_8px_24px_rgb(2_8_23/0.22)]"
     : size === "compact"
-      ? "grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-white/70 bg-slate-50/95 p-1 shadow-sm"
-      : "grid h-6 w-6 shrink-0 place-items-center rounded-md border border-white/70 bg-slate-50/95 p-0.5 shadow-sm";
+      ? "grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/70 bg-slate-50/95 p-1 shadow-sm"
+      : "grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-md border border-white/70 bg-slate-50/95 p-0.5 shadow-sm";
+  const imageScale = prominent
+    ? size === "tiny"
+      ? "scale-[1.3]"
+      : "scale-[1.45]"
+    : "scale-[1.22]";
 
   return (
     <span className={className}>
@@ -90,7 +95,7 @@ export function TeamLogo({
         <img
           src={src}
           alt={decorative ? "" : `${name ?? resolvedAbbreviation} logo`}
-          className={`h-full w-full object-contain ${prominent ? "scale-[1.18]" : ""}`}
+          className={`h-full w-full object-contain ${imageScale}`}
           onError={() => setFailedSrc(src)}
         />
       )}

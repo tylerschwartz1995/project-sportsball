@@ -285,7 +285,7 @@ function PlayerGameAnalytics({
                   <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                     <MetricHeader label="Player" align="left" />
                     <MetricHeader label="Team" align="left" />
-                    <MetricHeader label="Pos" align="left" />
+                    <MetricHeader label="Pos" />
                     <MetricHeader label="TOI" />
                     <MetricHeader label="Game score" />
                     <MetricHeader label="ixG" />
@@ -313,7 +313,7 @@ function PlayerGameAnalytics({
                         </div>
                       </td>
                       <TeamCell team={row.team} />
-                      <TextCell value={row.position ?? "—"} />
+                      <TextCell value={row.position ?? "—"} align="center" />
                       <ValueCell value={formatTimeOnIce(row.iceTimeSeconds)} />
                       <ValueCell value={formatDecimal(row.gameScore)} highlight />
                       <ValueCell
@@ -689,8 +689,22 @@ function MetricHeader({
   );
 }
 
-function TextCell({ value }: { value: string }) {
-  return <td className="px-4 py-3 text-left font-medium text-white">{value}</td>;
+function TextCell({
+  value,
+  align = "left",
+}: {
+  value: string;
+  align?: "left" | "center";
+}) {
+  return (
+    <td
+      className={`px-4 py-3 font-medium text-white ${
+        align === "center" ? "text-center" : "text-left"
+      }`}
+    >
+      {value}
+    </td>
+  );
 }
 
 function TeamCell({ team }: { team: MoneyPuckGameTeam }) {

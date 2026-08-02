@@ -161,8 +161,8 @@ function GameCard({ game }: { game: GameSummary }) {
         </strong>
       </div>
       <div className="workspace-game-card-teams">
-        <TeamLine team={game.awayTeam} seasonId={game.seasonId} />
-        <TeamLine team={game.homeTeam} seasonId={game.seasonId} />
+        <TeamLine team={game.awayTeam} seasonId={game.seasonId} side="away" />
+        <TeamLine team={game.homeTeam} seasonId={game.seasonId} side="home" />
       </div>
       <div className="workspace-game-card-footer">
         <span>{formatTime(game.startTimeUtc)}</span>
@@ -179,9 +179,11 @@ function GameCard({ game }: { game: GameSummary }) {
 function TeamLine({
   team,
   seasonId,
+  side,
 }: {
   team: GameSummary["awayTeam"];
   seasonId: number;
+  side: "away" | "home";
 }) {
   return (
     <div className="workspace-game-team">
@@ -195,6 +197,7 @@ function TeamLine({
       />
       <div>
         <div className="workspace-game-team-name">
+          <span className="workspace-game-team-venue">{side}</span>
           <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
             {team.name}
           </Link>

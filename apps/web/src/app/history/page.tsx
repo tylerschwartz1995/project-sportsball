@@ -338,7 +338,7 @@ function SkaterHistory({
               <thead>
                 <tr>
                   <SortableHeader label="Player" sortKey="player" align="left" />
-                  <SortableHeader label="Pos" sortKey="position" align="left" />
+                  <SortableHeader label="Pos" sortKey="position" />
                   <SortableHeader label="Seasons" sortKey="seasons" />
                   <SortableHeader label="GP" sortKey="games" />
                   <SortableHeader label="G" sortKey="goals" />
@@ -378,18 +378,16 @@ function SkaterHistory({
       >
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[860px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
               <colgroup>
                 <col className="workspace-col-entity" />
                 <col className="workspace-col-season" />
-                <col className="workspace-col-team" />
                 <col className="workspace-col-number" span={5} />
               </colgroup>
               <thead>
                 <tr>
                   <SortableHeader label="Player" sortKey="player" align="left" />
                   <SortableHeader label="Season" sortKey="season" align="left" />
-                  <SortableHeader label="Team(s)" sortKey="teams" align="left" />
                   <SortableHeader label="GP" sortKey="games" />
                   <SortableHeader label="G" sortKey="goals" />
                   <SortableHeader label="A" sortKey="assists" />
@@ -407,9 +405,6 @@ function SkaterHistory({
                       </div>
                     </td>
                     <td data-sort-value={row.seasonId}>{formatSeason(row.seasonId)}</td>
-                    <td data-sort-value={row.teamAbbreviations ?? ""}>
-                      <TeamLogoStack abbreviations={row.teamAbbreviations} />
-                    </td>
                     <NumberCell value={row.gamesPlayed} />
                     <NumberCell value={row.goals} />
                     <NumberCell value={row.assists} />
@@ -476,18 +471,16 @@ function GoalieHistory({ careers, seasons, phase, metric, display, width }: {
       <WorkspacePanel className="mt-7" width={width} title="Best Single Seasons" description={`Top individual ${seasonPhaseLabel(phase).toLowerCase()} goalie seasons. Save percentage is available from 1955–56 onward.`}>
         <SortableTable defaultSortKey={metric}>
           <div className="workspace-table-scroll">
-            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[820px]">
               <colgroup>
                 <col className="workspace-col-entity" />
                 <col className="workspace-col-season" />
-                <col className="workspace-col-team" />
                 <col className="workspace-col-number" span={5} />
                 <col className="workspace-col-percentage" />
               </colgroup>
               <thead><tr>
                 <SortableHeader label="Goalie" sortKey="goalie" align="left" />
                 <SortableHeader label="Season" sortKey="season" align="left" />
-                <SortableHeader label="Team(s)" sortKey="teams" align="left" />
                 <SortableHeader label="GP" sortKey="games" />
                 <SortableHeader label="W" sortKey="wins" />
                 <SortableHeader label="L" sortKey="losses" />
@@ -504,9 +497,6 @@ function GoalieHistory({ careers, seasons, phase, metric, display, width }: {
                     </div>
                   </td>
                   <td data-sort-value={row.seasonId}>{formatSeason(row.seasonId)}</td>
-                  <td data-sort-value={row.teamAbbreviations ?? ""}>
-                    <TeamLogoStack abbreviations={row.teamAbbreviations} />
-                  </td>
                   <NumberCell value={row.gamesPlayed} />
                   <NumberCell value={row.wins} highlight />
                   <NumberCell value={row.losses} />
