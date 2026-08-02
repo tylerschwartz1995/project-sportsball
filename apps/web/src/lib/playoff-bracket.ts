@@ -3,6 +3,7 @@ import type {
   PlayoffBracketTeam,
   PlayoffRound,
   PlayoffSeries,
+  PlayoffSeriesGame,
 } from "@/contracts/playoffs";
 import type { StandingsEntry } from "@/contracts/standings";
 
@@ -141,6 +142,7 @@ function buildEmptyRounds(): PlayoffRound[] {
       teamOneWins: 0,
       teamTwoWins: 0,
       winnerNhlTeamId: null,
+      games: [],
     })),
   }));
 }
@@ -183,6 +185,29 @@ function seriesFromGames(
         : teamTwoWins >= 4
           ? teamTwo.nhlTeamId
           : null,
+    games: sorted.map(gameToSeriesGame),
+  };
+}
+
+function gameToSeriesGame(game: GameSummary): PlayoffSeriesGame {
+  return {
+    nhlGameId: game.nhlGameId,
+    gameDate: game.gameDate,
+    startTimeUtc: game.startTimeUtc,
+    state: game.state,
+    lastPeriodType: game.lastPeriodType,
+    awayTeam: {
+      nhlTeamId: game.awayTeam.nhlTeamId,
+      abbreviation: game.awayTeam.abbreviation,
+      name: game.awayTeam.name,
+      score: game.awayTeam.score,
+    },
+    homeTeam: {
+      nhlTeamId: game.homeTeam.nhlTeamId,
+      abbreviation: game.homeTeam.abbreviation,
+      name: game.homeTeam.name,
+      score: game.homeTeam.score,
+    },
   };
 }
 
@@ -202,6 +227,7 @@ function projectedSeries(
     teamOneWins: 0,
     teamTwoWins: 0,
     winnerNhlTeamId: null,
+    games: [],
   };
 }
 

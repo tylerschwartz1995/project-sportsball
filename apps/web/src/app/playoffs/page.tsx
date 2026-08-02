@@ -1,16 +1,16 @@
 import Link from "next/link";
 
+import { PlayoffBracket } from "@/app/_components/playoff-bracket";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
-import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
+import { TeamLogoStack } from "@/app/_components/team-logo";
 import { ViewTabs } from "@/app/_components/view-tabs";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
 } from "@/app/_components/workspace-primitives";
-import type { PlayoffRound, PlayoffSeries } from "@/contracts/playoffs";
 import type { GoalieSeasonSummary } from "@/contracts/player";
 import { parseSeasonId } from "@/contracts/season";
 import { getGamesForSeasonByType } from "@/data/games";
@@ -338,151 +338,6 @@ function PlayoffGoalieLeaders({
         </div>
       )}
     </WorkspacePanel>
-  );
-}
-
-function PlayoffBracket({
-  rounds,
-  seasonId,
-  isProjection,
-}: {
-  rounds: PlayoffRound[];
-  seasonId: number;
-  isProjection: boolean;
-}) {
-  const firstRound = rounds.find((round) => round.round === 1)?.series ?? [];
-  const secondRound = rounds.find((round) => round.round === 2)?.series ?? [];
-  const conferenceFinals =
-    rounds.find((round) => round.round === 3)?.series ?? [];
-  const final = rounds.find((round) => round.round === 4)?.series ?? [];
-  const stages = [
-    {
-      id: "western-first",
-      name: "West First Round",
-      series: firstRound.filter((series) => series.matchup >= 5),
-    },
-    {
-      id: "western-second",
-      name: "West Second Round",
-      series: secondRound.filter((series) => series.matchup >= 3),
-    },
-    {
-      id: "western-final",
-      name: "West Final",
-      series: conferenceFinals.filter((series) => series.matchup === 2),
-    },
-    { id: "stanley-cup-final", name: "Stanley Cup Final", series: final },
-    {
-      id: "eastern-final",
-      name: "East Final",
-      series: conferenceFinals.filter((series) => series.matchup === 1),
-    },
-    {
-      id: "eastern-second",
-      name: "East Second Round",
-      series: secondRound.filter((series) => series.matchup <= 2),
-    },
-    {
-      id: "eastern-first",
-      name: "East First Round",
-      series: firstRound.filter((series) => series.matchup <= 4),
-    },
-  ];
-
-  return (
-    <div className="workspace-bracket-scroll">
-      <div className="workspace-bracket">
-        {stages.map((stage) => (
-          <section key={stage.id} className="workspace-bracket-round">
-            <h3>{stage.name}</h3>
-            <div>
-              {stage.series.map((series) => (
-                <Series
-                  key={series.id}
-                  series={series}
-                  seasonId={seasonId}
-                  isProjection={isProjection}
-                />
-              ))}
-            </div>
-          </section>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function Series({
-  series,
-  seasonId,
-  isProjection,
-}: {
-  series: PlayoffSeries;
-  seasonId: number;
-  isProjection: boolean;
-}) {
-  const empty = !series.teamOne && !series.teamTwo;
-  return (
-    <article
-      className={`workspace-bracket-series ${empty ? "is-empty" : ""}`}
-    >
-      <BracketTeam
-        team={series.teamOne}
-        wins={series.teamOneWins}
-        winner={series.winnerNhlTeamId === series.teamOne?.nhlTeamId}
-        seasonId={seasonId}
-        showWins={!isProjection}
-      />
-      <BracketTeam
-        team={series.teamTwo}
-        wins={series.teamTwoWins}
-        winner={series.winnerNhlTeamId === series.teamTwo?.nhlTeamId}
-        seasonId={seasonId}
-        showWins={!isProjection}
-      />
-    </article>
-  );
-}
-
-function BracketTeam({
-  team,
-  wins,
-  winner,
-  seasonId,
-  showWins,
-}: {
-  team: PlayoffSeries["teamOne"];
-  wins: number;
-  winner: boolean;
-  seasonId: number;
-  showWins: boolean;
-}) {
-  return (
-    <div className={winner ? "is-winner" : ""}>
-      {team ? (
-        <>
-          <small>{team.seedLabel ?? ""}</small>
-          <TeamLogo
-            nhlTeamId={team.nhlTeamId}
-            abbreviation={team.abbreviation}
-            name={team.name}
-            size="tiny"
-            decorative
-            prominent
-          />
-          <Link
-            href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
-            aria-label={team.name}
-            title={team.name}
-          >
-            {team.abbreviation}
-          </Link>
-          {showWins ? <strong>{wins}</strong> : null}
-        </>
-      ) : (
-        <span className="workspace-bracket-tbd">To Be Determined</span>
-      )}
-    </div>
   );
 }
 
