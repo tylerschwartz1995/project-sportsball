@@ -289,32 +289,34 @@ export function DraftOutcomePlot({
               </ScatterChart>
             </ResponsiveContainer>
           </div>
-          <table className="sr-only">
-            <caption>
-              {metric.label} by overall draft position for the selected round
-              group
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col">Player</th>
-                <th scope="col">Draft Year</th>
-                <th scope="col">Team</th>
-                <th scope="col">Overall Pick</th>
-                <th scope="col">{metric.shortLabel}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {points.map((point) => (
-                <tr key={`${point.draftYear}-${point.draftOverallPick}`}>
-                  <td>{point.name}</td>
-                  <td>{point.draftYear}</td>
-                  <td>{point.draftTeamAbbreviation}</td>
-                  <td>{point.draftOverallPick}</td>
-                  <td>{formatMetricValue(point.value, metric.format)}</td>
+          <div className="sr-only">
+            <table>
+              <caption>
+                {metric.label} by overall draft position for the selected
+                round group
+              </caption>
+              <thead>
+                <tr>
+                  <th scope="col">Player</th>
+                  <th scope="col">Draft Year</th>
+                  <th scope="col">Team</th>
+                  <th scope="col">Overall Pick</th>
+                  <th scope="col">{metric.shortLabel}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {points.map((point) => (
+                  <tr key={`${point.draftYear}-${point.draftOverallPick}`}>
+                    <td>{point.name}</td>
+                    <td>{point.draftYear}</td>
+                    <td>{point.draftTeamAbbreviation}</td>
+                    <td>{point.draftOverallPick}</td>
+                    <td>{formatMetricValue(point.value, metric.format)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </>
       ) : (
         <div className="workspace-empty-state">
