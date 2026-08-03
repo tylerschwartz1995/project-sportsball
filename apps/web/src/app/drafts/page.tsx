@@ -114,32 +114,32 @@ const classPerformanceColumns = [
     description: "Official selections in the draft class",
   },
   {
-    label: "NHL Rate",
+    label: "NHL Appearance %",
     sortKey: "appearance-rate",
     description: "Share of selections who played at least one NHL game",
   },
   {
-    label: "100+ Rate",
+    label: "100+ Game %",
     sortKey: "hundred-rate",
     description: "Share of selections who reached 100 NHL games",
   },
   {
-    label: "500+ Rate",
+    label: "500+ Game %",
     sortKey: "five-hundred-rate",
     description: "Share of selections who reached 500 NHL games",
   },
   {
-    label: "GP / Pick",
+    label: "NHL Games / Pick",
     sortKey: "average-games",
     description: "Average regular-season NHL games per official selection",
   },
   {
-    label: "PTS / Skater Pick",
+    label: "Points / Skater Pick",
     sortKey: "points",
     description: "Career points divided by all non-goalie selections",
   },
   {
-    label: "GS / Skater Pick",
+    label: "Game Score / Skater Pick",
     sortKey: "game-score",
     description:
       "Stored career MoneyPuck Game Score divided by all non-goalie selections",
@@ -1002,9 +1002,44 @@ function TeamPerformanceTable({
 
 function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
   return (
-    <SortableTable defaultSortKey="average-games">
+    <>
+      <aside
+        className="workspace-class-ranking-guide"
+        aria-label="How to read the class ranking metrics"
+      >
+        <p>
+          <strong>How to read these rankings</strong>
+          <span>
+            Higher values indicate more career return from the full class.
+            Older classes have had more time to accumulate games, points, and
+            Game Score.
+          </span>
+        </p>
+        <dl>
+          <div>
+            <dt>Appearance and milestone percentages</dt>
+            <dd>How often picks reached the NHL, 100 games, or 500 games.</dd>
+          </div>
+          <div>
+            <dt>NHL Games / Pick</dt>
+            <dd>Average career regular-season games across every selection.</dd>
+          </div>
+          <div>
+            <dt>Points / Skater Pick</dt>
+            <dd>Average career points across every non-goalie selection.</dd>
+          </div>
+          <div>
+            <dt>Game Score / Skater Pick</dt>
+            <dd>
+              Average cumulative MoneyPuck all-around impact across every
+              non-goalie selection.
+            </dd>
+          </div>
+        </dl>
+      </aside>
+      <SortableTable defaultSortKey="average-games">
       <div className="workspace-table-scroll">
-        <table className="workspace-table workspace-table-dense min-w-[1100px]">
+        <table className="workspace-table workspace-table-dense min-w-[1260px]">
           <thead>
             <tr>
               {classPerformanceColumns.map((column) => (
@@ -1054,7 +1089,8 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
         . A class is shown as unavailable when any NHL skater lacks advanced
         coverage.
       </div>
-    </SortableTable>
+      </SortableTable>
+    </>
   );
 }
 
