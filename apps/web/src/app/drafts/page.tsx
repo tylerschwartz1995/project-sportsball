@@ -10,6 +10,7 @@ import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo } from "@/app/_components/team-logo";
+import { TeamDraftingVisuals } from "@/app/_components/team-drafting-visuals";
 import { ViewTabs } from "@/app/_components/view-tabs";
 import {
   WorkspacePageHeader,
@@ -391,13 +392,20 @@ function TeamDraftingView({ analytics }: { analytics: DraftAnalytics }) {
       />
 
       {analytics.teamPerformance.length > 0 ? (
-        <WorkspacePanel
-          className="mt-7"
-          title="Team Drafting"
-          description={`Comparing every selection from ${analytics.selectedFromYear ?? "—"} through ${analytics.selectedToYear ?? "—"}. The default window uses the ten most recent draft classes with at least five seasons of observation.`}
-        >
-          <TeamPerformanceTable rows={analytics.teamPerformance} />
-        </WorkspacePanel>
+        <>
+          <WorkspacePanel
+            className="mt-7"
+            title="Team Drafting"
+            description={`Comparing every selection from ${analytics.selectedFromYear ?? "—"} through ${analytics.selectedToYear ?? "—"}. The default window uses the ten most recent draft classes with at least five seasons of observation.`}
+          >
+            <TeamPerformanceTable rows={analytics.teamPerformance} />
+          </WorkspacePanel>
+          <TeamDraftingVisuals
+            rows={analytics.teamPerformance}
+            fromYear={analytics.selectedFromYear}
+            toYear={analytics.selectedToYear}
+          />
+        </>
       ) : (
         <div className="workspace-empty-state mt-7">
           No team drafting results are available for this range.

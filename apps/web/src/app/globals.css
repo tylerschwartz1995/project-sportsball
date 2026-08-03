@@ -1722,6 +1722,42 @@ html[data-theme="light"] .workspace-directory-controls button {
   height: 27rem;
 }
 
+.workspace-team-drafting-visuals {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.workspace-team-drafting-scatter {
+  height: 30rem;
+}
+
+.workspace-team-drafting-chart-note {
+  margin: 0.25rem 0.75rem 0.5rem;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.workspace-team-drafting-bars {
+  min-height: 34rem;
+}
+
+.workspace-team-drafting-legend {
+  justify-content: center;
+}
+
+.workspace-team-drafting-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.workspace-team-drafting-legend i {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 0.15rem;
+}
+
 @media (max-width: 800px) {
   .workspace-page-actions {
     justify-content: flex-start;
