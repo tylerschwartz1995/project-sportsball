@@ -2473,6 +2473,13 @@ html[data-theme="light"]
   }
 }
 
+@media (min-width: 1100px) {
+  .workspace-player-chart-header > .workspace-draft-outcome-summary {
+    max-width: none;
+    white-space: nowrap;
+  }
+}
+
 @media (min-width: 1024px) {
   .workspace-player-comparison-grid {
     grid-template-columns: minmax(0, 1.45fr) minmax(18rem, 0.85fr);

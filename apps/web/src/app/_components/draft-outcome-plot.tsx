@@ -175,10 +175,9 @@ export function DraftOutcomePlot({
             expected goals against minus goals against.
           </p>
         ) : (
-          <p>
-            Each point is an official selection. Players without a stored NHL
-            appearance remain visible at zero; use the class leaders below to
-            continue into player profiles.
+          <p className="workspace-draft-outcome-summary">
+            Every selection stays visible; no NHL appearance is plotted at
+            zero.
           </p>
         )}
       </header>
