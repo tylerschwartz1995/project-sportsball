@@ -1048,11 +1048,11 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
       </aside>
       <SortableTable defaultSortKey="average-games">
       <div className="workspace-table-scroll">
-        <table className="workspace-table workspace-table-dense min-w-[1260px]">
+        <table className="workspace-table workspace-table-dense workspace-class-rankings-table">
           <thead>
             <tr>
               {classPerformanceColumns.map((column) => (
-                <SortableHeader key={column.sortKey} {...column} nowrap />
+                <SortableHeader key={column.sortKey} {...column} />
               ))}
             </tr>
           </thead>
