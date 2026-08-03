@@ -203,6 +203,48 @@ describe("getDraftAnalytics", () => {
     });
   });
 
+  it("limits team options to the selected draft year", async () => {
+    queryMock
+      .mockResolvedValueOnce([
+        {
+          draft_year: 2016,
+          draft_team_nhl_id: 52,
+          draft_team_name: "Winnipeg Jets",
+          draft_team_abbrev: "WPG",
+          has_nhl_appearance: true,
+        },
+        {
+          draft_year: 2015,
+          draft_team_nhl_id: 22,
+          draft_team_name: "Edmonton Oilers",
+          draft_team_abbrev: "EDM",
+          has_nhl_appearance: true,
+        },
+      ])
+      .mockResolvedValueOnce([]);
+
+    const result = await getDraftAnalytics({
+      draftYear: 2015,
+      teamAbbreviation: "WPG",
+    });
+
+    expect(queryMock.mock.calls[1]?.[1]).toEqual([
+      2015,
+      null,
+      null,
+      null,
+      false,
+    ]);
+    expect(result.teamOptions).toEqual([
+      {
+        nhlTeamId: 22,
+        name: "Edmonton Oilers",
+        abbreviation: "EDM",
+      },
+    ]);
+    expect(result.selectedTeamAbbreviation).toBeNull();
+  });
+
   it("normalizes the default mature team comparison window", async () => {
     queryMock
       .mockResolvedValueOnce(

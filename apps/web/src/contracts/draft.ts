@@ -73,5 +73,6 @@ export type DraftAnalytics = {
   selectedToYear: number | null;
   latestDraftYear: number | null;
   latestMatureDraftYear: number | null;
+  selectedTeamAbbreviation: string | null;
   allYears: boolean;
 };

@@ -134,6 +134,16 @@ export async function getDraftAnalytics(
         ? latestMatureDraftYear
         : latestDraftYear) ??
       null);
+  const teamOptionRows =
+    selectedDraftYear === null
+      ? filterRows
+      : filterRows.filter((row) => row.draft_year === selectedDraftYear);
+  const teamOptions = uniqueTeamOptions(teamOptionRows);
+  const selectedTeamAbbreviation =
+    teamAbbreviation !== null &&
+    teamOptions.some((team) => team.abbreviation === teamAbbreviation)
+      ? teamAbbreviation
+      : null;
   const defaultRangeEnd = latestMatureDraftYear;
   const defaultRangeStart = defaultRangeEnd === null
     ? null
@@ -300,14 +310,13 @@ export async function getDraftAnalytics(
     `,
     [
       selectedDraftYear,
-      teamAbbreviation,
+      selectedTeamAbbreviation,
       rangeStart,
       rangeEnd,
       includeAdvanced,
     ],
   );
   const outcomes = outcomeRows.map(mapOutcome);
-  const teamOptions = uniqueTeamOptions(filterRows);
   return {
     outcomes,
     teamPerformance: buildTeamPerformance(outcomes),
@@ -318,6 +327,7 @@ export async function getDraftAnalytics(
     selectedToYear: rangeEnd,
     latestDraftYear,
     latestMatureDraftYear,
+    selectedTeamAbbreviation,
     allYears,
   };
 }

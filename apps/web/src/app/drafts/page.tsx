@@ -101,7 +101,7 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
   const yearParam = firstQueryValue(params.year);
   const requestedYear = parseDraftYear(yearParam);
   const allYears = view === "board" && yearParam === "all";
-  const selectedTeam = view === "board"
+  const requestedTeam = view === "board"
     ? (firstQueryValue(params.team) ?? "")
     : "";
   const requestedFromYear = parseDraftYear(firstQueryValue(params.from));
@@ -115,12 +115,15 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
         }
       : {
           draftYear: requestedYear,
-          teamAbbreviation: selectedTeam || null,
+          teamAbbreviation: requestedTeam || null,
           allYears,
           defaultYear: view === "outcomes" ? "mature" : "latest",
           includeAdvanced: view === "outcomes",
         },
   );
+  const selectedTeam = view === "board"
+    ? (analytics.selectedTeamAbbreviation ?? "")
+    : "";
   const firstDraftYear = analytics.draftYears.at(-1);
   const lastDraftYear = analytics.draftYears[0];
 
@@ -431,6 +434,7 @@ function DraftBoardFilters({
         <AutoSubmitSelect
           name="year"
           defaultValue={allYears ? "all" : (selectedYear ?? "")}
+          resetFields={["team"]}
         >
           <option value="all">All Drafts</option>
           {years.map((year) => (
