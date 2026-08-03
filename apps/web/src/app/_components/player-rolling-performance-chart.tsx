@@ -27,6 +27,7 @@ import {
 import {
   filterGamesByVenue,
   ROLLING_WINDOWS,
+  stableMetricDomain,
   type PerformanceVenue,
   type RollingWindow,
 } from "@/lib/rolling-performance";
@@ -159,42 +160,31 @@ export function PlayerRollingPerformanceChart(
   const [metricKey, setMetricKey] = useState(metrics[0].key);
   const metric =
     metrics.find((candidate) => candidate.key === metricKey) ?? metrics[0];
-  const data = useMemo<PlayerPerformanceChartPoint[]>(() => {
-    const rolling =
-      kind === "skater"
-        ? buildRollingSkaterPerformance(
-            filterGamesByVenue(games, venue),
-            windowSize,
-          )
-        : buildRollingGoaliePerformance(
-            filterGamesByVenue(games, venue),
-            windowSize,
-          );
-
-    return rolling.map((point) => {
-      const values = point as unknown as Record<string, unknown>;
-      const advancedSampleSizes = values.advancedSampleSizes as
-        | Record<string, number>
-        | undefined;
-      return {
-        nhlGameId: point.nhlGameId,
-        gameDate: point.gameDate,
-        teamAbbreviation: point.teamAbbreviation,
-        opponentAbbreviation: point.opponentAbbreviation,
-        opponentName: point.opponentName,
-        venueLabel: point.venueLabel,
-        scoreLabel: point.scoreLabel,
-        sampleSize: point.sampleSize,
-        metricSampleSize: metric.advanced
-          ? advancedSampleSizes?.[metric.key] ?? 0
-          : point.sampleSize,
-        value:
-          typeof values[metric.key] === "number"
-            ? (values[metric.key] as number)
-            : null,
-      };
-    });
-  }, [games, kind, metric.advanced, metric.key, venue, windowSize]);
+  const data = useMemo<PlayerPerformanceChartPoint[]>(
+    () => buildChartPoints(kind, games, metric, venue, windowSize),
+    [games, kind, metric, venue, windowSize],
+  );
+  const scaleValues = useMemo(
+    () =>
+      ROLLING_WINDOWS.flatMap((scaleWindow) =>
+        (["all", "home", "away"] as const).flatMap((scaleVenue) =>
+          buildChartPoints(
+            kind,
+            games,
+            metric,
+            scaleVenue,
+            scaleWindow,
+          ).flatMap((point) =>
+            point.value === null ? [] : [point.value],
+          ),
+        ),
+      ),
+    [games, kind, metric],
+  );
+  const yDomain = useMemo(
+    () => stableMetricDomain(scaleValues, metric),
+    [metric, scaleValues],
+  );
   const hasMetricData = data.some((point) => point.value !== null);
 
   if (games.length === 0) {
@@ -214,7 +204,7 @@ export function PlayerRollingPerformanceChart(
         </p>
       </header>
 
-      <div className="workspace-chart-toolbar">
+      <div className="workspace-chart-toolbar workspace-player-trend-toolbar">
         <label className="workspace-chart-metric-select">
           Metric
           <select
@@ -278,7 +268,7 @@ export function PlayerRollingPerformanceChart(
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={data}
-              margin={{ top: 14, right: 12, bottom: 4, left: 0 }}
+              margin={{ top: 18, right: 24, bottom: 14, left: 8 }}
               accessibilityLayer
             >
               <CartesianGrid
@@ -295,9 +285,11 @@ export function PlayerRollingPerformanceChart(
                 axisLine={{ stroke: "var(--chart-axis)" }}
                 interval="preserveStartEnd"
                 minTickGap={38}
+                padding={{ left: 32, right: 32 }}
+                tickMargin={16}
               />
               <YAxis
-                domain={["auto", "auto"]}
+                domain={yDomain}
                 tickFormatter={(value) => formatAxisValue(value, metric)}
                 tick={{
                   fill: metric.advanced
@@ -307,7 +299,8 @@ export function PlayerRollingPerformanceChart(
                 }}
                 tickLine={false}
                 axisLine={false}
-                width={64}
+                tickMargin={10}
+                width={72}
               />
               {metric.referenceValue !== undefined ? (
                 <ReferenceLine
@@ -362,6 +355,49 @@ export function PlayerRollingPerformanceChart(
       />
     </div>
   );
+}
+
+function buildChartPoints(
+  kind: "skater" | "goalie",
+  games: SkaterPerformanceGame[] | GoaliePerformanceGame[],
+  metric: MetricConfig,
+  venue: PerformanceVenue,
+  windowSize: RollingWindow,
+): PlayerPerformanceChartPoint[] {
+  const rolling =
+    kind === "skater"
+      ? buildRollingSkaterPerformance(
+          filterGamesByVenue(games as SkaterPerformanceGame[], venue),
+          windowSize,
+        )
+      : buildRollingGoaliePerformance(
+          filterGamesByVenue(games as GoaliePerformanceGame[], venue),
+          windowSize,
+        );
+
+  return rolling.map((point) => {
+    const values = point as unknown as Record<string, unknown>;
+    const advancedSampleSizes = values.advancedSampleSizes as
+      | Record<string, number>
+      | undefined;
+    return {
+      nhlGameId: point.nhlGameId,
+      gameDate: point.gameDate,
+      teamAbbreviation: point.teamAbbreviation,
+      opponentAbbreviation: point.opponentAbbreviation,
+      opponentName: point.opponentName,
+      venueLabel: point.venueLabel,
+      scoreLabel: point.scoreLabel,
+      sampleSize: point.sampleSize,
+      metricSampleSize: metric.advanced
+        ? advancedSampleSizes?.[metric.key] ?? 0
+        : point.sampleSize,
+      value:
+        typeof values[metric.key] === "number"
+          ? (values[metric.key] as number)
+          : null,
+    };
+  });
 }
 
 function PlayerPerformanceTooltip({

@@ -14,15 +14,10 @@ import {
   type TooltipContentProps,
 } from "recharts";
 
-import {
-  ChartFilterButton,
-  ChartFilterGroup,
-} from "@/app/_components/chart-controls";
 import { TeamLogo } from "@/app/_components/team-logo";
 import {
   buildTeamPlotPoints,
   comparisonDomain,
-  filterTeamComparisonPoints,
   type TeamComparisonGroup,
   type TeamComparisonPoint,
   type TeamPlotPoint,
@@ -81,7 +76,6 @@ export function TeamComparisonScatterplot({
   points: TeamComparisonPoint[];
   phase: "regular" | "playoffs";
 }) {
-  const [group, setGroup] = useState<TeamComparisonGroup>("all");
   const [processMetric, setProcessMetric] = useState<TeamProcessMetric>(
     "expectedGoalSharePercentage",
   );
@@ -91,10 +85,6 @@ export function TeamComparisonScatterplot({
   const plotPoints = useMemo(
     () => buildTeamPlotPoints(points, processMetric),
     [points, processMetric],
-  );
-  const visiblePoints = useMemo(
-    () => filterTeamComparisonPoints(plotPoints, group),
-    [group, plotPoints],
   );
   const xDomain = useMemo(
     () =>
@@ -150,31 +140,14 @@ export function TeamComparisonScatterplot({
         </label>
       </div>
 
-      <div className="workspace-chart-toolbar">
+      <div className="workspace-chart-toolbar workspace-team-chart-toolbar">
         <p>
-          Hover or tap a team for exact values. The axes stay fixed while
-          filtering so each team remains in the same league context.
+          Hover or tap a team for exact values. Every team remains visible so
+          the plot always preserves the full league context.
         </p>
-        <div className="workspace-chart-filters">
-          <ChartFilterGroup label="Quadrant">
-            <ChartFilterButton
-              active={group === "all"}
-              label="All Teams"
-              onClick={() => setGroup("all")}
-            />
-            {GROUPS.map((option) => (
-              <ChartFilterButton
-                key={option.value}
-                active={group === option.value}
-                label={option.label}
-                onClick={() => setGroup(option.value)}
-              />
-            ))}
-          </ChartFilterGroup>
-        </div>
       </div>
 
-      {visiblePoints.length > 0 ? (
+      {plotPoints.length > 0 ? (
         <div
           className="workspace-chart workspace-comparison-chart"
           role="img"
@@ -256,7 +229,7 @@ export function TeamComparisonScatterplot({
                 <Scatter
                   key={series.value}
                   name={series.label}
-                  data={visiblePoints.filter(
+                  data={plotPoints.filter(
                     (point) => point.group === series.value,
                   )}
                   fill={series.color}
@@ -268,7 +241,7 @@ export function TeamComparisonScatterplot({
         </div>
       ) : (
         <p className="workspace-chart-empty">
-          No teams fall in this quadrant for the selected season phase.
+          Team comparison data is unavailable for this process metric.
         </p>
       )}
 
@@ -296,7 +269,7 @@ export function TeamComparisonScatterplot({
           </tr>
         </thead>
         <tbody>
-          {visiblePoints.map((point) => (
+          {plotPoints.map((point) => (
             <tr key={point.nhlTeamId}>
               <td>{point.name}</td>
               <td>

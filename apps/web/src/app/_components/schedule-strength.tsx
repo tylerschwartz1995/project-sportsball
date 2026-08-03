@@ -216,7 +216,7 @@ function ScheduleGamesTable({
             <colgroup>
               <col className="workspace-col-date" />
               <col className="workspace-col-entity" />
-              <col className="workspace-col-time" />
+              <col className="workspace-col-label" />
               <col className="workspace-col-split" />
               <col className="workspace-col-number" />
               <col className="workspace-col-time" />
@@ -266,8 +266,11 @@ function ScheduleGamesTable({
                         </div>
                       </div>
                     </td>
-                    <td data-sort-value={game.isHome ? "home" : "away"}>
-                      {game.isHome ? "Home" : "Away"}
+                    <td
+                      data-sort-value={game.isHome ? "home" : "away"}
+                      className="workspace-schedule-site-cell"
+                    >
+                      <strong>{game.isHome ? "Home" : "Away"}</strong>
                       {game.siteName ? <small>{game.siteName}</small> : null}
                     </td>
                     <td data-sort-value={strength ?? ""} className="workspace-semantic-number text-center font-medium tabular-nums text-cyan-100">

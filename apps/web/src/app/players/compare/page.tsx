@@ -334,19 +334,33 @@ function ComparisonTable({
 }) {
   return (
     <div className="workspace-table-scroll">
-      <table className="workspace-table workspace-comparison-matrix min-w-[720px]">
+      <table className="workspace-table workspace-comparison-matrix min-w-[900px]">
+        <colgroup>
+          <col className="workspace-comparison-metric-column" />
+          {players.map((player) => (
+            <col key={player.nhlPlayerId} />
+          ))}
+        </colgroup>
         <thead>
           <tr>
             <th>Metric</th>
             {players.map((player) => (
               <th key={player.nhlPlayerId}>
-                <TeamLogoStack teams={player.teams} />
-                <Link
-                  href={`/players/${player.nhlPlayerId}?season=${seasonId}&phase=${phase}`}
-                >
-                  {player.name}
-                </Link>
-                <small>{formatPlayerPosition(player.position, "Player")}</small>
+                <div className="workspace-comparison-player-heading">
+                  <TeamLogoStack
+                    teams={player.teams}
+                    size="compact"
+                    prominent
+                  />
+                  <div>
+                    <Link
+                      href={`/players/${player.nhlPlayerId}?season=${seasonId}&phase=${phase}`}
+                    >
+                      {player.name}
+                    </Link>
+                    <small>{formatPlayerPosition(player.position, "Player")}</small>
+                  </div>
+                </div>
               </th>
             ))}
           </tr>
