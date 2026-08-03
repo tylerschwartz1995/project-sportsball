@@ -1747,9 +1747,98 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-team-pick-summary {
   display: grid;
+  flex: 0 0 auto;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   border-bottom: 1px solid var(--border);
   background: color-mix(in srgb, var(--surface-raised) 52%, transparent);
+}
+
+.workspace-modal {
+  width: min(72rem, calc(100vw - 2rem));
+  max-width: none;
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  overflow: hidden;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.85rem;
+  padding: 0;
+  background: var(--surface);
+  color: var(--foreground);
+  box-shadow: 0 24px 80px rgb(0 0 0 / 45%);
+}
+
+.workspace-modal::backdrop {
+  background: rgb(2 8 23 / 72%);
+  backdrop-filter: blur(3px);
+}
+
+.workspace-modal[open] {
+  display: flex;
+}
+
+.workspace-modal:focus {
+  outline: none;
+}
+
+.workspace-modal-surface {
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  max-height: calc(100dvh - 2rem);
+  flex-direction: column;
+}
+
+.workspace-team-picks-modal {
+  height: min(50rem, calc(100dvh - 2rem));
+}
+
+.workspace-modal-header {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.9rem 1rem;
+}
+
+.workspace-modal-header h2 {
+  color: var(--foreground);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.workspace-modal-header p {
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.workspace-modal-header button {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  background: var(--surface-raised);
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.workspace-modal-header button:hover,
+.workspace-modal-header button:focus-visible {
+  border-color: var(--border-strong);
+  color: var(--foreground);
+}
+
+.workspace-modal-header button span:first-child {
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .workspace-team-pick-summary > div {
@@ -1781,12 +1870,50 @@ html[data-theme="light"] .workspace-directory-controls button {
 }
 
 .workspace-team-picks-scroll {
-  max-height: 38rem;
+  min-height: 0;
+  flex: 1 1 auto;
+  overflow: auto;
+}
+
+.workspace-team-picks-table-shell {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
 }
 
 .workspace-team-picks-table {
-  min-width: 860px;
+  min-width: 820px;
+  table-layout: fixed;
   font-size: 0.8rem;
+}
+
+.workspace-team-pick-year-col {
+  width: 8.5%;
+}
+
+.workspace-team-pick-number-col {
+  width: 9%;
+}
+
+.workspace-team-pick-player-col {
+  width: 28%;
+}
+
+.workspace-team-pick-position-col {
+  width: 7%;
+}
+
+.workspace-team-pick-stat-col {
+  width: 8%;
+}
+
+.workspace-team-pick-game-score-col {
+  width: 13.5%;
+}
+
+.workspace-team-pick-gsax-col {
+  width: 10%;
 }
 
 .workspace-team-picks-table thead {
@@ -1796,14 +1923,35 @@ html[data-theme="light"] .workspace-directory-controls button {
   background: var(--surface-raised);
 }
 
-.workspace-team-picks-table td {
-  font-variant-numeric: tabular-nums;
-  text-align: center;
+.workspace-table.workspace-team-picks-table thead th {
+  padding: 0.62rem 0.7rem;
+  font-size: 0.72rem;
 }
 
-.workspace-team-picks-table td:first-child,
-.workspace-team-picks-table .workspace-team-cell {
+.workspace-table.workspace-team-picks-table tbody td {
+  padding: 0.58rem 0.75rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.workspace-table.workspace-team-picks-table tbody td:first-child,
+.workspace-table.workspace-team-picks-table tbody td.workspace-team-cell {
+  min-width: 0;
   text-align: left;
+}
+
+.workspace-team-picks-table .workspace-team-cell a,
+.workspace-team-picks-table .workspace-team-cell strong,
+.workspace-team-picks-table .workspace-team-cell small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-team-picks-modal .workspace-table-note {
+  flex: 0 0 auto;
+  font-size: 0.72rem;
 }
 
 .workspace-team-pick-round {

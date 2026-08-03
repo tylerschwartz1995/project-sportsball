@@ -14,6 +14,7 @@ import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo } from "@/app/_components/team-logo";
 import { TeamDraftingVisuals } from "@/app/_components/team-drafting-visuals";
 import { ViewTabs } from "@/app/_components/view-tabs";
+import { WorkspaceModal } from "@/app/_components/workspace-modal";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -1061,7 +1062,8 @@ function TeamPerformanceTable({
                     </span>
                     <small>
                       <Link
-                        href={`/drafts?view=teams&from=${fromYear ?? ""}&to=${toYear ?? ""}&team=${team.teamAbbreviation}#team-picks`}
+                        href={`/drafts?view=teams&from=${fromYear ?? ""}&to=${toYear ?? ""}&team=${team.teamAbbreviation}`}
+                        scroll={false}
                       >
                         {team.teamAbbreviation} picks & outcomes →
                       </Link>
@@ -1123,56 +1125,46 @@ function TeamPickOutcomesPanel({
   const windowLabel = `${fromYear ?? "—"}–${toYear ?? "—"}`;
 
   return (
-    <div id="team-picks">
-      <WorkspacePanel
-        className="mt-7"
-        title={`${team.teamName} Picks & Outcomes`}
-        description={`${windowLabel} · Career outcomes for the ${picks.length} selections used in the ranking above.`}
-        action={
-          <Link
-            href={`/drafts?view=teams&from=${fromYear ?? ""}&to=${toYear ?? ""}#team-rankings`}
-            className="workspace-panel-link"
-          >
-            Clear team
-          </Link>
-        }
-      >
-        <dl className="workspace-team-pick-summary">
-          <TeamPickSummaryItem label="Picks" value={team.selections} />
-          <TeamPickSummaryItem
-            label="NHL Rate"
-            value={formatPercentage(team.appearanceRate)}
-          />
-          <TeamPickSummaryItem
-            label="100+ Rate"
-            value={formatPercentage(team.hundredGameRate)}
-          />
-          <TeamPickSummaryItem
-            label="GP / Pick"
-            value={Math.round(team.averageGames)}
-          />
-          <TeamPickSummaryItem
-            label="Value +/-"
-            value={formatSignedNumber(team.valueAboveExpected)}
-          />
-          <TeamPickSummaryItem
-            label="GS / Skater"
-            value={
-              team.gameScorePerSkaterPick === null
-                ? "—"
-                : Math.round(team.gameScorePerSkaterPick)
-            }
-          />
-        </dl>
-        <TeamPickOutcomesTable rows={picks} />
-        <div className="workspace-table-note">
-          GP, points, and wins are career regular-season totals. Game Score is
-          shown for skaters and goals saved above expected (GSAx) for goalies
-          when stored MoneyPuck coverage is available. Missing advanced data is
-          shown as unavailable, not zero.
-        </div>
-      </WorkspacePanel>
-    </div>
+    <WorkspaceModal
+      title={`${team.teamName} Picks & Outcomes`}
+      description={`${windowLabel} · Career outcomes for the ${picks.length} selections used in the team ranking.`}
+      closeHref={`/drafts?view=teams&from=${fromYear ?? ""}&to=${toYear ?? ""}#team-rankings`}
+    >
+      <dl className="workspace-team-pick-summary">
+        <TeamPickSummaryItem label="Picks" value={team.selections} />
+        <TeamPickSummaryItem
+          label="NHL Rate"
+          value={formatPercentage(team.appearanceRate)}
+        />
+        <TeamPickSummaryItem
+          label="100+ Rate"
+          value={formatPercentage(team.hundredGameRate)}
+        />
+        <TeamPickSummaryItem
+          label="GP / Pick"
+          value={Math.round(team.averageGames)}
+        />
+        <TeamPickSummaryItem
+          label="Value +/-"
+          value={formatSignedNumber(team.valueAboveExpected)}
+        />
+        <TeamPickSummaryItem
+          label="GS / Skater"
+          value={
+            team.gameScorePerSkaterPick === null
+              ? "—"
+              : Math.round(team.gameScorePerSkaterPick)
+          }
+        />
+      </dl>
+      <TeamPickOutcomesTable rows={picks} />
+      <div className="workspace-table-note">
+        GP, points, and wins are career regular-season totals. Game Score is
+        shown for skaters and goals saved above expected (GSAx) for goalies when
+        stored MoneyPuck coverage is available. Missing advanced data is shown
+        as unavailable, not zero.
+      </div>
+    </WorkspaceModal>
   );
 }
 
@@ -1193,9 +1185,23 @@ function TeamPickSummaryItem({
 
 function TeamPickOutcomesTable({ rows }: { rows: DraftPlayerOutcome[] }) {
   return (
-    <SortableTable defaultSortKey="games">
+    <SortableTable
+      defaultSortKey="games"
+      className="workspace-team-picks-table-shell"
+    >
       <div className="workspace-table-scroll workspace-team-picks-scroll">
         <table className="workspace-table workspace-table-dense workspace-team-picks-table">
+          <colgroup>
+            <col className="workspace-team-pick-year-col" />
+            <col className="workspace-team-pick-number-col" />
+            <col className="workspace-team-pick-player-col" />
+            <col className="workspace-team-pick-position-col" />
+            <col className="workspace-team-pick-stat-col" />
+            <col className="workspace-team-pick-stat-col" />
+            <col className="workspace-team-pick-stat-col" />
+            <col className="workspace-team-pick-game-score-col" />
+            <col className="workspace-team-pick-gsax-col" />
+          </colgroup>
           <thead>
             <tr>
               {teamPickOutcomeColumns.map((column) => (

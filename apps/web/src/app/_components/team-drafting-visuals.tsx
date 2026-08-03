@@ -131,6 +131,7 @@ export function TeamDraftingVisuals({
                 key={team.teamAbbreviation}
                 className="workspace-team-drafting-point"
                 href={teamOutcomesHref(team.teamAbbreviation, fromYear, toYear)}
+                scroll={false}
                 style={{ left: `${left}%`, top: `${top}%` }}
                 aria-label={`${team.teamName}: ${formatPercentage(team.hundredGameRate)} 100-game player rate and ${Math.round(team.averageGames)} games per pick. Open picks and outcomes.`}
               >
@@ -382,7 +383,7 @@ function teamOutcomesHref(
   });
   if (fromYear !== null) params.set("from", String(fromYear));
   if (toYear !== null) params.set("to", String(toYear));
-  return `/drafts?${params.toString()}#team-picks`;
+  return `/drafts?${params.toString()}`;
 }
 
 function AccessibleEfficiencyTable({
