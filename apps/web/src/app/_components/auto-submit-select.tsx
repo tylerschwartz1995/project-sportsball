@@ -17,6 +17,7 @@ export function AutoSubmitSelect({
 }: AutoSubmitSelectProps) {
   return (
     <select
+      key={`${name}-${defaultValue}`}
       name={name}
       defaultValue={defaultValue}
       onChange={(event) => {

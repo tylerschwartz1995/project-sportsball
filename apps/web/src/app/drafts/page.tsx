@@ -230,17 +230,29 @@ function DraftBoardView({
         query={query}
       />
 
-      {outcomePage.items.length > 0 ? (
-        <>
-          <WorkspacePanel
-            className="mt-7"
-            title={
-              analytics.allYears
-                ? "Complete Draft Archive"
-                : `${analytics.selectedDraftYear ?? "NHL"} Draft Board`
-            }
-            description={`Showing ${outcomePage.firstItem}–${outcomePage.lastItem} of ${outcomePage.totalItems} matching selections.`}
-          >
+      <WorkspacePanel
+        className="mt-7"
+        title={
+          analytics.allYears
+            ? "Complete Draft Archive"
+            : `${analytics.selectedDraftYear ?? "NHL"} Draft Board`
+        }
+        description={
+          outcomePage.totalItems > 0
+            ? `Showing ${outcomePage.firstItem}–${outcomePage.lastItem} of ${outcomePage.totalItems} matching selections.`
+            : "No selections match the current filters."
+        }
+        action={
+          <DraftBoardSearch
+            selectedYear={selectedYear}
+            selectedTeam={selectedTeam}
+            selectedRound={selectedRound}
+            query={query}
+          />
+        }
+      >
+        {outcomePage.items.length > 0 ? (
+          <>
             <DraftBoardTable
               rows={outcomePage.items}
               showYear={analytics.allYears}
@@ -248,19 +260,21 @@ function DraftBoardView({
               direction={direction}
               params={tableParams}
             />
-          </WorkspacePanel>
-          <Pagination
-            path="/drafts"
-            currentPage={outcomePage.currentPage}
-            totalPages={outcomePage.totalPages}
-            params={{ ...tableParams, sort, dir: direction }}
-          />
-        </>
-      ) : (
-        <div className="workspace-empty-state mt-7">
-          No draft selections match the selected filters.
-        </div>
-      )}
+          </>
+        ) : (
+          <div className="workspace-empty-state">
+            Try a different player, club, team, round, or draft year.
+          </div>
+        )}
+      </WorkspacePanel>
+      {outcomePage.items.length > 0 ? (
+        <Pagination
+          path="/drafts"
+          currentPage={outcomePage.currentPage}
+          totalPages={outcomePage.totalPages}
+          params={{ ...tableParams, sort, dir: direction }}
+        />
+      ) : null}
     </>
   );
 }
@@ -412,9 +426,15 @@ function DraftBoardFilters({
   allYears: boolean;
   query: string;
 }) {
+  const resetYear = allYears ? "all" : selectedYear;
+  const resetHref = resetYear === null
+    ? "/drafts?view=board"
+    : `/drafts?view=board&year=${resetYear}`;
+
   return (
     <form method="get" className="workspace-draft-filters is-board">
       <input type="hidden" name="view" value="board" />
+      <input type="hidden" name="q" value={query} />
       <label>
         Draft Year
         <AutoSubmitSelect
@@ -452,18 +472,40 @@ function DraftBoardFilters({
           ))}
         </AutoSubmitSelect>
       </label>
-      <label className="workspace-draft-search">
-        Search
+      <div className="workspace-draft-filter-actions">
+        <Link href={resetHref}>Reset</Link>
+      </div>
+    </form>
+  );
+}
+
+function DraftBoardSearch({
+  selectedYear,
+  selectedTeam,
+  selectedRound,
+  query,
+}: {
+  selectedYear: number | "all";
+  selectedTeam: string;
+  selectedRound: number | null;
+  query: string;
+}) {
+  return (
+    <form method="get" className="workspace-draft-table-search">
+      <input type="hidden" name="view" value="board" />
+      <input type="hidden" name="year" value={selectedYear} />
+      <input type="hidden" name="team" value={selectedTeam} />
+      <input type="hidden" name="round" value={selectedRound ?? ""} />
+      <label>
+        <span className="sr-only">Search selections</span>
         <input
           type="search"
           name="q"
           defaultValue={query}
-          placeholder="Player, team, country, club…"
+          placeholder="Player or amateur club…"
         />
       </label>
-      <div className="workspace-draft-filter-actions">
-        <Link href="/drafts?view=board">Reset</Link>
-      </div>
+      <button type="submit">Search</button>
     </form>
   );
 }
