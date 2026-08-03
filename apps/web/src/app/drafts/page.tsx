@@ -124,9 +124,6 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
   const selectedTeam = view === "board"
     ? (analytics.selectedTeamAbbreviation ?? "")
     : "";
-  const firstDraftYear = analytics.draftYears.at(-1);
-  const lastDraftYear = analytics.draftYears[0];
-
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="drafts" />
@@ -149,17 +146,6 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
             selectedToYear: analytics.selectedToYear,
           })}
         />
-
-        <details className="workspace-draft-coverage">
-          <summary>
-            13,152 official selections · {firstDraftYear ?? "—"}–{lastDraftYear ?? "—"} · Outcomes through 2025–26
-          </summary>
-          <p>
-            The archive retains every NHL Records selection, including players
-            without an NHL appearance and historical traded-pick ownership.
-            Career outcomes use stored official regular-season summaries.
-          </p>
-        </details>
 
         {view === "board" ? (
           <DraftBoardView
