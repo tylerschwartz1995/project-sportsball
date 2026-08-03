@@ -50,8 +50,20 @@ regular-season (`game_type = 2`) data:
 - **late regular:** a round-four-or-later selection with at least 100 games.
 
 The complete selection board is therefore the denominator for team rates. The
-default page opens the latest draft with a stored NHL outcome so the chart is
-informative; future or newly completed drafts and the full 1963–2026 archive
-remain selectable. The interactive plot is intentionally limited to a single
-draft year or drafting team, while the complete all-years table stays
-available with pagination.
+workspace separates three user tasks:
+
+- **Draft Board** opens the latest official draft and provides year, team,
+  round, and player search across the complete archive. Player and canonical
+  team records link to their supporting profile pages.
+- **Player Outcomes** opens the latest class with at least five seasons of
+  observation. Newer classes remain selectable but are identified as still
+  developing, and their totals are described as progress rather than final
+  success rates.
+- **Team Drafting** defaults to the ten most recent draft classes with at least
+  five seasons of observation. It compares selection counts, NHL appearance
+  and 100-game rates, games per pick, and late-round regulars across the same
+  observation window.
+
+The all-years board remains available with pagination. Its URL-backed sorting
+is applied to the complete filtered result before pagination, rather than only
+reordering the visible page.

@@ -333,11 +333,14 @@ year provides a complete round-by-round board, while an explicit all-years view
 pages through the full archive.
 
 Career outcomes join to NHL-published all-time regular-season summaries.
-Organizational tables publish NHL-appearance and 100-game rates using every
-selection as the denominator, plus games per selection, total games, skater
-points, goalie wins, and late-round regulars. The latest draft with a stored NHL
-outcome is the default analysis view; future and newly completed drafts remain
-selectable even when their current outcome is zero.
+The workspace separates the complete draft board, player outcomes, and team
+drafting into distinct URL-backed views. Organizational tables publish
+NHL-appearance and 100-game rates using every selection as the denominator,
+plus games per selection and late-round regulars. Player outcomes default to
+the latest class with five seasons of observation, while team comparisons use
+the ten most recent mature classes. Future and newly completed drafts remain
+selectable with an explicit developing-class explanation instead of presenting
+their current zeros as final performance.
 
 Potential extensions include:
 

@@ -76,12 +76,13 @@ export function DraftOutcomePlot({
     <section className="workspace-chart-panel">
       <header className="workspace-player-chart-header">
         <div>
-          <p>Pick Value</p>
-          <h3>Draft Position and NHL Outcome</h3>
+          <p>Player Outcomes</p>
+          <h3>Draft Position and Career Outcome</h3>
         </div>
         <p>
           Each point is an official selection. Players without a stored NHL
-          appearance remain visible at zero; earlier picks appear to the left.
+          appearance remain visible at zero; use the class leaders below to
+          continue into player profiles.
         </p>
       </header>
       <div className="workspace-chart-toolbar">
@@ -179,6 +180,31 @@ export function DraftOutcomePlot({
           </ScatterChart>
         </ResponsiveContainer>
       </div>
+      <table className="sr-only">
+        <caption>
+          {metric.label} by overall draft position for the selected round group
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">Player</th>
+            <th scope="col">Draft Year</th>
+            <th scope="col">Team</th>
+            <th scope="col">Overall Pick</th>
+            <th scope="col">{metric.shortLabel}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {points.map((point) => (
+            <tr key={`${point.draftYear}-${point.draftOverallPick}`}>
+              <td>{point.name}</td>
+              <td>{point.draftYear}</td>
+              <td>{point.draftTeamAbbreviation}</td>
+              <td>{point.draftOverallPick}</td>
+              <td>{point.value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </section>
   );
 }

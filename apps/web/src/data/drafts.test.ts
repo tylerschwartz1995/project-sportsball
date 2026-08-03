@@ -16,7 +16,13 @@ describe("getDraftAnalytics", () => {
   it("uses complete selection denominators for team performance", async () => {
     queryMock
       .mockResolvedValueOnce([
-        { draft_year: 2015, draft_team_abbrev: "EDM" },
+        {
+          draft_year: 2015,
+          draft_team_nhl_id: 22,
+          draft_team_name: "Edmonton Oilers",
+          draft_team_abbrev: "EDM",
+          has_nhl_appearance: true,
+        },
       ])
       .mockResolvedValueOnce([
         outcomeRow({
@@ -54,12 +60,15 @@ describe("getDraftAnalytics", () => {
         }),
       ]);
 
-    const result = await getDraftAnalytics(2015, "EDM");
+    const result = await getDraftAnalytics({
+      draftYear: 2015,
+      teamAbbreviation: "EDM",
+    });
 
     expect(queryMock).toHaveBeenNthCalledWith(
       2,
       expect.stringContaining("FROM draft_selections AS selection"),
-      [2015, "EDM"],
+      [2015, "EDM", null, null],
     );
     expect(queryMock.mock.calls[1]?.[0]).toContain(
       "historical_skater_season_stats",
@@ -74,6 +83,8 @@ describe("getDraftAnalytics", () => {
     });
     expect(result.teamPerformance).toEqual([
       {
+        teamNhlId: 22,
+        teamName: "Edmonton Oilers",
         teamAbbreviation: "EDM",
         selections: 3,
         playersWithNhlGames: 2,
@@ -89,19 +100,36 @@ describe("getDraftAnalytics", () => {
     ]);
     expect(result.draftYears).toEqual([2015]);
     expect(result.selectedDraftYear).toBe(2015);
-    expect(result.teamAbbreviations).toEqual(["EDM"]);
+    expect(result.teamOptions).toEqual([
+      {
+        nhlTeamId: 22,
+        name: "Edmonton Oilers",
+        abbreviation: "EDM",
+      },
+    ]);
   });
 
-  it("uses the latest board with outcomes by default and supports all years", async () => {
+  it("uses view-appropriate defaults and supports all years", async () => {
     queryMock
       .mockResolvedValueOnce([
         {
           draft_year: 2026,
+          draft_team_nhl_id: 23,
+          draft_team_name: "Vancouver Canucks",
           draft_team_abbrev: "VAN",
           has_nhl_appearance: false,
         },
         {
           draft_year: 2025,
+          draft_team_nhl_id: 23,
+          draft_team_name: "Vancouver Canucks",
+          draft_team_abbrev: "VAN",
+          has_nhl_appearance: true,
+        },
+        {
+          draft_year: 2021,
+          draft_team_nhl_id: 23,
+          draft_team_name: "Vancouver Canucks",
           draft_team_abbrev: "VAN",
           has_nhl_appearance: true,
         },
@@ -110,19 +138,71 @@ describe("getDraftAnalytics", () => {
       .mockResolvedValueOnce([
         {
           draft_year: 2026,
+          draft_team_nhl_id: 23,
+          draft_team_name: "Vancouver Canucks",
           draft_team_abbrev: "VAN",
           has_nhl_appearance: false,
+        },
+      ])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        {
+          draft_year: 2026,
+          draft_team_nhl_id: 23,
+          draft_team_name: "Vancouver Canucks",
+          draft_team_abbrev: "VAN",
+          has_nhl_appearance: false,
+        },
+        {
+          draft_year: 2021,
+          draft_team_nhl_id: 23,
+          draft_team_name: "Vancouver Canucks",
+          draft_team_abbrev: "VAN",
+          has_nhl_appearance: true,
         },
       ])
       .mockResolvedValueOnce([]);
 
     const latest = await getDraftAnalytics();
-    const all = await getDraftAnalytics(null, null, true);
+    const all = await getDraftAnalytics({ allYears: true });
+    const mature = await getDraftAnalytics({ defaultYear: "mature" });
 
-    expect(queryMock.mock.calls[1]?.[1]).toEqual([2025, null]);
-    expect(queryMock.mock.calls[3]?.[1]).toEqual([null, null]);
-    expect(latest.selectedDraftYear).toBe(2025);
+    expect(queryMock.mock.calls[1]?.[1]).toEqual([2026, null, null, null]);
+    expect(queryMock.mock.calls[3]?.[1]).toEqual([null, null, null, null]);
+    expect(queryMock.mock.calls[5]?.[1]).toEqual([2021, null, null, null]);
+    expect(latest.selectedDraftYear).toBe(2026);
     expect(all).toMatchObject({ selectedDraftYear: null, allYears: true });
+    expect(mature).toMatchObject({
+      selectedDraftYear: 2021,
+      latestMatureDraftYear: 2021,
+    });
+  });
+
+  it("normalizes the default mature team comparison window", async () => {
+    queryMock
+      .mockResolvedValueOnce(
+        Array.from({ length: 15 }, (_, index) => ({
+          draft_year: 2026 - index,
+          draft_team_nhl_id: 23,
+          draft_team_name: "Vancouver Canucks",
+          draft_team_abbrev: "VAN",
+          has_nhl_appearance: index > 0,
+        })),
+      )
+      .mockResolvedValueOnce([]);
+
+    const result = await getDraftAnalytics({
+      yearRange: true,
+      fromYear: 2026,
+      toYear: 2025,
+    });
+
+    expect(queryMock.mock.calls[1]?.[1]).toEqual([null, null, 2012, 2021]);
+    expect(result).toMatchObject({
+      selectedDraftYear: null,
+      selectedFromYear: 2012,
+      selectedToYear: 2021,
+    });
   });
 });
 
@@ -137,6 +217,8 @@ function outcomeRow(
     amateur_league: "OHL",
     amateur_club_name: "London",
     draft_year: 2015,
+    draft_team_nhl_id: 22,
+    draft_team_name: "Edmonton Oilers",
     draft_team_abbrev: "EDM",
     original_pick_owner_abbrev: "EDM",
     pick_owner_history: "EDM",
