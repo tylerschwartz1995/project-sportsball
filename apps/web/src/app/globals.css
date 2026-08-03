@@ -29,9 +29,6 @@
   --chart-puck: #020617;
   --chart-puck-highlight: #64748b;
   --workspace-canvas-max: 80rem;
-  --workspace-width-compact: 50rem;
-  --workspace-width-standard: 56rem;
-  --workspace-width-data: 64rem;
 }
 
 html {
@@ -558,24 +555,12 @@ html[data-theme="light"] .theme-toggle-label::after {
   box-shadow: 0 12px 32px var(--shadow);
 }
 
+/* Keep legacy section-size hooks aligned to one full-width workspace canvas. */
 .workspace-width-compact,
 .workspace-width-standard,
 .workspace-width-data {
   width: 100%;
-  margin-right: auto;
-  margin-left: auto;
-}
-
-.workspace-width-compact {
-  max-width: var(--workspace-width-compact);
-}
-
-.workspace-width-standard {
-  max-width: var(--workspace-width-standard);
-}
-
-.workspace-width-data {
-  max-width: var(--workspace-width-data);
+  max-width: none;
 }
 
 .workspace-player-overview-block {
