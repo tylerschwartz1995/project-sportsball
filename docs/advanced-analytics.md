@@ -100,6 +100,9 @@ Goalie views include:
 
 Game pages add:
 
+- interactive Game Flow in the scoring timeline, with a default five-minute
+  chance-quality pressure view, an optional cumulative expected-goal view,
+  goal context, and period-level expected-goal totals;
 - all-situations expected-goal cards and sortable team situation comparisons;
 - normalized offensive-zone shot maps, with circle size representing expected
   goal probability; every marker can be selected by pointer or keyboard to
@@ -142,6 +145,13 @@ message instead of treating unavailable records as zero.
 Every advanced section links to and credits MoneyPuck.com. Compact definitions
 beside the results link to the centralized metric guide, which explains how to
 interpret shot-quality, possession, individual, on-ice, and goalie metrics.
+Game Flow explicitly describes pressure as a backward-looking comparison of
+modeled chance quality rather than momentum, betting odds, or a prediction of
+the winner. Its plotted pressure trend uses a trailing 30-second time-weighted
+average for readability, while interactive details preserve the exact
+unsmoothed five-minute values. Both chart views use game-relative vertical
+scales. Its coverage follows the MoneyPuck shot archive beginning in 2007–08,
+and shootout attempts are excluded.
 
 ## Future analytics presentation
 

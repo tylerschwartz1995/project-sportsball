@@ -26,6 +26,7 @@ import {
 import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";
 import { getGameBoxScore } from "@/data/games";
 import { getGamePlayByPlay } from "@/data/play-by-play";
+import { buildGameFlow } from "@/lib/game-flow";
 import { formatPlayerPosition } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
@@ -95,6 +96,12 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
         }
       : null,
   ].filter((tab): tab is NonNullable<typeof tab> => tab !== null);
+  const gameFlow = buildGameFlow({
+    shots: advanced?.shots ?? [],
+    events: playByPlay.events,
+    awayTeam: game.awayTeam,
+    homeTeam: game.homeTeam,
+  });
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -151,6 +158,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
             awayTeam={game.awayTeam}
             homeTeam={game.homeTeam}
             seasonId={game.seasonId}
+            gameFlow={gameFlow}
           />
         ) : null}
 
