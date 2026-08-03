@@ -1913,17 +1913,17 @@ html[data-theme="light"] .workspace-directory-controls button {
   font-size: 0.84rem;
 }
 
-.workspace-class-rankings-table thead {
-  font-size: 0.72rem;
-  letter-spacing: 0.035em;
+.workspace-table.workspace-class-rankings-table thead {
+  font-size: 0.66rem;
+  letter-spacing: 0.015em;
 }
 
-.workspace-class-rankings-table thead th {
-  padding: 0.58rem 0.3rem;
+.workspace-table.workspace-class-rankings-table thead th {
+  padding: 0.48rem 0.3rem;
 }
 
-.workspace-class-rankings-table thead button {
-  line-height: 1.25;
+.workspace-table.workspace-class-rankings-table thead button {
+  line-height: 1.15;
   white-space: normal;
 }
 
@@ -1951,7 +1951,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 }
 
 .workspace-class-rankings-table th:nth-child(1) {
-  width: 14%;
+  width: 13%;
 }
 
 .workspace-class-rankings-table th:nth-child(2) {
@@ -1959,24 +1959,24 @@ html[data-theme="light"] .workspace-directory-controls button {
 }
 
 .workspace-class-rankings-table th:nth-child(3) {
-  width: 12%;
+  width: 11%;
 }
 
 .workspace-class-rankings-table th:nth-child(4),
 .workspace-class-rankings-table th:nth-child(5) {
-  width: 11%;
+  width: 10%;
 }
 
 .workspace-class-rankings-table th:nth-child(6) {
-  width: 13%;
+  width: 14%;
 }
 
 .workspace-class-rankings-table th:nth-child(7) {
-  width: 15%;
+  width: 17%;
 }
 
 .workspace-class-rankings-table th:nth-child(8) {
-  width: 17%;
+  width: 18%;
 }
 
 .workspace-class-ranking-visuals {

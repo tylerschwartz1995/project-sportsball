@@ -104,7 +104,7 @@ const teamPerformanceColumns = [
 
 const classPerformanceColumns = [
   {
-    label: "Draft Class",
+    label: "Draft",
     sortKey: "class",
     align: "left",
     defaultDirection: "desc",
@@ -116,32 +116,32 @@ const classPerformanceColumns = [
     description: "Official selections in the draft class",
   },
   {
-    label: "NHL Appearance %",
+    label: "NHL Rate",
     sortKey: "appearance-rate",
     description: "Share of selections who played at least one NHL game",
   },
   {
-    label: "100+ Game %",
+    label: "100+ Rate",
     sortKey: "hundred-rate",
     description: "Share of selections who reached 100 NHL games",
   },
   {
-    label: "500+ Game %",
+    label: "500+ Rate",
     sortKey: "five-hundred-rate",
     description: "Share of selections who reached 500 NHL games",
   },
   {
-    label: "NHL Games / Pick",
+    label: "Games / Pick",
     sortKey: "average-games",
     description: "Average regular-season NHL games per official selection",
   },
   {
-    label: "Points / Skater Pick",
+    label: "Points / Skater",
     sortKey: "points",
     description: "Career points divided by all non-goalie selections",
   },
   {
-    label: "Game Score / Skater Pick",
+    label: "Game Score / Skater",
     sortKey: "game-score",
     description:
       "Stored career MoneyPuck Game Score divided by all non-goalie selections",
