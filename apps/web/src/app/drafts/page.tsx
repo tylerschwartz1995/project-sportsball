@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 
 import { AutoSubmitSelect } from "@/app/_components/auto-submit-select";
 import { ClassRankingVisuals } from "@/app/_components/class-ranking-visuals";
@@ -1014,6 +1015,17 @@ function TeamPerformanceTable({
 }
 
 function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
+  const heatValues = {
+    appearance: sortedValues(rows.map((row) => row.appearanceRate)),
+    hundredGames: sortedValues(rows.map((row) => row.hundredGameRate)),
+    fiveHundredGames: sortedValues(
+      rows.map((row) => row.fiveHundredGameRate),
+    ),
+    averageGames: sortedValues(rows.map((row) => row.averageGames)),
+    points: sortedValues(rows.map((row) => row.pointsPerSkaterPick)),
+    gameScore: sortedValues(rows.map((row) => row.gameScorePerSkaterPick)),
+  };
+
   return (
     <>
       <aside
@@ -1051,57 +1063,82 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
         </dl>
       </aside>
       <SortableTable defaultSortKey="average-games">
-      <div className="workspace-table-scroll">
-        <table className="workspace-table workspace-table-dense workspace-class-rankings-table">
-          <thead>
-            <tr>
-              {classPerformanceColumns.map((column) => (
-                <SortableHeader key={column.sortKey} {...column} />
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((draftClass) => (
-              <tr key={draftClass.draftYear}>
-                <td className="workspace-team-cell">
-                  <Link href={`/drafts?view=outcomes&year=${draftClass.draftYear}`}>
-                    <strong>{draftClass.draftYear} Draft</strong>
-                  </Link>
-                </td>
-                <NumberCell value={draftClass.selections} />
-                <NumberCell value={formatPercentage(draftClass.appearanceRate)} />
-                <NumberCell value={formatPercentage(draftClass.hundredGameRate)} />
-                <NumberCell value={formatPercentage(draftClass.fiveHundredGameRate)} />
-                <NumberCell value={Math.round(draftClass.averageGames)} />
-                <NumberCell
-                  value={
-                    draftClass.pointsPerSkaterPick === null
-                      ? "—"
-                      : Math.round(draftClass.pointsPerSkaterPick)
-                  }
-                />
-                <NumberCell
-                  value={
-                    draftClass.gameScorePerSkaterPick === null
-                      ? "—"
-                      : Math.round(draftClass.gameScorePerSkaterPick)
-                  }
-                />
+        <div className="workspace-table-scroll">
+          <table className="workspace-table workspace-table-dense workspace-class-rankings-table">
+            <thead>
+              <tr>
+                {classPerformanceColumns.map((column) => (
+                  <SortableHeader key={column.sortKey} {...column} />
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="workspace-table-note">
-        Rates use every official selection as the denominator. Points and Game
-        Score exclude goalies but include zero-game skater picks. Game Score
-        uses stored all-situations data from{" "}
-        <a href="https://moneypuck.com" target="_blank" rel="noreferrer">
-          MoneyPuck.com
-        </a>
-        . A class is shown as unavailable when any NHL skater lacks advanced
-        coverage.
-      </div>
+            </thead>
+            <tbody>
+              {rows.map((draftClass) => (
+                <tr key={draftClass.draftYear}>
+                  <td className="workspace-team-cell">
+                    <Link
+                      href={`/drafts?view=outcomes&year=${draftClass.draftYear}`}
+                    >
+                      <strong>{draftClass.draftYear} Draft</strong>
+                    </Link>
+                  </td>
+                  <NumberCell value={draftClass.selections} />
+                  <ClassMetricCell
+                    value={draftClass.appearanceRate}
+                    displayValue={formatPercentage(draftClass.appearanceRate)}
+                    comparisonValues={heatValues.appearance}
+                  />
+                  <ClassMetricCell
+                    value={draftClass.hundredGameRate}
+                    displayValue={formatPercentage(draftClass.hundredGameRate)}
+                    comparisonValues={heatValues.hundredGames}
+                  />
+                  <ClassMetricCell
+                    value={draftClass.fiveHundredGameRate}
+                    displayValue={formatPercentage(
+                      draftClass.fiveHundredGameRate,
+                    )}
+                    comparisonValues={heatValues.fiveHundredGames}
+                  />
+                  <ClassMetricCell
+                    value={draftClass.averageGames}
+                    displayValue={Math.round(draftClass.averageGames)}
+                    comparisonValues={heatValues.averageGames}
+                  />
+                  <ClassMetricCell
+                    value={draftClass.pointsPerSkaterPick}
+                    displayValue={
+                      draftClass.pointsPerSkaterPick === null
+                        ? "—"
+                        : Math.round(draftClass.pointsPerSkaterPick)
+                    }
+                    comparisonValues={heatValues.points}
+                  />
+                  <ClassMetricCell
+                    value={draftClass.gameScorePerSkaterPick}
+                    displayValue={
+                      draftClass.gameScorePerSkaterPick === null
+                        ? "—"
+                        : Math.round(draftClass.gameScorePerSkaterPick)
+                    }
+                    comparisonValues={heatValues.gameScore}
+                  />
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="workspace-table-note">
+          Cyan intensity ranks a class against every other displayed class
+          within that column; it is not a combined grade. Rates use every
+          official selection as the denominator. Points and Game Score exclude
+          goalies but include zero-game skater picks. Game Score uses stored
+          all-situations data from{" "}
+          <a href="https://moneypuck.com" target="_blank" rel="noreferrer">
+            MoneyPuck.com
+          </a>. A class is shown as unavailable when any NHL skater lacks
+          advanced coverage.
+        </div>
       </SortableTable>
     </>
   );
@@ -1286,4 +1323,56 @@ function formatSignedNumber(value: number): string {
 
 function NumberCell({ value }: { value: number | string }) {
   return <td className="workspace-number-cell">{value}</td>;
+}
+
+function ClassMetricCell({
+  value,
+  displayValue,
+  comparisonValues,
+}: {
+  value: number | null;
+  displayValue: number | string;
+  comparisonValues: number[];
+}) {
+  if (value === null) {
+    return (
+      <td className="workspace-number-cell workspace-class-metric-cell is-unavailable">
+        {displayValue}
+      </td>
+    );
+  }
+
+  const rank = percentileRank(comparisonValues, value);
+  const style = {
+    "--heat-percent": `${6 + rank * 30}%`,
+  } as CSSProperties;
+
+  return (
+    <td
+      className="workspace-number-cell workspace-class-metric-cell"
+      data-sort-value={value}
+      style={style}
+    >
+      {displayValue}
+    </td>
+  );
+}
+
+function sortedValues(values: Array<number | null>): number[] {
+  return values
+    .filter((value): value is number => value !== null)
+    .sort((left, right) => left - right);
+}
+
+function percentileRank(sortedNumbers: number[], value: number): number {
+  if (sortedNumbers.length <= 1) return 1;
+  let lowerCount = 0;
+  let equalCount = 0;
+  for (const candidate of sortedNumbers) {
+    if (candidate < value) lowerCount += 1;
+    else if (candidate === value) equalCount += 1;
+  }
+  return (
+    lowerCount + Math.max(0, equalCount - 1) / 2
+  ) / (sortedNumbers.length - 1);
 }

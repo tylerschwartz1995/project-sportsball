@@ -91,8 +91,9 @@ rates. The workspace separates four user tasks:
   than being hidden inside a composite score. Classes with incomplete NHL
   skater Game Score coverage show that advanced metric as unavailable. A
   decade-grouped outcome mix shows the share of picks at four NHL career
-  milestones, while a percentile heatmap exposes each class’s relative
-  strengths without turning those metrics into one opaque grade.
+  milestones. Percentile heat coloring is integrated into the sortable metric
+  cells so relative strengths remain visible beside each exact value, without
+  turning those metrics into one opaque grade.
 
 The all-years board remains available with pagination. Its URL-backed sorting
 is applied to the complete filtered result before pagination, rather than only

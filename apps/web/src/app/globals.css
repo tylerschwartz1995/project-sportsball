@@ -1937,6 +1937,19 @@ html[data-theme="light"] .workspace-directory-controls button {
   padding: 0.55rem 0.25rem;
 }
 
+.workspace-class-rankings-table .workspace-class-metric-cell {
+  background: color-mix(
+    in srgb,
+    var(--chart-primary) var(--heat-percent),
+    var(--surface)
+  );
+}
+
+.workspace-class-rankings-table .workspace-class-metric-cell.is-unavailable {
+  background: var(--surface);
+  color: var(--muted);
+}
+
 .workspace-class-rankings-table th:nth-child(1) {
   width: 14%;
 }
@@ -2068,79 +2081,6 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-class-outcome-bar span {
   min-width: 0;
-}
-
-.workspace-class-heatmap-scroll {
-  max-height: 42rem;
-  overflow: auto;
-  margin: 0 0.75rem;
-  border: 1px solid var(--border);
-  border-radius: 0.8rem;
-}
-
-.workspace-class-heatmap {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 2px;
-  background: var(--border);
-  font-family: var(--font-geist-mono);
-  font-size: 0.72rem;
-  font-variant-numeric: tabular-nums;
-}
-
-.workspace-class-heatmap thead {
-  position: sticky;
-  z-index: 1;
-  top: 0;
-}
-
-.workspace-class-heatmap th {
-  background: var(--surface-raised);
-  color: var(--muted);
-  font-weight: 700;
-}
-
-.workspace-class-heatmap thead th {
-  padding: 0.55rem 0.35rem;
-  font-size: 0.67rem;
-  line-height: 1.3;
-  text-align: center;
-}
-
-.workspace-class-heatmap thead th:first-child {
-  width: 6rem;
-  text-align: left;
-}
-
-.workspace-class-heatmap tbody th {
-  padding: 0.38rem 0.55rem;
-  text-align: left;
-}
-
-.workspace-class-heatmap tbody th a {
-  color: var(--foreground);
-  text-decoration: none;
-}
-
-.workspace-class-heatmap tbody th a:hover,
-.workspace-class-heatmap tbody th a:focus-visible {
-  color: var(--accent);
-}
-
-.workspace-class-heatmap td {
-  padding: 0.38rem 0.35rem;
-  background: color-mix(
-    in srgb,
-    var(--chart-primary) var(--heat-percent),
-    var(--surface)
-  );
-  color: var(--foreground);
-  text-align: center;
-}
-
-.workspace-class-heatmap td.is-unavailable {
-  background: var(--surface);
-  color: var(--muted);
 }
 
 .workspace-team-drafting-bars {
