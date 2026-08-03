@@ -1372,6 +1372,20 @@ html[data-theme="light"] .workspace-directory-controls button {
   width: min(100%, 43rem);
 }
 
+.workspace-draft-range-note {
+  grid-column: 1 / -1;
+  margin-top: 0.15rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.7rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.workspace-draft-range-note strong {
+  color: var(--foreground);
+}
+
 .workspace-draft-filters label {
   color: var(--muted);
   font-size: 0.88rem;

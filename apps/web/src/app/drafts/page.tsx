@@ -734,6 +734,15 @@ function DraftRangeFilter({
       <div className="workspace-draft-filter-actions">
         <Link href="/drafts?view=teams">Reset Window</Link>
       </div>
+      {matureThrough !== null ? (
+        <p className="workspace-draft-range-note">
+          <strong>Why comparisons stop at {matureThrough}:</strong> it is the
+          latest draft class with at least five NHL seasons in the stored
+          outcomes. Newer classes remain available in Player Outcomes, but
+          excluding them here avoids treating unfinished development as poor
+          drafting.
+        </p>
+      ) : null}
     </form>
   );
 }
