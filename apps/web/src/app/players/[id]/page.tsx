@@ -235,7 +235,18 @@ export default async function PlayerPage({
             label="Shoots / catches"
             value={profile.shootsCatches ?? "Unavailable"}
           />
-          <ProfileStat label="Draft" value={formatDraft(profile)} />
+          <ProfileStat
+            label="Draft"
+            value={
+              profile.draftYear ? (
+                <Link href={`/drafts?view=board&year=${profile.draftYear}`}>
+                  {formatDraft(profile)} →
+                </Link>
+              ) : (
+                formatDraft(profile)
+              )
+            }
+          />
         </dl>
 
         {regularSkater || playoffSkater ? (
@@ -418,7 +429,13 @@ export default async function PlayerPage({
   );
 }
 
-function ProfileStat({ label, value }: { label: string; value: string }) {
+function ProfileStat({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
   return (
     <div className="workspace-player-profile-fact">
       <dt>{label}</dt>

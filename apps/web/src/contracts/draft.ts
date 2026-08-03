@@ -6,6 +6,8 @@ export type DraftPlayerOutcome = {
   amateurLeague: string | null;
   amateurClubName: string | null;
   draftYear: number;
+  draftTeamNhlId: number | null;
+  draftTeamName: string;
   draftTeamAbbreviation: string;
   originalPickOwnerAbbreviation: string;
   pickOwnerHistory: string;
@@ -25,6 +27,8 @@ export type DraftPlayerOutcome = {
 };
 
 export type DraftTeamPerformance = {
+  teamNhlId: number | null;
+  teamName: string;
   teamAbbreviation: string;
   selections: number;
   playersWithNhlGames: number;
@@ -38,11 +42,31 @@ export type DraftTeamPerformance = {
   lateRoundRegulars: number;
 };
 
+export type DraftTeamOption = {
+  nhlTeamId: number | null;
+  name: string;
+  abbreviation: string;
+};
+
+export type DraftAnalyticsOptions = {
+  draftYear?: number | null;
+  teamAbbreviation?: string | null;
+  allYears?: boolean;
+  yearRange?: boolean;
+  fromYear?: number | null;
+  toYear?: number | null;
+  defaultYear?: "latest" | "mature";
+};
+
 export type DraftAnalytics = {
   outcomes: DraftPlayerOutcome[];
   teamPerformance: DraftTeamPerformance[];
   draftYears: number[];
-  teamAbbreviations: string[];
+  teamOptions: DraftTeamOption[];
   selectedDraftYear: number | null;
+  selectedFromYear: number | null;
+  selectedToYear: number | null;
+  latestDraftYear: number | null;
+  latestMatureDraftYear: number | null;
   allYears: boolean;
 };

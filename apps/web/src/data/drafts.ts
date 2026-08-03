@@ -2,6 +2,7 @@ import "server-only";
 
 import type {
   DraftAnalytics,
+  DraftAnalyticsOptions,
   DraftPlayerOutcome,
   DraftTeamPerformance,
 } from "@/contracts/draft";
@@ -15,6 +16,8 @@ type DraftOutcomeRow = {
   amateur_league: string | null;
   amateur_club_name: string | null;
   draft_year: number;
+  draft_team_nhl_id: number | null;
+  draft_team_name: string;
   draft_team_abbrev: string;
   original_pick_owner_abbrev: string;
   pick_owner_history: string;
@@ -35,19 +38,38 @@ type DraftOutcomeRow = {
 
 type DraftFilterRow = {
   draft_year: number;
+  draft_team_nhl_id: number | null;
+  draft_team_name: string;
   draft_team_abbrev: string;
   has_nhl_appearance: boolean;
 };
 
+const MATURE_DRAFT_LAG_YEARS = 5;
+const TEAM_DRAFT_WINDOW_YEARS = 10;
+
 export async function getDraftAnalytics(
-  draftYear: number | null = null,
-  teamAbbreviation: string | null = null,
-  allYears = false,
+  options: DraftAnalyticsOptions = {},
 ): Promise<DraftAnalytics> {
+  const {
+    draftYear = null,
+    teamAbbreviation = null,
+    allYears = false,
+    yearRange = false,
+    fromYear = null,
+    toYear = null,
+    defaultYear = "latest",
+  } = options;
   const filterRows = await query<DraftFilterRow>(
     `
       SELECT
         selection.draft_year,
+        team.nhl_id::integer AS draft_team_nhl_id,
+        COALESCE(
+          team_season.full_name,
+          franchise.current_name,
+          team.name,
+          selection.drafting_team_abbrev
+        ) AS draft_team_name,
         selection.drafting_team_abbrev AS draft_team_abbrev,
         BOOL_OR(
           EXISTS (
@@ -64,7 +86,21 @@ export async function getDraftAnalytics(
           )
         ) AS has_nhl_appearance
       FROM draft_selections AS selection
-      GROUP BY selection.draft_year, selection.drafting_team_abbrev
+      LEFT JOIN teams AS team
+        ON team.id = selection.drafting_team_id
+      LEFT JOIN franchises AS franchise
+        ON franchise.id = team.franchise_id
+      LEFT JOIN team_seasons AS team_season
+        ON team_season.team_id = team.id
+       AND team_season.season_id =
+         selection.draft_year * 10000 + selection.draft_year + 1
+      GROUP BY
+        selection.draft_year,
+        team.nhl_id,
+        team.name,
+        team_season.full_name,
+        franchise.current_name,
+        selection.drafting_team_abbrev
       ORDER BY selection.draft_year DESC, selection.drafting_team_abbrev
     `,
   );
@@ -76,9 +112,43 @@ export async function getDraftAnalytics(
       (row) => row.draft_year === year && row.has_nhl_appearance,
     ),
   );
-  const selectedDraftYear = allYears
+  const latestDraftYear = draftYears[0] ?? null;
+  const latestMatureDraftYear =
+    draftYears.find(
+      (year) =>
+        latestDraftYear !== null &&
+        year <= latestDraftYear - MATURE_DRAFT_LAG_YEARS &&
+        filterRows.some(
+          (row) => row.draft_year === year && row.has_nhl_appearance,
+        ),
+    ) ?? latestOutcomeYear ?? latestDraftYear;
+  const selectedDraftYear = allYears || yearRange
     ? null
-    : (draftYear ?? latestOutcomeYear ?? draftYears[0] ?? null);
+    : (draftYear ??
+      (defaultYear === "mature"
+        ? latestMatureDraftYear
+        : latestDraftYear) ??
+      null);
+  const defaultRangeEnd = latestMatureDraftYear;
+  const defaultRangeStart = defaultRangeEnd === null
+    ? null
+    : Math.max(
+        draftYears.at(-1) ?? defaultRangeEnd,
+        defaultRangeEnd - TEAM_DRAFT_WINDOW_YEARS + 1,
+      );
+  const matureDraftYears = defaultRangeEnd === null
+    ? draftYears
+    : draftYears.filter((year) => year <= defaultRangeEnd);
+  const selectedFromYear = yearRange
+    ? normalizeRangeBoundary(fromYear, defaultRangeStart, matureDraftYears)
+    : null;
+  const selectedToYear = yearRange
+    ? normalizeRangeBoundary(toYear, defaultRangeEnd, matureDraftYears)
+    : null;
+  const [rangeStart, rangeEnd] = normalizeRange(
+    selectedFromYear,
+    selectedToYear,
+  );
   const outcomeRows = await query<DraftOutcomeRow>(
     `
       WITH skater_career AS (
@@ -115,6 +185,13 @@ export async function getDraftAnalytics(
         selection.amateur_league,
         selection.amateur_club_name,
         selection.draft_year,
+        team.nhl_id::integer AS draft_team_nhl_id,
+        COALESCE(
+          team_season.full_name,
+          franchise.current_name,
+          team.name,
+          selection.drafting_team_abbrev
+        ) AS draft_team_name,
         selection.drafting_team_abbrev AS draft_team_abbrev,
         selection.original_pick_owner_abbrev,
         selection.pick_owner_history,
@@ -144,6 +221,14 @@ export async function getDraftAnalytics(
         COALESCE(skater.career_points, 0)::integer AS career_points,
         COALESCE(goalie.career_wins, 0)::integer AS career_wins
       FROM draft_selections AS selection
+      LEFT JOIN teams AS team
+        ON team.id = selection.drafting_team_id
+      LEFT JOIN franchises AS franchise
+        ON franchise.id = team.franchise_id
+      LEFT JOIN team_seasons AS team_season
+        ON team_season.team_id = team.id
+       AND team_season.season_id =
+         selection.draft_year * 10000 + selection.draft_year + 1
       LEFT JOIN players AS player
         ON player.id = selection.player_id
       LEFT JOIN skater_career AS skater
@@ -155,22 +240,27 @@ export async function getDraftAnalytics(
           $2::text IS NULL
           OR selection.drafting_team_abbrev = $2
         )
+        AND ($3::integer IS NULL OR selection.draft_year >= $3)
+        AND ($4::integer IS NULL OR selection.draft_year <= $4)
       ORDER BY
         selection.draft_year DESC,
         selection.overall_pick_number,
         selection.player_name
     `,
-    [selectedDraftYear, teamAbbreviation],
+    [selectedDraftYear, teamAbbreviation, rangeStart, rangeEnd],
   );
   const outcomes = outcomeRows.map(mapOutcome);
+  const teamOptions = uniqueTeamOptions(filterRows);
   return {
     outcomes,
     teamPerformance: buildTeamPerformance(outcomes),
     draftYears,
-    teamAbbreviations: [
-      ...new Set(filterRows.map((row) => row.draft_team_abbrev)),
-    ].sort(),
+    teamOptions,
     selectedDraftYear,
+    selectedFromYear: rangeStart,
+    selectedToYear: rangeEnd,
+    latestDraftYear,
+    latestMatureDraftYear,
     allYears,
   };
 }
@@ -184,6 +274,8 @@ function mapOutcome(row: DraftOutcomeRow): DraftPlayerOutcome {
     amateurLeague: row.amateur_league,
     amateurClubName: row.amateur_club_name,
     draftYear: row.draft_year,
+    draftTeamNhlId: row.draft_team_nhl_id,
+    draftTeamName: row.draft_team_name,
     draftTeamAbbreviation: row.draft_team_abbrev,
     originalPickOwnerAbbreviation: row.original_pick_owner_abbrev,
     pickOwnerHistory: row.pick_owner_history,
@@ -225,6 +317,11 @@ function buildTeamPerformance(
       ).length;
       const totalGames = sum(players, (player) => player.careerGames);
       return {
+        teamNhlId: players.find((player) => player.draftTeamNhlId !== null)
+          ?.draftTeamNhlId ?? null,
+        teamName:
+          players.find((player) => player.draftTeamName)?.draftTeamName ??
+          teamAbbreviation,
         teamAbbreviation,
         selections,
         playersWithNhlGames,
@@ -246,6 +343,51 @@ function buildTeamPerformance(
         right.totalGames - left.totalGames ||
         left.teamAbbreviation.localeCompare(right.teamAbbreviation),
     );
+}
+
+function normalizeRangeBoundary(
+  requested: number | null,
+  fallback: number | null,
+  draftYears: number[],
+): number | null {
+  if (requested !== null && draftYears.includes(requested)) {
+    return requested;
+  }
+  return fallback;
+}
+
+function normalizeRange(
+  fromYear: number | null,
+  toYear: number | null,
+): [number | null, number | null] {
+  if (fromYear === null || toYear === null) {
+    return [fromYear, toYear];
+  }
+  return fromYear <= toYear ? [fromYear, toYear] : [toYear, fromYear];
+}
+
+function uniqueTeamOptions(filterRows: DraftFilterRow[]) {
+  const teams = new Map<
+    string,
+    { nhlTeamId: number | null; name: string; abbreviation: string }
+  >();
+  for (const row of filterRows) {
+    const existing = teams.get(row.draft_team_abbrev);
+    if (
+      !existing ||
+      (existing.nhlTeamId === null && row.draft_team_nhl_id !== null)
+    ) {
+      teams.set(row.draft_team_abbrev, {
+        nhlTeamId: row.draft_team_nhl_id,
+        name: row.draft_team_name,
+        abbreviation: row.draft_team_abbrev,
+      });
+    }
+  }
+  return [...teams.values()].sort((left, right) =>
+    left.name.localeCompare(right.name) ||
+    left.abbreviation.localeCompare(right.abbreviation),
+  );
 }
 
 function sum<T>(values: T[], getValue: (value: T) => number): number {

@@ -171,6 +171,12 @@ export default async function TeamPage({
                   <span className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1">
                     {seasonPhaseLabel(phase)}
                   </span>
+                  <Link
+                    href={`/drafts?view=board&year=all&team=${detail.team.abbreviation}`}
+                    className="rounded-full border border-cyan-300/25 bg-cyan-300/[0.06] px-3 py-1 font-medium text-cyan-200 transition hover:border-cyan-300/45 hover:text-cyan-100"
+                  >
+                    Draft history →
+                  </Link>
                 </div>
               </div>
             </div>
