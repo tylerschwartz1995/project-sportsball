@@ -670,7 +670,15 @@ function DraftSortHeader({
 function OutcomeLeadersTable({ rows }: { rows: DraftPlayerOutcome[] }) {
   return (
     <div className="workspace-table-scroll">
-      <table className="workspace-table workspace-table-dense min-w-[720px]">
+      <table className="workspace-table workspace-table-dense workspace-draft-leaders-table min-w-[720px]">
+        <colgroup>
+          <col />
+          <col className="workspace-draft-leaders-overall-col" />
+          <col className="workspace-draft-leaders-team-col" />
+          <col className="workspace-draft-leaders-stat-col" />
+          <col className="workspace-draft-leaders-stat-col" />
+          <col className="workspace-draft-leaders-wins-col" />
+        </colgroup>
         <thead>
           <tr>
             <th scope="col" className="text-left">Player</th>

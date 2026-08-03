@@ -4338,6 +4338,32 @@ html[data-theme="light"] .workspace-analytics-filters button {
   padding-bottom: 0.52rem;
 }
 
+.workspace-draft-leaders-table th,
+.workspace-draft-leaders-table td {
+  padding-right: 0.75rem;
+  padding-left: 0.75rem;
+}
+
+.workspace-draft-leaders-table thead th {
+  white-space: nowrap;
+}
+
+.workspace-draft-leaders-overall-col {
+  width: 7rem;
+}
+
+.workspace-draft-leaders-team-col {
+  width: 5.5rem;
+}
+
+.workspace-draft-leaders-stat-col {
+  width: 5rem;
+}
+
+.workspace-draft-leaders-wins-col {
+  width: 8rem;
+}
+
 .workspace-table thead {
   border-bottom: 1px solid var(--border);
   background: var(--surface-raised);
