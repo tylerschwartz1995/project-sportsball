@@ -1834,6 +1834,26 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
   gap: 0.75rem;
 }
 
+.workspace-player-trend-toolbar {
+  gap: 1rem;
+}
+
+.workspace-player-trend-toolbar .workspace-chart-metric-select {
+  width: 100%;
+  max-width: none;
+}
+
+.workspace-player-trend-toolbar .workspace-chart-metric-select select {
+  min-height: 2.75rem;
+}
+
+.workspace-player-trend-toolbar .workspace-chart-filters {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: end;
+  gap: 1rem;
+}
+
 .workspace-chart-filter-group {
   min-width: 0;
   border: 0;
@@ -2284,6 +2304,11 @@ html[data-theme="light"]
   .workspace-chart-toolbar {
     grid-template-columns: minmax(13rem, 1fr) auto;
     align-items: center;
+  }
+
+  .workspace-chart-toolbar.workspace-player-trend-toolbar {
+    grid-template-columns: minmax(15rem, 1fr) auto;
+    align-items: end;
   }
 
   .workspace-player-chart-header {
@@ -3684,6 +3709,25 @@ html[data-theme="light"] .workspace-analytics-filters button {
     width: 100%;
     max-width: 100%;
     flex-wrap: wrap;
+  }
+
+  .workspace-player-trend-toolbar .workspace-chart-filters {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 640px) and (max-width: 1099px) {
+  .workspace-chart-toolbar.workspace-player-trend-toolbar {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .workspace-player-trend-toolbar .workspace-chart-metric-select {
+    max-width: 28rem;
+  }
+
+  .workspace-player-trend-toolbar .workspace-chart-filters {
+    justify-self: start;
   }
 }
 

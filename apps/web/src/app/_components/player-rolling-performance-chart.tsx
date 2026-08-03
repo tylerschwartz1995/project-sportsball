@@ -204,7 +204,7 @@ export function PlayerRollingPerformanceChart(
         </p>
       </header>
 
-      <div className="workspace-chart-toolbar">
+      <div className="workspace-chart-toolbar workspace-player-trend-toolbar">
         <label className="workspace-chart-metric-select">
           Metric
           <select
