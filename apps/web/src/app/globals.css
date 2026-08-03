@@ -1966,6 +1966,183 @@ html[data-theme="light"] .workspace-directory-controls button {
   width: 17%;
 }
 
+.workspace-class-ranking-visuals {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.workspace-class-outcome-legend i {
+  height: 0.7rem;
+  border-radius: 0.16rem;
+}
+
+.workspace-class-outcome-legend .is-no-nhl,
+.workspace-class-outcome-bar .is-no-nhl {
+  background: color-mix(in srgb, var(--muted) 58%, transparent);
+}
+
+.workspace-class-outcome-legend .is-under-100,
+.workspace-class-outcome-bar .is-under-100 {
+  background: var(--chart-secondary);
+}
+
+.workspace-class-outcome-legend .is-regular,
+.workspace-class-outcome-bar .is-regular {
+  background: var(--chart-primary);
+}
+
+.workspace-class-outcome-legend .is-long-career,
+.workspace-class-outcome-bar .is-long-career {
+  background: var(--positive);
+}
+
+.workspace-class-outcome-decades {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 0.75rem;
+  padding: 0.25rem 0.75rem 0.75rem;
+}
+
+.workspace-class-outcome-decade {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: var(--surface);
+}
+
+.workspace-class-outcome-decade > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding: 0.55rem 0.7rem;
+  background: var(--surface-raised);
+}
+
+.workspace-class-outcome-decade h4 {
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.workspace-class-outcome-decade header span {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.workspace-class-outcome-decade > div {
+  padding: 0.45rem 0.55rem;
+}
+
+.workspace-class-outcome-row {
+  display: grid;
+  grid-template-columns: 2.7rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 1.65rem;
+}
+
+.workspace-class-outcome-row a {
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.workspace-class-outcome-row a:hover,
+.workspace-class-outcome-row a:focus-visible {
+  color: var(--accent);
+}
+
+.workspace-class-outcome-bar {
+  display: flex;
+  overflow: hidden;
+  height: 0.72rem;
+  border-radius: 0.18rem;
+  background: var(--surface-raised);
+}
+
+.workspace-class-outcome-bar span {
+  min-width: 0;
+}
+
+.workspace-class-heatmap-scroll {
+  max-height: 42rem;
+  overflow: auto;
+  margin: 0 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+}
+
+.workspace-class-heatmap {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 2px;
+  background: var(--border);
+  font-family: var(--font-geist-mono);
+  font-size: 0.72rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-class-heatmap thead {
+  position: sticky;
+  z-index: 1;
+  top: 0;
+}
+
+.workspace-class-heatmap th {
+  background: var(--surface-raised);
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.workspace-class-heatmap thead th {
+  padding: 0.55rem 0.35rem;
+  font-size: 0.67rem;
+  line-height: 1.3;
+  text-align: center;
+}
+
+.workspace-class-heatmap thead th:first-child {
+  width: 6rem;
+  text-align: left;
+}
+
+.workspace-class-heatmap tbody th {
+  padding: 0.38rem 0.55rem;
+  text-align: left;
+}
+
+.workspace-class-heatmap tbody th a {
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.workspace-class-heatmap tbody th a:hover,
+.workspace-class-heatmap tbody th a:focus-visible {
+  color: var(--accent);
+}
+
+.workspace-class-heatmap td {
+  padding: 0.38rem 0.35rem;
+  background: color-mix(
+    in srgb,
+    var(--chart-primary) var(--heat-percent),
+    var(--surface)
+  );
+  color: var(--foreground);
+  text-align: center;
+}
+
+.workspace-class-heatmap td.is-unavailable {
+  background: var(--surface);
+  color: var(--muted);
+}
+
 .workspace-team-drafting-bars {
   min-height: 34rem;
 }

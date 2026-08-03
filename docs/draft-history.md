@@ -89,7 +89,10 @@ rates. The workspace separates four user tasks:
   100-game and 500-game rates, games per pick, points per skater pick, and
   MoneyPuck Game Score per skater pick. Each metric sorts independently rather
   than being hidden inside a composite score. Classes with incomplete NHL
-  skater Game Score coverage show that advanced metric as unavailable.
+  skater Game Score coverage show that advanced metric as unavailable. A
+  decade-grouped outcome mix shows the share of picks at four NHL career
+  milestones, while a percentile heatmap exposes each class’s relative
+  strengths without turning those metrics into one opaque grade.
 
 The all-years board remains available with pagination. Its URL-backed sorting
 is applied to the complete filtered result before pagination, rather than only

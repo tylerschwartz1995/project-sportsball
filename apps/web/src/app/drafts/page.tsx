@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AutoSubmitSelect } from "@/app/_components/auto-submit-select";
+import { ClassRankingVisuals } from "@/app/_components/class-ranking-visuals";
 import {
   DraftOutcomePlot,
   type DraftPlotOutcome,
@@ -534,13 +535,16 @@ function ClassRankingsView({ analytics }: { analytics: DraftAnalytics }) {
   const latestYear = rankedYears.length > 0 ? Math.max(...rankedYears) : null;
 
   return rows.length > 0 ? (
-    <WorkspacePanel
-      className="mt-7"
-      title="Draft Class Rankings"
-      description={`Comparing mature draft classes from ${earliestYear ?? "—"} through ${latestYear ?? "—"}. Sort any metric to choose how quality is defined; career totals continue to grow for active players.`}
-    >
-      <ClassPerformanceTable rows={rows} />
-    </WorkspacePanel>
+    <>
+      <WorkspacePanel
+        className="mt-7"
+        title="Draft Class Rankings"
+        description={`Comparing mature draft classes from ${earliestYear ?? "—"} through ${latestYear ?? "—"}. Sort any metric to choose how quality is defined; career totals continue to grow for active players.`}
+      >
+        <ClassPerformanceTable rows={rows} />
+      </WorkspacePanel>
+      <ClassRankingVisuals rows={rows} />
+    </>
   ) : (
     <div className="workspace-empty-state mt-7">
       No mature draft classes are available to compare.
