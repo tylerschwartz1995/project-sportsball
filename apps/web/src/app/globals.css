@@ -1702,36 +1702,84 @@ html[data-theme="light"] .workspace-directory-controls button {
 .workspace-draft-insights {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-top: 1.1rem;
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  gap: 0.55rem;
+  margin-top: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  padding: 0.55rem;
+  background: color-mix(in srgb, var(--surface) 82%, transparent);
+  box-shadow: 0 12px 32px var(--shadow);
 }
 
 .workspace-draft-insights > div {
+  --insight-accent: var(--accent);
+  position: relative;
+  overflow: hidden;
   min-width: 0;
-  border-right: 1px solid var(--border);
-  padding: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  padding: 1rem 1.05rem 0.9rem;
+  background:
+    linear-gradient(
+      145deg,
+      color-mix(in srgb, var(--insight-accent) 10%, transparent),
+      transparent 55%
+    ),
+    var(--surface-raised);
 }
 
-.workspace-draft-insights > div:last-child {
-  border-right: 0;
+.workspace-draft-insights > div:nth-child(2) {
+  --insight-accent: var(--positive);
 }
 
-.workspace-draft-insights span,
-.workspace-draft-insights small {
+.workspace-draft-insights > div:nth-child(3) {
+  --insight-accent: var(--accent-secondary);
+}
+
+.workspace-draft-insights > div:nth-child(4) {
+  --insight-accent: color-mix(in srgb, var(--accent) 58%, var(--accent-secondary));
+}
+
+.workspace-draft-insights > div::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 0.16rem;
+  background: var(--insight-accent);
+  content: "";
+}
+
+.workspace-draft-insights span {
   display: block;
-  color: var(--muted);
-  font-size: 0.88rem;
+  color: var(--insight-accent);
+  font-family: var(--font-geist-mono);
+  font-size: 0.66rem;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  line-height: 1.3;
+  text-transform: uppercase;
 }
 
 .workspace-draft-insights strong {
   display: block;
   overflow: hidden;
-  margin: 0.35rem 0;
+  margin: 0.55rem 0 0.3rem;
   color: var(--foreground);
-  font-size: 1rem;
+  font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 780;
+  letter-spacing: -0.035em;
+  line-height: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.workspace-draft-insights small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.76rem;
+  line-height: 1.4;
 }
 
 .workspace-draft-plot-controls {
@@ -2414,14 +2462,6 @@ html[data-theme="light"] .workspace-directory-controls button {
 
   .workspace-draft-insights {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .workspace-draft-insights > div:nth-child(2) {
-    border-right: 0;
-  }
-
-  .workspace-draft-insights > div:nth-child(-n + 2) {
-    border-bottom: 1px solid var(--border);
   }
 
   .workspace-draft-filters.is-board,
