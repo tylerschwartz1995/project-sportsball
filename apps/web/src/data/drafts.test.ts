@@ -36,6 +36,9 @@ describe("getDraftAnalytics", () => {
           seasons_played: 11,
           first_season_id: 20152016,
           last_season_id: 20252026,
+          career_game_score: 1480.25,
+          career_individual_x_goals: 365.5,
+          career_on_ice_x_goals_percentage: 0.61,
         }),
         outcomeRow({
           nhl_player_id: 8479999,
@@ -63,12 +66,13 @@ describe("getDraftAnalytics", () => {
     const result = await getDraftAnalytics({
       draftYear: 2015,
       teamAbbreviation: "EDM",
+      includeAdvanced: true,
     });
 
     expect(queryMock).toHaveBeenNthCalledWith(
       2,
       expect.stringContaining("FROM draft_selections AS selection"),
-      [2015, "EDM", null, null],
+      [2015, "EDM", null, null, true],
     );
     expect(queryMock.mock.calls[1]?.[0]).toContain(
       "historical_skater_season_stats",
@@ -76,6 +80,9 @@ describe("getDraftAnalytics", () => {
     expect(result.outcomes[0]).toMatchObject({
       nhlPlayerId: 8478402,
       careerPoints: 1170,
+      careerGameScore: 1480.25,
+      careerIndividualExpectedGoals: 365.5,
+      careerOnIceExpectedGoalsPercentage: 0.61,
     });
     expect(result.outcomes[2]).toMatchObject({
       nhlPlayerId: null,
@@ -167,9 +174,27 @@ describe("getDraftAnalytics", () => {
     const all = await getDraftAnalytics({ allYears: true });
     const mature = await getDraftAnalytics({ defaultYear: "mature" });
 
-    expect(queryMock.mock.calls[1]?.[1]).toEqual([2026, null, null, null]);
-    expect(queryMock.mock.calls[3]?.[1]).toEqual([null, null, null, null]);
-    expect(queryMock.mock.calls[5]?.[1]).toEqual([2021, null, null, null]);
+    expect(queryMock.mock.calls[1]?.[1]).toEqual([
+      2026,
+      null,
+      null,
+      null,
+      false,
+    ]);
+    expect(queryMock.mock.calls[3]?.[1]).toEqual([
+      null,
+      null,
+      null,
+      null,
+      false,
+    ]);
+    expect(queryMock.mock.calls[5]?.[1]).toEqual([
+      2021,
+      null,
+      null,
+      null,
+      false,
+    ]);
     expect(latest.selectedDraftYear).toBe(2026);
     expect(all).toMatchObject({ selectedDraftYear: null, allYears: true });
     expect(mature).toMatchObject({
@@ -197,7 +222,13 @@ describe("getDraftAnalytics", () => {
       toYear: 2025,
     });
 
-    expect(queryMock.mock.calls[1]?.[1]).toEqual([null, null, 2012, 2021]);
+    expect(queryMock.mock.calls[1]?.[1]).toEqual([
+      null,
+      null,
+      2012,
+      2021,
+      false,
+    ]);
     expect(result).toMatchObject({
       selectedDraftYear: null,
       selectedFromYear: 2012,
@@ -235,6 +266,10 @@ function outcomeRow(
     career_assists: 0,
     career_points: 0,
     career_wins: 0,
+    career_game_score: null,
+    career_individual_x_goals: null,
+    career_on_ice_x_goals_percentage: null,
+    career_goals_saved_above_expected: null,
     ...overrides,
   };
 }

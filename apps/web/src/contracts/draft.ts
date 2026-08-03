@@ -24,6 +24,10 @@ export type DraftPlayerOutcome = {
   careerAssists: number;
   careerPoints: number;
   careerWins: number;
+  careerGameScore: number | null;
+  careerIndividualExpectedGoals: number | null;
+  careerOnIceExpectedGoalsPercentage: number | null;
+  careerGoalsSavedAboveExpected: number | null;
 };
 
 export type DraftTeamPerformance = {
@@ -56,6 +60,7 @@ export type DraftAnalyticsOptions = {
   fromYear?: number | null;
   toYear?: number | null;
   defaultYear?: "latest" | "mature";
+  includeAdvanced?: boolean;
 };
 
 export type DraftAnalytics = {

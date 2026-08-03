@@ -118,6 +118,7 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
           teamAbbreviation: selectedTeam || null,
           allYears,
           defaultYear: view === "outcomes" ? "mature" : "latest",
+          includeAdvanced: view === "outcomes",
         },
   );
   const firstDraftYear = analytics.draftYears.at(-1);
@@ -292,6 +293,11 @@ function PlayerOutcomesView({ analytics }: { analytics: DraftAnalytics }) {
     careerGames: outcome.careerGames,
     careerPoints: outcome.careerPoints,
     careerWins: outcome.careerWins,
+    careerGameScore: outcome.careerGameScore,
+    careerIndividualExpectedGoals: outcome.careerIndividualExpectedGoals,
+    careerOnIceExpectedGoalsPercentage:
+      outcome.careerOnIceExpectedGoalsPercentage,
+    careerGoalsSavedAboveExpected: outcome.careerGoalsSavedAboveExpected,
   }));
   const leaders = [...analytics.outcomes]
     .filter((outcome) => outcome.careerGames > 0)

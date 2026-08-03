@@ -49,6 +49,16 @@ regular-season (`game_type = 2`) data:
   selection, including zero-game selections;
 - **late regular:** a round-four-or-later selection with at least 100 games.
 
+The Player Outcomes chart also exposes stored MoneyPuck regular-season,
+all-situations measures: career Game Score, individual expected goals, on-ice
+expected-goal share, and goalie goals saved above expected. MoneyPuck player
+coverage begins in 2008–09, so these measures describe the stored coverage
+window rather than a guaranteed full career for older players. Selections
+without matching advanced data are omitted from an advanced plot instead of
+being treated as zero. On-ice expected-goal share is recomputed from stored
+expected goals for and against; goalie GSAx is expected goals against minus
+actual goals against.
+
 The complete selection board is therefore the denominator for team rates. The
 workspace separates three user tasks:
 

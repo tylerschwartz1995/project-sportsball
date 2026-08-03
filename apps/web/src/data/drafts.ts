@@ -34,6 +34,10 @@ type DraftOutcomeRow = {
   career_assists: number;
   career_points: number;
   career_wins: number;
+  career_game_score: number | null;
+  career_individual_x_goals: number | null;
+  career_on_ice_x_goals_percentage: number | null;
+  career_goals_saved_above_expected: number | null;
 };
 
 type DraftFilterRow = {
@@ -58,6 +62,7 @@ export async function getDraftAnalytics(
     fromYear = null,
     toYear = null,
     defaultYear = "latest",
+    includeAdvanced = false,
   } = options;
   const filterRows = await query<DraftFilterRow>(
     `
@@ -176,6 +181,44 @@ export async function getDraftAnalytics(
         FROM historical_goalie_season_stats AS stats
         WHERE stats.game_type = 2
         GROUP BY stats.player_id
+      ),
+      skater_advanced_career AS (
+        SELECT
+          stats.player_id,
+          SUM(stats.game_score) FILTER (
+            WHERE stats.game_score IS NOT NULL
+          ) AS career_game_score,
+          SUM(stats.individual_x_goals) FILTER (
+            WHERE stats.individual_x_goals IS NOT NULL
+          ) AS career_individual_x_goals,
+          SUM(stats.on_ice_x_goals_for) FILTER (
+            WHERE stats.on_ice_x_goals_for IS NOT NULL
+              AND stats.on_ice_x_goals_against IS NOT NULL
+          ) / NULLIF(
+            SUM(
+              stats.on_ice_x_goals_for + stats.on_ice_x_goals_against
+            ) FILTER (
+              WHERE stats.on_ice_x_goals_for IS NOT NULL
+                AND stats.on_ice_x_goals_against IS NOT NULL
+            ),
+            0
+          ) AS career_on_ice_x_goals_percentage
+        FROM moneypuck_skater_season_stats AS stats
+        WHERE stats.situation = 'all'
+          AND $5::boolean
+        GROUP BY stats.player_id
+      ),
+      goalie_advanced_career AS (
+        SELECT
+          stats.player_id,
+          SUM(stats.expected_goals_against - stats.goals_against) FILTER (
+            WHERE stats.expected_goals_against IS NOT NULL
+              AND stats.goals_against IS NOT NULL
+          ) AS career_goals_saved_above_expected
+        FROM moneypuck_goalie_season_stats AS stats
+        WHERE stats.situation = 'all'
+          AND $5::boolean
+        GROUP BY stats.player_id
       )
       SELECT
         player.nhl_id::integer AS nhl_player_id,
@@ -219,7 +262,11 @@ export async function getDraftAnalytics(
         COALESCE(skater.career_goals, 0)::integer AS career_goals,
         COALESCE(skater.career_assists, 0)::integer AS career_assists,
         COALESCE(skater.career_points, 0)::integer AS career_points,
-        COALESCE(goalie.career_wins, 0)::integer AS career_wins
+        COALESCE(goalie.career_wins, 0)::integer AS career_wins,
+        skater_advanced.career_game_score,
+        skater_advanced.career_individual_x_goals,
+        skater_advanced.career_on_ice_x_goals_percentage,
+        goalie_advanced.career_goals_saved_above_expected
       FROM draft_selections AS selection
       LEFT JOIN teams AS team
         ON team.id = selection.drafting_team_id
@@ -235,6 +282,10 @@ export async function getDraftAnalytics(
         ON skater.player_id = selection.player_id
       LEFT JOIN goalie_career AS goalie
         ON goalie.player_id = selection.player_id
+      LEFT JOIN skater_advanced_career AS skater_advanced
+        ON skater_advanced.player_id = selection.player_id
+      LEFT JOIN goalie_advanced_career AS goalie_advanced
+        ON goalie_advanced.player_id = selection.player_id
       WHERE ($1::integer IS NULL OR selection.draft_year = $1)
         AND (
           $2::text IS NULL
@@ -247,7 +298,13 @@ export async function getDraftAnalytics(
         selection.overall_pick_number,
         selection.player_name
     `,
-    [selectedDraftYear, teamAbbreviation, rangeStart, rangeEnd],
+    [
+      selectedDraftYear,
+      teamAbbreviation,
+      rangeStart,
+      rangeEnd,
+      includeAdvanced,
+    ],
   );
   const outcomes = outcomeRows.map(mapOutcome);
   const teamOptions = uniqueTeamOptions(filterRows);
@@ -292,6 +349,12 @@ function mapOutcome(row: DraftOutcomeRow): DraftPlayerOutcome {
     careerAssists: row.career_assists,
     careerPoints: row.career_points,
     careerWins: row.career_wins,
+    careerGameScore: row.career_game_score,
+    careerIndividualExpectedGoals: row.career_individual_x_goals,
+    careerOnIceExpectedGoalsPercentage:
+      row.career_on_ice_x_goals_percentage,
+    careerGoalsSavedAboveExpected:
+      row.career_goals_saved_above_expected,
   };
 }
 
