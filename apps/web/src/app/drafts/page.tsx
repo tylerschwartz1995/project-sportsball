@@ -75,9 +75,27 @@ const teamPerformanceColumns = [
     description: "Average regular-season NHL games per selection",
   },
   {
-    label: "Late-Round Hits",
-    sortKey: "late",
-    description: "Round-four-or-later selections who reached 100 games",
+    label: "Value +/-",
+    sortKey: "value",
+    description:
+      "Average games above or below players from the same draft year and similar overall-pick range",
+  },
+  {
+    label: "Late Hit Rate",
+    sortKey: "late-rate",
+    description:
+      "Share of round-four-or-later selections who reached 100 games",
+  },
+  {
+    label: "Goalie Hit Rate",
+    sortKey: "goalie-rate",
+    description: "Share of drafted goalies who reached 50 NHL games",
+  },
+  {
+    label: "GS / Skater Pick",
+    sortKey: "game-score",
+    description:
+      "Stored career MoneyPuck Game Score divided by skater selections; unavailable when NHL skater coverage is missing",
   },
 ] as const;
 
@@ -113,6 +131,7 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
           yearRange: true,
           fromYear: requestedFromYear,
           toYear: requestedToYear,
+          includeAdvanced: true,
         }
       : {
           draftYear: requestedYear,
@@ -770,7 +789,7 @@ function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
   return (
     <SortableTable defaultSortKey="hundred-rate">
       <div className="workspace-table-scroll">
-        <table className="workspace-table workspace-table-dense min-w-[850px]">
+        <table className="workspace-table workspace-table-dense min-w-[1320px]">
           <thead>
             <tr>
               {teamPerformanceColumns.map((column) => (
@@ -802,7 +821,22 @@ function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
                 <NumberCell value={formatPercentage(team.appearanceRate)} />
                 <NumberCell value={formatPercentage(team.hundredGameRate)} />
                 <NumberCell value={Math.round(team.averageGames)} />
-                <NumberCell value={team.lateRoundRegulars} />
+                <NumberCell value={formatSignedNumber(team.valueAboveExpected)} />
+                <NumberCell value={formatPercentage(team.lateRoundHitRate)} />
+                <NumberCell
+                  value={
+                    team.goalieHitRate === null
+                      ? "—"
+                      : formatPercentage(team.goalieHitRate)
+                  }
+                />
+                <NumberCell
+                  value={
+                    team.gameScorePerSkaterPick === null
+                      ? "—"
+                      : Math.round(team.gameScorePerSkaterPick)
+                  }
+                />
               </tr>
             ))}
           </tbody>
@@ -810,7 +844,15 @@ function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
       </div>
       <div className="workspace-table-note">
         Rates use every official selection in the chosen window as the denominator.
-        “Late-round regulars” are round-four-or-later selections with at least 100 games.
+        Late hits are round-four-or-later selections with at least 100 games;
+        goalie hits require 50 games. Value +/- compares career games with the
+        same draft year and a similar overall-pick range. Game Score uses
+        stored all-situations skater data from{" "}
+        <a href="https://moneypuck.com" target="_blank" rel="noreferrer">
+          MoneyPuck.com
+        </a>{" "}
+        from 2008–09 onward; incomplete NHL-skater coverage is shown as
+        unavailable.
       </div>
     </SortableTable>
   );
@@ -981,6 +1023,12 @@ function parseRound(value: string | undefined): number | null {
 function formatPercentage(value: number): string {
   if (!Number.isFinite(value)) return "—";
   return `${(value * 100).toFixed(1)}%`;
+}
+
+function formatSignedNumber(value: number): string {
+  if (!Number.isFinite(value)) return "—";
+  const rounded = Math.round(value);
+  return rounded > 0 ? `+${rounded}` : rounded.toString();
 }
 
 function NumberCell({ value }: { value: number | string }) {

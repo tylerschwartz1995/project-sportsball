@@ -371,6 +371,7 @@ function mapOutcome(row: DraftOutcomeRow): DraftPlayerOutcome {
 function buildTeamPerformance(
   outcomes: DraftPlayerOutcome[],
 ): DraftTeamPerformance[] {
+  const expectedGames = buildExpectedGamesByDraftBand(outcomes);
   const teams = new Map<string, DraftPlayerOutcome[]>();
   for (const outcome of outcomes) {
     teams.set(outcome.draftTeamAbbreviation, [
@@ -389,6 +390,31 @@ function buildTeamPerformance(
         (player) => player.careerGames >= 100,
       ).length;
       const totalGames = sum(players, (player) => player.careerGames);
+      const lateRoundPlayers = players.filter(
+        (player) => player.draftRound >= 4,
+      );
+      const lateRoundRegulars = lateRoundPlayers.filter(
+        (player) => player.careerGames >= 100,
+      ).length;
+      const goaliePlayers = players.filter(
+        (player) => player.position?.toUpperCase() === "G",
+      );
+      const goalieHits = goaliePlayers.filter(
+        (player) => player.careerGames >= 50,
+      ).length;
+      const skaterPlayers = players.filter(
+        (player) => player.position?.toUpperCase() !== "G",
+      );
+      const hasMissingGameScore = skaterPlayers.some(
+        (player) =>
+          player.careerGames > 0 && player.careerGameScore === null,
+      );
+      const valueAboveExpected = sum(
+        players,
+        (player) =>
+          player.careerGames -
+          (expectedGames.get(draftBandKey(player)) ?? player.careerGames),
+      );
       return {
         teamNhlId: players.find((player) => player.draftTeamNhlId !== null)
           ?.draftTeamNhlId ?? null,
@@ -405,9 +431,24 @@ function buildTeamPerformance(
         averageGames: totalGames / selections,
         totalPoints: sum(players, (player) => player.careerPoints),
         totalWins: sum(players, (player) => player.careerWins),
-        lateRoundRegulars: players.filter(
-          (player) => player.draftRound >= 4 && player.careerGames >= 100,
-        ).length,
+        valueAboveExpected: valueAboveExpected / selections,
+        lateRoundSelections: lateRoundPlayers.length,
+        lateRoundRegulars,
+        lateRoundHitRate:
+          lateRoundPlayers.length > 0
+            ? lateRoundRegulars / lateRoundPlayers.length
+            : 0,
+        goalieSelections: goaliePlayers.length,
+        goalieHits,
+        goalieHitRate:
+          goaliePlayers.length > 0 ? goalieHits / goaliePlayers.length : null,
+        gameScorePerSkaterPick:
+          skaterPlayers.length === 0 || hasMissingGameScore
+            ? null
+            : sum(
+                skaterPlayers,
+                (player) => player.careerGameScore ?? 0,
+              ) / skaterPlayers.length,
       };
     })
     .sort(
@@ -416,6 +457,38 @@ function buildTeamPerformance(
         right.totalGames - left.totalGames ||
         left.teamAbbreviation.localeCompare(right.teamAbbreviation),
     );
+}
+
+function buildExpectedGamesByDraftBand(
+  outcomes: DraftPlayerOutcome[],
+): Map<string, number> {
+  const bands = new Map<string, { games: number; selections: number }>();
+  for (const outcome of outcomes) {
+    const key = draftBandKey(outcome);
+    const current = bands.get(key) ?? { games: 0, selections: 0 };
+    current.games += outcome.careerGames;
+    current.selections += 1;
+    bands.set(key, current);
+  }
+  return new Map(
+    [...bands.entries()].map(([key, value]) => [
+      key,
+      value.games / value.selections,
+    ]),
+  );
+}
+
+function draftBandKey(outcome: DraftPlayerOutcome): string {
+  return `${outcome.draftYear}:${draftPickBand(outcome.draftOverallPick)}`;
+}
+
+function draftPickBand(overallPick: number): string {
+  if (overallPick <= 5) return "1-5";
+  if (overallPick <= 10) return "6-10";
+  if (overallPick <= 20) return "11-20";
+  if (overallPick <= 32) return "21-32";
+  const bandStart = 33 + Math.floor((overallPick - 33) / 32) * 32;
+  return `${bandStart}-${bandStart + 31}`;
 }
 
 function normalizeRangeBoundary(

@@ -43,7 +43,14 @@ export type DraftTeamPerformance = {
   averageGames: number;
   totalPoints: number;
   totalWins: number;
+  valueAboveExpected: number;
+  lateRoundSelections: number;
   lateRoundRegulars: number;
+  lateRoundHitRate: number;
+  goalieSelections: number;
+  goalieHits: number;
+  goalieHitRate: number | null;
+  gameScorePerSkaterPick: number | null;
 };
 
 export type DraftTeamOption = {

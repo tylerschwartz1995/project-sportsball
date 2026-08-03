@@ -53,6 +53,7 @@ describe("getDraftAnalytics", () => {
           seasons_played: 8,
           first_season_id: 20182019,
           last_season_id: 20252026,
+          career_game_score: 200,
         }),
         outcomeRow({
           nhl_player_id: null,
@@ -102,7 +103,14 @@ describe("getDraftAnalytics", () => {
         averageGames: 390,
         totalPoints: 1280,
         totalWins: 0,
+        valueAboveExpected: 0,
+        lateRoundSelections: 2,
         lateRoundRegulars: 1,
+        lateRoundHitRate: 0.5,
+        goalieSelections: 0,
+        goalieHits: 0,
+        goalieHitRate: null,
+        gameScorePerSkaterPick: (1480.25 + 200) / 3,
       },
     ]);
     expect(result.draftYears).toEqual([2015]);
@@ -203,6 +211,69 @@ describe("getDraftAnalytics", () => {
     });
   });
 
+  it("adjusts team value for draft position and separates goalie outcomes", async () => {
+    queryMock
+      .mockResolvedValueOnce([
+        {
+          draft_year: 2015,
+          draft_team_nhl_id: 22,
+          draft_team_name: "Edmonton Oilers",
+          draft_team_abbrev: "EDM",
+          has_nhl_appearance: true,
+        },
+        {
+          draft_year: 2015,
+          draft_team_nhl_id: 52,
+          draft_team_name: "Winnipeg Jets",
+          draft_team_abbrev: "WPG",
+          has_nhl_appearance: true,
+        },
+      ])
+      .mockResolvedValueOnce([
+        outcomeRow({
+          player_name: "Goalie Hit",
+          position: "G",
+          draft_team_nhl_id: 22,
+          draft_team_name: "Edmonton Oilers",
+          draft_team_abbrev: "EDM",
+          draft_overall_pick: 1,
+          career_games: 100,
+        }),
+        outcomeRow({
+          player_name: "Skater Hit",
+          position: "C",
+          draft_team_nhl_id: 52,
+          draft_team_name: "Winnipeg Jets",
+          draft_team_abbrev: "WPG",
+          draft_overall_pick: 2,
+          career_games: 300,
+          career_game_score: 500,
+        }),
+      ]);
+
+    const result = await getDraftAnalytics({
+      draftYear: 2015,
+      includeAdvanced: true,
+    });
+
+    expect(result.teamPerformance).toEqual([
+      expect.objectContaining({
+        teamAbbreviation: "WPG",
+        valueAboveExpected: 100,
+        goalieHitRate: null,
+        gameScorePerSkaterPick: 500,
+      }),
+      expect.objectContaining({
+        teamAbbreviation: "EDM",
+        valueAboveExpected: -100,
+        goalieSelections: 1,
+        goalieHits: 1,
+        goalieHitRate: 1,
+        gameScorePerSkaterPick: null,
+      }),
+    ]);
+  });
+
   it("limits team options to the selected draft year", async () => {
     queryMock
       .mockResolvedValueOnce([
@@ -262,6 +333,7 @@ describe("getDraftAnalytics", () => {
       yearRange: true,
       fromYear: 2026,
       toYear: 2025,
+      includeAdvanced: true,
     });
 
     expect(queryMock.mock.calls[1]?.[1]).toEqual([
@@ -269,7 +341,7 @@ describe("getDraftAnalytics", () => {
       null,
       2012,
       2021,
-      false,
+      true,
     ]);
     expect(result).toMatchObject({
       selectedDraftYear: null,

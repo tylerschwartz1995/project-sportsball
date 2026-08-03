@@ -47,7 +47,15 @@ regular-season (`game_type = 2`) data:
 - **100-game player:** at least 100 stored regular-season NHL games;
 - **GP per pick:** total regular-season games divided by every official
   selection, including zero-game selections;
-- **late regular:** a round-four-or-later selection with at least 100 games.
+- **value above expected:** average career games above or below selections from
+  the same draft year and a similar overall-pick band;
+- **late-round hit rate:** share of round-four-or-later selections with at
+  least 100 games;
+- **goalie hit rate:** share of drafted goalies with at least 50 NHL games;
+- **Game Score per skater pick:** stored career MoneyPuck Game Score divided by
+  all skater selections. A zero-game skater contributes zero, while a skater
+  with NHL games but missing advanced coverage makes the team value
+  unavailable rather than silently contributing zero.
 
 The Player Outcomes chart also exposes stored MoneyPuck regular-season,
 all-situations measures: career Game Score, individual expected goals, on-ice
@@ -71,7 +79,8 @@ workspace separates three user tasks:
   success rates.
 - **Team Drafting** defaults to the ten most recent draft classes with at least
   five seasons of observation. It compares selection counts, NHL appearance
-  and 100-game rates, games per pick, and late-round regulars across the same
+  and 100-game rates, games per pick, draft-position-adjusted value, late-round
+  and goalie hit rates, and Game Score per skater pick across the same
   observation window.
 
 The all-years board remains available with pagination. Its URL-backed sorting
