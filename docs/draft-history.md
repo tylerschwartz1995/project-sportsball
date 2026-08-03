@@ -67,8 +67,8 @@ being treated as zero. On-ice expected-goal share is recomputed from stored
 expected goals for and against; goalie GSAx is expected goals against minus
 actual goals against.
 
-The complete selection board is therefore the denominator for team rates. The
-workspace separates three user tasks:
+The complete selection board is therefore the denominator for team and class
+rates. The workspace separates four user tasks:
 
 - **Draft Board** opens the latest official draft and provides year, team,
   round, and player search across the complete archive. Player and canonical
@@ -83,6 +83,11 @@ workspace separates three user tasks:
   and goalie hit rates, and Game Score per skater pick across the same
   observation window. Each team’s linked selection list preserves that window
   so the underlying picks match the period used for the ranking.
+- **Class Rankings** compares every mature draft class across NHL appearance,
+  100-game and 500-game rates, games per pick, points per skater pick, and
+  MoneyPuck Game Score per skater pick. Each metric sorts independently rather
+  than being hidden inside a composite score. Classes with incomplete NHL
+  skater Game Score coverage show that advanced metric as unavailable.
 
 The all-years board remains available with pagination. Its URL-backed sorting
 is applied to the complete filtered result before pagination, rather than only

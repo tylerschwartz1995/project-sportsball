@@ -113,6 +113,24 @@ describe("getDraftAnalytics", () => {
         gameScorePerSkaterPick: (1480.25 + 200) / 3,
       },
     ]);
+    expect(result.classPerformance).toEqual([
+      {
+        draftYear: 2015,
+        selections: 3,
+        playersWithNhlGames: 2,
+        appearanceRate: 2 / 3,
+        hundredGamePlayers: 2,
+        hundredGameRate: 2 / 3,
+        fiveHundredGamePlayers: 1,
+        fiveHundredGameRate: 1 / 3,
+        totalGames: 1170,
+        averageGames: 390,
+        skaterSelections: 3,
+        totalSkaterPoints: 1280,
+        pointsPerSkaterPick: 1280 / 3,
+        gameScorePerSkaterPick: (1480.25 + 200) / 3,
+      },
+    ]);
     expect(result.draftYears).toEqual([2015]);
     expect(result.selectedDraftYear).toBe(2015);
     expect(result.teamOptions).toEqual([
@@ -269,6 +287,56 @@ describe("getDraftAnalytics", () => {
         goalieSelections: 1,
         goalieHits: 1,
         goalieHitRate: 1,
+        gameScorePerSkaterPick: null,
+      }),
+    ]);
+  });
+
+  it("keeps incomplete class Game Score coverage unavailable", async () => {
+    queryMock
+      .mockResolvedValueOnce([
+        {
+          draft_year: 2011,
+          draft_team_nhl_id: 22,
+          draft_team_name: "Edmonton Oilers",
+          draft_team_abbrev: "EDM",
+          has_nhl_appearance: false,
+        },
+        {
+          draft_year: 2010,
+          draft_team_nhl_id: 22,
+          draft_team_name: "Edmonton Oilers",
+          draft_team_abbrev: "EDM",
+          has_nhl_appearance: true,
+        },
+      ])
+      .mockResolvedValueOnce([
+        outcomeRow({
+          draft_year: 2011,
+          player_name: "Zero Game Skater",
+          career_games: 0,
+          career_game_score: null,
+        }),
+        outcomeRow({
+          draft_year: 2010,
+          player_name: "Missing Coverage Skater",
+          career_games: 100,
+          career_game_score: null,
+        }),
+      ]);
+
+    const result = await getDraftAnalytics({
+      allYears: true,
+      includeAdvanced: true,
+    });
+
+    expect(result.classPerformance).toEqual([
+      expect.objectContaining({
+        draftYear: 2011,
+        gameScorePerSkaterPick: 0,
+      }),
+      expect.objectContaining({
+        draftYear: 2010,
         gameScorePerSkaterPick: null,
       }),
     ]);

@@ -53,6 +53,23 @@ export type DraftTeamPerformance = {
   gameScorePerSkaterPick: number | null;
 };
 
+export type DraftClassPerformance = {
+  draftYear: number;
+  selections: number;
+  playersWithNhlGames: number;
+  appearanceRate: number;
+  hundredGamePlayers: number;
+  hundredGameRate: number;
+  fiveHundredGamePlayers: number;
+  fiveHundredGameRate: number;
+  totalGames: number;
+  averageGames: number;
+  skaterSelections: number;
+  totalSkaterPoints: number;
+  pointsPerSkaterPick: number | null;
+  gameScorePerSkaterPick: number | null;
+};
+
 export type DraftTeamOption = {
   nhlTeamId: number | null;
   name: string;
@@ -72,6 +89,7 @@ export type DraftAnalyticsOptions = {
 
 export type DraftAnalytics = {
   outcomes: DraftPlayerOutcome[];
+  classPerformance: DraftClassPerformance[];
   teamPerformance: DraftTeamPerformance[];
   draftYears: number[];
   teamOptions: DraftTeamOption[];

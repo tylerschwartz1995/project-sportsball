@@ -18,6 +18,7 @@ import {
 } from "@/app/_components/workspace-primitives";
 import type {
   DraftAnalytics,
+  DraftClassPerformance,
   DraftPlayerOutcome,
   DraftTeamOption,
   DraftTeamPerformance,
@@ -36,7 +37,7 @@ import { formatPlayerPosition } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
 
-type DraftView = "board" | "outcomes" | "teams";
+type DraftView = "board" | "outcomes" | "teams" | "classes";
 type DraftSort =
   | "player"
   | "year"
@@ -99,6 +100,52 @@ const teamPerformanceColumns = [
   },
 ] as const;
 
+const classPerformanceColumns = [
+  {
+    label: "Draft Class",
+    sortKey: "class",
+    align: "left",
+    defaultDirection: "desc",
+    description: "Draft year; open the class to inspect its players",
+  },
+  {
+    label: "Picks",
+    sortKey: "selections",
+    description: "Official selections in the draft class",
+  },
+  {
+    label: "NHL Rate",
+    sortKey: "appearance-rate",
+    description: "Share of selections who played at least one NHL game",
+  },
+  {
+    label: "100+ Rate",
+    sortKey: "hundred-rate",
+    description: "Share of selections who reached 100 NHL games",
+  },
+  {
+    label: "500+ Rate",
+    sortKey: "five-hundred-rate",
+    description: "Share of selections who reached 500 NHL games",
+  },
+  {
+    label: "GP / Pick",
+    sortKey: "average-games",
+    description: "Average regular-season NHL games per official selection",
+  },
+  {
+    label: "PTS / Skater Pick",
+    sortKey: "points",
+    description: "Career points divided by all non-goalie selections",
+  },
+  {
+    label: "GS / Skater Pick",
+    sortKey: "game-score",
+    description:
+      "Stored career MoneyPuck Game Score divided by all non-goalie selections",
+  },
+] as const;
+
 type DraftsPageProps = {
   searchParams: Promise<{
     year?: string | string[];
@@ -138,6 +185,11 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
           toYear: requestedToYear,
           includeAdvanced: true,
         }
+      : view === "classes"
+        ? {
+            allYears: true,
+            includeAdvanced: true,
+          }
       : boardYearRange
         ? {
             allYears: true,
@@ -194,6 +246,10 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
 
         {view === "teams" ? (
           <TeamDraftingView analytics={analytics} />
+        ) : null}
+
+        {view === "classes" ? (
+          <ClassRankingsView analytics={analytics} />
         ) : null}
       </section>
     </main>
@@ -458,6 +514,37 @@ function TeamDraftingView({ analytics }: { analytics: DraftAnalytics }) {
         </div>
       )}
     </>
+  );
+}
+
+function ClassRankingsView({ analytics }: { analytics: DraftAnalytics }) {
+  const rows = analytics.classPerformance
+    .filter(
+      (draftClass) =>
+        analytics.latestMatureDraftYear === null ||
+        draftClass.draftYear <= analytics.latestMatureDraftYear,
+    )
+    .sort(
+      (left, right) =>
+        right.averageGames - left.averageGames ||
+        right.draftYear - left.draftYear,
+    );
+  const rankedYears = rows.map((draftClass) => draftClass.draftYear);
+  const earliestYear = rankedYears.length > 0 ? Math.min(...rankedYears) : null;
+  const latestYear = rankedYears.length > 0 ? Math.max(...rankedYears) : null;
+
+  return rows.length > 0 ? (
+    <WorkspacePanel
+      className="mt-7"
+      title="Draft Class Rankings"
+      description={`Comparing mature draft classes from ${earliestYear ?? "—"} through ${latestYear ?? "—"}. Sort any metric to choose how quality is defined; career totals continue to grow for active players.`}
+    >
+      <ClassPerformanceTable rows={rows} />
+    </WorkspacePanel>
+  ) : (
+    <div className="workspace-empty-state mt-7">
+      No mature draft classes are available to compare.
+    </div>
   );
 }
 
@@ -913,6 +1000,64 @@ function TeamPerformanceTable({
   );
 }
 
+function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
+  return (
+    <SortableTable defaultSortKey="average-games">
+      <div className="workspace-table-scroll">
+        <table className="workspace-table workspace-table-dense min-w-[1100px]">
+          <thead>
+            <tr>
+              {classPerformanceColumns.map((column) => (
+                <SortableHeader key={column.sortKey} {...column} nowrap />
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((draftClass) => (
+              <tr key={draftClass.draftYear}>
+                <td className="workspace-team-cell">
+                  <Link href={`/drafts?view=outcomes&year=${draftClass.draftYear}`}>
+                    <strong>{draftClass.draftYear} Draft</strong>
+                  </Link>
+                </td>
+                <NumberCell value={draftClass.selections} />
+                <NumberCell value={formatPercentage(draftClass.appearanceRate)} />
+                <NumberCell value={formatPercentage(draftClass.hundredGameRate)} />
+                <NumberCell value={formatPercentage(draftClass.fiveHundredGameRate)} />
+                <NumberCell value={Math.round(draftClass.averageGames)} />
+                <NumberCell
+                  value={
+                    draftClass.pointsPerSkaterPick === null
+                      ? "—"
+                      : Math.round(draftClass.pointsPerSkaterPick)
+                  }
+                />
+                <NumberCell
+                  value={
+                    draftClass.gameScorePerSkaterPick === null
+                      ? "—"
+                      : Math.round(draftClass.gameScorePerSkaterPick)
+                  }
+                />
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="workspace-table-note">
+        Rates use every official selection as the denominator. Points and Game
+        Score exclude goalies but include zero-game skater picks. Game Score
+        uses stored all-situations data from{" "}
+        <a href="https://moneypuck.com" target="_blank" rel="noreferrer">
+          MoneyPuck.com
+        </a>
+        . A class is shown as unavailable when any NHL skater lacks advanced
+        coverage.
+      </div>
+    </SortableTable>
+  );
+}
+
 function buildOutcomeInsights(
   outcomes: DraftPlayerOutcome[],
   isDeveloping: boolean,
@@ -1039,15 +1184,19 @@ function draftViewTabs({
   if (selectedFromYear !== null) teamParams.set("from", String(selectedFromYear));
   if (selectedToYear !== null) teamParams.set("to", String(selectedToYear));
 
+  const classParams = new URLSearchParams({ view: "classes" });
+
   return [
     { id: "board" as const, label: "Draft Board", href: `/drafts?${boardParams.toString()}` },
     { id: "outcomes" as const, label: "Player Outcomes", href: `/drafts?${outcomeParams.toString()}` },
     { id: "teams" as const, label: "Team Drafting", href: `/drafts?${teamParams.toString()}` },
+    { id: "classes" as const, label: "Class Rankings", href: `/drafts?${classParams.toString()}` },
   ];
 }
 
 function parseDraftView(value: string | undefined): DraftView {
   if (value === "teams") return "teams";
+  if (value === "classes") return "classes";
   if (value === "outcomes" || value === "pick-value") return "outcomes";
   return "board";
 }

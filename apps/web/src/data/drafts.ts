@@ -3,6 +3,7 @@ import "server-only";
 import type {
   DraftAnalytics,
   DraftAnalyticsOptions,
+  DraftClassPerformance,
   DraftPlayerOutcome,
   DraftTeamPerformance,
 } from "@/contracts/draft";
@@ -323,6 +324,7 @@ export async function getDraftAnalytics(
   const outcomes = outcomeRows.map(mapOutcome);
   return {
     outcomes,
+    classPerformance: buildClassPerformance(outcomes),
     teamPerformance: buildTeamPerformance(outcomes),
     draftYears,
     teamOptions,
@@ -334,6 +336,73 @@ export async function getDraftAnalytics(
     selectedTeamAbbreviation,
     allYears,
   };
+}
+
+function buildClassPerformance(
+  outcomes: DraftPlayerOutcome[],
+): DraftClassPerformance[] {
+  const classes = new Map<number, DraftPlayerOutcome[]>();
+  for (const outcome of outcomes) {
+    const draftClass = classes.get(outcome.draftYear);
+    if (draftClass) {
+      draftClass.push(outcome);
+    } else {
+      classes.set(outcome.draftYear, [outcome]);
+    }
+  }
+
+  return [...classes.entries()]
+    .map(([draftYear, players]) => {
+      const selections = players.length;
+      const playersWithNhlGames = players.filter(
+        (player) => player.careerGames > 0,
+      ).length;
+      const hundredGamePlayers = players.filter(
+        (player) => player.careerGames >= 100,
+      ).length;
+      const fiveHundredGamePlayers = players.filter(
+        (player) => player.careerGames >= 500,
+      ).length;
+      const totalGames = sum(players, (player) => player.careerGames);
+      const skaterPlayers = players.filter(
+        (player) => player.position?.toUpperCase() !== "G",
+      );
+      const totalSkaterPoints = sum(
+        skaterPlayers,
+        (player) => player.careerPoints,
+      );
+      const hasMissingGameScore = skaterPlayers.some(
+        (player) =>
+          player.careerGames > 0 && player.careerGameScore === null,
+      );
+
+      return {
+        draftYear,
+        selections,
+        playersWithNhlGames,
+        appearanceRate: playersWithNhlGames / selections,
+        hundredGamePlayers,
+        hundredGameRate: hundredGamePlayers / selections,
+        fiveHundredGamePlayers,
+        fiveHundredGameRate: fiveHundredGamePlayers / selections,
+        totalGames,
+        averageGames: totalGames / selections,
+        skaterSelections: skaterPlayers.length,
+        totalSkaterPoints,
+        pointsPerSkaterPick:
+          skaterPlayers.length > 0
+            ? totalSkaterPoints / skaterPlayers.length
+            : null,
+        gameScorePerSkaterPick:
+          skaterPlayers.length === 0 || hasMissingGameScore
+            ? null
+            : sum(
+                skaterPlayers,
+                (player) => player.careerGameScore ?? 0,
+              ) / skaterPlayers.length,
+      };
+    })
+    .sort((left, right) => right.draftYear - left.draftYear);
 }
 
 function mapOutcome(row: DraftOutcomeRow): DraftPlayerOutcome {
