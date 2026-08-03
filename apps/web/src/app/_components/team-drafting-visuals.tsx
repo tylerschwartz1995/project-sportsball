@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo } from "react";
 import {
   Bar,
@@ -20,13 +21,6 @@ type TeamDraftingChartRow = DraftTeamPerformance & {
   noAppearanceRate: number;
   underHundredPlayers: number;
   underHundredRate: number;
-};
-
-type EfficiencyQuadrant = {
-  id: "leaders" | "volume" | "hits" | "below";
-  label: string;
-  description: string;
-  teams: TeamDraftingChartRow[];
 };
 
 export function TeamDraftingVisuals({
@@ -54,13 +48,17 @@ export function TeamDraftingVisuals({
       }),
     [rows],
   );
+  if (chartRows.length === 0) {
+    return null;
+  }
+
   const medianHundredGameRate = median(
     chartRows.map((row) => row.hundredGameRate),
   );
   const medianAverageGames = median(
     chartRows.map((row) => row.averageGames),
   );
-  const efficiencyQuadrants = buildEfficiencyQuadrants(
+  const scatterPlot = buildScatterPlot(
     chartRows,
     medianHundredGameRate,
     medianAverageGames,
@@ -71,10 +69,6 @@ export function TeamDraftingVisuals({
       ? "the selected draft window"
       : `${fromYear}–${toYear}`;
 
-  if (chartRows.length === 0) {
-    return null;
-  }
-
   return (
     <div className="workspace-team-drafting-visuals mt-7">
       <section className="workspace-chart-panel">
@@ -84,64 +78,96 @@ export function TeamDraftingVisuals({
             <h3>Where Each Team Stands</h3>
           </div>
           <p>
-            Every team is grouped against the league medians for games per pick
-            and 100-game player rate in {windowLabel}. Each entry shows both
-            values directly.
+            Team logos mark the exact relationship between long-term hit rate
+            and career volume in {windowLabel}. Higher and farther right is
+            stronger on both measures.
           </p>
         </header>
         <div
-          className="workspace-team-drafting-matrix"
+          className="workspace-team-drafting-scatter-shell"
           role="group"
-          aria-label={`Team drafting efficiency groups for ${windowLabel}`}
+          aria-label={`Four-quadrant scatterplot of team 100-game player rate and games per pick for ${windowLabel}`}
         >
-          {efficiencyQuadrants.map((quadrant) => (
-            <section
-              key={quadrant.id}
-              className={`workspace-team-drafting-quadrant is-${quadrant.id}`}
+          <span className="workspace-team-drafting-y-title">
+            Games per Pick
+          </span>
+          <div className="workspace-team-drafting-scatter">
+            <span
+              className="workspace-team-drafting-median-line is-vertical"
+              style={{ left: `${scatterPlot.medianX}%` }}
+              aria-hidden="true"
+            />
+            <span
+              className="workspace-team-drafting-median-line is-horizontal"
+              style={{ top: `${scatterPlot.medianY}%` }}
+              aria-hidden="true"
+            />
+            <span className="workspace-team-drafting-quadrant-label is-volume">
+              More Career Volume
+            </span>
+            <span className="workspace-team-drafting-quadrant-label is-leaders">
+              Strong on Both
+            </span>
+            <span className="workspace-team-drafting-quadrant-label is-below">
+              Below Both Medians
+            </span>
+            <span className="workspace-team-drafting-quadrant-label is-hits">
+              More Long-Term Hits
+            </span>
+            <span className="workspace-team-drafting-y-tick is-high">
+              {Math.round(scatterPlot.maxGames)}
+            </span>
+            <span
+              className="workspace-team-drafting-y-tick is-median"
+              style={{ top: `${scatterPlot.medianY}%` }}
             >
-              <header>
-                <div>
-                  <h4>{quadrant.label}</h4>
-                  <p>{quadrant.description}</p>
-                </div>
-                <span>{quadrant.teams.length} teams</span>
-              </header>
-              <ul>
-                {quadrant.teams.map((team) => (
-                  <li key={team.teamAbbreviation} title={team.teamName}>
-                    <span
-                      className="workspace-team-drafting-team"
-                      aria-label={team.teamName}
-                    >
-                      <TeamLogo
-                        nhlTeamId={team.teamNhlId}
-                        abbreviation={team.teamAbbreviation}
-                        name={team.teamName}
-                        size="tiny"
-                        decorative
-                      />
-                      <strong>{team.teamAbbreviation}</strong>
-                    </span>
-                    <span>
-                      <strong>{formatPercentage(team.hundredGameRate)}</strong>
-                      <small>100+ rate</small>
-                    </span>
-                    <span>
-                      <strong>{Math.round(team.averageGames)}</strong>
-                      <small>GP / pick</small>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
+              {Math.round(medianAverageGames)}
+            </span>
+            <span className="workspace-team-drafting-y-tick is-low">
+              {Math.round(scatterPlot.minGames)}
+            </span>
+            {scatterPlot.points.map(({ team, left, top }) => (
+              <Link
+                key={team.teamAbbreviation}
+                className="workspace-team-drafting-point"
+                href={teamSelectionsHref(team.teamAbbreviation, fromYear, toYear)}
+                style={{ left: `${left}%`, top: `${top}%` }}
+                aria-label={`${team.teamName}: ${formatPercentage(team.hundredGameRate)} 100-game player rate and ${Math.round(team.averageGames)} games per pick. Open selections.`}
+              >
+                <TeamLogo
+                  nhlTeamId={team.teamNhlId}
+                  abbreviation={team.teamAbbreviation}
+                  name={team.teamName}
+                  size="tiny"
+                  decorative
+                  prominent
+                />
+                <span className="workspace-team-drafting-point-label">
+                  <strong>{team.teamAbbreviation}</strong>
+                  <small>
+                    {formatPercentage(team.hundredGameRate)} ·{" "}
+                    {Math.round(team.averageGames)} GP/pick
+                  </small>
+                </span>
+              </Link>
+            ))}
+          </div>
+          <div className="workspace-team-drafting-x-ticks" aria-hidden="true">
+            <span>{formatPercentage(scatterPlot.minRate)}</span>
+            <span style={{ left: `${scatterPlot.medianX}%` }}>
+              Median {formatPercentage(medianHundredGameRate)}
+            </span>
+            <span>{formatPercentage(scatterPlot.maxRate)}</span>
+          </div>
+          <span className="workspace-team-drafting-x-title">
+            100-Game Player Rate
+          </span>
         </div>
         <p className="workspace-team-drafting-chart-note">
-          Team medians:{" "}
-          {formatPercentage(medianHundredGameRate)} for 100-game rate and{" "}
-          {Math.round(medianAverageGames)} games per pick. Selection volume is
-          available in the table above and no longer changes the visual size of
-          a team.
+          Dashed lines mark the team medians: {formatPercentage(medianHundredGameRate)}
+          {" "}for 100-game rate and {Math.round(medianAverageGames)} games per
+          pick. Logos are equal-sized because selection volume is shown in the
+          table rather than encoded here.
         </p>
         <AccessibleEfficiencyTable rows={chartRows} windowLabel={windowLabel} />
       </section>
@@ -308,61 +334,56 @@ function TeamOutcomeTooltip({
   );
 }
 
-function buildEfficiencyQuadrants(
+function buildScatterPlot(
   rows: TeamDraftingChartRow[],
   medianHundredGameRate: number,
   medianAverageGames: number,
-): EfficiencyQuadrant[] {
-  const quadrants: EfficiencyQuadrant[] = [
-    {
-      id: "leaders",
-      label: "Strong on Both",
-      description: "Above median for long-term hits and games per pick",
-      teams: [],
-    },
-    {
-      id: "below",
-      label: "Below Both Medians",
-      description: "Below median on both measures; not a final scouting grade",
-      teams: [],
-    },
-    {
-      id: "volume",
-      label: "More Career Volume",
-      description: "Above median games per pick, below median hit rate",
-      teams: [],
-    },
-    {
-      id: "hits",
-      label: "More Long-Term Hits",
-      description: "Above median hit rate, below median games per pick",
-      teams: [],
-    },
-  ];
+) {
+  const rates = rows.map((row) => row.hundredGameRate);
+  const games = rows.map((row) => row.averageGames);
+  const [minRate, maxRate] = extent(rates);
+  const [minGames, maxGames] = extent(games);
+  const ratePadding = Math.max((maxRate - minRate) * 0.08, 0.01);
+  const gamesPadding = Math.max((maxGames - minGames) * 0.08, 5);
+  const rateDomain = [minRate - ratePadding, maxRate + ratePadding] as const;
+  const gamesDomain = [minGames - gamesPadding, maxGames + gamesPadding] as const;
+  return {
+    minRate,
+    maxRate,
+    minGames,
+    maxGames,
+    medianX: scaleToPercent(medianHundredGameRate, ...rateDomain),
+    medianY: 100 - scaleToPercent(medianAverageGames, ...gamesDomain),
+    points: rows.map((team) => ({
+      team,
+      left: scaleToPercent(team.hundredGameRate, ...rateDomain),
+      top: 100 - scaleToPercent(team.averageGames, ...gamesDomain),
+    })),
+  };
+}
 
-  for (const team of rows) {
-    const hasHighHitRate = team.hundredGameRate >= medianHundredGameRate;
-    const hasHighGameVolume = team.averageGames >= medianAverageGames;
-    const quadrantId = hasHighHitRate && hasHighGameVolume
-      ? "leaders"
-      : hasHighGameVolume
-        ? "volume"
-        : hasHighHitRate
-          ? "hits"
-          : "below";
-    quadrants.find((quadrant) => quadrant.id === quadrantId)?.teams.push(team);
-  }
+function extent(values: number[]): [number, number] {
+  return [Math.min(...values), Math.max(...values)];
+}
 
-  for (const quadrant of quadrants) {
-    quadrant.teams.sort(
-      (left, right) =>
-        right.hundredGameRate - left.hundredGameRate ||
-        right.averageGames - left.averageGames ||
-        left.teamAbbreviation.localeCompare(right.teamAbbreviation),
-    );
-  }
+function scaleToPercent(value: number, minimum: number, maximum: number) {
+  if (minimum === maximum) return 50;
+  return ((value - minimum) / (maximum - minimum)) * 100;
+}
 
-  return quadrants;
+function teamSelectionsHref(
+  abbreviation: string,
+  fromYear: number | null,
+  toYear: number | null,
+) {
+  const params = new URLSearchParams({
+    view: "board",
+    year: "all",
+    team: abbreviation,
+  });
+  if (fromYear !== null) params.set("from", String(fromYear));
+  if (toYear !== null) params.set("to", String(toYear));
+  return `/drafts?${params.toString()}`;
 }
 
 function AccessibleEfficiencyTable({
