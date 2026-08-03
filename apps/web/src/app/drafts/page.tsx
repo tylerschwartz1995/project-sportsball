@@ -102,6 +102,58 @@ const teamPerformanceColumns = [
   },
 ] as const;
 
+const teamPickOutcomeColumns = [
+  {
+    label: "Draft",
+    sortKey: "draft",
+    align: "left",
+    defaultDirection: "desc",
+    description: "Draft year",
+  },
+  {
+    label: "Pick",
+    sortKey: "pick",
+    description: "Overall selection and round",
+  },
+  {
+    label: "Player",
+    sortKey: "player",
+    align: "left",
+    defaultDirection: "asc",
+    description: "Selected player",
+  },
+  {
+    label: "Pos",
+    sortKey: "position",
+    description: "Drafted position",
+  },
+  {
+    label: "GP",
+    sortKey: "games",
+    description: "Career regular-season NHL games",
+  },
+  {
+    label: "PTS",
+    sortKey: "points",
+    description: "Career points for skaters",
+  },
+  {
+    label: "Wins",
+    sortKey: "wins",
+    description: "Career wins for goalies",
+  },
+  {
+    label: "Game Score",
+    sortKey: "game-score",
+    description: "Stored cumulative MoneyPuck Game Score for skaters",
+  },
+  {
+    label: "GSAx",
+    sortKey: "gsax",
+    description: "Stored career goals saved above expected for goalies",
+  },
+] as const;
+
 const classPerformanceColumns = [
   {
     label: "Draft",
@@ -169,7 +221,7 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
   const yearParam = firstQueryValue(params.year);
   const requestedYear = parseDraftYear(yearParam);
   const allYears = view === "board" && yearParam === "all";
-  const requestedTeam = view === "board"
+  const requestedTeam = view === "board" || view === "teams"
     ? (firstQueryValue(params.team) ?? "")
     : "";
   const requestedFromYear = parseDraftYear(firstQueryValue(params.from));
@@ -208,9 +260,16 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
           includeAdvanced: view === "outcomes",
         },
   );
-  const selectedTeam = view === "board"
+  const selectedBoardTeam = view === "board"
     ? (analytics.selectedTeamAbbreviation ?? "")
     : "";
+  const selectedDraftingTeam =
+    view === "teams" &&
+    analytics.teamOptions.some(
+      (team) => team.abbreviation === requestedTeam,
+    )
+      ? requestedTeam
+      : "";
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="drafts" />
@@ -228,7 +287,8 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
           tabs={draftViewTabs({
             view,
             selectedYear: analytics.selectedDraftYear,
-            selectedTeam,
+            selectedTeam: selectedBoardTeam,
+            selectedDraftingTeam,
             selectedFromYear: analytics.selectedFromYear,
             selectedToYear: analytics.selectedToYear,
           })}
@@ -238,7 +298,7 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
           <DraftBoardView
             analytics={analytics}
             params={params}
-            selectedTeam={selectedTeam}
+            selectedTeam={selectedBoardTeam}
           />
         ) : null}
 
@@ -247,7 +307,10 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
         ) : null}
 
         {view === "teams" ? (
-          <TeamDraftingView analytics={analytics} />
+          <TeamDraftingView
+            analytics={analytics}
+            selectedTeam={selectedDraftingTeam}
+          />
         ) : null}
 
         {view === "classes" ? (
@@ -302,20 +365,6 @@ function DraftBoardView({
     : (analytics.selectedDraftYear ?? "all");
   const fromYear = analytics.selectedFromYear;
   const toYear = analytics.selectedToYear;
-  const isTeamWindowScope =
-    analytics.allYears &&
-    selectedTeam !== "" &&
-    fromYear !== null &&
-    toYear !== null;
-  const selectedTeamOption = analytics.teamOptions.find(
-    (team) => team.abbreviation === selectedTeam,
-  );
-  const selectedTeamName =
-    selectedTeamOption?.name ??
-    analytics.outcomes.find(
-      (outcome) => outcome.draftTeamAbbreviation === selectedTeam,
-    )?.draftTeamName ??
-    selectedTeam;
   const tableParams = {
     view: "board",
     year: selectedYear,
@@ -328,38 +377,23 @@ function DraftBoardView({
 
   return (
     <>
-      {isTeamWindowScope ? (
-        <TeamSelectionScope
-          teamName={selectedTeamName}
-          teamAbbreviation={selectedTeam}
-          fromYear={fromYear}
-          toYear={toYear}
-          selectionCount={analytics.outcomes.length}
-          rounds={availableRounds}
-          selectedRound={selectedRound}
-          query={query}
-        />
-      ) : (
-        <DraftBoardFilters
-          years={analytics.draftYears}
-          teams={analytics.teamOptions}
-          rounds={availableRounds}
-          selectedYear={analytics.selectedDraftYear}
-          selectedTeam={selectedTeam}
-          selectedRound={selectedRound}
-          allYears={analytics.allYears}
-          query={query}
-          fromYear={fromYear}
-          toYear={toYear}
-        />
-      )}
+      <DraftBoardFilters
+        years={analytics.draftYears}
+        teams={analytics.teamOptions}
+        rounds={availableRounds}
+        selectedYear={analytics.selectedDraftYear}
+        selectedTeam={selectedTeam}
+        selectedRound={selectedRound}
+        allYears={analytics.allYears}
+        query={query}
+        fromYear={fromYear}
+        toYear={toYear}
+      />
 
       <WorkspacePanel
         className="mt-7"
         title={
-          isTeamWindowScope
-            ? `${selectedTeamName} Selections`
-            : analytics.allYears
+          analytics.allYears
             ? fromYear !== null && toYear !== null
               ? `${fromYear}–${toYear} Draft Board`
               : "Complete Draft Archive"
@@ -367,7 +401,7 @@ function DraftBoardView({
         }
         description={
           outcomePage.totalItems > 0
-            ? `${isTeamWindowScope ? `${fromYear}–${toYear} draft window · ` : ""}Showing ${outcomePage.firstItem}–${outcomePage.lastItem} of ${outcomePage.totalItems} matching selections.`
+            ? `Showing ${outcomePage.firstItem}–${outcomePage.lastItem} of ${outcomePage.totalItems} matching selections.`
             : "No selections match the current filters."
         }
         action={
@@ -510,7 +544,22 @@ function PlayerOutcomesView({ analytics }: { analytics: DraftAnalytics }) {
   );
 }
 
-function TeamDraftingView({ analytics }: { analytics: DraftAnalytics }) {
+function TeamDraftingView({
+  analytics,
+  selectedTeam,
+}: {
+  analytics: DraftAnalytics;
+  selectedTeam: string;
+}) {
+  const selectedTeamPerformance = analytics.teamPerformance.find(
+    (team) => team.teamAbbreviation === selectedTeam,
+  );
+  const selectedTeamPicks = selectedTeam
+    ? analytics.outcomes.filter(
+        (outcome) => outcome.draftTeamAbbreviation === selectedTeam,
+      ).sort((left, right) => right.careerGames - left.careerGames)
+    : [];
+
   return (
     <>
       <DraftRangeFilter
@@ -518,21 +567,32 @@ function TeamDraftingView({ analytics }: { analytics: DraftAnalytics }) {
         fromYear={analytics.selectedFromYear}
         toYear={analytics.selectedToYear}
         matureThrough={analytics.latestMatureDraftYear}
+        selectedTeam={selectedTeam}
       />
 
       {analytics.teamPerformance.length > 0 ? (
         <>
-          <WorkspacePanel
-            className="mt-7"
-            title="Team Drafting"
-            description={`Comparing every selection from ${analytics.selectedFromYear ?? "—"} through ${analytics.selectedToYear ?? "—"}. Team rankings and linked selection lists use this same draft window. The default window uses the ten most recent draft classes with at least five seasons of observation.`}
-          >
-            <TeamPerformanceTable
-              rows={analytics.teamPerformance}
+          <div id="team-rankings">
+            <WorkspacePanel
+              className="mt-7"
+              title="Team Drafting"
+              description={`Comparing every selection from ${analytics.selectedFromYear ?? "—"} through ${analytics.selectedToYear ?? "—"}. Team rankings and linked pick outcomes use this same draft window. The default window uses the ten most recent draft classes with at least five seasons of observation.`}
+            >
+              <TeamPerformanceTable
+                rows={analytics.teamPerformance}
+                fromYear={analytics.selectedFromYear}
+                toYear={analytics.selectedToYear}
+              />
+            </WorkspacePanel>
+          </div>
+          {selectedTeamPerformance ? (
+            <TeamPickOutcomesPanel
+              team={selectedTeamPerformance}
+              picks={selectedTeamPicks}
               fromYear={analytics.selectedFromYear}
               toYear={analytics.selectedToYear}
             />
-          </WorkspacePanel>
+          ) : null}
           <TeamDraftingVisuals
             rows={analytics.teamPerformance}
             fromYear={analytics.selectedFromYear}
@@ -678,75 +738,6 @@ function DraftBoardFilters({
   );
 }
 
-function TeamSelectionScope({
-  teamName,
-  teamAbbreviation,
-  fromYear,
-  toYear,
-  selectionCount,
-  rounds,
-  selectedRound,
-  query,
-}: {
-  teamName: string;
-  teamAbbreviation: string;
-  fromYear: number;
-  toYear: number;
-  selectionCount: number;
-  rounds: number[];
-  selectedRound: number | null;
-  query: string;
-}) {
-  return (
-    <section
-      className="workspace-draft-team-scope"
-      aria-label="Team Drafting selection context"
-    >
-      <div className="workspace-draft-team-scope-summary">
-        <TeamLogo
-          abbreviation={teamAbbreviation}
-          name={teamName}
-          size="compact"
-          decorative
-          prominent
-        />
-        <div>
-          <span>From Team Drafting</span>
-          <strong>{teamName} Selections</strong>
-          <small>
-            {fromYear}–{toYear} · {selectionCount.toLocaleString("en-CA")} picks
-          </small>
-        </div>
-      </div>
-      <form method="get" className="workspace-draft-team-scope-filter">
-        <input type="hidden" name="view" value="board" />
-        <input type="hidden" name="year" value="all" />
-        <input type="hidden" name="team" value={teamAbbreviation} />
-        <input type="hidden" name="from" value={fromYear} />
-        <input type="hidden" name="to" value={toYear} />
-        <input type="hidden" name="q" value={query} />
-        <label>
-          Round
-          <AutoSubmitSelect name="round" defaultValue={selectedRound ?? ""}>
-            <option value="">All Rounds</option>
-            {rounds.map((round) => (
-              <option key={round} value={round}>
-                Round {round}
-              </option>
-            ))}
-          </AutoSubmitSelect>
-        </label>
-      </form>
-      <nav className="workspace-draft-team-scope-actions" aria-label="Scope actions">
-        <Link href={`/drafts?view=teams&from=${fromYear}&to=${toYear}`}>
-          ← Team Drafting
-        </Link>
-        <Link href="/drafts?view=board&year=all">View All Picks</Link>
-      </nav>
-    </section>
-  );
-}
-
 function DraftBoardSearch({
   selectedYear,
   selectedTeam,
@@ -818,11 +809,13 @@ function DraftRangeFilter({
   fromYear,
   toYear,
   matureThrough,
+  selectedTeam,
 }: {
   years: number[];
   fromYear: number | null;
   toYear: number | null;
   matureThrough: number | null;
+  selectedTeam: string;
 }) {
   const matureYears = years.filter(
     (year) => matureThrough === null || year <= matureThrough,
@@ -830,6 +823,7 @@ function DraftRangeFilter({
   return (
     <form method="get" className="workspace-draft-filters is-range">
       <input type="hidden" name="view" value="teams" />
+      <input type="hidden" name="team" value={selectedTeam} />
       <label>
         From Draft
         <AutoSubmitSelect name="from" defaultValue={fromYear ?? ""}>
@@ -1067,9 +1061,9 @@ function TeamPerformanceTable({
                     </span>
                     <small>
                       <Link
-                        href={`/drafts?view=board&year=all&team=${team.teamAbbreviation}&from=${fromYear ?? ""}&to=${toYear ?? ""}`}
+                        href={`/drafts?view=teams&from=${fromYear ?? ""}&to=${toYear ?? ""}&team=${team.teamAbbreviation}#team-picks`}
                       >
-                        {team.teamAbbreviation} selections →
+                        {team.teamAbbreviation} picks & outcomes →
                       </Link>
                     </small>
                   </div>
@@ -1112,6 +1106,178 @@ function TeamPerformanceTable({
         unavailable.
       </div>
     </SortableTable>
+  );
+}
+
+function TeamPickOutcomesPanel({
+  team,
+  picks,
+  fromYear,
+  toYear,
+}: {
+  team: DraftTeamPerformance;
+  picks: DraftPlayerOutcome[];
+  fromYear: number | null;
+  toYear: number | null;
+}) {
+  const windowLabel = `${fromYear ?? "—"}–${toYear ?? "—"}`;
+
+  return (
+    <div id="team-picks">
+      <WorkspacePanel
+        className="mt-7"
+        title={`${team.teamName} Picks & Outcomes`}
+        description={`${windowLabel} · Career outcomes for the ${picks.length} selections used in the ranking above.`}
+        action={
+          <Link
+            href={`/drafts?view=teams&from=${fromYear ?? ""}&to=${toYear ?? ""}#team-rankings`}
+            className="workspace-panel-link"
+          >
+            Clear team
+          </Link>
+        }
+      >
+        <dl className="workspace-team-pick-summary">
+          <TeamPickSummaryItem label="Picks" value={team.selections} />
+          <TeamPickSummaryItem
+            label="NHL Rate"
+            value={formatPercentage(team.appearanceRate)}
+          />
+          <TeamPickSummaryItem
+            label="100+ Rate"
+            value={formatPercentage(team.hundredGameRate)}
+          />
+          <TeamPickSummaryItem
+            label="GP / Pick"
+            value={Math.round(team.averageGames)}
+          />
+          <TeamPickSummaryItem
+            label="Value +/-"
+            value={formatSignedNumber(team.valueAboveExpected)}
+          />
+          <TeamPickSummaryItem
+            label="GS / Skater"
+            value={
+              team.gameScorePerSkaterPick === null
+                ? "—"
+                : Math.round(team.gameScorePerSkaterPick)
+            }
+          />
+        </dl>
+        <TeamPickOutcomesTable rows={picks} />
+        <div className="workspace-table-note">
+          GP, points, and wins are career regular-season totals. Game Score is
+          shown for skaters and goals saved above expected (GSAx) for goalies
+          when stored MoneyPuck coverage is available. Missing advanced data is
+          shown as unavailable, not zero.
+        </div>
+      </WorkspacePanel>
+    </div>
+  );
+}
+
+function TeamPickSummaryItem({
+  label,
+  value,
+}: {
+  label: string;
+  value: number | string;
+}) {
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
+  );
+}
+
+function TeamPickOutcomesTable({ rows }: { rows: DraftPlayerOutcome[] }) {
+  return (
+    <SortableTable defaultSortKey="games">
+      <div className="workspace-table-scroll workspace-team-picks-scroll">
+        <table className="workspace-table workspace-table-dense workspace-team-picks-table">
+          <thead>
+            <tr>
+              {teamPickOutcomeColumns.map((column) => (
+                <SortableHeader key={column.sortKey} {...column} nowrap />
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((player) => {
+              const isGoalie = player.position?.toUpperCase() === "G";
+              return (
+                <tr key={`${player.draftYear}-${player.draftOverallPick}`}>
+                  <td data-sort-value={player.draftYear}>
+                    <Link href={`/drafts?view=outcomes&year=${player.draftYear}`}>
+                      {player.draftYear}
+                    </Link>
+                  </td>
+                  <td data-sort-value={player.draftOverallPick}>
+                    <strong>#{player.draftOverallPick}</strong>
+                    <small className="workspace-team-pick-round">
+                      R{player.draftRound}
+                    </small>
+                  </td>
+                  <td className="workspace-team-cell" data-sort-value={player.name}>
+                    <div>
+                      {player.nhlPlayerId === null ? (
+                        <strong>{player.name}</strong>
+                      ) : (
+                        <Link href={`/players/${player.nhlPlayerId}`}>
+                          {player.name}
+                        </Link>
+                      )}
+                      {player.amateurClubName ? (
+                        <small>{player.amateurClubName}</small>
+                      ) : null}
+                    </div>
+                  </td>
+                  <td data-sort-value={formatPlayerPosition(player.position)}>
+                    {formatPlayerPosition(player.position)}
+                  </td>
+                  <MetricCell value={player.careerGames} />
+                  <MetricCell value={isGoalie ? null : player.careerPoints} />
+                  <MetricCell value={isGoalie ? player.careerWins : null} />
+                  <MetricCell
+                    value={isGoalie ? null : player.careerGameScore}
+                    displayValue={
+                      player.careerGameScore === null
+                        ? undefined
+                        : Math.round(player.careerGameScore).toLocaleString("en-CA")
+                    }
+                  />
+                  <MetricCell
+                    value={isGoalie ? player.careerGoalsSavedAboveExpected : null}
+                    displayValue={
+                      isGoalie && player.careerGoalsSavedAboveExpected !== null
+                        ? formatSignedDecimal(player.careerGoalsSavedAboveExpected)
+                        : undefined
+                    }
+                  />
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </SortableTable>
+  );
+}
+
+function MetricCell({
+  value,
+  displayValue,
+}: {
+  value: number | null;
+  displayValue?: number | string;
+}) {
+  return (
+    <td data-sort-value={value ?? undefined}>
+      {value === null
+        ? "—"
+        : (displayValue ?? value.toLocaleString("en-CA"))}
+    </td>
   );
 }
 
@@ -1347,12 +1513,14 @@ function draftViewTabs({
   view,
   selectedYear,
   selectedTeam,
+  selectedDraftingTeam,
   selectedFromYear,
   selectedToYear,
 }: {
   view: DraftView;
   selectedYear: number | null;
   selectedTeam: string;
+  selectedDraftingTeam: string;
   selectedFromYear: number | null;
   selectedToYear: number | null;
 }) {
@@ -1370,6 +1538,7 @@ function draftViewTabs({
   const teamParams = new URLSearchParams({ view: "teams" });
   if (selectedFromYear !== null) teamParams.set("from", String(selectedFromYear));
   if (selectedToYear !== null) teamParams.set("to", String(selectedToYear));
+  if (selectedDraftingTeam) teamParams.set("team", selectedDraftingTeam);
 
   const classParams = new URLSearchParams({ view: "classes" });
 
@@ -1420,6 +1589,11 @@ function formatSignedNumber(value: number): string {
   if (!Number.isFinite(value)) return "—";
   const rounded = Math.round(value);
   return rounded > 0 ? `+${rounded}` : rounded.toString();
+}
+
+function formatSignedDecimal(value: number): string {
+  const formatted = value.toFixed(1);
+  return value > 0 ? `+${formatted}` : formatted;
 }
 
 function NumberCell({ value }: { value: number | string }) {

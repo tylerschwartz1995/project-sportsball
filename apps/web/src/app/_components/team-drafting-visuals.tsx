@@ -130,9 +130,9 @@ export function TeamDraftingVisuals({
               <Link
                 key={team.teamAbbreviation}
                 className="workspace-team-drafting-point"
-                href={teamSelectionsHref(team.teamAbbreviation, fromYear, toYear)}
+                href={teamOutcomesHref(team.teamAbbreviation, fromYear, toYear)}
                 style={{ left: `${left}%`, top: `${top}%` }}
-                aria-label={`${team.teamName}: ${formatPercentage(team.hundredGameRate)} 100-game player rate and ${Math.round(team.averageGames)} games per pick. Open selections.`}
+                aria-label={`${team.teamName}: ${formatPercentage(team.hundredGameRate)} 100-game player rate and ${Math.round(team.averageGames)} games per pick. Open picks and outcomes.`}
               >
                 <TeamLogo
                   nhlTeamId={team.teamNhlId}
@@ -371,19 +371,18 @@ function scaleToPercent(value: number, minimum: number, maximum: number) {
   return ((value - minimum) / (maximum - minimum)) * 100;
 }
 
-function teamSelectionsHref(
+function teamOutcomesHref(
   abbreviation: string,
   fromYear: number | null,
   toYear: number | null,
 ) {
   const params = new URLSearchParams({
-    view: "board",
-    year: "all",
+    view: "teams",
     team: abbreviation,
   });
   if (fromYear !== null) params.set("from", String(fromYear));
   if (toYear !== null) params.set("to", String(toYear));
-  return `/drafts?${params.toString()}`;
+  return `/drafts?${params.toString()}#team-picks`;
 }
 
 function AccessibleEfficiencyTable({
