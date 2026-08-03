@@ -1714,7 +1714,8 @@ html[data-theme="light"] .workspace-directory-controls button {
 .workspace-draft-plot-controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  column-gap: 1.5rem;
+  row-gap: 0.75rem;
 }
 
 .workspace-draft-outcome-chart {
