@@ -302,6 +302,20 @@ function DraftBoardView({
     : (analytics.selectedDraftYear ?? "all");
   const fromYear = analytics.selectedFromYear;
   const toYear = analytics.selectedToYear;
+  const isTeamWindowScope =
+    analytics.allYears &&
+    selectedTeam !== "" &&
+    fromYear !== null &&
+    toYear !== null;
+  const selectedTeamOption = analytics.teamOptions.find(
+    (team) => team.abbreviation === selectedTeam,
+  );
+  const selectedTeamName =
+    selectedTeamOption?.name ??
+    analytics.outcomes.find(
+      (outcome) => outcome.draftTeamAbbreviation === selectedTeam,
+    )?.draftTeamName ??
+    selectedTeam;
   const tableParams = {
     view: "board",
     year: selectedYear,
@@ -314,23 +328,38 @@ function DraftBoardView({
 
   return (
     <>
-      <DraftBoardFilters
-        years={analytics.draftYears}
-        teams={analytics.teamOptions}
-        rounds={availableRounds}
-        selectedYear={analytics.selectedDraftYear}
-        selectedTeam={selectedTeam}
-        selectedRound={selectedRound}
-        allYears={analytics.allYears}
-        query={query}
-        fromYear={fromYear}
-        toYear={toYear}
-      />
+      {isTeamWindowScope ? (
+        <TeamSelectionScope
+          teamName={selectedTeamName}
+          teamAbbreviation={selectedTeam}
+          fromYear={fromYear}
+          toYear={toYear}
+          selectionCount={analytics.outcomes.length}
+          rounds={availableRounds}
+          selectedRound={selectedRound}
+          query={query}
+        />
+      ) : (
+        <DraftBoardFilters
+          years={analytics.draftYears}
+          teams={analytics.teamOptions}
+          rounds={availableRounds}
+          selectedYear={analytics.selectedDraftYear}
+          selectedTeam={selectedTeam}
+          selectedRound={selectedRound}
+          allYears={analytics.allYears}
+          query={query}
+          fromYear={fromYear}
+          toYear={toYear}
+        />
+      )}
 
       <WorkspacePanel
         className="mt-7"
         title={
-          analytics.allYears
+          isTeamWindowScope
+            ? `${selectedTeamName} Selections`
+            : analytics.allYears
             ? fromYear !== null && toYear !== null
               ? `${fromYear}–${toYear} Draft Board`
               : "Complete Draft Archive"
@@ -338,7 +367,7 @@ function DraftBoardView({
         }
         description={
           outcomePage.totalItems > 0
-            ? `Showing ${outcomePage.firstItem}–${outcomePage.lastItem} of ${outcomePage.totalItems} matching selections.`
+            ? `${isTeamWindowScope ? `${fromYear}–${toYear} draft window · ` : ""}Showing ${outcomePage.firstItem}–${outcomePage.lastItem} of ${outcomePage.totalItems} matching selections.`
             : "No selections match the current filters."
         }
         action={
@@ -646,6 +675,75 @@ function DraftBoardFilters({
         <Link href={resetHref}>Reset</Link>
       </div>
     </form>
+  );
+}
+
+function TeamSelectionScope({
+  teamName,
+  teamAbbreviation,
+  fromYear,
+  toYear,
+  selectionCount,
+  rounds,
+  selectedRound,
+  query,
+}: {
+  teamName: string;
+  teamAbbreviation: string;
+  fromYear: number;
+  toYear: number;
+  selectionCount: number;
+  rounds: number[];
+  selectedRound: number | null;
+  query: string;
+}) {
+  return (
+    <section
+      className="workspace-draft-team-scope"
+      aria-label="Team Drafting selection context"
+    >
+      <div className="workspace-draft-team-scope-summary">
+        <TeamLogo
+          abbreviation={teamAbbreviation}
+          name={teamName}
+          size="compact"
+          decorative
+          prominent
+        />
+        <div>
+          <span>From Team Drafting</span>
+          <strong>{teamName} Selections</strong>
+          <small>
+            {fromYear}–{toYear} · {selectionCount.toLocaleString("en-CA")} picks
+          </small>
+        </div>
+      </div>
+      <form method="get" className="workspace-draft-team-scope-filter">
+        <input type="hidden" name="view" value="board" />
+        <input type="hidden" name="year" value="all" />
+        <input type="hidden" name="team" value={teamAbbreviation} />
+        <input type="hidden" name="from" value={fromYear} />
+        <input type="hidden" name="to" value={toYear} />
+        <input type="hidden" name="q" value={query} />
+        <label>
+          Round
+          <AutoSubmitSelect name="round" defaultValue={selectedRound ?? ""}>
+            <option value="">All Rounds</option>
+            {rounds.map((round) => (
+              <option key={round} value={round}>
+                Round {round}
+              </option>
+            ))}
+          </AutoSubmitSelect>
+        </label>
+      </form>
+      <nav className="workspace-draft-team-scope-actions" aria-label="Scope actions">
+        <Link href={`/drafts?view=teams&from=${fromYear}&to=${toYear}`}>
+          ← Team Drafting
+        </Link>
+        <Link href="/drafts?view=board&year=all">View All Picks</Link>
+      </nav>
+    </section>
   );
 }
 

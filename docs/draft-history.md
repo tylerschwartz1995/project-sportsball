@@ -82,9 +82,11 @@ rates. The workspace separates four user tasks:
   and 100-game rates, games per pick, draft-position-adjusted value, late-round
   and goalie hit rates, and Game Score per skater pick across the same
   observation window. Each team’s linked selection list preserves that window
-  so the underlying picks match the period used for the ranking. A labeled
-  four-quadrant scatterplot positions team logos by 100-game rate and games per
-  pick, with league-median crosshairs and exact values available on each crest.
+  so the underlying picks match the period used for the ranking. That
+  drill-down replaces the general year and team controls with a compact context
+  summary and round filter. A labeled four-quadrant scatterplot positions team
+  logos by 100-game rate and games per pick, with league-median crosshairs and
+  exact values available on each crest.
 - **Class Rankings** compares every mature draft class across NHL appearance,
   100-game and 500-game rates, games per pick, points per skater pick, and
   MoneyPuck Game Score per skater pick. Each metric sorts independently rather
