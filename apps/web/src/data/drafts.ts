@@ -134,16 +134,6 @@ export async function getDraftAnalytics(
         ? latestMatureDraftYear
         : latestDraftYear) ??
       null);
-  const teamOptionRows =
-    selectedDraftYear === null
-      ? filterRows
-      : filterRows.filter((row) => row.draft_year === selectedDraftYear);
-  const teamOptions = uniqueTeamOptions(teamOptionRows);
-  const selectedTeamAbbreviation =
-    teamAbbreviation !== null &&
-    teamOptions.some((team) => team.abbreviation === teamAbbreviation)
-      ? teamAbbreviation
-      : null;
   const defaultRangeEnd = latestMatureDraftYear;
   const defaultRangeStart = defaultRangeEnd === null
     ? null
@@ -164,6 +154,20 @@ export async function getDraftAnalytics(
     selectedFromYear,
     selectedToYear,
   );
+  const teamOptionRows = selectedDraftYear !== null
+    ? filterRows.filter((row) => row.draft_year === selectedDraftYear)
+    : rangeStart !== null && rangeEnd !== null
+      ? filterRows.filter(
+          (row) =>
+            row.draft_year >= rangeStart && row.draft_year <= rangeEnd,
+        )
+      : filterRows;
+  const teamOptions = uniqueTeamOptions(teamOptionRows);
+  const selectedTeamAbbreviation =
+    teamAbbreviation !== null &&
+    teamOptions.some((team) => team.abbreviation === teamAbbreviation)
+      ? teamAbbreviation
+      : null;
   const outcomeRows = await query<DraftOutcomeRow>(
     `
       WITH skater_career AS (

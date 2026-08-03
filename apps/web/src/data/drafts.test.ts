@@ -319,13 +319,22 @@ describe("getDraftAnalytics", () => {
   it("normalizes the default mature team comparison window", async () => {
     queryMock
       .mockResolvedValueOnce(
-        Array.from({ length: 15 }, (_, index) => ({
-          draft_year: 2026 - index,
-          draft_team_nhl_id: 23,
-          draft_team_name: "Vancouver Canucks",
-          draft_team_abbrev: "VAN",
-          has_nhl_appearance: index > 0,
-        })),
+        [
+          ...Array.from({ length: 15 }, (_, index) => ({
+            draft_year: 2026 - index,
+            draft_team_nhl_id: 23,
+            draft_team_name: "Vancouver Canucks",
+            draft_team_abbrev: "VAN",
+            has_nhl_appearance: index > 0,
+          })),
+          {
+            draft_year: 2000,
+            draft_team_nhl_id: 11,
+            draft_team_name: "Atlanta Thrashers",
+            draft_team_abbrev: "ATL",
+            has_nhl_appearance: true,
+          },
+        ],
       )
       .mockResolvedValueOnce([]);
 
@@ -348,6 +357,13 @@ describe("getDraftAnalytics", () => {
       selectedFromYear: 2012,
       selectedToYear: 2021,
     });
+    expect(result.teamOptions).toEqual([
+      {
+        nhlTeamId: 23,
+        name: "Vancouver Canucks",
+        abbreviation: "VAN",
+      },
+    ]);
   });
 });
 

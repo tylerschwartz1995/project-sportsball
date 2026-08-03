@@ -125,6 +125,11 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
     : "";
   const requestedFromYear = parseDraftYear(firstQueryValue(params.from));
   const requestedToYear = parseDraftYear(firstQueryValue(params.to));
+  const boardYearRange =
+    view === "board" &&
+    allYears &&
+    requestedFromYear !== null &&
+    requestedToYear !== null;
   const analytics = await getDraftAnalytics(
     view === "teams"
       ? {
@@ -133,6 +138,14 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
           toYear: requestedToYear,
           includeAdvanced: true,
         }
+      : boardYearRange
+        ? {
+            allYears: true,
+            yearRange: true,
+            fromYear: requestedFromYear,
+            toYear: requestedToYear,
+            teamAbbreviation: requestedTeam || null,
+          }
       : {
           draftYear: requestedYear,
           teamAbbreviation: requestedTeam || null,
@@ -229,12 +242,16 @@ function DraftBoardView({
   const selectedYear = analytics.allYears
     ? "all"
     : (analytics.selectedDraftYear ?? "all");
+  const fromYear = analytics.selectedFromYear;
+  const toYear = analytics.selectedToYear;
   const tableParams = {
     view: "board",
     year: selectedYear,
     team: selectedTeam || undefined,
     round: selectedRound ?? undefined,
     q: query || undefined,
+    from: fromYear ?? undefined,
+    to: toYear ?? undefined,
   };
 
   return (
@@ -248,13 +265,17 @@ function DraftBoardView({
         selectedRound={selectedRound}
         allYears={analytics.allYears}
         query={query}
+        fromYear={fromYear}
+        toYear={toYear}
       />
 
       <WorkspacePanel
         className="mt-7"
         title={
           analytics.allYears
-            ? "Complete Draft Archive"
+            ? fromYear !== null && toYear !== null
+              ? `${fromYear}–${toYear} Draft Board`
+              : "Complete Draft Archive"
             : `${analytics.selectedDraftYear ?? "NHL"} Draft Board`
         }
         description={
@@ -268,6 +289,8 @@ function DraftBoardView({
             selectedTeam={selectedTeam}
             selectedRound={selectedRound}
             query={query}
+            fromYear={fromYear}
+            toYear={toYear}
           />
         }
       >
@@ -415,9 +438,13 @@ function TeamDraftingView({ analytics }: { analytics: DraftAnalytics }) {
           <WorkspacePanel
             className="mt-7"
             title="Team Drafting"
-            description={`Comparing every selection from ${analytics.selectedFromYear ?? "—"} through ${analytics.selectedToYear ?? "—"}. The default window uses the ten most recent draft classes with at least five seasons of observation.`}
+            description={`Comparing every selection from ${analytics.selectedFromYear ?? "—"} through ${analytics.selectedToYear ?? "—"}. Team rankings and linked selection lists use this same draft window. The default window uses the ten most recent draft classes with at least five seasons of observation.`}
           >
-            <TeamPerformanceTable rows={analytics.teamPerformance} />
+            <TeamPerformanceTable
+              rows={analytics.teamPerformance}
+              fromYear={analytics.selectedFromYear}
+              toYear={analytics.selectedToYear}
+            />
           </WorkspacePanel>
           <TeamDraftingVisuals
             rows={analytics.teamPerformance}
@@ -443,6 +470,8 @@ function DraftBoardFilters({
   selectedRound,
   allYears,
   query,
+  fromYear,
+  toYear,
 }: {
   years: number[];
   teams: DraftTeamOption[];
@@ -452,16 +481,22 @@ function DraftBoardFilters({
   selectedRound: number | null;
   allYears: boolean;
   query: string;
+  fromYear: number | null;
+  toYear: number | null;
 }) {
   const resetYear = allYears ? "all" : selectedYear;
-  const resetHref = resetYear === null
-    ? "/drafts?view=board"
-    : `/drafts?view=board&year=${resetYear}`;
+  const resetParams = new URLSearchParams({ view: "board" });
+  if (resetYear !== null) resetParams.set("year", String(resetYear));
+  if (fromYear !== null) resetParams.set("from", String(fromYear));
+  if (toYear !== null) resetParams.set("to", String(toYear));
+  const resetHref = `/drafts?${resetParams.toString()}`;
 
   return (
     <form method="get" className="workspace-draft-filters is-board">
       <input type="hidden" name="view" value="board" />
       <input type="hidden" name="q" value={query} />
+      <input type="hidden" name="from" value={fromYear ?? ""} />
+      <input type="hidden" name="to" value={toYear ?? ""} />
       <label>
         Draft Year
         <AutoSubmitSelect
@@ -469,7 +504,11 @@ function DraftBoardFilters({
           defaultValue={allYears ? "all" : (selectedYear ?? "")}
           resetFields={["team"]}
         >
-          <option value="all">All Drafts</option>
+          <option value="all">
+            {fromYear !== null && toYear !== null
+              ? `${fromYear}–${toYear} Window`
+              : "All Drafts"}
+          </option>
           {years.map((year) => (
             <option key={year} value={year}>
               {year} Draft
@@ -511,11 +550,15 @@ function DraftBoardSearch({
   selectedTeam,
   selectedRound,
   query,
+  fromYear,
+  toYear,
 }: {
   selectedYear: number | "all";
   selectedTeam: string;
   selectedRound: number | null;
   query: string;
+  fromYear: number | null;
+  toYear: number | null;
 }) {
   return (
     <form method="get" className="workspace-draft-table-search">
@@ -523,6 +566,8 @@ function DraftBoardSearch({
       <input type="hidden" name="year" value={selectedYear} />
       <input type="hidden" name="team" value={selectedTeam} />
       <input type="hidden" name="round" value={selectedRound ?? ""} />
+      <input type="hidden" name="from" value={fromYear ?? ""} />
+      <input type="hidden" name="to" value={toYear ?? ""} />
       <label>
         <span className="sr-only">Search selections</span>
         <input
@@ -785,7 +830,15 @@ function OutcomeLeadersTable({ rows }: { rows: DraftPlayerOutcome[] }) {
   );
 }
 
-function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
+function TeamPerformanceTable({
+  rows,
+  fromYear,
+  toYear,
+}: {
+  rows: DraftTeamPerformance[];
+  fromYear: number | null;
+  toYear: number | null;
+}) {
   return (
     <SortableTable defaultSortKey="hundred-rate">
       <div className="workspace-table-scroll">
@@ -811,7 +864,9 @@ function TeamPerformanceTable({ rows }: { rows: DraftTeamPerformance[] }) {
                       )}
                     </span>
                     <small>
-                      <Link href={`/drafts?view=board&year=all&team=${team.teamAbbreviation}`}>
+                      <Link
+                        href={`/drafts?view=board&year=all&team=${team.teamAbbreviation}&from=${fromYear ?? ""}&to=${toYear ?? ""}`}
+                      >
                         {team.teamAbbreviation} selections →
                       </Link>
                     </small>

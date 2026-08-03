@@ -81,7 +81,8 @@ workspace separates three user tasks:
   five seasons of observation. It compares selection counts, NHL appearance
   and 100-game rates, games per pick, draft-position-adjusted value, late-round
   and goalie hit rates, and Game Score per skater pick across the same
-  observation window.
+  observation window. Each team’s linked selection list preserves that window
+  so the underlying picks match the period used for the ranking.
 
 The all-years board remains available with pagination. Its URL-backed sorting
 is applied to the complete filtered result before pagination, rather than only
