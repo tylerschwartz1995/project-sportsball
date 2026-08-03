@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AutoSubmitSelect } from "@/app/_components/auto-submit-select";
 import {
   DraftOutcomePlot,
   type DraftPlotOutcome,
@@ -421,7 +422,7 @@ function DraftBoardFilters({
       <input type="hidden" name="view" value="board" />
       <label>
         Draft Year
-        <select
+        <AutoSubmitSelect
           name="year"
           defaultValue={allYears ? "all" : (selectedYear ?? "")}
         >
@@ -431,29 +432,29 @@ function DraftBoardFilters({
               {year} Draft
             </option>
           ))}
-        </select>
+        </AutoSubmitSelect>
       </label>
       <label>
         Drafting Team
-        <select name="team" defaultValue={selectedTeam}>
+        <AutoSubmitSelect name="team" defaultValue={selectedTeam}>
           <option value="">All Teams</option>
           {teams.map((team) => (
             <option key={team.abbreviation} value={team.abbreviation}>
               {team.name} ({team.abbreviation})
             </option>
           ))}
-        </select>
+        </AutoSubmitSelect>
       </label>
       <label>
         Round
-        <select name="round" defaultValue={selectedRound ?? ""}>
+        <AutoSubmitSelect name="round" defaultValue={selectedRound ?? ""}>
           <option value="">All Rounds</option>
           {rounds.map((round) => (
             <option key={round} value={round}>
               Round {round}
             </option>
           ))}
-        </select>
+        </AutoSubmitSelect>
       </label>
       <label className="workspace-draft-search">
         Search
@@ -465,7 +466,6 @@ function DraftBoardFilters({
         />
       </label>
       <div className="workspace-draft-filter-actions">
-        <button type="submit">Apply</button>
         <Link href="/drafts?view=board">Reset</Link>
       </div>
     </form>
@@ -486,16 +486,15 @@ function DraftYearFilter({
       <input type="hidden" name="view" value="outcomes" />
       <label>
         Draft Class
-        <select name="year" defaultValue={selectedYear ?? ""}>
+        <AutoSubmitSelect name="year" defaultValue={selectedYear ?? ""}>
           {years.map((year) => (
             <option key={year} value={year}>
               {year} Draft{matureThrough !== null && year > matureThrough ? " · developing" : ""}
             </option>
           ))}
-        </select>
+        </AutoSubmitSelect>
       </label>
       <div className="workspace-draft-filter-actions">
-        <button type="submit">View Class</button>
         <Link href="/drafts?view=outcomes">Latest Mature Class</Link>
       </div>
     </form>
@@ -521,22 +520,21 @@ function DraftRangeFilter({
       <input type="hidden" name="view" value="teams" />
       <label>
         From Draft
-        <select name="from" defaultValue={fromYear ?? ""}>
+        <AutoSubmitSelect name="from" defaultValue={fromYear ?? ""}>
           {matureYears.toReversed().map((year) => (
             <option key={year} value={year}>{year}</option>
           ))}
-        </select>
+        </AutoSubmitSelect>
       </label>
       <label>
         Through Draft
-        <select name="to" defaultValue={toYear ?? ""}>
+        <AutoSubmitSelect name="to" defaultValue={toYear ?? ""}>
           {matureYears.map((year) => (
             <option key={year} value={year}>{year}</option>
           ))}
-        </select>
+        </AutoSubmitSelect>
       </label>
       <div className="workspace-draft-filter-actions">
-        <button type="submit">Compare Teams</button>
         <Link href="/drafts?view=teams">Reset Window</Link>
       </div>
     </form>
