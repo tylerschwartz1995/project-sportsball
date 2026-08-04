@@ -1327,8 +1327,8 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
             <span>Higher</span>
           </div>
           <p>
-            The sorted metric becomes the heatmap: deeper color means a higher
-            position in its displayed range. Choose another header to recolor
+            The sorted metric becomes the heatmap. Five distinct color bands
+            separate lower from higher values; choose another header to recolor
             the comparison.
           </p>
           <small>Game Score coverage: {advancedCoverage} draft classes</small>
@@ -1447,8 +1447,8 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
           </table>
         </div>
         <div className="workspace-table-note">
-          Heat intensity shows where a class falls within the displayed range
-          for the sorted metric; it is not a combined grade. Rates use every
+          Five heat bands show where a class falls within the displayed range
+          for the sorted metric; they are not a combined grade. Rates use every
           official selection as the denominator. Points and Game Score exclude
           goalies but include zero-game skater picks. Game Score uses stored
           all-situations data from{" "}
@@ -1674,13 +1674,16 @@ function ClassMetricCell({
   }
 
   const rangePosition = relativeRangePosition(comparisonValues, value);
+  const heatLevel = Math.min(4, Math.floor(rangePosition * 5));
+  const heatStrength = [12, 28, 44, 60, 76][heatLevel];
   const style = {
-    "--heat-strength": `${10 + rangePosition * 62}%`,
+    "--heat-strength": `${heatStrength}%`,
   } as CSSProperties;
 
   return (
     <td
       className="workspace-number-cell workspace-class-metric-cell"
+      data-heat-level={heatLevel + 1}
       data-metric={metricKey}
       data-sort-value={value}
       style={style}
