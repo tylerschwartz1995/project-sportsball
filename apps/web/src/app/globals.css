@@ -7052,22 +7052,20 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-history-table th,
 .workspace-history-table td {
   width: 5.25rem;
+  text-align: right;
   white-space: nowrap;
 }
 
 .workspace-history-table .workspace-history-rank-col,
 .workspace-history-table .workspace-history-rank {
   width: 3.5rem;
+  text-align: center;
 }
 
 .workspace-history-table .workspace-history-entity-col,
 .workspace-history-table .workspace-history-sticky-entity {
   width: 15rem;
   text-align: left;
-}
-
-.workspace-history-table th {
-  text-align: center;
 }
 
 .workspace-history-table th > a {
@@ -7081,11 +7079,19 @@ html[data-theme="light"] .workspace-analytics-filters button {
   color: var(--accent);
 }
 
+.workspace-history-table th > a span {
+  margin-left: 0.18rem;
+  font-size: 0.72rem;
+}
+
 .workspace-history-rank,
 .workspace-history-metric {
-  text-align: center;
   font-family: var(--font-geist-mono);
   font-variant-numeric: tabular-nums;
+}
+
+.workspace-history-metric {
+  text-align: right;
 }
 
 .workspace-history-rank {

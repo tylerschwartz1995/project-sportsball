@@ -318,7 +318,7 @@ function SkaterTable({ rows, display, metric, metricHrefs }: {
                 {season ? <TeamLogoStack abbreviations={season.teamAbbreviations} /> : null}
                 <span><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link><small>{formatPlayerPosition(row.position)}</small></span>
               </div></td>
-              <td data-sort-value={season?.seasonId}>{season ? formatSeason(season.seasonId) : "seasonsPlayed" in row ? row.seasonsPlayed : "—"}</td>
+              <td className="workspace-history-metric" data-sort-value={season?.seasonId}>{season ? formatSeason(season.seasonId) : "seasonsPlayed" in row ? formatTableValue(row.seasonsPlayed) : "—"}</td>
               <MetricCell value={row.gamesPlayed} active={metric === "games"} />
               <MetricCell value={row.goals} active={metric === "goals"} />
               <MetricCell value={row.assists} active={metric === "assists"} />
@@ -357,7 +357,7 @@ function GoalieTable({ rows, display, metric, metricHrefs }: {
             {season ? <TeamLogoStack abbreviations={season.teamAbbreviations} /> : null}
             <Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link>
           </div></td>
-          <td>{season ? formatSeason(season.seasonId) : "seasonsPlayed" in row ? row.seasonsPlayed : "—"}</td>
+          <td className="workspace-history-metric">{season ? formatSeason(season.seasonId) : "seasonsPlayed" in row ? formatTableValue(row.seasonsPlayed) : "—"}</td>
           <MetricCell value={row.gamesPlayed} active={metric === "games"} />
           <MetricCell value={row.wins} active={metric === "wins"} />
           <MetricCell value={row.losses} />
@@ -392,7 +392,7 @@ function TeamTable({ rows, display, metric, metricHrefs }: {
         return <tr key={season ? `${row.nhlTeamId}-${season.seasonId}` : row.nhlTeamId}>
           <RankCell rank={row.rank} />
           <td className="workspace-history-sticky-entity"><div className="workspace-history-entity"><TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="tiny" decorative /><strong>{row.name}</strong></div></td>
-          <td>{season ? formatSeason(season.seasonId) : "seasonsPlayed" in row ? row.seasonsPlayed : "—"}</td>
+          <td className="workspace-history-metric">{season ? formatSeason(season.seasonId) : "seasonsPlayed" in row ? formatTableValue(row.seasonsPlayed) : "—"}</td>
           <MetricCell value={row.gamesPlayed} /><MetricCell value={row.wins} active={metric === "wins"} />
           <MetricCell value={row.losses} /><MetricCell value={row.ties} /><MetricCell value={row.overtimeLosses} />
           <MetricCell value={row.points} active={metric === "points"} />
@@ -411,7 +411,7 @@ export function HistoryPeaksTable({ rows, metricLabel, window }: { rows: Histori
     <tbody>{rows.map((row) => <tr key={`${row.nhlPlayerId}-${row.endSeasonId}-${window}`}>
       <RankCell rank={row.rank} />
       <td className="workspace-history-sticky-entity"><div className="workspace-history-entity"><span><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link><small>{formatPlayerPosition(row.position)}</small></span></div></td>
-      <td>{formatSeason(row.startSeasonId)}–{String(seasonStart(row.endSeasonId) + 1).slice(-2)}</td>
+      <td className="workspace-history-metric">{formatSeason(row.startSeasonId)} to {formatSeason(row.endSeasonId)}</td>
       <MetricCell value={row.gamesPlayed} /><MetricCell value={row.value} active />
     </tr>)}</tbody>
   </table></TableShell>;
@@ -444,7 +444,7 @@ function MetricHeading({ label, metric, active, href }: { label: string; metric:
 }
 
 function RankCell({ rank }: { rank?: number }) { return <td className="workspace-history-rank">{rank ?? "—"}</td>; }
-function MetricCell({ value, active = false }: { value: string | number | null; active?: boolean }) { return <td className={active ? "workspace-history-metric is-active" : "workspace-history-metric"}>{value ?? "—"}</td>; }
+function MetricCell({ value, active = false }: { value: string | number | null; active?: boolean }) { return <td className={active ? "workspace-history-metric is-active" : "workspace-history-metric"}>{formatTableValue(value)}</td>; }
 function HistoryEmptyState() { return <div className="workspace-history-empty"><strong>No eligible records found</strong><p>Try widening the season range or lowering the minimum-games requirement.</p></div>; }
 
 function formatSeason(seasonId: number): string { return `${seasonStart(seasonId)}–${String(seasonId % 10_000).slice(-2)}`; }
@@ -453,6 +453,13 @@ function formatDecimal(value: number | null, digits: number): string | null { re
 function formatSavePercentage(value: number | null): string | null { return value === null ? null : value.toFixed(3).replace(/^0/, ""); }
 function formatPercentage(value: number | null): string { return value === null ? "—" : `${(value * 100).toFixed(1)}%`; }
 function formatSigned(value: number): string { return value > 0 ? `+${value}` : String(value); }
+function formatTableValue(value: string | number | null): string {
+  if (value === null) return "—";
+  if (typeof value === "string") return value;
+  return value.toLocaleString("en-CA", {
+    maximumFractionDigits: Number.isInteger(value) ? 0 : 3,
+  });
+}
 function formatTeamRecord(row: HistoricalTeamSeason): string { return `${row.wins}-${row.losses}${row.overtimeLosses ? `-${row.overtimeLosses}` : ""}`; }
 function positionLabel(position: string): string { return ({ C: "Centre", L: "Left Wing", R: "Right Wing", D: "Defence" } as Record<string, string>)[position] ?? position; }
 function countryLabel(country: string): string { try { return new Intl.DisplayNames(["en"], { type: "region" }).of(country) ?? country; } catch { return country; } }
