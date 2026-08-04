@@ -94,7 +94,8 @@ rates. The workspace separates four user tasks:
   skater Game Score coverage show that advanced metric as unavailable. A
   chronological, decade-separated outcome distribution shows the share of
   picks at four NHL career milestones with a shared scale and visible 100-game
-  rate. Five relative-range heat bands follow the actively sorted metric so
+  rate; each class exposes exact bucket counts and percentages on hover or
+  keyboard focus. Five relative-range heat bands follow the actively sorted metric so
   the comparison stays focused while every supporting value remains visible,
   without turning those metrics into one opaque grade.
 

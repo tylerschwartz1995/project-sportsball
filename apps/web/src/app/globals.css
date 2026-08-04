@@ -2429,7 +2429,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-class-outcome-decades {
   margin: 0 0.75rem 0.75rem;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid var(--border);
   border-radius: 0.75rem;
   background: var(--surface);
@@ -2475,11 +2475,17 @@ html[data-theme="light"] .workspace-directory-controls button {
 }
 
 .workspace-class-outcome-row {
+  position: relative;
   display: grid;
   grid-template-columns: 3.25rem minmax(0, 1fr) 4.5rem;
   align-items: center;
   gap: 0.6rem;
   min-height: 1.45rem;
+}
+
+.workspace-class-outcome-row:hover > a,
+.workspace-class-outcome-row:focus-within > a {
+  color: var(--accent);
 }
 
 .workspace-class-outcome-row a {
@@ -2502,6 +2508,16 @@ html[data-theme="light"] .workspace-directory-controls button {
   height: 0.86rem;
   border-radius: 0.22rem;
   background: var(--surface-raised);
+  cursor: help;
+  transition:
+    box-shadow 120ms ease,
+    transform 120ms ease;
+}
+
+.workspace-class-outcome-row:hover .workspace-class-outcome-bar,
+.workspace-class-outcome-row:focus-within .workspace-class-outcome-bar {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 75%, transparent);
+  transform: translateY(-1px);
 }
 
 .workspace-class-outcome-bar span {
@@ -2563,6 +2579,61 @@ html[data-theme="light"] .workspace-directory-controls button {
   font-size: 0.57rem;
   font-weight: 700;
   text-transform: uppercase;
+}
+
+.workspace-class-outcome-tooltip {
+  position: absolute;
+  z-index: 6;
+  bottom: calc(100% + 0.45rem);
+  left: 50%;
+  display: none;
+  width: min(31rem, calc(100% - 7rem));
+  border: 1px solid var(--border-strong);
+  border-radius: 0.6rem;
+  padding: 0.65rem 0.75rem;
+  background: var(--surface-raised);
+  box-shadow: 0 14px 32px var(--shadow);
+  color: var(--foreground);
+  transform: translateX(-50%);
+}
+
+.workspace-class-outcome-row:hover .workspace-class-outcome-tooltip,
+.workspace-class-outcome-row:focus-within .workspace-class-outcome-tooltip {
+  display: block;
+}
+
+.workspace-class-outcome-tooltip > strong {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.76rem;
+}
+
+.workspace-class-outcome-tooltip > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem 0.85rem;
+}
+
+.workspace-class-outcome-tooltip > div > span {
+  display: grid;
+  grid-template-columns: 0.55rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.66rem;
+}
+
+.workspace-class-outcome-tooltip i {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 0.14rem;
+}
+
+.workspace-class-outcome-tooltip b {
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 0.65rem;
+  font-variant-numeric: tabular-nums;
 }
 
 .workspace-team-drafting-bars {

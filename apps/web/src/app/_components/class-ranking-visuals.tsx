@@ -104,6 +104,8 @@ function DraftOutcomeMix({ rows }: { rows: DraftClassPerformance[] }) {
                     <div
                       className="workspace-class-outcome-bar"
                       role="img"
+                      tabIndex={0}
+                      aria-describedby={`class-outcome-${draftClass.draftYear}`}
                       aria-label={categories
                         .map(
                           (category) =>
@@ -118,9 +120,6 @@ function DraftOutcomeMix({ rows }: { rows: DraftClassPerformance[] }) {
                           style={{
                             width: `${(category.count / draftClass.selections) * 100}%`,
                           }}
-                          title={`${category.count} · ${formatPercentage(
-                            category.count / draftClass.selections,
-                          )} ${category.label}`}
                           aria-hidden="true"
                         />
                       ))}
@@ -129,6 +128,28 @@ function DraftOutcomeMix({ rows }: { rows: DraftClassPerformance[] }) {
                       <strong>{formatPercentage(draftClass.hundredGameRate)}</strong>
                       <small>100+</small>
                     </span>
+                    <div
+                      id={`class-outcome-${draftClass.draftYear}`}
+                      className="workspace-class-outcome-tooltip"
+                      role="tooltip"
+                    >
+                      <strong>
+                        {draftClass.draftYear} Draft · {draftClass.selections} picks
+                      </strong>
+                      <div>
+                        {categories.map((category) => (
+                          <span key={category.id}>
+                            <i className={category.className} aria-hidden="true" />
+                            <span>{category.label}</span>
+                            <b>
+                              {category.count} · {formatPercentage(
+                                category.count / draftClass.selections,
+                              )}
+                            </b>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   </div>
                 );
               })}
