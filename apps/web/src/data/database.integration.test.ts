@@ -10,7 +10,10 @@ import {
 } from "@/data/games";
 import { getPlayerDetail, listPlayersBySeason } from "@/data/players";
 import {
+  getHistoricalEraScores,
+  getHistoricalLeaderboard,
   getHistoricalLeaders,
+  getHistoricalPeaks,
   getHistoricalPlayerSeasons,
 } from "@/data/history";
 import { getGamePlayByPlay } from "@/data/play-by-play";
@@ -179,6 +182,64 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
       throw new Error("expected skater rate leaders");
     }
     expect(rateLeaders.careers[0]?.pointsPerGame).toBeGreaterThan(1);
+
+    const qualifiedSeasons = await getHistoricalLeaderboard(
+      "skaters",
+      "seasons",
+      "pointsPerGame",
+      2,
+      {
+        startYear: 1917,
+        endYear: 2025,
+        minimumGames: 40,
+        position: null,
+        team: null,
+        country: null,
+      },
+      1,
+      25,
+    );
+    expect(qualifiedSeasons.view).toBe("skaters");
+    expect(qualifiedSeasons.rows[0]).toMatchObject({
+      name: "Wayne Gretzky",
+      rank: 1,
+    });
+    expect(qualifiedSeasons.totalRows).toBeGreaterThan(1_000);
+
+    const peaks = await getHistoricalPeaks(
+      "skaters",
+      "points",
+      3,
+      2,
+      {
+        startYear: 1917,
+        endYear: 2025,
+        minimumGames: 120,
+        position: null,
+        team: null,
+        country: null,
+      },
+      1,
+      10,
+    );
+    expect(peaks[0]).toMatchObject({ name: "Wayne Gretzky", rank: 1 });
+    expect(peaks[0]?.value).toBeGreaterThan(600);
+
+    const eraScores = await getHistoricalEraScores(
+      2,
+      {
+        startYear: 1917,
+        endYear: 2025,
+        minimumGames: 500,
+        position: null,
+        team: null,
+        country: null,
+      },
+      1,
+      10,
+    );
+    expect(eraScores).toHaveLength(10);
+    expect(eraScores[0]?.eraScore).toBeGreaterThan(200);
 
     const teamGameLog = await getTeamGameLog(12, seasons[0].id);
     expect(teamGameLog?.games.length).toBeGreaterThan(82);

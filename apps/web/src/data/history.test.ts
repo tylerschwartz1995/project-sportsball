@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  historyDefaultMinimumGames,
   parseHistoryFilters,
   parseHistoryMetric,
   parseHistoryView,
@@ -46,5 +47,38 @@ describe("historical leader filters", () => {
       team: "EDM",
       country: "CAN",
     });
+  });
+
+  it("uses metric-aware eligibility for rate leaderboards", () => {
+    expect(
+      historyDefaultMinimumGames(
+        "skaters",
+        "pointsPerGame",
+        "career",
+        2,
+      ),
+    ).toBe(500);
+    expect(
+      historyDefaultMinimumGames(
+        "skaters",
+        "pointsPerGame",
+        "seasons",
+        2,
+      ),
+    ).toBe(40);
+    expect(
+      historyDefaultMinimumGames(
+        "goalies",
+        "savePercentage",
+        "seasons",
+        2,
+      ),
+    ).toBe(25);
+    expect(
+      historyDefaultMinimumGames("teams", "pointPercentage", "seasons", 3),
+    ).toBe(4);
+    expect(
+      historyDefaultMinimumGames("skaters", "goals", "career", 2),
+    ).toBe(0);
   });
 });

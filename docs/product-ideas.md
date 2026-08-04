@@ -370,7 +370,7 @@ originally owned the pick.
 
 ## 10. Historical records and best seasons
 
-**Status:** Expanded traditional version implemented; era adjustment remains proposed
+**Status:** Curated record book, peaks, and scoring-era context implemented
 
 Add a dedicated historical records page for browsing the strongest careers,
 single seasons, teams, and performances across the stored NHL archive.
@@ -391,12 +391,15 @@ This should complement the historical query explorer. The records page is a
 curated, browsable statistical product; the query explorer answers narrower,
 open-ended questions.
 
-The `/history` page now provides sortable career and best-season tables for
-skaters, goalies, and source team identities, with regular-season/playoff,
-season-range, minimum-games, position, team, known birth-country, and total/rate
-metric controls. Coverage begins in 1917–18, and player rows link to complete
-all-time profile tables. True nationality enrichment, milestones, franchise
-lineage, and era-adjusted views remain backlog.
+The `/history` page now opens as a curated record book with headline career and
+team-season lists, career-points record progression, league scoring context,
+qualified server-paginated career and season rankings, rolling three- and
+five-season peaks, decade leaders, and an era-relative career scoring index.
+Regular-season/playoff, season-range, minimum-games, position, played-for team,
+known birth-country, and total/rate controls remain shareable through the URL.
+Coverage begins in 1917–18, and player rows link to complete all-time profile
+tables. Exact dated milestones, age curves, true nationality enrichment, and
+franchise-lineage rankings remain backlog.
 
 ## 11. Saved comparisons and shareable plot state
 

@@ -6486,6 +6486,886 @@ html[data-theme="light"] .workspace-analytics-filters button {
   }
 }
 
+/* History record book */
+.workspace-history-hero {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  gap: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  background:
+    radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--accent-secondary) 18%, transparent), transparent 32%),
+    radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 36%),
+    var(--surface);
+  box-shadow: 0 18px 40px var(--shadow);
+}
+
+.workspace-history-hero > div:first-child {
+  max-width: 48rem;
+}
+
+.workspace-history-hero h1 {
+  max-width: 14ch;
+  margin-top: 0.4rem;
+  color: var(--foreground);
+  font-size: clamp(2.3rem, 5vw, 4.6rem);
+  font-weight: 760;
+  letter-spacing: -0.06em;
+  line-height: 0.98;
+}
+
+.workspace-history-hero > div:first-child > p:last-child {
+  max-width: 44rem;
+  margin-top: 1rem;
+  color: var(--muted);
+  font-size: 1.02rem;
+  line-height: 1.65;
+}
+
+.workspace-history-hero dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.workspace-history-hero dl > div:first-child {
+  grid-column: 1 / -1;
+}
+
+.workspace-history-hero dl > div {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.8rem;
+  background: color-mix(in srgb, var(--surface-raised) 76%, transparent);
+}
+
+.workspace-history-hero dt,
+.workspace-history-ranking-summary dt {
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-history-hero dd {
+  overflow: hidden;
+  margin-top: 0.3rem;
+  color: var(--foreground);
+  font-size: 0.94rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-history-hero > details {
+  color: var(--muted);
+  font-size: 0.86rem;
+}
+
+.workspace-history-hero > details summary {
+  width: fit-content;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.workspace-history-hero > details p {
+  max-width: 65rem;
+  margin-top: 0.65rem;
+  line-height: 1.55;
+}
+
+.workspace-history-hero.is-compact {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.2rem;
+  padding-bottom: 1.2rem;
+}
+
+.workspace-history-hero.is-compact h1 {
+  max-width: none;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1;
+}
+
+.workspace-history-hero.is-compact > div:first-child > p:last-child {
+  max-width: 48rem;
+  margin-top: 0.55rem;
+  font-size: 0.9rem;
+}
+
+.workspace-history-hero.is-compact dl {
+  display: none;
+}
+
+.workspace-history-hero.is-compact > details {
+  flex: 0 0 auto;
+}
+
+.workspace-history-hero.is-compact > details p {
+  position: absolute;
+  z-index: 10;
+  right: 1rem;
+  width: min(36rem, calc(100% - 2rem));
+  border: 1px solid var(--border-strong);
+  border-radius: 0.65rem;
+  padding: 0.75rem;
+  background: var(--surface-raised);
+  box-shadow: 0 12px 30px var(--shadow);
+}
+
+.workspace-history-primary-navs {
+  display: grid;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.workspace-history-primary-navs .workspace-phase-filter,
+.workspace-history-primary-navs .workspace-scroll-nav {
+  margin-top: 0;
+}
+
+.workspace-history-overview,
+.workspace-history-explorer,
+.workspace-history-eras {
+  margin-top: 1.5rem;
+}
+
+.workspace-history-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.workspace-history-intro > div > p,
+.workspace-history-record-list header p,
+.workspace-history-chart header > p,
+.workspace-history-peaks-heading > div > p,
+.workspace-history-decades header p,
+.workspace-history-ranking-summary > div > p {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.workspace-history-intro h2,
+.workspace-history-peaks-heading h2,
+.workspace-history-decades h2,
+.workspace-history-ranking-summary h2 {
+  margin-top: 0.25rem;
+  color: var(--foreground);
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-weight: 740;
+  letter-spacing: -0.035em;
+}
+
+.workspace-history-intro > p {
+  max-width: 42rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.workspace-history-record-grid {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.workspace-history-record-list {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: var(--surface);
+}
+
+.workspace-history-record-list header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.95rem 1rem;
+}
+
+.workspace-history-record-list header h2 {
+  margin-top: 0.2rem;
+  color: var(--foreground);
+  font-size: 1.08rem;
+}
+
+.workspace-history-record-list header > a {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.workspace-history-record-list ol {
+  list-style: none;
+}
+
+.workspace-history-record-list li {
+  display: grid;
+  grid-template-columns: 1.6rem auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3.5rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.55rem 1rem;
+}
+
+.workspace-history-record-list li:last-child {
+  border-bottom: 0;
+}
+
+.workspace-history-record-list li > span {
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.78rem;
+}
+
+.workspace-history-record-list li > a,
+.workspace-history-record-entity {
+  display: grid;
+  min-width: 0;
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.workspace-history-record-list li strong,
+.workspace-history-record-list li small,
+.workspace-history-record-entity strong,
+.workspace-history-record-entity small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-history-record-list li strong {
+  font-size: 0.92rem;
+}
+
+.workspace-history-record-list li small {
+  margin-top: 0.15rem;
+  color: var(--muted);
+  font-size: 0.73rem;
+}
+
+.workspace-history-record-list li > b {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-history-chart-grid {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.workspace-history-chart {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.workspace-history-chart header h3 {
+  margin-top: 0.25rem;
+  color: var(--foreground);
+  font-size: 1.12rem;
+}
+
+.workspace-history-chart header > span {
+  display: block;
+  margin-top: 0.45rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.workspace-history-chart-canvas {
+  height: 18rem;
+  margin-top: 1rem;
+}
+
+.workspace-history-tooltip {
+  display: grid;
+  gap: 0.2rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.6rem;
+  padding: 0.65rem 0.75rem;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  box-shadow: 0 12px 30px var(--shadow);
+  font-size: 0.78rem;
+}
+
+.workspace-history-tooltip span {
+  color: var(--muted);
+}
+
+.workspace-history-tooltip b {
+  color: var(--accent);
+}
+
+.workspace-history-a11y-table {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.workspace-history-discovery {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.8rem;
+}
+
+.workspace-history-discovery a {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.9rem 1rem;
+  background: var(--surface-subtle);
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.workspace-history-discovery span {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.workspace-history-discovery strong {
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.workspace-history-explorer-nav {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.workspace-history-explorer-nav nav {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.workspace-history-explorer-nav nav + nav {
+  border-top: 1px solid var(--border);
+  padding-top: 0.55rem;
+}
+
+.workspace-history-explorer-nav a,
+.workspace-history-peaks-heading nav a {
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.48rem 0.8rem;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.workspace-history-explorer-nav a[aria-current="page"],
+.workspace-history-peaks-heading nav a[aria-current="page"] {
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--border));
+  background: color-mix(in srgb, var(--accent) 13%, var(--surface));
+  color: var(--accent);
+}
+
+.workspace-history-ranking-summary {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.workspace-history-ranking-summary dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.workspace-history-ranking-summary dl > div {
+  min-width: 0;
+  border-left: 2px solid var(--border-strong);
+  padding-left: 0.65rem;
+}
+
+.workspace-history-ranking-summary dd {
+  overflow: hidden;
+  margin-top: 0.25rem;
+  color: var(--foreground);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-history-qualification {
+  margin-top: 0.7rem;
+  border-left: 3px solid var(--accent-secondary);
+  padding: 0.65rem 0.8rem;
+  background: var(--surface-subtle);
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.workspace-history-qualification strong {
+  color: var(--foreground);
+}
+
+.workspace-history-filter-drawer {
+  margin-top: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  background: var(--surface);
+}
+
+.workspace-history-filter-drawer > summary {
+  display: flex;
+  min-height: 3.6rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.9rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.workspace-history-filter-drawer > summary::-webkit-details-marker {
+  display: none;
+}
+
+.workspace-history-filter-drawer > summary span {
+  display: grid;
+}
+
+.workspace-history-filter-drawer > summary strong {
+  color: var(--foreground);
+  font-size: 0.9rem;
+}
+
+.workspace-history-filter-drawer > summary small {
+  margin-top: 0.12rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.workspace-history-filter-drawer > summary b {
+  color: var(--accent);
+  font-size: 1.25rem;
+  transition: transform 150ms ease;
+}
+
+.workspace-history-filter-drawer[open] > summary b {
+  transform: rotate(45deg);
+}
+
+.workspace-history-filter-drawer form {
+  display: grid;
+  gap: 0.7rem;
+  border-top: 1px solid var(--border);
+  padding: 0.9rem;
+}
+
+.workspace-history-filter-drawer fieldset {
+  min-width: 0;
+  border: 0;
+  border-radius: 0.7rem;
+  padding: 0.8rem;
+  background: var(--surface-subtle);
+}
+
+.workspace-history-filter-drawer legend {
+  float: left;
+  width: 100%;
+  color: var(--foreground);
+  font-size: 0.9rem;
+  font-weight: 720;
+}
+
+.workspace-history-filter-drawer fieldset > div {
+  display: grid;
+  clear: both;
+  gap: 0.65rem;
+  padding-top: 0.55rem;
+}
+
+.workspace-history-filter-drawer label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.workspace-history-filter-drawer input,
+.workspace-history-filter-drawer select {
+  width: 100%;
+  min-height: 2.5rem;
+  margin-top: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  font: inherit;
+}
+
+.workspace-history-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.workspace-history-filter-actions button,
+.workspace-history-filter-actions a {
+  display: grid;
+  min-height: 2.5rem;
+  place-items: center;
+  border-radius: 0.5rem;
+  padding: 0 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.workspace-history-filter-actions button {
+  border: 0;
+  background: var(--accent);
+  color: var(--background);
+  cursor: pointer;
+}
+
+.workspace-history-filter-actions a {
+  border: 1px solid var(--border);
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.workspace-history-table-shell {
+  overflow: hidden;
+}
+
+.workspace-history-table {
+  table-layout: fixed;
+}
+
+.workspace-history-table th,
+.workspace-history-table td {
+  width: 5.25rem;
+  white-space: nowrap;
+}
+
+.workspace-history-table .workspace-history-rank-col,
+.workspace-history-table .workspace-history-rank {
+  width: 3.5rem;
+}
+
+.workspace-history-table .workspace-history-entity-col,
+.workspace-history-table .workspace-history-sticky-entity {
+  width: 15rem;
+  text-align: left;
+}
+
+.workspace-history-table th {
+  text-align: center;
+}
+
+.workspace-history-table th > a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.workspace-history-table th.is-active-metric,
+.workspace-history-table th.is-active-metric a {
+  color: var(--accent);
+}
+
+.workspace-history-rank,
+.workspace-history-metric {
+  text-align: center;
+  font-family: var(--font-geist-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-history-rank {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.workspace-history-metric.is-active {
+  color: var(--accent);
+  font-weight: 800;
+}
+
+.workspace-history-entity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.workspace-history-entity > span {
+  display: grid;
+  min-width: 0;
+}
+
+.workspace-history-entity strong {
+  overflow: hidden;
+  display: block;
+  color: var(--foreground);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-history-entity a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.workspace-history-entity small {
+  margin-top: 0.1rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.workspace-history-empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.workspace-history-empty strong {
+  color: var(--foreground);
+}
+
+.workspace-history-empty p {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.workspace-history-peaks-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.workspace-history-peaks-heading > div > span {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.workspace-history-peaks-heading nav {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.workspace-history-decades {
+  margin-top: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.workspace-history-decades > div {
+  display: grid;
+  gap: 0.45rem;
+  margin-top: 0.85rem;
+}
+
+.workspace-history-decades a {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  gap: 0.15rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 0.6rem;
+  padding: 0.65rem 0.75rem;
+  background: var(--surface-subtle);
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.workspace-history-decades a > span {
+  grid-row: span 2;
+  align-self: center;
+  color: var(--accent-secondary);
+  font-family: var(--font-geist-mono);
+  font-weight: 800;
+}
+
+.workspace-history-decades small {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+@media (min-width: 640px) {
+  .workspace-history-hero {
+    grid-template-columns: minmax(0, 1fr) 19rem;
+    align-items: end;
+  }
+
+  .workspace-history-hero > details {
+    grid-column: 1 / -1;
+  }
+
+  .workspace-history-intro,
+  .workspace-history-peaks-heading {
+    flex-direction: row;
+    align-items: end;
+    justify-content: space-between;
+  }
+
+  .workspace-history-intro > p {
+    text-align: right;
+  }
+
+  .workspace-history-intro > div {
+    flex: 0 0 20rem;
+  }
+
+  .workspace-history-discovery {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .workspace-history-ranking-summary {
+    grid-template-columns: minmax(13rem, 1fr) minmax(24rem, 1.4fr);
+    align-items: center;
+  }
+
+  .workspace-history-ranking-summary dl {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .workspace-history-filter-drawer form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-history-filter-drawer fieldset > div {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .workspace-history-filter-actions {
+    grid-column: 1 / -1;
+  }
+
+  .workspace-history-decades > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 900px) {
+  .workspace-history-record-grid,
+  .workspace-history-chart-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-history-primary-navs {
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+  }
+
+  .workspace-history-primary-navs .workspace-scroll-nav {
+    justify-content: flex-end;
+  }
+
+  .workspace-history-decades > div {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 639px) {
+  .workspace-history-hero.is-compact {
+    display: grid;
+    align-items: start;
+  }
+
+  .workspace-history-hero.is-compact h1 {
+    font-size: 2.15rem;
+  }
+
+  .workspace-history-hero.is-compact > details {
+    justify-self: start;
+  }
+
+  .workspace-history-hero h1 {
+    font-size: 2.65rem;
+  }
+
+  .workspace-history-record-list li {
+    grid-template-columns: 1.4rem auto minmax(0, 1fr) auto;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+  }
+
+  .workspace-history-chart-canvas {
+    height: 15rem;
+  }
+
+  .workspace-history-table-scroll-hint {
+    display: block;
+  }
+
+  .workspace-history-table .workspace-history-rank-col,
+  .workspace-history-table .workspace-history-rank {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background: var(--surface);
+  }
+
+  .workspace-history-table .workspace-history-entity-col,
+  .workspace-history-table .workspace-history-sticky-entity {
+    position: sticky;
+    left: 3.5rem;
+    z-index: 2;
+    width: 12.5rem;
+    background: var(--surface);
+    box-shadow: 8px 0 12px -12px var(--foreground);
+  }
+
+  .workspace-history-table thead .workspace-history-rank-col,
+  .workspace-history-table thead .workspace-history-entity-col {
+    z-index: 5;
+    background: var(--surface-raised);
+  }
+}
+
 /* Temporary compatibility while remaining routes move to semantic tokens. */
 html[data-theme="light"] .text-white,
 html[data-theme="light"] .text-slate-200,

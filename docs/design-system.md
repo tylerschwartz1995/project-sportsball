@@ -100,9 +100,11 @@ and a pre-render bootstrap applies it before the interface is painted.
   changes; genuinely wide tables scroll inside that boundary. Selection-only
   schedule filters apply immediately instead of requiring a redundant View
   action.
-- Multi-section historical filters use the full data canvas. Their sections
-  share one equal-height desktop row, actions sit in a dedicated footer, and
-  the filters, tabs, and results keep the same outer edges.
+- Historical discovery starts with curated records and contextual charts.
+  Detailed season, eligibility, and player filters live in a disclosure below
+  the entity and metric controls so the first viewport presents useful history
+  rather than a large form. Filtered rankings, tabs, and pagination keep the
+  same outer edges.
 - Player overview facts and selected-season totals use a compact data-width
   block. Short profile facts remain information-sized, and season metrics use
   one dense desktop row instead of stretching sparse values across the canvas.

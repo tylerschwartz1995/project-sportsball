@@ -29,13 +29,26 @@ Every row is unique by source identity, season, and game type. Regular season
 uses NHL game type 2 and playoffs use type 3. Fields unavailable in an earlier
 era remain `NULL`; they are never converted to zero.
 
-The `/history` page reads these tables for sortable career totals and best
-single seasons. It supports skater, goalie, and team views; regular season and
-playoffs; start/end season, minimum-games, position, team, and known birth
-country filters; and view-specific total and rate ranking metrics. Team and
-birth-country filters apply to player views. A team filter identifies seasons
-in which the player appeared for that team; the all-team NHL summary cannot
-separate the player's totals within a multi-team season.
+The `/history` record book reads these tables for a curated overview, career
+and single-season rankings, rolling three- and five-season peaks, record
+progression, scoring-environment context, decade leaders, and era-relative
+career scoring. It supports skater, goalie, and team rankings; regular season
+and playoffs; start/end season, minimum-games, position, team, and known birth
+country filters; and view-specific total and rate ranking metrics. Rankings are
+server-paginated in groups of 25 so every displayed rank and metric sort applies
+to the complete filtered result set rather than a client-side subset.
+
+Rate leaderboards use visible eligibility defaults to prevent short appearances
+from dominating the results. Regular-season career points per game defaults to
+500 games and single-season points per game to 40; career goalie save percentage
+defaults to 250 games and single-season save percentage to 25; career team
+points percentage defaults to 500 games and single-season points percentage to
+40. Playoff qualifications are lower and appropriate to the shorter schedule.
+Visitors can explicitly override every threshold.
+
+Team and birth-country filters apply to player views. “Played For” identifies
+seasons in which the player appeared for that team; the all-team NHL summary
+cannot separate the player's totals within a multi-team season.
 
 Historical player names link to `/players/{nhlPlayerId}`. Player profiles show
 the complete regular-season and playoff summary archive, including seasons
@@ -49,6 +62,13 @@ against for seasons where those fields exist. Team career points percentage
 uses total points divided by twice the games played. Team career totals currently
 follow the NHL source team identity. Combining relocations and renames into
 franchise lineages remains a documented future enhancement.
+
+The era-relative scoring index compares each skater's points with the number of
+points expected if that player had produced at the league-wide points-per-game
+rate in the same seasons. An index of 100 is league average for the player's
+own season mix; 200 is twice that contemporary rate. It provides scoring
+context rather than claiming rules, deployment, ice time, and competition were
+identical across eras.
 
 The detailed-season selectors elsewhere deliberately require rows in
 `team_season_stats`, while the Games page uses seasons containing `games`.
