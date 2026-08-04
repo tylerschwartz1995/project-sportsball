@@ -114,18 +114,20 @@ function RecordList({
         {rows.map((row) => (
           <li key={row.key}>
             <span>{row.rank}</span>
-            {row.logo}
-            {row.href ? (
-              <Link href={row.href}>
-                <strong>{row.name}</strong>
-                <small>{row.detail}</small>
-              </Link>
-            ) : (
-              <span className="workspace-history-record-entity">
-                <strong>{row.name}</strong>
-                <small>{row.detail}</small>
-              </span>
-            )}
+            <div className="workspace-history-record-main">
+              {row.logo}
+              {row.href ? (
+                <Link href={row.href}>
+                  <strong>{row.name}</strong>
+                  <small>{row.detail}</small>
+                </Link>
+              ) : (
+                <span className="workspace-history-record-entity">
+                  <strong>{row.name}</strong>
+                  <small>{row.detail}</small>
+                </span>
+              )}
+            </div>
             <b>{row.value}</b>
           </li>
         ))}

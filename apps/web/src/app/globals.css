@@ -6679,7 +6679,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-history-record-list li {
   display: grid;
-  grid-template-columns: 1.6rem auto minmax(0, 1fr) auto;
+  grid-template-columns: 1.6rem minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.65rem;
   min-height: 3.5rem;
@@ -6697,7 +6697,14 @@ html[data-theme="light"] .workspace-analytics-filters button {
   font-size: 0.78rem;
 }
 
-.workspace-history-record-list li > a,
+.workspace-history-record-main {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.workspace-history-record-main > a,
 .workspace-history-record-entity {
   display: grid;
   min-width: 0;
@@ -6725,10 +6732,13 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-history-record-list li > b {
+  min-width: 5.5ch;
+  justify-self: end;
   color: var(--accent);
   font-family: var(--font-geist-mono);
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
 .workspace-history-chart-grid {
@@ -7298,7 +7308,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   }
 
   .workspace-history-record-list li {
-    grid-template-columns: 1.4rem auto minmax(0, 1fr) auto;
+    grid-template-columns: 1.4rem minmax(0, 1fr) auto;
     padding-right: 0.75rem;
     padding-left: 0.75rem;
   }
