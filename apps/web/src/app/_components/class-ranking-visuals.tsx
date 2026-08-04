@@ -74,25 +74,25 @@ function DraftOutcomeMix({ rows }: { rows: DraftClassPerformance[] }) {
                     id: "no-nhl",
                     count: noNhl,
                     className: "is-no-nhl",
-                    label: "No NHL appearance",
+                    label: "No NHL Appearance",
                   },
                   {
                     id: "under-100",
                     count: underHundred,
                     className: "is-under-100",
-                    label: "1–99 games",
+                    label: "1–99 Games",
                   },
                   {
                     id: "regular",
                     count: hundredTo499,
                     className: "is-regular",
-                    label: "100–499 games",
+                    label: "100–499 Games",
                   },
                   {
                     id: "long-career",
                     count: fiveHundred,
                     className: "is-long-career",
-                    label: "500+ games",
+                    label: "500+ Games",
                   },
                 ];
 
