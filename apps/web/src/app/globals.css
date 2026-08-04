@@ -7052,7 +7052,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-history-table th,
 .workspace-history-table td {
   width: 5.25rem;
-  text-align: right;
+  text-align: center;
   white-space: nowrap;
 }
 
@@ -7091,7 +7091,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-history-metric {
-  text-align: right;
+  text-align: center;
 }
 
 .workspace-history-rank {
