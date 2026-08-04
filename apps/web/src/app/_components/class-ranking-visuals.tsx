@@ -51,7 +51,7 @@ function DraftOutcomeMix({ rows }: { rows: DraftClassPerformance[] }) {
           <span>75%</span>
           <span>100%</span>
         </div>
-        <span>100+ Rate</span>
+        <span>Picks With 100+ NHL Games</span>
       </div>
       <div className="workspace-class-outcome-decades">
         {decades.map(({ decade, classes }) => (

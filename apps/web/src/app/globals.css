@@ -2435,7 +2435,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   margin: 0 0.75rem 0.75rem;
   overflow: visible;
   border: 1px solid var(--border);
-  border-radius: 0.75rem;
+  border-radius: 0 0 0.75rem 0.75rem;
   background: var(--surface);
 }
 
@@ -2481,7 +2481,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 .workspace-class-outcome-row {
   position: relative;
   display: grid;
-  grid-template-columns: 3.25rem minmax(0, 1fr) 3.75rem;
+  grid-template-columns: 3.25rem minmax(0, 1fr) 8.5rem;
   align-items: center;
   gap: 0.6rem;
   min-height: 1.45rem;
@@ -2543,15 +2543,21 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-class-outcome-scale {
   display: grid;
-  grid-template-columns: 3.25rem minmax(0, 1fr) 3.75rem;
+  grid-template-columns: 3.25rem minmax(0, 1fr) 8.5rem;
   align-items: center;
   gap: 0.6rem;
-  margin: 0 1.3rem 0.35rem;
-  color: var(--muted);
+  margin: 0 0.75rem;
+  border: 1px solid var(--border);
+  border-bottom: 0;
+  border-radius: 0.75rem 0.75rem 0 0;
+  padding: 0.5rem 0.55rem;
+  background: var(--surface-raised);
+  color: color-mix(in srgb, var(--foreground) 72%, var(--muted));
   font-family: var(--font-geist-mono);
-  font-size: 0.58rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.025em;
+  line-height: 1.2;
   text-transform: uppercase;
 }
 
