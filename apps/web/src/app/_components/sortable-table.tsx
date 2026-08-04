@@ -102,7 +102,9 @@ export function SortableTable({
 
   return (
     <SortableTableContext.Provider value={contextValue}>
-      <div className={className}>{children}</div>
+      <div className={className} data-sort-key={sortState.key}>
+        {children}
+      </div>
     </SortableTableContext.Provider>
   );
 }

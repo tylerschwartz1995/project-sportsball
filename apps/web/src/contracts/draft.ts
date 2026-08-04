@@ -24,6 +24,10 @@ export type DraftPlayerOutcome = {
   careerAssists: number;
   careerPoints: number;
   careerWins: number;
+  careerGameScore: number | null;
+  careerIndividualExpectedGoals: number | null;
+  careerOnIceExpectedGoalsPercentage: number | null;
+  careerGoalsSavedAboveExpected: number | null;
 };
 
 export type DraftTeamPerformance = {
@@ -39,7 +43,31 @@ export type DraftTeamPerformance = {
   averageGames: number;
   totalPoints: number;
   totalWins: number;
+  valueAboveExpected: number;
+  lateRoundSelections: number;
   lateRoundRegulars: number;
+  lateRoundHitRate: number;
+  goalieSelections: number;
+  goalieHits: number;
+  goalieHitRate: number | null;
+  gameScorePerSkaterPick: number | null;
+};
+
+export type DraftClassPerformance = {
+  draftYear: number;
+  selections: number;
+  playersWithNhlGames: number;
+  appearanceRate: number;
+  hundredGamePlayers: number;
+  hundredGameRate: number;
+  fiveHundredGamePlayers: number;
+  fiveHundredGameRate: number;
+  totalGames: number;
+  averageGames: number;
+  skaterSelections: number;
+  totalSkaterPoints: number;
+  pointsPerSkaterPick: number | null;
+  gameScorePerSkaterPick: number | null;
 };
 
 export type DraftTeamOption = {
@@ -56,10 +84,12 @@ export type DraftAnalyticsOptions = {
   fromYear?: number | null;
   toYear?: number | null;
   defaultYear?: "latest" | "mature";
+  includeAdvanced?: boolean;
 };
 
 export type DraftAnalytics = {
   outcomes: DraftPlayerOutcome[];
+  classPerformance: DraftClassPerformance[];
   teamPerformance: DraftTeamPerformance[];
   draftYears: number[];
   teamOptions: DraftTeamOption[];
@@ -68,5 +98,6 @@ export type DraftAnalytics = {
   selectedToYear: number | null;
   latestDraftYear: number | null;
   latestMatureDraftYear: number | null;
+  selectedTeamAbbreviation: string | null;
   allYears: boolean;
 };

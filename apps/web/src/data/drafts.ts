@@ -3,6 +3,7 @@ import "server-only";
 import type {
   DraftAnalytics,
   DraftAnalyticsOptions,
+  DraftClassPerformance,
   DraftPlayerOutcome,
   DraftTeamPerformance,
 } from "@/contracts/draft";
@@ -34,6 +35,10 @@ type DraftOutcomeRow = {
   career_assists: number;
   career_points: number;
   career_wins: number;
+  career_game_score: number | null;
+  career_individual_x_goals: number | null;
+  career_on_ice_x_goals_percentage: number | null;
+  career_goals_saved_above_expected: number | null;
 };
 
 type DraftFilterRow = {
@@ -58,6 +63,7 @@ export async function getDraftAnalytics(
     fromYear = null,
     toYear = null,
     defaultYear = "latest",
+    includeAdvanced = false,
   } = options;
   const filterRows = await query<DraftFilterRow>(
     `
@@ -149,6 +155,20 @@ export async function getDraftAnalytics(
     selectedFromYear,
     selectedToYear,
   );
+  const teamOptionRows = selectedDraftYear !== null
+    ? filterRows.filter((row) => row.draft_year === selectedDraftYear)
+    : rangeStart !== null && rangeEnd !== null
+      ? filterRows.filter(
+          (row) =>
+            row.draft_year >= rangeStart && row.draft_year <= rangeEnd,
+        )
+      : filterRows;
+  const teamOptions = uniqueTeamOptions(teamOptionRows);
+  const selectedTeamAbbreviation =
+    teamAbbreviation !== null &&
+    teamOptions.some((team) => team.abbreviation === teamAbbreviation)
+      ? teamAbbreviation
+      : null;
   const outcomeRows = await query<DraftOutcomeRow>(
     `
       WITH skater_career AS (
@@ -175,6 +195,44 @@ export async function getDraftAnalytics(
           SUM(stats.wins)::integer AS career_wins
         FROM historical_goalie_season_stats AS stats
         WHERE stats.game_type = 2
+        GROUP BY stats.player_id
+      ),
+      skater_advanced_career AS (
+        SELECT
+          stats.player_id,
+          SUM(stats.game_score) FILTER (
+            WHERE stats.game_score IS NOT NULL
+          ) AS career_game_score,
+          SUM(stats.individual_x_goals) FILTER (
+            WHERE stats.individual_x_goals IS NOT NULL
+          ) AS career_individual_x_goals,
+          SUM(stats.on_ice_x_goals_for) FILTER (
+            WHERE stats.on_ice_x_goals_for IS NOT NULL
+              AND stats.on_ice_x_goals_against IS NOT NULL
+          ) / NULLIF(
+            SUM(
+              stats.on_ice_x_goals_for + stats.on_ice_x_goals_against
+            ) FILTER (
+              WHERE stats.on_ice_x_goals_for IS NOT NULL
+                AND stats.on_ice_x_goals_against IS NOT NULL
+            ),
+            0
+          ) AS career_on_ice_x_goals_percentage
+        FROM moneypuck_skater_season_stats AS stats
+        WHERE stats.situation = 'all'
+          AND $5::boolean
+        GROUP BY stats.player_id
+      ),
+      goalie_advanced_career AS (
+        SELECT
+          stats.player_id,
+          SUM(stats.expected_goals_against - stats.goals_against) FILTER (
+            WHERE stats.expected_goals_against IS NOT NULL
+              AND stats.goals_against IS NOT NULL
+          ) AS career_goals_saved_above_expected
+        FROM moneypuck_goalie_season_stats AS stats
+        WHERE stats.situation = 'all'
+          AND $5::boolean
         GROUP BY stats.player_id
       )
       SELECT
@@ -219,7 +277,11 @@ export async function getDraftAnalytics(
         COALESCE(skater.career_goals, 0)::integer AS career_goals,
         COALESCE(skater.career_assists, 0)::integer AS career_assists,
         COALESCE(skater.career_points, 0)::integer AS career_points,
-        COALESCE(goalie.career_wins, 0)::integer AS career_wins
+        COALESCE(goalie.career_wins, 0)::integer AS career_wins,
+        skater_advanced.career_game_score,
+        skater_advanced.career_individual_x_goals,
+        skater_advanced.career_on_ice_x_goals_percentage,
+        goalie_advanced.career_goals_saved_above_expected
       FROM draft_selections AS selection
       LEFT JOIN teams AS team
         ON team.id = selection.drafting_team_id
@@ -235,6 +297,10 @@ export async function getDraftAnalytics(
         ON skater.player_id = selection.player_id
       LEFT JOIN goalie_career AS goalie
         ON goalie.player_id = selection.player_id
+      LEFT JOIN skater_advanced_career AS skater_advanced
+        ON skater_advanced.player_id = selection.player_id
+      LEFT JOIN goalie_advanced_career AS goalie_advanced
+        ON goalie_advanced.player_id = selection.player_id
       WHERE ($1::integer IS NULL OR selection.draft_year = $1)
         AND (
           $2::text IS NULL
@@ -247,12 +313,18 @@ export async function getDraftAnalytics(
         selection.overall_pick_number,
         selection.player_name
     `,
-    [selectedDraftYear, teamAbbreviation, rangeStart, rangeEnd],
+    [
+      selectedDraftYear,
+      selectedTeamAbbreviation,
+      rangeStart,
+      rangeEnd,
+      includeAdvanced,
+    ],
   );
   const outcomes = outcomeRows.map(mapOutcome);
-  const teamOptions = uniqueTeamOptions(filterRows);
   return {
     outcomes,
+    classPerformance: buildClassPerformance(outcomes),
     teamPerformance: buildTeamPerformance(outcomes),
     draftYears,
     teamOptions,
@@ -261,8 +333,76 @@ export async function getDraftAnalytics(
     selectedToYear: rangeEnd,
     latestDraftYear,
     latestMatureDraftYear,
+    selectedTeamAbbreviation,
     allYears,
   };
+}
+
+function buildClassPerformance(
+  outcomes: DraftPlayerOutcome[],
+): DraftClassPerformance[] {
+  const classes = new Map<number, DraftPlayerOutcome[]>();
+  for (const outcome of outcomes) {
+    const draftClass = classes.get(outcome.draftYear);
+    if (draftClass) {
+      draftClass.push(outcome);
+    } else {
+      classes.set(outcome.draftYear, [outcome]);
+    }
+  }
+
+  return [...classes.entries()]
+    .map(([draftYear, players]) => {
+      const selections = players.length;
+      const playersWithNhlGames = players.filter(
+        (player) => player.careerGames > 0,
+      ).length;
+      const hundredGamePlayers = players.filter(
+        (player) => player.careerGames >= 100,
+      ).length;
+      const fiveHundredGamePlayers = players.filter(
+        (player) => player.careerGames >= 500,
+      ).length;
+      const totalGames = sum(players, (player) => player.careerGames);
+      const skaterPlayers = players.filter(
+        (player) => player.position?.toUpperCase() !== "G",
+      );
+      const totalSkaterPoints = sum(
+        skaterPlayers,
+        (player) => player.careerPoints,
+      );
+      const hasMissingGameScore = skaterPlayers.some(
+        (player) =>
+          player.careerGames > 0 && player.careerGameScore === null,
+      );
+
+      return {
+        draftYear,
+        selections,
+        playersWithNhlGames,
+        appearanceRate: playersWithNhlGames / selections,
+        hundredGamePlayers,
+        hundredGameRate: hundredGamePlayers / selections,
+        fiveHundredGamePlayers,
+        fiveHundredGameRate: fiveHundredGamePlayers / selections,
+        totalGames,
+        averageGames: totalGames / selections,
+        skaterSelections: skaterPlayers.length,
+        totalSkaterPoints,
+        pointsPerSkaterPick:
+          skaterPlayers.length > 0
+            ? totalSkaterPoints / skaterPlayers.length
+            : null,
+        gameScorePerSkaterPick:
+          skaterPlayers.length === 0 || hasMissingGameScore
+            ? null
+            : sum(
+                skaterPlayers,
+                (player) => player.careerGameScore ?? 0,
+              ) / skaterPlayers.length,
+      };
+    })
+    .sort((left, right) => right.draftYear - left.draftYear);
 }
 
 function mapOutcome(row: DraftOutcomeRow): DraftPlayerOutcome {
@@ -292,12 +432,19 @@ function mapOutcome(row: DraftOutcomeRow): DraftPlayerOutcome {
     careerAssists: row.career_assists,
     careerPoints: row.career_points,
     careerWins: row.career_wins,
+    careerGameScore: row.career_game_score,
+    careerIndividualExpectedGoals: row.career_individual_x_goals,
+    careerOnIceExpectedGoalsPercentage:
+      row.career_on_ice_x_goals_percentage,
+    careerGoalsSavedAboveExpected:
+      row.career_goals_saved_above_expected,
   };
 }
 
 function buildTeamPerformance(
   outcomes: DraftPlayerOutcome[],
 ): DraftTeamPerformance[] {
+  const expectedGames = buildExpectedGamesByDraftBand(outcomes);
   const teams = new Map<string, DraftPlayerOutcome[]>();
   for (const outcome of outcomes) {
     teams.set(outcome.draftTeamAbbreviation, [
@@ -316,6 +463,31 @@ function buildTeamPerformance(
         (player) => player.careerGames >= 100,
       ).length;
       const totalGames = sum(players, (player) => player.careerGames);
+      const lateRoundPlayers = players.filter(
+        (player) => player.draftRound >= 4,
+      );
+      const lateRoundRegulars = lateRoundPlayers.filter(
+        (player) => player.careerGames >= 100,
+      ).length;
+      const goaliePlayers = players.filter(
+        (player) => player.position?.toUpperCase() === "G",
+      );
+      const goalieHits = goaliePlayers.filter(
+        (player) => player.careerGames >= 50,
+      ).length;
+      const skaterPlayers = players.filter(
+        (player) => player.position?.toUpperCase() !== "G",
+      );
+      const hasMissingGameScore = skaterPlayers.some(
+        (player) =>
+          player.careerGames > 0 && player.careerGameScore === null,
+      );
+      const valueAboveExpected = sum(
+        players,
+        (player) =>
+          player.careerGames -
+          (expectedGames.get(draftBandKey(player)) ?? player.careerGames),
+      );
       return {
         teamNhlId: players.find((player) => player.draftTeamNhlId !== null)
           ?.draftTeamNhlId ?? null,
@@ -332,9 +504,24 @@ function buildTeamPerformance(
         averageGames: totalGames / selections,
         totalPoints: sum(players, (player) => player.careerPoints),
         totalWins: sum(players, (player) => player.careerWins),
-        lateRoundRegulars: players.filter(
-          (player) => player.draftRound >= 4 && player.careerGames >= 100,
-        ).length,
+        valueAboveExpected: valueAboveExpected / selections,
+        lateRoundSelections: lateRoundPlayers.length,
+        lateRoundRegulars,
+        lateRoundHitRate:
+          lateRoundPlayers.length > 0
+            ? lateRoundRegulars / lateRoundPlayers.length
+            : 0,
+        goalieSelections: goaliePlayers.length,
+        goalieHits,
+        goalieHitRate:
+          goaliePlayers.length > 0 ? goalieHits / goaliePlayers.length : null,
+        gameScorePerSkaterPick:
+          skaterPlayers.length === 0 || hasMissingGameScore
+            ? null
+            : sum(
+                skaterPlayers,
+                (player) => player.careerGameScore ?? 0,
+              ) / skaterPlayers.length,
       };
     })
     .sort(
@@ -343,6 +530,38 @@ function buildTeamPerformance(
         right.totalGames - left.totalGames ||
         left.teamAbbreviation.localeCompare(right.teamAbbreviation),
     );
+}
+
+function buildExpectedGamesByDraftBand(
+  outcomes: DraftPlayerOutcome[],
+): Map<string, number> {
+  const bands = new Map<string, { games: number; selections: number }>();
+  for (const outcome of outcomes) {
+    const key = draftBandKey(outcome);
+    const current = bands.get(key) ?? { games: 0, selections: 0 };
+    current.games += outcome.careerGames;
+    current.selections += 1;
+    bands.set(key, current);
+  }
+  return new Map(
+    [...bands.entries()].map(([key, value]) => [
+      key,
+      value.games / value.selections,
+    ]),
+  );
+}
+
+function draftBandKey(outcome: DraftPlayerOutcome): string {
+  return `${outcome.draftYear}:${draftPickBand(outcome.draftOverallPick)}`;
+}
+
+function draftPickBand(overallPick: number): string {
+  if (overallPick <= 5) return "1-5";
+  if (overallPick <= 10) return "6-10";
+  if (overallPick <= 20) return "11-20";
+  if (overallPick <= 32) return "21-32";
+  const bandStart = 33 + Math.floor((overallPick - 33) / 32) * 32;
+  return `${bandStart}-${bandStart + 31}`;
 }
 
 function normalizeRangeBoundary(
