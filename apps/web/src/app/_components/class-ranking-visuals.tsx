@@ -126,7 +126,6 @@ function DraftOutcomeMix({ rows }: { rows: DraftClassPerformance[] }) {
                     </div>
                     <span className="workspace-class-outcome-established">
                       <strong>{formatPercentage(draftClass.hundredGameRate)}</strong>
-                      <small>100+</small>
                     </span>
                     <div
                       id={`class-outcome-${draftClass.draftYear}`}
