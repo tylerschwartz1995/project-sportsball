@@ -31,7 +31,6 @@ export function HistoryRecordProgression({
 
   return (
     <HistoryChartShell
-      eyebrow="The record chase"
       title="Career Points Record Progression"
       description="Each step marks a season in which the NHL career-points record moved higher. Hover or focus the chart to see the record holder."
     >
@@ -83,7 +82,6 @@ export function HistoryScoringEnvironment({
 
   return (
     <HistoryChartShell
-      eyebrow="Scoring context"
       title="Goals Per Team Game"
       description="League scoring has changed dramatically. This context explains why raw totals and rates from different eras should not be treated as equivalent."
     >
@@ -134,12 +132,10 @@ export function HistoryScoringEnvironment({
 }
 
 function HistoryChartShell({
-  eyebrow,
   title,
   description,
   children,
 }: {
-  eyebrow: string;
   title: string;
   description: string;
   children: React.ReactNode;
@@ -147,7 +143,6 @@ function HistoryChartShell({
   return (
     <section className="workspace-history-chart">
       <header>
-        <p>{eyebrow}</p>
         <h3>{title}</h3>
         <span>{description}</span>
       </header>

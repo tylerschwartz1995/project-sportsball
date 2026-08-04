@@ -6487,62 +6487,51 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 /* History record book */
-.workspace-history-hero {
+.workspace-history-header {
   position: relative;
   display: grid;
-  overflow: hidden;
-  gap: 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 1rem;
-  padding: clamp(1.25rem, 3vw, 2rem);
-  background:
-    radial-gradient(circle at 92% 0%, color-mix(in srgb, var(--accent-secondary) 18%, transparent), transparent 32%),
-    radial-gradient(circle at 0% 100%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 36%),
-    var(--surface);
-  box-shadow: 0 18px 40px var(--shadow);
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--border-strong);
+  padding: 0.35rem 0 1.1rem;
 }
 
-.workspace-history-hero > div:first-child {
-  max-width: 48rem;
-}
-
-.workspace-history-hero h1 {
-  max-width: 14ch;
-  margin-top: 0.4rem;
-  color: var(--foreground);
-  font-size: clamp(2.3rem, 5vw, 4.6rem);
-  font-weight: 760;
-  letter-spacing: -0.06em;
-  line-height: 0.98;
-}
-
-.workspace-history-hero > div:first-child > p:last-child {
-  max-width: 44rem;
-  margin-top: 1rem;
-  color: var(--muted);
-  font-size: 1.02rem;
-  line-height: 1.65;
-}
-
-.workspace-history-hero dl {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.55rem;
-}
-
-.workspace-history-hero dl > div:first-child {
-  grid-column: 1 / -1;
-}
-
-.workspace-history-hero dl > div {
+.workspace-history-header-copy {
   min-width: 0;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  padding: 0.8rem;
-  background: color-mix(in srgb, var(--surface-raised) 76%, transparent);
 }
 
-.workspace-history-hero dt,
+.workspace-history-header h1 {
+  color: var(--foreground);
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 750;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.workspace-history-header-copy > p {
+  margin-top: 0.55rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.workspace-history-header dl {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(4, max-content);
+  gap: 0.5rem 1.5rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.8rem;
+}
+
+.workspace-history-header dl > div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+
+.workspace-history-header dt,
 .workspace-history-ranking-summary dt {
   color: var(--muted);
   font-family: var(--font-geist-mono);
@@ -6552,73 +6541,41 @@ html[data-theme="light"] .workspace-analytics-filters button {
   text-transform: uppercase;
 }
 
-.workspace-history-hero dd {
-  overflow: hidden;
-  margin-top: 0.3rem;
+.workspace-history-header dd {
   color: var(--foreground);
-  font-size: 0.94rem;
+  font-family: var(--font-geist-mono);
+  font-size: 0.82rem;
   font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
-.workspace-history-hero > details {
+.workspace-history-header > details {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
   color: var(--muted);
-  font-size: 0.86rem;
+  font-size: 0.8rem;
 }
 
-.workspace-history-hero > details summary {
+.workspace-history-header > details summary {
   width: fit-content;
   color: var(--accent);
   cursor: pointer;
   font-weight: 700;
 }
 
-.workspace-history-hero > details p {
-  max-width: 65rem;
-  margin-top: 0.65rem;
-  line-height: 1.55;
-}
-
-.workspace-history-hero.is-compact {
-  display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-top: 1.2rem;
-  padding-bottom: 1.2rem;
-}
-
-.workspace-history-hero.is-compact h1 {
-  max-width: none;
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1;
-}
-
-.workspace-history-hero.is-compact > div:first-child > p:last-child {
-  max-width: 48rem;
-  margin-top: 0.55rem;
-  font-size: 0.9rem;
-}
-
-.workspace-history-hero.is-compact dl {
-  display: none;
-}
-
-.workspace-history-hero.is-compact > details {
-  flex: 0 0 auto;
-}
-
-.workspace-history-hero.is-compact > details p {
+.workspace-history-header > details p {
   position: absolute;
   z-index: 10;
-  right: 1rem;
+  right: max(1rem, calc((100vw - 80rem) / 2));
   width: min(36rem, calc(100% - 2rem));
+  margin-top: 0.55rem;
   border: 1px solid var(--border-strong);
   border-radius: 0.65rem;
   padding: 0.75rem;
   background: var(--surface-raised);
   box-shadow: 0 12px 30px var(--shadow);
+  line-height: 1.55;
 }
 
 .workspace-history-primary-navs {
@@ -6646,10 +6603,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-history-intro > div > p,
-.workspace-history-record-list header p,
-.workspace-history-chart header > p,
-.workspace-history-peaks-heading > div > p,
-.workspace-history-decades header p,
 .workspace-history-ranking-summary > div > p {
   color: var(--accent);
   font-family: var(--font-geist-mono);
@@ -6698,7 +6651,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-history-record-list header h2 {
-  margin-top: 0.2rem;
   color: var(--foreground);
   font-size: 1.08rem;
 }
@@ -7235,15 +7187,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 @media (min-width: 640px) {
-  .workspace-history-hero {
-    grid-template-columns: minmax(0, 1fr) 19rem;
-    align-items: end;
-  }
-
-  .workspace-history-hero > details {
-    grid-column: 1 / -1;
-  }
-
   .workspace-history-intro,
   .workspace-history-peaks-heading {
     flex-direction: row;
@@ -7310,21 +7253,27 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 @media (max-width: 639px) {
-  .workspace-history-hero.is-compact {
-    display: grid;
+  .workspace-history-header {
+    grid-template-columns: minmax(0, 1fr);
     align-items: start;
   }
 
-  .workspace-history-hero.is-compact h1 {
-    font-size: 2.15rem;
+  .workspace-history-header h1 {
+    font-size: 2.2rem;
   }
 
-  .workspace-history-hero.is-compact > details {
-    justify-self: start;
+  .workspace-history-header > details {
+    grid-column: 1;
+    grid-row: auto;
   }
 
-  .workspace-history-hero h1 {
-    font-size: 2.65rem;
+  .workspace-history-header > details p {
+    right: 1rem;
+  }
+
+  .workspace-history-header dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.55rem 1rem;
   }
 
   .workspace-history-record-list li {

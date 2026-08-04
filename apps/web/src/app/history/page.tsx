@@ -104,7 +104,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="history" />
       <section className="py-8 sm:py-10">
-        <HistoryHero phase={phase} compact={section !== "overview"} />
+        <HistoryHeader phase={phase} showArchiveTotals={section === "overview"} />
         <div className="workspace-history-primary-navs">
           <SeasonPhaseFilter
             active={phase}
@@ -131,24 +131,31 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
   );
 }
 
-function HistoryHero({ phase, compact }: { phase: SeasonPhase; compact: boolean }) {
+function HistoryHeader({
+  phase,
+  showArchiveTotals,
+}: {
+  phase: SeasonPhase;
+  showArchiveTotals: boolean;
+}) {
   return (
-    <header className={`workspace-history-hero${compact ? " is-compact" : ""}`}>
-      <div>
-        <p className="workspace-eyebrow">League / Record Book</p>
-        <h1>108 Seasons of NHL History</h1>
+    <header className="workspace-history-header">
+      <div className="workspace-history-header-copy">
+        <h1>NHL History</h1>
         <p>
-          Explore the records, dominant peaks, and changing scoring environment
-          behind every {phase === "regular" ? "regular season" : "postseason"} since 1917–18.
+          Career, season, peak, and era-adjusted {phase === "regular" ? "regular-season" : "playoff"} records.
         </p>
       </div>
-      <dl>
-        <div><dt>Coverage</dt><dd>1917–18—2025–26</dd></div>
-        <div><dt>Players</dt><dd>8,802</dd></div>
-        <div><dt>Season summaries</dt><dd>78,462</dd></div>
-      </dl>
+      {showArchiveTotals ? (
+        <dl aria-label="Historical data coverage">
+          <div><dt>Seasons</dt><dd>108</dd></div>
+          <div><dt>Players</dt><dd>8,802</dd></div>
+          <div><dt>Season summaries</dt><dd>78,462</dd></div>
+          <div><dt>Coverage</dt><dd>1917–18 to 2025–26</dd></div>
+        </dl>
+      ) : null}
       <details>
-        <summary>Coverage & methodology</summary>
+        <summary>Data coverage</summary>
         <p>
           Basic scoring, goalie results, and team results begin in 1917–18.
           Later statistics keep their real source cutoffs; unavailable values
@@ -166,8 +173,8 @@ async function HistoryOverviewContent({ phase }: { phase: SeasonPhase }) {
   return (
     <div className="workspace-history-overview">
       <section className="workspace-history-intro">
-        <div><p>Start with the legends</p><h2>The NHL Record Book</h2></div>
-        <p>Four ways to enter the archive, from career production to the strongest team seasons ever recorded.</p>
+        <div><h2>Record Leaders</h2></div>
+        <p>Career and single-season leaders for skaters, goalies, and teams.</p>
       </section>
       <HistoryRecordBook overview={overview} phase={phase} />
       <div className="workspace-history-chart-grid">
@@ -175,9 +182,9 @@ async function HistoryOverviewContent({ phase }: { phase: SeasonPhase }) {
         <HistoryScoringEnvironment points={overview.leagueTrend} />
       </div>
       <section className="workspace-history-discovery">
-        <Link href={`/history?section=peaks&phase=${phase}`}><span>3- and 5-season windows</span><strong>Find the greatest peaks →</strong></Link>
-        <Link href={`/history?section=eras&phase=${phase}`}><span>Scoring context since 1917</span><strong>Compare players by era →</strong></Link>
-        <Link href={`/history?section=seasons&entity=skaters&metric=points&phase=${phase}`}><span>Qualified historical rankings</span><strong>Explore single seasons →</strong></Link>
+        <Link href={`/history?section=peaks&phase=${phase}`}><span>3- and 5-season windows</span><strong>Peak Rankings →</strong></Link>
+        <Link href={`/history?section=eras&phase=${phase}`}><span>League-adjusted scoring rates</span><strong>Era-Adjusted Scoring →</strong></Link>
+        <Link href={`/history?section=seasons&entity=skaters&metric=points&phase=${phase}`}><span>Qualified historical rankings</span><strong>Single-Season Rankings →</strong></Link>
       </section>
     </div>
   );
@@ -294,7 +301,7 @@ async function HistoryPeaksContent({
     <div className="workspace-history-explorer">
       <HistoryExplorerNav view={view} metric={metric} entityHrefs={entityHrefs} metricHrefs={peakMetrics} entities={["skaters", "goalies"]} />
       <div className="workspace-history-peaks-heading">
-        <div><p>Sustained dominance</p><h2>Best {window}-Season Peaks</h2><span>Rolling windows include consecutive seasons only and require at least {filters.minimumGames} total games.</span></div>
+        <div><h2>{window}-Season Peaks</h2><span>Consecutive-season windows with at least {filters.minimumGames} total games.</span></div>
         <nav aria-label="Peak length">
           {[3, 5].map((value) => <Link key={value} aria-current={window === value ? "page" : undefined} href={historyHref({ section: "peaks", phase, view, metric, filters, window: value as 3 | 5 })}>{value} Seasons</Link>)}
         </nav>
@@ -330,13 +337,13 @@ async function HistoryErasContent({
   return (
     <div className="workspace-history-eras">
       <section className="workspace-history-intro">
-        <div><p>Put raw numbers in context</p><h2>Compare Production Across Eras</h2></div>
-        <p>Era Score compares each player’s points per game with the league scoring rate in the same seasons. A score of 100 is league average; 200 is twice the contemporary rate.</p>
+        <div><h2>Era-Adjusted Scoring</h2></div>
+        <p>Era Score compares a player’s points per game with the league rate during the same seasons. A score of 100 is league average; 200 is twice the league rate.</p>
       </section>
       <HistoryScoringEnvironment points={leagueTrend} />
       <HistoryDecadeLeaders rows={decades} />
       <HistoryFilters section="eras" view="skaters" metric="pointsPerGame" phase={phase} filters={filters} options={options} isOpen={hasCustomFilters(params, defaultMinimum)} />
-      <WorkspacePanel className="mt-5" title="Era-Relative Career Scoring" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible skaters.`}>
+      <WorkspacePanel className="mt-5" title="Career Era Scores" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible skaters.`}>
         <HistoryEraTable rows={scores} />
       </WorkspacePanel>
       <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, "skaters", "pointsPerGame", filters)} />
@@ -350,7 +357,7 @@ function historySectionTabs(active: HistorySection, phase: SeasonPhase) {
     { id: "careers", label: "Careers" },
     { id: "seasons", label: "Single Seasons" },
     { id: "peaks", label: "Peaks" },
-    { id: "eras", label: "By Era" },
+    { id: "eras", label: "Era Adjusted" },
   ];
   return tabs.map((tab) => ({ ...tab, href: `/history?section=${tab.id}&phase=${phase}`, active }));
 }

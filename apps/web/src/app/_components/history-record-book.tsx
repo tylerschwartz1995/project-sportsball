@@ -35,7 +35,6 @@ export function HistoryRecordBook({
   return (
     <div className="workspace-history-record-grid">
       <RecordList
-        eyebrow="The standard"
         title="Career Points"
         href={`/history?section=careers&entity=skaters&metric=points&phase=${phase}`}
         rows={overview.careerPoints.map((row) => ({
@@ -48,7 +47,6 @@ export function HistoryRecordBook({
         }))}
       />
       <RecordList
-        eyebrow="Pure finishers"
         title="Career Goals"
         href={`/history?section=careers&entity=skaters&metric=goals&phase=${phase}`}
         rows={overview.careerGoals.map((row) => ({
@@ -61,7 +59,6 @@ export function HistoryRecordBook({
         }))}
       />
       <RecordList
-        eyebrow="In the crease"
         title="Goalie Wins"
         href={`/history?section=careers&entity=goalies&metric=wins&phase=${phase}`}
         rows={overview.goalieWins.map((row) => ({
@@ -74,8 +71,7 @@ export function HistoryRecordBook({
         }))}
       />
       <RecordList
-        eyebrow="Team dominance"
-        title="Best Team Seasons"
+        title="Team Season Points Percentage"
         href={`/history?section=seasons&entity=teams&metric=pointPercentage&phase=${phase}`}
         rows={overview.teamSeasons.map((row) => ({
           key: `${row.nhlTeamId}-${row.seasonId}`,
@@ -92,12 +88,10 @@ export function HistoryRecordBook({
 }
 
 function RecordList({
-  eyebrow,
   title,
   href,
   rows,
 }: {
-  eyebrow: string;
   title: string;
   href: string;
   rows: Array<{
@@ -113,7 +107,7 @@ function RecordList({
   return (
     <section className="workspace-history-record-list">
       <header>
-        <div><p>{eyebrow}</p><h2>{title}</h2></div>
+        <h2>{title}</h2>
         <Link href={href}>Full ranking →</Link>
       </header>
       <ol>
@@ -434,7 +428,7 @@ export function HistoryEraTable({ rows }: { rows: HistoricalEraScore[] }) {
 }
 
 export function HistoryDecadeLeaders({ rows }: { rows: HistoricalDecadeLeader[] }) {
-  return <section className="workspace-history-decades"><header><p>Who ruled each era?</p><h2>Decade Scoring Leaders</h2></header><div>
+  return <section className="workspace-history-decades"><header><h2>Decade Points Leaders</h2></header><div>
     {rows.map((row) => <Link href={`/players/${row.nhlPlayerId}`} key={row.decade}><span>{row.decade}s</span><strong>{row.name}</strong><small>{row.points.toLocaleString("en-CA")} PTS · {row.gamesPlayed.toLocaleString("en-CA")} GP</small></Link>)}
   </div></section>;
 }
