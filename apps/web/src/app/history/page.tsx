@@ -1,54 +1,83 @@
 import Link from "next/link";
+import { unstable_cache } from "next/cache";
 
+import {
+  HistoryDecadeLeaders,
+  HistoryEraTable,
+  HistoryExplorerNav,
+  HistoryFilters,
+  HistoryLeaderboardTable,
+  HistoryPeaksTable,
+  HistoryRankingSummary,
+  HistoryRecordBook,
+} from "@/app/_components/history-record-book";
+import {
+  HistoryRecordProgression,
+  HistoryScoringEnvironment,
+} from "@/app/_components/history-visuals";
+import { Pagination } from "@/app/_components/pagination";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
-import { SortableHeader } from "@/app/_components/sortable-header";
-import { SortableTable } from "@/app/_components/sortable-table";
-import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
 import { ViewTabs } from "@/app/_components/view-tabs";
-import {
-  WorkspacePageHeader,
-  WorkspacePanel,
-  type WorkspaceWidth,
-} from "@/app/_components/workspace-primitives";
+import { WorkspacePanel } from "@/app/_components/workspace-primitives";
 import type {
-  GoalieHistoryMetric,
-  HistoricalGoalieCareer,
-  HistoricalGoalieSeason,
-  HistoricalSkaterCareer,
-  HistoricalSkaterSeason,
-  HistoricalTeamCareer,
-  HistoricalTeamSeason,
-  HistoryFilterOptions,
-  HistoryFilters,
+  HistoryDisplay,
+  HistoryFilters as HistoryFilterValues,
   HistoryMetric,
+  HistorySection,
   HistoryView,
-  SkaterHistoryMetric,
-  TeamHistoryMetric,
 } from "@/contracts/history";
 import {
   gameTypeForPhase,
   parseSeasonPhase,
-  seasonPhaseLabel,
   type SeasonPhase,
 } from "@/contracts/season-phase";
 import {
-  getHistoricalLeaders,
+  getHistoricalDecadeLeaders,
+  getHistoricalEraScores,
+  getHistoricalLeaderboard,
+  getHistoricalPeaks,
   getHistoryFilterOptions,
+  getHistoryLeagueTrend,
+  getHistoryOverview,
+  historyDefaultMinimumGames,
   parseHistoryFilters,
   parseHistoryMetric,
   parseHistoryView,
 } from "@/data/history";
-import { formatPlayerPosition } from "@/lib/player-position";
+import { parsePage } from "@/lib/directory";
 
 export const dynamic = "force-dynamic";
 
-type HistoryDisplay = "career" | "seasons";
+const PAGE_SIZE = 25;
+const loadHistoryOverview = unstable_cache(
+  getHistoryOverview,
+  ["history-record-book-overview"],
+  { revalidate: 3_600 },
+);
+const loadHistoryFilterOptions = unstable_cache(
+  getHistoryFilterOptions,
+  ["history-filter-options"],
+  { revalidate: 3_600 },
+);
+const loadHistoryLeagueTrend = unstable_cache(
+  getHistoryLeagueTrend,
+  ["history-league-trend"],
+  { revalidate: 3_600 },
+);
+const loadHistoricalDecadeLeaders = unstable_cache(
+  getHistoricalDecadeLeaders,
+  ["history-decade-leaders"],
+  { revalidate: 3_600 },
+);
 
 type HistoryPageProps = {
   searchParams: Promise<{
-    phase?: string | string[];
+    section?: string | string[];
+    entity?: string | string[];
     view?: string | string[];
+    display?: string | string[];
+    phase?: string | string[];
     metric?: string | string[];
     startYear?: string | string[];
     endYear?: string | string[];
@@ -56,667 +85,367 @@ type HistoryPageProps = {
     position?: string | string[];
     team?: string | string[];
     country?: string | string[];
-    display?: string | string[];
+    page?: string | string[];
+    window?: string | string[];
   }>;
 };
 
 export default async function HistoryPage({ searchParams }: HistoryPageProps) {
   const params = await searchParams;
+  const section = parseHistorySection(
+    firstValue(params.section),
+    firstValue(params.display),
+    firstValue(params.view),
+  );
   const phase = parseSeasonPhase(firstValue(params.phase));
-  const view = parseHistoryView(firstValue(params.view));
-  const display = parseHistoryDisplay(firstValue(params.display));
-  const contentWidth: WorkspaceWidth = "wide";
-  const metric = parseHistoryMetric(view, firstValue(params.metric));
-  const filters = parseHistoryFilters({
-    startYear: firstValue(params.startYear),
-    endYear: firstValue(params.endYear),
-    minimumGames: firstValue(params.minimumGames),
-    position: firstValue(params.position),
-    team: firstValue(params.team),
-    country: firstValue(params.country),
-  });
-  const gameType = gameTypeForPhase(phase);
-  const [leaders, filterOptions] = await Promise.all([
-    getHistoricalLeaders(view, metric, gameType, filters),
-    getHistoryFilterOptions(gameType),
-  ]);
+  const sectionTabs = historySectionTabs(section, phase);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="history" />
       <section className="py-8 sm:py-10">
-        <WorkspacePageHeader
-          eyebrow="League / History"
-          title="NHL Historical Leaders"
-          description="Career leaders and the greatest individual and team seasons across the NHL's complete statistical history, beginning in 1917–18."
-        />
-
-        <div className="workspace-coverage-note mt-6">
-          <strong>Coverage:</strong> basic scoring, goalie results, and team
-          results begin in 1917–18. Later statistics retain their real source
-          cutoffs—unavailable early-era values are never treated as zero.
-          Birth-country filters use available player profiles; team filters
-          select whole seasons in which that player represented the team.
-        </div>
-
-        <div className="workspace-context-navs">
+        <HistoryHeader phase={phase} />
+        <div className="workspace-history-primary-navs">
           <SeasonPhaseFilter
             active={phase}
             path="/history"
-            params={historyParams(view, metric, filters, display)}
+            params={historyPhaseParams(section, params)}
+          />
+          <ViewTabs
+            active={section}
+            ariaLabel="History views"
+            tabs={sectionTabs}
           />
         </div>
-
-        <HistoryFiltersForm
-          view={view}
-          metric={leaders.metric}
-          phase={phase}
-          filters={filters}
-          options={filterOptions}
-          display={display}
-          width={contentWidth}
-        />
-
-        <ViewTabs
-          active={display}
-          ariaLabel="Historical ranking views"
-          tabs={historyDisplayTabs(view, leaders.metric, phase, filters)}
-          width={contentWidth}
-        />
-
-        {leaders.view === "skaters" ? (
-          <SkaterHistory
-            careers={leaders.careers}
-            seasons={leaders.seasons}
-            phase={phase}
-            metric={leaders.metric}
-            display={display}
-            width={contentWidth}
-          />
-        ) : leaders.view === "goalies" ? (
-          <GoalieHistory
-            careers={leaders.careers}
-            seasons={leaders.seasons}
-            phase={phase}
-            metric={leaders.metric}
-            display={display}
-            width={contentWidth}
-          />
+        {section === "overview" ? (
+          <HistoryOverviewContent phase={phase} />
+        ) : section === "careers" || section === "seasons" ? (
+          <HistoryLeaderboardContent params={params} section={section} phase={phase} />
+        ) : section === "peaks" ? (
+          <HistoryPeaksContent params={params} phase={phase} />
         ) : (
-          <TeamHistory
-            careers={leaders.careers}
-            seasons={leaders.seasons}
-            phase={phase}
-            metric={leaders.metric}
-            display={display}
-            width={contentWidth}
-          />
+          <HistoryErasContent params={params} phase={phase} />
         )}
       </section>
     </main>
   );
 }
 
-function HistoryFiltersForm({
-  view,
-  metric,
-  phase,
-  filters,
-  options,
-  display,
-  width,
-}: {
-  view: HistoryView;
-  metric: HistoryMetric;
-  phase: SeasonPhase;
-  filters: HistoryFilters;
-  options: HistoryFilterOptions;
-  display: HistoryDisplay;
-  width: WorkspaceWidth;
-}) {
-  const widthClass =
-    width === "wide" ? "" : ` workspace-width-${width}`;
-
+function HistoryHeader({ phase }: { phase: SeasonPhase }) {
   return (
-    <form
-      action="/history"
-      method="get"
-      className={`workspace-player-filters workspace-history-filters${
-        view === "teams" ? " is-team-history" : ""
-      }${widthClass}`}
-    >
-      <input type="hidden" name="phase" value={phase} />
-      <input type="hidden" name="display" value={display} />
-
-      <fieldset className="workspace-player-filter-group is-primary">
-        <legend>Find Historical Leaders</legend>
-        <div>
-          <label>
-            Leader Type
-            <select name="view" defaultValue={view}>
-              <option value="skaters">Skaters</option>
-              <option value="goalies">Goalies</option>
-              <option value="teams">Teams</option>
-            </select>
-          </label>
-          <label>
-            Ranking Metric
-            <select name="metric" defaultValue={metric}>
-              {metricOptions(view).map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      </fieldset>
-
-      <fieldset className="workspace-player-filter-group">
-        <legend>Time Period</legend>
-        <div>
-          <label>
-            Start Season
-            <input
-              name="startYear"
-              type="number"
-              min="1917"
-              max="2025"
-              defaultValue={filters.startYear}
-            />
-          </label>
-          <label>
-            End Season
-            <input
-              name="endYear"
-              type="number"
-              min="1917"
-              max="2025"
-              defaultValue={filters.endYear}
-            />
-          </label>
-          <label>
-            Minimum Games
-            <input
-              name="minimumGames"
-              type="number"
-              min="0"
-              max="5000"
-              defaultValue={filters.minimumGames}
-            />
-          </label>
-        </div>
-      </fieldset>
-
-      {view !== "teams" ? (
-        <fieldset className="workspace-player-filter-group">
-          <legend>Player Filters</legend>
-          <div>
-            {view === "skaters" ? (
-              <label>
-                Position
-                <select name="position" defaultValue={filters.position ?? ""}>
-                  <option value="">All Positions</option>
-                  {options.positions.map((value) => (
-                    <option key={value} value={value}>
-                      {positionLabel(value)}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
-            <label>
-              Team
-              <select name="team" defaultValue={filters.team ?? ""}>
-                <option value="">All Teams</option>
-                {options.teams.map((value) => (
-                  <option key={value} value={value}>
-                    {value}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Birth Country
-              <select name="country" defaultValue={filters.country ?? ""}>
-                <option value="">All Countries</option>
-                {options.countries.map((value) => (
-                  <option key={value} value={value}>
-                    {countryLabel(value)}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-        </fieldset>
-      ) : null}
-
-      <div className="workspace-player-filter-actions">
-        <button type="submit">Show History</button>
-        <Link
-          href={`/history?phase=${phase}&view=${view}&display=${display}`}
-          className="workspace-directory-reset"
-        >
-          Clear Filters
-        </Link>
+    <header className="workspace-history-header">
+      <div className="workspace-history-header-copy">
+        <h1>NHL History</h1>
+        <p>
+          Career, season, peak, and era-adjusted {phase === "regular" ? "regular-season" : "playoff"} records.
+        </p>
       </div>
-    </form>
+      <details>
+        <summary>Data coverage</summary>
+        <p>
+          Basic scoring, goalie results, and team results begin in 1917–18.
+          Later statistics keep their real source cutoffs; unavailable values
+          are never treated as zero. Birth-country filters include only known
+          profiles, and “Played For” selects whole seasons associated with that
+          team rather than attempting to split multi-team season totals.
+        </p>
+      </details>
+    </header>
   );
 }
 
-function SkaterHistory({
-  careers,
-  seasons,
+async function HistoryOverviewContent({ phase }: { phase: SeasonPhase }) {
+  const overview = await loadHistoryOverview(gameTypeForPhase(phase));
+  return (
+    <div className="workspace-history-overview">
+      <section className="workspace-history-intro">
+        <div><h2>Record Leaders</h2></div>
+        <p>Career and single-season leaders for skaters, goalies, and teams.</p>
+      </section>
+      <HistoryRecordBook overview={overview} phase={phase} />
+      <div className="workspace-history-chart-grid">
+        <HistoryRecordProgression points={overview.recordProgression} />
+        <HistoryScoringEnvironment points={overview.leagueTrend} />
+      </div>
+      <section className="workspace-history-discovery">
+        <Link href={`/history?section=peaks&phase=${phase}`}><span>3- and 5-season windows</span><strong>Peak Rankings →</strong></Link>
+        <Link href={`/history?section=eras&phase=${phase}`}><span>League-adjusted scoring rates</span><strong>Era-Adjusted Scoring →</strong></Link>
+        <Link href={`/history?section=seasons&entity=skaters&metric=points&phase=${phase}`}><span>Qualified historical rankings</span><strong>Single-Season Rankings →</strong></Link>
+      </section>
+    </div>
+  );
+}
+
+async function HistoryLeaderboardContent({
+  params,
+  section,
   phase,
-  metric,
-  display,
-  width,
 }: {
-  careers: HistoricalSkaterCareer[];
-  seasons: HistoricalSkaterSeason[];
+  params: Awaited<HistoryPageProps["searchParams"]>;
+  section: "careers" | "seasons";
   phase: SeasonPhase;
-  metric: SkaterHistoryMetric;
-  display: HistoryDisplay;
-  width: WorkspaceWidth;
 }) {
+  const view = parseHistoryView(firstValue(params.entity) ?? firstValue(params.view));
+  const metric = parseHistoryMetric(view, firstValue(params.metric));
+  const display: HistoryDisplay = section === "seasons" ? "seasons" : "career";
+  const gameType = gameTypeForPhase(phase);
+  const defaultMinimum = historyDefaultMinimumGames(view, metric, display, gameType);
+  const filters = historyFiltersFromParams(params, defaultMinimum);
+  const page = parsePage(firstValue(params.page));
+  const [leaderboard, options] = await Promise.all([
+    getHistoricalLeaderboard(view, display, metric, gameType, filters, page, PAGE_SIZE),
+    loadHistoryFilterOptions(gameType),
+  ]);
+  const qualificationIsDefault = firstValue(params.minimumGames) === undefined;
+  const metricLinks = metricOptions(view).map((option) => ({
+    ...option,
+    href: historyHref({
+      section,
+      phase,
+      view,
+      metric: option.metric,
+      filters,
+      omitMinimum: qualificationIsDefault,
+    }),
+  }));
+  const entityHrefs = entityLinks(
+    section,
+    phase,
+    filters,
+    qualificationIsDefault,
+  );
+  const totalPages = Math.max(1, Math.ceil(leaderboard.totalRows / PAGE_SIZE));
+  const paginationParams = historyQueryParams(section, phase, view, leaderboard.metric, filters);
+  if (qualificationIsDefault) paginationParams.minimumGames = undefined;
+
   return (
-    <>
-      {display === "career" ? (
+    <div className="workspace-history-explorer">
+      <HistoryExplorerNav
+        view={view}
+        metric={leaderboard.metric}
+        entityHrefs={entityHrefs}
+        metricHrefs={metricLinks}
+        showMetricNav={false}
+      />
+      <HistoryRankingSummary leaderboard={leaderboard} filters={filters} phase={phase} metricLabel={metricLabel(leaderboard.metric)} />
+      {defaultMinimum > 0 && qualificationIsDefault ? (
+        <p className="workspace-history-qualification">
+          <strong>Qualified leaderboard:</strong> {filters.minimumGames.toLocaleString("en-CA")} games is applied automatically so short appearances do not outrank sustained performance. You can change it below.
+        </p>
+      ) : null}
+      <HistoryFilters
+        section={section}
+        view={view}
+        metric={leaderboard.metric}
+        phase={phase}
+        filters={filters}
+        options={options}
+        isOpen={hasCustomFilters(params, defaultMinimum)}
+      />
       <WorkspacePanel
-        className="mt-7"
-        width={width}
-        title="Career Leaders"
-        description={`Top ${seasonPhaseLabel(phase).toLowerCase()} skater careers for the selected ranking metric.`}
+        className="mt-5"
+        title={`${metricLabel(leaderboard.metric)} Ranking`}
+        description={`Showing ${pageStart(page, leaderboard.rows.length)}–${pageEnd(page, leaderboard.rows.length)} of ${leaderboard.totalRows.toLocaleString("en-CA")} eligible ${view}. Select a supported column heading to rerank the complete result set.`}
       >
-        <SortableTable defaultSortKey={metric}>
-          <div className="workspace-table-scroll">
-            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
-              <colgroup>
-                <col className="workspace-col-entity" />
-                <col className="workspace-col-position" />
-                <col className="workspace-col-number" span={6} />
-              </colgroup>
-              <thead>
-                <tr>
-                  <SortableHeader label="Player" sortKey="player" align="left" />
-                  <SortableHeader label="Pos" sortKey="position" />
-                  <SortableHeader label="Seasons" sortKey="seasons" />
-                  <SortableHeader label="GP" sortKey="games" />
-                  <SortableHeader label="G" sortKey="goals" />
-                  <SortableHeader label="A" sortKey="assists" />
-                  <SortableHeader label="PTS" sortKey="points" />
-                  <SortableHeader label="P/GP" sortKey="pointsPerGame" />
-                </tr>
-              </thead>
-              <tbody>
-                {careers.map((row) => (
-                  <tr key={row.nhlPlayerId}>
-                    <td className="workspace-team-cell"><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link></td>
-                    <td className="workspace-position-cell">
-                      {formatPlayerPosition(row.position)}
-                    </td>
-                    <NumberCell value={row.seasonsPlayed} />
-                    <NumberCell value={row.gamesPlayed} />
-                    <NumberCell value={row.goals} />
-                    <NumberCell value={row.assists} />
-                    <NumberCell value={row.points} highlight />
-                    <NumberCell value={formatRate(row.pointsPerGame)} />
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </SortableTable>
+        <HistoryLeaderboardTable leaderboard={leaderboard} metricHrefs={Object.fromEntries(metricLinks.map((item) => [item.metric, item.href]))} />
       </WorkspacePanel>
-      ) : null}
-
-      {display === "seasons" ? (
-      <WorkspacePanel
-        className="mt-7"
-        width={width}
-        title="Best Single Seasons"
-        description={`The strongest individual ${seasonPhaseLabel(phase).toLowerCase()} seasons for the selected ranking metric.`}
-      >
-        <SortableTable defaultSortKey={metric}>
-          <div className="workspace-table-scroll">
-            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
-              <colgroup>
-                <col className="workspace-col-entity" />
-                <col className="workspace-col-season" />
-                <col className="workspace-col-number" span={5} />
-              </colgroup>
-              <thead>
-                <tr>
-                  <SortableHeader label="Player" sortKey="player" align="left" />
-                  <SortableHeader label="Season" sortKey="season" align="left" />
-                  <SortableHeader label="GP" sortKey="games" />
-                  <SortableHeader label="G" sortKey="goals" />
-                  <SortableHeader label="A" sortKey="assists" />
-                  <SortableHeader label="PTS" sortKey="points" />
-                  <SortableHeader label="P/GP" sortKey="pointsPerGame" />
-                </tr>
-              </thead>
-              <tbody>
-                {seasons.map((row) => (
-                  <tr key={`${row.nhlPlayerId}-${row.seasonId}`}>
-                    <td className="workspace-team-cell">
-                      <div className="flex items-center gap-2">
-                        <TeamLogoStack abbreviations={row.teamAbbreviations} />
-                        <Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link>
-                      </div>
-                    </td>
-                    <td data-sort-value={row.seasonId}>{formatSeason(row.seasonId)}</td>
-                    <NumberCell value={row.gamesPlayed} />
-                    <NumberCell value={row.goals} />
-                    <NumberCell value={row.assists} />
-                    <NumberCell value={row.points} highlight />
-                    <NumberCell value={formatRate(row.pointsPerGame)} />
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </SortableTable>
-      </WorkspacePanel>
-      ) : null}
-    </>
+      <Pagination path="/history" currentPage={page} totalPages={totalPages} params={paginationParams} />
+    </div>
   );
 }
 
-function GoalieHistory({ careers, seasons, phase, metric, display, width }: {
-  careers: HistoricalGoalieCareer[];
-  seasons: HistoricalGoalieSeason[];
+async function HistoryPeaksContent({
+  params,
+  phase,
+}: {
+  params: Awaited<HistoryPageProps["searchParams"]>;
   phase: SeasonPhase;
-  metric: GoalieHistoryMetric;
-  display: HistoryDisplay;
-  width: WorkspaceWidth;
 }) {
-  return (
-    <>
-      {display === "career" ? (
-      <WorkspacePanel className="mt-7" width={width} title="Career Leaders" description={`Top ${seasonPhaseLabel(phase).toLowerCase()} goalie careers.`}>
-        <SortableTable defaultSortKey={metric}>
-          <div className="workspace-table-scroll">
-            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[700px]">
-              <colgroup>
-                <col className="workspace-col-entity" />
-                <col className="workspace-col-number" span={5} />
-                <col className="workspace-col-percentage" />
-              </colgroup>
-              <thead><tr>
-                <SortableHeader label="Goalie" sortKey="goalie" align="left" />
-                <SortableHeader label="Seasons" sortKey="seasons" />
-                <SortableHeader label="GP" sortKey="games" />
-                <SortableHeader label="W" sortKey="wins" />
-                <SortableHeader label="L" sortKey="losses" />
-                <SortableHeader label="SO" sortKey="shutouts" />
-                <SortableHeader label="SV%" sortKey="savePercentage" />
-              </tr></thead>
-              <tbody>{careers.map((row) => (
-                <tr key={row.nhlPlayerId}>
-                  <td className="workspace-team-cell"><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link></td>
-                  <NumberCell value={row.seasonsPlayed} />
-                  <NumberCell value={row.gamesPlayed} />
-                  <NumberCell value={row.wins} highlight />
-                  <NumberCell value={row.losses} />
-                  <NumberCell value={row.shutouts} />
-                  <NumberCell value={formatSavePercentage(row.savePercentage)} />
-                </tr>
-              ))}</tbody>
-            </table>
-          </div>
-        </SortableTable>
-      </WorkspacePanel>
-      ) : null}
-      {display === "seasons" ? (
-      <WorkspacePanel className="mt-7" width={width} title="Best Single Seasons" description={`Top individual ${seasonPhaseLabel(phase).toLowerCase()} goalie seasons. Save percentage is available from 1955–56 onward.`}>
-        <SortableTable defaultSortKey={metric}>
-          <div className="workspace-table-scroll">
-            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[820px]">
-              <colgroup>
-                <col className="workspace-col-entity" />
-                <col className="workspace-col-season" />
-                <col className="workspace-col-number" span={5} />
-                <col className="workspace-col-percentage" />
-              </colgroup>
-              <thead><tr>
-                <SortableHeader label="Goalie" sortKey="goalie" align="left" />
-                <SortableHeader label="Season" sortKey="season" align="left" />
-                <SortableHeader label="GP" sortKey="games" />
-                <SortableHeader label="W" sortKey="wins" />
-                <SortableHeader label="L" sortKey="losses" />
-                <SortableHeader label="SO" sortKey="shutouts" />
-                <SortableHeader label="GAA" sortKey="gaa" defaultDirection="asc" />
-                <SortableHeader label="SV%" sortKey="savePercentage" />
-              </tr></thead>
-              <tbody>{seasons.map((row) => (
-                <tr key={`${row.nhlPlayerId}-${row.seasonId}`}>
-                  <td className="workspace-team-cell">
-                    <div className="flex items-center gap-2">
-                      <TeamLogoStack abbreviations={row.teamAbbreviations} />
-                      <Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link>
-                    </div>
-                  </td>
-                  <td data-sort-value={row.seasonId}>{formatSeason(row.seasonId)}</td>
-                  <NumberCell value={row.gamesPlayed} />
-                  <NumberCell value={row.wins} highlight />
-                  <NumberCell value={row.losses} />
-                  <NumberCell value={row.shutouts} />
-                  <NumberCell value={formatDecimal(row.goalsAgainstAverage, 2)} />
-                  <NumberCell value={formatSavePercentage(row.savePercentage)} />
-                </tr>
-              ))}</tbody>
-            </table>
-          </div>
-        </SortableTable>
-      </WorkspacePanel>
-      ) : null}
-    </>
-  );
-}
-
-function TeamHistory({ careers, seasons, phase, metric, display, width }: {
-  careers: HistoricalTeamCareer[];
-  seasons: HistoricalTeamSeason[];
-  phase: SeasonPhase;
-  metric: TeamHistoryMetric;
-  display: HistoryDisplay;
-  width: WorkspaceWidth;
-}) {
-  return (
-    <>
-      {display === "career" ? (
-      <WorkspacePanel className="mt-7" width={width} title="Team Identity Totals" description="Totals follow the NHL source team identity. A future franchise-history pass will combine relocations and renames into lineages.">
-        <SortableTable defaultSortKey={metric}>
-          <div className="workspace-table-scroll">
-            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
-              <colgroup>
-                <col className="workspace-col-entity" />
-                <col className="workspace-col-number" span={7} />
-                <col className="workspace-col-percentage" />
-              </colgroup>
-              <thead><tr>
-                <SortableHeader label="Team" sortKey="team" align="left" />
-                <SortableHeader label="Seasons" sortKey="seasons" />
-                <SortableHeader label="GP" sortKey="games" />
-                <SortableHeader label="W" sortKey="wins" />
-                <SortableHeader label="L" sortKey="losses" />
-                <SortableHeader label="T" sortKey="ties" />
-                <SortableHeader label="OTL" sortKey="overtimeLosses" />
-                <SortableHeader label="PTS" sortKey="points" />
-                <SortableHeader label="PTS%" sortKey="pointPercentage" />
-              </tr></thead>
-              <tbody>{careers.map((row) => (
-                <tr key={row.nhlTeamId}>
-                  <td className="workspace-team-cell">
-                    <span className="inline-flex items-center gap-2">
-                      <TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="tiny" decorative />
-                      <strong>{row.name}</strong>
-                    </span>
-                  </td>
-                  <NumberCell value={row.seasonsPlayed} />
-                  <NumberCell value={row.gamesPlayed} />
-                  <NumberCell value={row.wins} />
-                  <NumberCell value={row.losses} />
-                  <NumberCell value={row.ties} />
-                  <NumberCell value={row.overtimeLosses} />
-                  <NumberCell value={row.points} highlight />
-                  <NumberCell value={formatPercentage(row.pointPercentage)} />
-                </tr>
-              ))}</tbody>
-            </table>
-          </div>
-        </SortableTable>
-      </WorkspacePanel>
-      ) : null}
-      {display === "seasons" ? (
-      <WorkspacePanel className="mt-7" width={width} title="Best Team Seasons" description={`The strongest team ${seasonPhaseLabel(phase).toLowerCase()} seasons by the selected metric.`}>
-        <SortableTable defaultSortKey={metric}>
-          <div className="workspace-table-scroll">
-            <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
-              <colgroup>
-                <col className="workspace-col-entity" />
-                <col className="workspace-col-season" />
-                <col className="workspace-col-number" span={6} />
-                <col className="workspace-col-percentage" />
-                <col className="workspace-col-number" />
-              </colgroup>
-              <thead><tr>
-                <SortableHeader label="Team" sortKey="team" align="left" />
-                <SortableHeader label="Season" sortKey="season" align="left" />
-                <SortableHeader label="GP" sortKey="games" />
-                <SortableHeader label="W" sortKey="wins" />
-                <SortableHeader label="L" sortKey="losses" />
-                <SortableHeader label="T" sortKey="ties" />
-                <SortableHeader label="OTL" sortKey="overtimeLosses" />
-                <SortableHeader label="PTS" sortKey="points" />
-                <SortableHeader label="PTS%" sortKey="pointPercentage" />
-                <SortableHeader label="GD" sortKey="goalDifferential" />
-              </tr></thead>
-              <tbody>{seasons.map((row) => (
-                <tr key={`${row.nhlTeamId}-${row.seasonId}`}>
-                  <td className="workspace-team-cell">
-                    <span className="inline-flex items-center gap-2">
-                      <TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="tiny" decorative />
-                      <strong>{row.name}</strong>
-                    </span>
-                  </td>
-                  <td data-sort-value={row.seasonId}>{formatSeason(row.seasonId)}</td>
-                  <NumberCell value={row.gamesPlayed} />
-                  <NumberCell value={row.wins} />
-                  <NumberCell value={row.losses} />
-                  <NumberCell value={row.ties} />
-                  <NumberCell value={row.overtimeLosses} />
-                  <NumberCell value={row.points} highlight />
-                  <NumberCell value={formatPercentage(row.pointPercentage)} />
-                  <NumberCell value={formatSigned(row.goalsFor - row.goalsAgainst)} />
-                </tr>
-              ))}</tbody>
-            </table>
-          </div>
-        </SortableTable>
-      </WorkspacePanel>
-      ) : null}
-    </>
-  );
-}
-
-function NumberCell({ value, highlight = false }: { value: number | string | null; highlight?: boolean }) {
-  return <td className={highlight ? "workspace-points-cell" : "workspace-number-cell"}>{value ?? "—"}</td>;
-}
-
-function metricOptions(view: HistoryView): Array<{ value: HistoryMetric; label: string }> {
-  if (view === "goalies") return [
-    { value: "wins" satisfies GoalieHistoryMetric, label: "Wins" },
-    { value: "games" satisfies GoalieHistoryMetric, label: "Games Played" },
-    { value: "shutouts" satisfies GoalieHistoryMetric, label: "Shutouts" },
-    { value: "savePercentage" satisfies GoalieHistoryMetric, label: "Save Percentage" },
-  ];
-  if (view === "teams") return [
-    { value: "points" satisfies TeamHistoryMetric, label: "Points" },
-    { value: "wins" satisfies TeamHistoryMetric, label: "Wins" },
-    { value: "pointPercentage" satisfies TeamHistoryMetric, label: "Points Percentage" },
-  ];
-  return [
-    { value: "points" satisfies SkaterHistoryMetric, label: "Points" },
-    { value: "goals" satisfies SkaterHistoryMetric, label: "Goals" },
-    { value: "assists" satisfies SkaterHistoryMetric, label: "Assists" },
-    { value: "games" satisfies SkaterHistoryMetric, label: "Games Played" },
-    { value: "pointsPerGame" satisfies SkaterHistoryMetric, label: "Points Per Game" },
-  ];
-}
-
-function formatSeason(seasonId: number): string {
-  return `${Math.floor(seasonId / 10_000)}–${String(seasonId % 10_000).slice(-2)}`;
-}
-function formatDecimal(value: number | null, digits: number): string | null {
-  return value === null ? null : value.toFixed(digits);
-}
-function formatSavePercentage(value: number | null): string | null {
-  return value === null ? null : value.toFixed(3).replace(/^0/, "");
-}
-function formatPercentage(value: number | null): string | null {
-  return value === null ? null : `${(value * 100).toFixed(1)}%`;
-}
-function formatSigned(value: number): string {
-  return value > 0 ? `+${value}` : String(value);
-}
-function formatRate(value: number): string {
-  return value.toFixed(2);
-}
-function positionLabel(position: string): string {
-  return ({ C: "Centre", L: "Left Wing", R: "Right Wing", D: "Defence" } as Record<string, string>)[position] ?? position;
-}
-function countryLabel(country: string): string {
-  try {
-    return new Intl.DisplayNames(["en"], { type: "region" }).of(country) ?? country;
-  } catch {
-    return country;
-  }
-}
-function historyParams(
-  view: HistoryView,
-  metric: HistoryMetric,
-  filters: HistoryFilters,
-  display: HistoryDisplay,
-) {
-  return {
-    view,
-    metric,
-    display,
-    startYear: filters.startYear,
-    endYear: filters.endYear,
-    minimumGames: filters.minimumGames,
-    position: filters.position ?? undefined,
-    team: filters.team ?? undefined,
-    country: filters.country ?? undefined,
+  const parsedView = parseHistoryView(firstValue(params.entity) ?? firstValue(params.view));
+  const view: "skaters" | "goalies" = parsedView === "goalies" ? "goalies" : "skaters";
+  const metric = parsePeakMetric(view, firstValue(params.metric));
+  const window = firstValue(params.window) === "5" ? 5 : 3;
+  const defaultMinimum = gameTypeForPhase(phase) === 3 ? window * 8 : window * 40;
+  const filters = historyFiltersFromParams(params, defaultMinimum);
+  const page = parsePage(firstValue(params.page));
+  const gameType = gameTypeForPhase(phase);
+  const [rows, options] = await Promise.all([
+    getHistoricalPeaks(view, metric, window, gameType, filters, page, PAGE_SIZE),
+    loadHistoryFilterOptions(gameType),
+  ]);
+  const totalRows = rows[0]?.totalRows ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalRows / PAGE_SIZE));
+  const peakMetrics = peakMetricOptions(view).map((option) => ({
+    ...option,
+    href: historyHref({ section: "peaks", phase, view, metric: option.metric, filters, window }),
+  }));
+  const entityHrefs = {
+    skaters: historyHref({ section: "peaks", phase, view: "skaters", metric: "points", filters, window }),
+    goalies: historyHref({ section: "peaks", phase, view: "goalies", metric: "wins", filters, window }),
+    teams: historyHref({ section: "peaks", phase, view: "skaters", metric: "points", filters, window }),
   };
+  return (
+    <div className="workspace-history-explorer">
+      <HistoryExplorerNav view={view} metric={metric} entityHrefs={entityHrefs} metricHrefs={peakMetrics} entities={["skaters", "goalies"]} />
+      <div className="workspace-history-peaks-heading">
+        <div><h2>{window}-Season Peaks</h2><span>Consecutive-season windows with at least {filters.minimumGames} total games.</span></div>
+        <nav aria-label="Peak length">
+          {[3, 5].map((value) => <Link key={value} aria-current={window === value ? "page" : undefined} href={historyHref({ section: "peaks", phase, view, metric, filters, window: value as 3 | 5 })}>{value} Seasons</Link>)}
+        </nav>
+      </div>
+      <HistoryFilters section="peaks" view={view} metric={metric} phase={phase} filters={filters} options={options} isOpen={hasCustomFilters(params, defaultMinimum)} />
+      <WorkspacePanel className="mt-5" title={`${metricLabel(metric)} Peaks`} description={`Showing ${pageStart(page, rows.length)}–${pageEnd(page, rows.length)} of ${totalRows.toLocaleString("en-CA")} eligible consecutive-season stretches.`}>
+        <HistoryPeaksTable rows={rows} metricLabel={metricLabel(metric)} window={window} />
+      </WorkspacePanel>
+      <Pagination path="/history" currentPage={page} totalPages={totalPages} params={{ ...historyQueryParams("peaks", phase, view, metric, filters), window }} />
+    </div>
+  );
 }
 
-function historyDisplayTabs(
-  view: HistoryView,
-  metric: HistoryMetric,
-  phase: SeasonPhase,
-  filters: HistoryFilters,
-) {
-  return ([
-    { id: "career" as const, label: "Career Leaders" },
-    { id: "seasons" as const, label: "Best Single Seasons" },
-  ]).map((tab) => {
-    const params = new URLSearchParams();
-    for (const [name, value] of Object.entries(
-      historyParams(view, metric, filters, tab.id),
-    )) {
-      if (value !== undefined) params.set(name, String(value));
-    }
-    params.set("phase", phase);
-    return { ...tab, href: `/history?${params.toString()}` };
+async function HistoryErasContent({
+  params,
+  phase,
+}: {
+  params: Awaited<HistoryPageProps["searchParams"]>;
+  phase: SeasonPhase;
+}) {
+  const defaultMinimum = gameTypeForPhase(phase) === 3 ? 100 : 500;
+  const filters = historyFiltersFromParams(params, defaultMinimum);
+  const page = parsePage(firstValue(params.page));
+  const gameType = gameTypeForPhase(phase);
+  const [scores, decades, leagueTrend, options] = await Promise.all([
+    getHistoricalEraScores(gameType, filters, page, PAGE_SIZE),
+    loadHistoricalDecadeLeaders(gameType),
+    loadHistoryLeagueTrend(gameType),
+    loadHistoryFilterOptions(gameType),
+  ]);
+  const totalRows = scores[0]?.totalRows ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalRows / PAGE_SIZE));
+  return (
+    <div className="workspace-history-eras">
+      <section className="workspace-history-intro">
+        <div><h2>Era-Adjusted Scoring</h2></div>
+        <div className="workspace-history-era-definition">
+          <p>Era Score adjusts a player’s points per game for the league scoring rate during the same seasons.</p>
+          <dl aria-label="Era Score reference values">
+            <div><dt>100</dt><dd>League average</dd></div>
+            <div><dt>200</dt><dd>2× league average</dd></div>
+          </dl>
+        </div>
+      </section>
+      <HistoryScoringEnvironment points={leagueTrend} />
+      <HistoryDecadeLeaders rows={decades} />
+      <HistoryFilters section="eras" view="skaters" metric="pointsPerGame" phase={phase} filters={filters} options={options} isOpen={hasCustomFilters(params, defaultMinimum)} />
+      <WorkspacePanel className="mt-5" title="Career Era Scores" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible skaters.`}>
+        <HistoryEraTable rows={scores} />
+      </WorkspacePanel>
+      <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, "skaters", "pointsPerGame", filters)} />
+    </div>
+  );
+}
+
+function historySectionTabs(active: HistorySection, phase: SeasonPhase) {
+  const tabs: Array<{ id: HistorySection; label: string }> = [
+    { id: "overview", label: "Record Book" },
+    { id: "careers", label: "Careers" },
+    { id: "seasons", label: "Single Seasons" },
+    { id: "peaks", label: "Peaks" },
+    { id: "eras", label: "Era Adjusted" },
+  ];
+  return tabs.map((tab) => ({ ...tab, href: `/history?section=${tab.id}&phase=${phase}`, active }));
+}
+
+function parseHistorySection(value: string | undefined, legacyDisplay: string | undefined, legacyView: string | undefined): HistorySection {
+  if (value === "careers" || value === "seasons" || value === "peaks" || value === "eras") return value;
+  if (value === "overview") return value;
+  if (legacyDisplay === "seasons") return "seasons";
+  if (legacyView) return "careers";
+  return "overview";
+}
+
+function historyFiltersFromParams(params: Awaited<HistoryPageProps["searchParams"]>, defaultMinimum: number): HistoryFilterValues {
+  return parseHistoryFilters({
+    startYear: firstValue(params.startYear),
+    endYear: firstValue(params.endYear),
+    minimumGames: firstValue(params.minimumGames) ?? String(defaultMinimum),
+    position: firstValue(params.position),
+    team: firstValue(params.team),
+    country: firstValue(params.country),
   });
 }
 
-function parseHistoryDisplay(value: string | undefined): HistoryDisplay {
-  return value === "seasons" ? "seasons" : "career";
+function metricOptions(view: HistoryView): Array<{ metric: HistoryMetric; label: string }> {
+  if (view === "goalies") return [{ metric: "wins", label: "Wins" }, { metric: "games", label: "Games" }, { metric: "shutouts", label: "Shutouts" }, { metric: "savePercentage", label: "Save %" }];
+  if (view === "teams") return [{ metric: "points", label: "Points" }, { metric: "wins", label: "Wins" }, { metric: "pointPercentage", label: "Points %" }];
+  return [{ metric: "points", label: "Points" }, { metric: "goals", label: "Goals" }, { metric: "assists", label: "Assists" }, { metric: "games", label: "Games" }, { metric: "pointsPerGame", label: "Points / Game" }];
 }
-function firstValue(value: string | string[] | undefined): string | undefined {
-  return Array.isArray(value) ? value[0] : value;
+
+function peakMetricOptions(view: "skaters" | "goalies") {
+  return view === "goalies"
+    ? [{ metric: "wins" as const, label: "Wins" }, { metric: "shutouts" as const, label: "Shutouts" }]
+    : [{ metric: "points" as const, label: "Points" }, { metric: "goals" as const, label: "Goals" }, { metric: "assists" as const, label: "Assists" }];
 }
+
+function parsePeakMetric(view: "skaters" | "goalies", value: string | undefined): HistoryMetric {
+  if (view === "goalies") return value === "shutouts" ? "shutouts" : "wins";
+  return value === "goals" || value === "assists" ? value : "points";
+}
+
+function metricLabel(metric: HistoryMetric): string {
+  return ({ points: "Points", goals: "Goals", assists: "Assists", games: "Games Played", pointsPerGame: "Points Per Game", wins: "Wins", shutouts: "Shutouts", savePercentage: "Save Percentage", pointPercentage: "Points Percentage" } as Record<HistoryMetric, string>)[metric];
+}
+
+function entityLinks(
+  section: HistorySection,
+  phase: SeasonPhase,
+  filters: HistoryFilterValues,
+  qualificationIsDefault: boolean,
+): Record<HistoryView, string> {
+  return {
+    skaters: historyHref({ section, phase, view: "skaters", metric: "points", filters, omitMinimum: qualificationIsDefault }),
+    goalies: historyHref({ section, phase, view: "goalies", metric: "wins", filters, omitMinimum: qualificationIsDefault }),
+    teams: historyHref({ section, phase, view: "teams", metric: "points", filters, omitMinimum: qualificationIsDefault }),
+  };
+}
+
+function historyHref({ section, phase, view, metric, filters, window, omitMinimum = false }: { section: HistorySection; phase: SeasonPhase; view: HistoryView; metric: HistoryMetric; filters: HistoryFilterValues; window?: 3 | 5; omitMinimum?: boolean }) {
+  const params = new URLSearchParams();
+  const values: Record<string, string | number | undefined> = {
+    ...historyQueryParams(section, phase, view, metric, filters),
+    window,
+  };
+  if (omitMinimum) values.minimumGames = undefined;
+  Object.entries(values).forEach(([key, value]) => { if (value !== undefined) params.set(key, String(value)); });
+  return `/history?${params.toString()}`;
+}
+
+function historyQueryParams(section: HistorySection, phase: SeasonPhase, view: HistoryView, metric: HistoryMetric, filters: HistoryFilterValues): Record<string, string | number | undefined> {
+  return { section, phase, entity: view, metric, startYear: filters.startYear, endYear: filters.endYear, minimumGames: filters.minimumGames, position: filters.position ?? undefined, team: filters.team ?? undefined, country: filters.country ?? undefined };
+}
+
+function historyPhaseParams(
+  section: HistorySection,
+  params: Awaited<HistoryPageProps["searchParams"]>,
+): Record<string, string | number | undefined> {
+  return {
+    section,
+    entity: firstValue(params.entity) ?? firstValue(params.view),
+    metric: firstValue(params.metric),
+    startYear: firstValue(params.startYear),
+    endYear: firstValue(params.endYear),
+    minimumGames: firstValue(params.minimumGames),
+    position: firstValue(params.position),
+    team: firstValue(params.team),
+    country: firstValue(params.country),
+    window: firstValue(params.window),
+  };
+}
+
+function hasCustomFilters(params: Awaited<HistoryPageProps["searchParams"]>, defaultMinimum: number): boolean {
+  const minimum = firstValue(params.minimumGames);
+  return Boolean(firstValue(params.startYear) || firstValue(params.endYear) || firstValue(params.position) || firstValue(params.team) || firstValue(params.country) || (minimum !== undefined && Number(minimum) !== defaultMinimum));
+}
+
+function pageStart(page: number, count: number): number { return count === 0 ? 0 : (page - 1) * PAGE_SIZE + 1; }
+function pageEnd(page: number, count: number): number { return count === 0 ? 0 : (page - 1) * PAGE_SIZE + count; }
+function firstValue(value: string | string[] | undefined): string | undefined { return Array.isArray(value) ? value[0] : value; }
