@@ -25,6 +25,11 @@ import type { SeasonPhase } from "@/contracts/season-phase";
 import { seasonPhaseLabel } from "@/contracts/season-phase";
 import { formatPlayerPosition } from "@/lib/player-position";
 
+const HISTORY_SEASON_START_YEARS = Array.from(
+  { length: 2025 - 1917 + 1 },
+  (_, index) => 1917 + index,
+);
+
 export function HistoryRecordBook({
   overview,
   phase,
@@ -212,8 +217,12 @@ export function HistoryFilters({
         <fieldset>
           <legend>Season Window</legend>
           <div>
-            <label>Start Season<input name="startYear" type="number" min="1917" max="2025" defaultValue={filters.startYear} /></label>
-            <label>End Season<input name="endYear" type="number" min="1917" max="2025" defaultValue={filters.endYear} /></label>
+            <label>Start Season<select name="startYear" defaultValue={filters.startYear}>
+              {HISTORY_SEASON_START_YEARS.map((year) => <option key={year} value={year}>{formatSeasonStartYear(year)}</option>)}
+            </select></label>
+            <label>End Season<select name="endYear" defaultValue={filters.endYear}>
+              {HISTORY_SEASON_START_YEARS.map((year) => <option key={year} value={year}>{formatSeasonStartYear(year)}</option>)}
+            </select></label>
             <label>Minimum Games<input name="minimumGames" type="number" min="0" max="5000" defaultValue={filters.minimumGames} /></label>
           </div>
         </fieldset>
@@ -452,6 +461,7 @@ function MetricCell({ value, active = false }: { value: string | number | null; 
 function HistoryEmptyState() { return <div className="workspace-history-empty"><strong>No eligible records found</strong><p>Try widening the season range or lowering the minimum-games requirement.</p></div>; }
 
 function formatSeason(seasonId: number): string { return `${seasonStart(seasonId)}–${String(seasonId % 10_000).slice(-2)}`; }
+function formatSeasonStartYear(year: number): string { return `${year}–${String(year + 1).slice(-2)}`; }
 function seasonStart(seasonId: number): number { return Math.floor(seasonId / 10_000); }
 function formatDecimal(value: number | null, digits: number): string | null { return value === null ? null : value.toFixed(digits); }
 function formatSavePercentage(value: number | null): string | null { return value === null ? null : value.toFixed(3).replace(/^0/, ""); }
