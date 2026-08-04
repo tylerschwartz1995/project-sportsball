@@ -2481,7 +2481,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 .workspace-class-outcome-row {
   position: relative;
   display: grid;
-  grid-template-columns: 3.25rem minmax(0, 1fr) 8.5rem;
+  grid-template-columns: 3.25rem minmax(0, 1fr) 6.75rem;
   align-items: center;
   gap: 0.6rem;
   min-height: 1.45rem;
@@ -2543,7 +2543,7 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-class-outcome-scale {
   display: grid;
-  grid-template-columns: 3.25rem minmax(0, 1fr) 8.5rem;
+  grid-template-columns: 3.25rem minmax(0, 1fr) 6.75rem;
   align-items: center;
   gap: 0.6rem;
   margin: 0 0.75rem;
@@ -2568,6 +2568,23 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-class-outcome-scale > span:last-child {
   text-align: right;
+}
+
+.workspace-class-outcome-rate-heading {
+  display: grid;
+  gap: 0.12rem;
+}
+
+.workspace-class-outcome-rate-heading strong {
+  color: var(--foreground);
+  font-size: 0.68rem;
+  line-height: 1.1;
+}
+
+.workspace-class-outcome-rate-heading small {
+  color: var(--muted);
+  font-size: 0.56rem;
+  line-height: 1.1;
 }
 
 .workspace-class-outcome-established {
