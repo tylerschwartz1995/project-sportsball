@@ -2508,7 +2508,6 @@ html[data-theme="light"] .workspace-directory-controls button {
   height: 0.86rem;
   border-radius: 0.22rem;
   background: var(--surface-raised);
-  cursor: help;
   transition:
     box-shadow 120ms ease,
     transform 120ms ease;

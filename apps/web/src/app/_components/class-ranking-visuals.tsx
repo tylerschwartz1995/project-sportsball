@@ -74,7 +74,7 @@ function DraftOutcomeMix({ rows }: { rows: DraftClassPerformance[] }) {
                     id: "no-nhl",
                     count: noNhl,
                     className: "is-no-nhl",
-                    label: "no NHL appearance",
+                    label: "No NHL appearance",
                   },
                   {
                     id: "under-100",
