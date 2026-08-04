@@ -2535,7 +2535,7 @@ html[data-theme="light"] .workspace-directory-controls button {
   background: repeating-linear-gradient(
     to right,
     transparent 0 calc(25% - 1px),
-    color-mix(in srgb, var(--background) 55%, transparent) calc(25% - 1px) 25%
+    color-mix(in srgb, var(--foreground) 20%, transparent) calc(25% - 1px) 25%
   );
   content: "";
   pointer-events: none;
