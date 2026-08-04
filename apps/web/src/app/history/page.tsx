@@ -338,7 +338,13 @@ async function HistoryErasContent({
     <div className="workspace-history-eras">
       <section className="workspace-history-intro">
         <div><h2>Era-Adjusted Scoring</h2></div>
-        <p>Era Score compares a player’s points per game with the league rate during the same seasons. A score of 100 is league average; 200 is twice the league rate.</p>
+        <div className="workspace-history-era-definition">
+          <p>Era Score adjusts a player’s points per game for the league scoring rate during the same seasons.</p>
+          <dl aria-label="Era Score reference values">
+            <div><dt>100</dt><dd>League average</dd></div>
+            <div><dt>200</dt><dd>2× league average</dd></div>
+          </dl>
+        </div>
       </section>
       <HistoryScoringEnvironment points={leagueTrend} />
       <HistoryDecadeLeaders rows={decades} />

@@ -6602,7 +6602,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
   margin-bottom: 1rem;
 }
 
-.workspace-history-intro > div > p,
 .workspace-history-ranking-summary > div > p {
   color: var(--accent);
   font-family: var(--font-geist-mono);
@@ -6627,6 +6626,41 @@ html[data-theme="light"] .workspace-analytics-filters button {
   max-width: 42rem;
   color: var(--muted);
   line-height: 1.55;
+}
+
+.workspace-history-era-definition {
+  display: grid;
+  gap: 0.7rem;
+  color: var(--muted);
+}
+
+.workspace-history-era-definition > p {
+  max-width: 46rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.workspace-history-era-definition dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.25rem;
+}
+
+.workspace-history-era-definition dl > div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+
+.workspace-history-era-definition dt {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.workspace-history-era-definition dd {
+  font-size: 0.78rem;
 }
 
 .workspace-history-record-grid {
@@ -7200,6 +7234,22 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
   .workspace-history-intro > div {
     flex: 0 0 20rem;
+  }
+
+  .workspace-history-eras .workspace-history-intro {
+    display: grid;
+    grid-template-columns: minmax(16rem, 0.7fr) minmax(0, 1.3fr);
+    align-items: start;
+    gap: 2rem;
+  }
+
+  .workspace-history-eras .workspace-history-intro > div {
+    flex: initial;
+  }
+
+  .workspace-history-era-definition {
+    border-left: 2px solid var(--border-strong);
+    padding-left: 1rem;
   }
 
   .workspace-history-discovery {
