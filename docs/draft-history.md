@@ -92,10 +92,11 @@ rates. The workspace separates four user tasks:
   MoneyPuck Game Score per skater pick. Each metric sorts independently rather
   than being hidden inside a composite score. Classes with incomplete NHL
   skater Game Score coverage show that advanced metric as unavailable. A
-  decade-grouped outcome mix shows the share of picks at four NHL career
-  milestones. Percentile heat coloring is integrated into the sortable metric
-  cells so relative strengths remain visible beside each exact value, without
-  turning those metrics into one opaque grade.
+  chronological, decade-separated outcome distribution shows the share of
+  picks at four NHL career milestones with a shared scale and visible 100-game
+  rate. Relative-range heat coloring follows the actively sorted metric so the
+  comparison stays focused while every supporting value remains visible,
+  without turning those metrics into one opaque grade.
 
 The all-years board remains available with pagination. Its URL-backed sorting
 is applied to the complete filtered result before pagination, rather than only

@@ -194,7 +194,7 @@ const classPerformanceColumns = [
     description: "Career points divided by all non-goalie selections",
   },
   {
-    label: "Game Score / Skater",
+    label: "Game Score / Skater*",
     sortKey: "game-score",
     description:
       "Stored career MoneyPuck Game Score divided by all non-goalie selections",
@@ -1288,6 +1288,13 @@ function MetricCell({
 }
 
 function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
+  const advancedCoverageYears = rows
+    .filter((row) => row.gameScorePerSkaterPick !== null)
+    .map((row) => row.draftYear);
+  const advancedCoverage =
+    advancedCoverageYears.length > 0
+      ? `${Math.min(...advancedCoverageYears)}–${Math.max(...advancedCoverageYears)}`
+      : "Unavailable";
   const heatValues = {
     appearance: sortedValues(rows.map((row) => row.appearanceRate)),
     hundredGames: sortedValues(rows.map((row) => row.hundredGameRate)),
@@ -1313,6 +1320,19 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
             Game Score.
           </span>
         </p>
+        <div className="workspace-class-heat-guide">
+          <div aria-hidden="true">
+            <span>Lower</span>
+            <i />
+            <span>Higher</span>
+          </div>
+          <p>
+            The sorted metric becomes the heatmap: deeper color means a higher
+            position in its displayed range. Choose another header to recolor
+            the comparison.
+          </p>
+          <small>Game Score coverage: {advancedCoverage} draft classes</small>
+        </div>
         <dl>
           <div>
             <dt>Appearance and milestone percentages</dt>
@@ -1327,7 +1347,7 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
             <dd>Average career points across every non-goalie selection.</dd>
           </div>
           <div>
-            <dt>Game Score / Skater Pick</dt>
+            <dt>Game Score / Skater Pick*</dt>
             <dd>
               Average cumulative MoneyPuck all-around impact across every
               non-goalie selection.
@@ -1335,10 +1355,29 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
           </div>
         </dl>
       </aside>
-      <SortableTable defaultSortKey="average-games">
+      <SortableTable
+        defaultSortKey="average-games"
+        className="workspace-class-rankings-sort"
+      >
         <div className="workspace-table-scroll">
           <table className="workspace-table workspace-table-dense workspace-class-rankings-table">
+            <colgroup>
+              <col className="workspace-class-rankings-class-col" />
+              <col className="workspace-class-rankings-picks-col" />
+              <col className="workspace-class-rankings-rate-col" />
+              <col className="workspace-class-rankings-rate-col" />
+              <col className="workspace-class-rankings-rate-col" />
+              <col className="workspace-class-rankings-games-col" />
+              <col className="workspace-class-rankings-points-col" />
+              <col className="workspace-class-rankings-score-col" />
+            </colgroup>
             <thead>
+              <tr className="workspace-class-ranking-groups" aria-hidden="true">
+                <th colSpan={2}>Class</th>
+                <th colSpan={3}>Milestone Rates</th>
+                <th colSpan={2}>Career Return</th>
+                <th>Advanced*</th>
+              </tr>
               <tr>
                 {classPerformanceColumns.map((column) => (
                   <SortableHeader key={column.sortKey} {...column} />
@@ -1357,16 +1396,19 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
                   </td>
                   <NumberCell value={draftClass.selections} />
                   <ClassMetricCell
+                    metricKey="appearance-rate"
                     value={draftClass.appearanceRate}
                     displayValue={formatPercentage(draftClass.appearanceRate)}
                     comparisonValues={heatValues.appearance}
                   />
                   <ClassMetricCell
+                    metricKey="hundred-rate"
                     value={draftClass.hundredGameRate}
                     displayValue={formatPercentage(draftClass.hundredGameRate)}
                     comparisonValues={heatValues.hundredGames}
                   />
                   <ClassMetricCell
+                    metricKey="five-hundred-rate"
                     value={draftClass.fiveHundredGameRate}
                     displayValue={formatPercentage(
                       draftClass.fiveHundredGameRate,
@@ -1374,11 +1416,13 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
                     comparisonValues={heatValues.fiveHundredGames}
                   />
                   <ClassMetricCell
+                    metricKey="average-games"
                     value={draftClass.averageGames}
                     displayValue={Math.round(draftClass.averageGames)}
                     comparisonValues={heatValues.averageGames}
                   />
                   <ClassMetricCell
+                    metricKey="points"
                     value={draftClass.pointsPerSkaterPick}
                     displayValue={
                       draftClass.pointsPerSkaterPick === null
@@ -1388,6 +1432,7 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
                     comparisonValues={heatValues.points}
                   />
                   <ClassMetricCell
+                    metricKey="game-score"
                     value={draftClass.gameScorePerSkaterPick}
                     displayValue={
                       draftClass.gameScorePerSkaterPick === null
@@ -1402,8 +1447,8 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
           </table>
         </div>
         <div className="workspace-table-note">
-          Cyan intensity ranks a class against every other displayed class
-          within that column; it is not a combined grade. Rates use every
+          Heat intensity shows where a class falls within the displayed range
+          for the sorted metric; it is not a combined grade. Rates use every
           official selection as the denominator. Points and Game Score exclude
           goalies but include zero-game skater picks. Game Score uses stored
           all-situations data from{" "}
@@ -1607,30 +1652,36 @@ function NumberCell({ value }: { value: number | string }) {
 }
 
 function ClassMetricCell({
+  metricKey,
   value,
   displayValue,
   comparisonValues,
 }: {
+  metricKey: string;
   value: number | null;
   displayValue: number | string;
   comparisonValues: number[];
 }) {
   if (value === null) {
     return (
-      <td className="workspace-number-cell workspace-class-metric-cell is-unavailable">
+      <td
+        className="workspace-number-cell workspace-class-metric-cell is-unavailable"
+        data-metric={metricKey}
+      >
         {displayValue}
       </td>
     );
   }
 
-  const rank = percentileRank(comparisonValues, value);
+  const rangePosition = relativeRangePosition(comparisonValues, value);
   const style = {
-    "--heat-percent": `${6 + rank * 30}%`,
+    "--heat-strength": `${10 + rangePosition * 62}%`,
   } as CSSProperties;
 
   return (
     <td
       className="workspace-number-cell workspace-class-metric-cell"
+      data-metric={metricKey}
       data-sort-value={value}
       style={style}
     >
@@ -1645,15 +1696,11 @@ function sortedValues(values: Array<number | null>): number[] {
     .sort((left, right) => left - right);
 }
 
-function percentileRank(sortedNumbers: number[], value: number): number {
-  if (sortedNumbers.length <= 1) return 1;
-  let lowerCount = 0;
-  let equalCount = 0;
-  for (const candidate of sortedNumbers) {
-    if (candidate < value) lowerCount += 1;
-    else if (candidate === value) equalCount += 1;
-  }
-  return (
-    lowerCount + Math.max(0, equalCount - 1) / 2
-  ) / (sortedNumbers.length - 1);
+function relativeRangePosition(sortedNumbers: number[], value: number): number {
+  const minimum = sortedNumbers[0] ?? value;
+  const maximum = sortedNumbers.at(-1) ?? value;
+
+  if (maximum === minimum) return 0.5;
+
+  return (value - minimum) / (maximum - minimum);
 }

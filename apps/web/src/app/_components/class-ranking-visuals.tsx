@@ -25,12 +25,12 @@ function DraftOutcomeMix({ rows }: { rows: DraftClassPerformance[] }) {
     <section className="workspace-chart-panel">
       <header className="workspace-player-chart-header">
         <div>
-          <p>Draft Outcome Mix</p>
-          <h3>How Far Each Class&apos;s Picks Progressed</h3>
+          <p>Career Outcome Distribution</p>
+          <h3>Where Each Draft Class&apos;s Picks Landed</h3>
         </div>
         <p>
-          Every bar represents 100% of a draft class. Longer cyan and green
-          sections indicate more picks becoming established NHL players.
+          Every bar represents 100% of a class&apos;s current career outcomes.
+          Older classes have had more time to reach the higher milestones.
         </p>
       </header>
       <div
@@ -41,6 +41,17 @@ function DraftOutcomeMix({ rows }: { rows: DraftClassPerformance[] }) {
         <LegendItem className="is-under-100" label="1–99 Games" />
         <LegendItem className="is-regular" label="100–499 Games" />
         <LegendItem className="is-long-career" label="500+ Games" />
+      </div>
+      <div className="workspace-class-outcome-scale" aria-hidden="true">
+        <span>Draft</span>
+        <div>
+          <span>0%</span>
+          <span>25%</span>
+          <span>50%</span>
+          <span>75%</span>
+          <span>100%</span>
+        </div>
+        <span>100+ Rate</span>
       </div>
       <div className="workspace-class-outcome-decades">
         {decades.map(({ decade, classes }) => (
@@ -114,6 +125,10 @@ function DraftOutcomeMix({ rows }: { rows: DraftClassPerformance[] }) {
                         />
                       ))}
                     </div>
+                    <span className="workspace-class-outcome-established">
+                      <strong>{formatPercentage(draftClass.hundredGameRate)}</strong>
+                      <small>100+</small>
+                    </span>
                   </div>
                 );
               })}

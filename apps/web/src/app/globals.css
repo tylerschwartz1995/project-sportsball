@@ -2235,6 +2235,49 @@ html[data-theme="light"] .workspace-directory-controls button {
   line-height: 1.45;
 }
 
+.workspace-class-heat-guide {
+  display: grid;
+  grid-template-columns: minmax(10rem, 0.85fr) minmax(18rem, 1.65fr) auto;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  padding: 0.55rem 0.65rem;
+  background: var(--surface);
+}
+
+.workspace-class-heat-guide > div {
+  display: grid;
+  grid-template-columns: auto minmax(4rem, 1fr) auto;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.66rem;
+  font-weight: 700;
+}
+
+.workspace-class-heat-guide i {
+  height: 0.45rem;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    color-mix(in srgb, var(--chart-primary) 10%, var(--surface)),
+    color-mix(in srgb, var(--chart-primary) 72%, var(--surface))
+  );
+}
+
+.workspace-class-heat-guide p,
+.workspace-class-heat-guide small {
+  color: var(--muted);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+
+.workspace-class-heat-guide small {
+  white-space: nowrap;
+}
+
 .workspace-class-ranking-guide dl {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -2274,6 +2317,21 @@ html[data-theme="light"] .workspace-directory-controls button {
   padding: 0.48rem 0.3rem;
 }
 
+.workspace-table.workspace-class-rankings-table thead .workspace-class-ranking-groups th {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 0.32rem 0.3rem;
+  color: color-mix(in srgb, var(--muted) 82%, transparent);
+  font-size: 0.57rem;
+  font-weight: 750;
+  letter-spacing: 0.07em;
+  text-align: center;
+}
+
+.workspace-table.workspace-class-rankings-table thead .workspace-class-ranking-groups th:last-child {
+  border-right: 0;
+}
+
 .workspace-table.workspace-class-rankings-table thead button {
   line-height: 1.15;
   white-space: normal;
@@ -2290,11 +2348,21 @@ html[data-theme="light"] .workspace-directory-controls button {
 }
 
 .workspace-class-rankings-table .workspace-class-metric-cell {
+  background: var(--surface);
+}
+
+.workspace-class-rankings-sort[data-sort-key="appearance-rate"] [data-metric="appearance-rate"],
+.workspace-class-rankings-sort[data-sort-key="hundred-rate"] [data-metric="hundred-rate"],
+.workspace-class-rankings-sort[data-sort-key="five-hundred-rate"] [data-metric="five-hundred-rate"],
+.workspace-class-rankings-sort[data-sort-key="average-games"] [data-metric="average-games"],
+.workspace-class-rankings-sort[data-sort-key="points"] [data-metric="points"],
+.workspace-class-rankings-sort[data-sort-key="game-score"] [data-metric="game-score"] {
   background: color-mix(
     in srgb,
-    var(--chart-primary) var(--heat-percent),
+    var(--chart-primary) var(--heat-strength),
     var(--surface)
   );
+  font-weight: 750;
 }
 
 .workspace-class-rankings-table .workspace-class-metric-cell.is-unavailable {
@@ -2302,33 +2370,28 @@ html[data-theme="light"] .workspace-directory-controls button {
   color: var(--muted);
 }
 
-.workspace-class-rankings-table th:nth-child(1) {
-  width: 13%;
-}
-
-.workspace-class-rankings-table th:nth-child(2) {
-  width: 7%;
-}
-
-.workspace-class-rankings-table th:nth-child(3) {
-  width: 11%;
-}
-
-.workspace-class-rankings-table th:nth-child(4),
-.workspace-class-rankings-table th:nth-child(5) {
-  width: 10%;
-}
-
-.workspace-class-rankings-table th:nth-child(6) {
-  width: 14%;
-}
-
-.workspace-class-rankings-table th:nth-child(7) {
+.workspace-class-rankings-table .workspace-class-rankings-class-col {
   width: 17%;
 }
 
-.workspace-class-rankings-table th:nth-child(8) {
-  width: 18%;
+.workspace-class-rankings-table .workspace-class-rankings-picks-col {
+  width: 7%;
+}
+
+.workspace-class-rankings-table .workspace-class-rankings-rate-col {
+  width: 10%;
+}
+
+.workspace-class-rankings-table .workspace-class-rankings-games-col {
+  width: 14%;
+}
+
+.workspace-class-rankings-table .workspace-class-rankings-points-col {
+  width: 15%;
+}
+
+.workspace-class-rankings-table .workspace-class-rankings-score-col {
+  width: 17%;
 }
 
 .workspace-class-ranking-visuals {
@@ -2362,27 +2425,33 @@ html[data-theme="light"] .workspace-directory-controls button {
 }
 
 .workspace-class-outcome-decades {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
-  gap: 0.75rem;
-  padding: 0.25rem 0.75rem 0.75rem;
+  margin: 0 0.75rem 0.75rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
 }
 
 .workspace-class-outcome-decade {
-  overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 0.8rem;
-  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.workspace-class-outcome-decade:last-child {
+  border-bottom: 0;
 }
 
 .workspace-class-outcome-decade > header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-top: 1px solid color-mix(in srgb, var(--border-strong) 65%, transparent);
   border-bottom: 1px solid var(--border);
-  padding: 0.55rem 0.7rem;
-  background: var(--surface-raised);
+  padding: 0.42rem 0.7rem;
+  background: color-mix(in srgb, var(--surface-raised) 82%, transparent);
+}
+
+.workspace-class-outcome-decade:first-child > header {
+  border-top: 0;
 }
 
 .workspace-class-outcome-decade h4 {
@@ -2399,15 +2468,15 @@ html[data-theme="light"] .workspace-directory-controls button {
 }
 
 .workspace-class-outcome-decade > div {
-  padding: 0.45rem 0.55rem;
+  padding: 0.35rem 0.55rem 0.45rem;
 }
 
 .workspace-class-outcome-row {
   display: grid;
-  grid-template-columns: 2.7rem minmax(0, 1fr);
+  grid-template-columns: 3.25rem minmax(0, 1fr) 4.5rem;
   align-items: center;
-  gap: 0.45rem;
-  min-height: 1.65rem;
+  gap: 0.6rem;
+  min-height: 1.45rem;
 }
 
 .workspace-class-outcome-row a {
@@ -2424,15 +2493,73 @@ html[data-theme="light"] .workspace-directory-controls button {
 }
 
 .workspace-class-outcome-bar {
+  position: relative;
   display: flex;
   overflow: hidden;
-  height: 0.72rem;
-  border-radius: 0.18rem;
+  height: 0.86rem;
+  border-radius: 0.22rem;
   background: var(--surface-raised);
 }
 
 .workspace-class-outcome-bar span {
+  position: relative;
   min-width: 0;
+}
+
+.workspace-class-outcome-bar::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to right,
+    transparent 0 calc(25% - 1px),
+    color-mix(in srgb, var(--background) 55%, transparent) calc(25% - 1px) 25%
+  );
+  content: "";
+  pointer-events: none;
+}
+
+.workspace-class-outcome-scale {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) 4.5rem;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 1.3rem 0.35rem;
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.58rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.workspace-class-outcome-scale > div {
+  display: flex;
+  justify-content: space-between;
+}
+
+.workspace-class-outcome-scale > span:last-child {
+  text-align: right;
+}
+
+.workspace-class-outcome-established {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-class-outcome-established strong {
+  color: var(--foreground);
+  font-size: 0.72rem;
+}
+
+.workspace-class-outcome-established small {
+  color: var(--muted);
+  font-size: 0.57rem;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .workspace-team-drafting-bars {
@@ -2462,6 +2589,14 @@ html[data-theme="light"] .workspace-directory-controls button {
 
   .workspace-draft-insights {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-class-heat-guide {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-class-heat-guide small {
+    white-space: normal;
   }
 
   .workspace-draft-filters.is-board,
