@@ -142,12 +142,14 @@ export function HistoryExplorerNav({
   entityHrefs,
   metricHrefs,
   entities = ["skaters", "goalies", "teams"],
+  showMetricNav = true,
 }: {
   view: HistoryView;
   metric: HistoryMetric;
   entityHrefs: Record<HistoryView, string>;
   metricHrefs: Array<{ metric: HistoryMetric; label: string; href: string }>;
   entities?: HistoryView[];
+  showMetricNav?: boolean;
 }) {
   return (
     <div className="workspace-history-explorer-nav">
@@ -162,17 +164,19 @@ export function HistoryExplorerNav({
           </Link>
         ))}
       </nav>
-      <nav aria-label="Ranking metric">
-        {metricHrefs.map((item) => (
-          <Link
-            key={item.metric}
-            href={item.href}
-            aria-current={metric === item.metric ? "page" : undefined}
-          >
-            {item.label}
-          </Link>
-        ))}
-      </nav>
+      {showMetricNav ? (
+        <nav aria-label="Ranking metric">
+          {metricHrefs.map((item) => (
+            <Link
+              key={item.metric}
+              href={item.href}
+              aria-current={metric === item.metric ? "page" : undefined}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      ) : null}
     </div>
   );
 }

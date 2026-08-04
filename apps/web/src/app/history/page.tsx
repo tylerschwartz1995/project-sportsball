@@ -225,6 +225,7 @@ async function HistoryLeaderboardContent({
         metric={leaderboard.metric}
         entityHrefs={entityHrefs}
         metricHrefs={metricLinks}
+        showMetricNav={false}
       />
       <HistoryRankingSummary leaderboard={leaderboard} filters={filters} phase={phase} metricLabel={metricLabel(leaderboard.metric)} />
       {defaultMinimum > 0 && qualificationIsDefault ? (
