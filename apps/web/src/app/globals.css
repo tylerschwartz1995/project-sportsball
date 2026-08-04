@@ -6516,22 +6516,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
   line-height: 1.45;
 }
 
-.workspace-history-header dl {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: repeat(4, max-content);
-  gap: 0.5rem 1.5rem;
-  border-top: 1px solid var(--border);
-  padding-top: 0.8rem;
-}
-
-.workspace-history-header dl > div {
-  display: flex;
-  align-items: baseline;
-  gap: 0.45rem;
-}
-
-.workspace-history-header dt,
 .workspace-history-ranking-summary dt {
   color: var(--muted);
   font-family: var(--font-geist-mono);
@@ -6539,14 +6523,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-}
-
-.workspace-history-header dd {
-  color: var(--foreground);
-  font-family: var(--font-geist-mono);
-  font-size: 0.82rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
 }
 
 .workspace-history-header > details {
@@ -7319,11 +7295,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
   .workspace-history-header > details p {
     right: 1rem;
-  }
-
-  .workspace-history-header dl {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.55rem 1rem;
   }
 
   .workspace-history-record-list li {

@@ -104,7 +104,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="history" />
       <section className="py-8 sm:py-10">
-        <HistoryHeader phase={phase} showArchiveTotals={section === "overview"} />
+        <HistoryHeader phase={phase} />
         <div className="workspace-history-primary-navs">
           <SeasonPhaseFilter
             active={phase}
@@ -131,13 +131,7 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
   );
 }
 
-function HistoryHeader({
-  phase,
-  showArchiveTotals,
-}: {
-  phase: SeasonPhase;
-  showArchiveTotals: boolean;
-}) {
+function HistoryHeader({ phase }: { phase: SeasonPhase }) {
   return (
     <header className="workspace-history-header">
       <div className="workspace-history-header-copy">
@@ -146,14 +140,6 @@ function HistoryHeader({
           Career, season, peak, and era-adjusted {phase === "regular" ? "regular-season" : "playoff"} records.
         </p>
       </div>
-      {showArchiveTotals ? (
-        <dl aria-label="Historical data coverage">
-          <div><dt>Seasons</dt><dd>108</dd></div>
-          <div><dt>Players</dt><dd>8,802</dd></div>
-          <div><dt>Season summaries</dt><dd>78,462</dd></div>
-          <div><dt>Coverage</dt><dd>1917–18 to 2025–26</dd></div>
-        </dl>
-      ) : null}
       <details>
         <summary>Data coverage</summary>
         <p>
