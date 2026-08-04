@@ -267,7 +267,7 @@ export function HistoryRankingSummary({
       </div>
       <dl>
         <div><dt>Phase</dt><dd>{seasonPhaseLabel(phase)}</dd></div>
-        <div><dt>Window</dt><dd>{filters.startYear}–{String(filters.endYear + 1).slice(-2)}</dd></div>
+        <div><dt>Window</dt><dd>{filters.startYear}–{filters.endYear + 1}</dd></div>
         <div><dt>Eligible</dt><dd>{leaderboard.totalRows.toLocaleString("en-CA")} {noun}</dd></div>
         <div><dt>Minimum</dt><dd>{filters.minimumGames.toLocaleString("en-CA")} GP</dd></div>
       </dl>
