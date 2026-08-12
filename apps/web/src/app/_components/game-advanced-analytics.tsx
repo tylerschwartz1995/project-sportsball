@@ -97,7 +97,7 @@ export function GameAdvancedAnalytics({
       {activeView === "shots" && hasShotData ? (
         <Subsection
           title="Shot Maps"
-          description="All MoneyPuck modeled goals, saved shots, and misses. Coordinates are normalized so each team attacks the net at right."
+          description="All MoneyPuck modeled goals, saved shots, and misses on a regulation-scale attacking half-rink. Coordinates are normalized so each team attacks the net at right."
         >
           <ShotMaps
             shots={data.shots}

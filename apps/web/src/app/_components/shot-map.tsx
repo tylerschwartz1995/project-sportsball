@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useRef, useState, type KeyboardEvent } from "react";
 
 import type {
   MoneyPuckGameTeam,
@@ -8,6 +8,12 @@ import type {
 } from "@/contracts/advanced-game";
 import { TeamLogo } from "@/app/_components/team-logo";
 import { formatMoneyPuckPeriodClock } from "@/lib/moneypuck-shot";
+import {
+  mapShotX,
+  mapShotY,
+  SHOT_RINK,
+  shotNavigationIndex,
+} from "@/lib/shot-map";
 
 export function ShotMaps({
   shots,
@@ -48,6 +54,8 @@ function TeamShotMap({
   accent: "cyan" | "violet";
 }) {
   const [selectedShotId, setSelectedShotId] = useState<string | null>(null);
+  const markerRefs = useRef(new Map<string, SVGGElement>());
+  const instructionsId = useId();
   const plottedShots = shots.filter(
     (shot) =>
       shot.adjustedXCoordinate !== null &&
@@ -58,6 +66,37 @@ function TeamShotMap({
   const color = accent === "cyan" ? "#67e8f9" : "#c4b5fd";
   const selectedShot =
     shots.find((shot) => shotKey(shot) === selectedShotId) ?? null;
+  const activeShotId =
+    selectedShotId ?? (plottedShots[0] ? shotKey(plottedShots[0]) : null);
+
+  function focusShot(index: number) {
+    const shot = plottedShots[index];
+    if (!shot) return;
+    const key = shotKey(shot);
+    setSelectedShotId(key);
+    requestAnimationFrame(() => markerRefs.current.get(key)?.focus());
+  }
+
+  function handleMarkerKeyDown(
+    event: KeyboardEvent<SVGGElement>,
+    index: number,
+  ) {
+    const nextIndex = shotNavigationIndex(
+      index,
+      event.key,
+      plottedShots.length,
+    );
+    if (nextIndex !== null) {
+      event.preventDefault();
+      focusShot(nextIndex);
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setSelectedShotId(shotKey(plottedShots[index]));
+    }
+  }
 
   return (
     <figure className="surface-panel flex h-full flex-col overflow-hidden">
@@ -81,68 +120,96 @@ function TeamShotMap({
 
       <div className="flex flex-1 flex-col p-4">
         <svg
-          viewBox="0 0 320 220"
-          role="img"
+          viewBox="0 0 320 275"
+          role="group"
           aria-label={`${team.name} offensive-zone shot map`}
+          aria-describedby={instructionsId}
           className="h-auto w-full"
         >
-          <rect
-            x="8"
-            y="8"
-            width="304"
-            height="204"
-            rx="48"
+          <path
+            d="M10 10 H226 A84 84 0 0 1 310 94 V181 A84 84 0 0 1 226 265 H10 Z"
             fill="var(--surface-raised)"
             stroke="var(--border-strong)"
             strokeWidth="2"
           />
           <line
-            x1="42"
-            y1="9"
-            x2="42"
-            y2="211"
+            x1={mapShotX(25)}
+            y1={SHOT_RINK.top}
+            x2={mapShotX(25)}
+            y2={SHOT_RINK.top + SHOT_RINK.height}
             stroke="#2563eb"
             strokeWidth="2"
             opacity="0.55"
           />
           <line
-            x1="278"
-            y1="9"
-            x2="278"
-            y2="211"
+            x1={mapShotX(89)}
+            y1={SHOT_RINK.top + 2}
+            x2={mapShotX(89)}
+            y2={SHOT_RINK.top + SHOT_RINK.height - 2}
             stroke="#ef4444"
             strokeWidth="2"
             opacity="0.7"
           />
           <path
-            d="M278 96 C298 96 298 124 278 124"
+            d={`M${mapShotX(89)} ${SHOT_RINK.centerY - 12} C${mapShotX(95)} ${SHOT_RINK.centerY - 12} ${mapShotX(95)} ${SHOT_RINK.centerY + 12} ${mapShotX(89)} ${SHOT_RINK.centerY + 12}`}
             fill="none"
             stroke="#ef4444"
             strokeWidth="2"
           />
-          <circle
-            cx="278"
-            cy="110"
-            r="54"
-            fill="none"
-            stroke="#ef4444"
+          <path
+            d={`M${mapShotX(89)} ${SHOT_RINK.centerY - 18} A18 18 0 0 0 ${mapShotX(89)} ${SHOT_RINK.centerY + 18}`}
+            fill="color-mix(in srgb, #38bdf8 12%, transparent)"
+            stroke="#38bdf8"
             strokeWidth="1.5"
-            opacity="0.3"
+            opacity="0.7"
           />
-          <circle cx="278" cy="110" r="2.5" fill="#ef4444" opacity="0.7" />
           <line
-            x1="160"
-            y1="9"
-            x2="160"
-            y2="211"
-            stroke="var(--muted)"
-            strokeDasharray="4 6"
-            opacity="0.2"
+            x1={SHOT_RINK.left}
+            y1={SHOT_RINK.top + 2}
+            x2={SHOT_RINK.left}
+            y2={SHOT_RINK.top + SHOT_RINK.height - 2}
+            stroke="#ef4444"
+            strokeWidth="3"
+            opacity="0.75"
           />
 
-          {plottedShots.map((shot) => {
-            const x = mapX(shot.adjustedXCoordinate!);
-            const y = mapY(shot.adjustedYCoordinate!);
+          {[SHOT_RINK.centerY - 66, SHOT_RINK.centerY + 66].map((y) => (
+            <g key={y} aria-hidden="true">
+              <circle
+                cx={mapShotX(69)}
+                cy={y}
+                r="45"
+                fill="none"
+                stroke="#ef4444"
+                strokeWidth="1.25"
+                opacity="0.35"
+              />
+              <circle
+                cx={mapShotX(69)}
+                cy={y}
+                r="3"
+                fill="#ef4444"
+                opacity="0.65"
+              />
+            </g>
+          ))}
+
+          <text x="18" y="28" fill="var(--muted)" fontSize="9">
+            CENTRE
+          </text>
+          <text
+            x="300"
+            y="28"
+            fill="var(--muted)"
+            fontSize="9"
+            textAnchor="end"
+          >
+            ATTACKING →
+          </text>
+
+          {plottedShots.map((shot, index) => {
+            const x = mapShotX(shot.adjustedXCoordinate!);
+            const y = mapShotY(shot.adjustedYCoordinate!);
             const radius = shotRadius(shot.expectedGoal);
             const key = shotKey(shot);
             const isSelected = key === selectedShotId;
@@ -150,15 +217,19 @@ function TeamShotMap({
               <g
                 key={key}
                 role="button"
-                tabIndex={0}
+                tabIndex={key === activeShotId ? 0 : -1}
                 aria-label={shotLabel(shot)}
                 aria-pressed={isSelected}
-                className="cursor-pointer outline-none"
+                aria-describedby={instructionsId}
+                className="workspace-shot-marker cursor-pointer"
                 onClick={() => setSelectedShotId(key)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    setSelectedShotId(key);
+                onFocus={() => setSelectedShotId(key)}
+                onKeyDown={(event) => handleMarkerKeyDown(event, index)}
+                ref={(element) => {
+                  if (element) {
+                    markerRefs.current.set(key, element);
+                  } else {
+                    markerRefs.current.delete(key);
                   }
                 }}
               >
@@ -185,28 +256,35 @@ function TeamShotMap({
                   cy={y}
                   r={radius}
                   fill={
-                    shot.isGoal
-                      ? color
-                      : shot.wasOnGoal
-                        ? color
-                        : "var(--surface-raised)"
+                    shot.isGoal || shot.wasOnGoal ? color : "transparent"
                   }
-                  fillOpacity={shot.isGoal ? 0.95 : 0.45}
+                  fillOpacity={shot.isGoal ? 0.95 : shot.wasOnGoal ? 0.3 : 0}
                   stroke={color}
                   strokeWidth={shot.isGoal ? 2.5 : 1.25}
+                  strokeDasharray={!shot.wasOnGoal ? "2 2" : undefined}
                 />
               </g>
             );
           })}
         </svg>
 
-        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500">
-          <LegendDot color={color} label="On goal" />
-          <LegendDot color={color} label="Goal" solid />
+        <div
+          id={instructionsId}
+          className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500"
+        >
+          <LegendDot color={color} label="Missed" dashed />
+          <LegendDot color={color} label="Saved" fillOpacity={0.3} />
+          <LegendDot color={color} label="Goal" fillOpacity={1} />
           <span>
-            Circle size reflects expected-goal probability. Select a shot for
-            details.
+            Circle size reflects expected-goal probability. Tab into the map,
+            then use arrow keys, Home, or End to inspect shots.
           </span>
+          {plottedShots.length < shots.length ? (
+            <span>
+              {plottedShots.length} of {shots.length} attempts have coordinates
+              and appear on the rink.
+            </span>
+          ) : null}
         </div>
 
         <ShotDetails shot={selectedShot} team={team} />
@@ -319,11 +397,13 @@ function ShotDetail({ label, value }: { label: string; value: string }) {
 function LegendDot({
   color,
   label,
-  solid = false,
+  fillOpacity = 0,
+  dashed = false,
 }: {
   color: string;
   label: string;
-  solid?: boolean;
+  fillOpacity?: number;
+  dashed?: boolean;
 }) {
   return (
     <span className="inline-flex items-center gap-2">
@@ -332,20 +412,16 @@ function LegendDot({
         className="h-2.5 w-2.5 rounded-full border"
         style={{
           borderColor: color,
-          backgroundColor: solid ? color : "transparent",
+          borderStyle: dashed ? "dashed" : "solid",
+          backgroundColor:
+            fillOpacity === 0
+              ? "transparent"
+              : `color-mix(in srgb, ${color} ${fillOpacity * 100}%, transparent)`,
         }}
       />
       {label}
     </span>
   );
-}
-
-function mapX(value: number): number {
-  return 18 + (Math.max(0, Math.min(100, value)) / 100) * 284;
-}
-
-function mapY(value: number): number {
-  return 110 - (Math.max(-42.5, Math.min(42.5, value)) / 42.5) * 92;
 }
 
 function shotRadius(expectedGoal: number | null): number {
