@@ -162,7 +162,7 @@ export function HistoryScoringEnvironment({
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip content={<LeagueTooltip label={config.label} decimals={config.decimals} />} />
+          <Tooltip content={<LeagueTooltip metricLabel={config.label} decimals={config.decimals} />} />
           <Line
             type="monotoneX"
             dataKey="value"
@@ -240,13 +240,13 @@ function RecordTooltip({ active, payload, metricLabel }: TooltipProps & { metric
   );
 }
 
-function LeagueTooltip({ active, payload, label, decimals }: TooltipProps & { label: string; decimals: number }) {
+function LeagueTooltip({ active, payload, metricLabel, decimals }: TooltipProps & { metricLabel: string; decimals: number }) {
   const row = active ? payload?.[0]?.payload as LeagueChartRow | undefined : undefined;
   if (!row) return null;
   return (
     <div className="workspace-history-tooltip">
       <span>{row.seasonLabel}</span>
-      <strong>{row.value.toFixed(decimals)} {label.toLowerCase()}</strong>
+      <strong>{row.value.toFixed(decimals)} {metricLabel.toLowerCase()}</strong>
     </div>
   );
 }
