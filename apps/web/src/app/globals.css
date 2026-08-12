@@ -6801,9 +6801,14 @@ html[data-theme="light"] .workspace-analytics-filters button {
   font-size: 1.12rem;
 }
 
-.workspace-history-chart header > span {
+.workspace-history-chart-heading-copy {
+  min-width: 0;
+}
+
+.workspace-history-chart-heading-copy > span {
   display: block;
-  margin-top: 0.45rem;
+  max-width: 54rem;
+  margin-top: 0.3rem;
   color: var(--muted);
   font-size: 0.82rem;
   line-height: 1.5;

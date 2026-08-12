@@ -197,10 +197,12 @@ function HistoryChartShell({
     <section className="workspace-history-chart">
       <header>
         <div className="workspace-history-chart-heading">
-          <h3>{title}</h3>
+          <div className="workspace-history-chart-heading-copy">
+            <h3>{title}</h3>
+            <span>{description}</span>
+          </div>
           {control}
         </div>
-        <span>{description}</span>
       </header>
       <div className="workspace-history-chart-canvas">{children}</div>
     </section>
