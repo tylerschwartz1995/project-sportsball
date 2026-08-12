@@ -7220,7 +7220,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
   gap: 0.55rem;
 }
 
-.workspace-history-entity > span {
+.workspace-history-entity-copy {
   display: block;
   min-width: 0;
   overflow: hidden;
