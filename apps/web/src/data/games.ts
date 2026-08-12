@@ -174,6 +174,7 @@ const gameSelect = `
 export async function listGameDates(
   seasonId: number,
   gameType?: number,
+  teamNhlId?: number,
 ): Promise<GameDateSummary[]> {
   const rows = await query<GameDateRow>(
     `
@@ -183,13 +184,18 @@ export async function listGameDates(
       FROM games
       WHERE season_id = $1
         AND ($2::smallint IS NULL OR game_type = $2)
+        AND (
+          $3::integer IS NULL
+          OR away_team_id = (SELECT id FROM teams WHERE nhl_id = $3)
+          OR home_team_id = (SELECT id FROM teams WHERE nhl_id = $3)
+        )
       GROUP BY game_date
       ORDER BY
         CASE WHEN game_date >= CURRENT_DATE THEN 0 ELSE 1 END,
         CASE WHEN game_date >= CURRENT_DATE THEN game_date END,
         CASE WHEN game_date < CURRENT_DATE THEN game_date END DESC
     `,
-    [seasonId, gameType ?? null],
+    [seasonId, gameType ?? null, teamNhlId ?? null],
   );
 
   return rows.map((row) => ({

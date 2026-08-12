@@ -1,10 +1,13 @@
 # Schedules and results
 
-The games page at `/games` exposes the ingested NHL schedule one day at a
-time. A visitor can select any stored season, choose all games, regular season,
-or playoffs, move to the next older or newer game date, and see the matching
-schedule. When future dates exist, the next upcoming date is selected first;
-otherwise the latest completed date is selected.
+The games page at `/games` exposes the ingested NHL schedule through a
+seven-day date rail. Visitors can see which days contain games, select visible
+off-days without losing their place, move by one day or one week, or jump with
+the calendar. Season, regular-season/playoff phase, and team controls share the
+same schedule navigator and remain encoded in the URL so a view can be linked
+or bookmarked. Switching phase keeps the nearest valid date when the current
+date falls outside that phase. When future dates exist, the next upcoming date
+is selected first; otherwise the latest completed date is selected.
 
 Each result shows:
 
@@ -15,7 +18,8 @@ Each result shows:
   result for completed games and through the latest earlier result for
   scheduled games;
 - whether the game ended in regulation, overtime, or a shootout;
-- the recorded UTC start time and NHL game identifier.
+- the start time in the visitor's browser timezone, with the timezone made
+  explicit. UTC remains the stored system value.
 
 Completed results link to `/games/{nhlGameId}`, which shows the traditional
 box score, NHL scoring summary and full period timeline, plus MoneyPuck

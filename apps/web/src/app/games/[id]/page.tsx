@@ -109,7 +109,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
 
       <section className="py-10">
         <Link
-          href={`/games?season=${game.seasonId}&date=${game.gameDate}`}
+          href={`/games?season=${game.seasonId}&phase=${game.gameType === 3 ? "playoffs" : "regular"}&date=${game.gameDate}`}
           className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
         >
           ← Games on {formatDate(game.gameDate)}

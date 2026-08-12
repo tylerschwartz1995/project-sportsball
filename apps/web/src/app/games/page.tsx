@@ -1,13 +1,12 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { GamePicker } from "@/app/_components/game-picker";
+import { LocalGameTime } from "@/app/_components/local-game-time";
 import { SiteHeader } from "@/app/_components/site-header";
 import { TeamGameRecord } from "@/app/_components/team-game-record";
 import { TeamLogo } from "@/app/_components/team-logo";
-import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
-import {
-  WorkspacePageHeader,
-} from "@/app/_components/workspace-primitives";
+import { WorkspacePageHeader } from "@/app/_components/workspace-primitives";
 import {
   formatGameState,
   parseGameDate,
@@ -20,6 +19,8 @@ import {
 } from "@/contracts/season-phase";
 import { getGamesByDate, listGameDates } from "@/data/games";
 import { listScheduleSeasons } from "@/data/seasons";
+import { listTeamsBySeason } from "@/data/teams";
+import { resolveScheduleDate } from "@/lib/schedule-navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -28,6 +29,7 @@ type GamesPageProps = {
     season?: string | string[];
     date?: string | string[];
     phase?: string | string[];
+    team?: string | string[];
   }>;
 };
 
@@ -40,31 +42,51 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
   const parsedSeason = parseSeasonId(requestedSeason);
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
-  const gameDates = selectedSeason
-    ? await listGameDates(selectedSeason.id, gameType)
-    : [];
-  const requestedDate = parseGameDate(firstValue(requested.date));
-  const selectedDate =
-    gameDates.find((entry) => entry.date === requestedDate)?.date ??
-    gameDates[0]?.date;
+  const rawTeamId = Number(firstValue(requested.team));
+  const requestedTeamId =
+    Number.isSafeInteger(rawTeamId) && rawTeamId > 0 ? rawTeamId : undefined;
+  const [allGameDates, requestedTeamGameDates, teamSeasons] = selectedSeason
+    ? await Promise.all([
+        listGameDates(selectedSeason.id, gameType),
+        requestedTeamId
+          ? listGameDates(selectedSeason.id, gameType, requestedTeamId)
+          : Promise.resolve([]),
+        listTeamsBySeason(selectedSeason.id),
+      ])
+    : [[], [], []];
+  const selectedTeam = teamSeasons.find(
+    ({ team }) => team.nhlTeamId === requestedTeamId,
+  )?.team;
+  const gameDates = selectedTeam ? requestedTeamGameDates : allGameDates;
+  const requestedDateValue = firstValue(requested.date);
+  const requestedDate = parseGameDate(requestedDateValue);
+  const selectedDate = resolveScheduleDate(requestedDate, gameDates);
+
+  if (
+    selectedSeason &&
+    selectedDate &&
+    requestedDateValue &&
+    selectedDate !== requestedDateValue
+  ) {
+    const search = new URLSearchParams({
+      season: String(selectedSeason.id),
+      phase,
+      date: selectedDate,
+    });
+    if (selectedTeam) search.set("team", String(selectedTeam.nhlTeamId));
+    redirect(`/games?${search.toString()}`);
+  }
   const games =
     selectedSeason && selectedDate
       ? await getGamesByDate(selectedSeason.id, selectedDate, gameType)
       : [];
-  const chronologicalDates = [...gameDates].sort((left, right) =>
-    left.date.localeCompare(right.date),
-  );
-  const selectedDateIndex = chronologicalDates.findIndex(
-    (entry) => entry.date === selectedDate,
-  );
-  const newerDate =
-    selectedDateIndex >= 0
-      ? chronologicalDates[selectedDateIndex + 1]?.date
-      : undefined;
-  const olderDate =
-    selectedDateIndex > 0
-      ? chronologicalDates[selectedDateIndex - 1]?.date
-      : undefined;
+  const visibleGames = selectedTeam
+    ? games.filter(
+        (game) =>
+          game.awayTeam.nhlTeamId === selectedTeam.nhlTeamId ||
+          game.homeTeam.nhlTeamId === selectedTeam.nhlTeamId,
+      )
+    : games;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -74,64 +96,58 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
         <WorkspacePageHeader
           eyebrow="Schedule and results"
           title={
-            selectedDate ? formatDate(selectedDate) : "No Schedule Available"
+            selectedSeason
+              ? `${selectedSeason.label} NHL Schedule`
+              : "No Schedule Available"
           }
           description="Every NHL matchup, final score, and shot total from the selected date, using the team name active in that season."
-          action={
+        />
+
+        {selectedSeason && selectedDate && gameDates.length > 0 ? (
+          <>
             <GamePicker
               seasons={seasons}
-              selectedSeasonId={selectedSeason?.id}
+              selectedSeasonId={selectedSeason.id}
               gameDates={gameDates}
               selectedDate={selectedDate}
               phase={phase}
+              teams={teamSeasons.map(({ team }) => team).toSorted((left, right) =>
+                left.name.localeCompare(right.name),
+              )}
+              selectedTeamId={selectedTeam?.nhlTeamId}
             />
-          }
-        />
 
-        {selectedSeason ? (
-          <>
-            <div className="workspace-context-navs is-schedule">
-              <SeasonPhaseFilter
-                active={phase}
-                path="/games"
-                params={{ season: selectedSeason.id }}
-                label="Schedule phase"
-              />
-              <div className="workspace-date-navigation">
-                <nav aria-label="Game date navigation">
-                  <DateLink
-                    label="← Older"
-                    seasonId={selectedSeason.id}
-                    date={olderDate}
-                    phase={phase}
-                  />
-                  <DateLink
-                    label="Newer →"
-                    seasonId={selectedSeason.id}
-                    date={newerDate}
-                    phase={phase}
-                  />
-                </nav>
+            <div className="workspace-schedule-results-heading">
+              <div>
+                <p>
+                  {selectedTeam
+                    ? `${selectedTeam.name} Schedule`
+                    : "League Schedule"}
+                </p>
+                <h2>{formatDate(selectedDate)}</h2>
               </div>
+              <span>
+                {visibleGames.length} {visibleGames.length === 1 ? "game" : "games"}
+                {" · "}Times shown in your local timezone
+              </span>
             </div>
 
-            {selectedDate && games.length > 0 ? (
+            {visibleGames.length > 0 ? (
               <div className="workspace-game-grid">
-                {games.map((game) => (
+                {visibleGames.map((game) => (
                   <GameCard key={game.id} game={game} />
                 ))}
               </div>
             ) : (
               <div className="workspace-empty-state mt-8">
                 <strong>
-                  {selectedDate
-                    ? "No games on this date."
-                    : "No schedule is available for this phase."}
+                  {selectedTeam
+                    ? `${selectedTeam.name} does not play on this date.`
+                    : "No NHL games are scheduled on this date."}
                 </strong>
                 <span>
-                  {selectedDate
-                    ? "Choose another stored game date to view its schedule and results."
-                    : "Switch between Regular Season and Playoffs above to view another phase."}
+                  Choose another day from the week or open the calendar to jump
+                  elsewhere in the season.
                 </span>
               </div>
             )}
@@ -165,7 +181,9 @@ function GameCard({ game }: { game: GameSummary }) {
         <TeamLine team={game.homeTeam} seasonId={game.seasonId} side="home" />
       </div>
       <div className="workspace-game-card-footer">
-        <span>{formatTime(game.startTimeUtc)}</span>
+        <span>
+          <LocalGameTime value={game.startTimeUtc} /> start
+        </span>
         <Link
           href={`/games/${game.nhlGameId}`}
         >
@@ -216,33 +234,6 @@ function TeamLine({
   );
 }
 
-function DateLink({
-  label,
-  seasonId,
-  date,
-  phase,
-}: {
-  label: string;
-  seasonId: number;
-  date: string | undefined;
-  phase: string;
-}) {
-  const className = "workspace-date-link";
-
-  return date ? (
-    <Link
-      href={`/games?season=${seasonId}&date=${date}&phase=${phase}`}
-      className={className}
-    >
-      {label}
-    </Link>
-  ) : (
-    <span aria-disabled="true" className={className}>
-      {label}
-    </span>
-  );
-}
-
 function hasFinalScore(game: GameSummary): boolean {
   return game.awayTeam.score !== null && game.homeTeam.score !== null;
 }
@@ -258,15 +249,6 @@ function formatDate(value: string): string {
     dateStyle: "full",
     timeZone: "UTC",
   }).format(new Date(`${value}T00:00:00Z`));
-}
-
-function formatTime(value: string): string {
-  return `${new Intl.DateTimeFormat("en-CA", {
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "UTC",
-    timeZoneName: "short",
-  }).format(new Date(value))} start`;
 }
 
 function firstValue(value: string | string[] | undefined): string | undefined {
