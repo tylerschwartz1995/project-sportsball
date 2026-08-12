@@ -198,6 +198,16 @@ export type HistoricalEraScore = {
   totalRows: number;
 };
 
+export type HistoricalGoalieEraScore = {
+  rank: number;
+  nhlPlayerId: number;
+  name: string;
+  gamesPlayed: number;
+  savePercentage: number;
+  saveIndex: number;
+  totalRows: number;
+};
+
 export type HistoricalDecadeMetric = "points" | "goals" | "assists";
 
 export type HistoricalDecadeLeader = {

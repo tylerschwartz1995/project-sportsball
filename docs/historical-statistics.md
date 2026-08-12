@@ -72,7 +72,11 @@ franchise lineages remains a documented future enhancement.
 The era-relative scoring index compares each skater's points with the number of
 points expected if that player had produced at the league-wide points-per-game
 rate in the same seasons. An index of 100 is league average for the player's
-own season mix; 200 is twice that contemporary rate. It provides scoring
+own season mix; 200 is twice that contemporary rate. The goalie Save Index
+compares goals actually allowed with the number a league-average goalie would
+have allowed on the same shots in the same seasons. A Save Index of 100 is
+league average and higher is better. Only seasons with recorded saves and
+shots against contribute to the goalie calculation. Both indexes provide era
 context rather than claiming rules, deployment, ice time, and competition were
 identical across eras.
 

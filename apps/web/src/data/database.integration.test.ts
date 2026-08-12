@@ -12,6 +12,7 @@ import { getPlayerDetail, listPlayersBySeason } from "@/data/players";
 import {
   getHistoricalDecadeLeaders,
   getHistoricalEraScores,
+  getHistoricalGoalieEraScores,
   getHistoricalLeaderboard,
   getHistoricalLeaders,
   getHistoricalPeaks,
@@ -241,6 +242,23 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     );
     expect(eraScores).toHaveLength(10);
     expect(eraScores[0]?.eraScore).toBeGreaterThan(200);
+
+    const goalieEraScores = await getHistoricalGoalieEraScores(
+      2,
+      {
+        startYear: 1917,
+        endYear: 2025,
+        minimumGames: 250,
+        position: null,
+        team: null,
+        country: null,
+      },
+      1,
+      10,
+    );
+    expect(goalieEraScores).toHaveLength(10);
+    expect(goalieEraScores[0]?.saveIndex).toBeGreaterThan(100);
+    expect(goalieEraScores[0]?.savePercentage).toBeGreaterThan(0.9);
 
     const decadeLeaders = await getHistoricalDecadeLeaders(2);
     expect(new Set(decadeLeaders.map((row) => row.metric))).toEqual(

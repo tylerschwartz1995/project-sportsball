@@ -7,6 +7,7 @@ import {
   HistoryEraTable,
   HistoryExplorerNav,
   HistoryFilters,
+  HistoryGoalieEraTable,
   HistoryLeaderboardTable,
   HistoryPeaksTable,
   HistoryRankingSummary,
@@ -35,6 +36,7 @@ import {
 import {
   getHistoricalDecadeLeaders,
   getHistoricalEraScores,
+  getHistoricalGoalieEraScores,
   getHistoricalLeaderboard,
   getHistoricalPeaks,
   getHistoryFilterOptions,
@@ -308,10 +310,50 @@ async function HistoryErasContent({
   params: Awaited<HistoryPageProps["searchParams"]>;
   phase: SeasonPhase;
 }) {
-  const defaultMinimum = gameTypeForPhase(phase) === 3 ? 100 : 500;
+  const parsedView = parseHistoryView(firstValue(params.entity) ?? firstValue(params.view));
+  const view: "skaters" | "goalies" = parsedView === "goalies" ? "goalies" : "skaters";
+  const metric = view === "goalies" ? "savePercentage" : "pointsPerGame";
+  const gameType = gameTypeForPhase(phase);
+  const defaultMinimum = historyDefaultMinimumGames(view, metric, "career", gameType);
   const filters = historyFiltersFromParams(params, defaultMinimum);
   const page = parsePage(firstValue(params.page));
-  const gameType = gameTypeForPhase(phase);
+  const qualificationIsDefault = firstValue(params.minimumGames) === undefined;
+  const entityHrefs = {
+    skaters: historyHref({ section: "eras", phase, view: "skaters", metric: "pointsPerGame", filters, omitMinimum: qualificationIsDefault }),
+    goalies: historyHref({ section: "eras", phase, view: "goalies", metric: "savePercentage", filters, omitMinimum: qualificationIsDefault }),
+    teams: historyHref({ section: "eras", phase, view: "skaters", metric: "pointsPerGame", filters, omitMinimum: qualificationIsDefault }),
+  };
+
+  if (view === "goalies") {
+    const [scores, options] = await Promise.all([
+      getHistoricalGoalieEraScores(gameType, filters, page, PAGE_SIZE),
+      loadHistoryFilterOptions(gameType),
+    ]);
+    const totalRows = scores[0]?.totalRows ?? 0;
+    const totalPages = Math.max(1, Math.ceil(totalRows / PAGE_SIZE));
+    return (
+      <div className="workspace-history-eras">
+        <HistoryExplorerNav view={view} metric={metric} entityHrefs={entityHrefs} metricHrefs={[]} entities={["skaters", "goalies"]} showMetricNav={false} />
+        <section className="workspace-history-intro">
+          <div><h2>Era-Adjusted Goaltending</h2></div>
+          <div className="workspace-history-era-definition">
+            <p>Save Index compares the goals a goalie actually allowed with the number a league-average goalie would be expected to allow on the same shots in those same seasons. Only seasons with recorded saves and shots against are included.</p>
+            <dl aria-label="Save Index reference values">
+              <div><dt>100</dt><dd>At league average</dd></div>
+              <div><dt>125</dt><dd>League average allows 25% more</dd></div>
+              <div><dt>150</dt><dd>League average allows 50% more</dd></div>
+            </dl>
+          </div>
+        </section>
+        <HistoryFilters section="eras" view={view} metric={metric} phase={phase} filters={filters} options={options} isOpen={hasCustomFilters(params, defaultMinimum)} />
+        <HistoryResultsSection title="Career Save Index" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games with recorded shot data. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible goalies.`}>
+          <HistoryGoalieEraTable rows={scores} />
+        </HistoryResultsSection>
+        <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, view, metric, filters)} />
+      </div>
+    );
+  }
+
   const [scores, decades, leagueTrend, options] = await Promise.all([
     getHistoricalEraScores(gameType, filters, page, PAGE_SIZE),
     loadHistoricalDecadeLeaders(gameType),
@@ -322,6 +364,7 @@ async function HistoryErasContent({
   const totalPages = Math.max(1, Math.ceil(totalRows / PAGE_SIZE));
   return (
     <div className="workspace-history-eras">
+      <HistoryExplorerNav view={view} metric={metric} entityHrefs={entityHrefs} metricHrefs={[]} entities={["skaters", "goalies"]} showMetricNav={false} />
       <section className="workspace-history-intro">
         <div><h2>Era-Adjusted Scoring</h2></div>
         <div className="workspace-history-era-definition">
@@ -335,11 +378,11 @@ async function HistoryErasContent({
       </section>
       <HistoryScoringEnvironment points={leagueTrend} />
       <HistoryDecadeLeaders rows={decades} />
-      <HistoryFilters section="eras" view="skaters" metric="pointsPerGame" phase={phase} filters={filters} options={options} isOpen={hasCustomFilters(params, defaultMinimum)} />
+      <HistoryFilters section="eras" view={view} metric={metric} phase={phase} filters={filters} options={options} isOpen={hasCustomFilters(params, defaultMinimum)} />
       <HistoryResultsSection title="Career Era Scores" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible skaters.`}>
         <HistoryEraTable rows={scores} />
       </HistoryResultsSection>
-      <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, "skaters", "pointsPerGame", filters)} />
+      <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, view, metric, filters)} />
     </div>
   );
 }

@@ -5,6 +5,7 @@ import type {
   GoalieHistoryMetric,
   HistoricalEraScore,
   HistoricalGoalieCareer,
+  HistoricalGoalieEraScore,
   HistoricalGoalieSeason,
   HistoricalLeaderboard,
   HistoricalPeak,
@@ -202,10 +203,15 @@ export function HistoryFilters({
   options: HistoryFilterOptions;
   isOpen: boolean;
 }) {
+  const summary = view === "skaters"
+    ? "Season range, eligibility, position, team, and birthplace"
+    : view === "goalies"
+      ? "Season range, eligibility, team, and birthplace"
+      : "Season range and eligibility";
   return (
     <details className="workspace-history-filter-drawer" open={isOpen || undefined}>
       <summary>
-        <span><strong>Refine This Ranking</strong><small>Season range, eligibility, position, team, and birthplace</small></span>
+        <span><strong>Refine This Ranking</strong><small>{summary}</small></span>
         <b aria-hidden="true">+</b>
       </summary>
       <form action="/history" method="get">
@@ -437,6 +443,18 @@ export function HistoryEraTable({ rows }: { rows: HistoricalEraScore[] }) {
       <RankCell rank={row.rank} />
       <td className="workspace-entity-name workspace-history-sticky-entity"><div className="workspace-history-entity"><span className="workspace-history-entity-copy"><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link><small>{formatPlayerPosition(row.position)}</small></span></div></td>
       <MetricCell value={row.gamesPlayed} /><MetricCell value={row.points} /><MetricCell value={row.eraScore.toFixed(0)} active />
+    </tr>)}</tbody>
+  </table></TableShell>;
+}
+
+export function HistoryGoalieEraTable({ rows }: { rows: HistoricalGoalieEraScore[] }) {
+  if (rows.length === 0) return <HistoryEmptyState />;
+  return <TableShell minWidth="620px"><table className="workspace-table workspace-table-dense workspace-table-semantic workspace-history-table">
+    <thead><tr className="workspace-data-table-header-row"><th className="workspace-history-rank-col">Rank</th><th className="workspace-history-entity-col">Goalie</th><th>GP</th><th>SV%</th><th title="100 is league average for the same seasons">Save Index</th></tr></thead>
+    <tbody>{rows.map((row) => <tr className="workspace-data-table-row" key={row.nhlPlayerId}>
+      <RankCell rank={row.rank} />
+      <td className="workspace-entity-name workspace-history-sticky-entity"><div className="workspace-history-entity"><span className="workspace-history-entity-copy"><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link><small>G</small></span></div></td>
+      <MetricCell value={row.gamesPlayed} /><MetricCell value={formatSavePercentage(row.savePercentage)} /><MetricCell value={row.saveIndex.toFixed(1)} active />
     </tr>)}</tbody>
   </table></TableShell>;
 }
