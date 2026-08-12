@@ -5295,6 +5295,23 @@ html[data-theme="light"] .workspace-analytics-filters button {
   table-layout: fixed;
 }
 
+.workspace-data-table-shell {
+  overflow: hidden;
+  margin-top: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--table-background);
+}
+
+.workspace-data-table-header-row {
+  color: var(--muted);
+  text-align: left;
+}
+
+.workspace-data-table-row {
+  color: color-mix(in srgb, var(--foreground) 82%, var(--muted));
+}
+
 .workspace-col-date {
   width: 13.5rem;
 }
@@ -7102,6 +7119,33 @@ html[data-theme="light"] .workspace-analytics-filters button {
   overflow: hidden;
 }
 
+.workspace-history-results {
+  margin-top: 3rem;
+}
+
+.workspace-history-results > header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.workspace-history-results > header h3 {
+  color: var(--foreground);
+  font-size: 1.5rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.workspace-history-results > header p {
+  max-width: 72rem;
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
 .workspace-history-table {
   table-layout: fixed;
 }
@@ -7109,6 +7153,8 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-history-table th,
 .workspace-history-table td {
   width: 5.25rem;
+  padding-right: 0.75rem;
+  padding-left: 0.75rem;
   text-align: center;
   white-space: nowrap;
 }
@@ -7143,7 +7189,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-history-rank,
 .workspace-history-metric {
-  font-family: var(--font-geist-mono);
   font-variant-numeric: tabular-nums;
 }
 
@@ -7153,12 +7198,12 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-history-rank {
   color: var(--muted);
-  font-weight: 700;
+  font-weight: 600;
 }
 
 .workspace-history-metric.is-active {
   color: var(--accent);
-  font-weight: 800;
+  font-weight: 650;
 }
 
 .workspace-history-entity {
@@ -7169,15 +7214,19 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-history-entity > span {
-  display: grid;
+  display: block;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .workspace-history-entity strong {
   overflow: hidden;
-  display: block;
+  display: inline;
   color: var(--foreground);
   text-overflow: ellipsis;
+  font-weight: 600;
   white-space: nowrap;
 }
 
@@ -7187,9 +7236,9 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-history-entity small {
-  margin-top: 0.1rem;
+  margin-left: 0.45rem;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
 }
 
 .workspace-history-empty {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
+import type { ReactNode } from "react";
 
 import {
   HistoryDecadeLeaders,
@@ -19,7 +20,6 @@ import { Pagination } from "@/app/_components/pagination";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { ViewTabs } from "@/app/_components/view-tabs";
-import { WorkspacePanel } from "@/app/_components/workspace-primitives";
 import type {
   HistoryDisplay,
   HistoryFilters as HistoryFilterValues,
@@ -242,13 +242,12 @@ async function HistoryLeaderboardContent({
         options={options}
         isOpen={hasCustomFilters(params, defaultMinimum)}
       />
-      <WorkspacePanel
-        className="mt-5"
+      <HistoryResultsSection
         title={`${metricLabel(leaderboard.metric)} Ranking`}
         description={`Showing ${pageStart(page, leaderboard.rows.length)}–${pageEnd(page, leaderboard.rows.length)} of ${leaderboard.totalRows.toLocaleString("en-CA")} eligible ${view}. Select a supported column heading to rerank the complete result set.`}
       >
         <HistoryLeaderboardTable leaderboard={leaderboard} metricHrefs={Object.fromEntries(metricLinks.map((item) => [item.metric, item.href]))} />
-      </WorkspacePanel>
+      </HistoryResultsSection>
       <Pagination path="/history" currentPage={page} totalPages={totalPages} params={paginationParams} />
     </div>
   );
@@ -294,9 +293,9 @@ async function HistoryPeaksContent({
         </nav>
       </div>
       <HistoryFilters section="peaks" view={view} metric={metric} phase={phase} filters={filters} options={options} isOpen={hasCustomFilters(params, defaultMinimum)} />
-      <WorkspacePanel className="mt-5" title={`${metricLabel(metric)} Peaks`} description={`Showing ${pageStart(page, rows.length)}–${pageEnd(page, rows.length)} of ${totalRows.toLocaleString("en-CA")} eligible consecutive-season stretches.`}>
+      <HistoryResultsSection title={`${metricLabel(metric)} Peaks`} description={`Showing ${pageStart(page, rows.length)}–${pageEnd(page, rows.length)} of ${totalRows.toLocaleString("en-CA")} eligible consecutive-season stretches.`}>
         <HistoryPeaksTable rows={rows} metricLabel={metricLabel(metric)} window={window} />
-      </WorkspacePanel>
+      </HistoryResultsSection>
       <Pagination path="/history" currentPage={page} totalPages={totalPages} params={{ ...historyQueryParams("peaks", phase, view, metric, filters), window }} />
     </div>
   );
@@ -336,11 +335,33 @@ async function HistoryErasContent({
       <HistoryScoringEnvironment points={leagueTrend} />
       <HistoryDecadeLeaders rows={decades} />
       <HistoryFilters section="eras" view="skaters" metric="pointsPerGame" phase={phase} filters={filters} options={options} isOpen={hasCustomFilters(params, defaultMinimum)} />
-      <WorkspacePanel className="mt-5" title="Career Era Scores" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible skaters.`}>
+      <HistoryResultsSection title="Career Era Scores" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible skaters.`}>
         <HistoryEraTable rows={scores} />
-      </WorkspacePanel>
+      </HistoryResultsSection>
       <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, "skaters", "pointsPerGame", filters)} />
     </div>
+  );
+}
+
+function HistoryResultsSection({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="workspace-history-results">
+      <header>
+        <div>
+          <h3>{title}</h3>
+          <p>{description}</p>
+        </div>
+      </header>
+      {children}
+    </section>
   );
 }
 

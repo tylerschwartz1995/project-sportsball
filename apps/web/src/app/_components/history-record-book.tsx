@@ -311,8 +311,8 @@ function SkaterTable({ rows, display, metric, metricHrefs }: {
 }) {
   return (
     <TableShell minWidth="780px">
-      <table className="workspace-table workspace-table-dense workspace-history-table">
-        <thead><tr>
+      <table className="workspace-table workspace-table-dense workspace-table-semantic workspace-history-table">
+        <thead><tr className="workspace-data-table-header-row">
           <th className="workspace-history-rank-col">Rank</th>
           <th className="workspace-history-entity-col">Player</th>
           {display === "seasons" ? <th>Season</th> : <th>Seasons</th>}
@@ -325,13 +325,13 @@ function SkaterTable({ rows, display, metric, metricHrefs }: {
         <tbody>{rows.map((row) => {
           const season = "seasonId" in row ? row : null;
           return (
-            <tr key={season ? `${row.nhlPlayerId}-${season.seasonId}` : row.nhlPlayerId}>
+            <tr className="workspace-data-table-row" key={season ? `${row.nhlPlayerId}-${season.seasonId}` : row.nhlPlayerId}>
               <RankCell rank={row.rank} />
-              <td className="workspace-history-sticky-entity"><div className="workspace-history-entity">
+              <td className="workspace-entity-name workspace-history-sticky-entity"><div className="workspace-history-entity">
                 {season ? <TeamLogoStack abbreviations={season.teamAbbreviations} /> : null}
                 <span><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link><small>{formatPlayerPosition(row.position)}</small></span>
               </div></td>
-              <td className="workspace-history-metric" data-sort-value={season?.seasonId}>{season ? formatSeason(season.seasonId) : "seasonsPlayed" in row ? formatTableValue(row.seasonsPlayed) : "—"}</td>
+              <td className="workspace-semantic-number workspace-history-metric" data-sort-value={season?.seasonId}>{season ? formatSeason(season.seasonId) : "seasonsPlayed" in row ? formatTableValue(row.seasonsPlayed) : "—"}</td>
               <MetricCell value={row.gamesPlayed} active={metric === "games"} />
               <MetricCell value={row.goals} active={metric === "goals"} />
               <MetricCell value={row.assists} active={metric === "assists"} />
@@ -352,8 +352,8 @@ function GoalieTable({ rows, display, metric, metricHrefs }: {
   metricHrefs: Partial<Record<HistoryMetric, string>>;
 }) {
   return (
-    <TableShell minWidth="760px"><table className="workspace-table workspace-table-dense workspace-history-table">
-      <thead><tr>
+    <TableShell minWidth="760px"><table className="workspace-table workspace-table-dense workspace-table-semantic workspace-history-table">
+      <thead><tr className="workspace-data-table-header-row">
         <th className="workspace-history-rank-col">Rank</th><th className="workspace-history-entity-col">Goalie</th>
         {display === "seasons" ? <th>Season</th> : <th>Seasons</th>}
         <MetricHeading label="GP" metric="games" active={metric === "games"} href={metricHrefs.games} />
@@ -364,13 +364,13 @@ function GoalieTable({ rows, display, metric, metricHrefs }: {
       </tr></thead>
       <tbody>{rows.map((row) => {
         const season = "seasonId" in row ? row : null;
-        return <tr key={season ? `${row.nhlPlayerId}-${season.seasonId}` : row.nhlPlayerId}>
+        return <tr className="workspace-data-table-row" key={season ? `${row.nhlPlayerId}-${season.seasonId}` : row.nhlPlayerId}>
           <RankCell rank={row.rank} />
-          <td className="workspace-history-sticky-entity"><div className="workspace-history-entity">
+          <td className="workspace-entity-name workspace-history-sticky-entity"><div className="workspace-history-entity">
             {season ? <TeamLogoStack abbreviations={season.teamAbbreviations} /> : null}
             <Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link>
           </div></td>
-          <td className="workspace-history-metric">{season ? formatSeason(season.seasonId) : "seasonsPlayed" in row ? formatTableValue(row.seasonsPlayed) : "—"}</td>
+          <td className="workspace-semantic-number workspace-history-metric">{season ? formatSeason(season.seasonId) : "seasonsPlayed" in row ? formatTableValue(row.seasonsPlayed) : "—"}</td>
           <MetricCell value={row.gamesPlayed} active={metric === "games"} />
           <MetricCell value={row.wins} active={metric === "wins"} />
           <MetricCell value={row.losses} />
@@ -390,8 +390,8 @@ function TeamTable({ rows, display, metric, metricHrefs }: {
   metricHrefs: Partial<Record<HistoryMetric, string>>;
 }) {
   return (
-    <TableShell minWidth="860px"><table className="workspace-table workspace-table-dense workspace-history-table">
-      <thead><tr>
+    <TableShell minWidth="860px"><table className="workspace-table workspace-table-dense workspace-table-semantic workspace-history-table">
+      <thead><tr className="workspace-data-table-header-row">
         <th className="workspace-history-rank-col">Rank</th><th className="workspace-history-entity-col">Team</th>
         {display === "seasons" ? <th>Season</th> : <th>Seasons</th>}
         <th>GP</th><MetricHeading label="W" metric="wins" active={metric === "wins"} href={metricHrefs.wins} />
@@ -402,10 +402,10 @@ function TeamTable({ rows, display, metric, metricHrefs }: {
       </tr></thead>
       <tbody>{rows.map((row) => {
         const season = "seasonId" in row ? row : null;
-        return <tr key={season ? `${row.nhlTeamId}-${season.seasonId}` : row.nhlTeamId}>
+        return <tr className="workspace-data-table-row" key={season ? `${row.nhlTeamId}-${season.seasonId}` : row.nhlTeamId}>
           <RankCell rank={row.rank} />
-          <td className="workspace-history-sticky-entity"><div className="workspace-history-entity"><TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="tiny" decorative /><strong>{row.name}</strong></div></td>
-          <td className="workspace-history-metric">{season ? formatSeason(season.seasonId) : "seasonsPlayed" in row ? formatTableValue(row.seasonsPlayed) : "—"}</td>
+          <td className="workspace-entity-name workspace-history-sticky-entity"><div className="workspace-history-entity"><TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="tiny" decorative /><strong>{row.name}</strong></div></td>
+          <td className="workspace-semantic-number workspace-history-metric">{season ? formatSeason(season.seasonId) : "seasonsPlayed" in row ? formatTableValue(row.seasonsPlayed) : "—"}</td>
           <MetricCell value={row.gamesPlayed} /><MetricCell value={row.wins} active={metric === "wins"} />
           <MetricCell value={row.losses} /><MetricCell value={row.ties} /><MetricCell value={row.overtimeLosses} />
           <MetricCell value={row.points} active={metric === "points"} />
@@ -419,12 +419,12 @@ function TeamTable({ rows, display, metric, metricHrefs }: {
 
 export function HistoryPeaksTable({ rows, metricLabel, window }: { rows: HistoricalPeak[]; metricLabel: string; window: number }) {
   if (rows.length === 0) return <HistoryEmptyState />;
-  return <TableShell minWidth="660px"><table className="workspace-table workspace-table-dense workspace-history-table">
-    <thead><tr><th className="workspace-history-rank-col">Rank</th><th className="workspace-history-entity-col">Player</th><th>Stretch</th><th>GP</th><th>{metricLabel}</th></tr></thead>
-    <tbody>{rows.map((row) => <tr key={`${row.nhlPlayerId}-${row.endSeasonId}-${window}`}>
+  return <TableShell minWidth="660px"><table className="workspace-table workspace-table-dense workspace-table-semantic workspace-history-table">
+    <thead><tr className="workspace-data-table-header-row"><th className="workspace-history-rank-col">Rank</th><th className="workspace-history-entity-col">Player</th><th>Stretch</th><th>GP</th><th>{metricLabel}</th></tr></thead>
+    <tbody>{rows.map((row) => <tr className="workspace-data-table-row" key={`${row.nhlPlayerId}-${row.endSeasonId}-${window}`}>
       <RankCell rank={row.rank} />
-      <td className="workspace-history-sticky-entity"><div className="workspace-history-entity"><span><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link><small>{formatPlayerPosition(row.position)}</small></span></div></td>
-      <td className="workspace-history-metric">{formatSeason(row.startSeasonId)} to {formatSeason(row.endSeasonId)}</td>
+      <td className="workspace-entity-name workspace-history-sticky-entity"><div className="workspace-history-entity"><span><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link><small>{formatPlayerPosition(row.position)}</small></span></div></td>
+      <td className="workspace-semantic-number workspace-history-metric">{formatSeason(row.startSeasonId)} to {formatSeason(row.endSeasonId)}</td>
       <MetricCell value={row.gamesPlayed} /><MetricCell value={row.value} active />
     </tr>)}</tbody>
   </table></TableShell>;
@@ -432,11 +432,11 @@ export function HistoryPeaksTable({ rows, metricLabel, window }: { rows: Histori
 
 export function HistoryEraTable({ rows }: { rows: HistoricalEraScore[] }) {
   if (rows.length === 0) return <HistoryEmptyState />;
-  return <TableShell minWidth="620px"><table className="workspace-table workspace-table-dense workspace-history-table">
-    <thead><tr><th className="workspace-history-rank-col">Rank</th><th className="workspace-history-entity-col">Player</th><th>GP</th><th>PTS</th><th title="100 is league-average points per game in the same seasons">Era Score</th></tr></thead>
-    <tbody>{rows.map((row) => <tr key={row.nhlPlayerId}>
+  return <TableShell minWidth="620px"><table className="workspace-table workspace-table-dense workspace-table-semantic workspace-history-table">
+    <thead><tr className="workspace-data-table-header-row"><th className="workspace-history-rank-col">Rank</th><th className="workspace-history-entity-col">Player</th><th>GP</th><th>PTS</th><th title="100 is league-average points per game in the same seasons">Era Score</th></tr></thead>
+    <tbody>{rows.map((row) => <tr className="workspace-data-table-row" key={row.nhlPlayerId}>
       <RankCell rank={row.rank} />
-      <td className="workspace-history-sticky-entity"><div className="workspace-history-entity"><span><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link><small>{formatPlayerPosition(row.position)}</small></span></div></td>
+      <td className="workspace-entity-name workspace-history-sticky-entity"><div className="workspace-history-entity"><span><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link><small>{formatPlayerPosition(row.position)}</small></span></div></td>
       <MetricCell value={row.gamesPlayed} /><MetricCell value={row.points} /><MetricCell value={row.eraScore.toFixed(0)} active />
     </tr>)}</tbody>
   </table></TableShell>;
@@ -449,15 +449,15 @@ export function HistoryDecadeLeaders({ rows }: { rows: HistoricalDecadeLeader[] 
 }
 
 function TableShell({ minWidth, children }: { minWidth: string; children: React.ReactNode }) {
-  return <div className="workspace-history-table-shell"><div className="workspace-table-scroll" style={{ minWidth: 0 }}><div style={{ minWidth }}>{children}</div></div></div>;
+  return <div className="workspace-data-table-shell workspace-history-table-shell"><div className="workspace-table-scroll" style={{ minWidth: 0 }}><div style={{ minWidth }}>{children}</div></div></div>;
 }
 
 function MetricHeading({ label, metric, active, href }: { label: string; metric: HistoryMetric; active: boolean; href?: string }) {
   return <th aria-sort={active ? "descending" : undefined} className={active ? "is-active-metric" : undefined}>{href ? <Link href={href} aria-label={`Rank by ${fullMetricLabel(metric)}`}>{label}<span aria-hidden="true">{active ? " ↓" : " ↕"}</span></Link> : label}</th>;
 }
 
-function RankCell({ rank }: { rank?: number }) { return <td className="workspace-history-rank">{rank ?? "—"}</td>; }
-function MetricCell({ value, active = false }: { value: string | number | null; active?: boolean }) { return <td className={active ? "workspace-history-metric is-active" : "workspace-history-metric"}>{formatTableValue(value)}</td>; }
+function RankCell({ rank }: { rank?: number }) { return <td className="workspace-semantic-number workspace-history-rank">{rank ?? "—"}</td>; }
+function MetricCell({ value, active = false }: { value: string | number | null; active?: boolean }) { return <td className={active ? "workspace-semantic-number workspace-history-metric is-active" : "workspace-semantic-number workspace-history-metric"}>{formatTableValue(value)}</td>; }
 function HistoryEmptyState() { return <div className="workspace-history-empty"><strong>No eligible records found</strong><p>Try widening the season range or lowering the minimum-games requirement.</p></div>; }
 
 function formatSeason(seasonId: number): string { return `${seasonStart(seasonId)}–${String(seasonId % 10_000).slice(-2)}`; }

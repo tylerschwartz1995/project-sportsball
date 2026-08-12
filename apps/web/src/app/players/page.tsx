@@ -207,7 +207,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         />
                       ))}
                     </div>
-                    <div className="mt-5 hidden overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50 md:block">
+                    <div className="workspace-data-table-shell hidden md:block">
                       <SortableTable
                         defaultSortKey={sort}
                         defaultDirection={direction}
@@ -220,7 +220,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                             <col className="workspace-col-number" />
                           </colgroup>
                           <thead>
-                            <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
+                            <tr className="workspace-data-table-header-row">
                               <SortableHeader
                                 label="Player"
                                 sortKey="name"
@@ -240,7 +240,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                             {skaterPage.items.map((player) => (
                               <tr
                                 key={player.nhlPlayerId}
-                                className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
+                                className="workspace-data-table-row"
                               >
                                 <td className="workspace-entity-name px-4 py-3">
                                   <div className="flex items-center gap-2">
@@ -316,7 +316,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         />
                       ))}
                     </div>
-                    <div className="mt-5 hidden overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50 md:block">
+                    <div className="workspace-data-table-shell hidden md:block">
                       <SortableTable
                         defaultSortKey={sort}
                         defaultDirection={direction}
@@ -329,7 +329,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                             <col className="workspace-col-percentage" />
                           </colgroup>
                           <thead>
-                            <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
+                            <tr className="workspace-data-table-header-row">
                               <SortableHeader
                                 label="Goalie"
                                 sortKey="name"
@@ -349,7 +349,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                             {goaliePage.items.map((player) => (
                               <tr
                                 key={player.nhlPlayerId}
-                                className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
+                                className="workspace-data-table-row"
                               >
                                 <td className="workspace-entity-name px-4 py-3">
                                   <div className="flex items-center gap-2">
