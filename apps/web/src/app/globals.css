@@ -7080,7 +7080,10 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-history-filter-drawer input,
 .workspace-history-filter-drawer select {
+  box-sizing: border-box;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
   min-height: 2.5rem;
   margin-top: 0.3rem;
   border: 1px solid var(--border);
@@ -7101,6 +7104,8 @@ html[data-theme="light"] .workspace-analytics-filters button {
 .workspace-history-filter-actions button,
 .workspace-history-filter-actions a {
   display: grid;
+  box-sizing: border-box;
+  max-width: 100%;
   min-height: 2.5rem;
   place-items: center;
   border-radius: 0.5rem;
@@ -7127,7 +7132,7 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-history-results {
-  margin-top: 3rem;
+  margin-top: 1.5rem;
 }
 
 .workspace-history-results > header {
@@ -7370,10 +7375,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  .workspace-history-filter-drawer form {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
   .workspace-history-filter-drawer fieldset > div {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -7388,6 +7389,10 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 @media (min-width: 900px) {
+  .workspace-history-filter-drawer form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .workspace-history-record-grid,
   .workspace-history-chart-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -7399,6 +7404,11 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 @media (max-width: 639px) {
+  .workspace-history-filter-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .workspace-history-chart-heading {
     grid-template-columns: 1fr;
   }
