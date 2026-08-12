@@ -19,6 +19,7 @@ import type {
   HistoricalTeamLeaders,
   HistoricalTeamSeason,
   HistoryMetric,
+  HistoryRecordProgressionPoint,
   HistoryFilterOptions,
   HistoryDisplay,
   HistoryFilters,
@@ -625,25 +626,34 @@ async function getHistoryRecordProgression(
     season_id: number;
     nhl_player_id: number;
     player_name: string;
+    metric: HistoryRecordProgressionPoint["metric"];
     record_value: number;
   }>(`
     WITH running AS (
       SELECT
         stats.season_id,
         stats.player_id,
-        SUM(stats.points) OVER (
-          PARTITION BY stats.player_id
+        metric.name AS metric,
+        SUM(metric.value) OVER (
+          PARTITION BY stats.player_id, metric.name
           ORDER BY stats.season_id
         )::integer AS record_value
       FROM historical_skater_season_stats AS stats
+      CROSS JOIN LATERAL (
+        VALUES
+          ('points'::text, stats.points),
+          ('goals'::text, stats.goals),
+          ('assists'::text, stats.assists)
+      ) AS metric(name, value)
       WHERE stats.game_type = $1
     ), season_leaders AS (
-      SELECT DISTINCT ON (season_id)
-        season_id, player_id, record_value
+      SELECT DISTINCT ON (metric, season_id)
+        season_id, player_id, metric, record_value
       FROM running
-      ORDER BY season_id, record_value DESC, player_id
+      ORDER BY metric, season_id, record_value DESC, player_id
     ), changes AS (
       SELECT *, MAX(record_value) OVER (
+        PARTITION BY metric
         ORDER BY season_id
         ROWS BETWEEN UNBOUNDED PRECEDING AND 1 PRECEDING
       ) AS previous_value
@@ -653,16 +663,18 @@ async function getHistoryRecordProgression(
       changes.season_id,
       player.nhl_id::integer AS nhl_player_id,
       player.display_name AS player_name,
+      changes.metric,
       changes.record_value
     FROM changes
     JOIN players AS player ON player.id = changes.player_id
     WHERE changes.record_value > COALESCE(changes.previous_value, -1)
-    ORDER BY changes.season_id
+    ORDER BY changes.metric, changes.season_id
   `, [gameType]);
   return rows.map((row) => ({
     seasonId: row.season_id,
     nhlPlayerId: row.nhl_player_id,
     name: row.player_name,
+    metric: row.metric,
     value: row.record_value,
   }));
 }
@@ -673,10 +685,14 @@ export async function getHistoryLeagueTrend(
   const rows = await query<{
     season_id: number;
     goals_per_team_game: number;
+    points_per_team_game: number;
+    wins_per_team_game: number;
   }>(`
     SELECT
       season_id,
-      (SUM(goals_for)::numeric / NULLIF(SUM(games_played), 0))::float AS goals_per_team_game
+      (SUM(goals_for)::numeric / NULLIF(SUM(games_played), 0))::float AS goals_per_team_game,
+      (SUM(points)::numeric / NULLIF(SUM(games_played), 0))::float AS points_per_team_game,
+      (SUM(wins)::numeric / NULLIF(SUM(games_played), 0))::float AS wins_per_team_game
     FROM historical_team_season_stats
     WHERE game_type = $1
     GROUP BY season_id
@@ -685,6 +701,8 @@ export async function getHistoryLeagueTrend(
   return rows.map((row) => ({
     seasonId: row.season_id,
     goalsPerTeamGame: row.goals_per_team_game,
+    pointsPerTeamGame: row.points_per_team_game,
+    winsPerTeamGame: row.wins_per_team_game,
   }));
 }
 

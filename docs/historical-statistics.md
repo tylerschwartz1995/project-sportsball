@@ -38,6 +38,12 @@ country filters; and view-specific total and rate ranking metrics. Rankings are
 server-paginated in groups of 25 so every displayed rank and metric sort applies
 to the complete filtered result set rather than a client-side subset.
 
+The record-book charts expose a deliberately small set of comparable metrics.
+Career record progression can switch among points, goals, and assists, while
+league context can switch among goals, standings points, and wins per team
+game. Both timelines use decade markers and preserve the exact season values in
+their tooltips and accessible tables.
+
 Rate leaderboards use visible eligibility defaults to prevent short appearances
 from dominating the results. Regular-season career points per game defaults to
 500 games and single-season points per game to 40; career goalie save percentage

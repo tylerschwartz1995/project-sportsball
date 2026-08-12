@@ -164,12 +164,15 @@ export type HistoryRecordProgressionPoint = {
   seasonId: number;
   nhlPlayerId: number;
   name: string;
+  metric: "points" | "goals" | "assists";
   value: number;
 };
 
 export type HistoryLeagueTrendPoint = {
   seasonId: number;
   goalsPerTeamGame: number;
+  pointsPerTeamGame: number;
+  winsPerTeamGame: number;
 };
 
 export type HistoricalPeak = {

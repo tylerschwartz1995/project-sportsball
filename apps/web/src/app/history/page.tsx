@@ -52,7 +52,7 @@ export const dynamic = "force-dynamic";
 const PAGE_SIZE = 25;
 const loadHistoryOverview = unstable_cache(
   getHistoryOverview,
-  ["history-record-book-overview"],
+  ["history-record-book-overview-v2"],
   { revalidate: 3_600 },
 );
 const loadHistoryFilterOptions = unstable_cache(
@@ -62,7 +62,7 @@ const loadHistoryFilterOptions = unstable_cache(
 );
 const loadHistoryLeagueTrend = unstable_cache(
   getHistoryLeagueTrend,
-  ["history-league-trend"],
+  ["history-league-trend-v2"],
   { revalidate: 3_600 },
 );
 const loadHistoricalDecadeLeaders = unstable_cache(
