@@ -3,6 +3,11 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 
+import {
+  FilterActions,
+  FilterHeader,
+} from "@/app/_components/filter-primitives";
+
 type Option = {
   value: string;
   label: string;
@@ -80,11 +85,29 @@ export function PlayerDirectoryFilters({
         : [],
     [country, locations, region],
   );
+  const activeFilterCount = [
+    query,
+    filters.minGames !== "0" ? filters.minGames : "",
+    filters.minGoals !== "0" ? filters.minGoals : "",
+    filters.minAssists !== "0" ? filters.minAssists : "",
+    filters.minPoints !== "0" ? filters.minPoints : "",
+    filters.minWins !== "0" ? filters.minWins : "",
+    filters.minSavePercentage !== "0" ? filters.minSavePercentage : "",
+    filters.country,
+    filters.region,
+    filters.city,
+  ].filter(Boolean).length;
 
   return (
     <form action="/players" method="get" className="workspace-player-filters">
       <input type="hidden" name="season" value={seasonId} />
       <input type="hidden" name="phase" value={phase} />
+
+      <FilterHeader
+        title="Filter Players"
+        description="Search first, then narrow by season totals or birthplace."
+        activeCount={activeFilterCount}
+      />
 
       <fieldset className="workspace-player-filter-group is-primary">
         <legend>Find Players</legend>
@@ -244,21 +267,17 @@ export function PlayerDirectoryFilters({
         </div>
       </fieldset>
 
-      <div className="workspace-player-filter-actions">
-        <button type="submit">Show Players</button>
-        <Link
-          href={`/players?season=${seasonId}&phase=${phase}&type=${category}`}
-          className="workspace-directory-reset"
-        >
-          Clear Filters
-        </Link>
+      <FilterActions
+        clearHref={`/players?season=${seasonId}&phase=${phase}&type=${category}`}
+        applyLabel="Show Players"
+      >
         <Link
           href={`/players/compare?season=${seasonId}&phase=${phase}&type=${category}`}
           className="workspace-player-compare-link"
         >
           Compare Players →
         </Link>
-      </div>
+      </FilterActions>
     </form>
   );
 }

@@ -1,6 +1,10 @@
 import Link from "next/link";
 
 import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
+import {
+  FilterActions,
+  FilterHeader,
+} from "@/app/_components/filter-primitives";
 import { PlayerComparisonPlots } from "@/app/_components/player-comparison-plots";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
@@ -243,6 +247,12 @@ function AnalyticsFilters({
       <input type="hidden" name="season" value={seasonId} />
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="phase" value={phase} />
+      <FilterHeader
+        description="Choose the game state and minimum workload for this leaderboard."
+        activeCount={
+          (situation === "all" ? 0 : 1) + (minimumMinutes > 0 ? 1 : 0)
+        }
+      />
       <label>
         Game situation
         <select
@@ -271,9 +281,10 @@ function AnalyticsFilters({
           </select>
         </label>
       )}
-      <button type="submit">
-        Apply
-      </button>
+      <FilterActions
+        clearHref={`/analytics?season=${seasonId}&phase=${phase}&type=${type}`}
+        accent="secondary"
+      />
     </form>
   );
 }

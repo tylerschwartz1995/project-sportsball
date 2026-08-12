@@ -252,6 +252,7 @@ async function HistoryLeaderboardContent({
         filters={filters}
         options={options}
         isOpen={hasCustomFilters(params, defaultMinimum)}
+        minimumIsCustom={!qualificationIsDefault}
       />
       <HistoryResultsSection
         title={`${metricLabel(leaderboard.metric)} Ranking`}
@@ -303,7 +304,16 @@ async function HistoryPeaksContent({
           {[3, 5].map((value) => <Link key={value} aria-current={window === value ? "page" : undefined} href={historyHref({ section: "peaks", phase, view, metric, filters, window: value as 3 | 5 })}>{value} Seasons</Link>)}
         </nav>
       </div>
-      <HistoryFilters section="peaks" view={view} metric={metric} phase={phase} filters={filters} options={options} isOpen={hasCustomFilters(params, defaultMinimum)} />
+      <HistoryFilters
+        section="peaks"
+        view={view}
+        metric={metric}
+        phase={phase}
+        filters={filters}
+        options={options}
+        isOpen={hasCustomFilters(params, defaultMinimum)}
+        minimumIsCustom={firstValue(params.minimumGames) !== undefined}
+      />
       <HistoryResultsSection title={`${metricLabel(metric)} Peaks`} description={`Showing ${pageStart(page, rows.length)}–${pageEnd(page, rows.length)} of ${totalRows.toLocaleString("en-CA")} eligible consecutive-season stretches.`}>
         <HistoryPeaksTable rows={rows} metricLabel={metricLabel(metric)} window={window} />
       </HistoryResultsSection>
@@ -359,7 +369,16 @@ async function HistoryErasContent({
         </section>
         <HistoryScoringEnvironment key="goalies" points={leagueTrend} view="goalies" />
         <HistoryGoalieDecadeLeaders rows={decades} minimumGames={decadeMinimumGames} />
-        <HistoryFilters section="eras" view={view} metric={metric} phase={phase} filters={filters} options={options} isOpen={hasCustomFilters(params, defaultMinimum)} />
+        <HistoryFilters
+          section="eras"
+          view={view}
+          metric={metric}
+          phase={phase}
+          filters={filters}
+          options={options}
+          isOpen={hasCustomFilters(params, defaultMinimum)}
+          minimumIsCustom={!qualificationIsDefault}
+        />
         <HistoryResultsSection title="Career Save Index" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games with recorded shot data. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible goalies.`}>
           <HistoryGoalieEraTable rows={scores} />
         </HistoryResultsSection>
@@ -392,7 +411,16 @@ async function HistoryErasContent({
       </section>
       <HistoryScoringEnvironment points={leagueTrend} />
       <HistoryDecadeLeaders rows={decades} />
-      <HistoryFilters section="eras" view={view} metric={metric} phase={phase} filters={filters} options={options} isOpen={hasCustomFilters(params, defaultMinimum)} />
+      <HistoryFilters
+        section="eras"
+        view={view}
+        metric={metric}
+        phase={phase}
+        filters={filters}
+        options={options}
+        isOpen={hasCustomFilters(params, defaultMinimum)}
+        minimumIsCustom={!qualificationIsDefault}
+      />
       <HistoryResultsSection title="Career Era Scores" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible skaters.`}>
         <HistoryEraTable rows={scores} />
       </HistoryResultsSection>

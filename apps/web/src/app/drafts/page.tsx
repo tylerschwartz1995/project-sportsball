@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { CSSProperties } from "react";
 
 import { AutoSubmitSelect } from "@/app/_components/auto-submit-select";
+import { FilterHeader } from "@/app/_components/filter-primitives";
 import { ClassRankingVisuals } from "@/app/_components/class-ranking-visuals";
 import {
   DraftOutcomePlot,
@@ -693,6 +694,11 @@ function DraftBoardFilters({
       <input type="hidden" name="q" value={query} />
       <input type="hidden" name="from" value={fromYear ?? ""} />
       <input type="hidden" name="to" value={toYear ?? ""} />
+      <FilterHeader
+        description="Selections refresh as soon as you choose an option."
+        activeCount={(selectedTeam ? 1 : 0) + (selectedRound ? 1 : 0)}
+        autoApply
+      />
       <label>
         Draft Year
         <AutoSubmitSelect
@@ -735,7 +741,7 @@ function DraftBoardFilters({
         </AutoSubmitSelect>
       </label>
       <div className="workspace-draft-filter-actions">
-        <Link href={resetHref}>Reset</Link>
+        <Link href={resetHref}>Clear Filters</Link>
       </div>
     </form>
   );
