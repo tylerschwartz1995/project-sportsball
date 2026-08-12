@@ -9,12 +9,64 @@ import {
   buildGoalieComparisonPoints,
   buildPlotPoints,
   buildSkaterComparisonPoints,
+  findPlayerComparisonOptions,
   filterPlayerComparisonPoints,
   metricValue,
   numericDomain,
+  playerComparisonHref,
   playerPointKey,
   signedDomain,
 } from "@/lib/player-comparison";
+
+describe("player comparison selection", () => {
+  const options = [
+    {
+      nhlPlayerId: 97,
+      name: "Connor McDavid",
+      position: "C",
+      teamAbbreviations: ["EDM"],
+    },
+    {
+      nhlPlayerId: 29,
+      name: "Nathan MacKinnon",
+      position: "C",
+      teamAbbreviations: ["COL"],
+    },
+    {
+      nhlPlayerId: 8,
+      name: "Cale Makar",
+      position: "D",
+      teamAbbreviations: ["COL"],
+    },
+  ];
+
+  it("builds a shareable URL with the selection order intact", () => {
+    expect(
+      playerComparisonHref({
+        seasonId: 20252026,
+        phase: "regular",
+        category: "skaters",
+        playerIds: [97, 29],
+      }),
+    ).toBe(
+      "/players/compare?season=20252026&phase=regular&type=skaters&players=97%2C29",
+    );
+  });
+
+  it("suggests unselected leaders and searches names, positions, and teams", () => {
+    expect(findPlayerComparisonOptions(options, [97], "")).toEqual([
+      options[1],
+      options[2],
+    ]);
+    expect(findPlayerComparisonOptions(options, [], "COL")).toEqual([
+      options[1],
+      options[2],
+    ]);
+    expect(findPlayerComparisonOptions(options, [], "Defenseman")).toEqual([
+      options[2],
+    ]);
+  });
+});
 
 describe("player comparison points", () => {
   it("normalizes skater totals per 60 and shares as percentages", () => {

@@ -97,6 +97,17 @@ export function PlayerDirectoryFilters({
     filters.region,
     filters.city,
   ].filter(Boolean).length;
+  const advancedFilterCount = [
+    filters.minGames !== "0" ? filters.minGames : "",
+    filters.minGoals !== "0" ? filters.minGoals : "",
+    filters.minAssists !== "0" ? filters.minAssists : "",
+    filters.minPoints !== "0" ? filters.minPoints : "",
+    filters.minWins !== "0" ? filters.minWins : "",
+    filters.minSavePercentage !== "0" ? filters.minSavePercentage : "",
+    filters.country,
+    filters.region,
+    filters.city,
+  ].filter(Boolean).length;
 
   return (
     <form action="/players" method="get" className="workspace-player-filters">
@@ -105,7 +116,7 @@ export function PlayerDirectoryFilters({
 
       <FilterHeader
         title="Filter Players"
-        description="Search first, then narrow by season totals or birthplace."
+        description="Search by name or position. Open advanced filters only when you need them."
         activeCount={activeFilterCount}
       />
 
@@ -131,141 +142,161 @@ export function PlayerDirectoryFilters({
         </div>
       </fieldset>
 
-      <fieldset className="workspace-player-filter-group">
-        <legend>Minimum Season Totals</legend>
+      <details
+        className="workspace-player-advanced-filters"
+        open={advancedFilterCount > 0 || undefined}
+      >
+        <summary>
+          <span>
+            <strong>Advanced Filters</strong>
+            <small>Season totals, birthplace, and compact-screen sorting</small>
+          </span>
+          <b>
+            {advancedFilterCount > 0
+              ? `${advancedFilterCount} active`
+              : "Optional"}
+          </b>
+        </summary>
         <div>
-          <NumberFilter
-            label="Games Played"
-            name="minGames"
-            value={filters.minGames}
-          />
-          {category === "skaters" ? (
-            <>
+          <fieldset className="workspace-player-filter-group">
+            <legend>Minimum Season Totals</legend>
+            <div>
               <NumberFilter
-                label="Goals"
-                name="minGoals"
-                value={filters.minGoals}
+                label="Games Played"
+                name="minGames"
+                value={filters.minGames}
               />
-              <NumberFilter
-                label="Assists"
-                name="minAssists"
-                value={filters.minAssists}
-              />
-              <NumberFilter
-                label="Points"
-                name="minPoints"
-                value={filters.minPoints}
-              />
-            </>
-          ) : (
-            <>
-              <NumberFilter
-                label="Wins"
-                name="minWins"
-                value={filters.minWins}
-              />
-              <label>
-                Save Percentage
-                <input
-                  type="number"
-                  name="minSavePercentage"
-                  min="0"
-                  max="1"
-                  step="0.001"
-                  defaultValue={filters.minSavePercentage}
-                />
+              {category === "skaters" ? (
+                <>
+                  <NumberFilter
+                    label="Goals"
+                    name="minGoals"
+                    value={filters.minGoals}
+                  />
+                  <NumberFilter
+                    label="Assists"
+                    name="minAssists"
+                    value={filters.minAssists}
+                  />
+                  <NumberFilter
+                    label="Points"
+                    name="minPoints"
+                    value={filters.minPoints}
+                  />
+                </>
+              ) : (
+                <>
+                  <NumberFilter
+                    label="Wins"
+                    name="minWins"
+                    value={filters.minWins}
+                  />
+                  <label>
+                    Save Percentage
+                    <input
+                      type="number"
+                      name="minSavePercentage"
+                      min="0"
+                      max="1"
+                      step="0.001"
+                      defaultValue={filters.minSavePercentage}
+                    />
+                  </label>
+                </>
+              )}
+            </div>
+          </fieldset>
+
+          <fieldset className="workspace-player-filter-group">
+            <legend>Birthplace</legend>
+            <div>
+              <label className="is-country">
+                Country
+                <select
+                  name="country"
+                  value={country}
+                  onChange={(event) => {
+                    setCountry(event.target.value);
+                    setRegion("");
+                    setCity("");
+                  }}
+                >
+                  <option value="">All Countries</option>
+                  {countries.map((option) => (
+                    <option key={option} value={option}>
+                      {formatCountry(option)}
+                    </option>
+                  ))}
+                </select>
               </label>
-            </>
-          )}
-        </div>
-      </fieldset>
+              <label>
+                Province / State
+                <select
+                  name="region"
+                  value={region}
+                  disabled={!country}
+                  onChange={(event) => {
+                    setRegion(event.target.value);
+                    setCity("");
+                  }}
+                >
+                  <option value="">
+                    {country
+                      ? "All Provinces / States"
+                      : "Choose Country First"}
+                  </option>
+                  {regions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                City
+                <select
+                  name="city"
+                  value={city}
+                  disabled={!country}
+                  onChange={(event) => setCity(event.target.value)}
+                >
+                  <option value="">
+                    {country ? "All Cities" : "Choose Country First"}
+                  </option>
+                  {cities.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </fieldset>
 
-      <fieldset className="workspace-player-filter-group">
-        <legend>Birthplace</legend>
-        <div>
-          <label className="is-country">
-            Country
-            <select
-              name="country"
-              value={country}
-              onChange={(event) => {
-                setCountry(event.target.value);
-                setRegion("");
-                setCity("");
-              }}
-            >
-              <option value="">All Countries</option>
-              {countries.map((option) => (
-                <option key={option} value={option}>
-                  {formatCountry(option)}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Province / State
-            <select
-              name="region"
-              value={region}
-              disabled={!country}
-              onChange={(event) => {
-                setRegion(event.target.value);
-                setCity("");
-              }}
-            >
-              <option value="">
-                {country ? "All Provinces / States" : "Choose Country First"}
-              </option>
-              {regions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            City
-            <select
-              name="city"
-              value={city}
-              disabled={!country}
-              onChange={(event) => setCity(event.target.value)}
-            >
-              <option value="">
-                {country ? "All Cities" : "Choose Country First"}
-              </option>
-              {cities.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
+          <fieldset className="workspace-player-filter-group workspace-directory-sort md:hidden">
+            <legend>Sort Results</legend>
+            <div>
+              <label>
+                Sort By
+                <select name="sort" defaultValue={sort}>
+                  {sortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label>
+                Direction
+                <select name="dir" defaultValue={direction}>
+                  <option value="desc">Descending</option>
+                  <option value="asc">Ascending</option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
         </div>
-      </fieldset>
-
-      <fieldset className="workspace-player-filter-group workspace-directory-sort md:hidden">
-        <legend>Sort Results</legend>
-        <div>
-          <label>
-            Sort By
-            <select name="sort" defaultValue={sort}>
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Direction
-            <select name="dir" defaultValue={direction}>
-              <option value="desc">Descending</option>
-              <option value="asc">Ascending</option>
-            </select>
-          </label>
-        </div>
-      </fieldset>
+      </details>
 
       <FilterActions
         clearHref={`/players?season=${seasonId}&phase=${phase}&type=${category}`}
