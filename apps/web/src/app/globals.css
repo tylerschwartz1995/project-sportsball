@@ -6811,8 +6811,10 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 .workspace-history-chart-metric {
   display: grid;
-  width: 10rem;
+  min-width: 0;
+  width: 12rem;
   max-width: 100%;
+  justify-self: end;
   gap: 0.3rem;
   color: var(--muted);
   font-size: 0.68rem;
@@ -6822,6 +6824,11 @@ html[data-theme="light"] .workspace-analytics-filters button {
 }
 
 .workspace-history-chart-metric select {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   min-height: 2.35rem;
   border: 1px solid var(--border-strong);
   border-radius: 0.5rem;
