@@ -2762,27 +2762,40 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-standings-scope {
   display: flex;
-  width: max-content;
+  width: fit-content;
   max-width: 100%;
-  gap: 0.25rem;
+  min-height: 2.8rem;
+  gap: 0.15rem;
   overflow-x: auto;
   margin-top: 1rem;
   border: 1px solid var(--border);
   border-radius: 0.65rem;
-  padding: 0.25rem;
+  padding: 0.22rem;
   background: var(--surface);
 }
 
 .workspace-standings-scope a {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: 2.3rem;
   border-radius: 0.45rem;
-  padding: 0.58rem 0.9rem;
+  padding: 0.5rem 0.75rem;
   color: var(--muted);
-  font-size: 0.9rem;
-  font-weight: 680;
+  font-size: 0.88rem;
+  font-weight: 650;
+  line-height: 1;
   text-decoration: none;
+  white-space: nowrap;
 }
 
-.workspace-standings-scope a[aria-current="page"] {
+.workspace-standings-scope a:hover {
+  background: var(--surface-raised);
+  color: var(--foreground);
+}
+
+.workspace-standings-scope a[aria-current="page"],
+.workspace-scroll-nav a[aria-current="page"] {
   background: var(--accent);
   color: var(--background);
 }
@@ -2799,24 +2812,32 @@ html[data-theme="light"] .workspace-directory-controls button {
 
 .workspace-phase-filter > div {
   display: flex;
-  gap: 0.2rem;
+  min-height: 2.8rem;
+  gap: 0.15rem;
+  overflow-x: auto;
   border: 1px solid var(--border);
-  border-radius: 0.55rem;
-  padding: 0.2rem;
+  border-radius: 0.65rem;
+  padding: 0.22rem;
   background: var(--surface);
-  box-shadow: 0 8px 24px var(--shadow);
 }
 
 .workspace-phase-filter a {
-  border-radius: 0.42rem;
-  padding: 0.48rem 0.72rem;
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: 2.3rem;
+  border-radius: 0.45rem;
+  padding: 0.5rem 0.75rem;
   color: var(--muted);
   font-size: 0.88rem;
   font-weight: 650;
+  line-height: 1;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .workspace-phase-filter a:hover {
+  background: var(--surface-raised);
   color: var(--foreground);
 }
 
@@ -2825,7 +2846,9 @@ html[data-theme="light"] .workspace-directory-controls button {
   color: var(--background);
 }
 
-html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
+html[data-theme="light"] .workspace-phase-filter a[aria-current="page"],
+html[data-theme="light"] .workspace-standings-scope a[aria-current="page"],
+html[data-theme="light"] .workspace-scroll-nav a[aria-current="page"] {
   color: #fff;
 }
 
@@ -2852,28 +2875,36 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
 .workspace-scroll-nav {
   position: relative;
   display: flex;
-  gap: 0.2rem;
+  width: fit-content;
+  max-width: 100%;
+  min-height: 2.8rem;
+  gap: 0.15rem;
   overflow-x: auto;
   margin-top: 1.25rem;
   border: 1px solid var(--border);
   border-radius: 0.65rem;
-  padding: 0.25rem;
+  padding: 0.22rem;
   background: var(--surface);
   scrollbar-width: thin;
   scrollbar-color: var(--border-strong) transparent;
 }
 
 .workspace-scroll-nav a {
+  display: flex;
   flex: 0 0 auto;
+  align-items: center;
+  min-height: 2.3rem;
   border-radius: 0.45rem;
-  padding: 0.55rem 0.75rem;
+  padding: 0.5rem 0.75rem;
   color: var(--muted);
   font-size: 0.88rem;
+  font-weight: 650;
+  line-height: 1;
   text-decoration: none;
+  white-space: nowrap;
 }
 
-.workspace-scroll-nav a:hover,
-.workspace-scroll-nav a[aria-current="page"] {
+.workspace-scroll-nav a:hover {
   background: var(--surface-raised);
   color: var(--foreground);
 }
@@ -2885,8 +2916,8 @@ html[data-theme="light"] .workspace-phase-filter a[aria-current="page"] {
 }
 
 .workspace-scroll-nav.is-secondary a[aria-current="page"] {
-  background: color-mix(in srgb, var(--accent-secondary) 13%, var(--surface-raised));
-  color: var(--accent-secondary);
+  background: var(--accent);
+  color: var(--background);
 }
 
 .workspace-chart-panel {
@@ -4554,22 +4585,6 @@ span.workspace-date-link {
   margin-top: 1.25rem;
 }
 
-.workspace-analytics-tabs a:first-child {
-  background: transparent;
-  color: var(--muted);
-}
-
-.workspace-analytics-tabs a[aria-current="page"] {
-  background: color-mix(
-    in srgb,
-    var(--accent-secondary) 18%,
-    var(--surface-raised)
-  );
-  color: var(--foreground);
-  box-shadow: inset 0 0 0 1px
-    color-mix(in srgb, var(--accent-secondary) 35%, var(--border));
-}
-
 .workspace-analytics-filters {
   display: grid;
   max-width: 38rem;
@@ -5280,6 +5295,23 @@ html[data-theme="light"] .workspace-analytics-filters button {
   table-layout: fixed;
 }
 
+.workspace-data-table-shell {
+  overflow: hidden;
+  margin-top: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background: var(--table-background);
+}
+
+.workspace-data-table-header-row {
+  color: var(--muted);
+  text-align: left;
+}
+
+.workspace-data-table-row {
+  color: color-mix(in srgb, var(--foreground) 82%, var(--muted));
+}
+
 .workspace-col-date {
   width: 13.5rem;
 }
@@ -5593,22 +5625,16 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
 @media (max-width: 520px) {
   .workspace-phase-filter {
-    width: 100%;
-    align-items: stretch;
-    flex-direction: column;
+    width: fit-content;
   }
 
   .workspace-phase-filter > div {
     display: flex;
+    max-width: 100%;
   }
 
   .workspace-phase-filter a {
-    display: grid;
-    flex: 1 1 0;
-    min-height: 2.5rem;
-    place-items: center;
-    padding-right: 0.45rem;
-    padding-left: 0.45rem;
+    flex: 0 0 auto;
     text-align: center;
   }
 }
@@ -6483,6 +6509,1122 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
   .workspace-home-trend-rows em {
     grid-column: 2;
+  }
+}
+
+/* History record book */
+.workspace-history-header {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--border-strong);
+  padding: 0.35rem 0 1.1rem;
+}
+
+.workspace-history-header-copy {
+  min-width: 0;
+}
+
+.workspace-history-header h1 {
+  color: var(--foreground);
+  font-size: clamp(2rem, 4vw, 3.25rem);
+  font-weight: 750;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+
+.workspace-history-header-copy > p {
+  margin-top: 0.55rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.workspace-history-ranking-summary dt {
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-history-header > details {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.workspace-history-header > details summary {
+  width: fit-content;
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.workspace-history-header > details p {
+  position: absolute;
+  z-index: 10;
+  right: max(1rem, calc((100vw - 80rem) / 2));
+  width: min(36rem, calc(100% - 2rem));
+  margin-top: 0.55rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.65rem;
+  padding: 0.75rem;
+  background: var(--surface-raised);
+  box-shadow: 0 12px 30px var(--shadow);
+  line-height: 1.55;
+}
+
+.workspace-history-primary-navs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.workspace-history-primary-navs .workspace-phase-filter,
+.workspace-history-primary-navs .workspace-scroll-nav {
+  margin-top: 0;
+}
+
+.workspace-history-overview,
+.workspace-history-explorer,
+.workspace-history-eras {
+  margin-top: 1.5rem;
+}
+
+.workspace-history-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.workspace-history-ranking-summary > div > p {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: 0.72rem;
+  font-weight: 750;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.workspace-history-intro h2,
+.workspace-history-peaks-heading h2,
+.workspace-history-decades h2,
+.workspace-history-ranking-summary h2 {
+  margin-top: 0.25rem;
+  color: var(--foreground);
+  font-size: clamp(1.35rem, 3vw, 2rem);
+  font-weight: 740;
+  letter-spacing: -0.035em;
+}
+
+.workspace-history-intro > p {
+  max-width: 42rem;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.workspace-history-era-definition {
+  display: grid;
+  gap: 0.7rem;
+  color: var(--muted);
+}
+
+.workspace-history-era-definition > p {
+  max-width: 46rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.workspace-history-era-definition dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 1.25rem;
+}
+
+.workspace-history-era-definition dl > div {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+}
+
+.workspace-history-era-definition dt {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.workspace-history-era-definition dd {
+  font-size: 0.78rem;
+}
+
+.workspace-history-record-grid {
+  display: grid;
+  gap: 0.8rem;
+}
+
+.workspace-history-record-list {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  background: var(--surface);
+}
+
+.workspace-history-record-list header {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.95rem 1rem;
+}
+
+.workspace-history-record-list header h2 {
+  color: var(--foreground);
+  font-size: 1.08rem;
+}
+
+.workspace-history-record-list header > a {
+  flex: 0 0 auto;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.workspace-history-record-list ol {
+  list-style: none;
+}
+
+.workspace-history-record-list li {
+  display: grid;
+  grid-template-columns: 1.6rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 3.5rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.55rem 1rem;
+}
+
+.workspace-history-record-list li:last-child {
+  border-bottom: 0;
+}
+
+.workspace-history-record-list li > span {
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.78rem;
+}
+
+.workspace-history-record-main {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.workspace-history-record-main > a,
+.workspace-history-record-entity {
+  display: grid;
+  min-width: 0;
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.workspace-history-record-list li strong,
+.workspace-history-record-list li small,
+.workspace-history-record-entity strong,
+.workspace-history-record-entity small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-history-record-list li strong {
+  font-size: 0.92rem;
+}
+
+.workspace-history-record-list li small {
+  margin-top: 0.15rem;
+  color: var(--muted);
+  font-size: 0.73rem;
+}
+
+.workspace-history-record-list li > b {
+  min-width: 5.5ch;
+  justify-self: end;
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.workspace-history-chart-grid {
+  display: grid;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+}
+
+.workspace-history-chart {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.workspace-history-chart header {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.workspace-history-chart-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 0.75rem;
+}
+
+.workspace-history-chart header h3 {
+  margin-top: 0.25rem;
+  color: var(--foreground);
+  font-size: 1.12rem;
+}
+
+.workspace-history-chart-heading-copy {
+  min-width: 0;
+}
+
+.workspace-history-chart-heading-copy > span {
+  display: block;
+  max-width: 54rem;
+  margin-top: 0.3rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.workspace-history-chart-metric {
+  display: grid;
+  min-width: 0;
+  width: 12rem;
+  max-width: 100%;
+  justify-self: end;
+  gap: 0.3rem;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-history-chart-metric select {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 2.35rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.5rem;
+  padding: 0.45rem 2rem 0.45rem 0.65rem;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.workspace-history-chart-canvas {
+  height: 18rem;
+  overflow-x: auto;
+  margin-top: 1rem;
+  scrollbar-color: var(--border-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.workspace-history-chart-plot {
+  width: 100%;
+  height: 100%;
+}
+
+.workspace-history-tooltip {
+  display: grid;
+  gap: 0.2rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.6rem;
+  padding: 0.65rem 0.75rem;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  box-shadow: 0 12px 30px var(--shadow);
+  font-size: 0.78rem;
+}
+
+.workspace-history-tooltip span {
+  color: var(--muted);
+}
+
+.workspace-history-tooltip b {
+  color: var(--accent);
+}
+
+.workspace-history-a11y-table {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+
+.workspace-history-discovery {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.8rem;
+}
+
+.workspace-history-discovery a {
+  display: grid;
+  gap: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  padding: 0.9rem 1rem;
+  background: var(--surface-subtle);
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.workspace-history-discovery span {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+.workspace-history-discovery strong {
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.workspace-history-explorer-nav {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.workspace-history-explorer-nav nav {
+  display: flex;
+  gap: 0.35rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.workspace-history-explorer-nav nav + nav {
+  border-top: 1px solid var(--border);
+  padding-top: 0.55rem;
+}
+
+.workspace-history-explorer-nav a,
+.workspace-history-peaks-heading nav a {
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.48rem 0.8rem;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.workspace-history-explorer-nav a[aria-current="page"],
+.workspace-history-peaks-heading nav a[aria-current="page"] {
+  border-color: color-mix(in srgb, var(--accent) 48%, var(--border));
+  background: color-mix(in srgb, var(--accent) 13%, var(--surface));
+  color: var(--accent);
+}
+
+.workspace-history-ranking-summary {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.workspace-history-ranking-summary dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+}
+
+.workspace-history-ranking-summary dl > div {
+  min-width: 0;
+  border-left: 2px solid var(--border-strong);
+  padding-left: 0.65rem;
+}
+
+.workspace-history-ranking-summary dd {
+  overflow: hidden;
+  margin-top: 0.25rem;
+  color: var(--foreground);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-history-qualification {
+  margin-top: 0.7rem;
+  border-left: 3px solid var(--accent-secondary);
+  padding: 0.65rem 0.8rem;
+  background: var(--surface-subtle);
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+.workspace-history-qualification strong {
+  color: var(--foreground);
+}
+
+.workspace-history-filter-drawer {
+  margin-top: 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  background: var(--surface);
+}
+
+.workspace-history-filter-drawer > summary {
+  display: flex;
+  min-height: 3.6rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.9rem;
+  cursor: pointer;
+  list-style: none;
+}
+
+.workspace-history-filter-drawer > summary::-webkit-details-marker {
+  display: none;
+}
+
+.workspace-history-filter-drawer > summary span {
+  display: grid;
+}
+
+.workspace-history-filter-drawer > summary strong {
+  color: var(--foreground);
+  font-size: 0.9rem;
+}
+
+.workspace-history-filter-drawer > summary small {
+  margin-top: 0.12rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.workspace-history-filter-drawer > summary b {
+  color: var(--accent);
+  font-size: 1.25rem;
+  transition: transform 150ms ease;
+}
+
+.workspace-history-filter-drawer[open] > summary b {
+  transform: rotate(45deg);
+}
+
+.workspace-history-filter-drawer form {
+  display: grid;
+  gap: 0.7rem;
+  border-top: 1px solid var(--border);
+  padding: 0.9rem;
+}
+
+.workspace-history-filter-drawer fieldset {
+  min-width: 0;
+  border: 0;
+  border-radius: 0.7rem;
+  padding: 0.8rem;
+  background: var(--surface-subtle);
+}
+
+.workspace-history-filter-drawer legend {
+  float: left;
+  width: 100%;
+  color: var(--foreground);
+  font-size: 0.9rem;
+  font-weight: 720;
+}
+
+.workspace-history-filter-drawer fieldset > div {
+  display: grid;
+  clear: both;
+  gap: 0.65rem;
+  padding-top: 0.55rem;
+}
+
+.workspace-history-filter-drawer label {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 650;
+}
+
+.workspace-history-filter-drawer input,
+.workspace-history-filter-drawer select {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 2.5rem;
+  margin-top: 0.3rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  font: inherit;
+}
+
+.workspace-history-filter-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.55rem;
+}
+
+.workspace-history-filter-actions button,
+.workspace-history-filter-actions a {
+  display: grid;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-height: 2.5rem;
+  place-items: center;
+  border-radius: 0.5rem;
+  padding: 0 0.9rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.workspace-history-filter-actions button {
+  border: 0;
+  background: var(--accent);
+  color: var(--background);
+  cursor: pointer;
+}
+
+.workspace-history-filter-actions a {
+  border: 1px solid var(--border);
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.workspace-history-table-shell {
+  overflow: hidden;
+}
+
+.workspace-history-results {
+  margin-top: 1.5rem;
+}
+
+.workspace-history-results > header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.workspace-history-results > header h3 {
+  color: var(--foreground);
+  font-size: 1.5rem;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.workspace-history-results > header p {
+  max-width: 72rem;
+  margin-top: 0.25rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.workspace-history-table {
+  table-layout: fixed;
+}
+
+.workspace-history-table th,
+.workspace-history-table td {
+  width: 5.25rem;
+  padding-right: 0.75rem;
+  padding-left: 0.75rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.workspace-history-table .workspace-history-rank-col,
+.workspace-history-table .workspace-history-rank {
+  width: 3.5rem;
+  text-align: center;
+}
+
+.workspace-history-table .workspace-history-entity-col,
+.workspace-history-table .workspace-history-sticky-entity {
+  width: 15rem;
+  text-align: left;
+}
+
+.workspace-history-table th > a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.workspace-history-table th.is-active-metric,
+.workspace-history-table th.is-active-metric a {
+  color: var(--accent);
+}
+
+.workspace-history-table th > a span {
+  margin-left: 0.18rem;
+  font-size: 0.72rem;
+}
+
+.workspace-history-rank,
+.workspace-history-metric {
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-history-metric {
+  text-align: center;
+}
+
+.workspace-history-rank {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.workspace-history-metric.is-active {
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.workspace-history-entity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.workspace-history-entity-copy {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workspace-history-entity strong {
+  overflow: hidden;
+  display: inline;
+  color: var(--foreground);
+  text-overflow: ellipsis;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.workspace-history-entity a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.workspace-history-entity small {
+  margin-left: 0.45rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.workspace-history-empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.workspace-history-empty strong {
+  color: var(--foreground);
+}
+
+.workspace-history-empty p {
+  margin-top: 0.35rem;
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.workspace-history-peaks-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.workspace-history-peaks-heading > div > span {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.workspace-history-peaks-heading nav {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.workspace-history-decades {
+  margin-top: 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 0.9rem;
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.workspace-history-decades > header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 1rem;
+}
+
+.workspace-history-decades > header > div > p {
+  margin-top: 0.3rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.workspace-history-decades-table-scroll {
+  overflow-x: auto;
+  margin-top: 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+}
+
+.workspace-history-decades-table {
+  width: 100%;
+  min-width: 29rem;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.workspace-history-decades-table thead {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-history-decades-table th,
+.workspace-history-decades-table td {
+  padding: 0.7rem 0.85rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.workspace-history-decades-table thead th:first-child {
+  width: 7rem;
+}
+
+.workspace-history-decades-table thead th:nth-child(2) {
+  width: auto;
+  text-align: left;
+}
+
+.workspace-history-decades-table thead th:nth-child(3),
+.workspace-history-decades-table thead th:nth-child(4) {
+  width: 8rem;
+}
+
+.workspace-history-decades-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 120ms ease;
+}
+
+.workspace-history-decades-table tbody tr:last-child {
+  border-bottom: 0;
+}
+
+.workspace-history-decades-table tbody tr:hover {
+  background: var(--surface-subtle);
+}
+
+.workspace-history-decades-table tbody th,
+.workspace-history-decades-table tbody td:nth-child(3),
+.workspace-history-decades-table tbody td:nth-child(4) {
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-history-decades-table tbody th {
+  color: var(--accent-secondary);
+  font-family: var(--font-geist-mono);
+  font-weight: 800;
+}
+
+.workspace-history-decades-table tbody td:nth-child(2) {
+  text-align: left;
+}
+
+.workspace-history-decades-table a {
+  color: var(--foreground);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.workspace-history-decades-table a:hover {
+  color: var(--accent);
+}
+
+.workspace-history-decades-table .is-active-metric {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-weight: 750;
+}
+
+.workspace-history-decades-table tbody td:last-child {
+  color: var(--muted);
+}
+
+@media (min-width: 640px) {
+  .workspace-history-intro,
+  .workspace-history-peaks-heading {
+    flex-direction: row;
+    align-items: end;
+    justify-content: space-between;
+  }
+
+  .workspace-history-intro > p {
+    text-align: right;
+  }
+
+  .workspace-history-intro > div {
+    flex: 0 0 20rem;
+  }
+
+  .workspace-history-eras .workspace-history-intro {
+    display: grid;
+    grid-template-columns: minmax(16rem, 0.7fr) minmax(0, 1.3fr);
+    align-items: start;
+    gap: 2rem;
+  }
+
+  .workspace-history-eras .workspace-history-intro > div {
+    flex: initial;
+  }
+
+  .workspace-history-era-definition {
+    border-left: 2px solid var(--border-strong);
+    padding-left: 1rem;
+  }
+
+  .workspace-history-discovery {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .workspace-history-ranking-summary {
+    grid-template-columns: minmax(13rem, 1fr) minmax(24rem, 1.4fr);
+    align-items: center;
+  }
+
+  .workspace-history-ranking-summary dl {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .workspace-history-filter-drawer fieldset > div {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .workspace-history-filter-actions {
+    grid-column: 1 / -1;
+  }
+
+}
+
+@media (min-width: 900px) {
+  .workspace-history-filter-drawer form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-history-record-grid,
+  .workspace-history-chart-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+@media (max-width: 639px) {
+  .workspace-history-filter-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-history-chart-heading {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace-history-decades > header {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .workspace-history-decades-table-scroll {
+    overflow-x: visible;
+  }
+
+  .workspace-history-decades-table {
+    min-width: 0;
+    table-layout: auto;
+  }
+
+  .workspace-history-decades-table thead {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .workspace-history-decades-table tbody {
+    display: block;
+  }
+
+  .workspace-history-decades-table tbody tr {
+    display: grid;
+    grid-template:
+      "decade leader metric" auto
+      "decade games metric" auto /
+      5.5rem minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 0.75rem;
+    padding: 0.72rem 0.8rem;
+  }
+
+  .workspace-history-decades-table tbody th,
+  .workspace-history-decades-table tbody td {
+    width: auto;
+    padding: 0;
+  }
+
+  .workspace-history-decades-table tbody th {
+    grid-area: decade;
+    text-align: left;
+  }
+
+  .workspace-history-decades-table tbody td:nth-child(2) {
+    grid-area: leader;
+  }
+
+  .workspace-history-decades-table tbody td:nth-child(3) {
+    grid-area: metric;
+    text-align: right;
+  }
+
+  .workspace-history-decades-table tbody td:nth-child(3)::after {
+    content: " " attr(data-label);
+    font-size: 0.68rem;
+  }
+
+  .workspace-history-decades-table tbody td:last-child {
+    grid-area: games;
+    margin-top: 0.12rem;
+    font-size: 0.72rem;
+    text-align: left;
+  }
+
+  .workspace-history-decades-table tbody td:last-child::after {
+    content: " GP";
+  }
+
+  .workspace-history-chart-metric {
+    width: 100%;
+  }
+
+  .workspace-history-chart-plot {
+    min-width: 38rem;
+  }
+
+  .workspace-history-header {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .workspace-history-header h1 {
+    font-size: 2.2rem;
+  }
+
+  .workspace-history-header > details {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .workspace-history-header > details p {
+    right: 1rem;
+  }
+
+  .workspace-history-record-list li {
+    grid-template-columns: 1.4rem minmax(0, 1fr) auto;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
+  }
+
+  .workspace-history-chart-canvas {
+    height: 15rem;
+  }
+
+  .workspace-history-table-scroll-hint {
+    display: block;
+  }
+
+  .workspace-history-table .workspace-history-rank-col,
+  .workspace-history-table .workspace-history-rank {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background: var(--surface);
+  }
+
+  .workspace-history-table .workspace-history-entity-col,
+  .workspace-history-table .workspace-history-sticky-entity {
+    position: sticky;
+    left: 3.5rem;
+    z-index: 2;
+    width: 12.5rem;
+    background: var(--surface);
+    box-shadow: 8px 0 12px -12px var(--foreground);
+  }
+
+  .workspace-history-table thead .workspace-history-rank-col,
+  .workspace-history-table thead .workspace-history-entity-col {
+    z-index: 5;
+    background: var(--surface-raised);
   }
 }
 

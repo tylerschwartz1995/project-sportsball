@@ -392,7 +392,8 @@ function DraftBoardView({
       />
 
       <WorkspacePanel
-        className="mt-7"
+        id="draft-results"
+        className="mt-7 scroll-mt-6"
         title={
           analytics.allYears
             ? fromYear !== null && toYear !== null
@@ -438,6 +439,7 @@ function DraftBoardView({
           currentPage={outcomePage.currentPage}
           totalPages={outcomePage.totalPages}
           params={{ ...tableParams, sort, dir: direction }}
+          scrollTarget="draft-results"
         />
       ) : null}
     </>

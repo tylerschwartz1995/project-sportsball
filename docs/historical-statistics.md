@@ -29,13 +29,40 @@ Every row is unique by source identity, season, and game type. Regular season
 uses NHL game type 2 and playoffs use type 3. Fields unavailable in an earlier
 era remain `NULL`; they are never converted to zero.
 
-The `/history` page reads these tables for sortable career totals and best
-single seasons. It supports skater, goalie, and team views; regular season and
-playoffs; start/end season, minimum-games, position, team, and known birth
-country filters; and view-specific total and rate ranking metrics. Team and
-birth-country filters apply to player views. A team filter identifies seasons
-in which the player appeared for that team; the all-team NHL summary cannot
-separate the player's totals within a multi-team season.
+The `/history` record book reads these tables for a curated overview, career
+and single-season rankings, rolling three- and five-season peaks, record
+progression, scoring-environment context, decade leaders, and era-relative
+career scoring. It supports skater, goalie, and team rankings; regular season
+and playoffs; start/end season, minimum-games, position, team, and known birth
+country filters; and view-specific total and rate ranking metrics. Rankings are
+server-paginated in groups of 25 so every displayed rank and metric sort applies
+to the complete filtered result set rather than a client-side subset.
+
+The record-book charts expose a deliberately small set of comparable metrics.
+Career record progression can switch among points, goals, and assists. Skater
+league context can switch between goals and standings points per team game;
+goalie league context can switch between shot-weighted save percentage and
+time-on-ice-weighted goals-against average. The timelines use decade markers
+and preserve the exact season values in their tooltips and accessible tables.
+
+Goalie decade boards rank wins, weighted save percentage, and weighted
+goals-against average. Regular-season boards require 200 games within the
+decade; playoff boards require 25. Decades without a qualified goalie or the
+source fields required for a rate are omitted rather than displayed as zero.
+For rate metrics, only games from seasons containing the required source fields
+count toward qualification.
+
+Rate leaderboards use visible eligibility defaults to prevent short appearances
+from dominating the results. Regular-season career points per game defaults to
+500 games and single-season points per game to 40; career goalie save percentage
+defaults to 250 games and single-season save percentage to 25; career team
+points percentage defaults to 500 games and single-season points percentage to
+40. Playoff qualifications are lower and appropriate to the shorter schedule.
+Visitors can explicitly override every threshold.
+
+Team and birth-country filters apply to player views. “Played For” identifies
+seasons in which the player appeared for that team; the all-team NHL summary
+cannot separate the player's totals within a multi-team season.
 
 Historical player names link to `/players/{nhlPlayerId}`. Player profiles show
 the complete regular-season and playoff summary archive, including seasons
@@ -49,6 +76,17 @@ against for seasons where those fields exist. Team career points percentage
 uses total points divided by twice the games played. Team career totals currently
 follow the NHL source team identity. Combining relocations and renames into
 franchise lineages remains a documented future enhancement.
+
+The era-relative scoring index compares each skater's points with the number of
+points expected if that player had produced at the league-wide points-per-game
+rate in the same seasons. An index of 100 is league average for the player's
+own season mix; 200 is twice that contemporary rate. The goalie Save Index
+compares goals actually allowed with the number a league-average goalie would
+have allowed on the same shots in the same seasons. A Save Index of 100 is
+league average and higher is better. Only seasons with recorded saves and
+shots against contribute to the goalie calculation. Both indexes provide era
+context rather than claiming rules, deployment, ice time, and competition were
+identical across eras.
 
 The detailed-season selectors elsewhere deliberately require rows in
 `team_season_stats`, while the Games page uses seasons containing `games`.

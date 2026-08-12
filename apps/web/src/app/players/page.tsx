@@ -191,6 +191,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
             {category === "skaters" ? (
               <>
                 <PlayerSectionHeader
+                  id="player-results"
                   title="Skaters"
                   count={skaterPage.totalItems}
                   description="Combined totals across all teams played for."
@@ -207,7 +208,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         />
                       ))}
                     </div>
-                    <div className="mt-5 hidden overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50 md:block">
+                    <div className="workspace-data-table-shell hidden md:block">
                       <SortableTable
                         defaultSortKey={sort}
                         defaultDirection={direction}
@@ -220,7 +221,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                             <col className="workspace-col-number" />
                           </colgroup>
                           <thead>
-                            <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
+                            <tr className="workspace-data-table-header-row">
                               <SortableHeader
                                 label="Player"
                                 sortKey="name"
@@ -240,7 +241,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                             {skaterPage.items.map((player) => (
                               <tr
                                 key={player.nhlPlayerId}
-                                className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
+                                className="workspace-data-table-row"
                               >
                                 <td className="workspace-entity-name px-4 py-3">
                                   <div className="flex items-center gap-2">
@@ -291,6 +292,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         phase,
                         ...filters,
                       }}
+                      scrollTarget="player-results"
                     />
                   </>
                 ) : (
@@ -300,6 +302,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
             ) : (
               <>
                 <PlayerSectionHeader
+                  id="player-results"
                   title="Goalies"
                   count={goaliePage.totalItems}
                   description="Participating goalies only; dressed backups are excluded."
@@ -316,7 +319,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         />
                       ))}
                     </div>
-                    <div className="mt-5 hidden overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50 md:block">
+                    <div className="workspace-data-table-shell hidden md:block">
                       <SortableTable
                         defaultSortKey={sort}
                         defaultDirection={direction}
@@ -329,7 +332,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                             <col className="workspace-col-percentage" />
                           </colgroup>
                           <thead>
-                            <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
+                            <tr className="workspace-data-table-header-row">
                               <SortableHeader
                                 label="Goalie"
                                 sortKey="name"
@@ -349,7 +352,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                             {goaliePage.items.map((player) => (
                               <tr
                                 key={player.nhlPlayerId}
-                                className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
+                                className="workspace-data-table-row"
                               >
                                 <td className="workspace-entity-name px-4 py-3">
                                   <div className="flex items-center gap-2">
@@ -398,6 +401,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         phase,
                         ...filters,
                       }}
+                      scrollTarget="player-results"
                     />
                   </>
                 ) : (
@@ -682,16 +686,18 @@ function DirectoryEmptyState() {
 }
 
 function PlayerSectionHeader({
+  id,
   title,
   count,
   description,
 }: {
+  id: string;
   title: string;
   count: number;
   description: string;
 }) {
   return (
-    <div className="mt-12 flex flex-wrap items-end justify-between gap-3">
+    <div id={id} className="mt-12 scroll-mt-6 flex flex-wrap items-end justify-between gap-3">
       <div>
         <h3 className="text-2xl font-semibold text-white">{title}</h3>
         <p className="mt-1 text-sm text-slate-500">{description}</p>
