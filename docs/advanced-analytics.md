@@ -104,10 +104,12 @@ Game pages add:
   chance-quality pressure view, an optional cumulative expected-goal view,
   goal context, and period-level expected-goal totals;
 - all-situations expected-goal cards and sortable team situation comparisons;
-- normalized offensive-zone shot maps, with circle size representing expected
-  goal probability; every marker can be selected by pointer or keyboard to
-  reveal its shooter, result, time, goalie, shot type, distance, score, and
-  contextual tags;
+- normalized regulation-scale attacking half-rink shot maps, with circle size
+  representing expected goal probability; every marker can be selected by
+  pointer or with roving arrow-key, Home, and End controls to reveal its
+  shooter, result, time, goalie, shot type, distance, score, and contextual
+  tags. Attempts without source coordinates are counted but disclosed as not
+  plotted;
 - sortable all-situations skater and goalie advanced results;
 - sortable five-on-five forward-line and defensive-pairing tables.
 

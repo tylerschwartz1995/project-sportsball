@@ -64,9 +64,10 @@ All team names and abbreviations join through `team_seasons`, so a 2005–06 box
 score uses the identity active in 2005–06 rather than a later relocation or
 rebrand.
 
-Every displayed table has immediate client-side column sorting. Shot maps are
-server-rendered SVG figures and do not require a charting library or a browser
-data request.
+Every displayed table has immediate client-side column sorting. Shot maps use
+regulation half-rink proportions and expose their markers through one keyboard
+tab stop plus arrow-key navigation, avoiding a separate tab stop for every
+attempt. They do not require a charting library or a browser data request.
 
 ## Endpoint
 
