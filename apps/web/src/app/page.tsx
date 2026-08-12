@@ -76,6 +76,7 @@ export default async function Home({ searchParams }: HomeProps) {
     : [[], [], [], [], [], []];
 
   const latestDate = latestGames[0]?.gameDate;
+  const latestPhase = latestGames[0]?.gameType === 3 ? "playoffs" : "regular";
   const leagueLeader = standings[0];
   const standingsMovement = buildStandingsMovement(
     standings,
@@ -113,8 +114,8 @@ export default async function Home({ searchParams }: HomeProps) {
                   <Link
                     href={
                       latestDate
-                        ? `/games?season=${selectedSeason.id}&date=${latestDate}`
-                        : `/games?season=${selectedSeason.id}`
+                        ? `/games?season=${selectedSeason.id}&phase=${latestPhase}&date=${latestDate}`
+                        : `/games?season=${selectedSeason.id}&phase=regular`
                     }
                   >
                     All Games →

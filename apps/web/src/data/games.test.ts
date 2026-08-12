@@ -33,7 +33,7 @@ describe("game queries", () => {
     ]);
     expect(queryMock).toHaveBeenCalledWith(
       expect.stringContaining("game_date >= CURRENT_DATE"),
-      [20252026, null],
+      [20252026, null, null],
     );
   });
 
@@ -104,13 +104,25 @@ describe("game queries", () => {
     expect(queryMock).toHaveBeenNthCalledWith(
       1,
       expect.stringContaining("game_type = $2"),
-      [20252026, 3],
+      [20252026, 3, null],
     );
     expect(queryMock).toHaveBeenNthCalledWith(
       2,
       expect.stringContaining("game.game_type = $3"),
       [20252026, "2026-06-14", 3],
     );
+  });
+
+  it("limits schedule dates to a selected team", async () => {
+    queryMock.mockResolvedValue([]);
+
+    await listGameDates(20252026, 2, 23);
+
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("away_team_id"),
+      [20252026, 2, 23],
+    );
+    expect(queryMock.mock.calls[0]?.[0]).toContain("home_team_id");
   });
 
   it("loads the latest game date for a season without a second query", async () => {

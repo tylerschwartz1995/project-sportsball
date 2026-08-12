@@ -33,8 +33,10 @@ schedules, results, box scores, play-by-play, player profiles, traditional
 season statistics, standings, and the published MoneyPuck datasets described
 in [Data sources and coverage](docs/data-sources.md).
 The complete published 2026–27 regular-season schedule is stored as 1,344
-future games. Team pages show their next games across season boundaries, and a
-dedicated History page presents sortable career and single-season leaders.
+future games. The schedule supports week, calendar, phase, and team navigation
+with local start times. Team pages show their next games across season
+boundaries, and a dedicated History page presents sortable career and
+single-season leaders.
 
 The full completeness audit currently passes every season with no errors.
 Three early seasons contain warnings for a total of 41 play-by-play participant
