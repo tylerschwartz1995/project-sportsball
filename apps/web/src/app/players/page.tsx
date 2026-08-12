@@ -191,6 +191,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
             {category === "skaters" ? (
               <>
                 <PlayerSectionHeader
+                  id="player-results"
                   title="Skaters"
                   count={skaterPage.totalItems}
                   description="Combined totals across all teams played for."
@@ -291,6 +292,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         phase,
                         ...filters,
                       }}
+                      scrollTarget="player-results"
                     />
                   </>
                 ) : (
@@ -300,6 +302,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
             ) : (
               <>
                 <PlayerSectionHeader
+                  id="player-results"
                   title="Goalies"
                   count={goaliePage.totalItems}
                   description="Participating goalies only; dressed backups are excluded."
@@ -398,6 +401,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         phase,
                         ...filters,
                       }}
+                      scrollTarget="player-results"
                     />
                   </>
                 ) : (
@@ -682,16 +686,18 @@ function DirectoryEmptyState() {
 }
 
 function PlayerSectionHeader({
+  id,
   title,
   count,
   description,
 }: {
+  id: string;
   title: string;
   count: number;
   description: string;
 }) {
   return (
-    <div className="mt-12 flex flex-wrap items-end justify-between gap-3">
+    <div id={id} className="mt-12 scroll-mt-6 flex flex-wrap items-end justify-between gap-3">
       <div>
         <h3 className="text-2xl font-semibold text-white">{title}</h3>
         <p className="mt-1 text-sm text-slate-500">{description}</p>

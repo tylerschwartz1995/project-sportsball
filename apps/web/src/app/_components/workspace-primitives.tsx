@@ -30,6 +30,7 @@ export function WorkspacePageHeader({
 }
 
 export function WorkspacePanel({
+  id,
   title,
   description,
   action,
@@ -37,6 +38,7 @@ export function WorkspacePanel({
   className = "",
   width = "wide",
 }: {
+  id?: string;
   title: string;
   description?: string;
   action?: ReactNode;
@@ -48,7 +50,7 @@ export function WorkspacePanel({
     width === "wide" ? "" : `workspace-width-${width}`;
 
   return (
-    <section className={`workspace-panel ${widthClass} ${className}`}>
+    <section id={id} className={`workspace-panel ${widthClass} ${className}`}>
       <div className="workspace-panel-header">
         <div>
           <h3>{title}</h3>

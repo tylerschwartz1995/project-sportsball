@@ -250,7 +250,7 @@ async function HistoryLeaderboardContent({
       >
         <HistoryLeaderboardTable leaderboard={leaderboard} metricHrefs={Object.fromEntries(metricLinks.map((item) => [item.metric, item.href]))} />
       </HistoryResultsSection>
-      <Pagination path="/history" currentPage={page} totalPages={totalPages} params={paginationParams} />
+      <Pagination path="/history" currentPage={page} totalPages={totalPages} params={paginationParams} scrollTarget="history-results" />
     </div>
   );
 }
@@ -298,7 +298,7 @@ async function HistoryPeaksContent({
       <HistoryResultsSection title={`${metricLabel(metric)} Peaks`} description={`Showing ${pageStart(page, rows.length)}–${pageEnd(page, rows.length)} of ${totalRows.toLocaleString("en-CA")} eligible consecutive-season stretches.`}>
         <HistoryPeaksTable rows={rows} metricLabel={metricLabel(metric)} window={window} />
       </HistoryResultsSection>
-      <Pagination path="/history" currentPage={page} totalPages={totalPages} params={{ ...historyQueryParams("peaks", phase, view, metric, filters), window }} />
+      <Pagination path="/history" currentPage={page} totalPages={totalPages} params={{ ...historyQueryParams("peaks", phase, view, metric, filters), window }} scrollTarget="history-results" />
     </div>
   );
 }
@@ -349,7 +349,7 @@ async function HistoryErasContent({
         <HistoryResultsSection title="Career Save Index" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games with recorded shot data. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible goalies.`}>
           <HistoryGoalieEraTable rows={scores} />
         </HistoryResultsSection>
-        <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, view, metric, filters)} />
+        <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, view, metric, filters)} scrollTarget="history-results" />
       </div>
     );
   }
@@ -382,7 +382,7 @@ async function HistoryErasContent({
       <HistoryResultsSection title="Career Era Scores" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible skaters.`}>
         <HistoryEraTable rows={scores} />
       </HistoryResultsSection>
-      <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, view, metric, filters)} />
+      <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, view, metric, filters)} scrollTarget="history-results" />
     </div>
   );
 }
@@ -397,7 +397,7 @@ function HistoryResultsSection({
   children: ReactNode;
 }) {
   return (
-    <section className="workspace-history-results">
+    <section id="history-results" className="workspace-history-results scroll-mt-6">
       <header>
         <div>
           <h3>{title}</h3>

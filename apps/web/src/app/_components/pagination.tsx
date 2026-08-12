@@ -5,6 +5,7 @@ type PaginationProps = {
   currentPage: number;
   totalPages: number;
   params: Record<string, string | number | undefined>;
+  scrollTarget: string;
 };
 
 export function Pagination({
@@ -12,6 +13,7 @@ export function Pagination({
   currentPage,
   totalPages,
   params,
+  scrollTarget,
 }: PaginationProps) {
   if (totalPages <= 1) {
     return null;
@@ -25,7 +27,7 @@ export function Pagination({
       className="mt-6 flex flex-wrap items-center justify-between gap-3"
     >
       <PageLink
-        href={buildPageHref(path, params, currentPage - 1)}
+        href={buildPageHref(path, params, currentPage - 1, scrollTarget)}
         disabled={currentPage === 1}
       >
         ← Previous
@@ -34,7 +36,7 @@ export function Pagination({
         {visiblePages.map((page) => (
           <Link
             key={page}
-            href={buildPageHref(path, params, page)}
+            href={buildPageHref(path, params, page, scrollTarget)}
             aria-current={page === currentPage ? "page" : undefined}
             className={`min-w-10 rounded-lg px-3 py-2 text-center text-sm font-medium transition ${
               page === currentPage
@@ -47,7 +49,7 @@ export function Pagination({
         ))}
       </div>
       <PageLink
-        href={buildPageHref(path, params, currentPage + 1)}
+        href={buildPageHref(path, params, currentPage + 1, scrollTarget)}
         disabled={currentPage === totalPages}
       >
         Next →
@@ -86,6 +88,7 @@ function buildPageHref(
   path: string,
   params: Record<string, string | number | undefined>,
   page: number,
+  scrollTarget: string,
 ): string {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
@@ -94,7 +97,7 @@ function buildPageHref(
     }
   });
   search.set("page", String(page));
-  return `${path}?${search.toString()}`;
+  return `${path}?${search.toString()}#${encodeURIComponent(scrollTarget)}`;
 }
 
 function pageWindow(currentPage: number, totalPages: number): number[] {
