@@ -7317,35 +7317,98 @@ html[data-theme="light"] .workspace-analytics-filters button {
   font-size: 0.78rem;
 }
 
-.workspace-history-decades > div {
-  display: grid;
-  gap: 0.45rem;
+.workspace-history-decades-table-scroll {
+  overflow-x: auto;
   margin-top: 0.85rem;
-}
-
-.workspace-history-decades a {
-  display: grid;
-  grid-template-columns: 4rem minmax(0, 1fr);
-  gap: 0.15rem 0.7rem;
   border: 1px solid var(--border);
-  border-radius: 0.6rem;
-  padding: 0.65rem 0.75rem;
-  background: var(--surface-subtle);
-  color: var(--foreground);
-  text-decoration: none;
+  border-radius: 0.65rem;
 }
 
-.workspace-history-decades a > span {
-  grid-row: span 2;
-  align-self: center;
+.workspace-history-decades-table {
+  width: 100%;
+  min-width: 29rem;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.workspace-history-decades-table thead {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-raised);
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-history-decades-table th,
+.workspace-history-decades-table td {
+  padding: 0.7rem 0.85rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.workspace-history-decades-table thead th:first-child {
+  width: 7rem;
+}
+
+.workspace-history-decades-table thead th:nth-child(2) {
+  width: auto;
+  text-align: left;
+}
+
+.workspace-history-decades-table thead th:nth-child(3),
+.workspace-history-decades-table thead th:nth-child(4) {
+  width: 8rem;
+}
+
+.workspace-history-decades-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 120ms ease;
+}
+
+.workspace-history-decades-table tbody tr:last-child {
+  border-bottom: 0;
+}
+
+.workspace-history-decades-table tbody tr:hover {
+  background: var(--surface-subtle);
+}
+
+.workspace-history-decades-table tbody th,
+.workspace-history-decades-table tbody td:nth-child(3),
+.workspace-history-decades-table tbody td:nth-child(4) {
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-history-decades-table tbody th {
   color: var(--accent-secondary);
   font-family: var(--font-geist-mono);
   font-weight: 800;
 }
 
-.workspace-history-decades small {
+.workspace-history-decades-table tbody td:nth-child(2) {
+  text-align: left;
+}
+
+.workspace-history-decades-table a {
+  color: var(--foreground);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.workspace-history-decades-table a:hover {
+  color: var(--accent);
+}
+
+.workspace-history-decades-table .is-active-metric {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-weight: 750;
+}
+
+.workspace-history-decades-table tbody td:last-child {
   color: var(--muted);
-  font-size: 0.72rem;
 }
 
 @media (min-width: 640px) {
@@ -7401,9 +7464,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
     grid-column: 1 / -1;
   }
 
-  .workspace-history-decades > div {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (min-width: 900px) {
@@ -7416,9 +7476,6 @@ html[data-theme="light"] .workspace-analytics-filters button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .workspace-history-decades > div {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 639px) {
@@ -7434,6 +7491,76 @@ html[data-theme="light"] .workspace-analytics-filters button {
   .workspace-history-decades > header {
     grid-template-columns: 1fr;
     align-items: start;
+  }
+
+  .workspace-history-decades-table-scroll {
+    overflow-x: visible;
+  }
+
+  .workspace-history-decades-table {
+    min-width: 0;
+    table-layout: auto;
+  }
+
+  .workspace-history-decades-table thead {
+    position: absolute;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .workspace-history-decades-table tbody {
+    display: block;
+  }
+
+  .workspace-history-decades-table tbody tr {
+    display: grid;
+    grid-template:
+      "decade leader metric" auto
+      "decade games metric" auto /
+      5.5rem minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 0.75rem;
+    padding: 0.72rem 0.8rem;
+  }
+
+  .workspace-history-decades-table tbody th,
+  .workspace-history-decades-table tbody td {
+    width: auto;
+    padding: 0;
+  }
+
+  .workspace-history-decades-table tbody th {
+    grid-area: decade;
+    text-align: left;
+  }
+
+  .workspace-history-decades-table tbody td:nth-child(2) {
+    grid-area: leader;
+  }
+
+  .workspace-history-decades-table tbody td:nth-child(3) {
+    grid-area: metric;
+    text-align: right;
+  }
+
+  .workspace-history-decades-table tbody td:nth-child(3)::after {
+    content: " " attr(data-label);
+    font-size: 0.68rem;
+  }
+
+  .workspace-history-decades-table tbody td:last-child {
+    grid-area: games;
+    margin-top: 0.12rem;
+    font-size: 0.72rem;
+    text-align: left;
+  }
+
+  .workspace-history-decades-table tbody td:last-child::after {
+    content: " GP";
   }
 
   .workspace-history-chart-metric {

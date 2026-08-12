@@ -32,6 +32,14 @@ const GOALIE_DECADE_METRICS: ReadonlyArray<{
   { value: "goalsAgainstAverage", label: "Goals-Against Average", heading: "GAA", abbreviation: "GAA", decimals: 2 },
 ];
 
+type DecadeTableRow = {
+  decade: number;
+  nhlPlayerId: number;
+  name: string;
+  value: number;
+  gamesPlayed: number;
+};
+
 export function HistoryDecadeLeaders({
   rows,
 }: {
@@ -63,19 +71,11 @@ export function HistoryDecadeLeaders({
           </select>
         </label>
       </header>
-      <div>
-        {leaders.map((row) => (
-          <Link href={`/players/${row.nhlPlayerId}`} key={row.decade}>
-            <span>{row.decade}s</span>
-            <strong>{row.name}</strong>
-            <small>
-              {row.value.toLocaleString("en-CA")} {selectedMetric.abbreviation}
-              {" · "}
-              {row.gamesPlayed.toLocaleString("en-CA")} GP
-            </small>
-          </Link>
-        ))}
-      </div>
+      <DecadeLeadersTable
+        rows={leaders}
+        metricLabel={selectedMetric.abbreviation}
+        formatValue={(value) => value.toLocaleString("en-CA")}
+      />
     </section>
   );
 }
@@ -116,20 +116,53 @@ export function HistoryGoalieDecadeLeaders({
           </select>
         </label>
       </header>
-      <div>
-        {leaders.map((row) => (
-          <Link href={`/players/${row.nhlPlayerId}`} key={row.decade}>
-            <span>{row.decade}s</span>
-            <strong>{row.name}</strong>
-            <small>
-              {formatGoalieValue(row.value, metric, selectedMetric.decimals)} {selectedMetric.abbreviation}
-              {" · "}
-              {row.gamesPlayed.toLocaleString("en-CA")} GP
-            </small>
-          </Link>
-        ))}
-      </div>
+      <DecadeLeadersTable
+        rows={leaders}
+        metricLabel={selectedMetric.abbreviation}
+        formatValue={(value) =>
+          formatGoalieValue(value, metric, selectedMetric.decimals)
+        }
+      />
     </section>
+  );
+}
+
+function DecadeLeadersTable({
+  rows,
+  metricLabel,
+  formatValue,
+}: {
+  rows: DecadeTableRow[];
+  metricLabel: string;
+  formatValue: (value: number) => string;
+}) {
+  return (
+    <div className="workspace-history-decades-table-scroll">
+      <table className="workspace-history-decades-table">
+        <thead>
+          <tr>
+            <th scope="col">Decade</th>
+            <th scope="col">Leader</th>
+            <th scope="col">{metricLabel}</th>
+            <th scope="col">GP</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.decade}>
+              <th scope="row">{row.decade}s</th>
+              <td>
+                <Link href={`/players/${row.nhlPlayerId}`}>{row.name}</Link>
+              </td>
+              <td className="is-active-metric" data-label={metricLabel}>
+                {formatValue(row.value)}
+              </td>
+              <td>{row.gamesPlayed.toLocaleString("en-CA")}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
