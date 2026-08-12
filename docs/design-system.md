@@ -60,6 +60,12 @@ width. The shell owns sport context, primary navigation, data status, and the
 theme control; pages own their season and dataset controls.
 
 Light and dark modes use semantic tokens rather than separate component markup.
+Muted text and accent links maintain at least WCAG AA text contrast against the
+canvas, panels, and raised surfaces. Accent-filled controls use explicit
+`--on-accent` tokens instead of assuming the canvas color is readable, and
+positive, negative, and warning states keep semantic foreground tokens in both
+themes. Light-mode form boundaries use the stronger `--control-border` token
+so fields remain identifiable without relying on shadows.
 
 Filters show their active defaults instead of presenting blank controls.
 Numeric thresholds use `0` when no minimum is active, while select controls use
