@@ -7311,6 +7311,12 @@ html[data-theme="light"] .workspace-analytics-filters button {
   gap: 1rem;
 }
 
+.workspace-history-decades > header > div > p {
+  margin-top: 0.3rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
 .workspace-history-decades > div {
   display: grid;
   gap: 0.45rem;

@@ -2,7 +2,10 @@ import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import type { ReactNode } from "react";
 
-import { HistoryDecadeLeaders } from "@/app/_components/history-decade-leaders";
+import {
+  HistoryDecadeLeaders,
+  HistoryGoalieDecadeLeaders,
+} from "@/app/_components/history-decade-leaders";
 import {
   HistoryEraTable,
   HistoryExplorerNav,
@@ -37,6 +40,7 @@ import {
   getHistoricalDecadeLeaders,
   getHistoricalEraScores,
   getHistoricalGoalieEraScores,
+  getHistoricalGoalieDecadeLeaders,
   getHistoricalLeaderboard,
   getHistoricalPeaks,
   getHistoryFilterOptions,
@@ -64,12 +68,17 @@ const loadHistoryFilterOptions = unstable_cache(
 );
 const loadHistoryLeagueTrend = unstable_cache(
   getHistoryLeagueTrend,
-  ["history-league-trend-v2"],
+  ["history-league-trend-v3"],
   { revalidate: 3_600 },
 );
 const loadHistoricalDecadeLeaders = unstable_cache(
   getHistoricalDecadeLeaders,
   ["history-decade-leaders-v2"],
+  { revalidate: 3_600 },
+);
+const loadHistoricalGoalieDecadeLeaders = unstable_cache(
+  getHistoricalGoalieDecadeLeaders,
+  ["history-goalie-decade-leaders-v2"],
   { revalidate: 3_600 },
 );
 
@@ -325,9 +334,12 @@ async function HistoryErasContent({
   };
 
   if (view === "goalies") {
-    const [scores, options] = await Promise.all([
+    const decadeMinimumGames = gameType === 3 ? 25 : 200;
+    const [scores, options, leagueTrend, decades] = await Promise.all([
       getHistoricalGoalieEraScores(gameType, filters, page, PAGE_SIZE),
       loadHistoryFilterOptions(gameType),
+      loadHistoryLeagueTrend(gameType),
+      loadHistoricalGoalieDecadeLeaders(gameType, decadeMinimumGames),
     ]);
     const totalRows = scores[0]?.totalRows ?? 0;
     const totalPages = Math.max(1, Math.ceil(totalRows / PAGE_SIZE));
@@ -345,6 +357,8 @@ async function HistoryErasContent({
             </dl>
           </div>
         </section>
+        <HistoryScoringEnvironment key="goalies" points={leagueTrend} view="goalies" />
+        <HistoryGoalieDecadeLeaders rows={decades} minimumGames={decadeMinimumGames} />
         <HistoryFilters section="eras" view={view} metric={metric} phase={phase} filters={filters} options={options} isOpen={hasCustomFilters(params, defaultMinimum)} />
         <HistoryResultsSection title="Career Save Index" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games with recorded shot data. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible goalies.`}>
           <HistoryGoalieEraTable rows={scores} />

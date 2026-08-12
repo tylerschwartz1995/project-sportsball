@@ -4,6 +4,7 @@ import type {
   GoalieHistoryMetric,
   HistoricalGoalieCareer,
   HistoricalGoalieEraScore,
+  HistoricalGoalieDecadeLeader,
   HistoricalGoalieLeaders,
   HistoricalGoalieSeason,
   HistoricalLeaderboard,
@@ -696,15 +697,36 @@ export async function getHistoryLeagueTrend(
     goals_per_team_game: number;
     points_per_team_game: number;
     wins_per_team_game: number;
+    goalie_save_percentage: number | null;
+    goalie_goals_against_average: number | null;
   }>(`
-    SELECT
-      season_id,
-      (SUM(goals_for)::numeric / NULLIF(SUM(games_played), 0))::float AS goals_per_team_game,
-      (SUM(points)::numeric / NULLIF(SUM(games_played), 0))::float AS points_per_team_game,
-      (SUM(wins)::numeric / NULLIF(SUM(games_played), 0))::float AS wins_per_team_game
-    FROM historical_team_season_stats
-    WHERE game_type = $1
-    GROUP BY season_id
+    WITH team_rates AS (
+      SELECT
+        season_id,
+        (SUM(goals_for)::numeric / NULLIF(SUM(games_played), 0))::float AS goals_per_team_game,
+        (SUM(points)::numeric / NULLIF(SUM(games_played), 0))::float AS points_per_team_game,
+        (SUM(wins)::numeric / NULLIF(SUM(games_played), 0))::float AS wins_per_team_game
+      FROM historical_team_season_stats
+      WHERE game_type = $1
+      GROUP BY season_id
+    ), goalie_rates AS (
+      SELECT
+        season_id,
+        (
+          SUM(saves) FILTER (WHERE saves IS NOT NULL AND shots_against > 0)::numeric /
+          NULLIF(SUM(shots_against) FILTER (WHERE saves IS NOT NULL AND shots_against > 0), 0)
+        )::float AS goalie_save_percentage,
+        (
+          3600 * SUM(goals_against) FILTER (WHERE time_on_ice_seconds > 0)::numeric /
+          NULLIF(SUM(time_on_ice_seconds) FILTER (WHERE time_on_ice_seconds > 0), 0)
+        )::float AS goalie_goals_against_average
+      FROM historical_goalie_season_stats
+      WHERE game_type = $1
+      GROUP BY season_id
+    )
+    SELECT team_rates.*, goalie_rates.goalie_save_percentage, goalie_rates.goalie_goals_against_average
+    FROM team_rates
+    LEFT JOIN goalie_rates USING (season_id)
     ORDER BY season_id
   `, [gameType]);
   return rows.map((row) => ({
@@ -712,6 +734,8 @@ export async function getHistoryLeagueTrend(
     goalsPerTeamGame: row.goals_per_team_game,
     pointsPerTeamGame: row.points_per_team_game,
     winsPerTeamGame: row.wins_per_team_game,
+    goalieSavePercentage: row.goalie_save_percentage,
+    goalieGoalsAgainstAverage: row.goalie_goals_against_average,
   }));
 }
 
@@ -1011,6 +1035,88 @@ export async function getHistoricalDecadeLeaders(
     WHERE decade_rank = 1
     ORDER BY metric, decade
   `, [gameType]);
+  return rows.map((row) => ({
+    decade: row.decade,
+    metric: row.metric,
+    nhlPlayerId: row.nhl_player_id,
+    name: row.player_name,
+    gamesPlayed: row.games_played,
+    value: row.value,
+  }));
+}
+
+export async function getHistoricalGoalieDecadeLeaders(
+  gameType: number,
+  minimumGames: number,
+): Promise<HistoricalGoalieDecadeLeader[]> {
+  const rows = await query<{
+    decade: number;
+    metric: HistoricalGoalieDecadeLeader["metric"];
+    nhl_player_id: number;
+    player_name: string;
+    games_played: number;
+    value: number;
+  }>(`
+    WITH player_decade_totals AS (
+      SELECT
+        ((stats.season_id / 10000) / 10 * 10)::integer AS decade,
+        player.nhl_id::integer AS nhl_player_id,
+        player.display_name AS player_name,
+        SUM(stats.games_played)::integer AS games_played,
+        SUM(stats.games_played) FILTER (
+          WHERE stats.saves IS NOT NULL AND stats.shots_against > 0
+        )::integer AS save_percentage_games,
+        SUM(stats.games_played) FILTER (
+          WHERE stats.time_on_ice_seconds > 0
+        )::integer AS goals_against_average_games,
+        SUM(stats.wins)::numeric AS wins,
+        (
+          SUM(stats.saves) FILTER (WHERE stats.saves IS NOT NULL AND stats.shots_against > 0)::numeric /
+          NULLIF(SUM(stats.shots_against) FILTER (WHERE stats.saves IS NOT NULL AND stats.shots_against > 0), 0)
+        ) AS save_percentage,
+        (
+          3600 * SUM(stats.goals_against) FILTER (WHERE stats.time_on_ice_seconds > 0)::numeric /
+          NULLIF(SUM(stats.time_on_ice_seconds) FILTER (WHERE stats.time_on_ice_seconds > 0), 0)
+        ) AS goals_against_average
+      FROM historical_goalie_season_stats AS stats
+      JOIN players AS player ON player.id = stats.player_id
+      WHERE stats.game_type = $1
+      GROUP BY (stats.season_id / 10000) / 10, player.id
+    ), metric_totals AS (
+      SELECT
+        totals.decade,
+        totals.nhl_player_id,
+        totals.player_name,
+        metrics.metric,
+        metrics.value,
+        metrics.games_played
+      FROM player_decade_totals AS totals
+      CROSS JOIN LATERAL (
+        VALUES
+          ('wins'::text, totals.wins, totals.games_played),
+          ('savePercentage'::text, totals.save_percentage, totals.save_percentage_games),
+          ('goalsAgainstAverage'::text, totals.goals_against_average, totals.goals_against_average_games)
+      ) AS metrics(metric, value, games_played)
+      WHERE metrics.value IS NOT NULL
+        AND metrics.games_played >= $2
+    ), ranked AS (
+      SELECT
+        metric_totals.*,
+        ROW_NUMBER() OVER (
+          PARTITION BY decade, metric
+          ORDER BY
+            CASE WHEN metric = 'goalsAgainstAverage' THEN value END ASC NULLS LAST,
+            CASE WHEN metric <> 'goalsAgainstAverage' THEN value END DESC NULLS LAST,
+            player_name,
+            nhl_player_id
+        ) AS decade_rank
+      FROM metric_totals
+    )
+    SELECT decade, metric, nhl_player_id, player_name, games_played, value::float
+    FROM ranked
+    WHERE decade_rank = 1
+    ORDER BY metric, decade
+  `, [gameType, minimumGames]);
   return rows.map((row) => ({
     decade: row.decade,
     metric: row.metric,

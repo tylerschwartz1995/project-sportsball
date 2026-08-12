@@ -30,6 +30,7 @@ const LEAGUE_METRICS = [
     decimals: 2,
     axisDecimals: 1,
     padding: 0.25,
+    omitLeadingZero: false,
   },
   {
     value: "pointsPerTeamGame",
@@ -38,8 +39,36 @@ const LEAGUE_METRICS = [
     decimals: 2,
     axisDecimals: 1,
     padding: 0.12,
+    omitLeadingZero: false,
+  },
+  {
+    value: "goalieSavePercentage",
+    label: "Save Percentage",
+    title: "League Save Percentage",
+    decimals: 3,
+    axisDecimals: 3,
+    padding: 0.005,
+    omitLeadingZero: true,
+  },
+  {
+    value: "goalieGoalsAgainstAverage",
+    label: "Goals-Against Average",
+    title: "League Goals-Against Average",
+    decimals: 2,
+    axisDecimals: 1,
+    padding: 0.2,
+    omitLeadingZero: false,
   },
 ] as const;
+
+const SKATER_LEAGUE_METRICS: LeagueMetric[] = [
+  "goalsPerTeamGame",
+  "pointsPerTeamGame",
+];
+const GOALIE_LEAGUE_METRICS: LeagueMetric[] = [
+  "goalieSavePercentage",
+  "goalieGoalsAgainstAverage",
+];
 
 type RecordMetric = (typeof RECORD_METRICS)[number]["value"];
 type LeagueMetric = (typeof LEAGUE_METRICS)[number]["value"];
@@ -110,24 +139,34 @@ export function HistoryRecordProgression({
 
 export function HistoryScoringEnvironment({
   points,
+  view = "skaters",
 }: {
   points: HistoryLeagueTrendPoint[];
+  view?: "skaters" | "goalies";
 }) {
-  const [metric, setMetric] = useState<LeagueMetric>("goalsPerTeamGame");
-  const config = LEAGUE_METRICS.find((item) => item.value === metric) ?? LEAGUE_METRICS[0];
+  const allowedMetrics = view === "goalies" ? GOALIE_LEAGUE_METRICS : SKATER_LEAGUE_METRICS;
+  const [metric, setMetric] = useState<LeagueMetric>(allowedMetrics[0]);
+  const selectedMetric = allowedMetrics.includes(metric) ? metric : allowedMetrics[0];
+  const config = LEAGUE_METRICS.find((item) => item.value === selectedMetric) ?? LEAGUE_METRICS[0];
   if (points.length === 0) return null;
 
-  const data = points.map((point) => ({
-    season: seasonStart(point.seasonId),
-    seasonLabel: formatSeason(point.seasonId),
-    value: Number(point[metric].toFixed(config.decimals)),
-  }));
+  const data = points.flatMap((point) => {
+    const value = point[selectedMetric];
+    return value === null ? [] : [{
+      season: seasonStart(point.seasonId),
+      seasonLabel: formatSeason(point.seasonId),
+      value: Number(value.toFixed(config.decimals)),
+    }];
+  });
+  const options = LEAGUE_METRICS.filter((item) => allowedMetrics.includes(item.value));
 
   return (
     <HistoryChartShell
       title={config.title}
-      description="League scoring and results have changed across eras. Use this context when comparing raw totals and rates from different periods."
-      control={<MetricSelect label="League metric" value={metric} options={LEAGUE_METRICS} onChange={(value) => setMetric(value as LeagueMetric)} />}
+      description={view === "goalies"
+        ? "League goaltending rates have changed across eras. Save percentage is weighted by shots faced; GAA is weighted by recorded time on ice."
+        : "League scoring and results have changed across eras. Use this context when comparing raw totals and rates from different periods."}
+      control={<MetricSelect label="League metric" value={selectedMetric} options={options} onChange={(value) => setMetric(value as LeagueMetric)} />}
     >
       <div className="workspace-history-chart-plot">
         <ResponsiveContainer width="100%" height="100%">
@@ -149,12 +188,12 @@ export function HistoryScoringEnvironment({
               (maximum: number) => maximum + config.padding,
             ]}
             width={42}
-            tickFormatter={(value) => Number(value).toFixed(config.axisDecimals)}
+            tickFormatter={(value) => formatChartValue(Number(value), config.axisDecimals, config.omitLeadingZero)}
             tick={{ fill: "var(--muted)", fontSize: "0.78rem" }}
             axisLine={false}
             tickLine={false}
           />
-          <Tooltip content={<LeagueTooltip metricLabel={config.label} decimals={config.decimals} />} />
+          <Tooltip content={<LeagueTooltip metricLabel={config.label} decimals={config.decimals} omitLeadingZero={config.omitLeadingZero} />} />
           <Line
             type="monotoneX"
             dataKey="value"
@@ -169,7 +208,7 @@ export function HistoryScoringEnvironment({
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <AccessibleLeagueTable points={data} label={config.label} decimals={config.decimals} />
+      <AccessibleLeagueTable points={data} label={config.label} decimals={config.decimals} omitLeadingZero={config.omitLeadingZero} />
     </HistoryChartShell>
   );
 }
@@ -234,13 +273,13 @@ function RecordTooltip({ active, payload, metricLabel }: TooltipProps & { metric
   );
 }
 
-function LeagueTooltip({ active, payload, metricLabel, decimals }: TooltipProps & { metricLabel: string; decimals: number }) {
+function LeagueTooltip({ active, payload, metricLabel, decimals, omitLeadingZero }: TooltipProps & { metricLabel: string; decimals: number; omitLeadingZero: boolean }) {
   const row = active ? payload?.[0]?.payload as LeagueChartRow | undefined : undefined;
   if (!row) return null;
   return (
     <div className="workspace-history-tooltip">
       <span>{row.seasonLabel}</span>
-      <strong>{row.value.toFixed(decimals)} {metricLabel.toLowerCase()}</strong>
+      <strong>{formatChartValue(row.value, decimals, omitLeadingZero)} {metricLabel.toLowerCase()}</strong>
     </div>
   );
 }
@@ -273,10 +312,12 @@ function AccessibleLeagueTable({
   points,
   label,
   decimals,
+  omitLeadingZero,
 }: {
   points: LeagueChartRow[];
   label: string;
   decimals: number;
+  omitLeadingZero: boolean;
 }) {
   return (
     <div className="workspace-history-a11y-table">
@@ -286,7 +327,7 @@ function AccessibleLeagueTable({
         <tbody>{points.map((point) => (
           <tr key={point.season}>
             <td>{point.seasonLabel}</td>
-            <td>{point.value.toFixed(decimals)}</td>
+            <td>{formatChartValue(point.value, decimals, omitLeadingZero)}</td>
           </tr>
         ))}</tbody>
       </table>
@@ -326,4 +367,9 @@ function seasonStart(seasonId: number): number {
 
 function formatSeason(seasonId: number): string {
   return `${seasonStart(seasonId)}–${String(seasonId % 10_000).slice(-2)}`;
+}
+
+function formatChartValue(value: number, decimals: number, omitLeadingZero: boolean): string {
+  const formatted = value.toFixed(decimals);
+  return omitLeadingZero ? formatted.replace(/^0/, "") : formatted;
 }

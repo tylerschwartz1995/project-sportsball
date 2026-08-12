@@ -173,6 +173,8 @@ export type HistoryLeagueTrendPoint = {
   goalsPerTeamGame: number;
   pointsPerTeamGame: number;
   winsPerTeamGame: number;
+  goalieSavePercentage: number | null;
+  goalieGoalsAgainstAverage: number | null;
 };
 
 export type HistoricalPeak = {
@@ -213,6 +215,20 @@ export type HistoricalDecadeMetric = "points" | "goals" | "assists";
 export type HistoricalDecadeLeader = {
   decade: number;
   metric: HistoricalDecadeMetric;
+  nhlPlayerId: number;
+  name: string;
+  gamesPlayed: number;
+  value: number;
+};
+
+export type HistoricalGoalieDecadeMetric =
+  | "wins"
+  | "savePercentage"
+  | "goalsAgainstAverage";
+
+export type HistoricalGoalieDecadeLeader = {
+  decade: number;
+  metric: HistoricalGoalieDecadeMetric;
   nhlPlayerId: number;
   name: string;
   gamesPlayed: number;

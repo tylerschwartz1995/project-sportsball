@@ -13,6 +13,8 @@ import {
   getHistoricalDecadeLeaders,
   getHistoricalEraScores,
   getHistoricalGoalieEraScores,
+  getHistoricalGoalieDecadeLeaders,
+  getHistoryLeagueTrend,
   getHistoricalLeaderboard,
   getHistoricalLeaders,
   getHistoricalPeaks,
@@ -259,6 +261,21 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     expect(goalieEraScores).toHaveLength(10);
     expect(goalieEraScores[0]?.saveIndex).toBeGreaterThan(100);
     expect(goalieEraScores[0]?.savePercentage).toBeGreaterThan(0.9);
+
+    const goalieTrend = await getHistoryLeagueTrend(2);
+    expect(
+      goalieTrend.some(
+        (row) =>
+          row.goalieSavePercentage !== null &&
+          row.goalieGoalsAgainstAverage !== null,
+      ),
+    ).toBe(true);
+
+    const goalieDecadeLeaders = await getHistoricalGoalieDecadeLeaders(2, 200);
+    expect(new Set(goalieDecadeLeaders.map((row) => row.metric))).toEqual(
+      new Set(["wins", "savePercentage", "goalsAgainstAverage"]),
+    );
+    expect(goalieDecadeLeaders.every((row) => row.gamesPlayed >= 200)).toBe(true);
 
     const decadeLeaders = await getHistoricalDecadeLeaders(2);
     expect(new Set(decadeLeaders.map((row) => row.metric))).toEqual(

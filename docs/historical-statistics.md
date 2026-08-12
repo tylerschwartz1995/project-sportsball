@@ -39,10 +39,18 @@ server-paginated in groups of 25 so every displayed rank and metric sort applies
 to the complete filtered result set rather than a client-side subset.
 
 The record-book charts expose a deliberately small set of comparable metrics.
-Career record progression can switch among points, goals, and assists, while
-league context can switch among goals, standings points, and wins per team
-game. Both timelines use decade markers and preserve the exact season values in
-their tooltips and accessible tables.
+Career record progression can switch among points, goals, and assists. Skater
+league context can switch between goals and standings points per team game;
+goalie league context can switch between shot-weighted save percentage and
+time-on-ice-weighted goals-against average. The timelines use decade markers
+and preserve the exact season values in their tooltips and accessible tables.
+
+Goalie decade boards rank wins, weighted save percentage, and weighted
+goals-against average. Regular-season boards require 200 games within the
+decade; playoff boards require 25. Decades without a qualified goalie or the
+source fields required for a rate are omitted rather than displayed as zero.
+For rate metrics, only games from seasons containing the required source fields
+count toward qualification.
 
 Rate leaderboards use visible eligibility defaults to prevent short appearances
 from dominating the results. Regular-season career points per game defaults to
