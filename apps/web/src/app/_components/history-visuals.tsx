@@ -39,14 +39,6 @@ const LEAGUE_METRICS = [
     axisDecimals: 1,
     padding: 0.12,
   },
-  {
-    value: "winsPerTeamGame",
-    label: "Wins / Team Game",
-    title: "Wins Per Team Game",
-    decimals: 3,
-    axisDecimals: 2,
-    padding: 0.04,
-  },
 ] as const;
 
 type RecordMetric = (typeof RECORD_METRICS)[number]["value"];
