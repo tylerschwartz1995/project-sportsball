@@ -3,7 +3,6 @@ import Link from "next/link";
 import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
 import type {
   GoalieHistoryMetric,
-  HistoricalDecadeLeader,
   HistoricalEraScore,
   HistoricalGoalieCareer,
   HistoricalGoalieSeason,
@@ -440,12 +439,6 @@ export function HistoryEraTable({ rows }: { rows: HistoricalEraScore[] }) {
       <MetricCell value={row.gamesPlayed} /><MetricCell value={row.points} /><MetricCell value={row.eraScore.toFixed(0)} active />
     </tr>)}</tbody>
   </table></TableShell>;
-}
-
-export function HistoryDecadeLeaders({ rows }: { rows: HistoricalDecadeLeader[] }) {
-  return <section className="workspace-history-decades"><header><h2>Decade Points Leaders</h2></header><div>
-    {rows.map((row) => <Link href={`/players/${row.nhlPlayerId}`} key={row.decade}><span>{row.decade}s</span><strong>{row.name}</strong><small>{row.points.toLocaleString("en-CA")} PTS · {row.gamesPlayed.toLocaleString("en-CA")} GP</small></Link>)}
-  </div></section>;
 }
 
 function TableShell({ minWidth, children }: { minWidth: string; children: React.ReactNode }) {

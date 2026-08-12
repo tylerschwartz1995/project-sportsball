@@ -10,6 +10,7 @@ import {
 } from "@/data/games";
 import { getPlayerDetail, listPlayersBySeason } from "@/data/players";
 import {
+  getHistoricalDecadeLeaders,
   getHistoricalEraScores,
   getHistoricalLeaderboard,
   getHistoricalLeaders,
@@ -240,6 +241,16 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     );
     expect(eraScores).toHaveLength(10);
     expect(eraScores[0]?.eraScore).toBeGreaterThan(200);
+
+    const decadeLeaders = await getHistoricalDecadeLeaders(2);
+    expect(new Set(decadeLeaders.map((row) => row.metric))).toEqual(
+      new Set(["points", "goals", "assists"]),
+    );
+    expect(
+      decadeLeaders.find(
+        (row) => row.decade === 1980 && row.metric === "points",
+      ),
+    ).toMatchObject({ name: "Wayne Gretzky" });
 
     const teamGameLog = await getTeamGameLog(12, seasons[0].id);
     expect(teamGameLog?.games.length).toBeGreaterThan(82);

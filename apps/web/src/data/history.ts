@@ -880,38 +880,61 @@ export async function getHistoricalDecadeLeaders(
 ): Promise<HistoricalDecadeLeader[]> {
   const rows = await query<{
     decade: number;
+    metric: HistoricalDecadeLeader["metric"];
     nhl_player_id: number;
     player_name: string;
     games_played: number;
-    points: number;
+    value: number;
   }>(`
-    WITH totals AS (
+    WITH player_decade_totals AS (
       SELECT
         ((stats.season_id / 10000) / 10 * 10)::integer AS decade,
         player.nhl_id::integer AS nhl_player_id,
         player.display_name AS player_name,
         SUM(stats.games_played)::integer AS games_played,
-        SUM(stats.points)::integer AS points,
-        ROW_NUMBER() OVER (
-          PARTITION BY (stats.season_id / 10000) / 10
-          ORDER BY SUM(stats.points) DESC, player.display_name
-        ) AS decade_rank
+        SUM(stats.goals)::integer AS goals,
+        SUM(stats.assists)::integer AS assists,
+        SUM(stats.points)::integer AS points
       FROM historical_skater_season_stats AS stats
       JOIN players AS player ON player.id = stats.player_id
       WHERE stats.game_type = $1
       GROUP BY (stats.season_id / 10000) / 10, player.id
+    ), metric_totals AS (
+      SELECT
+        totals.decade,
+        totals.nhl_player_id,
+        totals.player_name,
+        totals.games_played,
+        metrics.metric,
+        metrics.value
+      FROM player_decade_totals AS totals
+      CROSS JOIN LATERAL (
+        VALUES
+          ('points'::text, totals.points),
+          ('goals'::text, totals.goals),
+          ('assists'::text, totals.assists)
+      ) AS metrics(metric, value)
+    ), ranked AS (
+      SELECT
+        metric_totals.*,
+        ROW_NUMBER() OVER (
+          PARTITION BY decade, metric
+          ORDER BY value DESC, player_name, nhl_player_id
+        ) AS decade_rank
+      FROM metric_totals
     )
-    SELECT decade, nhl_player_id, player_name, games_played, points
-    FROM totals
+    SELECT decade, metric, nhl_player_id, player_name, games_played, value
+    FROM ranked
     WHERE decade_rank = 1
-    ORDER BY decade
+    ORDER BY metric, decade
   `, [gameType]);
   return rows.map((row) => ({
     decade: row.decade,
+    metric: row.metric,
     nhlPlayerId: row.nhl_player_id,
     name: row.player_name,
     gamesPlayed: row.games_played,
-    points: row.points,
+    value: row.value,
   }));
 }
 

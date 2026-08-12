@@ -2,8 +2,8 @@ import Link from "next/link";
 import { unstable_cache } from "next/cache";
 import type { ReactNode } from "react";
 
+import { HistoryDecadeLeaders } from "@/app/_components/history-decade-leaders";
 import {
-  HistoryDecadeLeaders,
   HistoryEraTable,
   HistoryExplorerNav,
   HistoryFilters,
@@ -67,7 +67,7 @@ const loadHistoryLeagueTrend = unstable_cache(
 );
 const loadHistoricalDecadeLeaders = unstable_cache(
   getHistoricalDecadeLeaders,
-  ["history-decade-leaders"],
+  ["history-decade-leaders-v2"],
   { revalidate: 3_600 },
 );
 

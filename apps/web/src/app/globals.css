@@ -7304,6 +7304,13 @@ html[data-theme="light"] .workspace-analytics-filters button {
   background: var(--surface);
 }
 
+.workspace-history-decades > header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 1rem;
+}
+
 .workspace-history-decades > div {
   display: grid;
   gap: 0.45rem;
@@ -7416,6 +7423,11 @@ html[data-theme="light"] .workspace-analytics-filters button {
 
   .workspace-history-chart-heading {
     grid-template-columns: 1fr;
+  }
+
+  .workspace-history-decades > header {
+    grid-template-columns: 1fr;
+    align-items: start;
   }
 
   .workspace-history-chart-metric {
