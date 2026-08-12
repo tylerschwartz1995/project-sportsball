@@ -168,10 +168,14 @@ export default async function PlayerComparePage({
 
             <div className="mt-6">
               <PlayerComparisonPicker
+                key={`${category}:${selectedIds.join(",")}`}
                 options={availablePlayers.map((player) => ({
                   nhlPlayerId: player.nhlPlayerId,
                   name: player.name,
                   position: player.position,
+                  teamAbbreviations: player.teams.map(
+                    (team) => team.abbreviation,
+                  ),
                 }))}
                 initialPlayerIds={selectedIds}
                 seasonId={selectedSeason.id}

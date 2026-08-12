@@ -19,4 +19,5 @@ export type PlayerComparisonOption = {
   nhlPlayerId: number;
   name: string;
   position: string | null;
+  teamAbbreviations: string[];
 };

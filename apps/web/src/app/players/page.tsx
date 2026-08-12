@@ -32,6 +32,7 @@ import {
   parsePage,
   parseSortDirection,
 } from "@/lib/directory";
+import { playerComparisonHref } from "@/lib/player-comparison";
 import { formatPlayerPosition } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
@@ -219,6 +220,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                             <col className="workspace-col-entity" />
                             <col className="workspace-col-stat" span={7} />
                             <col className="workspace-col-number" />
+                            <col className="workspace-col-action" />
                           </colgroup>
                           <thead>
                             <tr className="workspace-data-table-header-row">
@@ -235,6 +237,9 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                   sortKey={column.key}
                                 />
                               ))}
+                              <th scope="col" className="workspace-compare-column">
+                                Compare
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
@@ -272,6 +277,13 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                 <NumericCell value={player.penaltyMinutes} />
                                 <NumericCell value={player.shotsOnGoal} />
                                 <NumericCell value={player.teamsPlayedFor} />
+                                <ComparePlayerCell
+                                  playerId={player.nhlPlayerId}
+                                  name={player.name}
+                                  seasonId={selectedSeason.id}
+                                  phase={phase}
+                                  category="skaters"
+                                />
                               </tr>
                             ))}
                           </tbody>
@@ -330,6 +342,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                             <col className="workspace-col-entity" />
                             <col className="workspace-col-stat" span={7} />
                             <col className="workspace-col-percentage" />
+                            <col className="workspace-col-action" />
                           </colgroup>
                           <thead>
                             <tr className="workspace-data-table-header-row">
@@ -346,6 +359,9 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                   sortKey={column.key}
                                 />
                               ))}
+                              <th scope="col" className="workspace-compare-column">
+                                Compare
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
@@ -380,6 +396,13 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                     player.savePercentage,
                                   )}
                                   highlight
+                                />
+                                <ComparePlayerCell
+                                  playerId={player.nhlPlayerId}
+                                  name={player.name}
+                                  seasonId={selectedSeason.id}
+                                  phase={phase}
+                                  category="goalies"
                                 />
                               </tr>
                             ))}
@@ -727,6 +750,36 @@ function PlayerLink({
     >
       {name}
     </Link>
+  );
+}
+
+function ComparePlayerCell({
+  playerId,
+  name,
+  seasonId,
+  phase,
+  category,
+}: {
+  playerId: number;
+  name: string;
+  seasonId: number;
+  phase: string;
+  category: "skaters" | "goalies";
+}) {
+  return (
+    <td className="workspace-compare-cell">
+      <Link
+        href={playerComparisonHref({
+          seasonId,
+          phase,
+          category,
+          playerIds: [playerId],
+        })}
+        aria-label={`Add ${name} to a comparison`}
+      >
+        Compare +
+      </Link>
+    </td>
   );
 }
 

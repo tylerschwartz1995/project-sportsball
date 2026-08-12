@@ -73,8 +73,18 @@ season immediately. It intentionally omits search, phase, sorting, and
 pagination because every club fits in one browsable conference-and-division
 directory. Player pages retain URL-based phase, sorting, pagination,
 name/position search, minimum-stat, and birth-country, province/state, and city
-filters. Player pages show 50 results per page and separate skater and goalie
-views.
+filters. Name and position search remain visible as the primary discovery
+controls; minimum totals and birthplace filters live in an Advanced Filters
+disclosure that opens automatically when one is active. Player pages show 50
+results per page and separate skater and goalie views. Each player row also
+provides a direct **Compare +** action so a comparison can begin without first
+opening a separate builder.
+
+The comparison workspace accepts two to four skaters or two to four goalies.
+It starts with suggested season leaders and supports search by player name,
+position, or team abbreviation. Selected players occupy numbered slots, and
+adding, removing, or clearing a player updates the shareable URL and the
+comparison immediately; there is no separate submit step.
 
 Every statistics table uses a shared client-side sorter. Column-heading buttons
 reorder the visible rows immediately without a route transition; clicking the

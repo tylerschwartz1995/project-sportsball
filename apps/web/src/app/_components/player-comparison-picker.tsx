@@ -1,9 +1,13 @@
 "use client";
 
-import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
 
 import type { PlayerComparisonOption } from "@/contracts/player-comparison-view";
+import {
+  findPlayerComparisonOptions,
+  playerComparisonHref,
+} from "@/lib/player-comparison";
 import { formatPlayerPosition } from "@/lib/player-position";
 
 export function PlayerComparisonPicker({
@@ -19,32 +23,36 @@ export function PlayerComparisonPicker({
   phase: string;
   category: "skaters" | "goalies";
 }) {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [selectedIds, setSelectedIds] = useState(initialPlayerIds);
+  const [isPending, startTransition] = useTransition();
+
   const optionsById = useMemo(
     () => new Map(options.map((option) => [option.nhlPlayerId, option])),
     [options],
   );
   const normalizedQuery = query.trim().toLocaleLowerCase("en-CA");
   const matches = useMemo(
-    () =>
-      normalizedQuery.length < 2
-        ? []
-        : options
-            .filter(
-              (option) =>
-                !selectedIds.includes(option.nhlPlayerId) &&
-                `${option.name} ${option.position ?? ""} ${formatPlayerPosition(
-                  option.position,
-                  "",
-                )}`
-                  .toLocaleLowerCase("en-CA")
-                  .includes(normalizedQuery),
-            )
-            .slice(0, 8),
-    [normalizedQuery, options, selectedIds],
+    () => findPlayerComparisonOptions(options, selectedIds, query),
+    [options, query, selectedIds],
   );
-  const compareHref = `/players/compare?season=${seasonId}&phase=${phase}&type=${category}&players=${selectedIds.join(",")}`;
+
+  function updateSelection(nextIds: number[]) {
+    setSelectedIds(nextIds);
+    setQuery("");
+    startTransition(() => {
+      router.replace(
+        playerComparisonHref({
+          seasonId,
+          phase,
+          category,
+          playerIds: nextIds,
+        }),
+        { scroll: false },
+      );
+    });
+  }
 
   return (
     <section className="workspace-player-picker">
@@ -63,76 +71,97 @@ export function PlayerComparisonPicker({
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Type at least two letters"
+            placeholder="Search name, position, or team"
+            disabled={selectedIds.length >= 4}
           />
         </label>
         {matches.length > 0 ? (
-          <div className="workspace-player-picker-results">
-            {matches.map((option) => (
-              <button
-                key={option.nhlPlayerId}
-                type="button"
-                disabled={selectedIds.length >= 4}
-                onClick={() => {
-                  setSelectedIds((current) => [
-                    ...current,
-                    option.nhlPlayerId,
-                  ]);
-                  setQuery("");
-                }}
-              >
-                <strong>{option.name}</strong>
-                <span>{formatPlayerPosition(option.position, "Player")}</span>
-              </button>
-            ))}
+          <div className="workspace-player-picker-suggestions">
+            <p>{normalizedQuery ? "Search Results" : "Suggested Players"}</p>
+            <div className="workspace-player-picker-results">
+              {matches.map((option) => (
+                <button
+                  key={option.nhlPlayerId}
+                  type="button"
+                  disabled={selectedIds.length >= 4}
+                  onClick={() =>
+                    updateSelection([...selectedIds, option.nhlPlayerId])
+                  }
+                >
+                  <strong>{option.name}</strong>
+                  <span>
+                    {formatPlayerPosition(option.position, "Player")}
+                    {option.teamAbbreviations.length > 0
+                      ? ` · ${option.teamAbbreviations.join(" / ")}`
+                      : ""}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
-        ) : normalizedQuery.length >= 2 ? (
+        ) : normalizedQuery ? (
           <p className="workspace-player-picker-no-results">
             No unselected players match this search.
           </p>
         ) : null}
       </div>
 
-      <div className="workspace-player-picker-selected">
-        {selectedIds.length > 0 ? (
-          selectedIds.map((playerId) => {
+      <ol
+        className="workspace-player-picker-selected"
+        aria-label="Selected players"
+      >
+        {Array.from({ length: 4 }, (_, index) => {
+          const playerId = selectedIds[index];
+          if (playerId !== undefined) {
             const player = optionsById.get(playerId);
             if (!player) return null;
             return (
-              <span key={playerId}>
-                <strong>{player.name}</strong>
-                <small>{formatPlayerPosition(player.position, "Player")}</small>
+              <li key={playerId} className="is-filled">
+                <span>{index + 1}</span>
+                <div>
+                  <strong>{player.name}</strong>
+                  <small>
+                    {formatPlayerPosition(player.position, "Player")}
+                  </small>
+                </div>
                 <button
                   type="button"
                   aria-label={`Remove ${player.name}`}
                   onClick={() =>
-                    setSelectedIds((current) =>
-                      current.filter((id) => id !== playerId),
-                    )
+                    updateSelection(selectedIds.filter((id) => id !== playerId))
                   }
                 >
                   ×
                 </button>
-              </span>
+              </li>
             );
-          })
-        ) : (
-          <p>Search above to build a comparison.</p>
-        )}
-      </div>
+          }
+          return (
+            <li key={`empty-${index}`} className="is-empty">
+              <span>{index + 1}</span>
+              <p>{index < 2 ? "Choose a player" : "Optional player"}</p>
+            </li>
+          );
+        })}
+      </ol>
 
       <div className="workspace-player-picker-actions">
-        {selectedIds.length >= 2 ? (
-          <Link href={compareHref}>Compare Selected</Link>
-        ) : (
-          <span>Select at least two players</span>
-        )}
+        <div aria-live="polite">
+          <strong>
+            {isPending
+              ? "Updating comparison…"
+              : selectedIds.length >= 2
+                ? "Comparison shown below"
+                : `Choose ${2 - selectedIds.length} more player${selectedIds.length === 0 ? "s" : ""}`}
+          </strong>
+          <span>Additions and removals update automatically.</span>
+        </div>
         <button
           type="button"
           disabled={selectedIds.length === 0}
-          onClick={() => setSelectedIds([])}
+          onClick={() => updateSelection([])}
         >
-          Clear
+          Clear Comparison
         </button>
       </div>
     </section>

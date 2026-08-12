@@ -2,7 +2,11 @@ import type {
   AdvancedGoalieLeaderboardRow,
   AdvancedSkaterLeaderboardRow,
 } from "@/contracts/advanced-leaderboard";
-import type { PlayerComparisonMetric } from "@/contracts/player-comparison-view";
+import type {
+  PlayerComparisonMetric,
+  PlayerComparisonOption,
+} from "@/contracts/player-comparison-view";
+import { formatPlayerPosition } from "@/lib/player-position";
 
 export const SKATER_METRIC_KEYS = [
   "individualExpectedGoalsPer60",
@@ -70,6 +74,62 @@ export type DistributionBin = {
   label: string;
   count: number;
 };
+
+export function playerComparisonHref({
+  seasonId,
+  phase,
+  category,
+  playerIds,
+}: {
+  seasonId: number;
+  phase: string;
+  category: "skaters" | "goalies";
+  playerIds: number[];
+}): string {
+  const params = new URLSearchParams({
+    season: String(seasonId),
+    phase,
+    type: category,
+  });
+  if (playerIds.length > 0) {
+    params.set("players", playerIds.join(","));
+  }
+  return `/players/compare?${params.toString()}`;
+}
+
+export function findPlayerComparisonOptions(
+  options: PlayerComparisonOption[],
+  selectedIds: number[],
+  query: string,
+  limit = 6,
+): PlayerComparisonOption[] {
+  const normalizedQuery = query.trim().toLocaleLowerCase("en-CA");
+  return options
+    .filter((option) => !selectedIds.includes(option.nhlPlayerId))
+    .filter((option) => {
+      if (!normalizedQuery) return true;
+      const searchable = [
+        option.name,
+        option.position ?? "",
+        formatPlayerPosition(option.position, ""),
+        positionSearchTerms(option.position),
+        ...option.teamAbbreviations,
+      ]
+        .join(" ")
+        .toLocaleLowerCase("en-CA");
+      return searchable.includes(normalizedQuery);
+    })
+    .slice(0, limit);
+}
+
+function positionSearchTerms(position: string | null): string {
+  if (position === "C") return "centre center forward";
+  if (position === "L") return "left wing winger forward";
+  if (position === "R") return "right wing winger forward";
+  if (position === "D") return "defence defense defenceman defenseman";
+  if (position === "G") return "goalie goaltender";
+  return "";
+}
 
 export function buildSkaterComparisonPoints(
   rows: AdvancedSkaterLeaderboardRow[],
