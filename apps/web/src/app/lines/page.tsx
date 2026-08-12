@@ -1,4 +1,8 @@
 import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
+import {
+  FilterActions,
+  FilterHeader,
+} from "@/app/_components/filter-primitives";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonUnitTables } from "@/app/_components/season-unit-tables";
 import { SiteHeader } from "@/app/_components/site-header";
@@ -148,6 +152,14 @@ function CombinationFilters({
       className="workspace-unit-filter"
     >
       <input type="hidden" name="season" value={seasonId} />
+      <FilterHeader
+        description="Narrow combinations by team, sample window, and shared ice time."
+        activeCount={
+          (selectedTeamId ? 1 : 0) +
+          (rollingGames ? 1 : 0) +
+          (selectedMinutes > 0 ? 1 : 0)
+        }
+      />
       <label>
         Team
         <select name="team" defaultValue={selectedTeamId ?? ""}>
@@ -183,11 +195,7 @@ function CombinationFilters({
           ))}
         </select>
       </label>
-      <button
-        type="submit"
-      >
-        Explore
-      </button>
+      <FilterActions clearHref={`/lines?season=${seasonId}`} />
     </form>
   );
 }

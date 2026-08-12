@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { FilterActions } from "@/app/_components/filter-primitives";
 import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
 import type {
   GoalieHistoryMetric,
@@ -194,6 +195,7 @@ export function HistoryFilters({
   filters,
   options,
   isOpen,
+  minimumIsCustom,
 }: {
   section: string;
   view: HistoryView;
@@ -202,16 +204,32 @@ export function HistoryFilters({
   filters: HistoryFilters;
   options: HistoryFilterOptions;
   isOpen: boolean;
+  minimumIsCustom: boolean;
 }) {
   const summary = view === "skaters"
     ? "Season range, eligibility, position, team, and birthplace"
     : view === "goalies"
       ? "Season range, eligibility, team, and birthplace"
       : "Season range and eligibility";
+  const activeCount = [
+    filters.startYear !== 1917,
+    filters.endYear !== 2025,
+    minimumIsCustom,
+    Boolean(filters.position),
+    Boolean(filters.team),
+    Boolean(filters.country),
+  ].filter(Boolean).length;
   return (
     <details className="workspace-history-filter-drawer" open={isOpen || undefined}>
       <summary>
-        <span><strong>Refine This Ranking</strong><small>{summary}</small></span>
+        <span>
+          <strong>Filter Ranking</strong>
+          <small>
+            {activeCount > 0
+              ? `${activeCount} active ${activeCount === 1 ? "filter" : "filters"} · ${summary}`
+              : summary}
+          </small>
+        </span>
         <b aria-hidden="true">+</b>
       </summary>
       <form action="/history" method="get">
@@ -252,10 +270,9 @@ export function HistoryFilters({
             </div>
           </fieldset>
         ) : null}
-        <div className="workspace-history-filter-actions">
-          <button type="submit">Apply Filters</button>
-          <Link href={`/history?section=${section}&entity=${view}&metric=${metric}&phase=${phase}`}>Reset</Link>
-        </div>
+        <FilterActions
+          clearHref={`/history?section=${section}&entity=${view}&metric=${metric}&phase=${phase}`}
+        />
       </form>
     </details>
   );

@@ -73,6 +73,12 @@ a clear `All …` or named default. Phase selectors keep their context in an
 accessible label without repeating it beside self-explanatory options. Helper
 text is reserved for information that is not already expressed by the adjacent
 heading or field labels.
+Filter panels use one shared anatomy: a concise title and purpose, an active
+filter count, labelled fields, then `Apply Filters` and `Clear Filters` actions.
+Forms that apply immediately say `Updates automatically` and omit a redundant
+apply button. Season, phase, page view, and sort order are context controls and
+do not inflate the active-filter count. Clearing filters preserves that context
+in the URL while removing only optional refinements.
 Dark is the first-visit default, an explicit selection persists on the device,
 and a pre-render bootstrap applies it before the interface is painted.
 

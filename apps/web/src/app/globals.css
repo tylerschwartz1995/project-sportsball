@@ -750,6 +750,84 @@ html[data-theme="light"] .theme-toggle-label::after {
   box-shadow: 0 10px 28px var(--shadow);
 }
 
+.workspace-filter-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.85rem 1rem;
+}
+
+.workspace-filter-header > div {
+  display: grid;
+  gap: 0.18rem;
+}
+
+.workspace-filter-header strong {
+  color: var(--foreground);
+  font-size: 0.95rem;
+}
+
+.workspace-filter-header span,
+.workspace-filter-header small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.workspace-filter-header small {
+  flex: 0 0 auto;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.28rem 0.55rem;
+  background: var(--surface-raised);
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.workspace-filter-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.workspace-filter-actions > button,
+.workspace-filter-actions > a {
+  display: grid;
+  min-height: 2.55rem;
+  place-items: center;
+  border-radius: 0.5rem;
+  padding: 0 0.9rem;
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.workspace-filter-actions > button {
+  border: 0;
+  background: var(--accent);
+  color: var(--on-accent);
+  cursor: pointer;
+}
+
+.workspace-filter-actions > button[data-accent="secondary"] {
+  background: var(--accent-secondary);
+  color: var(--on-accent-secondary);
+}
+
+.workspace-filter-actions > a {
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.workspace-filter-actions > a:hover {
+  border-color: var(--border-strong);
+  color: var(--foreground);
+}
+
 @media (min-width: 640px) {
   .workspace-directory-controls {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -863,6 +941,11 @@ html[data-theme="light"] .theme-toggle-label::after {
   box-shadow: 0 10px 28px var(--shadow);
 }
 
+.workspace-player-filters > .workspace-filter-header,
+.workspace-player-filters > .workspace-filter-actions {
+  grid-column: 1 / -1;
+}
+
 .workspace-player-filter-group {
   min-width: 0;
   border: 0;
@@ -924,40 +1007,14 @@ html[data-theme="light"] .theme-toggle-label::after {
   line-height: 1.5;
 }
 
-.workspace-player-filter-actions {
-  display: flex;
+.workspace-player-filters > .workspace-filter-actions {
   flex-wrap: wrap;
-  align-items: center;
-  gap: 0.65rem;
   padding: 0.75rem 0.9rem;
 }
 
-.workspace-player-filter-actions > * {
-  min-height: 2.65rem;
-  border-radius: 0.5rem;
-  padding: 0 1rem;
-  font-size: 0.9rem;
-  font-weight: 700;
-}
-
-.workspace-player-filter-actions button {
-  border: 0;
-  background: var(--accent);
-  color: var(--on-accent);
-  cursor: pointer;
-}
-
-.workspace-player-filter-actions .workspace-directory-reset {
-  display: grid;
-  place-items: center;
-}
-
 .workspace-player-compare-link {
-  display: grid;
-  place-items: center;
   margin-left: auto;
-  color: var(--accent);
-  text-decoration: none;
+  color: var(--accent) !important;
 }
 
 @media (min-width: 640px) {
@@ -996,7 +1053,7 @@ html[data-theme="light"] .theme-toggle-label::after {
     grid-column: 1 / -1;
   }
 
-  .workspace-player-filter-actions {
+  .workspace-player-filters > .workspace-filter-actions {
     grid-column: 1 / -1;
     border-top: 1px solid var(--border);
   }
@@ -1358,6 +1415,11 @@ html[data-theme="light"] .theme-toggle-label::after {
   width: 100%;
 }
 
+.workspace-draft-filters.is-board > .workspace-filter-header {
+  grid-column: 1 / -1;
+  margin: -0.8rem -0.8rem 0;
+}
+
 .workspace-draft-filters.is-board .workspace-draft-filter-actions {
   justify-content: flex-end;
 }
@@ -1564,6 +1626,11 @@ html[data-theme="light"] .theme-toggle-label::after {
   padding: 1rem 1.1rem;
 }
 
+.workspace-unit-filter > .workspace-filter-header {
+  grid-column: 1 / -1;
+  margin: -1rem -1.1rem 0;
+}
+
 .workspace-unit-filter label {
   color: var(--muted);
   font-size: 0.88rem;
@@ -1581,7 +1648,6 @@ html[data-theme="light"] .theme-toggle-label::after {
   font: inherit;
 }
 
-.workspace-unit-filter button,
 .workspace-system-actions button,
 .workspace-system-actions a {
   min-height: 2.45rem;
@@ -1592,7 +1658,6 @@ html[data-theme="light"] .theme-toggle-label::after {
   font-weight: 700;
 }
 
-.workspace-unit-filter button,
 .workspace-system-actions button {
   border: 0;
   background: var(--accent);
@@ -2718,7 +2783,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 }
 
 @media (max-width: 520px) {
-  .workspace-player-filter-actions {
+  .workspace-player-filters > .workspace-filter-actions {
     align-items: stretch;
     flex-direction: column;
   }
@@ -4744,6 +4809,15 @@ html[data-theme="light"] .theme-toggle-label::after {
   box-shadow: 0 10px 28px var(--shadow);
 }
 
+.workspace-analytics-filters > .workspace-filter-header {
+  margin: -0.85rem -0.85rem 0;
+}
+
+.workspace-analytics-filters > .workspace-filter-header,
+.workspace-analytics-filters > .workspace-filter-actions {
+  grid-column: 1 / -1;
+}
+
 .workspace-analytics-filters[data-type="teams"] {
   max-width: 24rem;
 }
@@ -4784,19 +4858,6 @@ html[data-theme="light"] .theme-toggle-label::after {
     var(--accent-secondary) 60%,
     var(--border)
   );
-}
-
-.workspace-analytics-filters button {
-  min-height: 2.5rem;
-  border: 0;
-  border-radius: 0.45rem;
-  padding: 0 1rem;
-  background: var(--accent-secondary);
-  color: var(--on-accent-secondary);
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.88rem;
-  font-weight: 750;
 }
 
 .workspace-guide-groups {
