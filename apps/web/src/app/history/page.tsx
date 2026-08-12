@@ -325,9 +325,10 @@ async function HistoryErasContent({
       <section className="workspace-history-intro">
         <div><h2>Era-Adjusted Scoring</h2></div>
         <div className="workspace-history-era-definition">
-          <p>Era Score adjusts a player’s points per game for the league scoring rate during the same seasons.</p>
+          <p>Era Score compares a player’s actual points with the total a league-average skater would be expected to produce over the same number of games in those same seasons.</p>
           <dl aria-label="Era Score reference values">
-            <div><dt>100</dt><dd>League average</dd></div>
+            <div><dt>100</dt><dd>At league average</dd></div>
+            <div><dt>150</dt><dd>50% above average</dd></div>
             <div><dt>200</dt><dd>2× league average</dd></div>
           </dl>
         </div>
