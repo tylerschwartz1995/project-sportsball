@@ -8,6 +8,8 @@ vi.mock("@/data/database", () => ({
 
 import {
   getGameBoxScore,
+  getGameSummary,
+  getGameViewAvailability,
   getGamesByDate,
   getLatestGamesForSeason,
   getRecentCompletedGames,
@@ -370,5 +372,64 @@ describe("game queries", () => {
         goalies: [],
       },
     });
+  });
+
+  it("loads game chrome without player box-score rows", async () => {
+    queryMock.mockResolvedValueOnce([
+      {
+        id: 42,
+        nhl_game_id: 2025030416,
+        season_id: 20252026,
+        game_type: 3,
+        game_date: "2026-06-14",
+        start_time_utc: "2026-06-14 00:00:00+00",
+        state: "OFF",
+        last_period_type: "REG",
+        away_team_id: 16,
+        away_nhl_team_id: 12,
+        away_abbreviation: "CAR",
+        away_name: "Carolina Hurricanes",
+        away_wins: 16,
+        away_losses: 6,
+        away_overtime_losses: 0,
+        away_score: 3,
+        away_shots_on_goal: 23,
+        home_team_id: 11096,
+        home_nhl_team_id: 54,
+        home_abbreviation: "VGK",
+        home_name: "Vegas Golden Knights",
+        home_wins: 14,
+        home_losses: 8,
+        home_overtime_losses: 0,
+        home_score: 0,
+        home_shots_on_goal: 22,
+      },
+    ]);
+
+    await expect(getGameSummary(2025030416)).resolves.toMatchObject({
+      nhlGameId: 2025030416,
+      awayTeam: { abbreviation: "CAR" },
+    });
+    expect(queryMock).toHaveBeenCalledOnce();
+    expect(queryMock.mock.calls[0]?.[0]).not.toContain("player_game_stats AS stats");
+  });
+
+  it("checks game-view availability with one bounded query", async () => {
+    queryMock.mockResolvedValueOnce([
+      { scoring: true, box_score: true, advanced: false },
+    ]);
+
+    await expect(getGameViewAvailability(2025030416)).resolves.toEqual({
+      scoring: true,
+      boxScore: true,
+      advanced: false,
+    });
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("FROM game_events AS event"),
+      [2025030416],
+    );
+    expect(queryMock.mock.calls[0]?.[0]).toContain(
+      "FROM moneypuck_team_game_stats AS advanced",
+    );
   });
 });

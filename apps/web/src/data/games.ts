@@ -106,6 +106,18 @@ type GameGoalieRow = {
   time_on_ice_seconds: number | null;
 };
 
+type GameViewAvailabilityRow = {
+  scoring: boolean;
+  box_score: boolean;
+  advanced: boolean;
+};
+
+export type GameViewAvailability = {
+  scoring: boolean;
+  boxScore: boolean;
+  advanced: boolean;
+};
+
 function gameRecordJoin(side: "away" | "home"): string {
   return `
     LEFT JOIN LATERAL (
@@ -285,6 +297,59 @@ export async function getGamesByDate(
   );
 
   return rows.map(mapGame);
+}
+
+export async function getGameSummary(
+  nhlGameId: number,
+): Promise<GameSummary | null> {
+  const rows = await query<GameRow>(
+    `
+      ${gameSelect}
+      WHERE game.nhl_id = $1
+    `,
+    [nhlGameId],
+  );
+  return rows[0] ? mapGame(rows[0]) : null;
+}
+
+export async function getGameViewAvailability(
+  nhlGameId: number,
+): Promise<GameViewAvailability> {
+  const rows = await query<GameViewAvailabilityRow>(
+    `
+      SELECT
+        EXISTS (
+          SELECT 1
+          FROM game_events AS event
+          WHERE event.game_id = game.id
+        ) AS scoring,
+        (
+          EXISTS (
+            SELECT 1
+            FROM player_game_stats AS skater
+            WHERE skater.game_id = game.id
+          ) OR EXISTS (
+            SELECT 1
+            FROM goalie_game_stats AS goalie
+            WHERE goalie.game_id = game.id
+          )
+        ) AS box_score,
+        EXISTS (
+          SELECT 1
+          FROM moneypuck_team_game_stats AS advanced
+          WHERE advanced.game_id = game.id
+        ) AS advanced
+      FROM games AS game
+      WHERE game.nhl_id = $1
+    `,
+    [nhlGameId],
+  );
+  const row = rows[0];
+  return {
+    scoring: row?.scoring ?? false,
+    boxScore: row?.box_score ?? false,
+    advanced: row?.advanced ?? false,
+  };
 }
 
 export async function getLatestGamesForSeason(
