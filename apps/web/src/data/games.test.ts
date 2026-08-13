@@ -11,6 +11,7 @@ import {
   getGamesByDate,
   getLatestGamesForSeason,
   getRecentCompletedGames,
+  getRecentLeagueTrendGames,
   getTeamSchedule,
   getUpcomingGames,
   listGameDates,
@@ -181,6 +182,43 @@ describe("game queries", () => {
     expect(recentQuery).toContain("JOIN recent_games");
     expect(recentQuery.match(/LIMIT \$3/g)).toHaveLength(1);
     expect(recentQuery).toContain("ORDER BY game.start_time_utc DESC");
+  });
+
+  it("loads league-trend games without calculating cumulative team records", async () => {
+    queryMock.mockResolvedValue([
+      {
+        nhl_game_id: 2025021299,
+        game_date: "2026-04-16",
+        start_time_utc: "2026-04-16 23:00:00+00",
+        last_period_type: "REG",
+        away_abbreviation: "PIT",
+        away_score: 5,
+        home_abbreviation: "STL",
+        home_score: 7,
+      },
+    ]);
+
+    await expect(
+      getRecentLeagueTrendGames(20252026, 2, 500.8),
+    ).resolves.toEqual([
+      {
+        nhlGameId: 2025021299,
+        gameDate: "2026-04-16",
+        startTimeUtc: "2026-04-16 23:00:00+00",
+        lastPeriodType: "REG",
+        awayTeam: { abbreviation: "PIT", score: 5 },
+        homeTeam: { abbreviation: "STL", score: 7 },
+      },
+    ]);
+
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("away_stats.score::integer AS away_score"),
+      [20252026, 2, 120],
+    );
+    const trendQuery = queryMock.mock.calls[0]?.[0] as string;
+    expect(trendQuery).not.toContain("JOIN LATERAL");
+    expect(trendQuery).toContain("ORDER BY game.start_time_utc DESC");
+    expect(trendQuery).toContain("LIMIT $3");
   });
 
   it("loads a team's complete selected-season schedule and phase", async () => {

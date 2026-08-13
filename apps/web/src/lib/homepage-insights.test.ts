@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import type { GameSummary } from "@/contracts/game";
+import type { LeagueTrendGame } from "@/contracts/game";
 import type {
   StandingsEntry,
   StandingsPointsHistoryPoint,
@@ -89,33 +89,19 @@ function game(
   lastPeriodType: string,
   gameDate: string,
   nhlGameId: number,
-): GameSummary {
+): LeagueTrendGame {
   return {
-    id: nhlGameId,
     nhlGameId,
-    seasonId: 20252026,
-    gameType: 2,
     gameDate,
     startTimeUtc: `${gameDate}T20:00:00Z`,
-    state: "FINAL",
     lastPeriodType,
     awayTeam: {
-      id: 1,
-      nhlTeamId: 1,
       abbreviation: "NJD",
-      name: "New Jersey Devils",
-      record: { wins: 30, losses: 20, overtimeLosses: 5 },
       score: awayScore,
-      shotsOnGoal: 30,
     },
     homeTeam: {
-      id: 23,
-      nhlTeamId: 23,
       abbreviation: "VAN",
-      name: "Vancouver Canucks",
-      record: { wins: 32, losses: 18, overtimeLosses: 5 },
       score: homeScore,
-      shotsOnGoal: 31,
     },
   };
 }

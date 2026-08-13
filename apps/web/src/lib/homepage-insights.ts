@@ -1,4 +1,4 @@
-import type { GameSummary } from "@/contracts/game";
+import type { LeagueTrendGame } from "@/contracts/game";
 import type {
   StandingsEntry,
   StandingsPointsHistoryPoint,
@@ -27,7 +27,7 @@ export type LeagueTrendSummary = {
   currentStartDate: string | null;
   currentEndDate: string | null;
   metrics: LeagueTrendMetric[];
-  highestScoringGame: GameSummary | null;
+  highestScoringGame: LeagueTrendGame | null;
 };
 
 export function buildStandingsMovement(
@@ -73,7 +73,7 @@ export function buildStandingsMovement(
 }
 
 export function buildLeagueTrendSummary(
-  recentGames: GameSummary[],
+  recentGames: LeagueTrendGame[],
   sampleSize = 30,
 ): LeagueTrendSummary {
   const completed = recentGames
@@ -111,9 +111,9 @@ export function buildLeagueTrendSummary(
 function metric(
   key: LeagueTrendMetric["key"],
   label: string,
-  currentGames: GameSummary[],
-  previousGames: GameSummary[],
-  calculate: (games: GameSummary[]) => number | null,
+  currentGames: LeagueTrendGame[],
+  previousGames: LeagueTrendGame[],
+  calculate: (games: LeagueTrendGame[]) => number | null,
   format: LeagueTrendMetric["format"],
 ): LeagueTrendMetric {
   const current = calculate(currentGames);
@@ -129,25 +129,25 @@ function metric(
   };
 }
 
-function averageGoals(games: GameSummary[]): number | null {
+function averageGoals(games: LeagueTrendGame[]): number | null {
   return games.length === 0
     ? null
     : games.reduce((total, game) => total + totalGoals(game), 0) /
         games.length;
 }
 
-function homeWinRate(games: GameSummary[]): number | null {
+function homeWinRate(games: LeagueTrendGame[]): number | null {
   return rate(games, (game) => game.homeTeam.score! > game.awayTeam.score!);
 }
 
-function oneGoalRate(games: GameSummary[]): number | null {
+function oneGoalRate(games: LeagueTrendGame[]): number | null {
   return rate(
     games,
     (game) => Math.abs(game.homeTeam.score! - game.awayTeam.score!) === 1,
   );
 }
 
-function extraTimeRate(games: GameSummary[]): number | null {
+function extraTimeRate(games: LeagueTrendGame[]): number | null {
   return rate(
     games,
     (game) => game.lastPeriodType === "OT" || game.lastPeriodType === "SO",
@@ -155,15 +155,15 @@ function extraTimeRate(games: GameSummary[]): number | null {
 }
 
 function rate(
-  games: GameSummary[],
-  predicate: (game: GameSummary) => boolean,
+  games: LeagueTrendGame[],
+  predicate: (game: LeagueTrendGame) => boolean,
 ): number | null {
   return games.length === 0
     ? null
     : games.filter(predicate).length / games.length;
 }
 
-function totalGoals(game: GameSummary): number {
+function totalGoals(game: LeagueTrendGame): number {
   return (game.awayTeam.score ?? 0) + (game.homeTeam.score ?? 0);
 }
 
