@@ -6036,29 +6036,6 @@ html[data-theme="light"] .theme-toggle-label::after {
   width: 4rem;
 }
 
-.workspace-col-action {
-  width: 7rem;
-}
-
-.workspace-compare-column,
-.workspace-compare-cell {
-  width: 1%;
-  text-align: right;
-  white-space: nowrap;
-}
-
-.workspace-compare-cell a {
-  color: var(--accent);
-  font-size: 0.82rem;
-  font-weight: 750;
-  text-decoration: none;
-}
-
-.workspace-compare-cell a:hover {
-  text-decoration: underline;
-  text-underline-offset: 0.18rem;
-}
-
 .workspace-col-percentage {
   width: 5.5rem;
 }
