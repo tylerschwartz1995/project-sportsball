@@ -347,6 +347,49 @@ export async function getGamesForSeasonByType(
   return rows.map(mapGame);
 }
 
+export async function getTeamSchedule(
+  nhlTeamId: number,
+  seasonId: number,
+  gameType: number,
+): Promise<GameSummary[]> {
+  const rows = await query<GameRow>(
+    `
+      ${gameSelect}
+      WHERE game.season_id = $2
+        AND game.game_type = $3
+        AND (
+          away_team.nhl_id = $1
+          OR home_team.nhl_id = $1
+        )
+      ORDER BY game.start_time_utc, game.nhl_id
+    `,
+    [nhlTeamId, seasonId, gameType],
+  );
+
+  return rows.map(mapGame);
+}
+
+export async function listTeamScheduleSeasonIds(
+  nhlTeamId: number,
+): Promise<number[]> {
+  const rows = await query<{ season_id: number }>(
+    `
+      SELECT DISTINCT game.season_id
+      FROM games AS game
+      JOIN teams AS away_team
+        ON away_team.id = game.away_team_id
+      JOIN teams AS home_team
+        ON home_team.id = game.home_team_id
+      WHERE away_team.nhl_id = $1
+         OR home_team.nhl_id = $1
+      ORDER BY game.season_id DESC
+    `,
+    [nhlTeamId],
+  );
+
+  return rows.map((row) => row.season_id);
+}
+
 export async function getUpcomingGamesForTeam(
   nhlTeamId: number,
   seasonId: number,
@@ -367,28 +410,6 @@ export async function getUpcomingGamesForTeam(
       LIMIT $4
     `,
     [nhlTeamId, seasonId, gameType, limit],
-  );
-
-  return rows.map(mapGame);
-}
-
-export async function getUpcomingGamesForTeamAcrossSeasons(
-  nhlTeamId: number,
-  limit = 10,
-): Promise<GameSummary[]> {
-  const rows = await query<GameRow>(
-    `
-      ${gameSelect}
-      WHERE (
-          away_team.nhl_id = $1
-          OR home_team.nhl_id = $1
-        )
-        AND game.game_type IN (2, 3)
-        AND game.start_time_utc > NOW()
-      ORDER BY game.start_time_utc, game.nhl_id
-      LIMIT $2
-    `,
-    [nhlTeamId, limit],
   );
 
   return rows.map(mapGame);

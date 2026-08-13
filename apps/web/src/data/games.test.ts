@@ -11,10 +11,11 @@ import {
   getGamesByDate,
   getLatestGamesForSeason,
   getRecentCompletedGames,
-  getUpcomingGamesForTeamAcrossSeasons,
+  getTeamSchedule,
   getUpcomingGames,
   listGameDates,
   listScheduleTeams,
+  listTeamScheduleSeasonIds,
 } from "@/data/games";
 
 describe("game queries", () => {
@@ -182,17 +183,36 @@ describe("game queries", () => {
     expect(recentQuery).toContain("ORDER BY game.start_time_utc DESC");
   });
 
-  it("loads a team's future schedule across season boundaries", async () => {
+  it("loads a team's complete selected-season schedule and phase", async () => {
     queryMock.mockResolvedValue([]);
 
-    await getUpcomingGamesForTeamAcrossSeasons(8, 10);
+    await getTeamSchedule(8, 20252026, 2);
 
     expect(queryMock).toHaveBeenCalledWith(
-      expect.stringContaining("game.start_time_utc > NOW()"),
-      [8, 10],
+      expect.stringContaining("game.season_id = $2"),
+      [8, 20252026, 2],
     );
-    expect(queryMock.mock.calls[0]?.[0]).not.toContain(
-      "WHERE game.season_id = $2",
+    const scheduleQuery = queryMock.mock.calls[0]?.[0] as string;
+    expect(scheduleQuery).toContain("game.game_type = $3");
+    expect(scheduleQuery).toContain("away_team.nhl_id = $1");
+    expect(scheduleQuery).toContain("home_team.nhl_id = $1");
+    expect(scheduleQuery).not.toContain("game.start_time_utc > NOW()");
+    expect(scheduleQuery).toContain("ORDER BY game.start_time_utc");
+  });
+
+  it("lists schedule seasons even when team statistics are unavailable", async () => {
+    queryMock.mockResolvedValue([
+      { season_id: 20262027 },
+      { season_id: 20252026 },
+    ]);
+
+    await expect(listTeamScheduleSeasonIds(8)).resolves.toEqual([
+      20262027,
+      20252026,
+    ]);
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("SELECT DISTINCT game.season_id"),
+      [8],
     );
   });
 

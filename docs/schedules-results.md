@@ -37,11 +37,14 @@ completed games in the matching season and phase. Result rows are left joins,
 so scheduled games can appear before their scores and box scores have been
 ingested.
 
-Team profiles query their next ten stored future games across season boundaries,
-independent of the season selected for the statistics above them. This allows a
-completed 2025–26 profile to show the published 2026–27 schedule during the
-offseason. The compact table includes home/away opponent, season, phase, date,
-time, and status, and links to the full league schedule.
+The Schedule view on each team profile follows the season and regular-season or
+playoff phase selected in the profile header. It displays every stored team game
+for that selection in chronological, month-grouped tables, combining completed
+results with remaining games. URL-backed All, Completed, and Upcoming filters
+show their sample sizes, and the unfiltered view marks the boundary before the
+next game. Completed rows show the team result and score; remaining rows show
+their state and local start time. Schedule-only future seasons remain available
+in the team profile picker even before team season statistics have been loaded.
 
 The complete published 2026–27 regular-season schedule was loaded on July 31,
 2026: 1,344 future games from September 29, 2026 through April 10, 2027. The

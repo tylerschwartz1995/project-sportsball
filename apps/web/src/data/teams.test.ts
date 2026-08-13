@@ -6,7 +6,11 @@ vi.mock("@/data/database", () => ({
   query: queryMock,
 }));
 
-import { listTeamsBySeason, listTeamSeasonIds } from "@/data/teams";
+import {
+  getTeamIdentityForSeason,
+  listTeamsBySeason,
+  listTeamSeasonIds,
+} from "@/data/teams";
 
 describe("listTeamsBySeason", () => {
   beforeEach(() => {
@@ -90,6 +94,36 @@ describe("listTeamSeasonIds", () => {
     expect(queryMock).toHaveBeenCalledWith(
       expect.stringContaining("WHERE team.nhl_id = $1"),
       [54],
+    );
+  });
+});
+
+describe("getTeamIdentityForSeason", () => {
+  beforeEach(() => {
+    queryMock.mockReset();
+  });
+
+  it("uses the historical identity without requiring season statistics", async () => {
+    queryMock.mockResolvedValue([
+      {
+        team_id: 7,
+        nhl_team_id: 8,
+        franchise_id: 1,
+        abbreviation: "MTL",
+        team_name: "Montréal Canadiens",
+      },
+    ]);
+
+    await expect(getTeamIdentityForSeason(8, 20262027)).resolves.toEqual({
+      id: 7,
+      nhlTeamId: 8,
+      franchiseId: 1,
+      abbreviation: "MTL",
+      name: "Montréal Canadiens",
+    });
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("team_season.season_id = $2"),
+      [8, 20262027],
     );
   });
 });

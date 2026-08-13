@@ -125,7 +125,11 @@ metrics, source attribution, and coverage behavior.
 Team profiles use URL-backed Overview, Schedule, Strength, Trends, Skaters,
 Goalies, Advanced, and Combinations views. Changing views preserves season and
 regular-season/playoff context and fetches only the data needed by the selected
-view. The Overview presents an analytical summary of the selected phase rather
+view. The Schedule view presents the full selected-season and selected-phase
+schedule, groups games by month, distinguishes completed results from upcoming
+start times, and supports shareable All, Completed, and Upcoming filters.
+Schedule-only future seasons remain selectable before team statistics exist.
+The Overview presents an analytical summary of the selected phase rather
 than duplicating the specialist tabs. It compares the share of standings
 points earned or playoff games won, goals scored, goals allowed, and shot
 differential with every participating team. Each measure states its units and
