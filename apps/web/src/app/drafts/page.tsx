@@ -437,7 +437,7 @@ function DraftBoardView({
           </>
         ) : (
           <div className="workspace-empty-state">
-            Try a different player, club, team, round, or draft year.
+            Try a different player, team, round, or draft year.
           </div>
         )}
       </WorkspacePanel>

@@ -148,7 +148,7 @@ export default async function Home({ searchParams }: HomeProps) {
                     ))}
                   </div>
                 ) : (
-                  <EmptyState message="No future games are currently stored." />
+                  <EmptyState message="No upcoming games are currently available." />
                 )}
               </WorkspacePanel>
 
@@ -201,7 +201,7 @@ export default async function Home({ searchParams }: HomeProps) {
               </WorkspacePanel>
               <WorkspacePanel
                 title="League Trends"
-                description="Latest 30 completed regular-season games versus the preceding 30, calculated from stored results."
+                description="Latest 30 completed regular-season games versus the preceding 30, calculated from available results."
                 action={
                   <Link href={`/games?season=${selectedSeason.id}`}>
                     All results →

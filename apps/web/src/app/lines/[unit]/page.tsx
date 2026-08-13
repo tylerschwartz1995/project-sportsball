@@ -63,7 +63,7 @@ export default async function UnitPage({
           <WorkspacePageHeader
             eyebrow={`MoneyPuck five-on-five ${detail.unitType}`}
             title={title}
-            description={`${detail.team.name} game-by-game results for every stored regular-season appearance by this combination.`}
+            description={`${detail.team.name} game-by-game results for every available regular-season appearance by this combination.`}
             action={
               <Link
                 href={`/teams/${detail.team.nhlTeamId}?season=${seasonId}&phase=regular&view=combinations`}

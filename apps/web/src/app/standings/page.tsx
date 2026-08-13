@@ -274,7 +274,7 @@ function StandingsTable({
           </table>
         </div>
         <div className="workspace-table-note">
-          Snapshot: {snapshotDate} · Source: NHL · p Presidents’ Trophy · z
+          Snapshot: {formatSnapshotDate(snapshotDate)} · Source: NHL · p Presidents’ Trophy · z
           conference · y division · x playoff berth · e eliminated
         </div>
       </SortableTable>
@@ -389,6 +389,13 @@ function sortStandings(
 
 function NumericCell({ value }: { value: number | string }) {
   return <td className="workspace-number-cell">{value}</td>;
+}
+
+function formatSnapshotDate(value: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    dateStyle: "long",
+    timeZone: "UTC",
+  }).format(new Date(`${value}T00:00:00Z`));
 }
 
 function formatDifferential(value: number): string {

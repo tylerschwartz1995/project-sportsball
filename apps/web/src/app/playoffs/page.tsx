@@ -90,8 +90,8 @@ export default async function PlayoffsPage({
             view === "bracket"
               ? isProjection
                 ? "Projected first-round matchups based on the selected season's current standings."
-                : "The stored NHL postseason bracket and series results."
-              : "Official stored NHL postseason leaders."
+                : "The NHL postseason bracket and completed series results."
+              : "Official NHL postseason leaders."
           }
           action={
             <SeasonPicker
@@ -141,7 +141,7 @@ export default async function PlayoffsPage({
               description={
                 isProjection
                   ? "The projection uses NHL division-winner and wildcard seeding. Later rounds remain open until series are played."
-                  : "Series wins update from the stored playoff game results."
+                  : "Each series updates as playoff results become available."
               }
             >
               <PlayoffBracket
@@ -163,7 +163,7 @@ export default async function PlayoffsPage({
               className="mt-7"
               width="compact"
               title="Leading Scorers"
-              description="Official playoff scoring totals from stored box scores."
+              description="Official playoff scoring totals from completed box scores."
             >
               {leaders.length > 0 ? (
                 <SortableTable defaultSortKey="points">
@@ -265,7 +265,7 @@ function PlayoffGoalieLeaders({
       className="mt-7"
       width="compact"
       title="Goalie Leaders"
-      description="Official playoff goalie totals from stored season summaries."
+      description="Official playoff goalie totals for the selected season."
     >
       {goalies.length > 0 ? (
         <SortableTable defaultSortKey="wins">

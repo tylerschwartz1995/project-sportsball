@@ -166,7 +166,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
         <WorkspacePageHeader
           eyebrow="Player statistics"
           title={`${selectedSeason?.label ?? "No Season"} Players`}
-          description={`Complete Polars-derived ${seasonPhaseLabel(phase).toLowerCase()} totals for every participating skater and goalie. Traded-player rows combine all teams.`}
+          description={`Official ${seasonPhaseLabel(phase).toLowerCase()} totals for every participating skater and goalie. Players who changed teams are combined into one row.`}
           action={
             <SeasonPicker
               seasons={seasons}

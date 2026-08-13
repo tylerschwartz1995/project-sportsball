@@ -677,8 +677,8 @@ html[data-theme="light"] .theme-toggle-label::after {
 @media (min-width: 1024px) {
   .workspace-player-profile-facts {
     grid-template-columns:
-      minmax(15rem, 1.5fr) minmax(8rem, 0.75fr)
-      minmax(8rem, 0.75fr) minmax(16rem, 1.5fr);
+      minmax(14rem, 1.4fr) minmax(7.5rem, 0.65fr)
+      minmax(7.5rem, 0.65fr) minmax(17rem, 1.7fr);
   }
 
   .workspace-player-season-totals-grid {
