@@ -37,7 +37,10 @@ export function TeamFullSchedule({
   const schedulePath = `/teams/${teamNhlId}`;
 
   return (
-    <section id="schedule" className="workspace-width-data mt-8 scroll-mt-6">
+    <section
+      id="schedule"
+      className="mx-auto mt-8 w-full max-w-5xl scroll-mt-6"
+    >
       <SectionHeader
         eyebrow="Schedule"
         title="Full Schedule"
@@ -84,13 +87,13 @@ export function TeamFullSchedule({
                 {group.label}
               </h4>
               <div className="data-table-shell workspace-table-scroll overflow-hidden">
-                <table className="workspace-table workspace-table-dense w-full min-w-[900px] table-fixed">
+                <table className="workspace-table workspace-table-dense w-full min-w-[860px] table-fixed">
                   <colgroup>
-                    <col className="w-40" />
+                    <col className="w-36" />
                     <col />
-                    <col className="w-28" />
-                    <col className="w-28" />
-                    <col className="w-44" />
+                    <col className="w-24" />
+                    <col className="w-24" />
+                    <col className="w-40" />
                   </colgroup>
                   <thead>
                     <tr>
@@ -243,7 +246,7 @@ function scheduleFilterHref(
     view: "schedule",
   });
   if (filter !== "all") params.set("scheduleState", filter);
-  return `${path}?${params.toString()}`;
+  return `${path}?${params.toString()}#schedule`;
 }
 
 function isCompletedGame(game: GameSummary) {
