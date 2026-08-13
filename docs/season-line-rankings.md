@@ -23,11 +23,14 @@ stored facts without another provider download. Rows record the
 
 ## Website behavior
 
-- `/lines` provides league-wide forward-line and pairing rankings.
+- `/lines` provides league-wide forward-line and pairing rankings in separate,
+  URL-backed views so visitors do not have to scroll through both datasets.
 - The season selector supports the full provider coverage range.
 - Minimum five-on-five ice-time choices are 0, 50, 100, 200, and 300 minutes;
   100 minutes is the default.
-- League tables show at most the top 100 qualifying combinations by xG%.
+- League tables show at most the top 100 qualifying combinations by xG%, with
+  25, 50, and 100-row views, pagination, a visible result range, and sticky
+  headings.
 - Team pages show units with at least 50 minutes together.
 - Every numeric column can be sorted immediately in the browser.
 - Core, Possession, Shot Quality, and Results presets keep the wide rankings

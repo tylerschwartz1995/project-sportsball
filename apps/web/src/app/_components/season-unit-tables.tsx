@@ -43,27 +43,33 @@ export function SeasonUnitTables({
   data,
   seasonId,
   showTeam = true,
+  only,
+  urlSort,
 }: {
   data: MoneyPuckSeasonUnitLeaders;
   seasonId: number;
   showTeam?: boolean;
+  only?: "line" | "pairing";
+  urlSort?: { key: string; direction: "asc" | "desc"; scrollTarget: string };
 }) {
   return (
     <div className="space-y-10">
-      <SeasonUnitTable
+      {only !== "pairing" ? <SeasonUnitTable
         title="Forward Lines"
         description="Three-player combinations at five-on-five."
         rows={data.forwardLines}
         seasonId={seasonId}
         showTeam={showTeam}
-      />
-      <SeasonUnitTable
+        urlSort={urlSort}
+      /> : null}
+      {only !== "line" ? <SeasonUnitTable
         title="Defensive Pairings"
         description="Two-player defensive combinations at five-on-five."
         rows={data.defensivePairings}
         seasonId={seasonId}
         showTeam={showTeam}
-      />
+        urlSort={urlSort}
+      /> : null}
     </div>
   );
 }
@@ -74,12 +80,14 @@ function SeasonUnitTable({
   rows,
   seasonId,
   showTeam,
+  urlSort,
 }: {
   title: string;
   description: string;
   rows: MoneyPuckSeasonUnitStats[];
   seasonId: number;
   showTeam: boolean;
+  urlSort?: { key: string; direction: "asc" | "desc"; scrollTarget: string };
 }) {
   return (
     <section>
@@ -107,10 +115,13 @@ function SeasonUnitTable({
         <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
           <ColumnPresetTable
             presets={UNIT_COLUMN_PRESETS}
-            defaultSortKey="xgPercentage"
+            defaultSortKey={urlSort?.key ?? "xgPercentage"}
+            defaultDirection={urlSort?.direction}
+            urlBacked={Boolean(urlSort)}
+            scrollTarget={urlSort?.scrollTarget}
           >
-            <div className="overflow-x-auto">
-              <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1500px]">
+            <div className="workspace-table-scroll-viewport">
+              <table className="workspace-table workspace-table-dense workspace-table-semantic workspace-sticky-table-header min-w-[1500px]">
                 <colgroup>
                   {showTeam ? <col className="workspace-col-team" data-column-group="core possession shot-quality results" /> : null}
                   <col className="workspace-col-season-unit" data-column-group="core possession shot-quality results" />

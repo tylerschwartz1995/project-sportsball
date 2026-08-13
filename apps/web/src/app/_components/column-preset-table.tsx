@@ -16,11 +16,17 @@ export function ColumnPresetTable({
   presets,
   defaultPreset = "core",
   defaultSortKey,
+  defaultDirection,
+  urlBacked = false,
+  scrollTarget,
 }: {
   children: ReactNode;
   presets: ColumnPreset[];
   defaultPreset?: string;
   defaultSortKey: string;
+  defaultDirection?: "asc" | "desc";
+  urlBacked?: boolean;
+  scrollTarget?: string;
 }) {
   const [preset, setPreset] = useState(defaultPreset);
   const active = presets.find((option) => option.value === preset) ?? presets[0];
@@ -45,7 +51,7 @@ export function ColumnPresetTable({
           ))}
         </div>
       </div>
-      <SortableTable defaultSortKey={defaultSortKey}>
+      <SortableTable defaultSortKey={defaultSortKey} defaultDirection={defaultDirection} urlBacked={urlBacked} scrollTarget={scrollTarget}>
         {children}
       </SortableTable>
     </div>

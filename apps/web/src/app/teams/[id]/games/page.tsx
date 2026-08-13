@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SeasonPicker } from "@/app/_components/season-picker";
+import { ResultNavigation } from "@/app/_components/result-navigation";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
@@ -18,6 +19,7 @@ import {
 import { getTeamGameLog } from "@/data/game-logs";
 import { listSeasons } from "@/data/seasons";
 import { listTeamSeasonIds } from "@/data/teams";
+import { paginate, parsePage, parsePageSize, parseSortDirection } from "@/lib/directory";
 
 export const dynamic = "force-dynamic";
 
@@ -26,6 +28,10 @@ type TeamGamesPageProps = {
   searchParams: Promise<{
     season?: string | string[];
     phase?: string | string[];
+    page?: string | string[];
+    perPage?: string | string[];
+    sort?: string | string[];
+    direction?: string | string[];
   }>;
 };
 
@@ -66,6 +72,20 @@ export default async function TeamGamesPage({
     (game) => game.gameType === gameTypeForPhase(phase),
   );
   const recentGames = games.slice(0, 10);
+  const sort = parseTeamGameSort(firstValue(pageParams.sort));
+  const direction = parseSortDirection(firstValue(pageParams.direction), "desc");
+  const pageSize = parsePageSize(firstValue(pageParams.perPage));
+  const gamePage = paginate(
+    sortTeamGames(games, sort, direction),
+    parsePage(firstValue(pageParams.page)),
+    pageSize,
+  );
+  const navigationParams = {
+    season: selectedSeason.id,
+    phase,
+    sort,
+    direction,
+  };
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -98,7 +118,7 @@ export default async function TeamGamesPage({
           <SeasonPicker
             seasons={availableSeasons}
               selectedSeasonId={selectedSeason.id}
-              params={{ phase }}
+              params={{ phase, perPage: pageSize }}
             />
         </div>
 
@@ -140,7 +160,7 @@ export default async function TeamGamesPage({
           </div>
         </section>
 
-        <section className="mt-12">
+        <section className="mt-12" id="game-log-results">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="font-mono text-xs uppercase tracking-[0.18em] text-cyan-300">
@@ -151,14 +171,14 @@ export default async function TeamGamesPage({
               </h3>
             </div>
             <p className="text-sm text-slate-500">
-              {games.length} completed games
+              {gamePage.firstItem}–{gamePage.lastItem} of {gamePage.totalItems} completed games
             </p>
           </div>
 
           <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
-            <SortableTable defaultSortKey="date">
-              <div className="overflow-x-auto">
-                <table className="workspace-table-dense w-full min-w-[1040px] text-sm">
+            <SortableTable defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
+              <div className="workspace-table-scroll-viewport">
+                <table className="workspace-table-dense workspace-sticky-table-header w-full min-w-[1040px] text-sm">
                   <thead>
                     <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                       <SortableHeader
@@ -197,7 +217,7 @@ export default async function TeamGamesPage({
                     </tr>
                   </thead>
                   <tbody>
-                    {games.map((game) => (
+                    {gamePage.items.map((game) => (
                       <TeamGameRow
                         key={game.nhlGameId}
                         game={game}
@@ -209,6 +229,17 @@ export default async function TeamGamesPage({
               </div>
             </SortableTable>
           </div>
+          <ResultNavigation
+            path={`/teams/${log.team.nhlTeamId}/games`}
+            params={navigationParams}
+            currentPage={gamePage.currentPage}
+            totalPages={gamePage.totalPages}
+            firstItem={gamePage.firstItem}
+            lastItem={gamePage.lastItem}
+            totalItems={gamePage.totalItems}
+            pageSize={pageSize}
+            scrollTarget="game-log-results"
+          />
           <p className="mt-3 text-xs text-slate-500">
             Advanced columns are five-on-five MoneyPuck metrics. A dash means
             that provider coverage is unavailable for that game.
@@ -217,6 +248,39 @@ export default async function TeamGamesPage({
       </section>
     </main>
   );
+}
+
+const TEAM_GAME_SORTS = ["date", "type", "venue", "opponent", "result", "score", "shots", "opponentShots", "xGoalsShare", "xGoalsFor", "xGoalsAgainst"] as const;
+type TeamGameSort = (typeof TEAM_GAME_SORTS)[number];
+
+function parseTeamGameSort(value: string | undefined): TeamGameSort {
+  return TEAM_GAME_SORTS.includes(value as TeamGameSort) ? (value as TeamGameSort) : "date";
+}
+
+function sortTeamGames(rows: TeamGameLogEntry[], sort: TeamGameSort, direction: "asc" | "desc"): TeamGameLogEntry[] {
+  const value = (game: TeamGameLogEntry): string | number | null => ({
+    date: game.gameDate,
+    type: game.gameType,
+    venue: game.isHome ? "Home" : "Away",
+    opponent: game.opponent.name,
+    result: game.result,
+    score: game.score - game.opponentScore,
+    shots: game.shotsOnGoal,
+    opponentShots: game.opponentShotsOnGoal,
+    xGoalsShare: game.fiveOnFiveXGoalsPercentage,
+    xGoalsFor: game.fiveOnFiveXGoalsFor,
+    xGoalsAgainst: game.fiveOnFiveXGoalsAgainst,
+  })[sort];
+  return [...rows].sort((left, right) => compareNullable(value(left), value(right), direction));
+}
+
+function compareNullable(left: string | number | null, right: string | number | null, direction: "asc" | "desc"): number {
+  if (left === null) return right === null ? 0 : 1;
+  if (right === null) return -1;
+  const comparison = typeof left === "number" && typeof right === "number"
+    ? left - right
+    : String(left).localeCompare(String(right), undefined, { numeric: true, sensitivity: "base" });
+  return direction === "asc" ? comparison : -comparison;
 }
 
 function TeamGameRow({
