@@ -214,12 +214,16 @@ type DraftsPageProps = {
     from?: string | string[];
     to?: string | string[];
     view?: string | string[];
+    outcomeMetric?: string | string[];
+    roundGroup?: string | string[];
   }>;
 };
 
 export default async function DraftsPage({ searchParams }: DraftsPageProps) {
   const params = await searchParams;
   const view = parseDraftView(firstQueryValue(params.view));
+  const outcomeMetric = firstQueryValue(params.outcomeMetric);
+  const roundGroup = firstQueryValue(params.roundGroup);
   const yearParam = firstQueryValue(params.year);
   const requestedYear = parseDraftYear(yearParam);
   const allYears = view === "board" && yearParam === "all";
@@ -294,6 +298,8 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
             selectedDraftingTeam,
             selectedFromYear: analytics.selectedFromYear,
             selectedToYear: analytics.selectedToYear,
+            outcomeMetric,
+            roundGroup,
           })}
         />
 
@@ -1576,6 +1582,8 @@ function draftViewTabs({
   selectedDraftingTeam,
   selectedFromYear,
   selectedToYear,
+  outcomeMetric,
+  roundGroup,
 }: {
   view: DraftView;
   selectedYear: number | null;
@@ -1583,6 +1591,8 @@ function draftViewTabs({
   selectedDraftingTeam: string;
   selectedFromYear: number | null;
   selectedToYear: number | null;
+  outcomeMetric: string | undefined;
+  roundGroup: string | undefined;
 }) {
   const boardParams = new URLSearchParams({ view: "board" });
   if (view !== "teams" && selectedYear !== null) {
@@ -1594,6 +1604,8 @@ function draftViewTabs({
   if (view !== "teams" && selectedYear !== null) {
     outcomeParams.set("year", String(selectedYear));
   }
+  if (outcomeMetric) outcomeParams.set("outcomeMetric", outcomeMetric);
+  if (roundGroup) outcomeParams.set("roundGroup", roundGroup);
 
   const teamParams = new URLSearchParams({ view: "teams" });
   if (selectedFromYear !== null) teamParams.set("from", String(selectedFromYear));

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   CartesianGrid,
   Line,
@@ -12,6 +12,8 @@ import {
 } from "recharts";
 
 import { TeamLogo } from "@/app/_components/team-logo";
+import { CopyViewLink } from "@/app/_components/copy-view-link";
+import { useUrlChoice } from "@/app/_components/use-shareable-state";
 
 import type {
   StandingsEntry,
@@ -39,7 +41,7 @@ export function StandingsPointsChart({
   standings,
 }: StandingsPointsChartProps) {
   const divisions = useMemo(() => divisionOptions(standings), [standings]);
-  const [division, setDivision] = useState("");
+  const [division, setDivision] = useUrlChoice("chartDivision", divisions.map((option) => option.value), divisions[0]?.value ?? "");
   const activeDivision = divisions.some(
     (option) => option.value === division,
   )
@@ -74,6 +76,7 @@ export function StandingsPointsChart({
         </p>
       </header>
       <div className="workspace-chart-toolbar">
+        <CopyViewLink />
         <label className="workspace-chart-metric-select">
           Division
           <select

@@ -90,6 +90,14 @@ type AnalyticsPageProps = {
     situation?: string | string[];
     minimum?: string | string[];
     phase?: string | string[];
+    plotMetric?: string | string[];
+    plotGroup?: string | string[];
+    xMetric?: string | string[];
+    yMetric?: string | string[];
+    teamA?: string | string[];
+    teamB?: string | string[];
+    playerA?: string | string[];
+    playerB?: string | string[];
   }>;
 };
 
@@ -97,6 +105,7 @@ export default async function AnalyticsPage({
   searchParams,
 }: AnalyticsPageProps) {
   const params = await searchParams;
+  const chartParams = pickQueryParams(params, ["plotMetric", "plotGroup", "xMetric", "yMetric", "teamA", "teamB", "playerA", "playerB"]);
   const seasons = await listSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
@@ -181,6 +190,7 @@ export default async function AnalyticsPage({
                 situation,
                 minimum: type === "teams" ? undefined : minimumMinutes,
                 phase,
+                ...chartParams,
               }}
             />
           }
@@ -199,6 +209,7 @@ export default async function AnalyticsPage({
                     season: selectedSeason.id,
                     type,
                     situation,
+                    ...chartParams,
                   }}
                 />
               ) : (
@@ -216,6 +227,7 @@ export default async function AnalyticsPage({
                   situation={situation}
                   minimumMinutes={minimumMinutes}
                   phase={phase}
+                  chartParams={chartParams}
                 />
                 <LeaderboardTable
                   type={type}
@@ -261,13 +273,23 @@ function AnalyticsFilters({
   situation,
   minimumMinutes,
   phase,
+  chartParams,
 }: {
   seasonId: number;
   type: LeaderboardType;
   situation: Situation;
   minimumMinutes: number;
   phase: "regular" | "playoffs";
+  chartParams: Record<string, string | undefined>;
 }) {
+  const clearParams = new URLSearchParams({
+    season: String(seasonId),
+    phase,
+    type,
+  });
+  Object.entries(chartParams).forEach(([name, value]) => {
+    if (value) clearParams.set(name, value);
+  });
   return (
     <form
       method="get"
@@ -277,6 +299,7 @@ function AnalyticsFilters({
       <input type="hidden" name="season" value={seasonId} />
       <input type="hidden" name="type" value={type} />
       <input type="hidden" name="phase" value={phase} />
+      {Object.entries(chartParams).map(([name, value]) => <input key={name} type="hidden" name={name} value={value ?? ""} disabled={!value} />)}
       <FilterHeader
         description="Choose the game state and minimum workload for this leaderboard."
         activeCount={
@@ -312,11 +335,18 @@ function AnalyticsFilters({
         </label>
       )}
       <FilterActions
-        clearHref={`/analytics?season=${seasonId}&phase=${phase}&type=${type}`}
+        clearHref={`/analytics?${clearParams.toString()}`}
         accent="secondary"
       />
     </form>
   );
+}
+
+function pickQueryParams(
+  params: Record<string, string | string[] | undefined>,
+  names: string[],
+): Record<string, string | undefined> {
+  return Object.fromEntries(names.map((name) => [name, firstQueryValue(params[name])]));
 }
 
 type LeaderboardRows =

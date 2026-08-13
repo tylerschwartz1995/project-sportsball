@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   Bar,
   BarChart,
@@ -21,6 +21,8 @@ import {
   ChartFilterGroup,
 } from "@/app/_components/chart-controls";
 import { TeamLogo } from "@/app/_components/team-logo";
+import { CopyViewLink } from "@/app/_components/copy-view-link";
+import { useUrlChoice } from "@/app/_components/use-shareable-state";
 import {
   buildDistribution,
   buildPlotPoints,
@@ -181,15 +183,11 @@ export function PlayerComparisonPlots(props: PlayerComparisonPlotsProps) {
   const metrics = kind === "skater" ? SKATER_METRICS : GOALIE_METRICS;
   const groupOptions =
     kind === "skater" ? SKATER_GROUPS : GOALIE_GROUPS;
-  const [group, setGroup] = useState<PlayerComparisonGroup>("all");
-  const [xMetric, setXMetric] = useState<PlayerMetricKey>(
-    kind === "skater"
-      ? "individualExpectedGoalsPer60"
-      : "expectedGoalsAgainstPer60",
-  );
-  const [yMetric, setYMetric] = useState<PlayerMetricKey>(
-    kind === "skater" ? "goalsPer60" : "goalsSavedAboveExpectedPer60",
-  );
+  const defaultX = kind === "skater" ? "individualExpectedGoalsPer60" : "expectedGoalsAgainstPer60";
+  const defaultY = kind === "skater" ? "goalsPer60" : "goalsSavedAboveExpectedPer60";
+  const [group, setGroup] = useUrlChoice<PlayerComparisonGroup>("plotGroup", groupOptions.map((option) => option.value), "all");
+  const [xMetric, setXMetric] = useUrlChoice<PlayerMetricKey>("xMetric", metrics.map((metric) => metric.key), defaultX);
+  const [yMetric, setYMetric] = useUrlChoice<PlayerMetricKey>("yMetric", metrics.map((metric) => metric.key), defaultY);
   const xDefinition = definitionFor(metrics, xMetric);
   const yDefinition = definitionFor(metrics, yMetric);
   const groupedPoints = useMemo(
@@ -289,6 +287,7 @@ export function PlayerComparisonPlots(props: PlayerComparisonPlotsProps) {
         </div>
 
         <div className="workspace-chart-toolbar">
+          <CopyViewLink />
           <p>
             Counting metrics are normalized per 60 minutes. Share metrics
             retain their percentage scale.
@@ -557,8 +556,9 @@ function DirectPlayerComparison({
       ),
     [points],
   );
-  const [firstKey, setFirstKey] = useState("");
-  const [secondKey, setSecondKey] = useState("");
+  const playerKeys = ["", ...sortedPoints.map(playerPointKey)];
+  const [firstKey, setFirstKey] = useUrlChoice("playerA", playerKeys, "");
+  const [secondKey, setSecondKey] = useUrlChoice("playerB", playerKeys, "");
   const first = sortedPoints.find(
     (point) => playerPointKey(point) === firstKey,
   );

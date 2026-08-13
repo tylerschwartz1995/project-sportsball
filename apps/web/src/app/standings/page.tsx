@@ -36,6 +36,7 @@ type StandingsPageProps = {
     dir?: string | string[];
     view?: string | string[];
     display?: string | string[];
+    chartDivision?: string | string[];
   }>;
 };
 
@@ -43,6 +44,7 @@ export default async function StandingsPage({
   searchParams,
 }: StandingsPageProps) {
   const params = await searchParams;
+  const chartDivision = firstQueryValue(params.chartDivision);
   const seasons = await listSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const requestedSort = firstQueryValue(params.sort);
@@ -87,7 +89,7 @@ export default async function StandingsPage({
             <SeasonPicker
               seasons={seasons}
               selectedSeasonId={selectedSeason?.id}
-              params={{ view, display }}
+              params={{ view, display, chartDivision }}
             />
           }
         />
@@ -104,7 +106,7 @@ export default async function StandingsPage({
                   (option) => (
                     <Link
                       key={option}
-                      href={`/standings?season=${selectedSeason.id}&view=${option}&display=${display}`}
+                      href={`/standings?season=${selectedSeason.id}&view=${option}&display=${display}${chartDivision ? `&chartDivision=${encodeURIComponent(chartDivision)}` : ""}`}
                       aria-current={view === option ? "page" : undefined}
                     >
                       {capitalize(option)}
@@ -128,7 +130,7 @@ export default async function StandingsPage({
                 {
                   id: "progress",
                   label: "Points Progression",
-                  href: `/standings?season=${selectedSeason.id}&view=${view}&display=progress`,
+                  href: `/standings?season=${selectedSeason.id}&view=${view}&display=progress${chartDivision ? `&chartDivision=${encodeURIComponent(chartDivision)}` : ""}`,
                 },
               ]}
             />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   CartesianGrid,
   ReferenceLine,
@@ -15,6 +15,8 @@ import {
 } from "recharts";
 
 import { TeamLogo } from "@/app/_components/team-logo";
+import { CopyViewLink } from "@/app/_components/copy-view-link";
+import { useUrlChoice } from "@/app/_components/use-shareable-state";
 import {
   buildTeamPlotPoints,
   comparisonDomain,
@@ -76,7 +78,9 @@ export function TeamComparisonScatterplot({
   points: TeamComparisonPoint[];
   phase: "regular" | "playoffs";
 }) {
-  const [processMetric, setProcessMetric] = useState<TeamProcessMetric>(
+  const [processMetric, setProcessMetric] = useUrlChoice<TeamProcessMetric>(
+    "plotMetric",
+    PROCESS_METRICS.map((metric) => metric.value),
     "expectedGoalSharePercentage",
   );
   const processDefinition =
@@ -141,6 +145,7 @@ export function TeamComparisonScatterplot({
       </div>
 
       <div className="workspace-chart-toolbar workspace-team-chart-toolbar">
+        <CopyViewLink />
         <p>
           Hover or tap a team for exact values. Every team remains visible so
           the plot always preserves the full league context.
@@ -347,8 +352,9 @@ function DirectTeamComparison({
 }: {
   points: TeamComparisonPoint[];
 }) {
-  const [firstId, setFirstId] = useState("");
-  const [secondId, setSecondId] = useState("");
+  const teamIds = ["", ...points.map((point) => String(point.nhlTeamId))];
+  const [firstId, setFirstId] = useUrlChoice("teamA", teamIds, "");
+  const [secondId, setSecondId] = useUrlChoice("teamB", teamIds, "");
   const first = points.find((point) => String(point.nhlTeamId) === firstId);
   const second = points.find((point) => String(point.nhlTeamId) === secondId);
 

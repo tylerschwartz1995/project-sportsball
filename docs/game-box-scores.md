@@ -59,6 +59,8 @@ Both chart views use game-relative expected-goal scales so quieter games remain
 readable without clipping unusually chance-heavy games. The pressure line is
 displayed as a trailing 30-second smoothed trend to reduce event-by-event steps;
 hover details continue to report the exact five-minute values.
+The selected pressure or cumulative view is URL-backed and the chart exposes a
+copy-link action, so a shared game link restores the same explanation and plot.
 The chart marks goals, exposes exact values through
 pointer, touch, and keyboard interaction, and keeps period totals visible in a
 compact non-sortable table because chronological order is meaningful.

@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useMemo } from "react";
 import {
   Area,
   CartesianGrid,
@@ -20,6 +20,8 @@ import {
   ChartFilterGroup,
 } from "@/app/_components/chart-controls";
 import { TeamLogo } from "@/app/_components/team-logo";
+import { CopyViewLink } from "@/app/_components/copy-view-link";
+import { useUrlChoice } from "@/app/_components/use-shareable-state";
 import type {
   GameFlow,
   GameFlowPoint,
@@ -37,7 +39,7 @@ type ChartPoint = GameFlowPoint & {
 };
 
 export function GameFlowChart({ flow }: { flow: GameFlow }) {
-  const [view, setView] = useState<GameFlowView>("pressure");
+  const [view, setView] = useUrlChoice<GameFlowView>("flowChart", ["pressure", "cumulative"], "pressure");
   const points = useMemo<ChartPoint[]>(
     () => {
       const pressureTrend = smoothPressureTrend(flow.points);
@@ -110,6 +112,7 @@ export function GameFlowChart({ flow }: { flow: GameFlow }) {
       </header>
 
       <div className="workspace-game-flow-controls">
+        <CopyViewLink />
         <ChartFilterGroup label="View">
           <ChartFilterButton
             active={view === "pressure"}

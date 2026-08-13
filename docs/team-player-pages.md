@@ -111,7 +111,9 @@ Skaters can choose official scoring and shot rates or individual expected
 goals, game score, and on-ice expected-goal share. Goalies can choose official
 save/goal rates or expected goals against and goals saved above expected.
 Both support 5-, 10-, and 20-game windows plus all, home, and away venue
-filters. Advanced rates exclude games where the provider metric is unavailable
+filters. Trend metrics, windows, venues, and team-series visibility are stored
+in the URL and can be copied directly from the chart.
+Advanced rates exclude games where the provider metric is unavailable
 rather than treating missing values as zero. Career history appears in separate
 regular-season and playoff tables, and the season advanced-analytics section
 can be filtered to one game situation.

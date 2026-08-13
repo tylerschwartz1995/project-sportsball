@@ -403,23 +403,24 @@ franchise-lineage rankings remain backlog.
 
 ## 11. Saved comparisons and shareable plot state
 
-**Status:** Partially implemented
+**Status:** Shareable chart state implemented; saved collections remain future work
 
-The dedicated `/players/compare` workflow already encodes and restores season,
-regular-season/playoff phase, skater/goalie type, and two-to-four selected
-players in the URL. Those comparison links can be shared directly. The broader
-analytics scatterplots and rolling-performance charts still keep their metric,
-group, venue, and rolling-window controls only in client state. There is no
-copy-link action, named local collection, or server-side saved comparison.
+The dedicated `/players/compare` workflow encodes and restores season,
+regular-season/playoff phase, skater/goalie type, selected players, and chart
+metric. League analytics, rolling team and player trends, standings progress,
+draft outcomes, and game flow also encode their applicable metric, subject,
+group, venue, series, and rolling-window controls in the URL. Each chart offers
+a copy-link action and restores the same state after reload. Named local
+collections and server-side saved comparisons remain future work.
 
 Let visitors preserve a useful player or team comparison and share the exact
 plot configuration with another person.
 
-- Encode selected subjects, metrics, season, phase, situation, rolling window,
-  and applicable filters in a stable URL.
+- [x] Encode selected subjects, metrics, season, phase, situation, rolling
+  window, and applicable filters in a stable URL.
 - Allow named comparisons to be saved locally before deciding whether accounts
   and server-side persistence are valuable.
-- Restore the same visible table, chart, and explanatory context when a shared
-  URL is opened.
-- Keep URLs backward compatible when metric labels or interface organization
-  change.
+- [x] Restore the same visible table, chart, and explanatory context when a
+  shared URL is opened.
+- [x] Keep URLs backward compatible when metric labels or interface
+  organization change by validating stable keys and falling back safely.

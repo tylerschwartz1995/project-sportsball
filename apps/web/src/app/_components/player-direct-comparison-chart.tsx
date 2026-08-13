@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Bar,
   BarChart,
@@ -10,6 +9,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { CopyViewLink } from "@/app/_components/copy-view-link";
+import { useUrlChoice } from "@/app/_components/use-shareable-state";
 
 import type {
   PlayerComparisonEntry,
@@ -24,7 +25,7 @@ export function PlayerDirectComparisonChart({
   players: PlayerComparisonEntry[];
   metrics: PlayerComparisonMetric[];
 }) {
-  const [metricKey, setMetricKey] = useState(metrics[0]?.key ?? "");
+  const [metricKey, setMetricKey] = useUrlChoice("comparisonMetric", metrics.map((metric) => metric.key), metrics[0]?.key ?? "");
   const metric =
     metrics.find((candidate) => candidate.key === metricKey) ?? metrics[0];
   if (!metric || players.length < 2) return null;
@@ -49,6 +50,7 @@ export function PlayerDirectComparisonChart({
         </p>
       </header>
       <div className="workspace-chart-toolbar">
+        <CopyViewLink />
         <label className="workspace-chart-metric-select">
           Metric
           <select

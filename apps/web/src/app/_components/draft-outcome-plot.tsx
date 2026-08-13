@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   CartesianGrid,
   ResponsiveContainer,
@@ -12,6 +12,8 @@ import {
   ZAxis,
   type TooltipContentProps,
 } from "recharts";
+import { CopyViewLink } from "@/app/_components/copy-view-link";
+import { useUrlChoice } from "@/app/_components/use-shareable-state";
 
 import { TeamLogo } from "@/app/_components/team-logo";
 import { formatPlayerPosition } from "@/lib/player-position";
@@ -134,8 +136,8 @@ export function DraftOutcomePlot({
 }: {
   outcomes: DraftPlotOutcome[];
 }) {
-  const [metricKey, setMetricKey] = useState<DraftMetric>("careerGames");
-  const [roundGroup, setRoundGroup] = useState<RoundGroup>("all");
+  const [metricKey, setMetricKey] = useUrlChoice<DraftMetric>("outcomeMetric", METRICS.map((metric) => metric.key), "careerGames");
+  const [roundGroup, setRoundGroup] = useUrlChoice<RoundGroup>("roundGroup", ["all", "1", "2", "3plus"], "all");
   const metric = METRICS.find((option) => option.key === metricKey) ?? METRICS[0];
   const points = useMemo<DraftPlotPoint[]>(
     () =>
@@ -182,6 +184,7 @@ export function DraftOutcomePlot({
         )}
       </header>
       <div className="workspace-chart-toolbar">
+        <CopyViewLink />
         <div className="workspace-draft-plot-controls">
           <label className="workspace-chart-metric-select">
             Outcome Metric
