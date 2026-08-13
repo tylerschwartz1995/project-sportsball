@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { PlayerDirectComparisonChart } from "@/app/_components/player-direct-comparison-chart";
+import { PlayerDirectComparisonChart } from "@/app/_components/lazy-charts";
 import { PlayerComparisonPicker } from "@/app/_components/player-comparison-picker";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";

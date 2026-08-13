@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { PlayerAdvancedAnalytics } from "@/app/_components/advanced-analytics";
-import { PlayerRollingPerformanceChart } from "@/app/_components/player-rolling-performance-chart";
+import { PlayerRollingPerformanceChart } from "@/app/_components/lazy-charts";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
