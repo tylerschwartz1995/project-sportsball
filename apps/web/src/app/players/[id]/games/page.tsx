@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { SeasonPicker } from "@/app/_components/season-picker";
+import { ResultNavigation } from "@/app/_components/result-navigation";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
@@ -24,6 +25,7 @@ import {
 } from "@/data/game-logs";
 import { listSeasons } from "@/data/seasons";
 import { formatPlayerPosition } from "@/lib/player-position";
+import { paginate, parsePage, parsePageSize, parseSortDirection, type PageSlice } from "@/lib/directory";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +34,10 @@ type PlayerGamesPageProps = {
   searchParams: Promise<{
     season?: string | string[];
     phase?: string | string[];
+    page?: string | string[];
+    perPage?: string | string[];
+    sort?: string | string[];
+    direction?: string | string[];
   }>;
 };
 
@@ -78,6 +84,13 @@ export default async function PlayerGamesPage({
   const goalieGames = log.goalieGames.filter(
     (game) => game.gameType === gameType,
   );
+  const pageSize = parsePageSize(firstValue(pageParams.perPage));
+  const direction = parseSortDirection(firstValue(pageParams.direction), "desc");
+  const requestedPage = parsePage(firstValue(pageParams.page));
+  const skaterSort = parseSkaterSort(firstValue(pageParams.sort));
+  const goalieSort = parseGoalieSort(firstValue(pageParams.sort));
+  const skaterPage = paginate(sortSkaterGames(skaterGames, skaterSort, direction), requestedPage, pageSize);
+  const goaliePage = paginate(sortGoalieGames(goalieGames, goalieSort, direction), requestedPage, pageSize);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -108,7 +121,7 @@ export default async function PlayerGamesPage({
           <SeasonPicker
             seasons={availableSeasons}
               selectedSeasonId={selectedSeason.id}
-              params={{ phase }}
+              params={{ phase, perPage: pageSize }}
           />
         </div>
 
@@ -126,15 +139,25 @@ export default async function PlayerGamesPage({
 
         {skaterGames.length > 0 ? (
           <SkaterGameTable
-            games={skaterGames}
+            gamePage={skaterPage}
             seasonId={selectedSeason.id}
+            playerId={log.profile.nhlPlayerId}
+            phase={phase}
+            pageSize={pageSize}
+            sort={skaterSort}
+            direction={direction}
           />
         ) : null}
 
         {goalieGames.length > 0 ? (
           <GoalieGameTable
-            games={goalieGames}
+            gamePage={goaliePage}
             seasonId={selectedSeason.id}
+            playerId={log.profile.nhlPlayerId}
+            phase={phase}
+            pageSize={pageSize}
+            sort={goalieSort}
+            direction={direction}
           />
         ) : null}
       </section>
@@ -223,29 +246,39 @@ function RecentFormSection({
 }
 
 function SkaterGameTable({
-  games,
+  gamePage,
   seasonId,
+  playerId,
+  phase,
+  pageSize,
+  sort,
+  direction,
 }: {
-  games: SkaterGameLogEntry[];
+  gamePage: PageSlice<SkaterGameLogEntry>;
   seasonId: number;
+  playerId: number;
+  phase: string;
+  pageSize: number;
+  sort: SkaterSort;
+  direction: "asc" | "desc";
 }) {
   return (
     <GameTableSection
       eyebrow="Skater appearances"
       title="All Games"
-      detail={`${games.length} games`}
+      detail={`${gamePage.firstItem}–${gamePage.lastItem} of ${gamePage.totalItems} games`}
       note="Game score, individual xG, and on-ice xG% are MoneyPuck all-situations metrics. Advanced player data covers regular-season games from 2008–09 onward."
     >
-      <SortableTable defaultSortKey="date">
-        <div className="overflow-x-auto">
-          <table className="workspace-table-dense w-full min-w-[1380px] text-sm">
+      <SortableTable defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
+        <div className="workspace-table-scroll-viewport">
+          <table className="workspace-table-dense workspace-sticky-table-header w-full min-w-[1380px] text-sm">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                 <LogHeaders goalie={false} />
               </tr>
             </thead>
             <tbody>
-              {games.map((game) => (
+              {gamePage.items.map((game) => (
                 <tr
                   key={game.nhlGameId}
                   className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
@@ -283,34 +316,45 @@ function SkaterGameTable({
           </table>
         </div>
       </SortableTable>
+      <ResultNavigation path={`/players/${playerId}/games`} params={{ season: seasonId, phase, sort, direction }} currentPage={gamePage.currentPage} totalPages={gamePage.totalPages} firstItem={gamePage.firstItem} lastItem={gamePage.lastItem} totalItems={gamePage.totalItems} pageSize={pageSize} scrollTarget="game-log-results" />
     </GameTableSection>
   );
 }
 
 function GoalieGameTable({
-  games,
+  gamePage,
   seasonId,
+  playerId,
+  phase,
+  pageSize,
+  sort,
+  direction,
 }: {
-  games: GoalieGameLogEntry[];
+  gamePage: PageSlice<GoalieGameLogEntry>;
   seasonId: number;
+  playerId: number;
+  phase: string;
+  pageSize: number;
+  sort: GoalieSort;
+  direction: "asc" | "desc";
 }) {
   return (
     <GameTableSection
       eyebrow="Goalie appearances"
       title="All Games"
-      detail={`${games.length} games`}
+      detail={`${gamePage.firstItem}–${gamePage.lastItem} of ${gamePage.totalItems} games`}
       note="Expected goals against and GSAx are MoneyPuck all-situations metrics. Advanced player data covers regular-season games from 2008–09 onward."
     >
-      <SortableTable defaultSortKey="date">
-        <div className="overflow-x-auto">
-          <table className="workspace-table-dense w-full min-w-[1220px] text-sm">
+      <SortableTable defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
+        <div className="workspace-table-scroll-viewport">
+          <table className="workspace-table-dense workspace-sticky-table-header w-full min-w-[1220px] text-sm">
             <thead>
               <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
                 <LogHeaders goalie />
               </tr>
             </thead>
             <tbody>
-              {games.map((game) => (
+              {gamePage.items.map((game) => (
                 <tr
                   key={game.nhlGameId}
                   className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
@@ -348,6 +392,7 @@ function GoalieGameTable({
           </table>
         </div>
       </SortableTable>
+      <ResultNavigation path={`/players/${playerId}/games`} params={{ season: seasonId, phase, sort, direction }} currentPage={gamePage.currentPage} totalPages={gamePage.totalPages} firstItem={gamePage.firstItem} lastItem={gamePage.lastItem} totalItems={gamePage.totalItems} pageSize={pageSize} scrollTarget="game-log-results" />
     </GameTableSection>
   );
 }
@@ -489,7 +534,7 @@ function GameTableSection({
   children: React.ReactNode;
 }) {
   return (
-    <section className="mt-12">
+    <section className="mt-12" id="game-log-results">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-cyan-300">
@@ -505,6 +550,48 @@ function GameTableSection({
       <p className="mt-3 text-xs text-slate-500">{note}</p>
     </section>
   );
+}
+
+const SKATER_SORTS = ["date", "type", "team", "venue", "opponent", "score", "goals", "assists", "points", "plusMinus", "shotsOnGoal", "hits", "blockedShots", "timeOnIce", "gameScore", "individualXGoals", "onIceXGoalsPercentage"] as const;
+const GOALIE_SORTS = ["date", "type", "team", "venue", "opponent", "score", "starter", "decision", "goalsAgainst", "shotsAgainst", "saves", "savePercentage", "timeOnIce", "expectedGoalsAgainst", "goalsSavedAboveExpected"] as const;
+type SkaterSort = (typeof SKATER_SORTS)[number];
+type GoalieSort = (typeof GOALIE_SORTS)[number];
+
+function parseSkaterSort(value: string | undefined): SkaterSort {
+  return SKATER_SORTS.includes(value as SkaterSort) ? (value as SkaterSort) : "date";
+}
+
+function parseGoalieSort(value: string | undefined): GoalieSort {
+  return GOALIE_SORTS.includes(value as GoalieSort) ? (value as GoalieSort) : "date";
+}
+
+function gameIdentityValue(game: SkaterGameLogEntry | GoalieGameLogEntry, sort: string): string | number | null | undefined {
+  return ({ date: game.gameDate, type: game.gameType, team: game.team.name, venue: game.isHome ? "Home" : "Away", opponent: game.opponent.name, score: game.teamScore === null || game.opponentScore === null ? null : game.teamScore - game.opponentScore, timeOnIce: game.timeOnIceSeconds })[sort];
+}
+
+function sortSkaterGames(rows: SkaterGameLogEntry[], sort: SkaterSort, direction: "asc" | "desc"): SkaterGameLogEntry[] {
+  const value = (game: SkaterGameLogEntry): string | number | null => gameIdentityValue(game, sort) ?? (skaterMetricValues(game)[sort] ?? null);
+  return [...rows].sort((left, right) => compareNullable(value(left), value(right), direction));
+}
+
+function sortGoalieGames(rows: GoalieGameLogEntry[], sort: GoalieSort, direction: "asc" | "desc"): GoalieGameLogEntry[] {
+  const value = (game: GoalieGameLogEntry): string | number | null => gameIdentityValue(game, sort) ?? (goalieMetricValues(game)[sort] ?? null);
+  return [...rows].sort((left, right) => compareNullable(value(left), value(right), direction));
+}
+
+function skaterMetricValues(game: SkaterGameLogEntry): Record<string, string | number | null> {
+  return { goals: game.goals, assists: game.assists, points: game.points, plusMinus: game.plusMinus, shotsOnGoal: game.shotsOnGoal, hits: game.hits, blockedShots: game.blockedShots, gameScore: game.gameScore, individualXGoals: game.individualXGoals, onIceXGoalsPercentage: game.onIceXGoalsPercentage };
+}
+
+function goalieMetricValues(game: GoalieGameLogEntry): Record<string, string | number | null> {
+  return { starter: game.starter ? 1 : 0, decision: game.decision, goalsAgainst: game.goalsAgainst, shotsAgainst: game.shotsAgainst, saves: game.saves, savePercentage: game.savePercentage, expectedGoalsAgainst: game.expectedGoalsAgainst, goalsSavedAboveExpected: game.goalsSavedAboveExpected };
+}
+
+function compareNullable(left: string | number | null, right: string | number | null, direction: "asc" | "desc"): number {
+  if (left === null) return right === null ? 0 : 1;
+  if (right === null) return -1;
+  const comparison = typeof left === "number" && typeof right === "number" ? left - right : String(left).localeCompare(String(right), undefined, { numeric: true, sensitivity: "base" });
+  return direction === "asc" ? comparison : -comparison;
 }
 
 function NumericCell({

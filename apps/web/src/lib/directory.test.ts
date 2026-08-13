@@ -7,6 +7,7 @@ import {
   normalizeSearch,
   paginate,
   parsePage,
+  parsePageSize,
   parseSortDirection,
 } from "@/lib/directory";
 
@@ -21,6 +22,12 @@ describe("directory query helpers", () => {
     expect(parsePage("1.5")).toBe(1);
     expect(parsePage("abc")).toBe(1);
     expect(parsePage("3")).toBe(3);
+  });
+
+  it("only accepts supported page sizes", () => {
+    expect(parsePageSize("50")).toBe(50);
+    expect(parsePageSize("500")).toBe(25);
+    expect(parsePageSize(undefined, [10, 20], 10)).toBe(10);
   });
 
   it("parses and applies sort direction", () => {

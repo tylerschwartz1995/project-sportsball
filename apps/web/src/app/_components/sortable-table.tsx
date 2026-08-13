@@ -9,6 +9,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type SortDirection = "asc" | "desc";
 
@@ -34,16 +35,24 @@ export function SortableTable({
   className,
   defaultSortKey = "",
   defaultDirection = "desc",
+  urlBacked = false,
+  scrollTarget,
 }: {
   children: ReactNode;
   className?: string;
   defaultSortKey?: string;
   defaultDirection?: SortDirection;
+  urlBacked?: boolean;
+  scrollTarget?: string;
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [sortState, setSortState] = useState<SortState>({
     key: defaultSortKey,
     direction: defaultDirection,
   });
+  const activeKey = urlBacked ? defaultSortKey : sortState.key;
+  const activeDirection = urlBacked ? defaultDirection : sortState.direction;
 
   const sort = useCallback(
     (
@@ -60,11 +69,22 @@ export function SortableTable({
       }
 
       const nextDirection =
-        sortState.key === key
-          ? sortState.direction === "asc"
+        activeKey === key
+          ? activeDirection === "asc"
             ? "desc"
             : "asc"
           : columnDefaultDirection;
+
+      if (urlBacked) {
+        const nextParams = new URLSearchParams(searchParams.toString());
+        nextParams.set("sort", key);
+        nextParams.set("direction", nextDirection);
+        nextParams.delete("page");
+        router.push(
+          `?${nextParams.toString()}${scrollTarget ? `#${encodeURIComponent(scrollTarget)}` : ""}`,
+        );
+        return;
+      }
       const columnIndex = header.cellIndex;
       const rows = Array.from(body.rows);
 
@@ -92,17 +112,17 @@ export function SortableTable({
 
       setSortState({ key, direction: nextDirection });
     },
-    [sortState],
+    [activeDirection, activeKey, router, searchParams, scrollTarget, urlBacked],
   );
 
   const contextValue = useMemo(
-    () => ({ ...sortState, sort }),
-    [sort, sortState],
+    () => ({ key: activeKey, direction: activeDirection, sort }),
+    [activeDirection, activeKey, sort],
   );
 
   return (
     <SortableTableContext.Provider value={contextValue}>
-      <div className={className} data-sort-key={sortState.key}>
+      <div className={className} data-sort-key={activeKey}>
         {children}
       </div>
     </SortableTableContext.Provider>

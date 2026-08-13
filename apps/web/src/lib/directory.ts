@@ -22,6 +22,15 @@ export function parsePage(value: string | undefined): number {
   return Number.isSafeInteger(page) && page > 0 ? page : 1;
 }
 
+export function parsePageSize(
+  value: string | undefined,
+  options: readonly number[] = [25, 50, 100],
+  fallback = 25,
+): number {
+  const size = Number(value);
+  return options.includes(size) ? size : fallback;
+}
+
 export function parseSortDirection(
   value: string | undefined,
   fallback: "asc" | "desc",

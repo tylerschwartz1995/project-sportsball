@@ -96,9 +96,12 @@ comparison. The underlying traditional-stat response contracts and statistical
 grains are unchanged.
 
 Team and player profile pages link to their selected-season game log. Each game
-log begins with a compact chronological form strip, then shows the full table
-for the selected regular-season or playoff phase. Advanced columns use a dash
-when MoneyPuck coverage is unavailable and include an inline coverage note.
+log begins with a compact chronological form strip, then shows the selected
+regular-season or playoff phase in a paginated table. The selected sort, sort
+direction, page, and 25/50/100-row size live in the URL; each view reports its
+visible result range and keeps headings visible inside its bounded table area.
+Advanced columns use a dash when MoneyPuck coverage is unavailable and include
+an inline coverage note.
 
 Player profiles use URL-backed Overview, Trends, Advanced, All-Time Records,
 and Season History views so only one distinct task is presented at a time.
