@@ -14,12 +14,14 @@ export function ViewTabs<T extends string>({
   tabs,
   secondary = false,
   width = "wide",
+  label = "View",
 }: {
   active: T;
   ariaLabel: string;
   tabs: ViewTab<T>[];
   secondary?: boolean;
   width?: WorkspaceWidth;
+  label?: string;
 }) {
   const widthClass =
     width === "wide" ? "" : ` workspace-width-${width}`;
@@ -29,6 +31,7 @@ export function ViewTabs<T extends string>({
       aria-label={ariaLabel}
       className={`workspace-scroll-nav${secondary ? " is-secondary" : ""}${widthClass}`}
     >
+      <span className="workspace-navigation-label" aria-hidden="true">{label}</span>
       {tabs.map((tab) => (
         <Link
           key={tab.id}

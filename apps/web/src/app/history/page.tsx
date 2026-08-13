@@ -117,15 +117,16 @@ export default async function HistoryPage({ searchParams }: HistoryPageProps) {
       <section className="py-8 sm:py-10">
         <HistoryHeader phase={phase} />
         <div className="workspace-history-primary-navs">
+          <ViewTabs
+            active={section}
+            ariaLabel="History views"
+            label="History view"
+            tabs={sectionTabs}
+          />
           <SeasonPhaseFilter
             active={phase}
             path="/history"
             params={historyPhaseParams(section, params)}
-          />
-          <ViewTabs
-            active={section}
-            ariaLabel="History views"
-            tabs={sectionTabs}
           />
         </div>
         {section === "overview" ? (

@@ -30,6 +30,7 @@ export function SeasonPhaseFilter({
 
   return (
     <nav className="workspace-phase-filter" aria-label={label}>
+      <span className="workspace-navigation-label" aria-hidden="true">Phase</span>
       <div>
         {options.map((option) => (
           <Link

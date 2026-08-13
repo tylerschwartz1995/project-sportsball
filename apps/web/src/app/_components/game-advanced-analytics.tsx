@@ -84,6 +84,7 @@ export function GameAdvancedAnalytics({
         ariaLabel="Advanced analytics views"
         tabs={tabs}
         secondary
+        label="Advanced view"
       />
 
       {activeView === "teams" && hasTeamData ? (

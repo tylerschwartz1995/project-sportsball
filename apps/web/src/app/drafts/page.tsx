@@ -286,6 +286,7 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
         <ViewTabs
           active={view}
           ariaLabel="Draft views"
+          label="Draft view"
           tabs={draftViewTabs({
             view,
             selectedYear: analytics.selectedDraftYear,
