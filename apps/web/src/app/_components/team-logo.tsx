@@ -1,7 +1,3 @@
-"use client";
-
-import { useState } from "react";
-
 const teamAbbreviations: Record<number, string> = {
   1: "NJD", 2: "NYI", 3: "NYR", 4: "PHI", 5: "PIT", 6: "BOS",
   7: "BUF", 8: "MTL", 9: "OTT", 10: "TOR", 11: "ATL", 12: "CAR",
@@ -67,13 +63,11 @@ export function TeamLogo({
   const resolvedAbbreviation = abbreviation ??
     (nhlTeamId ? teamAbbreviations[nhlTeamId] : undefined) ?? "NHL";
   const src = teamLogoUrl(resolvedAbbreviation);
-  const [failedSrc, setFailedSrc] = useState<string | null>(null);
-  const failed = failedSrc === src;
   const className = size === "profile"
-    ? "grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/70 bg-slate-50/95 p-2 shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_8px_24px_rgb(2_8_23/0.22)]"
+    ? "relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/70 bg-slate-50/95 p-2 shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_8px_24px_rgb(2_8_23/0.22)]"
     : size === "compact"
-      ? "grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/70 bg-slate-50/95 p-1 shadow-sm"
-      : "grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-md border border-white/70 bg-slate-50/95 p-0.5 shadow-sm";
+      ? "relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/70 bg-slate-50/95 p-1 shadow-sm"
+      : "relative grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-md border border-white/70 bg-slate-50/95 p-0.5 shadow-sm";
   const imageScale = size === "tiny"
     ? prominent
       ? "scale-[1.55]"
@@ -84,23 +78,21 @@ export function TeamLogo({
 
   return (
     <span className={className}>
-      {failed ? (
-        <span
-          className={`font-mono font-semibold text-slate-800 ${size === "profile" ? "text-sm" : "text-[0.45rem]"}`}
-        >
-          {resolvedAbbreviation}
-        </span>
-      ) : (
-        // The NHL asset host serves SVG crests directly; this avoids proxying
-        // protected branding through the app's image optimizer.
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={src}
-          alt={decorative ? "" : `${name ?? resolvedAbbreviation} logo`}
-          className={`h-full w-full object-contain ${imageScale}`}
-          onError={() => setFailedSrc(src)}
-        />
-      )}
+      <span
+        aria-hidden="true"
+        className={`font-mono font-semibold text-slate-800 ${size === "profile" ? "text-sm" : "text-[0.45rem]"}`}
+      >
+        {resolvedAbbreviation}
+      </span>
+      {/* The NHL asset host serves SVG crests directly; this avoids proxying
+          protected branding through the app's image optimizer. The
+          abbreviation beneath the image remains visible if the asset fails. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
+        alt={decorative ? "" : `${name ?? resolvedAbbreviation} logo`}
+        className={`absolute inset-0 h-full w-full object-contain ${imageScale}`}
+      />
     </span>
   );
 }
