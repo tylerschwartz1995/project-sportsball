@@ -39,23 +39,44 @@ export type OpponentLedgerEntry = {
   >;
 };
 
-export type SeasonMoment = {
-  key: "biggest-win" | "shot-edge" | "highest-scoring";
-  label: string;
+export const PERFORMANCE_RESULT_GROUPS = [
+  "controlled-win",
+  "outplayed-win",
+  "controlled-loss",
+  "outplayed-loss",
+] as const;
+
+export type PerformanceResultGroup =
+  (typeof PERFORMANCE_RESULT_GROUPS)[number];
+
+export type PerformanceResultPoint = {
   nhlGameId: number;
   gameDate: string;
   isHome: boolean;
   opponent: TeamGameLogEntry["opponent"];
   score: number;
   opponentScore: number;
-  detail: string;
+  result: TeamGameLogEntry["result"];
+  playForValue: number;
+  playAgainstValue: number;
+  playSharePercentage: number;
+  goalDifferential: number;
+  group: PerformanceResultGroup;
+};
+
+export type PerformanceResultMap = {
+  metric: "expected-goal-share" | "shot-share";
+  metricLabel: "Five-on-five expected-goal share" | "Shot share";
+  points: PerformanceResultPoint[];
+  gamesAnalyzed: number;
+  totalGames: number;
 };
 
 export type TeamSeasonIdentity = {
   fingerprint: SeasonFingerprintMetric[];
   records: SeasonRecord[];
   opponents: OpponentLedgerEntry[];
-  moments: SeasonMoment[];
+  performanceResultMap: PerformanceResultMap | null;
   gamesAnalyzed: number;
 };
 
@@ -77,7 +98,7 @@ export function buildTeamSeasonIdentity({
     fingerprint,
     records: buildSituationalRecords(phaseGames),
     opponents: buildOpponentLedger(phaseGames, stats.gameType),
-    moments: buildSeasonMoments(phaseGames),
+    performanceResultMap: buildPerformanceResultMap(phaseGames),
     gamesAnalyzed: phaseGames.length,
   };
 }
@@ -262,89 +283,95 @@ function buildOpponentLedger(
     );
 }
 
-function buildSeasonMoments(games: TeamGameLogEntry[]): SeasonMoment[] {
-  const selectedGameIds = new Set<number>();
-  const moments: SeasonMoment[] = [];
-
-  const biggestWin = selectGame(
-    games.filter((game) => game.result === "W"),
-    (game) => game.score - game.opponentScore,
-    selectedGameIds,
-  );
-  if (biggestWin) {
-    selectedGameIds.add(biggestWin.nhlGameId);
-    moments.push({
-      ...momentBase(biggestWin),
-      key: "biggest-win",
-      label: "Biggest win",
-      detail: `Won by ${biggestWin.score - biggestWin.opponentScore} goals`,
-    });
-  }
-
-  const largestShotEdge = selectGame(
-    games.filter(
-      (game) =>
-        game.shotsOnGoal !== null &&
-        game.opponentShotsOnGoal !== null &&
-        game.shotsOnGoal > game.opponentShotsOnGoal,
-    ),
-    (game) => game.shotsOnGoal! - game.opponentShotsOnGoal!,
-    selectedGameIds,
-  );
-  if (largestShotEdge) {
-    selectedGameIds.add(largestShotEdge.nhlGameId);
-    moments.push({
-      ...momentBase(largestShotEdge),
-      key: "shot-edge",
-      label: "Largest shot edge",
-      detail: `${largestShotEdge.shotsOnGoal}–${largestShotEdge.opponentShotsOnGoal} in shots`,
-    });
-  }
-
-  const highestScoring = selectGame(
-    games,
-    (game) => game.score + game.opponentScore,
-    selectedGameIds,
-  );
-  if (highestScoring) {
-    moments.push({
-      ...momentBase(highestScoring),
-      key: "highest-scoring",
-      label: "Highest-scoring game",
-      detail: `${highestScoring.score + highestScoring.opponentScore} combined goals`,
-    });
-  }
-
-  return moments;
-}
-
-function selectGame(
+function buildPerformanceResultMap(
   games: TeamGameLogEntry[],
-  value: (game: TeamGameLogEntry) => number,
-  excludedGameIds: Set<number>,
-): TeamGameLogEntry | null {
-  const availableGames = games.filter(
-    (game) => !excludedGameIds.has(game.nhlGameId),
-  );
+): PerformanceResultMap | null {
+  const expectedGoalGames = games.filter(hasExpectedGoalShare);
+  const shotGames = games.filter(hasShotShare);
+  const useExpectedGoals =
+    expectedGoalGames.length > 0 &&
+    expectedGoalGames.length >= shotGames.length;
+  const eligibleGames = useExpectedGoals ? expectedGoalGames : shotGames;
+
+  if (eligibleGames.length === 0) return null;
+
+  return {
+    metric: useExpectedGoals ? "expected-goal-share" : "shot-share",
+    metricLabel: useExpectedGoals
+      ? "Five-on-five expected-goal share"
+      : "Shot share",
+    gamesAnalyzed: eligibleGames.length,
+    totalGames: games.length,
+    points: eligibleGames
+      .map((game): PerformanceResultPoint => {
+        const playSharePercentage = useExpectedGoals
+          ? sharePercentage(
+              game.fiveOnFiveXGoalsFor!,
+              game.fiveOnFiveXGoalsAgainst!,
+            )
+          : sharePercentage(game.shotsOnGoal!, game.opponentShotsOnGoal!);
+        const playForValue = useExpectedGoals
+          ? game.fiveOnFiveXGoalsFor!
+          : game.shotsOnGoal!;
+        const playAgainstValue = useExpectedGoals
+          ? game.fiveOnFiveXGoalsAgainst!
+          : game.opponentShotsOnGoal!;
+        const goalDifferential = game.score - game.opponentScore;
+
+        return {
+          nhlGameId: game.nhlGameId,
+          gameDate: game.gameDate,
+          isHome: game.isHome,
+          opponent: game.opponent,
+          score: game.score,
+          opponentScore: game.opponentScore,
+          result: game.result,
+          playForValue,
+          playAgainstValue,
+          playSharePercentage,
+          goalDifferential,
+          group: performanceResultGroup(game.result, playSharePercentage),
+        };
+      })
+      .sort(
+        (left, right) =>
+          left.gameDate.localeCompare(right.gameDate) ||
+          left.nhlGameId - right.nhlGameId,
+      ),
+  };
+}
+
+function hasExpectedGoalShare(game: TeamGameLogEntry): boolean {
   return (
-    [...availableGames].sort(
-      (left, right) =>
-        value(right) - value(left) ||
-        right.gameDate.localeCompare(left.gameDate) ||
-        right.nhlGameId - left.nhlGameId,
-    )[0] ?? null
+    game.fiveOnFiveXGoalsFor !== null &&
+    game.fiveOnFiveXGoalsAgainst !== null &&
+    game.fiveOnFiveXGoalsFor + game.fiveOnFiveXGoalsAgainst > 0
   );
 }
 
-function momentBase(game: TeamGameLogEntry) {
-  return {
-    nhlGameId: game.nhlGameId,
-    gameDate: game.gameDate,
-    isHome: game.isHome,
-    opponent: game.opponent,
-    score: game.score,
-    opponentScore: game.opponentScore,
-  };
+function hasShotShare(game: TeamGameLogEntry): boolean {
+  return (
+    game.shotsOnGoal !== null &&
+    game.opponentShotsOnGoal !== null &&
+    game.shotsOnGoal + game.opponentShotsOnGoal > 0
+  );
+}
+
+function sharePercentage(forValue: number, againstValue: number): number {
+  return (forValue / (forValue + againstValue)) * 100;
+}
+
+function performanceResultGroup(
+  result: TeamGameLogEntry["result"],
+  playSharePercentage: number,
+): PerformanceResultGroup {
+  const won = result === "W";
+  const controlledPlay = playSharePercentage >= 50;
+
+  if (won && controlledPlay) return "controlled-win";
+  if (won) return "outplayed-win";
+  if (controlledPlay) return "controlled-loss";
+  return "outplayed-loss";
 }
 
 function recordForGames(games: TeamGameLogEntry[]) {

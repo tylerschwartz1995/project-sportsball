@@ -55,7 +55,7 @@ describe("team season identity", () => {
     ]);
   });
 
-  it("derives situational records, opponent series, and distinct moments", () => {
+  it("derives situational records, opponent series, and the result map", () => {
     const games = [
       game({
         nhlGameId: 1,
@@ -77,8 +77,8 @@ describe("team season identity", () => {
         opponentScore: 3,
         result: "W",
         lastPeriodType: "OT",
-        shotsOnGoal: 50,
-        opponentShotsOnGoal: 20,
+        shotsOnGoal: 20,
+        opponentShotsOnGoal: 50,
       }),
       game({
         nhlGameId: 3,
@@ -170,11 +170,105 @@ describe("team season identity", () => {
         outcome: "lost",
       }),
     ]);
-    expect(result.moments).toEqual([
-      expect.objectContaining({ key: "biggest-win", nhlGameId: 1 }),
-      expect.objectContaining({ key: "shot-edge", nhlGameId: 2 }),
-      expect.objectContaining({ key: "highest-scoring", nhlGameId: 5 }),
-    ]);
+    expect(result.performanceResultMap).toMatchObject({
+      metric: "shot-share",
+      metricLabel: "Shot share",
+      gamesAnalyzed: 5,
+      totalGames: 5,
+      points: [
+        expect.objectContaining({
+          nhlGameId: 1,
+          group: "controlled-win",
+          goalDifferential: 5,
+        }),
+        expect.objectContaining({
+          nhlGameId: 2,
+          group: "outplayed-win",
+        }),
+        expect.objectContaining({
+          nhlGameId: 3,
+          group: "controlled-loss",
+        }),
+        expect.objectContaining({
+          nhlGameId: 4,
+          group: "outplayed-loss",
+        }),
+        expect.objectContaining({
+          nhlGameId: 5,
+          group: "controlled-loss",
+        }),
+      ],
+    });
+  });
+
+  it("uses expected-goal share when it covers the selected games", () => {
+    const result = buildTeamSeasonIdentity({
+      stats: avalancheStats,
+      peers: [summary(avalanche, avalancheStats)],
+      games: [
+        game({
+          nhlGameId: 10,
+          gameDate: "2026-02-01",
+          isHome: true,
+          opponent: opponent(25, "DAL", "Dallas Stars"),
+          score: 4,
+          opponentScore: 2,
+          result: "W",
+          shotsOnGoal: 25,
+          opponentShotsOnGoal: 35,
+          fiveOnFiveXGoalsFor: 2.4,
+          fiveOnFiveXGoalsAgainst: 1.6,
+        }),
+      ],
+    });
+
+    expect(result.performanceResultMap).toMatchObject({
+      metric: "expected-goal-share",
+      gamesAnalyzed: 1,
+      points: [
+        expect.objectContaining({
+          playSharePercentage: 60,
+          playForValue: 2.4,
+          playAgainstValue: 1.6,
+          group: "controlled-win",
+        }),
+      ],
+    });
+  });
+
+  it("uses shot share when expected-goal coverage is incomplete", () => {
+    const result = buildTeamSeasonIdentity({
+      stats: avalancheStats,
+      peers: [summary(avalanche, avalancheStats)],
+      games: [
+        game({
+          nhlGameId: 11,
+          gameDate: "2026-02-02",
+          isHome: true,
+          opponent: opponent(25, "DAL", "Dallas Stars"),
+          score: 3,
+          opponentScore: 2,
+          result: "W",
+          fiveOnFiveXGoalsFor: 2,
+          fiveOnFiveXGoalsAgainst: 1,
+        }),
+        game({
+          nhlGameId: 12,
+          gameDate: "2026-02-03",
+          isHome: false,
+          opponent: opponent(23, "VAN", "Vancouver Canucks"),
+          score: 1,
+          opponentScore: 3,
+          result: "L",
+        }),
+      ],
+    });
+
+    expect(result.performanceResultMap).toMatchObject({
+      metric: "shot-share",
+      gamesAnalyzed: 2,
+      totalGames: 2,
+    });
   });
 
   it("keeps missing game-level coverage distinct from zero performance", () => {
@@ -186,7 +280,7 @@ describe("team season identity", () => {
 
     expect(result.gamesAnalyzed).toBe(0);
     expect(result.opponents).toEqual([]);
-    expect(result.moments).toEqual([]);
+    expect(result.performanceResultMap).toBeNull();
     expect(result.records.every((record) => record.gamesPlayed === 0)).toBe(
       true,
     );

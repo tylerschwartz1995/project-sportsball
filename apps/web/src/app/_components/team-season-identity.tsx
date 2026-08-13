@@ -1,9 +1,9 @@
 import Link from "next/link";
 
+import { TeamPerformanceResultMap } from "@/app/_components/team-performance-result-map";
 import { TeamLogo } from "@/app/_components/team-logo";
 import type {
   OpponentLedgerEntry,
-  SeasonMoment,
   SeasonRecord,
   TeamSeasonIdentity as TeamSeasonIdentityData,
 } from "@/lib/team-season-identity";
@@ -112,6 +112,13 @@ export function TeamSeasonIdentity({
         </div>
       </article>
 
+      {identity.performanceResultMap ? (
+        <TeamPerformanceResultMap
+          data={identity.performanceResultMap}
+          phaseLabel={phaseLabel}
+        />
+      ) : null}
+
       {identity.gamesAnalyzed > 0 ? (
         <div className="space-y-6">
           <article className="surface-panel p-6">
@@ -177,24 +184,6 @@ export function TeamSeasonIdentity({
         </div>
       )}
 
-      {identity.moments.length > 0 ? (
-        <section>
-          <SectionIntroduction
-            eyebrow="Game extremes"
-            title="Selected Single-Game Highs"
-            description="Statistical extremes from the selected phase, each linked to the full game record."
-          />
-          <div className="mt-5 grid gap-4 md:grid-cols-3">
-            {identity.moments.map((moment, index) => (
-              <SeasonMomentCard
-                key={moment.key}
-                moment={moment}
-                index={index}
-              />
-            ))}
-          </div>
-        </section>
-      ) : null}
     </section>
   );
 }
@@ -303,51 +292,6 @@ function OpponentLedgerCard({
         ))}
       </div>
     </div>
-  );
-}
-
-function SeasonMomentCard({
-  moment,
-  index,
-}: {
-  moment: SeasonMoment;
-  index: number;
-}) {
-  return (
-    <Link
-      href={`/games/${moment.nhlGameId}`}
-      className="surface-panel group relative overflow-hidden p-5 transition hover:-translate-y-0.5 hover:border-[var(--accent)]"
-    >
-      <span
-        aria-hidden="true"
-        className="absolute right-4 top-2 font-mono text-5xl font-semibold text-[var(--border)]"
-      >
-        {String(index + 1).padStart(2, "0")}
-      </span>
-      <p className="relative font-mono text-xs uppercase tracking-[0.14em] text-[var(--accent)]">
-        {moment.label}
-      </p>
-      <div className="relative mt-5 flex items-center gap-3">
-        <TeamLogo {...moment.opponent} size="compact" decorative />
-        <div>
-          <p className="text-xl font-semibold text-[var(--foreground)] tabular-nums">
-            {moment.score}–{moment.opponentScore}
-          </p>
-          <p className="text-sm text-[var(--muted)]">
-            {moment.isHome ? "vs" : "at"} {moment.opponent.abbreviation}
-          </p>
-        </div>
-      </div>
-      <p className="relative mt-5 text-sm text-[var(--foreground)]">
-        {moment.detail}
-      </p>
-      <p className="relative mt-1 text-xs text-[var(--muted)]">
-        {formatLongDate(moment.gameDate)}
-      </p>
-      <span className="relative mt-5 inline-flex text-sm font-medium text-[var(--accent)] transition group-hover:translate-x-0.5">
-        Open game →
-      </span>
-    </Link>
   );
 }
 
