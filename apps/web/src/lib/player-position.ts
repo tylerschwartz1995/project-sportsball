@@ -17,3 +17,33 @@ export function formatPlayerPosition(
 
   return DISPLAY_POSITIONS[position] ?? position;
 }
+
+export type PlayerPositionFilter = "" | "F" | "D" | "C" | "R" | "L";
+
+export function parsePlayerPositionFilter(
+  value: string | undefined,
+): PlayerPositionFilter {
+  return value === "F" ||
+    value === "D" ||
+    value === "C" ||
+    value === "R" ||
+    value === "L"
+    ? value
+    : "";
+}
+
+export function matchesPlayerPosition(
+  position: string | null | undefined,
+  filter: PlayerPositionFilter,
+): boolean {
+  if (!filter) {
+    return true;
+  }
+
+  const normalizedPosition = position?.trim().toUpperCase();
+  return filter === "F"
+    ? normalizedPosition === "C" ||
+        normalizedPosition === "L" ||
+        normalizedPosition === "R"
+    : normalizedPosition === filter;
+}
