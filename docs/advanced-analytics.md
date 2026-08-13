@@ -67,7 +67,11 @@ The league analytics route includes:
   expected/actual shots on goal;
 - all-situations, five-on-five, power-play, and penalty-kill filters;
 - explicit minimum-ice-time thresholds for skaters and goalies;
-- sortable tables with links to supporting team and player profiles.
+- sortable tables with links to supporting team and player profiles;
+- task-focused Core, Possession, Shot Quality, and Results column presets, with
+  an All Columns option for expert review;
+- plain-language metric definitions on hover or keyboard focus, a visible link
+  to the Metric Guide, and a sticky identity column for wide tables.
 
 The league leaderboards and centralized guide use the shared Data Workspace
 page hierarchy, semantic filters, compact metric cards, table shells, and

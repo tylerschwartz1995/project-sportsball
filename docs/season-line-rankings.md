@@ -30,6 +30,11 @@ stored facts without another provider download. Rows record the
 - League tables show at most the top 100 qualifying combinations by xG%.
 - Team pages show units with at least 50 minutes together.
 - Every numeric column can be sorted immediately in the browser.
+- Core, Possession, Shot Quality, and Results presets keep the wide rankings
+  focused, while All Columns exposes the complete dataset.
+- Metric headings explain themselves on hover or keyboard focus, the team or
+  combination identity stays visible during horizontal scrolling, and each
+  table links directly to the Metric Guide.
 - Player and team names link to their detail pages.
 
 The page credits MoneyPuck and presents unavailable pre-2008–09 coverage as
