@@ -14,6 +14,7 @@ import {
   getUpcomingGamesForTeamAcrossSeasons,
   getUpcomingGames,
   listGameDates,
+  listScheduleTeams,
 } from "@/data/games";
 
 describe("game queries", () => {
@@ -123,6 +124,35 @@ describe("game queries", () => {
       [20252026, 2, 23],
     );
     expect(queryMock.mock.calls[0]?.[0]).toContain("home_team_id");
+  });
+
+  it("lists teams from scheduled games without requiring season stats", async () => {
+    queryMock.mockResolvedValue([
+      {
+        team_id: 7,
+        nhl_team_id: 22,
+        franchise_id: 25,
+        abbreviation: "EDM",
+        team_name: "Edmonton Oilers",
+      },
+    ]);
+
+    await expect(listScheduleTeams(20262027, 2)).resolves.toEqual([
+      {
+        id: 7,
+        nhlTeamId: 22,
+        franchiseId: 25,
+        abbreviation: "EDM",
+        name: "Edmonton Oilers",
+      },
+    ]);
+    expect(queryMock).toHaveBeenCalledWith(
+      expect.stringContaining("SELECT away_team_id AS team_id"),
+      [20262027, 2],
+    );
+    expect(queryMock.mock.calls[0]?.[0]).toContain(
+      "SELECT home_team_id AS team_id",
+    );
   });
 
   it("loads the latest game date for a season without a second query", async () => {

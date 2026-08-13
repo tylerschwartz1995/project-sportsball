@@ -2,17 +2,24 @@
 
 import Link from "next/link";
 import type { ChangeEvent } from "react";
+import { useState } from "react";
 
 import type { GameDateSummary } from "@/contracts/game";
 import type { GamePhase } from "@/contracts/season-phase";
 import type { TeamIdentity } from "@/contracts/team";
 import {
   clampScheduleDate,
+  formatScheduleMonth,
   formatScheduleDay,
   formatScheduleMonthDay,
+  scheduleMonth,
+  scheduleMonthKey,
   scheduleWeek,
   shiftScheduleDate,
+  shiftScheduleMonth,
 } from "@/lib/schedule-navigation";
+
+const CALENDAR_WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 type GamePickerProps = {
   seasons: Array<{ id: number; label: string }>;
@@ -33,6 +40,10 @@ export function GamePicker({
   teams,
   selectedTeamId,
 }: GamePickerProps) {
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(
+    `${scheduleMonthKey(selectedDate)}-01`,
+  );
   const counts = new Map(gameDates.map((entry) => [entry.date, entry.gameCount]));
   const chronologicalDates = gameDates
     .map((entry) => entry.date)
@@ -57,6 +68,10 @@ export function GamePicker({
   );
   const defaultDateLabel =
     gameDates[0].date === lastDate ? "Latest Results" : "Next Games";
+  const calendarDays = scheduleMonth(calendarMonth);
+  const firstMonth = scheduleMonthKey(firstDate);
+  const lastMonth = scheduleMonthKey(lastDate);
+  const activeMonth = scheduleMonthKey(calendarMonth);
 
   return (
     <section className="workspace-schedule-navigator" aria-label="Schedule controls">
@@ -142,6 +157,101 @@ export function GamePicker({
           </label>
         </form>
       </div>
+
+      <div className="workspace-schedule-calendar-action">
+        <button
+          type="button"
+          aria-expanded={isCalendarOpen}
+          aria-controls="schedule-month-calendar"
+          onClick={() => setIsCalendarOpen((current) => !current)}
+        >
+          <span aria-hidden="true">▦</span>
+          {isCalendarOpen ? "Hide Calendar" : "Calendar View"}
+        </button>
+        <p>Browse a full month and see the number of games on each day.</p>
+      </div>
+
+      {isCalendarOpen ? (
+        <section
+          id="schedule-month-calendar"
+          className="workspace-schedule-month"
+          aria-labelledby="schedule-month-title"
+        >
+          <div className="workspace-schedule-month-heading">
+            <button
+              type="button"
+              disabled={activeMonth <= firstMonth}
+              aria-label="Previous month"
+              onClick={() =>
+                setCalendarMonth((current) => shiftScheduleMonth(current, -1))
+              }
+            >
+              ←
+            </button>
+            <div>
+              <span>Month Schedule</span>
+              <h2 id="schedule-month-title">
+                {formatScheduleMonth(calendarMonth)}
+              </h2>
+            </div>
+            <button
+              type="button"
+              disabled={activeMonth >= lastMonth}
+              aria-label="Next month"
+              onClick={() =>
+                setCalendarMonth((current) => shiftScheduleMonth(current, 1))
+              }
+            >
+              →
+            </button>
+          </div>
+          <div className="workspace-schedule-month-grid">
+            {CALENDAR_WEEKDAYS.map((weekday) => (
+              <span key={weekday} className="is-weekday">
+                {weekday}
+              </span>
+            ))}
+            {calendarDays.map((date, index) => {
+              if (!date) {
+                return <span key={`blank-${index}`} aria-hidden="true" />;
+              }
+              const inRange = date >= firstDate && date <= lastDate;
+              const gameCount = counts.get(date) ?? 0;
+              const content = (
+                <>
+                  <strong>{Number(date.slice(-2))}</strong>
+                  <small>
+                    {gameCount === 0
+                      ? "No games"
+                      : `${gameCount} ${gameCount === 1 ? "game" : "games"}`}
+                  </small>
+                </>
+              );
+
+              return inRange ? (
+                <Link
+                  key={date}
+                  href={gamesHref({
+                    seasonId: selectedSeasonId,
+                    phase,
+                    date,
+                    teamId: selectedTeamId,
+                  })}
+                  aria-current={date === selectedDate ? "date" : undefined}
+                  data-has-games={gameCount > 0}
+                  aria-label={`${formatScheduleMonthDay(date)}, ${gameCount} ${gameCount === 1 ? "game" : "games"}`}
+                >
+                  {content}
+                </Link>
+              ) : (
+                <span key={date} aria-disabled="true">
+                  {content}
+                </span>
+              );
+            })}
+          </div>
+        </section>
+      ) : null}
 
       <div className="workspace-schedule-week-actions">
         <DateLink

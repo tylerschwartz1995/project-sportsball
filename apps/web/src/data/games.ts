@@ -7,11 +7,20 @@ import type {
   GameSkaterStats,
   GameSummary,
 } from "@/contracts/game";
+import type { TeamIdentity } from "@/contracts/team";
 import { query } from "@/data/database";
 
 type GameDateRow = {
   game_date: string;
   game_count: number;
+};
+
+type ScheduleTeamRow = {
+  team_id: number;
+  nhl_team_id: number;
+  franchise_id: number | null;
+  abbreviation: string;
+  team_name: string;
 };
 
 type GameRow = {
@@ -201,6 +210,49 @@ export async function listGameDates(
   return rows.map((row) => ({
     date: row.game_date,
     gameCount: row.game_count,
+  }));
+}
+
+export async function listScheduleTeams(
+  seasonId: number,
+  gameType?: number,
+): Promise<TeamIdentity[]> {
+  const rows = await query<ScheduleTeamRow>(
+    `
+      WITH schedule_teams AS (
+        SELECT away_team_id AS team_id
+        FROM games
+        WHERE season_id = $1
+          AND ($2::smallint IS NULL OR game_type = $2)
+        UNION
+        SELECT home_team_id AS team_id
+        FROM games
+        WHERE season_id = $1
+          AND ($2::smallint IS NULL OR game_type = $2)
+      )
+      SELECT
+        team.id::integer AS team_id,
+        team.nhl_id::integer AS nhl_team_id,
+        team.franchise_id,
+        COALESCE(team_season.abbreviation, team.abbreviation) AS abbreviation,
+        COALESCE(team_season.full_name, team.name) AS team_name
+      FROM schedule_teams
+      JOIN teams AS team
+        ON team.id = schedule_teams.team_id
+      LEFT JOIN team_seasons AS team_season
+        ON team_season.team_id = team.id
+       AND team_season.season_id = $1
+      ORDER BY team_name
+    `,
+    [seasonId, gameType ?? null],
+  );
+
+  return rows.map((row) => ({
+    id: row.team_id,
+    nhlTeamId: row.nhl_team_id,
+    franchiseId: row.franchise_id,
+    abbreviation: row.abbreviation,
+    name: row.team_name,
   }));
 }
 
