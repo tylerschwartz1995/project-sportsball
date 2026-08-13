@@ -118,7 +118,7 @@ export default async function AnalyticsPage({
     firstQueryValue(params.situation),
     defaultSituation,
   );
-  const defaultMinimum = type === "goalies" ? 500 : 300;
+  const defaultMinimum = type === "teams" ? 0 : type === "goalies" ? 500 : 300;
   const minimumMinutes = parseMinimumMinutes(
     firstQueryValue(params.minimum),
     defaultMinimum,
@@ -282,6 +282,11 @@ function AnalyticsFilters({
   phase: "regular" | "playoffs";
   chartParams: Record<string, string | undefined>;
 }) {
+  const defaultSituation = type === "goalies" ? "all" : "5on5";
+  const defaultMinimum = type === "teams" ? 0 : type === "goalies" ? 500 : 300;
+  const activeFilterCount =
+    (situation === defaultSituation ? 0 : 1) +
+    (type === "teams" || minimumMinutes === defaultMinimum ? 0 : 1);
   const clearParams = new URLSearchParams({
     season: String(seasonId),
     phase,
@@ -301,10 +306,12 @@ function AnalyticsFilters({
       <input type="hidden" name="phase" value={phase} />
       {Object.entries(chartParams).map(([name, value]) => <input key={name} type="hidden" name={name} value={value ?? ""} disabled={!value} />)}
       <FilterHeader
-        description="Choose the game state and minimum workload for this leaderboard."
-        activeCount={
-          (situation === "all" ? 0 : 1) + (minimumMinutes > 0 ? 1 : 0)
+        description={
+          type === "teams"
+            ? "Choose the game state for this leaderboard."
+            : "Choose the game state and minimum workload for this leaderboard."
         }
+        activeCount={activeFilterCount}
       />
       <label>
         Game situation
@@ -336,6 +343,7 @@ function AnalyticsFilters({
       )}
       <FilterActions
         clearHref={`/analytics?${clearParams.toString()}`}
+        canClear={activeFilterCount > 0}
         accent="secondary"
       />
     </form>

@@ -8,6 +8,7 @@ import {
   FilterHeader,
 } from "@/app/_components/filter-primitives";
 import { countryNameWithCode } from "@/lib/country-name";
+import { playerDirectoryClearHref } from "@/lib/player-directory-url";
 import type { PlayerPositionFilter } from "@/lib/player-position";
 
 type Option = {
@@ -121,7 +122,7 @@ export function PlayerDirectoryFilters({
 
       <FilterHeader
         title="Filter Players"
-        description="Search by name or position. Open advanced filters only when you need them."
+        description="Search by name or choose a position. Open advanced filters only when you need them."
         activeCount={activeFilterCount}
       />
 
@@ -136,7 +137,7 @@ export function PlayerDirectoryFilters({
               type="search"
               name="q"
               defaultValue={query}
-              placeholder="e.g. Connor McDavid or defense"
+              placeholder="e.g. Connor McDavid"
             />
           </label>
           <label>
@@ -319,7 +320,14 @@ export function PlayerDirectoryFilters({
       </details>
 
       <FilterActions
-        clearHref={`/players?season=${seasonId}&phase=${phase}&type=${category}`}
+        clearHref={playerDirectoryClearHref({
+          seasonId,
+          phase,
+          category,
+          sort,
+          direction,
+        })}
+        canClear={activeFilterCount > 0}
         applyLabel="Show Players"
       >
         <Link

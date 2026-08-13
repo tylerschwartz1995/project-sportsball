@@ -273,6 +273,7 @@ export function HistoryFilters({
         ) : null}
         <FilterActions
           clearHref={`/history?section=${section}&entity=${view}&metric=${metric}&phase=${phase}`}
+          canClear={activeCount > 0}
         />
       </form>
     </details>
