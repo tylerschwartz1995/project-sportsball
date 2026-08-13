@@ -12,7 +12,6 @@ import {
   ZAxis,
   type TooltipContentProps,
 } from "recharts";
-import { CopyViewLink } from "@/app/_components/copy-view-link";
 import { useUrlChoice } from "@/app/_components/use-shareable-state";
 
 import { TeamLogo } from "@/app/_components/team-logo";
@@ -184,7 +183,6 @@ export function DraftOutcomePlot({
         )}
       </header>
       <div className="workspace-chart-toolbar">
-        <CopyViewLink />
         <div className="workspace-draft-plot-controls">
           <label className="workspace-chart-metric-select">
             Outcome Metric

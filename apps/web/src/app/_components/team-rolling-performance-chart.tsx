@@ -19,7 +19,6 @@ import {
   ChartFilterGroup,
 } from "@/app/_components/chart-controls";
 import { TeamLogo } from "@/app/_components/team-logo";
-import { CopyViewLink } from "@/app/_components/copy-view-link";
 import { useUrlBoolean, useUrlChoice } from "@/app/_components/use-shareable-state";
 import {
   buildRollingTeamPerformance,
@@ -80,7 +79,6 @@ export function TeamRollingPerformanceChart({
           Filters are applied before each rolling window is calculated. For
           example, 10 Away Games means the team&apos;s latest 10 away games.
         </p>
-        <CopyViewLink />
         <div className="workspace-chart-filters">
           <ChartFilterGroup label="Window">
             {ROLLING_WINDOWS.map((option) => (

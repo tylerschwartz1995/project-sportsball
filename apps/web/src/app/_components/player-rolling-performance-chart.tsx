@@ -17,7 +17,6 @@ import {
   ChartFilterButton,
   ChartFilterGroup,
 } from "@/app/_components/chart-controls";
-import { CopyViewLink } from "@/app/_components/copy-view-link";
 import { useUrlChoice } from "@/app/_components/use-shareable-state";
 import { TeamLogo } from "@/app/_components/team-logo";
 import {
@@ -210,7 +209,6 @@ export function PlayerRollingPerformanceChart(
       </header>
 
       <div className="workspace-chart-toolbar workspace-player-trend-toolbar">
-        <CopyViewLink />
         <label className="workspace-chart-metric-select">
           Metric
           <select

@@ -20,7 +20,6 @@ import {
   ChartFilterGroup,
 } from "@/app/_components/chart-controls";
 import { TeamLogo } from "@/app/_components/team-logo";
-import { CopyViewLink } from "@/app/_components/copy-view-link";
 import { useUrlChoice } from "@/app/_components/use-shareable-state";
 import type {
   GameFlow,
@@ -112,7 +111,6 @@ export function GameFlowChart({ flow }: { flow: GameFlow }) {
       </header>
 
       <div className="workspace-game-flow-controls">
-        <CopyViewLink />
         <ChartFilterGroup label="View">
           <ChartFilterButton
             active={view === "pressure"}

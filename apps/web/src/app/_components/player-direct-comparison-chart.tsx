@@ -9,7 +9,6 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { CopyViewLink } from "@/app/_components/copy-view-link";
 import { useUrlChoice } from "@/app/_components/use-shareable-state";
 
 import type {
@@ -50,7 +49,6 @@ export function PlayerDirectComparisonChart({
         </p>
       </header>
       <div className="workspace-chart-toolbar">
-        <CopyViewLink />
         <label className="workspace-chart-metric-select">
           Metric
           <select

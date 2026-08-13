@@ -12,7 +12,6 @@ import {
 } from "recharts";
 
 import { TeamLogo } from "@/app/_components/team-logo";
-import { CopyViewLink } from "@/app/_components/copy-view-link";
 import { useUrlChoice } from "@/app/_components/use-shareable-state";
 
 import type {
@@ -76,7 +75,6 @@ export function StandingsPointsChart({
         </p>
       </header>
       <div className="workspace-chart-toolbar">
-        <CopyViewLink />
         <label className="workspace-chart-metric-select">
           Division
           <select
