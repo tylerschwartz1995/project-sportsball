@@ -27,7 +27,7 @@ import {
   listSkaterDirectoryPage,
   type PlayerDirectoryPage,
 } from "@/data/players";
-import { listSeasons } from "@/data/seasons";
+import { listCachedSeasons } from "@/data/page-cache";
 import {
   firstQueryValue,
   normalizeSearch,
@@ -66,7 +66,7 @@ type PlayersPageProps = {
 
 export default async function PlayersPage({ searchParams }: PlayersPageProps) {
   const params = await searchParams;
-  const seasons = await listSeasons();
+  const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];

@@ -22,7 +22,7 @@ import {
   listGameDates,
   listScheduleTeams,
 } from "@/data/games";
-import { listScheduleSeasons } from "@/data/seasons";
+import { listCachedScheduleSeasons } from "@/data/page-cache";
 import { resolveScheduleDate } from "@/lib/schedule-navigation";
 
 export const dynamic = "force-dynamic";
@@ -37,7 +37,7 @@ type GamesPageProps = {
 };
 
 export default async function GamesPage({ searchParams }: GamesPageProps) {
-  const seasons = await listScheduleSeasons();
+  const seasons = await listCachedScheduleSeasons();
   const requested = await searchParams;
   const requestedSeason = firstValue(requested.season);
   const phase = parseSeasonPhase(firstValue(requested.phase));

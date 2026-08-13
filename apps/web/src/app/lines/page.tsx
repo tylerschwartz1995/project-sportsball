@@ -14,9 +14,8 @@ import {
   WorkspacePanel,
 } from "@/app/_components/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
-import { listSeasons } from "@/data/seasons";
+import { listCachedSeasons, listCachedTeamsBySeason } from "@/data/page-cache";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
-import { listTeamsBySeason } from "@/data/teams";
 import { paginate, parsePage, parsePageSize, parseSortDirection } from "@/lib/directory";
 import type { MoneyPuckSeasonUnitStats } from "@/contracts/season-unit";
 
@@ -44,7 +43,7 @@ type LinesPageProps = {
 
 export default async function LinesPage({ searchParams }: LinesPageProps) {
   const params = await searchParams;
-  const seasons = await listSeasons();
+  const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
@@ -77,7 +76,7 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
   const pageSize = parsePageSize(firstValue(params.perPage));
   const [teams, units] = selectedSeason
     ? await Promise.all([
-        listTeamsBySeason(selectedSeason.id),
+        listCachedTeamsBySeason(selectedSeason.id),
         getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
           minimumIceTimeSeconds: minimumMinutes * 60,
           teamNhlId: requestedTeamId,

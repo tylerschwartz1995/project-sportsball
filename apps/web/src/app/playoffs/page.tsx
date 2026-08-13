@@ -19,8 +19,7 @@ import {
   getPlayoffSeriesInsights,
 } from "@/data/playoffs";
 import { listGoalieLeadersBySeason } from "@/data/players";
-import { listSeasons } from "@/data/seasons";
-import { getStandings } from "@/data/standings";
+import { getCachedStandings, listCachedSeasons } from "@/data/page-cache";
 import { firstQueryValue } from "@/lib/directory";
 import {
   buildActualBracket,
@@ -43,7 +42,7 @@ export default async function PlayoffsPage({
   searchParams,
 }: PlayoffsPageProps) {
   const params = await searchParams;
-  const seasons = await listSeasons();
+  const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const view = parsePlayoffView(firstQueryValue(params.view));
   const selectedSeason =
@@ -51,7 +50,7 @@ export default async function PlayoffsPage({
   const [standings, games, seriesInsights, leaders, goalieLeaders] = selectedSeason
     ? await Promise.all([
         view === "bracket"
-          ? getStandings(selectedSeason.id)
+          ? getCachedStandings(selectedSeason.id)
           : Promise.resolve([]),
         view === "bracket"
           ? getGamesForSeasonByType(selectedSeason.id, 3)
