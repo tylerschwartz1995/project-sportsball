@@ -20,12 +20,18 @@ import {
 import { parseNhlId } from "@/contracts/entity";
 import {
   formatGameState,
+  type GameBoxScore,
   type GameBoxScoreTeam,
   type GameGoalieStats,
   type GameSkaterStats,
+  type GameSummary,
 } from "@/contracts/game";
 import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";
-import { getGameBoxScore } from "@/data/games";
+import {
+  getGameBoxScore,
+  getGameSummary,
+  getGameViewAvailability,
+} from "@/data/games";
 import { getGamePlayByPlay } from "@/data/play-by-play";
 import { buildGameFlow } from "@/lib/game-flow";
 import { parseTimelinePeriod } from "@/lib/play-by-play-timeline";
@@ -45,34 +51,48 @@ type GamePageProps = {
 };
 
 export default async function GamePage({ params, searchParams }: GamePageProps) {
-  const nhlGameId = parseNhlId((await params).id);
+  const [routeParams, pageParams] = await Promise.all([params, searchParams]);
+  const nhlGameId = parseNhlId(routeParams.id);
   if (nhlGameId === null) {
     notFound();
   }
 
-  const [game, advanced, playByPlay] = await Promise.all([
-    getGameBoxScore(nhlGameId),
-    getMoneyPuckGameAnalytics(nhlGameId),
-    getGamePlayByPlay(nhlGameId),
+  const requestedView = parseGameView(firstValue(pageParams.view));
+  const [initialGame, availability] = await Promise.all([
+    requestedView === "box-score"
+      ? getGameBoxScore(nhlGameId)
+      : getGameSummary(nhlGameId),
+    getGameViewAvailability(nhlGameId),
   ]);
-  if (!game) {
+  if (!initialGame) {
     notFound();
   }
+  let game: GameSummary = initialGame;
+  let boxScore: GameBoxScore | null =
+    requestedView === "box-score" ? (initialGame as GameBoxScore) : null;
 
   const completed =
     game.awayTeam.score !== null && game.homeTeam.score !== null;
-  const hasBoxScore =
-    game.awayTeam.skaters.length > 0 ||
-    game.homeTeam.skaters.length > 0 ||
-    game.awayTeam.goalies.length > 0 ||
-    game.homeTeam.goalies.length > 0;
-  const pageParams = await searchParams;
-  const requestedView = parseGameView(firstValue(pageParams.view));
   const view = normalizeGameView(requestedView, {
-    scoring: playByPlay.events.length > 0,
-    boxScore: hasBoxScore,
-    advanced: Boolean(advanced),
+    scoring: availability.scoring,
+    boxScore: availability.boxScore,
+    advanced: availability.advanced,
   });
+  if (view === "box-score" && requestedView !== "box-score") {
+    const loadedBoxScore = await getGameBoxScore(nhlGameId);
+    if (!loadedBoxScore) notFound();
+    boxScore = loadedBoxScore;
+    game = loadedBoxScore;
+  }
+  const [advanced, playByPlay] = await Promise.all([
+    view === "advanced" || view === "scoring"
+      ? getMoneyPuckGameAnalytics(nhlGameId)
+      : Promise.resolve(null),
+    view === "scoring"
+      ? getGamePlayByPlay(nhlGameId)
+      : Promise.resolve({ nhlGameId, events: [] }),
+  ]);
+  const hasBoxScore = availability.boxScore;
   const advancedView = parseGameAdvancedView(
     firstValue(pageParams.advancedView),
   );
@@ -80,7 +100,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
     firstValue(pageParams.timelinePeriod),
   );
   const tabs = [
-    playByPlay.events.length > 0
+    availability.scoring
       ? {
           id: "scoring" as const,
           label: "Scoring & Timeline",
@@ -92,9 +112,10 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
           id: "box-score" as const,
           label: "Box Score",
           href: `/games/${game.nhlGameId}?view=box-score`,
+          prefetch: true,
         }
       : null,
-    advanced
+    availability.advanced
       ? {
           id: "advanced" as const,
           label: "Advanced Analytics",
@@ -170,13 +191,13 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
           />
         ) : null}
 
-        {view === "box-score" && hasBoxScore ? (
+        {view === "box-score" && hasBoxScore && boxScore ? (
           <div
             id="box-score"
             className="workspace-width-standard mt-12 space-y-14 scroll-mt-6"
           >
-            <TeamBoxScore team={game.awayTeam} seasonId={game.seasonId} />
-            <TeamBoxScore team={game.homeTeam} seasonId={game.seasonId} />
+            <TeamBoxScore team={boxScore.awayTeam} seasonId={game.seasonId} />
+            <TeamBoxScore team={boxScore.homeTeam} seasonId={game.seasonId} />
           </div>
         ) : view === "box-score" ? (
           <div className="mt-10 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
@@ -199,7 +220,7 @@ function ScoreTeam({
   seasonId,
   align = "left",
 }: {
-  team: GameBoxScoreTeam;
+  team: GameSummary["awayTeam"];
   seasonId: number;
   align?: "left" | "right";
 }) {

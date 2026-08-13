@@ -6,6 +6,7 @@ export type ViewTab<T extends string = string> = {
   id: T;
   label: string;
   href: string;
+  prefetch?: boolean;
 };
 
 export function ViewTabs<T extends string>({
@@ -37,7 +38,7 @@ export function ViewTabs<T extends string>({
           key={tab.id}
           href={tab.href}
           aria-current={active === tab.id ? "page" : undefined}
-          prefetch={false}
+          prefetch={tab.prefetch ?? false}
           scroll={false}
         >
           {tab.label}
