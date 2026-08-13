@@ -92,18 +92,18 @@ export function TeamPerformanceResultMap({
     <section className="surface-panel overflow-hidden p-5 sm:p-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.16em] text-[var(--accent)]">
+          <p className="font-mono text-xs uppercase tracking-[0.16em] text-[var(--accent)] xl:text-sm">
             Performance vs. result
           </p>
-          <h3 className="mt-1 text-xl font-semibold tracking-[-0.025em] text-[var(--foreground)]">
+          <h3 className="mt-1 text-xl font-semibold tracking-[-0.025em] text-[var(--foreground)] xl:text-2xl">
             Game Results vs. Share of Play
           </h3>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)]">
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)] xl:text-base">
             Each dot is one game. Right means the team controlled more of play;
             up means a better goal differential.
           </p>
         </div>
-        <p className="font-mono text-[0.68rem] uppercase tracking-[0.1em] text-[var(--muted)]">
+        <p className="font-mono text-xs uppercase tracking-[0.1em] text-[var(--muted)] xl:text-sm">
           Horizontal axis · {data.metricLabel}
         </p>
       </header>
@@ -206,7 +206,7 @@ export function TeamPerformanceResultMap({
                 domain={xDomain}
                 ticks={[xDomain[0], 50, xDomain[1]]}
                 tickFormatter={(value: number) => `${Math.round(value)}%`}
-                tick={{ fill: "var(--chart-label)", fontSize: "0.75rem" }}
+                tick={{ fill: "var(--chart-label)", fontSize: "0.875rem" }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
                 label={{
@@ -214,7 +214,7 @@ export function TeamPerformanceResultMap({
                   position: "insideBottom",
                   offset: -24,
                   fill: "var(--chart-label)",
-                  fontSize: "0.75rem",
+                  fontSize: "0.875rem",
                 }}
               />
               <YAxis
@@ -224,7 +224,7 @@ export function TeamPerformanceResultMap({
                 domain={[-yBound, yBound]}
                 ticks={[-yBound, 0, yBound]}
                 allowDecimals={false}
-                tick={{ fill: "var(--chart-label)", fontSize: "0.75rem" }}
+                tick={{ fill: "var(--chart-label)", fontSize: "0.875rem" }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
                 width={42}
@@ -234,7 +234,7 @@ export function TeamPerformanceResultMap({
                   position: "insideLeft",
                   offset: -2,
                   fill: "var(--chart-label)",
-                  fontSize: "0.75rem",
+                  fontSize: "0.875rem",
                 }}
               />
               <ZAxis range={[70, 70]} />
@@ -284,7 +284,7 @@ export function TeamPerformanceResultMap({
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--muted)]">
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-sm text-[var(--muted)]">
         <p>{coverageNote}.</p>
         <p>Hover or tap for details; select a dot to open the game.</p>
       </div>
@@ -361,17 +361,17 @@ function FilterButton({
       ) : null}
       <span className="min-w-0 flex-1">
         <span className="flex flex-col gap-1 xl:flex-row xl:items-baseline xl:justify-between xl:gap-2">
-          <span className="text-xs font-semibold text-[var(--foreground)]">
+          <span className="whitespace-nowrap text-sm font-semibold text-[var(--foreground)]">
             {label}
           </span>
-          <span className="whitespace-nowrap font-mono text-sm font-semibold text-[var(--foreground)] tabular-nums">
+          <span className="whitespace-nowrap font-mono text-base font-semibold text-[var(--foreground)] tabular-nums">
             {count}{" "}
-            <span className="text-[0.62rem] font-medium text-[var(--muted)]">
+            <span className="text-xs font-medium text-[var(--muted)]">
               ({formatSamplePercentage(count, total)})
             </span>
           </span>
         </span>
-        <span className="mt-1 block text-[0.68rem] leading-4 text-[var(--muted)]">
+        <span className="mt-1 block text-sm leading-5 text-[var(--muted)]">
           {description}
         </span>
       </span>
@@ -459,7 +459,7 @@ function quadrantLabel(
     value,
     position,
     fill: "var(--chart-label)",
-    fontSize: "0.62rem",
+    fontSize: "0.75rem",
     letterSpacing: "0.08em",
   } as const;
 }
