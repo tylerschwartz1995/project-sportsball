@@ -6,6 +6,7 @@ import type {
   GameGoalieStats,
   GameSkaterStats,
   GameSummary,
+  LeagueTrendGame,
 } from "@/contracts/game";
 import type { TeamIdentity } from "@/contracts/team";
 import { query } from "@/data/database";
@@ -50,6 +51,17 @@ type GameRow = {
   home_overtime_losses: number;
   home_score: number | null;
   home_shots_on_goal: number | null;
+};
+
+type LeagueTrendGameRow = {
+  nhl_game_id: number;
+  game_date: string;
+  start_time_utc: string;
+  last_period_type: string | null;
+  away_abbreviation: string;
+  away_score: number;
+  home_abbreviation: string;
+  home_score: number;
 };
 
 type GameSkaterRow = {
@@ -328,6 +340,67 @@ export async function getRecentCompletedGames(
     [seasonId, gameType, boundedLimit],
   );
   return rows.map(mapGame);
+}
+
+export async function getRecentLeagueTrendGames(
+  seasonId: number,
+  gameType = 2,
+  limit = 60,
+): Promise<LeagueTrendGame[]> {
+  const boundedLimit = Math.min(120, Math.max(1, Math.trunc(limit)));
+  const rows = await query<LeagueTrendGameRow>(
+    `
+      SELECT
+        game.nhl_id::integer AS nhl_game_id,
+        game.game_date::text AS game_date,
+        game.start_time_utc::text AS start_time_utc,
+        game.last_period_type,
+        COALESCE(away_team_season.abbreviation, away_team.abbreviation) AS away_abbreviation,
+        away_stats.score::integer AS away_score,
+        COALESCE(home_team_season.abbreviation, home_team.abbreviation) AS home_abbreviation,
+        home_stats.score::integer AS home_score
+      FROM games AS game
+      JOIN teams AS away_team
+        ON away_team.id = game.away_team_id
+      JOIN teams AS home_team
+        ON home_team.id = game.home_team_id
+      LEFT JOIN team_seasons AS away_team_season
+        ON away_team_season.team_id = away_team.id
+       AND away_team_season.season_id = game.season_id
+      LEFT JOIN team_seasons AS home_team_season
+        ON home_team_season.team_id = home_team.id
+       AND home_team_season.season_id = game.season_id
+      JOIN team_game_stats AS away_stats
+        ON away_stats.game_id = game.id
+       AND away_stats.team_id = game.away_team_id
+      JOIN team_game_stats AS home_stats
+        ON home_stats.game_id = game.id
+       AND home_stats.team_id = game.home_team_id
+      WHERE game.season_id = $1
+        AND game.game_type = $2
+        AND game.state IN ('FINAL', 'OFF')
+        AND away_stats.score IS NOT NULL
+        AND home_stats.score IS NOT NULL
+      ORDER BY game.start_time_utc DESC, game.nhl_id DESC
+      LIMIT $3
+    `,
+    [seasonId, gameType, boundedLimit],
+  );
+
+  return rows.map((row) => ({
+    nhlGameId: row.nhl_game_id,
+    gameDate: row.game_date,
+    startTimeUtc: row.start_time_utc,
+    lastPeriodType: row.last_period_type,
+    awayTeam: {
+      abbreviation: row.away_abbreviation,
+      score: row.away_score,
+    },
+    homeTeam: {
+      abbreviation: row.home_abbreviation,
+      score: row.home_score,
+    },
+  }));
 }
 
 export async function getGamesForSeasonByType(

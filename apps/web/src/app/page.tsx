@@ -18,7 +18,7 @@ import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
 import {
   getLatestGamesForSeason,
-  getRecentCompletedGames,
+  getRecentLeagueTrendGames,
   getUpcomingGames,
 } from "@/data/games";
 import { listSkaterLeadersBySeason } from "@/data/players";
@@ -51,10 +51,15 @@ const loadHomeSeasonData = unstable_cache(
       getStandingsPointsHistory(seasonId),
       listSkaterLeadersBySeason(seasonId, 5),
       getLatestGamesForSeason(seasonId),
-      getRecentCompletedGames(seasonId),
-      getUpcomingGames(6),
+      getRecentLeagueTrendGames(seasonId),
     ]),
   ["home-season-data"],
+  { revalidate: 300 },
+);
+
+const loadHomeUpcomingGames = unstable_cache(
+  () => getUpcomingGames(6),
+  ["home-upcoming-games"],
   { revalidate: 300 },
 );
 
@@ -64,16 +69,19 @@ export default async function Home({ searchParams }: HomeProps) {
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
+  const [seasonData, upcomingGames] = selectedSeason
+    ? await Promise.all([
+        loadHomeSeasonData(selectedSeason.id),
+        loadHomeUpcomingGames(),
+      ])
+    : [[[], [], [], [], []], []];
   const [
     standings,
     standingsHistory,
     scoringLeaders,
     latestGames,
     recentGames,
-    upcomingGames,
-  ] = selectedSeason
-    ? await loadHomeSeasonData(selectedSeason.id)
-    : [[], [], [], [], [], []];
+  ] = seasonData;
 
   const latestDate = latestGames[0]?.gameDate;
   const latestPhase = latestGames[0]?.gameType === 3 ? "playoffs" : "regular";
