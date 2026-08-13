@@ -24,6 +24,7 @@ import type {
 } from "@/contracts/history";
 import type { SeasonPhase } from "@/contracts/season-phase";
 import { seasonPhaseLabel } from "@/contracts/season-phase";
+import { countryName } from "@/lib/country-name";
 import { formatPlayerPosition } from "@/lib/player-position";
 
 const HISTORY_SEASON_START_YEARS = Array.from(
@@ -504,5 +505,5 @@ function formatTableValue(value: string | number | null): string {
 }
 function formatTeamRecord(row: HistoricalTeamSeason): string { return `${row.wins}-${row.losses}${row.overtimeLosses ? `-${row.overtimeLosses}` : ""}`; }
 function positionLabel(position: string): string { return ({ C: "Centre", L: "Left Wing", R: "Right Wing", D: "Defence" } as Record<string, string>)[position] ?? position; }
-function countryLabel(country: string): string { try { return new Intl.DisplayNames(["en"], { type: "region" }).of(country) ?? country; } catch { return country; } }
+function countryLabel(country: string): string { return countryName(country); }
 function fullMetricLabel(metric: HistoryMetric): string { return ({ points: "points", goals: "goals", assists: "assists", games: "games played", pointsPerGame: "points per game", wins: "wins", shutouts: "shutouts", savePercentage: "save percentage", pointPercentage: "points percentage" } as Record<HistoryMetric, string>)[metric]; }

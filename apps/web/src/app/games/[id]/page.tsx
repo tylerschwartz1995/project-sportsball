@@ -5,6 +5,7 @@ import {
   GameAdvancedAnalytics,
   type GameAdvancedView,
 } from "@/app/_components/game-advanced-analytics";
+import { LocalGameTime } from "@/app/_components/local-game-time";
 import { GamePlayByPlayView } from "@/app/_components/play-by-play";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
@@ -142,7 +143,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
 
           <div className="workspace-game-hero-footer">
             <span>{formatDate(game.gameDate)}</span>
-            <span>{formatTime(game.startTimeUtc)}</span>
+            <LocalGameTime value={game.startTimeUtc} />
           </div>
         </div>
 
@@ -468,15 +469,6 @@ function formatDate(value: string): string {
     dateStyle: "long",
     timeZone: "UTC",
   }).format(new Date(`${value}T00:00:00Z`));
-}
-
-function formatTime(value: string): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "UTC",
-    timeZoneName: "short",
-  }).format(new Date(value));
 }
 
 function formatTimeOnIce(seconds: number | null): string {

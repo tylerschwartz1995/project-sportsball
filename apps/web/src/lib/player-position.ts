@@ -3,6 +3,14 @@ const DISPLAY_POSITIONS: Record<string, string> = {
   R: "RW",
 };
 
+const LONG_POSITIONS: Record<string, string> = {
+  C: "Center",
+  D: "Defenseman",
+  G: "Goalie",
+  L: "Left Wing",
+  R: "Right Wing",
+};
+
 /**
  * Converts NHL source position codes into the abbreviations shown in the UI.
  * Keep the source value unchanged for filtering, sorting, and data logic.
@@ -16,6 +24,17 @@ export function formatPlayerPosition(
   }
 
   return DISPLAY_POSITIONS[position] ?? position;
+}
+
+export function formatPlayerPositionLong(
+  position: string | null | undefined,
+  fallback = "Player",
+): string {
+  if (!position) {
+    return fallback;
+  }
+
+  return LONG_POSITIONS[position.trim().toUpperCase()] ?? position;
 }
 
 export type PlayerPositionFilter = "" | "F" | "D" | "C" | "R" | "L";

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatPlayerPosition,
+  formatPlayerPositionLong,
   matchesPlayerPosition,
   parsePlayerPositionFilter,
 } from "@/lib/player-position";
@@ -21,6 +22,14 @@ describe("player position display", () => {
   it("uses the requested fallback when a position is unavailable", () => {
     expect(formatPlayerPosition(null)).toBe("—");
     expect(formatPlayerPosition(undefined, "Player")).toBe("Player");
+  });
+
+  it("provides full position names for profile context", () => {
+    expect(formatPlayerPositionLong("C")).toBe("Center");
+    expect(formatPlayerPositionLong("D")).toBe("Defenseman");
+    expect(formatPlayerPositionLong("R")).toBe("Right Wing");
+    expect(formatPlayerPositionLong("L")).toBe("Left Wing");
+    expect(formatPlayerPositionLong("G")).toBe("Goalie");
   });
 });
 

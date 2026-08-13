@@ -109,7 +109,7 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
         <WorkspacePageHeader
           eyebrow="MoneyPuck five-on-five units"
           title={`${selectedSeason?.label ?? "No Season"} Top Combinations`}
-          description="Compare the most-used forward lines and defensive pairings. Season totals are calculated from stored game-level records, with percentages recomputed from their combined results."
+          description="Compare the most-used forward lines and defensive pairings. Season totals combine available game-level results, with every percentage recalculated from those totals."
           action={
             <SeasonPicker
               seasons={seasons}

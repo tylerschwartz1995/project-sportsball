@@ -7,6 +7,7 @@ import {
   FilterActions,
   FilterHeader,
 } from "@/app/_components/filter-primitives";
+import { countryNameWithCode } from "@/lib/country-name";
 import type { PlayerPositionFilter } from "@/lib/player-position";
 
 type Option = {
@@ -243,7 +244,7 @@ export function PlayerDirectoryFilters({
                   <option value="">All Countries</option>
                   {countries.map((option) => (
                     <option key={option} value={option}>
-                      {formatCountry(option)}
+                      {countryNameWithCode(option)}
                     </option>
                   ))}
                 </select>
@@ -352,13 +353,4 @@ function NumberFilter({
 function unique(values: Array<string | null>): string[] {
   return [...new Set(values.filter((value): value is string => Boolean(value)))]
     .sort((left, right) => left.localeCompare(right));
-}
-
-function formatCountry(country: string): string {
-  try {
-    const name = new Intl.DisplayNames(["en"], { type: "region" }).of(country);
-    return name && name !== country ? `${name} (${country})` : country;
-  } catch {
-    return country;
-  }
 }

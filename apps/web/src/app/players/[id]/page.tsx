@@ -25,7 +25,8 @@ import { getMoneyPuckPlayerSeason } from "@/data/advanced";
 import { getPlayerGameLog } from "@/data/game-logs";
 import { getPlayerDetail } from "@/data/players";
 import { listSeasons } from "@/data/seasons";
-import { formatPlayerPosition } from "@/lib/player-position";
+import { countryName } from "@/lib/country-name";
+import { formatPlayerPositionLong } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
 
@@ -171,7 +172,7 @@ export default async function PlayerPage({
                   {profile.name}
                 </h1>
                 <span className="rounded-full border border-cyan-300/25 bg-cyan-300/[0.08] px-2.5 py-1 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">
-                  {formatPlayerPosition(profile.position, "Player")}
+                  {formatPlayerPositionLong(profile.position)}
                 </span>
               </div>
             </div>
@@ -228,9 +229,7 @@ export default async function PlayerPage({
           <ProfileStat
             label="Born"
             value={
-              [profile.birthDate, profile.birthPlace]
-                .filter(Boolean)
-                .join(" · ") || "Unavailable"
+              formatBirthDetails(profile.birthDate, profile.birthPlace)
             }
           />
           <ProfileStat
@@ -242,8 +241,8 @@ export default async function PlayerPage({
             }
           />
           <ProfileStat
-            label="Shoots / catches"
-            value={profile.shootsCatches ?? "Unavailable"}
+            label={profile.position === "G" ? "Catches" : "Shoots"}
+            value={formatHandedness(profile.shootsCatches)}
           />
           <ProfileStat
             label="Draft"
@@ -707,10 +706,56 @@ function formatDraft(profile: {
   const parts = [
     String(profile.draftYear),
     profile.draftTeamAbbreviation,
-    profile.draftRound ? `round ${profile.draftRound}` : null,
-    profile.draftOverallPick ? `#${profile.draftOverallPick} overall` : null,
+    profile.draftRound ? `Round ${profile.draftRound}` : null,
+    profile.draftOverallPick
+      ? `${formatOrdinal(profile.draftOverallPick)} overall`
+      : null,
   ];
   return parts.filter(Boolean).join(" · ");
+}
+
+function formatBirthDetails(
+  birthDate: string | null,
+  birthPlace: string | null,
+): string {
+  const date = birthDate
+    ? new Intl.DateTimeFormat("en-CA", {
+        dateStyle: "long",
+        timeZone: "UTC",
+      }).format(new Date(`${birthDate}T00:00:00Z`))
+    : null;
+  const place = birthPlace ? formatBirthPlace(birthPlace) : null;
+  return [date, place].filter(Boolean).join(" · ") || "Unavailable";
+}
+
+function formatBirthPlace(value: string): string {
+  const parts = value.split(", ");
+  const country = parts.at(-1);
+  if (!country || !/^[A-Z]{2,3}$/.test(country)) {
+    return value;
+  }
+
+  try {
+    parts[parts.length - 1] = countryName(country);
+  } catch {
+    return value;
+  }
+  return parts.join(", ");
+}
+
+function formatHandedness(value: string | null): string {
+  if (value === "L") return "Left";
+  if (value === "R") return "Right";
+  return value ?? "Unavailable";
+}
+
+function formatOrdinal(value: number): string {
+  const remainder = value % 100;
+  if (remainder >= 11 && remainder <= 13) return `${value}th`;
+  if (value % 10 === 1) return `${value}st`;
+  if (value % 10 === 2) return `${value}nd`;
+  if (value % 10 === 3) return `${value}rd`;
+  return `${value}th`;
 }
 
 function formatHeight(inches: number): string {

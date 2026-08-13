@@ -157,7 +157,7 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
         ) : (
           <div className="workspace-empty-state mt-10">
             <strong>No schedule is available.</strong>
-            <span>The selected season and phase do not contain stored game dates.</span>
+            <span>The selected season and phase do not have any available game dates.</span>
           </div>
         )}
       </section>
@@ -188,6 +188,7 @@ function GameCard({ game }: { game: GameSummary }) {
         </span>
         <Link
           href={`/games/${game.nhlGameId}`}
+          aria-label={`${completed ? "View box score" : "Open game preview"}: ${game.awayTeam.name} at ${game.homeTeam.name}`}
         >
           {completed ? "View box score" : "Game preview"} →
         </Link>
