@@ -37,6 +37,7 @@ import {
   matchesPlayerPosition,
   parsePlayerPositionFilter,
 } from "@/lib/player-position";
+import { playerDirectoryClearHref } from "@/lib/player-directory-url";
 
 export const dynamic = "force-dynamic";
 
@@ -91,7 +92,10 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
     sort === "name" ? "asc" : "desc",
   );
   const requestedPage = parsePage(firstQueryValue(params.page));
-  const position = parsePlayerPositionFilter(firstQueryValue(params.position));
+  const position =
+    category === "skaters"
+      ? parsePlayerPositionFilter(firstQueryValue(params.position))
+      : "";
   const filters = {
     minGames: firstQueryValue(params.minGames) ?? "0",
     minGoals: firstQueryValue(params.minGoals) ?? "0",
@@ -171,7 +175,11 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
             <SeasonPicker
               seasons={seasons}
               selectedSeasonId={selectedSeason?.id}
-              params={{ phase, type: category, position }}
+              params={{
+                phase,
+                type: category,
+                position: position || undefined,
+              }}
             />
           }
         />
@@ -181,7 +189,11 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
             <SeasonPhaseFilter
               active={phase}
               path="/players"
-              params={{ season: selectedSeason.id, type: category, position }}
+              params={{
+                season: selectedSeason.id,
+                type: category,
+                position: position || undefined,
+              }}
             />
             <PlayerDirectoryFilters
               seasonId={selectedSeason.id}
@@ -294,7 +306,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                       params={{
                         season: selectedSeason.id,
                         q: query,
-                        position,
+                        position: position || undefined,
                         type: category,
                         sort,
                         dir: direction,
@@ -305,7 +317,15 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                     />
                   </>
                 ) : (
-                  <DirectoryEmptyState />
+                  <DirectoryEmptyState
+                    clearHref={playerDirectoryClearHref({
+                      seasonId: selectedSeason.id,
+                      phase,
+                      category,
+                      sort,
+                      direction,
+                    })}
+                  />
                 )}
               </>
             ) : (
@@ -414,7 +434,15 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                     />
                   </>
                 ) : (
-                  <DirectoryEmptyState />
+                  <DirectoryEmptyState
+                    clearHref={playerDirectoryClearHref({
+                      seasonId: selectedSeason.id,
+                      phase,
+                      category,
+                      sort,
+                      direction,
+                    })}
+                  />
                 )}
               </>
             )}
@@ -686,10 +714,12 @@ function MobilePlayerStat({
   );
 }
 
-function DirectoryEmptyState() {
+function DirectoryEmptyState({ clearHref }: { clearHref: string }) {
   return (
-    <div className="mt-5 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
-      No players match the current search.
+    <div className="workspace-empty-state mt-5">
+      <strong>No players match these filters.</strong>
+      <span>Try a broader search or remove the optional filters.</span>
+      <Link href={clearHref}>Clear filters</Link>
     </div>
   );
 }

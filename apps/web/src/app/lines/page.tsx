@@ -23,6 +23,7 @@ import type { MoneyPuckSeasonUnitStats } from "@/contracts/season-unit";
 export const dynamic = "force-dynamic";
 
 const ICE_TIME_OPTIONS = [0, 20, 50, 100, 200, 300] as const;
+const DEFAULT_MINIMUM_MINUTES = 100;
 const WINDOW_OPTIONS = [10, 20, 40] as const;
 const UNIT_VIEWS = ["lines", "pairings"] as const;
 const UNIT_SORTS = ["team", "players", "games", "iceTime", "xgPercentage", "corsiPercentage", "xGoalsFor", "xGoalsAgainst", "goalsFor", "goalsAgainst", "shotsFor", "shotsAgainst"] as const;
@@ -52,7 +53,7 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
     requestedMinimum as (typeof ICE_TIME_OPTIONS)[number],
   )
     ? requestedMinimum
-    : 100;
+    : DEFAULT_MINIMUM_MINUTES;
   const requestedTeam = Number(firstValue(params.team));
   const requestedTeamId =
     Number.isSafeInteger(requestedTeam) && requestedTeam > 0
@@ -226,6 +227,10 @@ function CombinationFilters({
   sort: (typeof UNIT_SORTS)[number];
   direction: "asc" | "desc";
 }) {
+  const activeFilterCount =
+    (selectedTeamId ? 1 : 0) +
+    (rollingGames ? 1 : 0) +
+    (selectedMinutes === DEFAULT_MINIMUM_MINUTES ? 0 : 1);
   return (
     <form
       method="get"
@@ -238,11 +243,7 @@ function CombinationFilters({
       <input type="hidden" name="direction" value={direction} />
       <FilterHeader
         description="Narrow combinations by team, sample window, and shared ice time."
-        activeCount={
-          (selectedTeamId ? 1 : 0) +
-          (rollingGames ? 1 : 0) +
-          (selectedMinutes > 0 ? 1 : 0)
-        }
+        activeCount={activeFilterCount}
       />
       <label>
         Team
@@ -279,7 +280,10 @@ function CombinationFilters({
           ))}
         </select>
       </label>
-      <FilterActions clearHref={`/lines?season=${seasonId}&view=${view}&perPage=${pageSize}`} />
+      <FilterActions
+        clearHref={`/lines?season=${seasonId}&view=${view}&perPage=${pageSize}&sort=${sort}&direction=${direction}`}
+        canClear={activeFilterCount > 0}
+      />
     </form>
   );
 }

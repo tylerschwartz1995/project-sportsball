@@ -806,7 +806,8 @@ html[data-theme="light"] .theme-toggle-label::after {
 }
 
 .workspace-filter-actions > button,
-.workspace-filter-actions > a {
+.workspace-filter-actions > a,
+.workspace-filter-actions > .workspace-disabled-action {
   display: grid;
   min-height: 2.55rem;
   place-items: center;
@@ -839,6 +840,13 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-filter-actions > a:hover {
   border-color: var(--border-strong);
   color: var(--foreground);
+}
+
+.workspace-disabled-action {
+  border: 1px solid var(--border);
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
 @media (min-width: 640px) {
@@ -1604,7 +1612,8 @@ html[data-theme="light"] .theme-toggle-label::after {
   gap: 0.55rem;
 }
 
-.workspace-draft-filter-actions a {
+.workspace-draft-filter-actions a,
+.workspace-draft-filter-actions .workspace-disabled-action {
   display: inline-grid;
   min-height: 2.45rem;
   place-items: center;
@@ -1615,7 +1624,8 @@ html[data-theme="light"] .theme-toggle-label::after {
   white-space: nowrap;
 }
 
-.workspace-draft-filter-actions a {
+.workspace-draft-filter-actions a,
+.workspace-draft-filter-actions .workspace-disabled-action {
   border: 1px solid var(--border);
   color: var(--muted);
   text-decoration: none;
@@ -1808,6 +1818,14 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-empty-state strong {
   color: var(--foreground);
   font-size: 1.02rem;
+}
+
+.workspace-empty-state a {
+  width: fit-content;
+  margin-top: 0.35rem;
+  color: var(--accent);
+  font-weight: 700;
+  text-underline-offset: 0.18rem;
 }
 
 .workspace-loading-shell {

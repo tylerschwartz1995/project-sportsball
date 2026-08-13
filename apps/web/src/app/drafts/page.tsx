@@ -694,6 +694,8 @@ function DraftBoardFilters({
   if (fromYear !== null) resetParams.set("from", String(fromYear));
   if (toYear !== null) resetParams.set("to", String(toYear));
   const resetHref = `/drafts?${resetParams.toString()}`;
+  const activeFilterCount =
+    (selectedTeam ? 1 : 0) + (selectedRound ? 1 : 0) + (query ? 1 : 0);
 
   return (
     <form method="get" className="workspace-draft-filters is-board">
@@ -703,7 +705,7 @@ function DraftBoardFilters({
       <input type="hidden" name="to" value={toYear ?? ""} />
       <FilterHeader
         description="Selections refresh as soon as you choose an option."
-        activeCount={(selectedTeam ? 1 : 0) + (selectedRound ? 1 : 0)}
+        activeCount={activeFilterCount}
         autoApply
       />
       <label>
@@ -748,7 +750,13 @@ function DraftBoardFilters({
         </AutoSubmitSelect>
       </label>
       <div className="workspace-draft-filter-actions">
-        <Link href={resetHref}>Clear Filters</Link>
+        {activeFilterCount > 0 ? (
+          <Link href={resetHref}>Clear Filters</Link>
+        ) : (
+          <span className="workspace-disabled-action" aria-disabled="true">
+            Clear Filters
+          </span>
+        )}
       </div>
     </form>
   );

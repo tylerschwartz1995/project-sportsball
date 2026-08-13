@@ -33,12 +33,14 @@ export function FilterActions({
   clearHref,
   applyLabel = "Apply Filters",
   clearLabel = "Clear Filters",
+  canClear = true,
   accent = "primary",
   children,
 }: {
   clearHref: string;
   applyLabel?: string;
   clearLabel?: string;
+  canClear?: boolean;
   accent?: "primary" | "secondary";
   children?: ReactNode;
 }) {
@@ -47,7 +49,13 @@ export function FilterActions({
       <button type="submit" data-accent={accent}>
         {applyLabel}
       </button>
-      <Link href={clearHref}>{clearLabel}</Link>
+      {canClear ? (
+        <Link href={clearHref}>{clearLabel}</Link>
+      ) : (
+        <span className="workspace-disabled-action" aria-disabled="true">
+          {clearLabel}
+        </span>
+      )}
       {children}
     </div>
   );
