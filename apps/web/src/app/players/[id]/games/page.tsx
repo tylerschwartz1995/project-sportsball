@@ -110,9 +110,9 @@ export default async function PlayerGamesPage({
               {formatPlayerPosition(log.profile.position, "Player")} ·{" "}
               {seasonPhaseLabel(phase)}
             </p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-              Game Log
-            </h2>
+            <h1 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
+              {log.profile.name} Game Log
+            </h1>
             <p className="mt-4 text-base text-slate-400">
               {selectedSeason.label} game-by-game traditional and advanced
               performance.
@@ -120,8 +120,8 @@ export default async function PlayerGamesPage({
           </div>
           <SeasonPicker
             seasons={availableSeasons}
-              selectedSeasonId={selectedSeason.id}
-              params={{ phase, perPage: pageSize }}
+            selectedSeasonId={selectedSeason.id}
+            params={{ phase, perPage: pageSize }}
           />
         </div>
 
@@ -176,7 +176,7 @@ function SkaterRecentForm({ games }: { games: SkaterGameLogEntry[] }) {
           <Link
             key={game.nhlGameId}
             href={`/games/${game.nhlGameId}`}
-            title={`${game.gameDate}: ${game.points} points vs ${game.opponent.name}`}
+            title={`${formatDate(game.gameDate)}: ${game.points} ${game.points === 1 ? "point" : "points"} vs ${game.opponent.name}`}
             className="group flex min-h-20 flex-col justify-end rounded-lg border border-white/10 bg-white/[0.035] p-2 transition hover:border-cyan-300/30 hover:bg-cyan-300/[0.07]"
           >
             <span
@@ -204,7 +204,7 @@ function GoalieRecentForm({ games }: { games: GoalieGameLogEntry[] }) {
           <Link
             key={game.nhlGameId}
             href={`/games/${game.nhlGameId}`}
-            title={`${game.gameDate}: ${formatSavePercentage(game.savePercentage)} vs ${game.opponent.name}`}
+            title={`${formatDate(game.gameDate)}: ${formatSavePercentage(game.savePercentage)} vs ${game.opponent.name}`}
             className="rounded-lg border border-white/10 bg-white/[0.035] px-2 py-4 text-center transition hover:border-cyan-300/30 hover:bg-cyan-300/[0.07]"
           >
             <span className="block text-xs text-slate-500">
