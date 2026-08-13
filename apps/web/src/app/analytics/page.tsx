@@ -9,12 +9,11 @@ import {
   FilterActions,
   FilterHeader,
 } from "@/app/_components/filter-primitives";
-import { PlayerComparisonPlots } from "@/app/_components/player-comparison-plots";
+import { PlayerComparisonPlots, TeamComparisonScatterplot } from "@/app/_components/lazy-charts";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
-import { TeamComparisonScatterplot } from "@/app/_components/team-comparison-scatterplot";
 import { TeamLogo } from "@/app/_components/team-logo";
 import { DataTableShell } from "@/app/_components/ui-primitives";
 import {

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { TeamPerformanceResultMap } from "@/app/_components/team-performance-result-map";
+import { TeamPerformanceResultMap } from "@/app/_components/lazy-charts";
 import { TeamLogo } from "@/app/_components/team-logo";
 import type {
   OpponentLedgerEntry,

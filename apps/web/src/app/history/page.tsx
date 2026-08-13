@@ -19,7 +19,7 @@ import {
 import {
   HistoryRecordProgression,
   HistoryScoringEnvironment,
-} from "@/app/_components/history-visuals";
+} from "@/app/_components/lazy-charts";
 import { Pagination } from "@/app/_components/pagination";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";

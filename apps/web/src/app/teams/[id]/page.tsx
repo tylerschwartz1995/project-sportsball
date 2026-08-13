@@ -15,7 +15,7 @@ import {
   type TeamScheduleFilter,
 } from "@/app/_components/team-full-schedule";
 import { TeamSeasonIdentity } from "@/app/_components/team-season-identity";
-import { TeamRollingPerformanceChart } from "@/app/_components/team-rolling-performance-chart";
+import { TeamRollingPerformanceChart } from "@/app/_components/lazy-charts";
 import {
   ViewTabs,
   type ViewTab,

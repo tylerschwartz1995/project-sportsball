@@ -4,7 +4,7 @@ import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
-import { StandingsPointsChart } from "@/app/_components/standings-points-chart";
+import { StandingsPointsChart } from "@/app/_components/lazy-charts";
 import { TeamLogo } from "@/app/_components/team-logo";
 import { ViewTabs } from "@/app/_components/view-tabs";
 import {

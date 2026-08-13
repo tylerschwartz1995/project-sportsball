@@ -5,15 +5,17 @@ import { AutoSubmitSelect } from "@/app/_components/auto-submit-select";
 import { FilterHeader } from "@/app/_components/filter-primitives";
 import { ClassRankingVisuals } from "@/app/_components/class-ranking-visuals";
 import {
-  DraftOutcomePlot,
   type DraftPlotOutcome,
 } from "@/app/_components/draft-outcome-plot";
+import {
+  DraftOutcomePlot,
+  TeamDraftingVisuals,
+} from "@/app/_components/lazy-charts";
 import { Pagination } from "@/app/_components/pagination";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo } from "@/app/_components/team-logo";
-import { TeamDraftingVisuals } from "@/app/_components/team-drafting-visuals";
 import { ViewTabs } from "@/app/_components/view-tabs";
 import { WorkspaceModal } from "@/app/_components/workspace-modal";
 import {
