@@ -509,11 +509,11 @@ html[data-theme="dark"] .theme-icon-sun {
 }
 
 .theme-toggle-label::after {
-  content: "Light mode";
+  content: "Use light mode";
 }
 
 html[data-theme="light"] .theme-toggle-label::after {
-  content: "Dark mode";
+  content: "Use dark mode";
 }
 
 .workspace-page-header {
@@ -1828,17 +1828,15 @@ html[data-theme="light"] .theme-toggle-label::after {
   text-underline-offset: 0.18rem;
 }
 
-.workspace-loading-shell {
-  animation: workspace-pulse 1.8s ease-in-out infinite;
-}
-
-.workspace-loading-nav {
-  height: 4rem;
-  border-bottom: 1px solid var(--border);
+.workspace-loading-status {
+  color: var(--foreground);
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .workspace-loading-block,
 .workspace-loading-panel {
+  animation: workspace-pulse 1.8s ease-in-out infinite;
   border-radius: 0.7rem;
   background: var(--surface-subtle);
 }

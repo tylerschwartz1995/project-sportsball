@@ -3,17 +3,19 @@ import type { ReactNode } from "react";
 
 import { ThemeToggle } from "@/app/_components/theme-toggle";
 
+export type SiteSection =
+  | "home"
+  | "standings"
+  | "games"
+  | "teams"
+  | "players"
+  | "drafts"
+  | "history"
+  | "playoffs"
+  | "analytics";
+
 type SiteHeaderProps = {
-  active:
-    | "home"
-    | "standings"
-    | "games"
-    | "teams"
-    | "players"
-    | "drafts"
-    | "history"
-    | "playoffs"
-    | "analytics";
+  active?: SiteSection;
 };
 
 const navigationGroups = [
@@ -118,8 +120,8 @@ function PrimaryNavigation({ active }: SiteHeaderProps) {
   );
 }
 
-function NavigationIcon({ id }: { id: SiteHeaderProps["active"] }) {
-  const paths: Record<SiteHeaderProps["active"], ReactNode> = {
+function NavigationIcon({ id }: { id: SiteSection }) {
+  const paths: Record<SiteSection, ReactNode> = {
     home: <><path d="M3 10.5 12 3l9 7.5" /><path d="M5 9.5V21h14V9.5M9 21v-7h6v7" /></>,
     games: <><circle cx="12" cy="12" r="9" /><path d="M7 7c3 3 7 7 10 10M17 7c-3 3-7 7-10 10" /></>,
     standings: <path d="M5 20V10h4v10M10 20V4h4v16M15 20v-7h4v7" />,

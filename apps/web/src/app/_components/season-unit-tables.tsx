@@ -210,6 +210,7 @@ function SeasonUnitTable({
                           </div>
                           <Link
                             href={`/lines/${row.unitType}-${row.players.map((player) => player.nhlPlayerId).join("-")}?season=${seasonId}&team=${row.team.nhlTeamId}`}
+                            aria-label={`View supporting games for ${row.players.map((player) => player.name).join(", ")} with ${row.team.name}`}
                             className="shrink-0 text-xs font-semibold text-cyan-300 transition hover:text-cyan-200"
                           >
                             Games →
