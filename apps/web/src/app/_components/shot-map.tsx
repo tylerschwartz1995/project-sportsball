@@ -61,6 +61,13 @@ function TeamShotMap({
       shot.adjustedXCoordinate !== null &&
       shot.adjustedYCoordinate !== null,
   );
+  const renderedShots = [
+    ...plottedShots.filter((shot) => !shot.isGoal),
+    ...plottedShots.filter((shot) => shot.isGoal),
+  ];
+  const navigationIndexByKey = new Map(
+    plottedShots.map((shot, index) => [shotKey(shot), index]),
+  );
   const goals = shots.filter((shot) => shot.isGoal).length;
   const expectedGoals = sumExpectedGoals(shots);
   const color = accent === "cyan" ? "#67e8f9" : "#c4b5fd";
@@ -207,11 +214,12 @@ function TeamShotMap({
             ATTACKING →
           </text>
 
-          {plottedShots.map((shot, index) => {
+          {renderedShots.map((shot) => {
             const x = mapShotX(shot.adjustedXCoordinate!);
             const y = mapShotY(shot.adjustedYCoordinate!);
             const radius = shotRadius(shot.expectedGoal);
             const key = shotKey(shot);
+            const navigationIndex = navigationIndexByKey.get(key)!;
             const isSelected = key === selectedShotId;
             return (
               <g
@@ -224,7 +232,9 @@ function TeamShotMap({
                 className="workspace-shot-marker cursor-pointer"
                 onClick={() => setSelectedShotId(key)}
                 onFocus={() => setSelectedShotId(key)}
-                onKeyDown={(event) => handleMarkerKeyDown(event, index)}
+                onKeyDown={(event) =>
+                  handleMarkerKeyDown(event, navigationIndex)
+                }
                 ref={(element) => {
                   if (element) {
                     markerRefs.current.set(key, element);
@@ -244,7 +254,11 @@ function TeamShotMap({
                   <circle
                     cx={x}
                     cy={y}
-                    r={radius + 3.5}
+                    r={
+                      shot.isGoal
+                        ? goalOuterRadius(radius) + 2.5
+                        : radius + 3.5
+                    }
                     fill="none"
                     stroke="var(--foreground)"
                     strokeWidth="1.5"
@@ -255,14 +269,15 @@ function TeamShotMap({
                   cx={x}
                   cy={y}
                   r={radius}
-                  fill={
-                    shot.isGoal || shot.wasOnGoal ? color : "transparent"
-                  }
+                  fill={shot.wasOnGoal ? color : "transparent"}
                   fillOpacity={shot.isGoal ? 0.95 : shot.wasOnGoal ? 0.3 : 0}
                   stroke={color}
-                  strokeWidth={shot.isGoal ? 2.5 : 1.25}
+                  strokeWidth={shot.isGoal ? 1.75 : 1.25}
                   strokeDasharray={!shot.wasOnGoal ? "2 2" : undefined}
                 />
+                {shot.isGoal ? (
+                  <GoalMarker x={x} y={y} shotRadius={radius} />
+                ) : null}
               </g>
             );
           })}
@@ -274,10 +289,11 @@ function TeamShotMap({
         >
           <LegendDot color={color} label="Missed" dashed />
           <LegendDot color={color} label="Saved" fillOpacity={0.3} />
-          <LegendDot color={color} label="Goal" fillOpacity={1} />
+          <LegendGoalMarker label="Goal" />
           <span>
-            Circle size reflects expected-goal probability. Tab into the map,
-            then use arrow keys, Home, or End to inspect shots.
+            Marker size reflects expected-goal probability. Gold target markers
+            identify goals. Tab into the map, then use arrow keys, Home, or End
+            to inspect shots.
           </span>
           {plottedShots.length < shots.length ? (
             <span>
@@ -419,6 +435,64 @@ function LegendDot({
               : `color-mix(in srgb, ${color} ${fillOpacity * 100}%, transparent)`,
         }}
       />
+      {label}
+    </span>
+  );
+}
+
+function GoalMarker({
+  x,
+  y,
+  shotRadius,
+}: {
+  x: number;
+  y: number;
+  shotRadius: number;
+}) {
+  const outerRadius = goalOuterRadius(shotRadius);
+  const innerRadius = Math.max(shotRadius, 3.75);
+  return (
+    <>
+      <circle
+        cx={x}
+        cy={y}
+        r={outerRadius}
+        fill="color-mix(in srgb, var(--chart-goal) 24%, transparent)"
+        stroke="var(--chart-goal)"
+        strokeWidth="2.25"
+      />
+      <circle
+        cx={x}
+        cy={y}
+        r={innerRadius}
+        fill="var(--chart-goal)"
+        stroke="var(--chart-goal-center)"
+        strokeWidth="1.25"
+      />
+      <circle
+        cx={x}
+        cy={y}
+        r="1.6"
+        fill="var(--chart-goal-center)"
+      />
+    </>
+  );
+}
+
+function goalOuterRadius(shotRadius: number): number {
+  return Math.max(shotRadius + 2.75, 7);
+}
+
+function LegendGoalMarker({ label }: { label: string }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <svg
+        aria-hidden="true"
+        viewBox="0 0 16 16"
+        className="h-3.5 w-3.5 overflow-visible"
+      >
+        <GoalMarker x={8} y={8} shotRadius={3.5} />
+      </svg>
       {label}
     </span>
   );
