@@ -49,6 +49,7 @@ export function AnalyticsSectionTabs({
       aria-label="Advanced analytics sections"
       className="workspace-scroll-nav workspace-analytics-tabs"
     >
+      <span className="workspace-navigation-label" aria-hidden="true">Analytics view</span>
       {tabs.map((tab) => (
         <a
           key={tab.id}

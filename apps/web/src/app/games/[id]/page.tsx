@@ -149,6 +149,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
         <ViewTabs
           active={view}
           ariaLabel="Game views"
+          label="Game view"
           tabs={tabs}
         />
 

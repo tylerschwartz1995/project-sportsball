@@ -189,6 +189,13 @@ export default async function TeamPage({
           </div>
         </div>
 
+        <ViewTabs
+          active={view}
+          ariaLabel={`${detail.team.name} views`}
+          label="Profile view"
+          tabs={viewTabs}
+        />
+
         <SeasonPhaseFilter
           active={phase}
           path={`/teams/${detail.team.nhlTeamId}`}
@@ -197,12 +204,6 @@ export default async function TeamPage({
             sos: scheduleStrengthMetric,
             view,
           }}
-        />
-
-        <ViewTabs
-          active={view}
-          ariaLabel={`${detail.team.name} views`}
-          tabs={viewTabs}
         />
 
         {view === "overview" ? (

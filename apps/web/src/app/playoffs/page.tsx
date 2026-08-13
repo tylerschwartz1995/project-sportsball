@@ -106,6 +106,7 @@ export default async function PlayoffsPage({
           <ViewTabs
             active={view}
             ariaLabel="Playoff views"
+            label="Playoff view"
             width={
               view === "skaters" || view === "goalies"
                 ? "compact"

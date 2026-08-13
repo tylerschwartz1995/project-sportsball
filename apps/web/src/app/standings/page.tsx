@@ -97,8 +97,9 @@ export default async function StandingsPage({
             <div className="workspace-width-standard">
               <nav
                 className="workspace-standings-scope"
-                aria-label="Standings view"
+                aria-label="Standings grouping"
               >
+                <span className="workspace-navigation-label" aria-hidden="true">Group by</span>
                 {(["overall", "conference", "division"] as const).map(
                   (option) => (
                     <Link
@@ -116,6 +117,7 @@ export default async function StandingsPage({
             <ViewTabs
               active={display}
               ariaLabel="Standings content views"
+              label="Content"
               width="standard"
               tabs={[
                 {

@@ -9,8 +9,10 @@ removed after the decision.
 
 Data Workspace uses:
 
-- persistent sidebar navigation on desktop and compact horizontal navigation on
-  small screens;
+- persistent sidebar navigation on desktop, grouped by the Follow, Explore,
+  and Research tasks, and compact horizontal navigation on small screens;
+- distinct navigation levels: underlined page views, labeled segmented scope
+  controls such as season phase, and visually subordinate nested views;
 - dense but legible tables and summary metrics;
 - controls positioned near the data they affect;
 - restrained cyan and violet semantic accents;
@@ -39,7 +41,9 @@ individual pages.
 The application shell provides semantic light and dark tokens, a persistent
 toggle, dark mode as the first-visit default, local preference storage, and a
 pre-render bootstrap that prevents a wrong-theme flash. All local MVP routes
-now use the shared analytical hierarchy and semantic system states.
+now use the shared analytical hierarchy and semantic system states. Entity
+profiles present the profile view before the season-phase scope so the current
+destination remains clear when filters change.
 
 ## Plotting milestone
 

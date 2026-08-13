@@ -193,22 +193,23 @@ export default async function PlayerPage({
         </div>
 
         {selectedSeason ? (
-          <SeasonPhaseFilter
-            active={phase}
-            path={`/players/${profile.nhlPlayerId}`}
-            params={{ season: selectedSeason.id, view }}
-          />
-        ) : null}
-
-        {selectedSeason ? (
           <ViewTabs
             active={view}
             ariaLabel={`${profile.name} views`}
+            label="Profile view"
             tabs={playerViewTabs({
               nhlPlayerId: profile.nhlPlayerId,
               seasonId: selectedSeason.id,
               phase,
             })}
+          />
+        ) : null}
+
+        {selectedSeason ? (
+          <SeasonPhaseFilter
+            active={phase}
+            path={`/players/${profile.nhlPlayerId}`}
+            params={{ season: selectedSeason.id, view }}
           />
         ) : null}
 
