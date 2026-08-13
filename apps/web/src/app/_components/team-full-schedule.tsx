@@ -39,7 +39,7 @@ export function TeamFullSchedule({
   return (
     <section
       id="schedule"
-      className="mx-auto mt-8 w-full max-w-5xl scroll-mt-6"
+      className="workspace-width-data mt-8 scroll-mt-6"
     >
       <SectionHeader
         eyebrow="Schedule"
@@ -77,52 +77,37 @@ export function TeamFullSchedule({
       </nav>
 
       {monthGroups.length > 0 ? (
-        <div className="mt-6 space-y-5">
-          {monthGroups.map((group) => (
-            <section key={group.key} aria-labelledby={`schedule-${group.key}`}>
-              <h4
-                id={`schedule-${group.key}`}
-                className="mb-2 font-mono text-xs uppercase tracking-[0.16em] text-[var(--muted)]"
-              >
-                {group.label}
-              </h4>
-              <div className="data-table-shell workspace-table-scroll overflow-hidden">
-                <table className="workspace-table workspace-table-dense w-full min-w-[860px] table-fixed">
-                  <colgroup>
-                    <col className="w-36" />
-                    <col />
-                    <col className="w-24" />
-                    <col className="w-24" />
-                    <col className="w-40" />
-                  </colgroup>
-                  <thead>
-                    <tr>
-                      <th className="text-left">Date</th>
-                      <th className="text-left">Opponent</th>
-                      <th className="text-left">Venue</th>
-                      <th className="text-left">Result</th>
-                      <th className="text-right">Score / Start</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {group.games.map((game) => {
-                      const upcomingBoundary =
-                        filter === "all" && game.nhlGameId === firstUpcomingId;
-                      return (
-                        <ScheduleGameRows
-                          key={game.nhlGameId}
-                          game={game}
-                          teamNhlId={teamNhlId}
-                          seasonId={seasonId}
-                          showUpcomingBoundary={upcomingBoundary}
-                        />
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          ))}
+        <div className="data-table-shell workspace-table-scroll mt-6 overflow-hidden">
+          <table className="workspace-table workspace-table-dense w-full min-w-[960px] table-fixed">
+            <colgroup>
+              <col className="w-[15%]" />
+              <col className="w-[43%]" />
+              <col className="w-[12%]" />
+              <col className="w-[12%]" />
+              <col className="w-[18%]" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th className="text-left">Date</th>
+                <th className="text-left">Opponent</th>
+                <th className="text-left">Venue</th>
+                <th className="text-left">Result</th>
+                <th className="text-right">Score / Start</th>
+              </tr>
+            </thead>
+            <tbody>
+              {monthGroups.map((group) => (
+                <MonthScheduleRows
+                  key={group.key}
+                  group={group}
+                  filter={filter}
+                  firstUpcomingId={firstUpcomingId}
+                  teamNhlId={teamNhlId}
+                  seasonId={seasonId}
+                />
+              ))}
+            </tbody>
+          </table>
         </div>
       ) : (
         <div className="workspace-empty-state mt-6">
@@ -142,6 +127,47 @@ export function TeamFullSchedule({
         </Link>
       </div>
     </section>
+  );
+}
+
+function MonthScheduleRows({
+  group,
+  filter,
+  firstUpcomingId,
+  teamNhlId,
+  seasonId,
+}: {
+  group: ReturnType<typeof groupGamesByMonth>[number];
+  filter: TeamScheduleFilter;
+  firstUpcomingId: number | undefined;
+  teamNhlId: number;
+  seasonId: number;
+}) {
+  return (
+    <>
+      <tr>
+        <th
+          colSpan={5}
+          scope="rowgroup"
+          className="border-y border-[var(--border)] bg-[var(--surface-raised)] px-4 py-2.5 text-left font-mono text-xs uppercase tracking-[0.16em] text-[var(--muted)] first:border-t-0"
+        >
+          {group.label}
+        </th>
+      </tr>
+      {group.games.map((game) => {
+        const upcomingBoundary =
+          filter === "all" && game.nhlGameId === firstUpcomingId;
+        return (
+          <ScheduleGameRows
+            key={game.nhlGameId}
+            game={game}
+            teamNhlId={teamNhlId}
+            seasonId={seasonId}
+            showUpcomingBoundary={upcomingBoundary}
+          />
+        );
+      })}
+    </>
   );
 }
 
