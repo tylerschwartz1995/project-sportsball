@@ -84,7 +84,7 @@ export function HistoryRecordBook({
           key: `${row.nhlTeamId}-${row.seasonId}`,
           rank: row.rank ?? 0,
           name: row.name,
-          href: undefined,
+          href: `/teams/${row.nhlTeamId}?season=${row.seasonId}`,
           value: formatPercentage(row.pointPercentage),
           detail: `${formatSeason(row.seasonId)} · ${formatTeamRecord(row)}`,
           logo: <TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="tiny" decorative />,
@@ -115,7 +115,9 @@ function RecordList({
     <section className="workspace-history-record-list">
       <header>
         <h2>{title}</h2>
-        <Link href={href}>Full ranking →</Link>
+        <Link href={href} aria-label={`View the full ${title} ranking`}>
+          Full ranking →
+        </Link>
       </header>
       <ol>
         {rows.map((row) => (

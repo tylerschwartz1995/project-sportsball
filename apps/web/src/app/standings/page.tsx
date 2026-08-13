@@ -196,7 +196,7 @@ function StandingsTable({
   return (
     <WorkspacePanel
       title={label}
-      description="Select any column heading to sort the current table"
+      description="Select any column heading to sort the current table."
       width="standard"
     >
       <SortableTable
