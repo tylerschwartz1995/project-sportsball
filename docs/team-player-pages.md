@@ -125,7 +125,15 @@ metrics, source attribution, and coverage behavior.
 Team profiles use URL-backed Overview, Schedule, Strength, Trends, Skaters,
 Goalies, Advanced, and Combinations views. Changing views preserves season and
 regular-season/playoff context and fetches only the data needed by the selected
-view. The Trends view compares all-situations goal share with five-on-five
+view. The Overview synthesizes the selected phase into a deterministic season
+identity rather than duplicating the specialist tabs. It compares point or win
+rate, scoring, prevention, and shot control with every participating team;
+separates the game record into home, road, one-goal, and extra-time situations;
+summarizes each opponent series; and links three statistical game extremes to
+their supporting records. Regular-season series outcomes use standings points,
+while playoff series outcomes use wins. Seasons without stored game-level
+coverage retain their league fingerprint and disclose the missing context.
+The Trends view compares all-situations goal share with five-on-five
 expected-goal share over a selectable 5-, 10-, or
 20-game window. Readers can filter the rolling sample to all, home, or away
 games and independently show either available series. Venue filtering happens

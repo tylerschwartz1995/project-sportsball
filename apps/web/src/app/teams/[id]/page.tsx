@@ -11,6 +11,7 @@ import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo } from "@/app/_components/team-logo";
 import { TeamGameRecord } from "@/app/_components/team-game-record";
+import { TeamSeasonIdentity } from "@/app/_components/team-season-identity";
 import { TeamRollingPerformanceChart } from "@/app/_components/team-rolling-performance-chart";
 import {
   ViewTabs,
@@ -18,7 +19,6 @@ import {
 } from "@/app/_components/view-tabs";
 import {
   DataTableShell,
-  MetricTile,
   SectionHeader,
 } from "@/app/_components/ui-primitives";
 import { parseNhlId } from "@/contracts/entity";
@@ -29,7 +29,6 @@ import {
   parseSeasonPhase,
   seasonPhaseLabel,
 } from "@/contracts/season-phase";
-import type { TeamSeasonStats } from "@/contracts/team";
 import type { GameSummary } from "@/contracts/game";
 import { getMoneyPuckTeamSeason } from "@/data/advanced";
 import { getTeamGameLog } from "@/data/game-logs";
@@ -37,8 +36,14 @@ import { getUpcomingGamesForTeamAcrossSeasons } from "@/data/games";
 import { listSeasons } from "@/data/seasons";
 import { getTeamScheduleStrength } from "@/data/schedule-strength";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
-import { getTeamSeasonDetail, listTeamSeasonIds } from "@/data/teams";
+import { getStandings } from "@/data/standings";
+import {
+  getTeamSeasonDetail,
+  listTeamsBySeason,
+  listTeamSeasonIds,
+} from "@/data/teams";
 import { formatPlayerPosition } from "@/lib/player-position";
+import { buildTeamSeasonIdentity } from "@/lib/team-season-identity";
 
 export const dynamic = "force-dynamic";
 
@@ -108,8 +113,16 @@ export default async function TeamPage({
 
   const view = normalizeTeamView(requestedView, selectedSeason.id, phase);
 
-  const [detail, advanced, units, upcomingGames, gameLog, scheduleStrength] =
-    await Promise.all([
+  const [
+    detail,
+    advanced,
+    units,
+    upcomingGames,
+    gameLog,
+    scheduleStrength,
+    overviewPeers,
+    overviewStandings,
+  ] = await Promise.all([
       getTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType),
       view === "advanced"
         ? getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id, gameType)
@@ -124,12 +137,18 @@ export default async function TeamPage({
       view === "schedule"
         ? getUpcomingGamesForTeamAcrossSeasons(nhlTeamId)
         : Promise.resolve([]),
-      view === "trends"
+      view === "trends" || view === "overview"
         ? getTeamGameLog(nhlTeamId, selectedSeason.id)
         : Promise.resolve(null),
       view === "strength" && phase === "regular"
         ? getTeamScheduleStrength(nhlTeamId, selectedSeason.id)
         : Promise.resolve(null),
+      view === "overview"
+        ? listTeamsBySeason(selectedSeason.id, gameType)
+        : Promise.resolve([]),
+      view === "overview" && phase === "regular"
+        ? getStandings(selectedSeason.id)
+        : Promise.resolve([]),
     ]);
   if (!detail) {
     notFound();
@@ -141,6 +160,21 @@ export default async function TeamPage({
     scheduleStrengthMetric,
     chartParams,
   });
+  const overviewStats =
+    phase === "playoffs" ? detail.playoffs : detail.regularSeason;
+  const overviewIdentity =
+    view === "overview" && overviewStats
+      ? buildTeamSeasonIdentity({
+          team: detail.team,
+          stats: overviewStats,
+          peers: overviewPeers,
+          games: gameLog?.games ?? [],
+          standings:
+            overviewStandings.find(
+              (standing) => standing.nhlTeamId === detail.team.nhlTeamId,
+            ) ?? null,
+        })
+      : null;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -219,14 +253,19 @@ export default async function TeamPage({
         />
 
         {view === "overview" ? (
-          <div className="workspace-width-compact mt-8">
-            <SeasonPanel
-              title={seasonPhaseLabel(phase)}
-              stats={
-                phase === "playoffs" ? detail.playoffs : detail.regularSeason
-              }
+          overviewIdentity && overviewStats ? (
+            <TeamSeasonIdentity
+              identity={overviewIdentity}
+              seasonId={selectedSeason.id}
+              phase={phase}
+              phaseLabel={seasonPhaseLabel(phase)}
+              stats={overviewStats}
             />
-          </div>
+          ) : (
+            <div className="workspace-empty-state mt-8">
+              This team did not participate in the selected phase.
+            </div>
+          )
         ) : null}
 
         {view === "schedule" ? (
@@ -494,78 +533,6 @@ export default async function TeamPage({
   );
 }
 
-function SeasonPanel({
-  title,
-  stats,
-}: {
-  title: string;
-  stats: TeamSeasonStats | null;
-}) {
-  if (!stats) {
-    return (
-      <article className="surface-panel p-6">
-        <h3 className="text-lg font-semibold text-white">{title}</h3>
-        <p className="mt-4 text-sm text-slate-500">Did not participate.</p>
-      </article>
-    );
-  }
-
-  const overtimeLosses = stats.overtimeLosses + stats.shootoutLosses;
-  const goalDifferential = stats.goalsFor - stats.goalsAgainst;
-  const shotDifferential = stats.shotsFor - stats.shotsAgainst;
-  const isPlayoffs = stats.gameType === 3;
-
-  return (
-    <article className="surface-panel workspace-season-panel">
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/[0.08] pb-5">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.16em] text-slate-500">
-            {title}
-          </p>
-          <p className="mt-2 text-3xl font-semibold tracking-[-0.035em] text-white">
-            {stats.wins}–{stats.regulationLosses}–{overtimeLosses}
-          </p>
-        </div>
-        <p className="text-sm tabular-nums text-slate-400">
-          {stats.gamesPlayed} games
-        </p>
-      </div>
-      <dl className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <MetricTile
-          label={isPlayoffs ? "Win rate" : "Points"}
-          value={
-            isPlayoffs
-              ? stats.gamesPlayed > 0
-                ? `${((stats.wins / stats.gamesPlayed) * 100).toFixed(1)}%`
-                : "—"
-              : stats.standingsPoints
-          }
-          emphasis
-        />
-        <MetricTile
-          label="Goal diff."
-          value={formatSignedNumber(goalDifferential)}
-          detail={`${stats.goalsFor} for · ${stats.goalsAgainst} against`}
-        />
-        <MetricTile
-          label="Shot diff."
-          value={formatSignedNumber(shotDifferential)}
-          detail={`${stats.shotsFor} for · ${stats.shotsAgainst} against`}
-        />
-        <MetricTile
-          label="Win types"
-          value={
-            isPlayoffs
-              ? `${stats.regulationWins} · ${stats.overtimeWins}`
-              : `${stats.regulationWins} · ${stats.overtimeWins} · ${stats.shootoutWins}`
-          }
-          detail={isPlayoffs ? "REG · OT" : "REG · OT · SO"}
-        />
-      </dl>
-    </article>
-  );
-}
-
 function UpcomingSchedule({
   games,
   teamNhlId,
@@ -741,10 +708,6 @@ function NumericCell({
 
 function formatSigned(value: number | null): string | null {
   return value === null ? null : value > 0 ? `+${value}` : String(value);
-}
-
-function formatSignedNumber(value: number): string {
-  return value > 0 ? `+${value}` : String(value);
 }
 
 function formatDecimal(value: number | null, digits: number): string | null {
