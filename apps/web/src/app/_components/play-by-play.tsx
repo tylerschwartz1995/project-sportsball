@@ -11,6 +11,7 @@ import type {
   PlayByPlayPlayer,
 } from "@/contracts/play-by-play";
 import type { GameFlow } from "@/contracts/game-flow";
+import { gameTimelineHref } from "@/lib/play-by-play-timeline";
 
 export function GamePlayByPlayView({
   data,
@@ -18,12 +19,14 @@ export function GamePlayByPlayView({
   homeTeam,
   seasonId,
   gameFlow,
+  timelinePeriod,
 }: {
   data: GamePlayByPlay;
   awayTeam: GameTeamSummary;
   homeTeam: GameTeamSummary;
   seasonId: number;
   gameFlow: GameFlow | null;
+  timelinePeriod: number | null;
 }) {
   if (data.events.length === 0) {
     return null;
@@ -74,7 +77,7 @@ export function GamePlayByPlayView({
         seasonId={seasonId}
       />
 
-      <div className="mt-10">
+      <div id="timeline" className="mt-10 scroll-mt-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
@@ -97,6 +100,8 @@ export function GamePlayByPlayView({
               periodType={periodType}
               events={events}
               seasonId={seasonId}
+              nhlGameId={data.nhlGameId}
+              expanded={timelinePeriod === periodNumber}
             />
           ))}
         </div>
@@ -278,11 +283,15 @@ function PeriodTimeline({
   periodType,
   events,
   seasonId,
+  nhlGameId,
+  expanded,
 }: {
   periodNumber: number;
   periodType: string;
   events: PlayByPlayEvent[];
   seasonId: number;
+  nhlGameId: number;
+  expanded: boolean;
 }) {
   const goalCount = events.filter(
     (event) => event.typeDescription === "goal",
@@ -292,10 +301,20 @@ function PeriodTimeline({
   ).length;
 
   return (
-    <details className="workspace-timeline-period group">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 transition hover:bg-white/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300">
+    <section
+      className="workspace-timeline-period"
+      aria-labelledby={`period-${periodNumber}-title`}
+    >
+      <Link
+        href={gameTimelineHref(nhlGameId, expanded ? null : periodNumber)}
+        aria-expanded={expanded}
+        className="flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-white/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+      >
         <span>
-          <span className="font-semibold text-white">
+          <span
+            id={`period-${periodNumber}-title`}
+            className="font-semibold text-white"
+          >
             {periodLabel(periodNumber, periodType)}
           </span>
           <span className="ml-3 text-sm text-slate-500">
@@ -304,22 +323,24 @@ function PeriodTimeline({
         </span>
         <span
           aria-hidden="true"
-          className="text-cyan-300 transition group-open:rotate-45"
+          className={`text-cyan-300 transition ${expanded ? "rotate-45" : ""}`}
         >
           +
         </span>
-      </summary>
+      </Link>
 
-      <ol className="border-t border-white/[0.07]">
-        {events.map((event) => (
-          <TimelineEvent
-            key={event.sourceEventId}
-            event={event}
-            seasonId={seasonId}
-          />
-        ))}
-      </ol>
-    </details>
+      {expanded ? (
+        <ol className="border-t border-white/[0.07]">
+          {events.map((event) => (
+            <TimelineEvent
+              key={event.sourceEventId}
+              event={event}
+              seasonId={seasonId}
+            />
+          ))}
+        </ol>
+      ) : null}
+    </section>
   );
 }
 
