@@ -59,6 +59,14 @@ type TeamGoalieRow = {
   shutouts: number | null;
 };
 
+type TeamIdentityRow = {
+  team_id: number;
+  nhl_team_id: number;
+  franchise_id: number | null;
+  abbreviation: string;
+  team_name: string;
+};
+
 const teamStatsSelect = `
   SELECT
     team.id AS team_id,
@@ -126,6 +134,39 @@ export async function listTeamSeasonIds(
   );
 
   return rows.map((row) => row.season_id);
+}
+
+export async function getTeamIdentityForSeason(
+  nhlTeamId: number,
+  seasonId: number,
+): Promise<TeamIdentity | null> {
+  const rows = await query<TeamIdentityRow>(
+    `
+      SELECT
+        team.id::integer AS team_id,
+        team.nhl_id::integer AS nhl_team_id,
+        team.franchise_id,
+        COALESCE(team_season.abbreviation, team.abbreviation) AS abbreviation,
+        COALESCE(team_season.full_name, team.name) AS team_name
+      FROM teams AS team
+      LEFT JOIN team_seasons AS team_season
+        ON team_season.team_id = team.id
+       AND team_season.season_id = $2
+      WHERE team.nhl_id = $1
+      LIMIT 1
+    `,
+    [nhlTeamId, seasonId],
+  );
+  const row = rows[0];
+  return row
+    ? {
+        id: row.team_id,
+        nhlTeamId: row.nhl_team_id,
+        franchiseId: row.franchise_id,
+        abbreviation: row.abbreviation,
+        name: row.team_name,
+      }
+    : null;
 }
 
 export async function getTeamSeasonDetail(

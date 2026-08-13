@@ -10,7 +10,10 @@ import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogo } from "@/app/_components/team-logo";
-import { TeamGameRecord } from "@/app/_components/team-game-record";
+import {
+  TeamFullSchedule,
+  type TeamScheduleFilter,
+} from "@/app/_components/team-full-schedule";
 import { TeamSeasonIdentity } from "@/app/_components/team-season-identity";
 import { TeamRollingPerformanceChart } from "@/app/_components/team-rolling-performance-chart";
 import {
@@ -29,15 +32,15 @@ import {
   parseSeasonPhase,
   seasonPhaseLabel,
 } from "@/contracts/season-phase";
-import type { GameSummary } from "@/contracts/game";
 import { getMoneyPuckTeamSeason } from "@/data/advanced";
 import { getTeamGameLog } from "@/data/game-logs";
-import { getUpcomingGamesForTeamAcrossSeasons } from "@/data/games";
-import { listSeasons } from "@/data/seasons";
+import { getTeamSchedule, listTeamScheduleSeasonIds } from "@/data/games";
+import { listScheduleSeasons, listSeasons } from "@/data/seasons";
 import { getTeamScheduleStrength } from "@/data/schedule-strength";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
 import {
   getTeamSeasonDetail,
+  getTeamIdentityForSeason,
   listTeamsBySeason,
   listTeamSeasonIds,
 } from "@/data/teams";
@@ -67,6 +70,7 @@ type TeamPageProps = {
     chartVenue?: string | string[];
     showGoals?: string | string[];
     showExpectedGoals?: string | string[];
+    scheduleState?: string | string[];
   }>;
 };
 
@@ -79,15 +83,22 @@ export default async function TeamPage({
     notFound();
   }
 
-  const [seasons, teamSeasonIds] = await Promise.all([
-    listSeasons(),
+  const pageParams = await searchParams;
+  const requestedView = parseTeamView(firstValue(pageParams.view));
+  const [seasons, teamSeasonIds, scheduleSeasonIds] = await Promise.all([
+    requestedView === "schedule" ? listScheduleSeasons() : listSeasons(),
     listTeamSeasonIds(nhlTeamId),
+    requestedView === "schedule"
+      ? listTeamScheduleSeasonIds(nhlTeamId)
+      : Promise.resolve([]),
   ]);
-  const teamSeasonIdSet = new Set(teamSeasonIds);
+  const teamSeasonIdSet = new Set([
+    ...teamSeasonIds,
+    ...(requestedView === "schedule" ? scheduleSeasonIds : []),
+  ]);
   const availableSeasons = seasons.filter((season) =>
     teamSeasonIdSet.has(season.id),
   );
-  const pageParams = await searchParams;
   const chartParams = {
     chartWindow: firstValue(pageParams.chartWindow),
     chartVenue: firstValue(pageParams.chartVenue),
@@ -96,7 +107,9 @@ export default async function TeamPage({
   };
   const requestedSeason = firstValue(pageParams.season);
   const phase = parseSeasonPhase(firstValue(pageParams.phase));
-  const requestedView = parseTeamView(firstValue(pageParams.view));
+  const scheduleFilter = parseTeamScheduleFilter(
+    firstValue(pageParams.scheduleState),
+  );
   const scheduleStrengthMetric = parseScheduleStrengthMetric(
     firstValue(pageParams.sos),
   );
@@ -116,7 +129,8 @@ export default async function TeamPage({
     detail,
     advanced,
     units,
-    upcomingGames,
+    scheduleGames,
+    scheduleTeam,
     gameLog,
     scheduleStrength,
     overviewPeers,
@@ -133,8 +147,11 @@ export default async function TeamPage({
           })
         : Promise.resolve(null),
       view === "schedule"
-        ? getUpcomingGamesForTeamAcrossSeasons(nhlTeamId)
+        ? getTeamSchedule(nhlTeamId, selectedSeason.id, gameType)
         : Promise.resolve([]),
+      view === "schedule"
+        ? getTeamIdentityForSeason(nhlTeamId, selectedSeason.id)
+        : Promise.resolve(null),
       view === "trends" || view === "overview"
         ? getTeamGameLog(nhlTeamId, selectedSeason.id)
         : Promise.resolve(null),
@@ -145,18 +162,30 @@ export default async function TeamPage({
         ? listTeamsBySeason(selectedSeason.id, gameType)
         : Promise.resolve([]),
     ]);
-  if (!detail) {
+  const profileDetail =
+    detail ??
+    (scheduleTeam
+      ? {
+          team: scheduleTeam,
+          seasonId: selectedSeason.id,
+          regularSeason: null,
+          playoffs: null,
+          skaters: [],
+          goalies: [],
+        }
+      : null);
+  if (!profileDetail) {
     notFound();
   }
   const viewTabs = teamViewTabs({
-    nhlTeamId: detail.team.nhlTeamId,
+    nhlTeamId: profileDetail.team.nhlTeamId,
     seasonId: selectedSeason.id,
     phase,
     scheduleStrengthMetric,
     chartParams,
   });
   const overviewStats =
-    phase === "playoffs" ? detail.playoffs : detail.regularSeason;
+    phase === "playoffs" ? profileDetail.playoffs : profileDetail.regularSeason;
   const overviewIdentity =
     view === "overview" && overviewStats
       ? buildTeamSeasonIdentity({
@@ -183,21 +212,21 @@ export default async function TeamPage({
             aria-hidden="true"
             className="pointer-events-none absolute -bottom-10 -right-3 font-mono text-[9rem] font-semibold leading-none tracking-[-0.09em] text-white/[0.025] sm:text-[13rem]"
           >
-            {detail.team.abbreviation}
+            {profileDetail.team.abbreviation}
           </span>
           <div className="relative grid gap-8 lg:grid-cols-[1fr_22rem] lg:items-end">
             <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
               <TeamLogo
-                name={detail.team.name}
-                abbreviation={detail.team.abbreviation}
-                nhlTeamId={detail.team.nhlTeamId}
+                name={profileDetail.team.name}
+                abbreviation={profileDetail.team.abbreviation}
+                nhlTeamId={profileDetail.team.nhlTeamId}
               />
               <div>
                 <p className="font-mono text-xs uppercase tracking-[0.18em] text-cyan-300">
                   Team profile
                 </p>
                 <h1 className="mt-2 text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">
-                  {detail.team.name}
+                  {profileDetail.team.name}
                 </h1>
                 <div className="mt-4 flex flex-wrap gap-2 text-sm text-slate-400">
                   <span className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1">
@@ -207,7 +236,7 @@ export default async function TeamPage({
                     {seasonPhaseLabel(phase)}
                   </span>
                   <Link
-                    href={`/drafts?view=board&year=all&team=${detail.team.abbreviation}`}
+                    href={`/drafts?view=board&year=all&team=${profileDetail.team.abbreviation}`}
                     className="rounded-full border border-cyan-300/25 bg-cyan-300/[0.06] px-3 py-1 font-medium text-cyan-200 transition hover:border-cyan-300/45 hover:text-cyan-100"
                   >
                     Draft history →
@@ -218,7 +247,13 @@ export default async function TeamPage({
             <SeasonPicker
               seasons={availableSeasons}
               selectedSeasonId={selectedSeason.id}
-              params={{ phase, sos: scheduleStrengthMetric, view, ...chartParams }}
+              params={{
+                phase,
+                sos: scheduleStrengthMetric,
+                view,
+                scheduleState: view === "schedule" ? scheduleFilter : undefined,
+                ...chartParams,
+              }}
               className="relative !max-w-none border-white/15 bg-slate-950/55"
             />
           </div>
@@ -226,18 +261,19 @@ export default async function TeamPage({
 
         <ViewTabs
           active={view}
-          ariaLabel={`${detail.team.name} views`}
+          ariaLabel={`${profileDetail.team.name} views`}
           label="Profile view"
           tabs={viewTabs}
         />
 
         <SeasonPhaseFilter
           active={phase}
-          path={`/teams/${detail.team.nhlTeamId}`}
+          path={`/teams/${profileDetail.team.nhlTeamId}`}
           params={{
             season: selectedSeason.id,
             sos: scheduleStrengthMetric,
             view,
+            scheduleState: view === "schedule" ? scheduleFilter : undefined,
             ...chartParams,
           }}
         />
@@ -259,12 +295,17 @@ export default async function TeamPage({
 
         {view === "schedule" ? (
           <>
-            <UpcomingSchedule
-              games={upcomingGames}
-              teamNhlId={detail.team.nhlTeamId}
+            <TeamFullSchedule
+              games={scheduleGames}
+              teamNhlId={profileDetail.team.nhlTeamId}
+              seasonId={selectedSeason.id}
+              seasonLabel={selectedSeason.label}
+              phase={phase}
+              phaseLabel={seasonPhaseLabel(phase)}
+              filter={scheduleFilter}
             />
             <Link
-              href={`/teams/${detail.team.nhlTeamId}/games?season=${selectedSeason.id}&phase=${phase}`}
+              href={`/teams/${profileDetail.team.nhlTeamId}/games?season=${selectedSeason.id}&phase=${phase}`}
               className="workspace-width-compact group mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.055] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.085]"
             >
               <span>
@@ -323,7 +364,7 @@ export default async function TeamPage({
                       game.fiveOnFiveXGoalsAgainst,
                   })) ?? []
               }
-              teamName={detail.team.name}
+              teamName={profileDetail.team.name}
             />
           </div>
         </section>
@@ -337,7 +378,7 @@ export default async function TeamPage({
             description={`Traditional ${seasonPhaseLabel(phase).toLowerCase()} production for every player who appeared with this team.`}
             action={
               <p className="text-sm tabular-nums text-slate-500">
-                {detail.skaters.length} player-team rows
+                {profileDetail.skaters.length} player-team rows
               </p>
             }
           />
@@ -366,7 +407,7 @@ export default async function TeamPage({
                     </tr>
                   </thead>
                   <tbody>
-                    {detail.skaters.map((player) => (
+                    {profileDetail.skaters.map((player) => (
                       <tr
                         key={`${player.nhlPlayerId}-${player.gamesPlayed}`}
                         className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
@@ -408,7 +449,7 @@ export default async function TeamPage({
             description={`Traditional ${seasonPhaseLabel(phase).toLowerCase()} appearances, decisions, and save results.`}
             action={
               <p className="text-sm tabular-nums text-slate-500">
-                {detail.goalies.length} player-team rows
+                {profileDetail.goalies.length} player-team rows
               </p>
             }
           />
@@ -445,7 +486,7 @@ export default async function TeamPage({
                     </tr>
                   </thead>
                   <tbody>
-                    {detail.goalies.map((player) => (
+                    {profileDetail.goalies.map((player) => (
                       <tr
                         key={`${player.nhlPlayerId}-${player.gamesPlayed}`}
                         className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
@@ -522,80 +563,6 @@ export default async function TeamPage({
   );
 }
 
-function UpcomingSchedule({
-  games,
-  teamNhlId,
-}: {
-  games: GameSummary[];
-  teamNhlId: number;
-}) {
-  const firstGame = games[0];
-  return (
-    <section
-      id="schedule"
-      className="workspace-width-compact mt-8 scroll-mt-6"
-    >
-      <SectionHeader
-        eyebrow="Schedule"
-        title="Upcoming Games"
-        description={
-          games.length > 0
-            ? `Next ${games.length} scheduled games across the current and upcoming season.`
-            : "No upcoming games are currently stored."
-        }
-      />
-      {games.length > 0 ? (
-        <SortableTable defaultSortKey="date" defaultDirection="asc">
-          <div className="data-table-shell workspace-table-scroll mt-5">
-            <table className="workspace-table workspace-table-dense workspace-table-schedule workspace-table-semantic">
-              <colgroup>
-                <col className="workspace-col-date" />
-                <col />
-                <col className="workspace-col-season" />
-              </colgroup>
-              <thead>
-                <tr>
-                  <SortableHeader label="Date" sortKey="date" align="left" defaultDirection="asc" />
-                  <SortableHeader label="Matchup" sortKey="matchup" align="left" defaultDirection="asc" />
-                  <SortableHeader label="Season" sortKey="season" align="left" />
-                </tr>
-              </thead>
-              <tbody>{games.map((game) => {
-                const isHome = game.homeTeam.nhlTeamId === teamNhlId;
-                const opponent = isHome ? game.awayTeam : game.homeTeam;
-                return <tr key={game.nhlGameId}>
-                  <td data-sort-value={game.startTimeUtc}><Link href={`/games/${game.nhlGameId}`}>{formatScheduleDate(game.startTimeUtc)}</Link></td>
-                  <td data-sort-value={opponent.name}>
-                    <span className="inline-flex items-center gap-2">
-                      <TeamLogo {...opponent} size="tiny" decorative />
-                      <span>{isHome ? "vs" : "at"}</span>
-                      <Link href={`/teams/${opponent.nhlTeamId}?season=${game.seasonId}`}>{opponent.name}</Link>
-                      <TeamGameRecord record={opponent.record} />
-                    </span>
-                  </td>
-                  <td data-sort-value={game.seasonId}>{formatSeasonId(game.seasonId)}</td>
-                </tr>;
-              })}</tbody>
-            </table>
-          </div>
-        </SortableTable>
-      ) : null}
-      <Link
-        href={firstGame ? `/games?season=${firstGame.seasonId}&date=${firstGame.gameDate}&phase=${firstGame.gameType === 3 ? "playoffs" : "regular"}` : "/games"}
-        className="mt-4 inline-flex text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
-      >
-        Browse the full league schedule →
-      </Link>
-    </section>
-  );
-}
-
-function formatSeasonId(seasonId: number) {
-  const start = Math.floor(seasonId / 10_000);
-  const end = seasonId % 10_000;
-  return `${start}\u2013${String(end).slice(2)}`;
-}
-
 function teamViewTabs({
   nhlTeamId,
   seasonId,
@@ -662,6 +629,10 @@ function parseTeamView(value: string | undefined): TeamView {
   return views.includes(value as TeamView) ? (value as TeamView) : "overview";
 }
 
+function parseTeamScheduleFilter(value: string | undefined): TeamScheduleFilter {
+  return value === "completed" || value === "upcoming" ? value : "all";
+}
+
 function normalizeTeamView(
   view: TeamView,
   seasonId: number,
@@ -705,18 +676,6 @@ function formatDecimal(value: number | null, digits: number): string | null {
 
 function formatSavePercentage(value: number | null): string | null {
   return value === null ? null : value.toFixed(3).replace(/^0/, "");
-}
-
-function formatScheduleDate(value: string): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: "America/Vancouver",
-    timeZoneName: "short",
-  }).format(new Date(value));
 }
 
 function firstValue(value: string | string[] | undefined): string | undefined {
