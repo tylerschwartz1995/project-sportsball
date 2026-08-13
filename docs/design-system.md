@@ -208,3 +208,8 @@ horizontally scrollable dense tables establish the accessibility baseline.
 
 Cross-device testing and accessibility review continue as normal product
 maintenance rather than blocking the local MVP.
+
+The repeatable route matrix and critical desktop interaction stories are kept
+in `docs/desktop-ux-regression.md`. Run that constrained-width pass after broad
+interface changes so navigation, filters, tables, charts, and detail views are
+validated together.
