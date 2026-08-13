@@ -2,8 +2,11 @@
 
 The games page at `/games` exposes the ingested NHL schedule through a
 seven-day date rail. Visitors can see which days contain games, select visible
-off-days without losing their place, move by one day or one week, or jump with
-the calendar. Season, regular-season/playoff phase, and team controls share the
+off-days without losing their place, move by one day or one week, use the native
+date field, or open a full month calendar with daily game counts. The team
+control is populated from clubs appearing in that phase's schedule, including
+future seasons that do not have season statistics yet. Season,
+regular-season/playoff phase, and team controls share the
 same schedule navigator and remain encoded in the URL so a view can be linked
 or bookmarked. Switching phase keeps the nearest valid date when the current
 date falls outside that phase. When future dates exist, the next upcoming date

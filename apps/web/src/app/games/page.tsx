@@ -17,9 +17,12 @@ import {
   gameTypeForPhase,
   parseSeasonPhase,
 } from "@/contracts/season-phase";
-import { getGamesByDate, listGameDates } from "@/data/games";
+import {
+  getGamesByDate,
+  listGameDates,
+  listScheduleTeams,
+} from "@/data/games";
 import { listScheduleSeasons } from "@/data/seasons";
-import { listTeamsBySeason } from "@/data/teams";
 import { resolveScheduleDate } from "@/lib/schedule-navigation";
 
 export const dynamic = "force-dynamic";
@@ -45,18 +48,18 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
   const rawTeamId = Number(firstValue(requested.team));
   const requestedTeamId =
     Number.isSafeInteger(rawTeamId) && rawTeamId > 0 ? rawTeamId : undefined;
-  const [allGameDates, requestedTeamGameDates, teamSeasons] = selectedSeason
+  const [allGameDates, requestedTeamGameDates, scheduleTeams] = selectedSeason
     ? await Promise.all([
         listGameDates(selectedSeason.id, gameType),
         requestedTeamId
           ? listGameDates(selectedSeason.id, gameType, requestedTeamId)
           : Promise.resolve([]),
-        listTeamsBySeason(selectedSeason.id),
+        listScheduleTeams(selectedSeason.id, gameType),
       ])
     : [[], [], []];
-  const selectedTeam = teamSeasons.find(
-    ({ team }) => team.nhlTeamId === requestedTeamId,
-  )?.team;
+  const selectedTeam = scheduleTeams.find(
+    (team) => team.nhlTeamId === requestedTeamId,
+  );
   const gameDates = selectedTeam ? requestedTeamGameDates : allGameDates;
   const requestedDateValue = firstValue(requested.date);
   const requestedDate = parseGameDate(requestedDateValue);
@@ -106,14 +109,13 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
         {selectedSeason && selectedDate && gameDates.length > 0 ? (
           <>
             <GamePicker
+              key={`${selectedSeason.id}:${phase}:${selectedTeam?.nhlTeamId ?? "all"}`}
               seasons={seasons}
               selectedSeasonId={selectedSeason.id}
               gameDates={gameDates}
               selectedDate={selectedDate}
               phase={phase}
-              teams={teamSeasons.map(({ team }) => team).toSorted((left, right) =>
-                left.name.localeCompare(right.name),
-              )}
+              teams={scheduleTeams}
               selectedTeamId={selectedTeam?.nhlTeamId}
             />
 

@@ -2,9 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   clampScheduleDate,
+  formatScheduleMonth,
   resolveScheduleDate,
+  scheduleMonth,
+  scheduleMonthKey,
   scheduleWeek,
   shiftScheduleDate,
+  shiftScheduleMonth,
 } from "@/lib/schedule-navigation";
 
 const dates = [
@@ -44,5 +48,22 @@ describe("schedule navigation", () => {
     expect(clampScheduleDate("2026-04-10", "2026-04-18", "2026-06-14")).toBe(
       "2026-04-18",
     );
+  });
+
+  it("builds a complete Monday-first calendar month", () => {
+    const month = scheduleMonth("2026-08-12");
+
+    expect(month).toHaveLength(42);
+    expect(month.slice(0, 5)).toEqual([null, null, null, null, null]);
+    expect(month[5]).toBe("2026-08-01");
+    expect(month[35]).toBe("2026-08-31");
+    expect(month.slice(36)).toEqual([null, null, null, null, null, null]);
+  });
+
+  it("moves between calendar months and formats their labels", () => {
+    expect(shiftScheduleMonth("2026-01-31", -1)).toBe("2025-12-01");
+    expect(shiftScheduleMonth("2026-12-15", 1)).toBe("2027-01-01");
+    expect(scheduleMonthKey("2026-08-12")).toBe("2026-08");
+    expect(formatScheduleMonth("2026-08-01")).toBe("August 2026");
   });
 });

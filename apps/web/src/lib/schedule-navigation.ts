@@ -33,6 +33,46 @@ export function scheduleWeek(date: string): string[] {
   );
 }
 
+export function scheduleMonth(date: string): Array<string | null> {
+  const parsed = parseUtcDate(date);
+  const year = parsed.getUTCFullYear();
+  const month = parsed.getUTCMonth();
+  const first = new Date(Date.UTC(year, month, 1));
+  const lastDay = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  const mondayOffset = (first.getUTCDay() + 6) % 7;
+  const cells: Array<string | null> = Array.from(
+    { length: mondayOffset },
+    () => null,
+  );
+
+  for (let day = 1; day <= lastDay; day += 1) {
+    cells.push(formatUtcDate(new Date(Date.UTC(year, month, day))));
+  }
+  while (cells.length % 7 !== 0) cells.push(null);
+  return cells;
+}
+
+export function shiftScheduleMonth(date: string, months: number): string {
+  const parsed = parseUtcDate(date);
+  return formatUtcDate(
+    new Date(
+      Date.UTC(parsed.getUTCFullYear(), parsed.getUTCMonth() + months, 1),
+    ),
+  );
+}
+
+export function scheduleMonthKey(date: string): string {
+  return date.slice(0, 7);
+}
+
+export function formatScheduleMonth(date: string): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(parseUtcDate(date));
+}
+
 export function shiftScheduleDate(date: string, days: number): string {
   return formatUtcDate(addUtcDays(parseUtcDate(date), days));
 }
