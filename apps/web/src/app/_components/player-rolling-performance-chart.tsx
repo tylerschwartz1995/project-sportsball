@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   CartesianGrid,
   Line,
@@ -17,6 +17,8 @@ import {
   ChartFilterButton,
   ChartFilterGroup,
 } from "@/app/_components/chart-controls";
+import { CopyViewLink } from "@/app/_components/copy-view-link";
+import { useUrlChoice } from "@/app/_components/use-shareable-state";
 import { TeamLogo } from "@/app/_components/team-logo";
 import {
   buildRollingGoaliePerformance,
@@ -155,9 +157,12 @@ export function PlayerRollingPerformanceChart(
 ) {
   const { kind, games, playerName } = props;
   const metrics = kind === "skater" ? SKATER_METRICS : GOALIE_METRICS;
-  const [windowSize, setWindowSize] = useState<RollingWindow>(10);
-  const [venue, setVenue] = useState<PerformanceVenue>("all");
-  const [metricKey, setMetricKey] = useState(metrics[0].key);
+  const windowChoices = ROLLING_WINDOWS.map(String);
+  const [windowValue, setWindowValue] = useUrlChoice("chartWindow", windowChoices, "10");
+  const windowSize = Number(windowValue) as RollingWindow;
+  const setWindowSize = (value: RollingWindow) => setWindowValue(String(value));
+  const [venue, setVenue] = useUrlChoice<PerformanceVenue>("chartVenue", ["all", "home", "away"], "all");
+  const [metricKey, setMetricKey] = useUrlChoice("chartMetric", metrics.map((metric) => metric.key), metrics[0].key);
   const metric =
     metrics.find((candidate) => candidate.key === metricKey) ?? metrics[0];
   const data = useMemo<PlayerPerformanceChartPoint[]>(
@@ -205,6 +210,7 @@ export function PlayerRollingPerformanceChart(
       </header>
 
       <div className="workspace-chart-toolbar workspace-player-trend-toolbar">
+        <CopyViewLink />
         <label className="workspace-chart-metric-select">
           Metric
           <select

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   CartesianGrid,
   Legend,
@@ -19,6 +19,8 @@ import {
   ChartFilterGroup,
 } from "@/app/_components/chart-controls";
 import { TeamLogo } from "@/app/_components/team-logo";
+import { CopyViewLink } from "@/app/_components/copy-view-link";
+import { useUrlBoolean, useUrlChoice } from "@/app/_components/use-shareable-state";
 import {
   buildRollingTeamPerformance,
   type RollingTeamPerformancePoint,
@@ -40,10 +42,13 @@ export function TeamRollingPerformanceChart({
   games,
   teamName,
 }: TeamRollingPerformanceChartProps) {
-  const [windowSize, setWindowSize] = useState<RollingWindow>(10);
-  const [venue, setVenue] = useState<PerformanceVenue>("all");
-  const [showGoalShare, setShowGoalShare] = useState(true);
-  const [showExpectedGoalShare, setShowExpectedGoalShare] = useState(true);
+  const windowChoices = ROLLING_WINDOWS.map(String);
+  const [windowValue, setWindowValue] = useUrlChoice("chartWindow", windowChoices, "10");
+  const windowSize = Number(windowValue) as RollingWindow;
+  const setWindowSize = (value: RollingWindow) => setWindowValue(String(value));
+  const [venue, setVenue] = useUrlChoice<PerformanceVenue>("chartVenue", ["all", "home", "away"], "all");
+  const [showGoalShare, setShowGoalShare] = useUrlBoolean("showGoals", true);
+  const [showExpectedGoalShare, setShowExpectedGoalShare] = useUrlBoolean("showExpectedGoals", true);
   const filteredGames = useMemo(
     () => filterGamesByVenue(games, venue),
     [games, venue],
@@ -75,6 +80,7 @@ export function TeamRollingPerformanceChart({
           Filters are applied before each rolling window is calculated. For
           example, 10 Away Games means the team&apos;s latest 10 away games.
         </p>
+        <CopyViewLink />
         <div className="workspace-chart-filters">
           <ChartFilterGroup label="Window">
             {ROLLING_WINDOWS.map((option) => (
@@ -112,7 +118,7 @@ export function TeamRollingPerformanceChart({
                 !effectiveShowExpectedGoalShare
               }
               label="Goals"
-              onClick={() => setShowGoalShare((visible) => !visible)}
+              onClick={() => setShowGoalShare(!showGoalShare)}
             />
             <ChartFilterButton
               active={effectiveShowExpectedGoalShare}
@@ -123,7 +129,7 @@ export function TeamRollingPerformanceChart({
               }
               label="5v5 xG"
               onClick={() =>
-                setShowExpectedGoalShare((visible) => !visible)
+                setShowExpectedGoalShare(!showExpectedGoalShare)
               }
             />
           </ChartFilterGroup>

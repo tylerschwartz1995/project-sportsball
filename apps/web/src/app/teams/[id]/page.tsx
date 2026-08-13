@@ -59,6 +59,10 @@ type TeamPageProps = {
     phase?: string | string[];
     sos?: string | string[];
     view?: string | string[];
+    chartWindow?: string | string[];
+    chartVenue?: string | string[];
+    showGoals?: string | string[];
+    showExpectedGoals?: string | string[];
   }>;
 };
 
@@ -80,6 +84,12 @@ export default async function TeamPage({
     teamSeasonIdSet.has(season.id),
   );
   const pageParams = await searchParams;
+  const chartParams = {
+    chartWindow: firstValue(pageParams.chartWindow),
+    chartVenue: firstValue(pageParams.chartVenue),
+    showGoals: firstValue(pageParams.showGoals),
+    showExpectedGoals: firstValue(pageParams.showExpectedGoals),
+  };
   const requestedSeason = firstValue(pageParams.season);
   const phase = parseSeasonPhase(firstValue(pageParams.phase));
   const requestedView = parseTeamView(firstValue(pageParams.view));
@@ -129,6 +139,7 @@ export default async function TeamPage({
     seasonId: selectedSeason.id,
     phase,
     scheduleStrengthMetric,
+    chartParams,
   });
 
   return (
@@ -183,7 +194,7 @@ export default async function TeamPage({
             <SeasonPicker
               seasons={availableSeasons}
               selectedSeasonId={selectedSeason.id}
-              params={{ phase, sos: scheduleStrengthMetric, view }}
+              params={{ phase, sos: scheduleStrengthMetric, view, ...chartParams }}
               className="relative !max-w-none border-white/15 bg-slate-950/55"
             />
           </div>
@@ -203,6 +214,7 @@ export default async function TeamPage({
             season: selectedSeason.id,
             sos: scheduleStrengthMetric,
             view,
+            ...chartParams,
           }}
         />
 
@@ -633,11 +645,13 @@ function teamViewTabs({
   seasonId,
   phase,
   scheduleStrengthMetric,
+  chartParams,
 }: {
   nhlTeamId: number;
   seasonId: number;
   phase: "regular" | "playoffs";
   scheduleStrengthMetric: string;
+  chartParams: Record<string, string | undefined>;
 }): ViewTab<TeamView>[] {
   const tabs: Array<{ id: TeamView; label: string }> = [
     { id: "overview", label: "Overview" },
@@ -665,6 +679,11 @@ function teamViewTabs({
       });
       if (tab.id === "strength") {
         params.set("sos", scheduleStrengthMetric);
+      }
+      if (tab.id === "trends") {
+        Object.entries(chartParams).forEach(([key, value]) => {
+          if (value) params.set(key, value);
+        });
       }
       return {
         ...tab,

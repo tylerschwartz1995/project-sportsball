@@ -41,6 +41,9 @@ type PlayerPageProps = {
     season?: string | string[];
     phase?: string | string[];
     view?: string | string[];
+    chartWindow?: string | string[];
+    chartVenue?: string | string[];
+    chartMetric?: string | string[];
   }>;
 };
 
@@ -55,6 +58,11 @@ export default async function PlayerPage({
   }
 
   const view = parsePlayerView(firstValue(pageParams.view));
+  const chartParams = {
+    chartWindow: firstValue(pageParams.chartWindow),
+    chartVenue: firstValue(pageParams.chartVenue),
+    chartMetric: firstValue(pageParams.chartMetric),
+  };
 
   const [detail, seasons] = await Promise.all([
     getPlayerDetail(nhlPlayerId),
@@ -186,7 +194,7 @@ export default async function PlayerPage({
               <SeasonPicker
                 seasons={careerSeasons}
                 selectedSeasonId={selectedSeason?.id}
-                params={{ phase, view }}
+                params={{ phase, view, ...chartParams }}
               />
             </div>
           ) : null}
@@ -201,6 +209,7 @@ export default async function PlayerPage({
               nhlPlayerId: profile.nhlPlayerId,
               seasonId: selectedSeason.id,
               phase,
+              chartParams,
             })}
           />
         ) : null}
@@ -209,7 +218,7 @@ export default async function PlayerPage({
           <SeasonPhaseFilter
             active={phase}
             path={`/players/${profile.nhlPlayerId}`}
-            params={{ season: selectedSeason.id, view }}
+            params={{ season: selectedSeason.id, view, ...chartParams }}
           />
         ) : null}
 
@@ -720,20 +729,23 @@ function playerViewTabs({
   nhlPlayerId,
   seasonId,
   phase,
+  chartParams,
 }: {
   nhlPlayerId: number;
   seasonId: number;
   phase: "regular" | "playoffs";
+  chartParams: Record<string, string | undefined>;
 }) {
   return [
     { id: "overview" as const, label: "Overview" },
     { id: "trends" as const, label: "Trends" },
     { id: "advanced" as const, label: "Advanced" },
     { id: "seasons" as const, label: "Season History" },
-  ].map((tab) => ({
-    ...tab,
-    href: `/players/${nhlPlayerId}?season=${seasonId}&phase=${phase}&view=${tab.id}`,
-  }));
+  ].map((tab) => {
+    const params = new URLSearchParams({ season: String(seasonId), phase, view: tab.id });
+    if (tab.id === "trends") Object.entries(chartParams).forEach(([key, value]) => { if (value) params.set(key, value); });
+    return { ...tab, href: `/players/${nhlPlayerId}?${params.toString()}` };
+  });
 }
 
 function parsePlayerView(value: string | undefined): PlayerView {

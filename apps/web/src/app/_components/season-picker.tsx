@@ -21,8 +21,8 @@ export function SeasonPicker({
       className={`workspace-season-picker ${className}`}
     >
       {Object.entries(params).map(([name, value]) =>
-        value === undefined || name === "season" ? null : (
-          <input key={name} type="hidden" name={name} value={value} />
+        name === "season" ? null : (
+          <input key={name} type="hidden" name={name} value={value ?? ""} disabled={value === undefined || value === ""} />
         ),
       )}
       <label>

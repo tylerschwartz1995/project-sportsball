@@ -72,6 +72,8 @@ The league analytics route includes:
   an All Columns option for expert review;
 - plain-language metric definitions on hover or keyboard focus, a visible link
   to the Metric Guide, and a sticky identity column for wide tables.
+- URL-backed plot metrics, groups, axes, and direct team/player selections,
+  with a copy-link action that restores the exact analytical view.
 
 The league leaderboards and centralized guide use the shared Data Workspace
 page hierarchy, semantic filters, compact metric cards, table shells, and
