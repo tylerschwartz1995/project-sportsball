@@ -131,10 +131,13 @@ points earned or playoff games won, goals scored, goals allowed, and shot
 differential with every participating team. Each measure states its units and
 plain league rank rather than relying on percentile jargon;
 separates the game record into home, road, one-goal, and extra-time situations;
-summarizes each opponent series; and links three statistical game extremes to
-their supporting records. Regular-season series outcomes use standings points,
-while playoff series outcomes use wins. Seasons without stored game-level
-coverage retain their league fingerprint and disclose the missing context.
+summarizes each opponent series; and plots every covered game by share of play
+and goal differential. The game-level map uses five-on-five expected-goal share
+when it preserves the available sample and otherwise falls back to shot share.
+Its four result/process groups can be filtered and every game links to its full
+record. Regular-season series outcomes use standings points, while playoff
+series outcomes use wins. Seasons without stored game-level coverage retain
+their league comparison and disclose the missing context.
 The Trends view compares all-situations goal share with five-on-five
 expected-goal share over a selectable 5-, 10-, or
 20-game window. Readers can filter the rolling sample to all, home, or away
