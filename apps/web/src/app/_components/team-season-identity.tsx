@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { TeamLogo } from "@/app/_components/team-logo";
-import type { TeamSeasonStats } from "@/contracts/team";
 import type {
   OpponentLedgerEntry,
   SeasonMoment,
@@ -14,7 +13,6 @@ type TeamSeasonIdentityProps = {
   seasonId: number;
   phase: "regular" | "playoffs";
   phaseLabel: string;
-  stats: TeamSeasonStats;
 };
 
 export function TeamSeasonIdentity({
@@ -22,119 +20,95 @@ export function TeamSeasonIdentity({
   seasonId,
   phase,
   phaseLabel,
-  stats,
 }: TeamSeasonIdentityProps) {
   const seriesSummary = countOpponentOutcomes(identity.opponents);
 
   return (
     <section className="workspace-width-data mt-8 space-y-6">
-      <article className="surface-panel relative overflow-hidden p-6 sm:p-8">
+      <article className="surface-panel relative overflow-hidden p-5 sm:p-6">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute -right-16 -top-28 h-80 w-80 rounded-full bg-[var(--accent)] opacity-[0.07] blur-3xl"
         />
-        <div className="relative grid gap-8 xl:grid-cols-[0.82fr_1.18fr] xl:gap-10">
-          <div className="flex flex-col justify-between">
-            <div>
-              <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
-                Season identity
-              </p>
-              <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[var(--foreground)] sm:text-4xl">
-                {identity.archetype}
-              </h2>
-              <p className="mt-4 max-w-2xl text-sm leading-7 text-[var(--muted)] sm:text-base">
-                {identity.verdict}
-              </p>
-            </div>
-
-            <div className="mt-7 flex flex-wrap items-end gap-x-8 gap-y-4 border-t border-[var(--border)] pt-6">
-              <div>
-                <p className="font-mono text-[0.68rem] uppercase tracking-[0.15em] text-[var(--muted)]">
-                  {phaseLabel} record
-                </p>
-                <p className="mt-1 text-3xl font-semibold tracking-[-0.04em] text-[var(--foreground)] tabular-nums">
-                  {phase === "playoffs"
-                    ? `${stats.wins}–${stats.losses}`
-                    : `${stats.wins}–${stats.regulationLosses}–${stats.overtimeLosses + stats.shootoutLosses}`}
-                </p>
-              </div>
-              <p className="pb-1 text-sm text-[var(--muted)] tabular-nums">
-                {stats.gamesPlayed} games
-              </p>
-              {identity.standings ? (
-                <div className="flex flex-wrap gap-2 pb-0.5 text-xs font-medium">
-                  <RankChip
-                    rank={identity.standings.leagueRank}
-                    label="NHL"
-                  />
-                  {identity.standings.conferenceRank !== null &&
-                  identity.standings.conferenceName ? (
-                    <RankChip
-                      rank={identity.standings.conferenceRank}
-                      label={identity.standings.conferenceName}
-                    />
-                  ) : null}
-                  {identity.standings.divisionRank !== null &&
-                  identity.standings.divisionName ? (
-                    <RankChip
-                      rank={identity.standings.divisionRank}
-                      label={identity.standings.divisionName}
-                    />
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
+        <div className="relative">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.16em] text-[var(--accent)]">
+              League comparison
+            </p>
+            <h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-[var(--foreground)] sm:text-2xl">
+              Performance vs. NHL
+            </h2>
+            <p className="mt-1 text-xs text-[var(--muted)]">
+              {phaseLabel} · {identity.fingerprint[0]?.teamCount ?? 0} teams
+            </p>
           </div>
 
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-5 sm:p-6">
-            <div className="flex flex-wrap items-end justify-between gap-2">
-              <div>
-                <p className="font-mono text-xs uppercase tracking-[0.16em] text-[var(--muted)]">
-                  League fingerprint
-                </p>
-                <h3 className="mt-1 text-lg font-semibold text-[var(--foreground)]">
-                  What defined this team
-                </h3>
-              </div>
-              <p className="text-xs text-[var(--muted)]">
-                Compared with {identity.fingerprint[0]?.teamCount ?? 0} teams
-              </p>
+          <dl className="mt-4 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
+            <div
+              aria-hidden="true"
+              className="hidden grid-cols-[minmax(0,1.35fr)_minmax(9rem,0.5fr)_minmax(8rem,0.38fr)_minmax(12rem,0.8fr)] gap-4 border-b border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-2 font-mono text-[0.65rem] uppercase tracking-[0.13em] text-[var(--muted)] md:grid"
+            >
+              <span>Metric</span>
+              <span>Team result</span>
+              <span>NHL rank</span>
+              <span>League position</span>
             </div>
-            <dl className="mt-6 space-y-5">
-              {identity.fingerprint.map((metric) => (
-                <div key={metric.key}>
-                  <div className="flex items-baseline justify-between gap-4">
+            {identity.fingerprint.map((metric) => {
+              const rankPosition =
+                metric.teamCount <= 1
+                  ? 0
+                  : ((metric.rank - 1) / (metric.teamCount - 1)) * 100;
+
+              return (
+                <div
+                  key={metric.key}
+                  className="grid grid-cols-2 items-start gap-3 border-b border-[var(--border)] p-4 last:border-b-0 md:grid-cols-[minmax(0,1.35fr)_minmax(9rem,0.5fr)_minmax(8rem,0.38fr)_minmax(12rem,0.8fr)] md:items-center md:gap-4 md:py-3"
+                >
+                  <div className="col-span-full md:col-span-1">
                     <dt className="font-medium text-[var(--foreground)]">
                       {metric.label}
                     </dt>
-                    <dd className="text-right">
-                      <span className="font-semibold text-[var(--foreground)] tabular-nums">
-                        {metric.formattedValue}
-                      </span>
-                      <span className="ml-2 text-xs text-[var(--muted)]">
-                        #{metric.rank}
-                      </span>
-                    </dd>
+                    <p className="mt-0.5 text-[0.7rem] leading-4 text-[var(--muted)]">
+                      {metric.description}
+                    </p>
                   </div>
-                  <div className="mt-2 flex items-center gap-3">
-                    <div
-                      className="h-2.5 flex-1 overflow-hidden rounded-full bg-[var(--border)]"
-                      role="img"
-                      aria-label={`${metric.label}: ${ordinal(metric.percentile)} percentile, ranked ${metric.rank} of ${metric.teamCount}`}
-                    >
-                      <div
-                        className="h-full rounded-full bg-[var(--accent)]"
-                        style={{ width: `${Math.max(metric.percentile, 3)}%` }}
-                      />
-                    </div>
-                    <span className="w-20 whitespace-nowrap text-right font-mono text-[0.68rem] text-[var(--muted)] tabular-nums">
-                      {ordinal(metric.percentile)} pct.
+                  <dd>
+                    <span className="block font-mono text-[0.65rem] uppercase tracking-[0.12em] text-[var(--muted)] md:hidden">
+                      Team result
                     </span>
-                  </div>
+                    <span className="mt-1 block whitespace-nowrap font-semibold text-[var(--foreground)] tabular-nums md:mt-0">
+                      {metric.formattedValue}
+                    </span>
+                  </dd>
+                  <dd>
+                    <span className="block font-mono text-[0.65rem] uppercase tracking-[0.12em] text-[var(--muted)] md:hidden">
+                      NHL rank
+                    </span>
+                    <span className="mt-1 block whitespace-nowrap font-semibold text-[var(--foreground)] tabular-nums md:mt-0">
+                      {ordinal(metric.rank)} of {metric.teamCount}
+                    </span>
+                  </dd>
+                  <dd className="col-span-full md:col-span-1">
+                    <div className="flex items-center gap-2 font-mono text-[0.62rem] text-[var(--muted)] tabular-nums">
+                      <span>1st</span>
+                      <div
+                        className="relative h-1.5 flex-1 rounded-full bg-[var(--border)]"
+                        role="img"
+                        aria-label={`${metric.label}: ${metric.formattedValue}; ranked ${metric.rank} of ${metric.teamCount}`}
+                      >
+                        <span
+                          aria-hidden="true"
+                          className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[var(--surface)] bg-[var(--accent)] shadow-sm"
+                          style={{ left: `${rankPosition}%` }}
+                        />
+                      </div>
+                      <span>{ordinal(metric.teamCount)}</span>
+                    </div>
+                  </dd>
                 </div>
-              ))}
-            </dl>
-          </div>
+              );
+            })}
+          </dl>
         </div>
       </article>
 
@@ -142,7 +116,7 @@ export function TeamSeasonIdentity({
         <div className="space-y-6">
           <article className="surface-panel p-6">
             <SectionIntroduction
-              eyebrow="Situational identity"
+              eyebrow="Situational breakdown"
               title="Where the record came from"
               description={`${identity.gamesAnalyzed} stored ${phaseLabel.toLowerCase()} games, separated by setting and game state.`}
             />
@@ -206,9 +180,9 @@ export function TeamSeasonIdentity({
       {identity.moments.length > 0 ? (
         <section>
           <SectionIntroduction
-            eyebrow="Season moments"
-            title="Games that shaped the identity"
-            description="A curated set of statistical extremes from the selected phase, each linked to the full game record."
+            eyebrow="Game extremes"
+            title="Selected Single-Game Highs"
+            description="Statistical extremes from the selected phase, each linked to the full game record."
           />
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             {identity.moments.map((moment, index) => (
@@ -222,14 +196,6 @@ export function TeamSeasonIdentity({
         </section>
       ) : null}
     </section>
-  );
-}
-
-function RankChip({ rank, label }: { rank: number; label: string }) {
-  return (
-    <span className="rounded-full border border-[var(--border)] bg-[var(--surface-subtle)] px-3 py-1 text-[var(--muted)]">
-      <span className="text-[var(--foreground)]">#{rank}</span> {label}
-    </span>
   );
 }
 

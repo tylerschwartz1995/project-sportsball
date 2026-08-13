@@ -1,19 +1,17 @@
 import type { TeamGameLogEntry } from "@/contracts/game-log";
-import type { StandingsEntry } from "@/contracts/standings";
 import type {
-  TeamIdentity,
   TeamSeasonStats,
   TeamSeasonSummary,
 } from "@/contracts/team";
 
 export type SeasonFingerprintMetric = {
-  key: "results" | "scoring" | "prevention" | "shot-control";
+  key: "results" | "scoring" | "goals-allowed" | "shot-differential";
   label: string;
+  description: string;
   value: number;
   formattedValue: string;
   rank: number;
   teamCount: number;
-  percentile: number;
 };
 
 export type SeasonRecord = {
@@ -54,17 +52,7 @@ export type SeasonMoment = {
 };
 
 export type TeamSeasonIdentity = {
-  archetype: string;
-  verdict: string;
   fingerprint: SeasonFingerprintMetric[];
-  standings: Pick<
-    StandingsEntry,
-    | "leagueRank"
-    | "conferenceRank"
-    | "divisionRank"
-    | "conferenceName"
-    | "divisionName"
-  > | null;
   records: SeasonRecord[];
   opponents: OpponentLedgerEntry[];
   moments: SeasonMoment[];
@@ -72,40 +60,21 @@ export type TeamSeasonIdentity = {
 };
 
 type TeamSeasonIdentityInput = {
-  team: TeamIdentity;
   stats: TeamSeasonStats;
   peers: TeamSeasonSummary[];
   games: TeamGameLogEntry[];
-  standings?: StandingsEntry | null;
-};
-
-type RankedMetric = Omit<SeasonFingerprintMetric, "formattedValue"> & {
-  formattedValue: string;
 };
 
 export function buildTeamSeasonIdentity({
-  team,
   stats,
   peers,
   games,
-  standings = null,
 }: TeamSeasonIdentityInput): TeamSeasonIdentity {
   const phaseGames = games.filter((game) => game.gameType === stats.gameType);
   const fingerprint = buildFingerprint(stats, peers);
 
   return {
-    archetype: seasonArchetype(fingerprint),
-    verdict: seasonVerdict(team, stats, fingerprint, standings),
     fingerprint,
-    standings: standings
-      ? {
-          leagueRank: standings.leagueRank,
-          conferenceRank: standings.conferenceRank,
-          divisionRank: standings.divisionRank,
-          conferenceName: standings.conferenceName,
-          divisionName: standings.divisionName,
-        }
-      : null,
     records: buildSituationalRecords(phaseGames),
     opponents: buildOpponentLedger(phaseGames, stats.gameType),
     moments: buildSeasonMoments(phaseGames),
@@ -126,13 +95,17 @@ function buildFingerprint(
   const definitions: Array<{
     key: SeasonFingerprintMetric["key"];
     label: string;
+    description: string;
     value: (candidate: TeamSeasonStats) => number;
     format: (value: number) => string;
     lowerIsBetter?: boolean;
   }> = [
     {
       key: "results",
-      label: isPlayoffs ? "Win rate" : "Point rate",
+      label: isPlayoffs ? "Games won" : "Standings points earned",
+      description: isPlayoffs
+        ? "Share of playoff games won"
+        : "Percent of possible standings points earned",
       value: (candidate) =>
         isPlayoffs
           ? candidate.wins / candidate.gamesPlayed
@@ -141,20 +114,23 @@ function buildFingerprint(
     },
     {
       key: "scoring",
-      label: "Scoring",
+      label: "Goals scored",
+      description: "Team goals per game",
       value: (candidate) => candidate.goalsFor / candidate.gamesPlayed,
       format: (value) => `${value.toFixed(2)} / game`,
     },
     {
-      key: "prevention",
-      label: "Prevention",
+      key: "goals-allowed",
+      label: "Goals allowed",
+      description: "Opponent goals per game",
       value: (candidate) => candidate.goalsAgainst / candidate.gamesPlayed,
-      format: (value) => `${value.toFixed(2)} allowed`,
+      format: (value) => `${value.toFixed(2)} / game`,
       lowerIsBetter: true,
     },
     {
-      key: "shot-control",
-      label: "Shot control",
+      key: "shot-differential",
+      label: "Shot differential",
+      description: "Shots for minus shots against, per game",
       value: (candidate) =>
         (candidate.shotsFor - candidate.shotsAgainst) /
         candidate.gamesPlayed,
@@ -162,7 +138,7 @@ function buildFingerprint(
     },
   ];
 
-  return definitions.map((definition): RankedMetric => {
+  return definitions.map((definition): SeasonFingerprintMetric => {
     const value = definition.value(stats);
     const rank =
       1 +
@@ -176,14 +152,11 @@ function buildFingerprint(
     return {
       key: definition.key,
       label: definition.label,
+      description: definition.description,
       value,
       formattedValue: definition.format(value),
       rank,
       teamCount,
-      percentile:
-        teamCount === 1
-          ? 100
-          : Math.round(((teamCount - rank + 1) / teamCount) * 100),
     };
   });
 }
@@ -381,8 +354,7 @@ function recordForGames(games: TeamGameLogEntry[]) {
       if (game.result === "W") record.wins += 1;
       else if (game.result === "OTL" && game.gameType !== 3) {
         record.overtimeLosses += 1;
-      }
-      else record.regulationLosses += 1;
+      } else record.regulationLosses += 1;
       return record;
     },
     {
@@ -394,56 +366,6 @@ function recordForGames(games: TeamGameLogEntry[]) {
   );
 }
 
-function seasonArchetype(metrics: SeasonFingerprintMetric[]): string {
-  const byKey = new Map(metrics.map((metric) => [metric.key, metric]));
-  const elite = (key: SeasonFingerprintMetric["key"]) =>
-    (byKey.get(key)?.percentile ?? 0) >= 75;
-
-  if (elite("results") && elite("scoring") && elite("prevention")) {
-    return "Complete powerhouse";
-  }
-  if (elite("scoring") && elite("shot-control")) return "Relentless attack";
-  if (elite("results") && elite("prevention")) return "Shutdown contender";
-  if (elite("shot-control")) return "Territorial force";
-  if (elite("scoring")) return "Attack-first threat";
-  if (elite("prevention")) return "Defence-driven team";
-  if (elite("results")) return "Results-driven contender";
-  if ((byKey.get("results")?.percentile ?? 0) <= 25) {
-    return "Challenging season";
-  }
-  return "Middle-of-pack profile";
-}
-
-function seasonVerdict(
-  team: TeamIdentity,
-  stats: TeamSeasonStats,
-  metrics: SeasonFingerprintMetric[],
-  standings: StandingsEntry | null,
-): string {
-  const result = metrics.find((metric) => metric.key === "results")!;
-  const narrativePriority = new Map<SeasonFingerprintMetric["key"], number>([
-    ["scoring", 0],
-    ["prevention", 1],
-    ["shot-control", 2],
-  ]);
-  const identityMetrics = metrics
-    .filter((metric) => metric.key !== "results")
-    .sort(
-      (left, right) =>
-        left.rank - right.rank ||
-        (narrativePriority.get(left.key) ?? 99) -
-          (narrativePriority.get(right.key) ?? 99),
-    );
-  const primary = identityMetrics[0]!;
-  const secondary = identityMetrics[1]!;
-  const placement =
-    stats.gameType === 2 && standings
-      ? `ranked ${ordinal(standings.leagueRank)} in the NHL`
-      : `ranked ${ordinal(result.rank)} of ${result.teamCount} teams in ${result.label.toLowerCase()}`;
-
-  return `${team.name} ${placement}. Their strongest league-relative trait was ${primary.label.toLowerCase()} (${ordinal(primary.rank)} of ${primary.teamCount}), followed by ${secondary.label.toLowerCase()} (${ordinal(secondary.rank)}).`;
-}
-
 function formatPercentage(value: number): string {
   return `${(value * 100).toFixed(1)}%`;
 }
@@ -451,13 +373,4 @@ function formatPercentage(value: number): string {
 function formatSigned(value: number, digits: number): string {
   if (value === 0) return value.toFixed(digits);
   return `${value > 0 ? "+" : "−"}${Math.abs(value).toFixed(digits)}`;
-}
-
-function ordinal(value: number): string {
-  const remainder100 = value % 100;
-  if (remainder100 >= 11 && remainder100 <= 13) return `${value}th`;
-  if (value % 10 === 1) return `${value}st`;
-  if (value % 10 === 2) return `${value}nd`;
-  if (value % 10 === 3) return `${value}rd`;
-  return `${value}th`;
 }

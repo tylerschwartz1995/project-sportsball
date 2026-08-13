@@ -36,7 +36,6 @@ import { getUpcomingGamesForTeamAcrossSeasons } from "@/data/games";
 import { listSeasons } from "@/data/seasons";
 import { getTeamScheduleStrength } from "@/data/schedule-strength";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
-import { getStandings } from "@/data/standings";
 import {
   getTeamSeasonDetail,
   listTeamsBySeason,
@@ -121,7 +120,6 @@ export default async function TeamPage({
     gameLog,
     scheduleStrength,
     overviewPeers,
-    overviewStandings,
   ] = await Promise.all([
       getTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType),
       view === "advanced"
@@ -146,9 +144,6 @@ export default async function TeamPage({
       view === "overview"
         ? listTeamsBySeason(selectedSeason.id, gameType)
         : Promise.resolve([]),
-      view === "overview" && phase === "regular"
-        ? getStandings(selectedSeason.id)
-        : Promise.resolve([]),
     ]);
   if (!detail) {
     notFound();
@@ -165,14 +160,9 @@ export default async function TeamPage({
   const overviewIdentity =
     view === "overview" && overviewStats
       ? buildTeamSeasonIdentity({
-          team: detail.team,
           stats: overviewStats,
           peers: overviewPeers,
           games: gameLog?.games ?? [],
-          standings:
-            overviewStandings.find(
-              (standing) => standing.nhlTeamId === detail.team.nhlTeamId,
-            ) ?? null,
         })
       : null;
 
@@ -259,7 +249,6 @@ export default async function TeamPage({
               seasonId={selectedSeason.id}
               phase={phase}
               phaseLabel={seasonPhaseLabel(phase)}
-              stats={overviewStats}
             />
           ) : (
             <div className="workspace-empty-state mt-8">

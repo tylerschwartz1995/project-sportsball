@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import type { TeamGameLogEntry } from "@/contracts/game-log";
-import type { StandingsEntry } from "@/contracts/standings";
 import type {
   TeamIdentity,
   TeamSeasonStats,
@@ -10,9 +9,8 @@ import type {
 import { buildTeamSeasonIdentity } from "@/lib/team-season-identity";
 
 describe("team season identity", () => {
-  it("builds an evidence-backed fingerprint and verdict", () => {
+  it("builds an evidence-backed league comparison", () => {
     const result = buildTeamSeasonIdentity({
-      team: avalanche,
       stats: avalancheStats,
       peers: [
         summary(avalanche, avalancheStats),
@@ -36,40 +34,25 @@ describe("team season identity", () => {
         ),
       ],
       games: [],
-      standings: {
-        leagueRank: 1,
-        conferenceRank: 1,
-        divisionRank: 1,
-        conferenceName: "Western",
-        divisionName: "Central",
-      } as StandingsEntry,
     });
 
-    expect(result.archetype).toBe("Complete powerhouse");
-    expect(result.verdict).toBe(
-      "Colorado Avalanche ranked 1st in the NHL. Their strongest league-relative trait was scoring (1st of 3), followed by prevention (1st).",
-    );
     expect(result.fingerprint).toEqual([
       expect.objectContaining({
         key: "results",
-        label: "Point rate",
+        label: "Standings points earned",
         rank: 1,
         teamCount: 3,
-        percentile: 100,
       }),
-      expect.objectContaining({ key: "scoring", rank: 1, percentile: 100 }),
-      expect.objectContaining({ key: "prevention", rank: 1, percentile: 100 }),
+      expect.objectContaining({ key: "scoring", rank: 1 }),
       expect.objectContaining({
-        key: "shot-control",
+        key: "goals-allowed",
         rank: 1,
-        percentile: 100,
+      }),
+      expect.objectContaining({
+        key: "shot-differential",
+        rank: 1,
       }),
     ]);
-    expect(result.standings).toMatchObject({
-      leagueRank: 1,
-      conferenceRank: 1,
-      divisionRank: 1,
-    });
   });
 
   it("derives situational records, opponent series, and distinct moments", () => {
@@ -134,7 +117,6 @@ describe("team season identity", () => {
     ];
 
     const result = buildTeamSeasonIdentity({
-      team: avalanche,
       stats: avalancheStats,
       peers: [summary(avalanche, avalancheStats)],
       games,
@@ -197,7 +179,6 @@ describe("team season identity", () => {
 
   it("keeps missing game-level coverage distinct from zero performance", () => {
     const result = buildTeamSeasonIdentity({
-      team: avalanche,
       stats: avalancheStats,
       peers: [summary(avalanche, avalancheStats)],
       games: [],
@@ -222,7 +203,6 @@ describe("team season identity", () => {
       shootoutLosses: 0,
     });
     const result = buildTeamSeasonIdentity({
-      team: avalanche,
       stats: playoffStats,
       peers: [summary(avalanche, playoffStats)],
       games: [
