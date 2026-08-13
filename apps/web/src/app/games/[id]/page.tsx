@@ -28,6 +28,7 @@ import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";
 import { getGameBoxScore } from "@/data/games";
 import { getGamePlayByPlay } from "@/data/play-by-play";
 import { buildGameFlow } from "@/lib/game-flow";
+import { parseTimelinePeriod } from "@/lib/play-by-play-timeline";
 import { formatPlayerPosition } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
@@ -39,6 +40,7 @@ type GamePageProps = {
   searchParams: Promise<{
     view?: string | string[];
     advancedView?: string | string[];
+    timelinePeriod?: string | string[];
   }>;
 };
 
@@ -73,6 +75,9 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
   });
   const advancedView = parseGameAdvancedView(
     firstValue(pageParams.advancedView),
+  );
+  const timelinePeriod = parseTimelinePeriod(
+    firstValue(pageParams.timelinePeriod),
   );
   const tabs = [
     playByPlay.events.length > 0
@@ -161,6 +166,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
             homeTeam={game.homeTeam}
             seasonId={game.seasonId}
             gameFlow={gameFlow}
+            timelinePeriod={timelinePeriod}
           />
         ) : null}
 

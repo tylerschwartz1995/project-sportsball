@@ -78,8 +78,9 @@ The page presents:
 
 - an always-visible scoring summary with period, time, team, scorer, assists,
   strength, shot type, and running score;
-- an expandable section for every period containing all recorded events in
-  order;
+- a compact section for every period that loads that period's complete event
+  list through URL-backed navigation, keeping closed periods out of the
+  initial document while preserving shareable state;
 - readable event descriptions for goals, penalties, shots, blocks, hits,
   faceoffs, possession changes, stoppages, and period boundaries;
 - links from canonical players and teams to their supporting profiles;
