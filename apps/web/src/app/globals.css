@@ -3939,7 +3939,11 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-schedule-toolbar {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns:
+    minmax(8.5rem, 0.75fr)
+    minmax(14rem, 1fr)
+    minmax(14rem, 1fr)
+    minmax(12rem, 0.9fr);
   gap: 0.85rem;
   border-bottom: 1px solid var(--border);
   padding: 1rem;
@@ -3988,6 +3992,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   font-size: 0.8rem;
   font-weight: 700;
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .workspace-schedule-phase a[aria-current="page"] {
