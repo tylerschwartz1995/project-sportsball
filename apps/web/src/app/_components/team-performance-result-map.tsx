@@ -412,7 +412,7 @@ function ResultMapTooltip({
         </div>
       </dl>
       <p className="workspace-chart-tooltip-sample">
-        {formatLongDate(point.gameDate)} · Select to open game
+        {formatLongDate(point.gameDate)}
       </p>
     </div>
   );
