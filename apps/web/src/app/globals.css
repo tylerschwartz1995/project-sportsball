@@ -30,8 +30,7 @@
   --chart-reference: rgb(255 255 255 / 0.32);
   --chart-primary: #67e8f9;
   --chart-secondary: #c4b5fd;
-  --chart-goal: #fcd34d;
-  --chart-goal-center: #fff;
+  --chart-goal: #34d399;
   --chart-puck: #020617;
   --chart-puck-highlight: #64748b;
   --workspace-canvas-max: 80rem;
@@ -76,8 +75,7 @@ html[data-theme="light"] {
   --chart-reference: rgb(15 23 42 / 0.38);
   --chart-primary: #067083;
   --chart-secondary: #6d4bc3;
-  --chart-goal: #a64b00;
-  --chart-goal-center: #fff;
+  --chart-goal: #047857;
   --chart-puck: #020617;
   --chart-puck-highlight: #64748b;
 }

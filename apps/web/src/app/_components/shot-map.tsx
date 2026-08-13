@@ -265,19 +265,20 @@ function TeamShotMap({
                     opacity="0.95"
                   />
                 ) : null}
-                <circle
-                  cx={x}
-                  cy={y}
-                  r={radius}
-                  fill={shot.wasOnGoal ? color : "transparent"}
-                  fillOpacity={shot.isGoal ? 0.95 : shot.wasOnGoal ? 0.3 : 0}
-                  stroke={color}
-                  strokeWidth={shot.isGoal ? 1.75 : 1.25}
-                  strokeDasharray={!shot.wasOnGoal ? "2 2" : undefined}
-                />
                 {shot.isGoal ? (
                   <GoalMarker x={x} y={y} shotRadius={radius} />
-                ) : null}
+                ) : (
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r={radius}
+                    fill={shot.wasOnGoal ? color : "transparent"}
+                    fillOpacity={shot.wasOnGoal ? 0.3 : 0}
+                    stroke={color}
+                    strokeWidth="1.25"
+                    strokeDasharray={!shot.wasOnGoal ? "2 2" : undefined}
+                  />
+                )}
               </g>
             );
           })}
@@ -291,7 +292,7 @@ function TeamShotMap({
           <LegendDot color={color} label="Saved" fillOpacity={0.3} />
           <LegendGoalMarker label="Goal" />
           <span>
-            Marker size reflects expected-goal probability. Gold target markers
+            Marker size reflects expected-goal probability. Green puck halos
             identify goals. Tab into the map, then use arrow keys, Home, or End
             to inspect shots.
           </span>
@@ -450,7 +451,7 @@ function GoalMarker({
   shotRadius: number;
 }) {
   const outerRadius = goalOuterRadius(shotRadius);
-  const innerRadius = Math.max(shotRadius, 3.75);
+  const puckRadius = Math.max(shotRadius, 4.25);
   return (
     <>
       <circle
@@ -461,26 +462,28 @@ function GoalMarker({
         stroke="var(--chart-goal)"
         strokeWidth="2.25"
       />
-      <circle
+      <ellipse
         cx={x}
         cy={y}
-        r={innerRadius}
-        fill="var(--chart-goal)"
-        stroke="var(--chart-goal-center)"
+        rx={puckRadius}
+        ry={puckRadius * 0.72}
+        fill="var(--chart-puck)"
+        stroke="var(--chart-puck-highlight)"
         strokeWidth="1.25"
       />
-      <circle
-        cx={x}
-        cy={y}
-        r="1.6"
-        fill="var(--chart-goal-center)"
+      <path
+        d={`M${x - puckRadius * 0.65} ${y - puckRadius * 0.28} Q${x} ${y - puckRadius * 0.65} ${x + puckRadius * 0.65} ${y - puckRadius * 0.28}`}
+        fill="none"
+        stroke="var(--chart-puck-highlight)"
+        strokeWidth="0.9"
+        opacity="0.8"
       />
     </>
   );
 }
 
 function goalOuterRadius(shotRadius: number): number {
-  return Math.max(shotRadius + 2.75, 7);
+  return Math.max(shotRadius + 3.5, 8);
 }
 
 function LegendGoalMarker({ label }: { label: string }) {
