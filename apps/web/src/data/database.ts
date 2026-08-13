@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createHash } from "node:crypto";
 import { Pool, type QueryResultRow } from "pg";
 
 const globalDatabase = globalThis as typeof globalThis & {
@@ -33,8 +34,43 @@ export async function query<Row extends QueryResultRow>(
   text: string,
   values: readonly unknown[] = [],
 ): Promise<Row[]> {
-  const result = await getPool().query<Row>(text, [...values]);
-  return result.rows;
+  const startedAt = performance.now();
+  try {
+    const result = await getPool().query<Row>(text, [...values]);
+    reportQueryDuration(text, performance.now() - startedAt, result.rowCount);
+    return result.rows;
+  } catch (error) {
+    reportQueryDuration(text, performance.now() - startedAt, null, true);
+    throw error;
+  }
+}
+
+function reportQueryDuration(
+  text: string,
+  durationMs: number,
+  rowCount: number | null,
+  failed = false,
+): void {
+  const threshold = slowQueryThreshold();
+  if (!failed && durationMs < threshold) return;
+
+  console.warn(
+    JSON.stringify({
+      event: failed ? "database-query-error" : "slow-database-query",
+      durationMs: Math.round(durationMs * 10) / 10,
+      rowCount,
+      operation: text.trimStart().match(/^[A-Za-z]+/)?.[0]?.toUpperCase() ?? "QUERY",
+      fingerprint: createHash("sha256")
+        .update(text.replace(/\s+/g, " ").trim())
+        .digest("hex")
+        .slice(0, 12),
+    }),
+  );
+}
+
+function slowQueryThreshold(): number {
+  const configured = Number(process.env.SPORTSBALL_SLOW_QUERY_MS ?? 250);
+  return Number.isFinite(configured) && configured >= 0 ? configured : 250;
 }
 
 export async function closeDatabasePool(): Promise<void> {

@@ -200,6 +200,22 @@ the Next.js data cache. Cache keys include function arguments, so seasons,
 game types, and other query variants remain isolated. These lifetimes match the
 daily ingestion model while bounding active-data staleness.
 
+## Performance telemetry
+
+The root layout samples 10% of browser sessions by default and sends TTFB, FCP, LCP,
+CLS, INP, and FID measurements to `POST /api/web-vitals`. The route emits one
+structured `web-vital` JSON log entry per accepted metric; paths exclude query
+parameters. Set `NEXT_PUBLIC_WEB_VITALS_SAMPLE_RATE` between `0` and `1` at
+build time to disable or tune sampling.
+
+Database reads emit structured `slow-database-query` warnings when they take at
+least 250 milliseconds and `database-query-error` warnings when they fail. Logs
+include duration, row count, operation, and a stable SQL fingerprint, never SQL
+parameters or connection details. Set `SPORTSBALL_SLOW_QUERY_MS` to tune the
+threshold. A log drain or hosting log query can aggregate these events into
+p50/p95 latency and Core Web Vitals dashboards without changing application
+code.
+
 ## Testing
 
 Run linting, type checking, unit tests, and the production build:
