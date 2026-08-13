@@ -15,7 +15,6 @@ import {
 } from "recharts";
 
 import { TeamLogo } from "@/app/_components/team-logo";
-import { CopyViewLink } from "@/app/_components/copy-view-link";
 import { useUrlChoice } from "@/app/_components/use-shareable-state";
 import {
   buildTeamPlotPoints,
@@ -145,7 +144,6 @@ export function TeamComparisonScatterplot({
       </div>
 
       <div className="workspace-chart-toolbar workspace-team-chart-toolbar">
-        <CopyViewLink />
         <p>
           Hover or tap a team for exact values. Every team remains visible so
           the plot always preserves the full league context.

@@ -21,7 +21,6 @@ import {
   ChartFilterGroup,
 } from "@/app/_components/chart-controls";
 import { TeamLogo } from "@/app/_components/team-logo";
-import { CopyViewLink } from "@/app/_components/copy-view-link";
 import { useUrlChoice } from "@/app/_components/use-shareable-state";
 import {
   buildDistribution,
@@ -287,7 +286,6 @@ export function PlayerComparisonPlots(props: PlayerComparisonPlotsProps) {
         </div>
 
         <div className="workspace-chart-toolbar">
-          <CopyViewLink />
           <p>
             Counting metrics are normalized per 60 minutes. Share metrics
             retain their percentage scale.

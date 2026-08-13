@@ -3232,26 +3232,6 @@ html[data-theme="light"] .theme-toggle-label::after {
   line-height: 1.5;
 }
 
-.workspace-copy-view-link {
-  width: fit-content;
-  min-height: 2.25rem;
-  border: 1px solid var(--border);
-  border-radius: 0.48rem;
-  padding: 0.4rem 0.65rem;
-  background: var(--surface-raised);
-  color: var(--accent);
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.workspace-copy-view-link:hover,
-.workspace-copy-view-link:focus-visible {
-  border-color: var(--accent);
-  color: var(--foreground);
-}
-
 .workspace-chart-filters {
   display: flex;
   flex-wrap: wrap;
