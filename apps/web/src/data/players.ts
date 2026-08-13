@@ -4,9 +4,12 @@ import type {
   GoalieSeasonSummary,
   PlayerDetail,
   PlayerProfile,
+  PlayerLocation,
   PlayerSeasonIndex,
   SkaterSeasonSummary,
 } from "@/contracts/player";
+import type { PageSlice } from "@/lib/directory";
+import type { PlayerPositionFilter } from "@/lib/player-position";
 import type { TeamIdentity } from "@/contracts/team";
 import { query } from "@/data/database";
 
@@ -75,6 +78,46 @@ type GoalieRow = {
   saves: number;
   save_percentage: number | null;
   time_on_ice_seconds: number;
+};
+
+type PlayerCountRow = {
+  total: string;
+};
+
+type PlayerLocationRow = {
+  country: string;
+  region: string | null;
+  city: string | null;
+};
+
+type PlayerDirectoryOptions = {
+  seasonId: number;
+  gameType?: number;
+  query: string;
+  sort: string;
+  direction: "asc" | "desc";
+  requestedPage: number;
+  pageSize?: number;
+  minGames: number;
+  country: string;
+  region: string;
+  city: string;
+};
+
+export type SkaterDirectoryOptions = PlayerDirectoryOptions & {
+  position: PlayerPositionFilter;
+  minGoals: number;
+  minAssists: number;
+  minPoints: number;
+};
+
+export type GoalieDirectoryOptions = PlayerDirectoryOptions & {
+  minWins: number;
+  minSavePercentage: number;
+};
+
+export type PlayerDirectoryPage<Player> = PageSlice<Player> & {
+  locations: PlayerLocation[];
 };
 
 const skaterSelect = `
@@ -200,6 +243,250 @@ export async function listPlayersBySeason(
     skaters: skaterRows.map(mapSkater),
     goalies: goalieRows.map(mapGoalie),
   };
+}
+
+export async function listSkaterDirectoryPage(
+  options: SkaterDirectoryOptions,
+): Promise<PlayerDirectoryPage<SkaterSeasonSummary>> {
+  const gameType = options.gameType ?? 2;
+  const pageSize = boundedPageSize(options.pageSize);
+  const values: unknown[] = [options.seasonId, gameType];
+  const conditions = buildCommonDirectoryConditions(options, values);
+
+  if (options.position) {
+    values.push(
+      options.position === "F" ? ["C", "L", "R"] : [options.position],
+    );
+    conditions.push(`UPPER(COALESCE(player.position, '')) = ANY($${values.length}::text[])`);
+  }
+  addMinimumCondition(conditions, values, "stats.games_played", options.minGames);
+  addMinimumCondition(conditions, values, "stats.goals", options.minGoals);
+  addMinimumCondition(conditions, values, "stats.assists", options.minAssists);
+  addMinimumCondition(conditions, values, "stats.points", options.minPoints);
+
+  return listDirectoryPage({
+    table: "skater_season_stats",
+    select: skaterSelect,
+    conditions,
+    values,
+    orderBy: skaterDirectoryOrder(options.sort, options.direction),
+    requestedPage: options.requestedPage,
+    pageSize,
+    mapRow: mapSkater,
+  });
+}
+
+export async function listGoalieDirectoryPage(
+  options: GoalieDirectoryOptions,
+): Promise<PlayerDirectoryPage<GoalieSeasonSummary>> {
+  const gameType = options.gameType ?? 2;
+  const pageSize = boundedPageSize(options.pageSize);
+  const values: unknown[] = [options.seasonId, gameType];
+  const conditions = buildCommonDirectoryConditions(options, values);
+
+  addMinimumCondition(conditions, values, "stats.games_played", options.minGames);
+  addMinimumCondition(conditions, values, "stats.wins", options.minWins);
+  addMinimumCondition(
+    conditions,
+    values,
+    "COALESCE(stats.save_percentage, 0)",
+    options.minSavePercentage,
+  );
+
+  return listDirectoryPage({
+    table: "goalie_season_stats",
+    select: goalieSelect,
+    conditions,
+    values,
+    orderBy: goalieDirectoryOrder(options.sort, options.direction),
+    requestedPage: options.requestedPage,
+    pageSize,
+    mapRow: mapGoalie,
+  });
+}
+
+type DirectoryConfig<Row extends Record<string, unknown>, Player> = {
+  table: "skater_season_stats" | "goalie_season_stats";
+  select: string;
+  conditions: string[];
+  values: unknown[];
+  orderBy: string;
+  requestedPage: number;
+  pageSize: number;
+  mapRow: (row: Row) => Player;
+};
+
+async function listDirectoryPage<Row extends Record<string, unknown>, Player>({
+  table,
+  select,
+  conditions,
+  values,
+  orderBy,
+  requestedPage,
+  pageSize,
+  mapRow,
+}: DirectoryConfig<Row, Player>): Promise<PlayerDirectoryPage<Player>> {
+  const where = conditions.join("\n          AND ");
+  const [countRows, locationRows] = await Promise.all([
+    query<PlayerCountRow>(
+      `
+        SELECT COUNT(*)::text AS total
+        FROM ${table} AS stats
+        JOIN players AS player ON player.id = stats.player_id
+        WHERE ${where}
+      `,
+      values,
+    ),
+    query<PlayerLocationRow>(
+      `
+        SELECT DISTINCT
+          player.birth_country AS country,
+          player.birth_state_province AS region,
+          player.birth_city AS city
+        FROM ${table} AS stats
+        JOIN players AS player ON player.id = stats.player_id
+        WHERE stats.season_id = $1
+          AND stats.game_type = $2
+          AND player.birth_country IS NOT NULL
+        ORDER BY country, region NULLS FIRST, city NULLS FIRST
+      `,
+      values.slice(0, 2),
+    ),
+  ]);
+  const totalItems = Number(countRows[0]?.total ?? 0);
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+  const currentPage = Math.min(Math.max(optionsPage(requestedPage), 1), totalPages);
+  const offset = (currentPage - 1) * pageSize;
+  const pageValues = [...values, pageSize, offset];
+  const rows = await query<Row>(
+    `
+      ${select}
+      WHERE ${where}
+      ORDER BY ${orderBy}
+      LIMIT $${values.length + 1}
+      OFFSET $${values.length + 2}
+    `,
+    pageValues,
+  );
+
+  return {
+    items: rows.map(mapRow),
+    currentPage,
+    totalPages,
+    totalItems,
+    firstItem: rows.length === 0 ? 0 : offset + 1,
+    lastItem: offset + rows.length,
+    locations: locationRows.map((row) => ({
+      country: row.country,
+      region: row.region,
+      city: row.city,
+    })),
+  };
+}
+
+function buildCommonDirectoryConditions(
+  options: PlayerDirectoryOptions,
+  values: unknown[],
+): string[] {
+  const conditions = ["stats.season_id = $1", "stats.game_type = $2"];
+  if (options.query) {
+    values.push(options.query.toLocaleLowerCase());
+    conditions.push(`strpos(
+      lower(concat_ws(' ',
+        player.display_name,
+        player.position,
+        CASE UPPER(COALESCE(player.position, ''))
+          WHEN 'C' THEN 'Center'
+          WHEN 'D' THEN 'Defenseman'
+          WHEN 'G' THEN 'Goalie'
+          WHEN 'L' THEN 'LW Left Wing'
+          WHEN 'R' THEN 'RW Right Wing'
+          ELSE ''
+        END
+      )),
+      $${values.length}
+    ) > 0`);
+  }
+  addTextCondition(conditions, values, "player.birth_country", options.country);
+  addTextCondition(conditions, values, "player.birth_state_province", options.region);
+  addTextCondition(conditions, values, "player.birth_city", options.city);
+  return conditions;
+}
+
+function addTextCondition(
+  conditions: string[],
+  values: unknown[],
+  column: string,
+  value: string,
+) {
+  if (!value) return;
+  values.push(value);
+  conditions.push(`${column} = $${values.length}`);
+}
+
+function addMinimumCondition(
+  conditions: string[],
+  values: unknown[],
+  column: string,
+  value: number,
+) {
+  if (value <= 0) return;
+  values.push(value);
+  conditions.push(`${column} >= $${values.length}`);
+}
+
+function boundedPageSize(value: number | undefined): number {
+  return Math.max(1, Math.min(Math.trunc(value ?? 50), 100));
+}
+
+function optionsPage(value: number): number {
+  return Number.isSafeInteger(value) && value > 0 ? value : 1;
+}
+
+function sortDirection(value: "asc" | "desc"): "ASC" | "DESC" {
+  return value === "asc" ? "ASC" : "DESC";
+}
+
+function skaterDirectoryOrder(sort: string, direction: "asc" | "desc"): string {
+  const order = sortDirection(direction);
+  const columns: Record<string, string[]> = {
+    goals: ["stats.goals", "stats.points"],
+    assists: ["stats.assists", "stats.points"],
+    games: ["stats.games_played", "stats.points"],
+    plusMinus: ["stats.plus_minus", "stats.points"],
+    penaltyMinutes: ["stats.penalty_minutes", "stats.points"],
+    shotsOnGoal: ["stats.shots_on_goal", "stats.points"],
+    teamsPlayedFor: ["stats.teams_played_for", "stats.points"],
+    name: ["player.display_name"],
+    points: ["stats.points", "stats.goals"],
+  };
+  const selected = columns[sort] ?? columns.points;
+  const clauses = selected.map((column) => `${column} ${order}`);
+  clauses.push(
+    `player.display_name ${sort === "points" ? (order === "ASC" ? "DESC" : "ASC") : "ASC"}`,
+  );
+  clauses.push("player.nhl_id ASC");
+  return clauses.join(", ");
+}
+
+function goalieDirectoryOrder(sort: string, direction: "asc" | "desc"): string {
+  const order = sortDirection(direction);
+  const columns: Record<string, string[]> = {
+    wins: ["stats.wins", "stats.games_played"],
+    games: ["stats.games_played", "stats.wins"],
+    gamesStarted: ["stats.games_started", "stats.games_played"],
+    losses: ["stats.losses", "stats.games_played"],
+    overtimeLosses: ["stats.overtime_losses", "stats.games_played"],
+    goalsAgainst: ["stats.goals_against", "stats.games_played"],
+    saves: ["stats.saves", "stats.games_played"],
+    name: ["player.display_name"],
+  };
+  if (sort === "savePercentage" || !(sort in columns)) {
+    return `stats.save_percentage ${order} NULLS ${order === "ASC" ? "FIRST" : "LAST"}, stats.games_played ${order}, player.display_name ${order === "ASC" ? "DESC" : "ASC"}, player.nhl_id ASC`;
+  }
+  const clauses = columns[sort].map((column) => `${column} ${order}`);
+  clauses.push("player.display_name ASC", "player.nhl_id ASC");
+  return clauses.join(", ");
 }
 
 export async function listSkaterLeadersBySeason(

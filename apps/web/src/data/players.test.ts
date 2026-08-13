@@ -7,7 +7,9 @@ vi.mock("@/data/database", () => ({
 }));
 
 import {
+  listGoalieDirectoryPage,
   listPlayersBySeason,
+  listSkaterDirectoryPage,
   listSkaterLeadersBySeason,
 } from "@/data/players";
 
@@ -182,5 +184,114 @@ describe("listPlayersBySeason", () => {
     await listSkaterLeadersBySeason(20252026, 10_000);
 
     expect(queryMock).toHaveBeenCalledWith(expect.any(String), [20252026, 2, 100]);
+  });
+
+  it("filters and paginates skaters in PostgreSQL", async () => {
+    queryMock
+      .mockResolvedValueOnce([{ total: "51" }])
+      .mockResolvedValueOnce([
+        { country: "CAN", region: "Ontario", city: "Toronto" },
+      ])
+      .mockResolvedValueOnce([
+        {
+          nhl_player_id: 8478402,
+          player_name: "Connor McDavid",
+          position: "C",
+          season_id: 20252026,
+          game_type: 2,
+          games_played: 82,
+          teams_played_for: 1,
+          teams: [],
+          goals: 48,
+          assists: 90,
+          points: 138,
+          plus_minus: 20,
+          penalty_minutes: 30,
+          power_play_goals: 12,
+          shots_on_goal: 300,
+          hits: 40,
+          blocked_shots: 25,
+          time_on_ice_seconds: 100000,
+        },
+      ]);
+
+    const result = await listSkaterDirectoryPage({
+      seasonId: 20252026,
+      query: "center",
+      position: "F",
+      sort: "points",
+      direction: "desc",
+      requestedPage: 2,
+      pageSize: 50,
+      minGames: 10,
+      minGoals: 1,
+      minAssists: 2,
+      minPoints: 3,
+      country: "CAN",
+      region: "Ontario",
+      city: "Toronto",
+    });
+
+    expect(result).toMatchObject({
+      currentPage: 2,
+      totalPages: 2,
+      totalItems: 51,
+      firstItem: 51,
+      lastItem: 51,
+      locations: [{ country: "CAN", region: "Ontario", city: "Toronto" }],
+      items: [{ kind: "skater", nhlPlayerId: 8478402 }],
+    });
+    expect(queryMock).toHaveBeenCalledTimes(3);
+    expect(queryMock.mock.calls[0]?.[0]).toContain("COUNT(*)");
+    expect(queryMock.mock.calls[0]?.[0]).toContain("= ANY(");
+    expect(queryMock.mock.calls[1]?.[1]).toEqual([20252026, 2]);
+    expect(queryMock.mock.calls[2]?.[0]).toContain(
+      "ORDER BY stats.points DESC, stats.goals DESC",
+    );
+    expect(queryMock.mock.calls[2]?.[0]).toContain("LIMIT $12");
+    expect(queryMock.mock.calls[2]?.[1]).toEqual([
+      20252026,
+      2,
+      "center",
+      "CAN",
+      "Ontario",
+      "Toronto",
+      ["C", "L", "R"],
+      10,
+      1,
+      2,
+      3,
+      50,
+      50,
+    ]);
+  });
+
+  it("clamps an out-of-range goalie page and allowlists sort SQL", async () => {
+    queryMock
+      .mockResolvedValueOnce([{ total: "1" }])
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+
+    const result = await listGoalieDirectoryPage({
+      seasonId: 20252026,
+      gameType: 3,
+      query: "",
+      sort: "stats.wins; DROP TABLE players",
+      direction: "asc",
+      requestedPage: 99,
+      minGames: 0,
+      minWins: 0,
+      minSavePercentage: 0,
+      country: "",
+      region: "",
+      city: "",
+    });
+
+    expect(result.currentPage).toBe(1);
+    expect(queryMock.mock.calls[2]?.[0]).toContain(
+      "ORDER BY stats.save_percentage ASC NULLS FIRST",
+    );
+    expect(queryMock.mock.calls[2]?.[0]).not.toContain("DROP TABLE");
+    expect(queryMock.mock.calls[2]?.[1]).toEqual([20252026, 3, 50, 0]);
   });
 });

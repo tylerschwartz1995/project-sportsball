@@ -186,6 +186,10 @@ totals plus NHL-published skater and goalie team splits.
 `GET /api/players?season=20252026` returns complete combined-season totals for
 participating skaters and goalies. `GET /api/players/8478402` returns the
 canonical player profile and all derived regular-season and playoff history.
+The `/players` directory uses a separate bounded query path: search, birthplace,
+position, minimum-stat filters, sorting, counting, and 50-row pagination run in
+PostgreSQL. The complete-season API contract remains unchanged for consumers
+that need every skater and goalie.
 
 The season index uses a one-hour shared-cache lifetime. Standings and games use
 five minutes with one hour of stale-while-revalidate coverage. Team and player

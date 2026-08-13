@@ -73,6 +73,12 @@ export type PlayerSeasonIndex = {
   goalies: GoalieSeasonSummary[];
 };
 
+export type PlayerLocation = {
+  country: string;
+  region: string | null;
+  city: string | null;
+};
+
 export type PlayerDetail = {
   profile: PlayerProfile;
   skaterSeasons: SkaterSeasonSummary[];

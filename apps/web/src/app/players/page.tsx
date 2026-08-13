@@ -13,6 +13,7 @@ import {
 } from "@/app/_components/workspace-primitives";
 import type {
   GoalieSeasonSummary,
+  PlayerLocation,
   SkaterSeasonSummary,
 } from "@/contracts/player";
 import { parseSeasonId } from "@/contracts/season";
@@ -21,20 +22,20 @@ import {
   parseSeasonPhase,
   seasonPhaseLabel,
 } from "@/contracts/season-phase";
-import { listPlayersBySeason } from "@/data/players";
+import {
+  listGoalieDirectoryPage,
+  listSkaterDirectoryPage,
+  type PlayerDirectoryPage,
+} from "@/data/players";
 import { listSeasons } from "@/data/seasons";
 import {
-  applySortDirection,
   firstQueryValue,
-  matchesSearch,
   normalizeSearch,
-  paginate,
   parsePage,
   parseSortDirection,
 } from "@/lib/directory";
 import {
   formatPlayerPosition,
-  matchesPlayerPosition,
   parsePlayerPositionFilter,
 } from "@/lib/player-position";
 import { playerDirectoryClearHref } from "@/lib/player-directory-url";
@@ -70,12 +71,6 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
   const phase = parseSeasonPhase(firstQueryValue(params.phase));
-  const players = selectedSeason
-    ? await listPlayersBySeason(
-        selectedSeason.id,
-        gameTypeForPhase(phase),
-      )
-    : { seasonId: 0, skaters: [], goalies: [] };
   const query = normalizeSearch(firstQueryValue(params.q));
   const category =
     firstQueryValue(params.type) === "goalies" ? "goalies" : "skaters";
@@ -113,54 +108,43 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
   const minPoints = parseMinimum(filters.minPoints);
   const minWins = parseMinimum(filters.minWins);
   const minSavePercentage = parseMinimum(filters.minSavePercentage);
-  const allPlayers =
-    category === "skaters" ? players.skaters : players.goalies;
-  const locations = uniqueLocations(
-    allPlayers.map((player) => ({
-      country: player.birthCountry,
-      region: player.birthStateProvince,
-      city: player.birthCity,
-    })),
-  );
-  const skaterPage = paginate(
-    sortSkaters(
-      players.skaters.filter(
-        (player) =>
-          matchesSearch(
-            query,
-            player.name,
-            player.position,
-            formatPlayerPosition(player.position),
-          ) &&
-          matchesPlayerPosition(player.position, position) &&
-          matchesBirthplace(player, filters) &&
-          player.gamesPlayed >= minGames &&
-          player.goals >= minGoals &&
-          player.assists >= minAssists &&
-          player.points >= minPoints,
-      ),
+  let skaterPage = emptyDirectoryPage<SkaterSeasonSummary>();
+  let goaliePage = emptyDirectoryPage<GoalieSeasonSummary>();
+  if (selectedSeason && category === "skaters") {
+    skaterPage = await listSkaterDirectoryPage({
+      seasonId: selectedSeason.id,
+      gameType: gameTypeForPhase(phase),
+      query,
+      position,
       sort,
       direction,
-    ),
-    requestedPage,
-    50,
-  );
-  const goaliePage = paginate(
-    sortGoalies(
-      players.goalies.filter(
-        (player) =>
-          matchesSearch(query, player.name, player.position) &&
-          matchesBirthplace(player, filters) &&
-          player.gamesPlayed >= minGames &&
-          player.wins >= minWins &&
-          (player.savePercentage ?? 0) >= minSavePercentage,
-      ),
+      requestedPage,
+      minGames,
+      minGoals,
+      minAssists,
+      minPoints,
+      country: filters.country,
+      region: filters.region,
+      city: filters.city,
+    });
+  } else if (selectedSeason) {
+    goaliePage = await listGoalieDirectoryPage({
+      seasonId: selectedSeason.id,
+      gameType: gameTypeForPhase(phase),
+      query,
       sort,
       direction,
-    ),
-    requestedPage,
-    50,
-  );
+      requestedPage,
+      minGames,
+      minWins,
+      minSavePercentage,
+      country: filters.country,
+      region: filters.region,
+      city: filters.city,
+    });
+  }
+  const locations =
+    category === "skaters" ? skaterPage.locations : goaliePage.locations;
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -503,107 +487,6 @@ const goalieTableColumns = [
   { key: "savePercentage", label: "SV%" },
 ];
 
-function sortSkaters(
-  players: SkaterSeasonSummary[],
-  sort: string,
-  direction: "asc" | "desc",
-): SkaterSeasonSummary[] {
-  return [...players].sort((left, right) => {
-    let comparison: number;
-    switch (sort) {
-      case "goals":
-        comparison = right.goals - left.goals || right.points - left.points;
-        break;
-      case "assists":
-        comparison =
-          right.assists - left.assists || right.points - left.points;
-        break;
-      case "games":
-        comparison =
-          right.gamesPlayed - left.gamesPlayed || right.points - left.points;
-        break;
-      case "plusMinus":
-        comparison = right.plusMinus - left.plusMinus || right.points - left.points;
-        break;
-      case "penaltyMinutes":
-        comparison =
-          right.penaltyMinutes - left.penaltyMinutes ||
-          right.points - left.points;
-        break;
-      case "shotsOnGoal":
-        comparison =
-          right.shotsOnGoal - left.shotsOnGoal || right.points - left.points;
-        break;
-      case "teamsPlayedFor":
-        comparison =
-          right.teamsPlayedFor - left.teamsPlayedFor ||
-          right.points - left.points;
-        break;
-      case "name":
-        comparison = right.name.localeCompare(left.name);
-        break;
-      default:
-        comparison =
-          right.points - left.points ||
-          right.goals - left.goals ||
-          left.name.localeCompare(right.name);
-    }
-    return applySortDirection(comparison, direction);
-  });
-}
-
-function sortGoalies(
-  players: GoalieSeasonSummary[],
-  sort: string,
-  direction: "asc" | "desc",
-): GoalieSeasonSummary[] {
-  return [...players].sort((left, right) => {
-    let comparison: number;
-    switch (sort) {
-      case "wins":
-        comparison =
-          right.wins - left.wins || right.gamesPlayed - left.gamesPlayed;
-        break;
-      case "games":
-        comparison =
-          right.gamesPlayed - left.gamesPlayed || right.wins - left.wins;
-        break;
-      case "gamesStarted":
-        comparison =
-          right.gamesStarted - left.gamesStarted ||
-          right.gamesPlayed - left.gamesPlayed;
-        break;
-      case "losses":
-        comparison =
-          right.losses - left.losses || right.gamesPlayed - left.gamesPlayed;
-        break;
-      case "overtimeLosses":
-        comparison =
-          right.overtimeLosses - left.overtimeLosses ||
-          right.gamesPlayed - left.gamesPlayed;
-        break;
-      case "goalsAgainst":
-        comparison =
-          right.goalsAgainst - left.goalsAgainst ||
-          right.gamesPlayed - left.gamesPlayed;
-        break;
-      case "saves":
-        comparison =
-          right.saves - left.saves || right.gamesPlayed - left.gamesPlayed;
-        break;
-      case "name":
-        comparison = right.name.localeCompare(left.name);
-        break;
-      default:
-        comparison =
-          (right.savePercentage ?? -1) - (left.savePercentage ?? -1) ||
-          right.gamesPlayed - left.gamesPlayed ||
-          left.name.localeCompare(right.name);
-    }
-    return applySortDirection(comparison, direction);
-  });
-}
-
 function MobileSkaterCard({
   player,
   seasonId,
@@ -800,49 +683,14 @@ function parseMinimum(value: string): number {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
 }
 
-function uniqueLocations(
-  values: Array<{
-    country: string | null;
-    region: string | null;
-    city: string | null;
-  }>,
-) {
-  const locations = new Map<
-    string,
-    { country: string; region: string | null; city: string | null }
-  >();
-  for (const value of values) {
-    if (!value.country) continue;
-    const key = `${value.country}|${value.region ?? ""}|${value.city ?? ""}`;
-    locations.set(key, {
-      country: value.country,
-      region: value.region,
-      city: value.city,
-    });
-  }
-  return [...locations.values()].sort(
-    (left, right) =>
-      left.country.localeCompare(right.country) ||
-      (left.region ?? "").localeCompare(right.region ?? "") ||
-      (left.city ?? "").localeCompare(right.city ?? ""),
-  );
-}
-
-function matchesBirthplace(
-  player: {
-    birthCountry: string | null;
-    birthStateProvince: string | null;
-    birthCity: string | null;
-  },
-  filters: {
-    country: string;
-    region: string;
-    city: string;
-  },
-): boolean {
-  return (
-    (!filters.country || player.birthCountry === filters.country) &&
-    (!filters.region || player.birthStateProvince === filters.region) &&
-    (!filters.city || player.birthCity === filters.city)
-  );
+function emptyDirectoryPage<Player>(): PlayerDirectoryPage<Player> {
+  return {
+    items: [],
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    firstItem: 0,
+    lastItem: 0,
+    locations: [] satisfies PlayerLocation[],
+  };
 }
