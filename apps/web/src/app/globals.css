@@ -4491,6 +4491,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-game-score-team {
   display: flex;
+  min-width: 0;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
@@ -4503,8 +4504,13 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-game-score-identity {
   display: flex;
+  min-width: 0;
   align-items: center;
   gap: 1rem;
+}
+
+.workspace-game-score-identity > div {
+  min-width: 0;
 }
 
 .workspace-game-score-team[data-align="right"] .workspace-game-score-identity {
@@ -4528,6 +4534,16 @@ html[data-theme="light"] .theme-toggle-label::after {
 @media (min-width: 900px) and (max-width: 1399px) {
   .workspace-game-score-team a {
     font-size: 1.35rem;
+  }
+
+  .workspace-game-score-name {
+    width: auto;
+    max-width: 15rem;
+    flex-wrap: wrap;
+  }
+
+  .workspace-game-score-name a {
+    line-height: 1.15;
   }
 }
 
@@ -5449,7 +5465,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-home-movement > a {
   display: grid;
-  grid-template-columns: 1.3rem 1.5rem minmax(8rem, 1fr) auto minmax(5.5rem, auto);
+  grid-template-columns: 1.3rem 1.5rem minmax(0, 1fr) auto minmax(5.5rem, 8rem);
   align-items: center;
   gap: 0.6rem;
   border-bottom: 1px solid var(--border);
@@ -6449,6 +6465,13 @@ html[data-theme="light"] .theme-toggle-label::after {
   min-width: 60rem;
 }
 
+@media (min-width: 1024px) {
+  .workspace-bracket {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    min-width: 100%;
+  }
+}
+
 .workspace-bracket-round {
   min-width: 0;
 }
@@ -6548,6 +6571,22 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-bracket-series.is-empty {
   opacity: 0.68;
   cursor: default;
+}
+
+@media (min-width: 1024px) and (max-width: 1399px) {
+  .workspace-bracket-series > span {
+    grid-template-columns: 1rem 1.5rem minmax(0, 1fr) 0.8rem;
+    gap: 0.2rem;
+    padding: 0.4rem;
+  }
+
+  .workspace-bracket-series small {
+    font-size: 0.7rem;
+  }
+
+  .workspace-bracket-team-name {
+    font-size: 0.78rem;
+  }
 }
 
 .workspace-series-dialog {

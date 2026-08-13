@@ -18,6 +18,9 @@ NHL game as its response grain and displays:
 - regular-season five-on-five forward lines and defensive pairings.
 
 Team and player names link to their existing season and career pages.
+The desktop scoreboard uses flexible team tracks so long historical names,
+records, logos, and scores remain visible together instead of being clipped by
+the fixed application sidebar.
 
 ## Query model
 
