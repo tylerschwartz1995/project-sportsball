@@ -360,19 +360,19 @@ function FilterButton({
         />
       ) : null}
       <span className="min-w-0 flex-1">
-        <span className="flex flex-col gap-1 xl:flex-row xl:items-baseline xl:justify-between xl:gap-2">
+        <span className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3">
           <span className="whitespace-nowrap text-sm font-semibold text-[var(--foreground)]">
             {label}
           </span>
           <span className="whitespace-nowrap font-mono text-base font-semibold text-[var(--foreground)] tabular-nums">
-            {count}{" "}
-            <span className="text-xs font-medium text-[var(--muted)]">
-              ({formatSamplePercentage(count, total)})
-            </span>
+            {count}
           </span>
         </span>
-        <span className="mt-1 block text-sm leading-5 text-[var(--muted)]">
-          {description}
+        <span className="mt-1 grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-3 text-sm leading-5 text-[var(--muted)]">
+          <span>{description}</span>
+          <span className="whitespace-nowrap font-mono text-xs tabular-nums">
+            ({formatSamplePercentage(count, total)})
+          </span>
         </span>
       </span>
     </button>
