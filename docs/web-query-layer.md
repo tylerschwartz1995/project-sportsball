@@ -194,7 +194,11 @@ that need every skater and goalie.
 The season index uses a one-hour shared-cache lifetime. Standings and games use
 five minutes with one hour of stale-while-revalidate coverage. Team and player
 endpoints use the same policy. Website pages are dynamically rendered and read
-PostgreSQL directly.
+PostgreSQL directly. Page renders share one-hour season-list entries and
+five-minute standings, standings-history, and team-directory entries through
+the Next.js data cache. Cache keys include function arguments, so seasons,
+game types, and other query variants remain isolated. These lifetimes match the
+daily ingestion model while bounding active-data staleness.
 
 ## Testing
 

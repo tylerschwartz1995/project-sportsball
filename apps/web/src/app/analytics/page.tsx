@@ -36,8 +36,7 @@ import {
   listAdvancedSkaterLeaders,
   listAdvancedTeamLeaders,
 } from "@/data/advanced-leaderboard";
-import { listSeasons } from "@/data/seasons";
-import { listTeamsBySeason } from "@/data/teams";
+import { listCachedSeasons, listCachedTeamsBySeason } from "@/data/page-cache";
 import { firstQueryValue } from "@/lib/directory";
 import {
   buildGoalieComparisonPoints,
@@ -105,7 +104,7 @@ export default async function AnalyticsPage({
 }: AnalyticsPageProps) {
   const params = await searchParams;
   const chartParams = pickQueryParams(params, ["plotMetric", "plotGroup", "xMetric", "yMetric", "teamA", "teamB", "playerA", "playerB"]);
-  const seasons = await listSeasons();
+  const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
@@ -144,7 +143,7 @@ export default async function AnalyticsPage({
               )
             : Promise.resolve(null),
           type === "teams"
-            ? listTeamsBySeason(selectedSeason.id, gameType)
+            ? listCachedTeamsBySeason(selectedSeason.id, gameType)
             : Promise.resolve(null),
         ])
       : [[], null, null];

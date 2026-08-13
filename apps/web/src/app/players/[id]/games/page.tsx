@@ -23,7 +23,7 @@ import {
   getPlayerGameLog,
   listPlayerGameSeasonIds,
 } from "@/data/game-logs";
-import { listSeasons } from "@/data/seasons";
+import { listCachedSeasons } from "@/data/page-cache";
 import { formatPlayerPosition } from "@/lib/player-position";
 import { paginate, parsePage, parsePageSize, parseSortDirection, type PageSlice } from "@/lib/directory";
 
@@ -51,7 +51,7 @@ export default async function PlayerGamesPage({
   }
 
   const [seasons, playerSeasonIds] = await Promise.all([
-    listSeasons(),
+    listCachedSeasons(),
     listPlayerGameSeasonIds(nhlPlayerId),
   ]);
   const availableSeasonIds = new Set(playerSeasonIds);

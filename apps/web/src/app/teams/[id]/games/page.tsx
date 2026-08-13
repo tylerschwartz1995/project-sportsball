@@ -17,7 +17,7 @@ import {
   seasonPhaseLabel,
 } from "@/contracts/season-phase";
 import { getTeamGameLog } from "@/data/game-logs";
-import { listSeasons } from "@/data/seasons";
+import { listCachedSeasons } from "@/data/page-cache";
 import { listTeamSeasonIds } from "@/data/teams";
 import { paginate, parsePage, parsePageSize, parseSortDirection } from "@/lib/directory";
 
@@ -45,7 +45,7 @@ export default async function TeamGamesPage({
   }
 
   const [seasons, teamSeasonIds] = await Promise.all([
-    listSeasons(),
+    listCachedSeasons(),
     listTeamSeasonIds(nhlTeamId),
   ]);
   const availableSeasonIds = new Set(teamSeasonIds);

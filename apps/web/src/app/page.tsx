@@ -22,7 +22,7 @@ import {
   getUpcomingGames,
 } from "@/data/games";
 import { listSkaterLeadersBySeason } from "@/data/players";
-import { listSeasons } from "@/data/seasons";
+import { listCachedSeasons } from "@/data/page-cache";
 import {
   getStandings,
   getStandingsPointsHistory,
@@ -39,10 +39,6 @@ export const dynamic = "force-dynamic";
 type HomeProps = {
   searchParams: Promise<{ season?: string | string[] }>;
 };
-
-const loadHomeSeasons = unstable_cache(listSeasons, ["home-seasons"], {
-  revalidate: 3_600,
-});
 
 const loadHomeSeasonData = unstable_cache(
   async (seasonId: number) =>
@@ -65,7 +61,7 @@ const loadHomeUpcomingGames = unstable_cache(
 
 export default async function Home({ searchParams }: HomeProps) {
   const params = await searchParams;
-  const seasons = await loadHomeSeasons();
+  const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];

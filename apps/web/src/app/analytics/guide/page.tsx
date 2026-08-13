@@ -3,7 +3,7 @@ import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { WorkspacePageHeader } from "@/app/_components/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
-import { listSeasons } from "@/data/seasons";
+import { listCachedSeasons } from "@/data/page-cache";
 import { firstQueryValue } from "@/lib/directory";
 
 export const dynamic = "force-dynamic";
@@ -109,7 +109,7 @@ const metricGroups = [
 export default async function MetricGuidePage({
   searchParams,
 }: MetricGuidePageProps) {
-  const seasons = await listSeasons();
+  const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(
     firstQueryValue((await searchParams).season),
   );

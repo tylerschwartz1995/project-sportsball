@@ -13,11 +13,11 @@ import {
 } from "@/app/_components/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
-import { listSeasons } from "@/data/seasons";
 import {
-  getStandings,
-  getStandingsPointsHistory,
-} from "@/data/standings";
+  getCachedStandings,
+  getCachedStandingsPointsHistory,
+  listCachedSeasons,
+} from "@/data/page-cache";
 import {
   applySortDirection,
   firstQueryValue,
@@ -45,7 +45,7 @@ export default async function StandingsPage({
 }: StandingsPageProps) {
   const params = await searchParams;
   const chartDivision = firstQueryValue(params.chartDivision);
-  const seasons = await listSeasons();
+  const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const requestedSort = firstQueryValue(params.sort);
   const activeSort = standingsColumns.some(
@@ -63,9 +63,9 @@ export default async function StandingsPage({
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
   const [standings, pointsHistory] = selectedSeason
     ? await Promise.all([
-        getStandings(selectedSeason.id),
+        getCachedStandings(selectedSeason.id),
         display === "progress"
-          ? getStandingsPointsHistory(selectedSeason.id)
+          ? getCachedStandingsPointsHistory(selectedSeason.id)
           : Promise.resolve([]),
       ])
     : [[], []];

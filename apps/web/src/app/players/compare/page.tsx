@@ -27,7 +27,7 @@ import {
 } from "@/contracts/season-phase";
 import { getMoneyPuckPlayerSeason } from "@/data/advanced";
 import { listPlayersBySeason } from "@/data/players";
-import { listSeasons } from "@/data/seasons";
+import { listCachedSeasons } from "@/data/page-cache";
 import { firstQueryValue } from "@/lib/directory";
 import { formatComparisonValue } from "@/lib/player-comparison";
 import { formatPlayerPosition } from "@/lib/player-position";
@@ -49,7 +49,7 @@ export default async function PlayerComparePage({
   searchParams,
 }: PlayerComparePageProps) {
   const params = await searchParams;
-  const seasons = await listSeasons();
+  const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];

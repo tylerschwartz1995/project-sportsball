@@ -35,13 +35,16 @@ import {
 import { getMoneyPuckTeamSeason } from "@/data/advanced";
 import { getTeamGameLog } from "@/data/game-logs";
 import { getTeamSchedule, listTeamScheduleSeasonIds } from "@/data/games";
-import { listScheduleSeasons, listSeasons } from "@/data/seasons";
+import {
+  listCachedScheduleSeasons,
+  listCachedSeasons,
+  listCachedTeamsBySeason,
+} from "@/data/page-cache";
 import { getTeamScheduleStrength } from "@/data/schedule-strength";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
 import {
   getTeamSeasonDetail,
   getTeamIdentityForSeason,
-  listTeamsBySeason,
   listTeamSeasonIds,
 } from "@/data/teams";
 import { formatPlayerPosition } from "@/lib/player-position";
@@ -86,7 +89,9 @@ export default async function TeamPage({
   const pageParams = await searchParams;
   const requestedView = parseTeamView(firstValue(pageParams.view));
   const [seasons, teamSeasonIds, scheduleSeasonIds] = await Promise.all([
-    requestedView === "schedule" ? listScheduleSeasons() : listSeasons(),
+    requestedView === "schedule"
+      ? listCachedScheduleSeasons()
+      : listCachedSeasons(),
     listTeamSeasonIds(nhlTeamId),
     requestedView === "schedule"
       ? listTeamScheduleSeasonIds(nhlTeamId)
@@ -159,7 +164,7 @@ export default async function TeamPage({
         ? getTeamScheduleStrength(nhlTeamId, selectedSeason.id)
         : Promise.resolve(null),
       view === "overview"
-        ? listTeamsBySeason(selectedSeason.id, gameType)
+        ? listCachedTeamsBySeason(selectedSeason.id, gameType)
         : Promise.resolve([]),
     ]);
   const profileDetail =

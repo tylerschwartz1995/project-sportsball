@@ -7,9 +7,11 @@ import { WorkspacePageHeader } from "@/app/_components/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
 import type { TeamSeasonSummary } from "@/contracts/team";
-import { listSeasons } from "@/data/seasons";
-import { getStandings } from "@/data/standings";
-import { listTeamsBySeason } from "@/data/teams";
+import {
+  getCachedStandings,
+  listCachedSeasons,
+  listCachedTeamsBySeason,
+} from "@/data/page-cache";
 import { firstQueryValue } from "@/lib/directory";
 
 export const dynamic = "force-dynamic";
@@ -22,14 +24,14 @@ type TeamsPageProps = {
 
 export default async function TeamsPage({ searchParams }: TeamsPageProps) {
   const params = await searchParams;
-  const seasons = await listSeasons();
+  const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
   const [teams, standings] = selectedSeason
     ? await Promise.all([
-        listTeamsBySeason(selectedSeason.id, 2),
-        getStandings(selectedSeason.id),
+        listCachedTeamsBySeason(selectedSeason.id, 2),
+        getCachedStandings(selectedSeason.id),
       ])
     : [[], []];
   const sortedTeams = [...teams].sort((left, right) =>

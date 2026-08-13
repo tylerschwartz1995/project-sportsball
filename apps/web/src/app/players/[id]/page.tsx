@@ -24,7 +24,7 @@ import {
 import { getMoneyPuckPlayerSeason } from "@/data/advanced";
 import { getPlayerGameLog } from "@/data/game-logs";
 import { getPlayerDetail } from "@/data/players";
-import { listSeasons } from "@/data/seasons";
+import { listCachedSeasons } from "@/data/page-cache";
 import { countryName } from "@/lib/country-name";
 import { formatPlayerPositionLong } from "@/lib/player-position";
 
@@ -67,7 +67,7 @@ export default async function PlayerPage({
 
   const [detail, seasons] = await Promise.all([
     getPlayerDetail(nhlPlayerId),
-    listSeasons(),
+    listCachedSeasons(),
   ]);
   if (!detail) {
     notFound();
