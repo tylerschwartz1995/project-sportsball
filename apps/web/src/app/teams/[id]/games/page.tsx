@@ -103,23 +103,23 @@ export default async function TeamGamesPage({
           <div className="flex items-center gap-4">
             <TeamLogo {...log.team} size="compact" decorative />
             <div>
-            <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
-              {log.team.abbreviation} · {seasonPhaseLabel(phase)}
-            </p>
-            <h2 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
-              Game Log
-            </h2>
-            <p className="mt-4 text-base text-slate-400">
-              {selectedSeason.label} results, shot totals, and five-on-five
-              expected-goal share.
-            </p>
+              <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
+                {log.team.abbreviation} · {seasonPhaseLabel(phase)}
+              </p>
+              <h1 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
+                {log.team.name} Game Log
+              </h1>
+              <p className="mt-4 text-base text-slate-400">
+                {selectedSeason.label} results, shot totals, and five-on-five
+                expected-goal share.
+              </p>
             </div>
           </div>
           <SeasonPicker
             seasons={availableSeasons}
-              selectedSeasonId={selectedSeason.id}
-              params={{ phase, perPage: pageSize }}
-            />
+            selectedSeasonId={selectedSeason.id}
+            params={{ phase, perPage: pageSize }}
+          />
         </div>
 
         <SeasonPhaseFilter
@@ -151,7 +151,7 @@ export default async function TeamGamesPage({
               <Link
                 key={game.nhlGameId}
                 href={`/games/${game.nhlGameId}`}
-                title={`${game.gameDate}: ${game.isHome ? "vs" : "at"} ${game.opponent.name}, ${game.score}-${game.opponentScore}`}
+                title={`${formatDate(game.gameDate)}: ${game.isHome ? "vs" : "at"} ${game.opponent.name}, ${game.score}-${game.opponentScore}`}
                 className={`inline-flex h-10 min-w-10 items-center justify-center rounded-lg border px-3 text-sm font-semibold transition hover:-translate-y-0.5 ${resultClassName(game.result)}`}
               >
                 {game.result}
