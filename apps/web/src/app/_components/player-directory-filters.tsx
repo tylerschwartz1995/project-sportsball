@@ -7,6 +7,7 @@ import {
   FilterActions,
   FilterHeader,
 } from "@/app/_components/filter-primitives";
+import type { PlayerPositionFilter } from "@/lib/player-position";
 
 type Option = {
   value: string;
@@ -24,6 +25,7 @@ type PlayerDirectoryFiltersProps = {
   phase: string;
   category: "skaters" | "goalies";
   query: string;
+  position: PlayerPositionFilter;
   sort: string;
   direction: "asc" | "desc";
   sortOptions: Option[];
@@ -46,6 +48,7 @@ export function PlayerDirectoryFilters({
   phase,
   category,
   query,
+  position,
   sort,
   direction,
   sortOptions,
@@ -87,6 +90,7 @@ export function PlayerDirectoryFilters({
   );
   const activeFilterCount = [
     query,
+    category === "skaters" ? position : "",
     filters.minGames !== "0" ? filters.minGames : "",
     filters.minGoals !== "0" ? filters.minGoals : "",
     filters.minAssists !== "0" ? filters.minAssists : "",
@@ -120,7 +124,9 @@ export function PlayerDirectoryFilters({
         activeCount={activeFilterCount}
       />
 
-      <fieldset className="workspace-player-filter-group is-primary">
+      <fieldset
+        className={`workspace-player-filter-group is-primary${category === "skaters" ? " has-position" : ""}`}
+      >
         <legend>Find Players</legend>
         <div>
           <label className="is-wide">
@@ -139,6 +145,19 @@ export function PlayerDirectoryFilters({
               <option value="goalies">Goalies</option>
             </select>
           </label>
+          {category === "skaters" ? (
+            <label>
+              Position
+              <select name="position" defaultValue={position}>
+                <option value="">All Positions</option>
+                <option value="F">Forwards</option>
+                <option value="D">Defensemen</option>
+                <option value="C">Centers</option>
+                <option value="R">Right Wings</option>
+                <option value="L">Left Wings</option>
+              </select>
+            </label>
+          ) : null}
         </div>
       </fieldset>
 

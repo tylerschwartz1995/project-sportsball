@@ -32,7 +32,11 @@ import {
   parsePage,
   parseSortDirection,
 } from "@/lib/directory";
-import { formatPlayerPosition } from "@/lib/player-position";
+import {
+  formatPlayerPosition,
+  matchesPlayerPosition,
+  parsePlayerPositionFilter,
+} from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
 
@@ -54,6 +58,7 @@ type PlayersPageProps = {
     country?: string | string[];
     region?: string | string[];
     city?: string | string[];
+    position?: string | string[];
   }>;
 };
 
@@ -86,6 +91,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
     sort === "name" ? "asc" : "desc",
   );
   const requestedPage = parsePage(firstQueryValue(params.page));
+  const position = parsePlayerPositionFilter(firstQueryValue(params.position));
   const filters = {
     minGames: firstQueryValue(params.minGames) ?? "0",
     minGoals: firstQueryValue(params.minGoals) ?? "0",
@@ -122,6 +128,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
             player.position,
             formatPlayerPosition(player.position),
           ) &&
+          matchesPlayerPosition(player.position, position) &&
           matchesBirthplace(player, filters) &&
           player.gamesPlayed >= minGames &&
           player.goals >= minGoals &&
@@ -164,7 +171,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
             <SeasonPicker
               seasons={seasons}
               selectedSeasonId={selectedSeason?.id}
-              params={{ phase }}
+              params={{ phase, type: category, position }}
             />
           }
         />
@@ -174,13 +181,14 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
             <SeasonPhaseFilter
               active={phase}
               path="/players"
-              params={{ season: selectedSeason.id, type: category }}
+              params={{ season: selectedSeason.id, type: category, position }}
             />
             <PlayerDirectoryFilters
               seasonId={selectedSeason.id}
               phase={phase}
               category={category}
               query={query}
+              position={position}
               sort={sort}
               sortOptions={sortOptions}
               direction={direction}
@@ -286,6 +294,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                       params={{
                         season: selectedSeason.id,
                         q: query,
+                        position,
                         type: category,
                         sort,
                         dir: direction,
