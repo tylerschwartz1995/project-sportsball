@@ -80,19 +80,19 @@ export function TeamFullSchedule({
         <div className="data-table-shell workspace-table-scroll mt-6 overflow-hidden">
           <table className="workspace-table workspace-table-dense w-full min-w-[960px] table-fixed">
             <colgroup>
-              <col className="w-[15%]" />
-              <col className="w-[43%]" />
-              <col className="w-[12%]" />
-              <col className="w-[12%]" />
+              <col className="w-[16%]" />
+              <col className="w-[34%]" />
+              <col className="w-[18%]" />
+              <col className="w-[14%]" />
               <col className="w-[18%]" />
             </colgroup>
             <thead>
               <tr>
-                <th className="text-left">Date</th>
-                <th className="text-left">Opponent</th>
-                <th className="text-left">Venue</th>
-                <th className="text-left">Result</th>
-                <th className="text-right">Score / Start</th>
+                <th className="px-5 py-3 text-left">Date</th>
+                <th className="px-5 py-3 text-left">Opponent</th>
+                <th className="px-5 py-3 text-left">Venue</th>
+                <th className="px-5 py-3 text-left">Result</th>
+                <th className="px-5 py-3 text-right">Score / Start</th>
               </tr>
             </thead>
             <tbody>
@@ -149,7 +149,7 @@ function MonthScheduleRows({
         <th
           colSpan={5}
           scope="rowgroup"
-          className="border-y border-[var(--border)] bg-[var(--surface-raised)] px-4 py-2.5 text-left font-mono text-xs uppercase tracking-[0.16em] text-[var(--muted)] first:border-t-0"
+          className="border-y border-[var(--border)] bg-[var(--surface-raised)] px-5 py-2.5 text-left font-mono text-xs uppercase tracking-[0.16em] text-[var(--muted)] first:border-t-0"
         >
           {group.label}
         </th>
@@ -220,19 +220,19 @@ function ScheduleGameRows({
         <tr>
           <td
             colSpan={5}
-            className="border-y border-[var(--accent)]/30 bg-[var(--accent-soft)] px-3 py-2 font-mono text-xs uppercase tracking-[0.14em] text-[var(--accent)]"
+            className="border-y border-[var(--accent)]/30 bg-[var(--accent-soft)] px-5 py-2 font-mono text-xs uppercase tracking-[0.14em] text-[var(--accent)]"
           >
             Upcoming games
           </td>
         </tr>
       ) : null}
       <tr className={showUpcomingBoundary ? "bg-[var(--accent-soft)]/30" : undefined}>
-        <td className="whitespace-nowrap tabular-nums">
+        <td className="whitespace-nowrap px-5 tabular-nums">
           <Link href={`/games/${game.nhlGameId}`} className="font-medium text-[var(--foreground)]">
             {formatGameDate(game.gameDate)}
           </Link>
         </td>
-        <td>
+        <td className="px-5">
           <span className="inline-flex items-center gap-2 whitespace-nowrap">
             <TeamLogo {...opponent} size="tiny" decorative />
             <Link
@@ -244,11 +244,11 @@ function ScheduleGameRows({
             <TeamGameRecord record={opponent.record} />
           </span>
         </td>
-        <td className="text-[var(--muted)]">{isHome ? "Home" : "Away"}</td>
-        <td>
+        <td className="px-5 text-[var(--muted)]">{isHome ? "Home" : "Away"}</td>
+        <td className="px-5">
           <span className={resultClassName(result)}>{result}</span>
         </td>
-        <td className="whitespace-nowrap text-right font-semibold text-[var(--foreground)] tabular-nums">
+        <td className="whitespace-nowrap px-5 text-right font-semibold text-[var(--foreground)] tabular-nums">
           {completed ? (
             `${team.score}–${opponent.score}`
           ) : (
