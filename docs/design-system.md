@@ -96,6 +96,10 @@ and a pre-render bootstrap applies it before the interface is painted.
   values. The ordinary desktop canvas stops growing at 80rem so even wide data
   remains coherent on ultrawide monitors; exceptionally dense tables scroll
   inside that canvas rather than stretching indefinitely.
+- Full-width scoreboards and seven-round playoff brackets must fit the desktop
+  canvas without hiding content beneath the viewport edge. At constrained
+  desktop widths, team names may wrap and bracket cards compact their internal
+  spacing, but scores and three-letter team abbreviations remain fully visible.
 - Store the canvas and compact, standard, and data-width boundaries as shared
   CSS tokens. Width tiers scale with the desktop root size, preserving their
   information hierarchy while avoiding tiny content in a wide application
