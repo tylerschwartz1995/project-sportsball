@@ -2,6 +2,10 @@ import Link from "next/link";
 
 import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
 import {
+  ColumnPresetTable,
+  type ColumnPreset,
+} from "@/app/_components/column-preset-table";
+import {
   FilterActions,
   FilterHeader,
 } from "@/app/_components/filter-primitives";
@@ -10,7 +14,6 @@ import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
-import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamComparisonScatterplot } from "@/app/_components/team-comparison-scatterplot";
 import { TeamLogo } from "@/app/_components/team-logo";
 import { DataTableShell } from "@/app/_components/ui-primitives";
@@ -49,6 +52,33 @@ export const dynamic = "force-dynamic";
 const LEADERBOARD_TYPES = ["teams", "skaters", "goalies"] as const;
 const SITUATIONS = ["all", "5on5", "5on4", "4on5"] as const;
 const MINIMUM_MINUTES = [0, 100, 300, 500, 1000] as const;
+const ANALYTICS_COLUMN_PRESETS: ColumnPreset[] = [
+  {
+    value: "core",
+    label: "Core",
+    description: "Identity, workload, and the primary comparison metric.",
+  },
+  {
+    value: "possession",
+    label: "Possession",
+    description: "Shot-attempt and expected-goal share metrics.",
+  },
+  {
+    value: "shot-quality",
+    label: "Shot Quality",
+    description: "Expected-goal and expected-shot totals.",
+  },
+  {
+    value: "results",
+    label: "Results",
+    description: "Actual scoring and outcome metrics.",
+  },
+  {
+    value: "all",
+    label: "All Columns",
+    description: "Every available metric for expert analysis.",
+  },
+];
 
 type LeaderboardType = (typeof LEADERBOARD_TYPES)[number];
 type Situation = (typeof SITUATIONS)[number];
@@ -355,24 +385,26 @@ function TeamLeaderboard({
     >
       <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[920px]">
         <colgroup>
-          <col className="workspace-col-entity" />
-          <col className="workspace-col-number" />
-          <col className="workspace-col-time" />
-          <col className="workspace-col-percentage" span={3} />
-          <col className="workspace-col-number" span={4} />
+          <col className="workspace-col-entity" data-column-group="core possession shot-quality results" />
+          <col className="workspace-col-number" data-column-group="core possession shot-quality results" />
+          <col className="workspace-col-time" data-column-group="core possession shot-quality results" />
+          <col className="workspace-col-percentage" data-column-group="core possession" />
+          <col className="workspace-col-percentage" span={2} data-column-group="possession" />
+          <col className="workspace-col-number" span={2} data-column-group="shot-quality" />
+          <col className="workspace-col-number" span={2} data-column-group="results" />
         </colgroup>
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
-            <SortableHeader label="Team" sortKey="team" align="left" defaultDirection="asc" />
-            <SortableHeader label="GP" sortKey="games" />
-            <SortableHeader label="TOI" sortKey="iceTime" />
-            <SortableHeader label="xG%" sortKey="xgPercentage" />
-            <SortableHeader label="CF%" sortKey="corsiPercentage" />
-            <SortableHeader label="FF%" sortKey="fenwickPercentage" />
-            <SortableHeader label="xGF" sortKey="xGoalsFor" />
-            <SortableHeader label="xGA" sortKey="xGoalsAgainst" defaultDirection="asc" />
-            <SortableHeader label="GF" sortKey="goalsFor" />
-            <SortableHeader label="GA" sortKey="goalsAgainst" defaultDirection="asc" />
+            <SortableHeader label="Team" sortKey="team" align="left" defaultDirection="asc" sticky metricGroup="core possession shot-quality results" />
+            <SortableHeader label="GP" sortKey="games" metricGroup="core possession shot-quality results" />
+            <SortableHeader label="TOI" sortKey="iceTime" metricGroup="core possession shot-quality results" />
+            <SortableHeader label="xG%" sortKey="xgPercentage" metricGroup="core possession" />
+            <SortableHeader label="CF%" sortKey="corsiPercentage" metricGroup="possession" />
+            <SortableHeader label="FF%" sortKey="fenwickPercentage" metricGroup="possession" />
+            <SortableHeader label="xGF" sortKey="xGoalsFor" metricGroup="shot-quality" />
+            <SortableHeader label="xGA" sortKey="xGoalsAgainst" defaultDirection="asc" metricGroup="shot-quality" />
+            <SortableHeader label="GF" sortKey="goalsFor" metricGroup="results" />
+            <SortableHeader label="GA" sortKey="goalsAgainst" defaultDirection="asc" metricGroup="results" />
           </tr>
         </thead>
         <tbody>
@@ -386,16 +418,17 @@ function TeamLeaderboard({
                 name={row.team.name}
                 detail={row.team.abbreviation}
                 team={row.team}
+                metricGroup="core possession shot-quality results"
               />
-              <ValueCell value={String(row.gamesPlayed)} />
-              <ValueCell value={formatMinutes(row.iceTimeSeconds)} />
-              <ValueCell value={formatPercentage(row.expectedGoalsPercentage)} highlight />
-              <ValueCell value={formatPercentage(row.corsiPercentage)} />
-              <ValueCell value={formatPercentage(row.fenwickPercentage)} />
-              <ValueCell value={formatDecimal(row.expectedGoalsFor)} />
-              <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} />
-              <ValueCell value={formatDecimal(row.goalsFor, 0)} />
-              <ValueCell value={formatDecimal(row.goalsAgainst, 0)} />
+              <ValueCell value={String(row.gamesPlayed)} metricGroup="core possession shot-quality results" />
+              <ValueCell value={formatMinutes(row.iceTimeSeconds)} metricGroup="core possession shot-quality results" />
+              <ValueCell value={formatPercentage(row.expectedGoalsPercentage)} highlight metricGroup="core possession" />
+              <ValueCell value={formatPercentage(row.corsiPercentage)} metricGroup="possession" />
+              <ValueCell value={formatPercentage(row.fenwickPercentage)} metricGroup="possession" />
+              <ValueCell value={formatDecimal(row.expectedGoalsFor)} metricGroup="shot-quality" />
+              <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} metricGroup="shot-quality" />
+              <ValueCell value={formatDecimal(row.goalsFor, 0)} metricGroup="results" />
+              <ValueCell value={formatDecimal(row.goalsAgainst, 0)} metricGroup="results" />
             </tr>
           ))}
         </tbody>
@@ -419,24 +452,25 @@ function SkaterLeaderboard({
     >
       <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[980px]">
         <colgroup>
-          <col className="workspace-col-entity" />
-          <col className="workspace-col-number" />
-          <col className="workspace-col-time" />
-          <col className="workspace-col-split" />
-          <col className="workspace-col-percentage" span={2} />
-          <col className="workspace-col-number" span={3} />
+          <col className="workspace-col-entity" data-column-group="core possession shot-quality results" />
+          <col className="workspace-col-number" data-column-group="core possession shot-quality results" />
+          <col className="workspace-col-time" data-column-group="core possession shot-quality results" />
+          <col className="workspace-col-split" data-column-group="core results" />
+          <col className="workspace-col-percentage" span={2} data-column-group="possession" />
+          <col className="workspace-col-number" data-column-group="shot-quality" />
+          <col className="workspace-col-number" span={2} data-column-group="results" />
         </colgroup>
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
-            <SortableHeader label="Player" sortKey="player" align="left" defaultDirection="asc" />
-            <SortableHeader label="GP" sortKey="games" />
-            <SortableHeader label="TOI" sortKey="iceTime" />
-            <SortableHeader label="Game score" sortKey="gameScore" />
-            <SortableHeader label="xG%" sortKey="xgPercentage" />
-            <SortableHeader label="CF%" sortKey="corsiPercentage" />
-            <SortableHeader label="ixG" sortKey="individualXGoals" />
-            <SortableHeader label="Goals" sortKey="goals" />
-            <SortableHeader label="Points" sortKey="points" />
+            <SortableHeader label="Player" sortKey="player" align="left" defaultDirection="asc" sticky metricGroup="core possession shot-quality results" />
+            <SortableHeader label="GP" sortKey="games" metricGroup="core possession shot-quality results" />
+            <SortableHeader label="TOI" sortKey="iceTime" metricGroup="core possession shot-quality results" />
+            <SortableHeader label="Game score" sortKey="gameScore" metricGroup="core results" />
+            <SortableHeader label="xG%" sortKey="xgPercentage" metricGroup="possession" />
+            <SortableHeader label="CF%" sortKey="corsiPercentage" metricGroup="possession" />
+            <SortableHeader label="ixG" sortKey="individualXGoals" metricGroup="shot-quality" />
+            <SortableHeader label="Goals" sortKey="goals" metricGroup="results" />
+            <SortableHeader label="Points" sortKey="points" metricGroup="results" />
           </tr>
         </thead>
         <tbody>
@@ -450,15 +484,16 @@ function SkaterLeaderboard({
                 name={row.player.name}
                 detail={formatPlayerPosition(row.player.position, "Skater")}
                 team={row.team}
+                metricGroup="core possession shot-quality results"
               />
-              <ValueCell value={String(row.gamesPlayed)} />
-              <ValueCell value={formatMinutes(row.iceTimeSeconds)} />
-              <ValueCell value={formatDecimal(row.gameScore)} highlight />
-              <ValueCell value={formatPercentage(row.onIceExpectedGoalsPercentage)} />
-              <ValueCell value={formatPercentage(row.onIceCorsiPercentage)} />
-              <ValueCell value={formatDecimal(row.individualExpectedGoals)} />
-              <ValueCell value={formatDecimal(row.individualGoals, 0)} />
-              <ValueCell value={formatDecimal(row.individualPoints, 0)} />
+              <ValueCell value={String(row.gamesPlayed)} metricGroup="core possession shot-quality results" />
+              <ValueCell value={formatMinutes(row.iceTimeSeconds)} metricGroup="core possession shot-quality results" />
+              <ValueCell value={formatDecimal(row.gameScore)} highlight metricGroup="core results" />
+              <ValueCell value={formatPercentage(row.onIceExpectedGoalsPercentage)} metricGroup="possession" />
+              <ValueCell value={formatPercentage(row.onIceCorsiPercentage)} metricGroup="possession" />
+              <ValueCell value={formatDecimal(row.individualExpectedGoals)} metricGroup="shot-quality" />
+              <ValueCell value={formatDecimal(row.individualGoals, 0)} metricGroup="results" />
+              <ValueCell value={formatDecimal(row.individualPoints, 0)} metricGroup="results" />
             </tr>
           ))}
         </tbody>
@@ -482,24 +517,25 @@ function GoalieLeaderboard({
     >
       <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[860px]">
         <colgroup>
-          <col className="workspace-col-entity" />
-          <col className="workspace-col-number" />
-          <col className="workspace-col-time" />
-          <col className="workspace-col-differential" />
-          <col className="workspace-col-number" span={2} />
-          <col className="workspace-col-split" />
-          <col className="workspace-col-number" />
+          <col className="workspace-col-entity" data-column-group="core shot-quality results" />
+          <col className="workspace-col-number" data-column-group="core shot-quality results" />
+          <col className="workspace-col-time" data-column-group="core shot-quality results" />
+          <col className="workspace-col-differential" data-column-group="core shot-quality results" />
+          <col className="workspace-col-number" data-column-group="shot-quality" />
+          <col className="workspace-col-number" data-column-group="results" />
+          <col className="workspace-col-split" data-column-group="shot-quality" />
+          <col className="workspace-col-number" data-column-group="results" />
         </colgroup>
         <thead>
           <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
-            <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" />
-            <SortableHeader label="GP" sortKey="games" />
-            <SortableHeader label="TOI" sortKey="iceTime" />
-            <SortableHeader label="GSAx" sortKey="goalsSaved" />
-            <SortableHeader label="xGA" sortKey="xGoalsAgainst" />
-            <SortableHeader label="GA" sortKey="goalsAgainst" defaultDirection="asc" />
-            <SortableHeader label="Expected SOG" sortKey="expectedShots" />
-            <SortableHeader label="SOG" sortKey="shots" />
+            <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" sticky metricGroup="core shot-quality results" />
+            <SortableHeader label="GP" sortKey="games" metricGroup="core shot-quality results" />
+            <SortableHeader label="TOI" sortKey="iceTime" metricGroup="core shot-quality results" />
+            <SortableHeader label="GSAx" sortKey="goalsSaved" metricGroup="core shot-quality results" />
+            <SortableHeader label="xGA" sortKey="xGoalsAgainst" metricGroup="shot-quality" />
+            <SortableHeader label="GA" sortKey="goalsAgainst" defaultDirection="asc" metricGroup="results" />
+            <SortableHeader label="Expected SOG" sortKey="expectedShots" metricGroup="shot-quality" />
+            <SortableHeader label="SOG" sortKey="shots" metricGroup="results" />
           </tr>
         </thead>
         <tbody>
@@ -513,14 +549,15 @@ function GoalieLeaderboard({
                 name={row.player.name}
                 detail="Goalie"
                 team={row.team}
+                metricGroup="core shot-quality results"
               />
-              <ValueCell value={String(row.gamesPlayed)} />
-              <ValueCell value={formatMinutes(row.iceTimeSeconds)} />
-              <ValueCell value={formatSignedDecimal(row.goalsSavedAboveExpected)} highlight />
-              <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} />
-              <ValueCell value={formatDecimal(row.goalsAgainst, 0)} />
-              <ValueCell value={formatDecimal(row.expectedShotsOnGoalAgainst)} />
-              <ValueCell value={formatDecimal(row.shotsOnGoalAgainst, 0)} />
+              <ValueCell value={String(row.gamesPlayed)} metricGroup="core shot-quality results" />
+              <ValueCell value={formatMinutes(row.iceTimeSeconds)} metricGroup="core shot-quality results" />
+              <ValueCell value={formatSignedDecimal(row.goalsSavedAboveExpected)} highlight metricGroup="core shot-quality results" />
+              <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} metricGroup="shot-quality" />
+              <ValueCell value={formatDecimal(row.goalsAgainst, 0)} metricGroup="results" />
+              <ValueCell value={formatDecimal(row.expectedShotsOnGoalAgainst)} metricGroup="shot-quality" />
+              <ValueCell value={formatDecimal(row.shotsOnGoalAgainst, 0)} metricGroup="results" />
             </tr>
           ))}
         </tbody>
@@ -546,11 +583,14 @@ function LeaderboardFrame({
         <p>{description}</p>
         <p>{count === 200 ? "Top 200 qualifying rows" : `${count} qualifying rows`}</p>
       </div>
-      <DataTableShell>
-        <SortableTable defaultSortKey={defaultSortKey}>
+      <ColumnPresetTable
+        presets={ANALYTICS_COLUMN_PRESETS}
+        defaultSortKey={defaultSortKey}
+      >
+        <DataTableShell>
           <div className="workspace-table-scroll">{children}</div>
-        </SortableTable>
-      </DataTableShell>
+        </DataTableShell>
+      </ColumnPresetTable>
     </section>
   );
 }
@@ -560,14 +600,19 @@ function EntityCell({
   name,
   detail,
   team,
+  metricGroup,
 }: {
   href: string;
   name: string;
   detail: string;
   team?: TeamIdentity;
+  metricGroup?: string;
 }) {
   return (
-    <td className="px-4 py-3 text-left">
+    <td
+      className="workspace-sticky-entity px-4 py-3 text-left"
+      data-column-group={metricGroup}
+    >
       <div className="flex items-center gap-2">
         {team ? (
           <TeamLogo {...team} size="tiny" decorative />
@@ -591,15 +636,18 @@ function EntityCell({
 function ValueCell({
   value,
   highlight = false,
+  metricGroup,
 }: {
   value: string;
   highlight?: boolean;
+  metricGroup?: string;
 }) {
   return (
     <td
       className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${
         highlight ? "font-semibold text-violet-200" : "text-slate-300"
       }`}
+      data-column-group={metricGroup}
     >
       {value}
     </td>
