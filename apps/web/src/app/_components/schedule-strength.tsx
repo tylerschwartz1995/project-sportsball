@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
@@ -34,18 +37,37 @@ const metricDefinitions: Record<
   },
 };
 
+const scheduleDateFormatter = new Intl.DateTimeFormat("en-CA", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "America/Vancouver",
+});
+
 export function ScheduleStrength({
   data,
   metric,
-  phase,
 }: {
   data: TeamScheduleStrength;
   metric: ScheduleStrengthMetric;
-  phase: string;
 }) {
+  const [activeMetric, setActiveMetric] = useState(metric);
+
   const completed = data.games.filter((game) => game.completed);
   const upcoming = data.games.filter((game) => !game.completed);
-  const definition = metricDefinitions[metric];
+  const definition = metricDefinitions[activeMetric];
+
+  function selectMetric(nextMetric: ScheduleStrengthMetric) {
+    setActiveMetric(nextMetric);
+
+    const url = new URL(window.location.href);
+    url.searchParams.set("sos", nextMetric);
+    window.history.replaceState(
+      window.history.state,
+      "",
+      `${url.pathname}?${url.searchParams.toString()}${url.hash}`,
+    );
+  }
 
   return (
     <section id="schedule-strength" className="mt-12 scroll-mt-6">
@@ -61,13 +83,14 @@ export function ScheduleStrength({
       >
         {(Object.keys(metricDefinitions) as ScheduleStrengthMetric[]).map(
           (option) => (
-            <Link
+            <button
               key={option}
-              href={`/teams/${data.teamNhlId}?season=${data.seasonId}&phase=${phase}&view=strength&sos=${option}`}
-              aria-current={metric === option ? "page" : undefined}
+              type="button"
+              onClick={() => selectMetric(option)}
+              aria-current={activeMetric === option ? "page" : undefined}
             >
               {metricDefinitions[option].label}
-            </Link>
+            </button>
           ),
         )}
       </nav>
@@ -76,12 +99,12 @@ export function ScheduleStrength({
         <ScheduleSummary
           title="Completed schedule"
           games={completed}
-          metric={metric}
+          metric={activeMetric}
         />
         <ScheduleSummary
           title="Remaining schedule"
           games={upcoming}
-          metric={metric}
+          metric={activeMetric}
         />
       </div>
 
@@ -89,7 +112,7 @@ export function ScheduleStrength({
         <ScheduleGamesTable
           title="Remaining games"
           games={upcoming}
-          metric={metric}
+          metric={activeMetric}
           seasonId={data.seasonId}
           open
         />
@@ -99,7 +122,7 @@ export function ScheduleStrength({
         <ScheduleGamesTable
           title="Completed games"
           games={[...completed].reverse()}
-          metric={metric}
+          metric={activeMetric}
           seasonId={data.seasonId}
         />
       ) : null}
@@ -205,104 +228,118 @@ function ScheduleGamesTable({
   seasonId: number;
   open?: boolean;
 }) {
+  const [isOpen, setIsOpen] = useState(open);
+
   return (
-    <details className="surface-panel mt-5 overflow-hidden" open={open}>
-      <summary className="cursor-pointer px-5 py-4 font-medium text-white marker:text-cyan-300">
-        {title} <span className="ml-2 text-sm text-slate-500">({games.length})</span>
+    <details className="surface-panel mt-5 overflow-hidden" open={isOpen}>
+      <summary
+        className="cursor-pointer px-5 py-4 font-medium text-white marker:text-cyan-300"
+        onClick={(event) => {
+          event.preventDefault();
+          setIsOpen((current) => !current);
+        }}
+      >
+        {title}{" "}
+        <span className="ml-2 text-sm text-slate-500">({games.length})</span>
       </summary>
-      <SortableTable defaultSortKey="date" defaultDirection={open ? "asc" : "desc"}>
-        <div className="workspace-table-scroll border-t border-white/[0.07]">
-          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1040px]">
-            <colgroup>
-              <col className="workspace-col-date" />
-              <col className="workspace-col-entity" />
-              <col className="workspace-col-label" />
-              <col className="workspace-col-split" />
-              <col className="workspace-col-number" />
-              <col className="workspace-col-time" />
-              <col className="workspace-col-split" />
-              <col className="workspace-col-split" />
-            </colgroup>
-            <thead>
-              <tr>
-                <SortableHeader label="Date" sortKey="date" align="left" defaultDirection="asc" />
-                <SortableHeader label="Opponent" sortKey="opponent" align="left" defaultDirection="asc" />
-                <SortableHeader label="Site" sortKey="site" align="left" defaultDirection="asc" />
-                <SortableHeader label={metricDefinitions[metric].shortLabel} sortKey="strength" />
-                <SortableHeader label="Prior GP" sortKey="sample" />
-                <SortableHeader label="Rest" sortKey="rest" />
-                <SortableHeader label="Travel" sortKey="travel" />
-                <SortableHeader label="Result" sortKey="result" align="left" />
-              </tr>
-            </thead>
-            <tbody>
-              {games.map((game) => {
-                const strength = metricValue(game, metric);
-                const ratingSeasonId = metricRatingSeasonId(game, metric);
-                const result = game.completed
-                  ? `${game.teamScore! > game.opponentScore! ? "W" : "L"} ${game.teamScore}–${game.opponentScore}`
-                  : scheduleStateLabel(game.state);
-                return (
-                  <tr key={game.nhlGameId}>
-                    <td data-sort-value={game.startTimeUtc}>
-                      <Link href={`/games/${game.nhlGameId}`}>
-                        {formatDate(game.startTimeUtc)}
-                      </Link>
-                    </td>
-                    <td data-sort-value={game.opponentName} className="workspace-team-cell">
-                      <div className="flex items-center gap-2">
-                        <TeamLogo
-                          nhlTeamId={game.opponentNhlTeamId}
-                          abbreviation={game.opponentAbbreviation}
-                          name={game.opponentName}
-                          size="tiny"
-                          decorative
-                        />
-                        <div>
-                          <Link href={`/teams/${game.opponentNhlTeamId}?season=${seasonId}`}>
-                            {game.opponentName}
-                          </Link>
-                          <small>{game.opponentAbbreviation}</small>
+      {isOpen ? (
+        <SortableTable
+          defaultSortKey="date"
+          defaultDirection={open ? "asc" : "desc"}
+        >
+          <div className="workspace-table-scroll border-t border-white/[0.07]">
+            <table className="workspace-table workspace-table-dense workspace-table-semantic workspace-schedule-strength-table min-w-[1040px]">
+              <colgroup>
+                <col className="workspace-col-date" />
+                <col className="workspace-col-entity" />
+                <col className="workspace-col-label" />
+                <col className="workspace-col-split" />
+                <col className="workspace-col-number" />
+                <col className="workspace-col-time" />
+                <col className="workspace-col-split" />
+                <col className="workspace-col-split" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <SortableHeader label="Date" sortKey="date" align="left" defaultDirection="asc" />
+                  <SortableHeader label="Opponent" sortKey="opponent" align="left" defaultDirection="asc" />
+                  <SortableHeader label="Site" sortKey="site" align="left" defaultDirection="asc" />
+                  <SortableHeader label={metricDefinitions[metric].shortLabel} sortKey="strength" />
+                  <SortableHeader label="Prior GP" sortKey="sample" />
+                  <SortableHeader label="Rest" sortKey="rest" />
+                  <SortableHeader label="Travel" sortKey="travel" />
+                  <SortableHeader label="Result" sortKey="result" align="left" />
+                </tr>
+              </thead>
+              <tbody>
+                {games.map((game) => {
+                  const strength = metricValue(game, metric);
+                  const ratingSeasonId = metricRatingSeasonId(game, metric);
+                  const result = game.completed
+                    ? `${game.teamScore! > game.opponentScore! ? "W" : "L"} ${game.teamScore}–${game.opponentScore}`
+                    : scheduleStateLabel(game.state);
+                  return (
+                    <tr key={game.nhlGameId}>
+                      <td data-sort-value={game.startTimeUtc}>
+                        <Link href={`/games/${game.nhlGameId}`}>
+                          {formatDate(game.startTimeUtc)}
+                        </Link>
+                      </td>
+                      <td data-sort-value={game.opponentName} className="workspace-team-cell">
+                        <div className="flex items-center gap-2">
+                          <TeamLogo
+                            nhlTeamId={game.opponentNhlTeamId}
+                            abbreviation={game.opponentAbbreviation}
+                            name={game.opponentName}
+                            size="tiny"
+                            decorative
+                          />
+                          <div>
+                            <Link href={`/teams/${game.opponentNhlTeamId}?season=${seasonId}`}>
+                              {game.opponentName}
+                            </Link>
+                            <small>{game.opponentAbbreviation}</small>
+                          </div>
                         </div>
-                      </div>
-                    </td>
-                    <td
-                      data-sort-value={game.isHome ? "home" : "away"}
-                      className="workspace-schedule-site-cell"
-                    >
-                      <strong>{game.isHome ? "Home" : "Away"}</strong>
-                      {game.siteName ? <small>{game.siteName}</small> : null}
-                    </td>
-                    <td data-sort-value={strength ?? ""} className="workspace-semantic-number text-center font-medium tabular-nums text-cyan-100">
-                      {formatMetric(strength, metric)}
-                    </td>
-                    <td data-sort-value={game.opponentPriorGames} className="workspace-semantic-number text-center tabular-nums">
-                      {game.opponentPriorGames}
-                      {ratingSeasonId !== null && ratingSeasonId !== seasonId ? (
-                        <span
-                          className="ml-1 text-slate-500"
-                          title={`Rating uses the ${formatSeasonId(ratingSeasonId)} season`}
-                        >
-                          *
-                        </span>
-                      ) : null}
-                    </td>
-                    <td data-sort-value={game.restDays ?? ""} className="workspace-semantic-number text-center tabular-nums">
-                      {game.isBackToBack ? "B2B" : game.restDays === null ? "—" : `${game.restDays}d`}
-                    </td>
-                    <td data-sort-value={game.travelDistanceKm ?? ""} className="workspace-semantic-number text-center tabular-nums">
-                      {game.travelDistanceKm === null
-                        ? "—"
-                        : formatDistance(game.travelDistanceKm)}
-                    </td>
-                    <td data-sort-value={result}>{result}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </SortableTable>
+                      </td>
+                      <td
+                        data-sort-value={game.isHome ? "home" : "away"}
+                        className="workspace-schedule-site-cell"
+                      >
+                        <strong>{game.isHome ? "Home" : "Away"}</strong>
+                        {game.siteName ? <small>{game.siteName}</small> : null}
+                      </td>
+                      <td data-sort-value={strength ?? ""} className="workspace-semantic-number text-center font-medium tabular-nums text-cyan-100">
+                        {formatMetric(strength, metric)}
+                      </td>
+                      <td data-sort-value={game.opponentPriorGames} className="workspace-semantic-number text-center tabular-nums">
+                        {game.opponentPriorGames}
+                        {ratingSeasonId !== null && ratingSeasonId !== seasonId ? (
+                          <span
+                            className="ml-1 text-slate-500"
+                            title={`Rating uses the ${formatSeasonId(ratingSeasonId)} season`}
+                          >
+                            *
+                          </span>
+                        ) : null}
+                      </td>
+                      <td data-sort-value={game.restDays ?? ""} className="workspace-semantic-number text-center tabular-nums">
+                        {game.isBackToBack ? "B2B" : game.restDays === null ? "—" : `${game.restDays}d`}
+                      </td>
+                      <td data-sort-value={game.travelDistanceKm ?? ""} className="workspace-semantic-number text-center tabular-nums">
+                        {game.travelDistanceKm === null
+                          ? "—"
+                          : formatDistance(game.travelDistanceKm)}
+                      </td>
+                      <td data-sort-value={result}>{result}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </SortableTable>
+      ) : null}
     </details>
   );
 }
@@ -363,12 +400,7 @@ function formatDistance(value: number): string {
 }
 
 function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("en-CA", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    timeZone: "America/Vancouver",
-  }).format(new Date(value));
+  return scheduleDateFormatter.format(new Date(value));
 }
 
 function formatSeasonId(seasonId: number): string {

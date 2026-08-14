@@ -2983,14 +2983,19 @@ html[data-theme="light"] .theme-toggle-label::after {
   padding-left: 0.45rem;
 }
 
-.workspace-standings-scope a {
+.workspace-standings-scope a,
+.workspace-standings-scope button {
   display: flex;
   flex: 0 0 auto;
   align-items: center;
   min-height: 2.3rem;
+  border: 0;
   border-radius: 0.45rem;
   padding: 0.5rem 0.75rem;
+  background: transparent;
   color: var(--muted);
+  cursor: pointer;
+  font-family: inherit;
   font-size: 0.88rem;
   font-weight: 650;
   line-height: 1;
@@ -2998,12 +3003,19 @@ html[data-theme="light"] .theme-toggle-label::after {
   white-space: nowrap;
 }
 
-.workspace-standings-scope a:hover {
+.workspace-standings-scope a:hover,
+.workspace-standings-scope button:hover {
   background: var(--surface-raised);
   color: var(--foreground);
 }
 
+.workspace-standings-scope button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
 .workspace-standings-scope a[aria-current="page"],
+.workspace-standings-scope button[aria-current="page"],
 .workspace-scroll-nav a[aria-current="page"] {
   background: var(--accent);
   color: var(--on-accent);
@@ -6063,6 +6075,11 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-table-dense tbody td {
   padding-top: 0.52rem;
   padding-bottom: 0.52rem;
+}
+
+.workspace-schedule-strength-table tbody td {
+  padding-right: 0.8rem;
+  padding-left: 0.8rem;
 }
 
 .workspace-draft-leaders-table th,
