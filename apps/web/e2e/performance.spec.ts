@@ -95,6 +95,40 @@ test.describe("production navigation performance", () => {
     await expectLinkInsideNavigation(activeDraftPrimary);
   });
 
+  test("Draft class rankings keep the initial table and DOM bounded", async ({
+    page,
+  }) => {
+    await page.goto("/drafts?view=classes");
+    const rows = page.locator(".workspace-class-rankings-table tbody tr");
+    await expect(rows.first()).toBeVisible();
+    expect(await rows.count()).toBeLessThanOrEqual(15);
+    expect(await page.locator("*").count()).toBeLessThan(2_300);
+    const sortByDraft = page.getByRole("link", { name: "Draft", exact: true });
+    await expect(sortByDraft).toHaveAttribute("href", /sort=class/);
+    const sortHref = await sortByDraft.getAttribute("href");
+    expect(sortHref).not.toBeNull();
+    await page.goto(sortHref!);
+    await expect(page).toHaveURL(/sort=class/);
+    await expect(page).toHaveURL(/direction=desc/);
+    await expect(
+      page.locator(".workspace-class-rankings-sort"),
+    ).toHaveAttribute("data-sort-key", "class");
+    expect(await rows.count()).toBeLessThanOrEqual(15);
+
+    const firstClass = await rows.first().locator("td").first().innerText();
+    const nextPage = page.getByRole("link", { name: "Next →" });
+    await expect(nextPage).toHaveAttribute("href", /page=2/);
+    const nextHref = await nextPage.getAttribute("href");
+    expect(nextHref).not.toBeNull();
+    await page.goto(nextHref!);
+    await expect(page).toHaveURL(/page=2/);
+    await expect(rows.first()).toBeVisible();
+    expect(await rows.count()).toBeLessThanOrEqual(15);
+    expect(await rows.first().locator("td").first().innerText()).not.toBe(
+      firstClass,
+    );
+  });
+
   test("Strength metric selection updates promptly and preserves scroll", async ({
     page,
   }) => {

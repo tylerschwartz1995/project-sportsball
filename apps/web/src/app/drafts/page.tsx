@@ -40,6 +40,11 @@ import {
   parseSortDirection,
 } from "@/lib/directory";
 import { formatPlayerPosition } from "@/lib/player-position";
+import {
+  parseDraftClassSort,
+  sortDraftClassPerformance,
+  type DraftClassSort,
+} from "@/lib/draft-class-rankings";
 
 export const dynamic = "force-dynamic";
 
@@ -218,6 +223,7 @@ type DraftsPageProps = {
     view?: string | string[];
     outcomeMetric?: string | string[];
     roundGroup?: string | string[];
+    direction?: string | string[];
   }>;
 };
 
@@ -325,7 +331,7 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
         ) : null}
 
         {view === "classes" ? (
-          <ClassRankingsView analytics={analytics} />
+          <ClassRankingsView analytics={analytics} params={params} />
         ) : null}
       </section>
     </main>
@@ -633,32 +639,57 @@ function TeamDraftingView({
   );
 }
 
-function ClassRankingsView({ analytics }: { analytics: DraftAnalytics }) {
-  const rows = analytics.classPerformance
+function ClassRankingsView({
+  analytics,
+  params,
+}: {
+  analytics: DraftAnalytics;
+  params: Awaited<DraftsPageProps["searchParams"]>;
+}) {
+  const matureRows = analytics.classPerformance
     .filter(
       (draftClass) =>
         analytics.latestMatureDraftYear === null ||
         draftClass.draftYear <= analytics.latestMatureDraftYear,
-    )
-    .sort(
-      (left, right) =>
-        right.averageGames - left.averageGames ||
-        right.draftYear - left.draftYear,
     );
-  const rankedYears = rows.map((draftClass) => draftClass.draftYear);
+  const sort = parseDraftClassSort(firstQueryValue(params.sort));
+  const direction = parseSortDirection(
+    firstQueryValue(params.direction),
+    "desc",
+  );
+  const rankedRows = sortDraftClassPerformance(matureRows, sort, direction);
+  const classPage = paginate(
+    rankedRows,
+    parsePage(firstQueryValue(params.page)),
+    15,
+  );
+  const rankedYears = matureRows.map((draftClass) => draftClass.draftYear);
   const earliestYear = rankedYears.length > 0 ? Math.min(...rankedYears) : null;
   const latestYear = rankedYears.length > 0 ? Math.max(...rankedYears) : null;
 
-  return rows.length > 0 ? (
+  return matureRows.length > 0 ? (
     <>
       <WorkspacePanel
-        className="mt-7"
+        id="class-rankings"
+        className="mt-7 scroll-mt-6"
         title="Draft Class Rankings"
-        description={`Comparing mature draft classes from ${earliestYear ?? "—"} through ${latestYear ?? "—"}. Sort any metric to choose how quality is defined; career totals continue to grow for active players.`}
+        description={`Showing ${classPage.firstItem}–${classPage.lastItem} of ${classPage.totalItems} mature draft classes from ${earliestYear ?? "—"} through ${latestYear ?? "—"}. Sort any metric to rank the complete range; career totals continue to grow for active players.`}
       >
-        <ClassPerformanceTable rows={rows} />
+        <ClassPerformanceTable
+          rows={classPage.items}
+          comparisonRows={matureRows}
+          sort={sort}
+          direction={direction}
+        />
+        <Pagination
+          path="/drafts"
+          currentPage={classPage.currentPage}
+          totalPages={classPage.totalPages}
+          params={{ view: "classes", sort, direction }}
+          scrollTarget="class-rankings"
+        />
       </WorkspacePanel>
-      <ClassRankingVisuals rows={rows} />
+      <ClassRankingVisuals rows={matureRows} />
     </>
   ) : (
     <div className="workspace-empty-state mt-7">
@@ -1312,8 +1343,18 @@ function MetricCell({
   );
 }
 
-function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
-  const advancedCoverageYears = rows
+function ClassPerformanceTable({
+  rows,
+  comparisonRows,
+  sort,
+  direction,
+}: {
+  rows: DraftClassPerformance[];
+  comparisonRows: DraftClassPerformance[];
+  sort: DraftClassSort;
+  direction: "asc" | "desc";
+}) {
+  const advancedCoverageYears = comparisonRows
     .filter((row) => row.gameScorePerSkaterPick !== null)
     .map((row) => row.draftYear);
   const advancedCoverage =
@@ -1321,14 +1362,20 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
       ? `${Math.min(...advancedCoverageYears)}–${Math.max(...advancedCoverageYears)}`
       : "Unavailable";
   const heatValues = {
-    appearance: sortedValues(rows.map((row) => row.appearanceRate)),
-    hundredGames: sortedValues(rows.map((row) => row.hundredGameRate)),
-    fiveHundredGames: sortedValues(
-      rows.map((row) => row.fiveHundredGameRate),
+    appearance: sortedValues(comparisonRows.map((row) => row.appearanceRate)),
+    hundredGames: sortedValues(
+      comparisonRows.map((row) => row.hundredGameRate),
     ),
-    averageGames: sortedValues(rows.map((row) => row.averageGames)),
-    points: sortedValues(rows.map((row) => row.pointsPerSkaterPick)),
-    gameScore: sortedValues(rows.map((row) => row.gameScorePerSkaterPick)),
+    fiveHundredGames: sortedValues(
+      comparisonRows.map((row) => row.fiveHundredGameRate),
+    ),
+    averageGames: sortedValues(comparisonRows.map((row) => row.averageGames)),
+    points: sortedValues(
+      comparisonRows.map((row) => row.pointsPerSkaterPick),
+    ),
+    gameScore: sortedValues(
+      comparisonRows.map((row) => row.gameScorePerSkaterPick),
+    ),
   };
 
   return (
@@ -1381,7 +1428,10 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
         </dl>
       </aside>
       <SortableTable
-        defaultSortKey="average-games"
+        defaultSortKey={sort}
+        defaultDirection={direction}
+        urlBacked
+        scrollTarget="class-rankings"
         className="workspace-class-rankings-sort"
       >
         <div className="workspace-table-scroll">
@@ -1472,7 +1522,7 @@ function ClassPerformanceTable({ rows }: { rows: DraftClassPerformance[] }) {
           </table>
         </div>
         <div className="workspace-table-note">
-          Five heat bands show where a class falls within the displayed range
+          Five heat bands show where a class falls within the full mature-class range
           for the sorted metric; they are not a combined grade. Rates use every
           official selection as the denominator. Points and Game Score exclude
           goalies but include zero-game skater picks. Game Score uses stored
