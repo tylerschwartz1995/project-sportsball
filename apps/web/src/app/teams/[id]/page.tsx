@@ -33,21 +33,20 @@ import {
   seasonPhaseLabel,
 } from "@/contracts/season-phase";
 import { getMoneyPuckTeamSeason } from "@/data/advanced";
-import { getTeamGameLog } from "@/data/game-logs";
-import { getTeamSchedule, listTeamScheduleSeasonIds } from "@/data/games";
+import { getTeamSchedule } from "@/data/games";
 import {
+  getCachedTeamGameLog,
+  getCachedTeamIdentityForSeason,
+  getCachedTeamScheduleStrength,
+  getCachedTeamSeasonDetail,
+  getCachedTeamSeasonProfile,
   listCachedScheduleSeasons,
   listCachedSeasons,
+  listCachedTeamScheduleSeasonIds,
+  listCachedTeamSeasonIds,
   listCachedTeamsBySeason,
-  getCachedTeamScheduleStrength,
 } from "@/data/page-cache";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
-import {
-  getTeamSeasonDetail,
-  getTeamSeasonProfile,
-  getTeamIdentityForSeason,
-  listTeamSeasonIds,
-} from "@/data/teams";
 import { formatPlayerPosition } from "@/lib/player-position";
 import { buildTeamSeasonIdentity } from "@/lib/team-season-identity";
 
@@ -93,9 +92,9 @@ export default async function TeamPage({
     requestedView === "schedule"
       ? listCachedScheduleSeasons()
       : listCachedSeasons(),
-    listTeamSeasonIds(nhlTeamId),
+    listCachedTeamSeasonIds(nhlTeamId),
     requestedView === "schedule"
-      ? listTeamScheduleSeasonIds(nhlTeamId)
+      ? listCachedTeamScheduleSeasonIds(nhlTeamId)
       : Promise.resolve([]),
   ]);
   const teamSeasonIdSet = new Set([
@@ -142,8 +141,8 @@ export default async function TeamPage({
     overviewPeers,
   ] = await Promise.all([
       view === "skaters" || view === "goalies"
-        ? getTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType)
-        : getTeamSeasonProfile(nhlTeamId, selectedSeason.id),
+        ? getCachedTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType)
+        : getCachedTeamSeasonProfile(nhlTeamId, selectedSeason.id),
       view === "advanced"
         ? getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id, gameType)
         : Promise.resolve(null),
@@ -158,10 +157,10 @@ export default async function TeamPage({
         ? getTeamSchedule(nhlTeamId, selectedSeason.id, gameType)
         : Promise.resolve([]),
       view === "schedule"
-        ? getTeamIdentityForSeason(nhlTeamId, selectedSeason.id)
+        ? getCachedTeamIdentityForSeason(nhlTeamId, selectedSeason.id)
         : Promise.resolve(null),
       view === "trends" || view === "overview"
-        ? getTeamGameLog(nhlTeamId, selectedSeason.id)
+        ? getCachedTeamGameLog(nhlTeamId, selectedSeason.id)
         : Promise.resolve(null),
       view === "strength" && phase === "regular"
         ? getCachedTeamScheduleStrength(nhlTeamId, selectedSeason.id)

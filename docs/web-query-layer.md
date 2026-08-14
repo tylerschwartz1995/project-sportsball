@@ -196,11 +196,13 @@ five minutes with one hour of stale-while-revalidate coverage. Team and player
 endpoints use the same policy. Website pages are dynamically rendered and read
 PostgreSQL directly. Page renders share one-hour season-list entries and
 five-minute standings, standings-history, and team-directory entries through
-the Next.js data cache. Schedule-strength results use the same five-minute
-policy because their time-aware opponent ratings are comparatively expensive
-to calculate. Cache keys include function arguments, so seasons,
-game types, and other query variants remain isolated. These lifetimes match the
-daily ingestion model while bounding active-data staleness.
+the Next.js data cache. Team profile, detail, identity, available-season, and
+game-log reads use that five-minute policy as well, so switching among views
+does not repeat the same PostgreSQL work. Schedule-strength results use the
+same policy because their time-aware opponent ratings are comparatively
+expensive to calculate. Cache keys include function arguments, so teams,
+seasons, game types, and other query variants remain isolated. These lifetimes
+match the daily ingestion model while bounding active-data staleness.
 
 ## Performance telemetry
 
@@ -212,8 +214,9 @@ dimensions distinguish known application views without logging searches,
 identifiers, or arbitrary query values. Set `NEXT_PUBLIC_WEB_VITALS_SAMPLE_RATE`
 between `0` and `1` at build time to disable or tune sampling.
 
-An opt-in Playwright suite checks click-to-visible latency and scroll retention
-against a populated local database and optimized production server:
+An opt-in Playwright suite checks click-to-visible latency, scroll retention,
+bounded large-table rendering, mobile tab visibility, and soft season/filter
+navigation against a populated local database and optimized production server:
 
 ```bash
 (cd apps/web && npx playwright install chromium)
