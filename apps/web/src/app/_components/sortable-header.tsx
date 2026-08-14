@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, type ReactNode } from "react";
 
 import { useSortableTable } from "@/app/_components/sortable-table";
 import { metricDefinition } from "@/lib/metric-definitions";
@@ -8,7 +8,7 @@ import { metricDefinition } from "@/lib/metric-definitions";
 type SortDirection = "asc" | "desc";
 
 type SortableHeaderProps = {
-  label: string;
+  label: ReactNode;
   sortKey: string;
   align?: "left" | "center" | "right";
   defaultDirection?: SortDirection;
@@ -30,7 +30,8 @@ export function SortableHeader({
 }: SortableHeaderProps) {
   const { key, direction, sort } = useSortableTable();
   const isActive = key === sortKey;
-  const effectiveDescription = description ?? metricDefinition(label);
+  const effectiveDescription =
+    description ?? (typeof label === "string" ? metricDefinition(label) : undefined);
   const helpId = useId();
 
   return (

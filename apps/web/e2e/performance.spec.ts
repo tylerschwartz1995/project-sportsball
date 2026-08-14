@@ -73,6 +73,35 @@ test.describe("production navigation performance", () => {
 
     expect(Date.now() - startedAt).toBeLessThan(interactionLimitMs);
     expect(await page.evaluate(() => window.scrollY)).toBe(beforeScroll);
+    await expect(page).toHaveURL(/sos=expected-goals/);
+
+    await page.reload();
+    await expect(
+      page.getByRole("button", { name: "Expected goals" }),
+    ).toHaveAttribute("aria-current", "page");
+  });
+
+  test("Strength metric remains responsive with the completed table open", async ({
+    page,
+  }) => {
+    await page.goto(`${teamUrl("strength")}&sos=standings`);
+    await page.getByText(/Completed games/).click();
+    const rows = page.locator(".workspace-schedule-strength-table tbody tr");
+    await expect(rows.first()).toBeVisible();
+    const rowCount = await rows.count();
+    expect(rowCount).toBeGreaterThan(0);
+
+    const startedAt = Date.now();
+    await page.getByRole("button", { name: "Goal differential" }).click();
+    await expect(
+      page.getByRole("button", { name: "Goal differential" }),
+    ).toHaveAttribute("aria-current", "page");
+
+    expect(Date.now() - startedAt).toBeLessThan(interactionLimitMs);
+    expect(await rows.count()).toBe(rowCount);
+    await expect(
+      page.getByRole("columnheader", { name: /Goal diff\. \/ game/ }),
+    ).toBeVisible();
   });
 
   test("Box Score content appears promptly without changing scroll position", async ({
