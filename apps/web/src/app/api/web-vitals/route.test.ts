@@ -17,6 +17,8 @@ describe("POST /api/web-vitals", () => {
           rating: "good",
           navigationType: "navigate",
           path: "/players/8478402",
+          routeView: "trends",
+          routePhase: "regular",
         }),
       }),
     );
@@ -28,6 +30,8 @@ describe("POST /api/web-vitals", () => {
       event: "web-vital",
       name: "LCP",
       path: "/players/8478402",
+      routeView: "trends",
+      routePhase: "regular",
     });
   });
 
@@ -36,6 +40,13 @@ describe("POST /api/web-vitals", () => {
       "not json",
       JSON.stringify({ name: "CUSTOM", value: 1, id: "x", path: "/" }),
       JSON.stringify({ name: "CLS", value: 0.1, id: "x", path: "/?secret=x" }),
+      JSON.stringify({
+        name: "INP",
+        value: 250,
+        id: "x",
+        path: "/teams/26",
+        routeView: "../../secret",
+      }),
     ]) {
       const response = await POST(
         new Request("http://localhost/api/web-vitals", {

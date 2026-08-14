@@ -2,6 +2,8 @@
 
 import { useReportWebVitals } from "next/web-vitals";
 
+import { performanceRouteContext } from "@/lib/performance-route-context";
+
 type WebVitalMetric = Parameters<typeof useReportWebVitals>[0] extends (
   metric: infer Metric,
 ) => void
@@ -15,6 +17,13 @@ const sampleRate = Number.isFinite(configuredRate)
   ? Math.min(Math.max(configuredRate, 0), 1)
   : 0.1;
 const sampled = Math.random() < sampleRate;
+const documentRoute =
+  typeof window === "undefined"
+    ? null
+    : {
+        path: window.location.pathname,
+        ...performanceRouteContext(new URLSearchParams(window.location.search)),
+      };
 
 function reportWebVital(metric: WebVitalMetric) {
   if (!sampled) return;
@@ -25,7 +34,7 @@ function reportWebVital(metric: WebVitalMetric) {
     value: metric.value,
     rating: metric.rating,
     navigationType: metric.navigationType,
-    path: window.location.pathname,
+    ...(documentRoute ?? { path: window.location.pathname }),
   });
   if (navigator.sendBeacon) {
     navigator.sendBeacon("/api/web-vitals", body);
