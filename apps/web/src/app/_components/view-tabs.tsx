@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useLinkStatus } from "next/link";
 import {
   useEffect,
   useLayoutEffect,
@@ -89,23 +88,8 @@ function ViewTabLink<T extends string>({
         if (allowIntentPrefetch) setHasNavigationIntent(true);
       }}
     >
-      <ViewTabContent label={tab.label} />
+      <span>{tab.label}</span>
     </Link>
-  );
-}
-
-function ViewTabContent({ label }: { label: string }) {
-  const { pending } = useLinkStatus();
-
-  return (
-    <>
-      <span>{label}</span>
-      {pending ? (
-        <span className="workspace-tab-pending" role="status">
-          <span className="sr-only">Loading {label}</span>
-        </span>
-      ) : null}
-    </>
   );
 }
 
