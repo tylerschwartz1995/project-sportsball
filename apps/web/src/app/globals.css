@@ -3152,6 +3152,28 @@ html[data-theme="light"] .theme-toggle-label::after {
   white-space: nowrap;
 }
 
+.workspace-tab-pending {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-left: 0.4rem;
+  border: 2px solid currentcolor;
+  border-right-color: transparent;
+  border-radius: 999px;
+  animation: workspace-tab-spin 650ms linear infinite;
+}
+
+@keyframes workspace-tab-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workspace-tab-pending {
+    animation: none;
+  }
+}
+
 .workspace-scroll-nav a:hover {
   background: var(--surface-raised);
   color: var(--foreground);
