@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { ActiveNavigationScroller } from "@/app/_components/active-navigation-scroller";
 import { ThemeToggle } from "@/app/_components/theme-toggle";
 
 export type SiteSection =
@@ -77,6 +78,7 @@ export function SiteHeader({ active }: SiteHeaderProps) {
               {link.label}
             </Link>
           ))}
+          <ActiveNavigationScroller active={active} />
         </nav>
         <ThemeToggle compact />
       </header>

@@ -20,8 +20,12 @@ test.describe("production navigation performance", () => {
     ).toBeVisible();
 
     const strengthLink = page.getByRole("link", { name: "Strength", exact: true });
+    await expect(
+      strengthLink.locator("xpath=.."),
+      "view tabs hydrated",
+    ).toHaveAttribute("data-navigation-ready", "true");
     await strengthLink.scrollIntoViewIfNeeded();
-    await page.evaluate(() => window.scrollTo(0, 600));
+    await page.evaluate(() => window.scrollTo(0, 300));
     const elapsed = await clickUntilVisible(
       page,
       strengthLink,
@@ -32,18 +36,18 @@ test.describe("production navigation performance", () => {
   });
 
   test("team tab navigation preserves scroll position", async ({ page }) => {
-    test.fail(
-      true,
-      "Known regression: shared view navigation currently jumps toward the page header.",
-    );
     await page.goto(teamUrl("overview"));
     await expect(
       page.getByRole("heading", { name: "Performance vs. NHL" }),
     ).toBeVisible();
 
     const strengthLink = page.getByRole("link", { name: "Strength", exact: true });
+    await expect(
+      strengthLink.locator("xpath=.."),
+      "view tabs hydrated",
+    ).toHaveAttribute("data-navigation-ready", "true");
     await strengthLink.scrollIntoViewIfNeeded();
-    await page.evaluate(() => window.scrollTo(0, 600));
+    await page.evaluate(() => window.scrollTo(0, 300));
     const beforeScroll = await page.evaluate(() => window.scrollY);
 
     await clickUntilVisible(
@@ -51,8 +55,44 @@ test.describe("production navigation performance", () => {
       strengthLink,
       page.getByRole("heading", { name: "Strength of Schedule" }),
     );
+    await page.waitForTimeout(750);
 
     expect(await page.evaluate(() => window.scrollY)).toBe(beforeScroll);
+  });
+
+  test("active view tabs remain visible without vertical scrolling on mobile", async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(teamUrl("combinations"));
+
+    const activeView = page.getByRole("link", {
+      name: "Combinations",
+      exact: true,
+    });
+    await expect(activeView).toHaveAttribute("aria-current", "page");
+    await expectLinkInsideNavigation(activeView);
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+
+    const activePrimary = page
+      .getByRole("navigation", { name: "Primary navigation" })
+      .getByRole("link", { name: "Teams", exact: true });
+    await expect(activePrimary).toHaveAttribute("aria-current", "page");
+    await expectLinkInsideNavigation(activePrimary);
+
+    await page.goto("/drafts?view=classes");
+    const activeDraftView = page.getByRole("link", {
+      name: "Class Rankings",
+      exact: true,
+    });
+    await expect(activeDraftView).toHaveAttribute("aria-current", "page");
+    await expectLinkInsideNavigation(activeDraftView);
+
+    const activeDraftPrimary = page
+      .getByRole("navigation", { name: "Primary navigation" })
+      .getByRole("link", { name: "Drafts", exact: true });
+    await expect(activeDraftPrimary).toHaveAttribute("aria-current", "page");
+    await expectLinkInsideNavigation(activeDraftPrimary);
   });
 
   test("Strength metric selection updates promptly and preserves scroll", async ({
@@ -142,4 +182,15 @@ async function clickUntilVisible(
   const elapsed = Date.now() - startedAt;
   await click;
   return elapsed;
+}
+
+async function expectLinkInsideNavigation(link: Locator) {
+  const linkBox = await link.boundingBox();
+  const navigationBox = await link.locator("xpath=..").boundingBox();
+  expect(linkBox).not.toBeNull();
+  expect(navigationBox).not.toBeNull();
+  expect(linkBox!.x).toBeGreaterThanOrEqual(navigationBox!.x - 1);
+  expect(linkBox!.x + linkBox!.width).toBeLessThanOrEqual(
+    navigationBox!.x + navigationBox!.width + 1,
+  );
 }
