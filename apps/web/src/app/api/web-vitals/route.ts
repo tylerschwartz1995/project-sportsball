@@ -1,3 +1,5 @@
+import { isPerformanceRouteContextValue } from "@/lib/performance-route-context";
+
 const METRIC_NAMES = new Set(["TTFB", "FCP", "LCP", "FID", "CLS", "INP"]);
 const RATINGS = new Set(["good", "needs-improvement", "poor"]);
 
@@ -8,6 +10,9 @@ type WebVitalPayload = {
   rating?: string;
   navigationType?: string;
   path: string;
+  routeView?: string;
+  routeSubView?: string;
+  routePhase?: string;
 };
 
 export async function POST(request: Request) {
@@ -59,6 +64,9 @@ function isWebVitalPayload(value: unknown): value is WebVitalPayload {
     typeof metric.path === "string" &&
     metric.path.startsWith("/") &&
     metric.path.length <= 500 &&
-    !metric.path.includes("?")
+    !metric.path.includes("?") &&
+    isPerformanceRouteContextValue(metric.routeView) &&
+    isPerformanceRouteContextValue(metric.routeSubView) &&
+    isPerformanceRouteContextValue(metric.routePhase)
   );
 }

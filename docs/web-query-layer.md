@@ -206,9 +206,25 @@ daily ingestion model while bounding active-data staleness.
 
 The root layout samples 10% of browser sessions by default and sends TTFB, FCP, LCP,
 CLS, INP, and FID measurements to `POST /api/web-vitals`. The route emits one
-structured `web-vital` JSON log entry per accepted metric; paths exclude query
-parameters. Set `NEXT_PUBLIC_WEB_VITALS_SAMPLE_RATE` between `0` and `1` at
-build time to disable or tune sampling.
+structured `web-vital` JSON log entry per accepted metric. Paths exclude query
+parameters, while bounded `routeView`, `routeSubView`, and `routePhase`
+dimensions distinguish known application views without logging searches,
+identifiers, or arbitrary query values. Set `NEXT_PUBLIC_WEB_VITALS_SAMPLE_RATE`
+between `0` and `1` at build time to disable or tune sampling.
+
+An opt-in Playwright suite checks click-to-visible latency and scroll retention
+against a populated local database and optimized production server:
+
+```bash
+(cd apps/web && npx playwright install chromium)
+SPORTSBALL_E2E_BASE_URL=http://127.0.0.1:3000 \
+  npm run test:browser:performance --prefix apps/web
+```
+
+The team, season, game, and latency limits can be overridden with the
+`SPORTSBALL_E2E_TEAM_ID`, `SPORTSBALL_E2E_SEASON_ID`,
+`SPORTSBALL_E2E_GAME_ID`, `SPORTSBALL_E2E_NAVIGATION_LIMIT_MS`, and
+`SPORTSBALL_E2E_INTERACTION_LIMIT_MS` environment variables.
 
 Database reads emit structured `slow-database-query` warnings when they take at
 least 250 milliseconds and `database-query-error` warnings when they fail. Logs
