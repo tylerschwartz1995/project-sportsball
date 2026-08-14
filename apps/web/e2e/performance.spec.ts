@@ -171,6 +171,9 @@ test.describe("production navigation performance", () => {
     ).toBeVisible();
     await page.evaluate(() => window.scrollTo(0, 600));
     const beforeScroll = await page.evaluate(() => window.scrollY);
+    const descriptionStack = page.locator("[data-strength-description-stack]");
+    const beforeDescriptionBox = await descriptionStack.boundingBox();
+    expect(beforeDescriptionBox).not.toBeNull();
 
     const startedAt = Date.now();
     await page.getByRole("button", { name: "Expected goals" }).click();
@@ -180,7 +183,13 @@ test.describe("production navigation performance", () => {
 
     expect(Date.now() - startedAt).toBeLessThan(interactionLimitMs);
     expect(await page.evaluate(() => window.scrollY)).toBe(beforeScroll);
+    expect((await descriptionStack.boundingBox())?.height).toBe(
+      beforeDescriptionBox!.height,
+    );
     await expect(page).toHaveURL(/sos=expected-goals/);
+    await expect(
+      page.getByRole("link", { name: "Strength", exact: true }),
+    ).toHaveAttribute("href", /sos=expected-goals/);
 
     await page.reload();
     await expect(
@@ -243,8 +252,13 @@ async function clickUntilVisible(
   trigger: Locator,
   target: Locator,
 ) {
+  const triggerBox = await trigger.boundingBox();
+  expect(triggerBox).not.toBeNull();
   const startedAt = Date.now();
-  const click = trigger.click();
+  const click = page.mouse.click(
+    triggerBox!.x + triggerBox!.width / 2,
+    triggerBox!.y + triggerBox!.height / 2,
+  );
   await target.waitFor({ state: "visible" });
   const elapsed = Date.now() - startedAt;
   await click;

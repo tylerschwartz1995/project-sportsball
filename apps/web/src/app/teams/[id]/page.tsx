@@ -618,6 +618,7 @@ function teamViewTabs({
         ...tab,
         href: `/teams/${nhlTeamId}?${params.toString()}`,
         prefetch: tab.id === "strength" ? true : undefined,
+        preservedSearchParameters: tab.id === "strength" ? ["sos"] : undefined,
       };
     });
 }

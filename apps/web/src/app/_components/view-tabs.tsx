@@ -16,6 +16,7 @@ export type ViewTab<T extends string = string> = {
   label: string;
   href: string;
   prefetch?: boolean;
+  preservedSearchParameters?: string[];
 };
 
 export function ViewTabs<T extends string>({
@@ -69,21 +70,15 @@ function ViewTabLink<T extends string>({
   const [hasNavigationIntent, setHasNavigationIntent] = useState(false);
   const allowIntentPrefetch = tab.prefetch !== false;
 
-  function rememberScroll() {
-    const targetUrl = new URL(tab.href, window.location.href);
-    preserveScrollThroughNavigation(
-      `${targetUrl.pathname}${targetUrl.search}`,
-      window.scrollY,
-    );
-  }
-
   return (
     <Link
       href={tab.href}
       aria-current={active ? "page" : undefined}
+      data-preserved-search-parameters={
+        tab.preservedSearchParameters?.join(" ")
+      }
       prefetch={tab.prefetch === true || hasNavigationIntent}
       scroll={false}
-      onNavigate={rememberScroll}
       onFocus={() => {
         if (allowIntentPrefetch) setHasNavigationIntent(true);
       }}
@@ -112,51 +107,6 @@ function ViewTabContent({ label }: { label: string }) {
       ) : null}
     </>
   );
-}
-
-const navigationScrollDeadlineMs = 5_000;
-const settledRouteFrames = 20;
-
-function preserveScrollThroughNavigation(target: string, top: number) {
-  const deadline = performance.now() + navigationScrollDeadlineMs;
-  let matchingFrames = 0;
-  let cancelled = false;
-
-  function cancelForUserScroll() {
-    cancelled = true;
-  }
-  window.addEventListener("wheel", cancelForUserScroll, { once: true });
-  window.addEventListener("touchmove", cancelForUserScroll, { once: true });
-
-  function restoreUntilSettled() {
-    if (cancelled || performance.now() >= deadline) {
-      cleanUp();
-      return;
-    }
-
-    window.scrollTo({ top, behavior: "instant" });
-    const destinationIsRendered = Array.from(
-      document.querySelectorAll<HTMLAnchorElement>(
-        '.workspace-scroll-nav a[aria-current="page"]',
-      ),
-    ).some((link) => {
-      const activeUrl = new URL(link.href);
-      return `${activeUrl.pathname}${activeUrl.search}` === target;
-    });
-    matchingFrames = destinationIsRendered ? matchingFrames + 1 : 0;
-    if (matchingFrames >= settledRouteFrames) {
-      cleanUp();
-      return;
-    }
-    requestAnimationFrame(restoreUntilSettled);
-  }
-
-  function cleanUp() {
-    window.removeEventListener("wheel", cancelForUserScroll);
-    window.removeEventListener("touchmove", cancelForUserScroll);
-  }
-
-  restoreUntilSettled();
 }
 
 function keepActiveLinkVisible(navigation: HTMLElement | null) {
