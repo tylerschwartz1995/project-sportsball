@@ -35,7 +35,10 @@ export function ScheduleStrengthMetricControl({
 
   return (
     <>
-      <div className="mt-2 grid max-w-2xl">
+      <div
+        className="mt-2 grid max-w-2xl"
+        data-strength-description-stack
+      >
         {scheduleStrengthMetricOptions.map((metric) => (
           <p
             key={metric}
@@ -71,8 +74,7 @@ export function ScheduleStrengthMetricControl({
 function replaceShareableMetric(metric: ScheduleStrengthMetric) {
   const url = new URL(window.location.href);
   url.searchParams.set("sos", metric);
-  History.prototype.replaceState.call(
-    window.history,
+  window.history.replaceState(
     window.history.state,
     "",
     `${url.pathname}?${url.searchParams.toString()}${url.hash}`,
@@ -82,5 +84,15 @@ function replaceShareableMetric(metric: ScheduleStrengthMetric) {
     .querySelectorAll<HTMLInputElement>('input[name="sos"]')
     .forEach((input) => {
       input.value = metric;
+    });
+
+  document
+    .querySelectorAll<HTMLAnchorElement>(
+      'a[data-preserved-search-parameters~="sos"]',
+    )
+    .forEach((link) => {
+      const target = new URL(link.href);
+      target.searchParams.set("sos", metric);
+      link.href = `${target.pathname}?${target.searchParams.toString()}${target.hash}`;
     });
 }
