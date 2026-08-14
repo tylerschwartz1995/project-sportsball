@@ -16,13 +16,21 @@ vi.mock("@/data/standings", () => ({
 vi.mock("@/data/schedule-strength", () => ({
   getTeamScheduleStrength: vi.fn(),
 }));
-vi.mock("@/data/teams", () => ({ listTeamsBySeason: vi.fn() }));
+vi.mock("@/data/game-logs", () => ({ getTeamGameLog: vi.fn() }));
+vi.mock("@/data/games", () => ({ listTeamScheduleSeasonIds: vi.fn() }));
+vi.mock("@/data/teams", () => ({
+  getTeamIdentityForSeason: vi.fn(),
+  getTeamSeasonDetail: vi.fn(),
+  getTeamSeasonProfile: vi.fn(),
+  listTeamSeasonIds: vi.fn(),
+  listTeamsBySeason: vi.fn(),
+}));
 
 await import("@/data/page-cache");
 
 describe("page cache policy", () => {
   it("uses long-lived reference data and short-lived active data", () => {
-    expect(unstableCacheMock).toHaveBeenCalledTimes(6);
+    expect(unstableCacheMock).toHaveBeenCalledTimes(12);
     expect(unstableCacheMock).toHaveBeenCalledWith(
       expect.any(Function),
       ["page-seasons-v1"],
@@ -38,6 +46,12 @@ describe("page cache policy", () => {
       "page-standings-points-history-v1",
       "page-teams-by-season-v1",
       "page-team-schedule-strength-v1",
+      "page-team-season-ids-v1",
+      "page-team-schedule-season-ids-v1",
+      "page-team-season-profile-v1",
+      "page-team-season-detail-v1",
+      "page-team-identity-v1",
+      "page-team-game-log-v1",
     ]) {
       expect(unstableCacheMock).toHaveBeenCalledWith(
         expect.any(Function),

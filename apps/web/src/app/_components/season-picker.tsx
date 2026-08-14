@@ -1,5 +1,8 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
+import { useGetFormNavigation } from "@/app/_components/use-get-form-navigation";
 import type { SeasonSummary } from "@/contracts/season";
 
 type SeasonPickerProps = {
@@ -15,9 +18,22 @@ export function SeasonPicker({
   className = "",
   params = {},
 }: SeasonPickerProps) {
+  const formRef = useRef<HTMLFormElement>(null);
+  const { isPending, navigate } = useGetFormNavigation();
+
+  useEffect(() => {
+    formRef.current?.setAttribute("data-navigation-ready", "true");
+  }, []);
+
   return (
     <form
+      ref={formRef}
       method="get"
+      aria-busy={isPending || undefined}
+      onSubmit={(event) => {
+        event.preventDefault();
+        navigate(event.currentTarget);
+      }}
       className={`workspace-season-picker ${className}`}
     >
       {Object.entries(params).map(([name, value]) =>
@@ -30,7 +46,11 @@ export function SeasonPicker({
         <select
           name="season"
           defaultValue={selectedSeasonId}
-          onChange={(event) => event.currentTarget.form?.requestSubmit()}
+          disabled={isPending}
+          onChange={(event) => {
+            const form = event.currentTarget.form;
+            if (form) navigate(form);
+          }}
         >
           {seasons.map((season) => (
             <option key={season.id} value={season.id}>
@@ -39,6 +59,9 @@ export function SeasonPicker({
           ))}
         </select>
       </label>
+      <noscript>
+        <button type="submit">Apply season</button>
+      </noscript>
     </form>
   );
 }

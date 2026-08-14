@@ -1,6 +1,8 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+
+import { useGetFormNavigation } from "@/app/_components/use-get-form-navigation";
 
 type AutoSubmitSelectProps = {
   children: ReactNode;
@@ -15,11 +17,20 @@ export function AutoSubmitSelect({
   name,
   resetFields = [],
 }: AutoSubmitSelectProps) {
+  const selectRef = useRef<HTMLSelectElement>(null);
+  const { isPending, navigate } = useGetFormNavigation();
+
+  useEffect(() => {
+    selectRef.current?.setAttribute("data-navigation-ready", "true");
+  }, []);
+
   return (
     <select
+      ref={selectRef}
       key={`${name}-${defaultValue}`}
       name={name}
       defaultValue={defaultValue}
+      disabled={isPending}
       onChange={(event) => {
         const form = event.currentTarget.form;
         for (const fieldName of resetFields) {
@@ -31,7 +42,7 @@ export function AutoSubmitSelect({
             field.value = "";
           }
         }
-        form?.requestSubmit();
+        if (form) navigate(form);
       }}
     >
       {children}

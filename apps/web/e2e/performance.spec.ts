@@ -129,6 +129,39 @@ test.describe("production navigation performance", () => {
     );
   });
 
+  test("season and draft filters navigate without replacing the document", async ({
+    page,
+  }) => {
+    await page.goto(teamUrl("overview"));
+    const seasonForm = page.locator(".workspace-season-picker");
+    await expect(seasonForm).toHaveAttribute("data-navigation-ready", "true");
+    const seasonSelect = seasonForm.getByRole("combobox", { name: "Season" });
+    const selectedSeason = await seasonSelect.inputValue();
+    const seasonOptions = await seasonSelect.locator("option").evaluateAll(
+      (options) => options.map((option) => (option as HTMLOptionElement).value),
+    );
+    const nextSeason = seasonOptions.find((value) => value !== selectedSeason);
+    expect(nextSeason).toBeDefined();
+    await setDocumentMarker(page);
+    await seasonSelect.selectOption(nextSeason!);
+    await expect(page).toHaveURL(new RegExp(`season=${nextSeason}`));
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-browser-document",
+      "preserved",
+    );
+
+    await page.goto("/drafts?view=board&year=2021");
+    const roundSelect = page.locator('select[name="round"]');
+    await expect(roundSelect).toHaveAttribute("data-navigation-ready", "true");
+    await setDocumentMarker(page);
+    await roundSelect.selectOption("1");
+    await expect(page).toHaveURL(/round=1/);
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-browser-document",
+      "preserved",
+    );
+  });
+
   test("Strength metric selection updates promptly and preserves scroll", async ({
     page,
   }) => {
@@ -227,4 +260,10 @@ async function expectLinkInsideNavigation(link: Locator) {
   expect(linkBox!.x + linkBox!.width).toBeLessThanOrEqual(
     navigationBox!.x + navigationBox!.width + 1,
   );
+}
+
+async function setDocumentMarker(page: Page) {
+  await page.locator("html").evaluate((element) => {
+    element.setAttribute("data-browser-document", "preserved");
+  });
 }
