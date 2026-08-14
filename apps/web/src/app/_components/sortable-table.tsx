@@ -9,7 +9,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 
 type SortDirection = "asc" | "desc";
 
@@ -19,6 +19,10 @@ type SortState = {
 };
 
 type SortableTableContextValue = SortState & {
+  sortHref: (
+    key: string,
+    defaultDirection: SortDirection,
+  ) => string | null;
   sort: (
     event: MouseEvent<HTMLButtonElement>,
     key: string,
@@ -45,7 +49,7 @@ export function SortableTable({
   urlBacked?: boolean;
   scrollTarget?: string;
 }) {
-  const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const [sortState, setSortState] = useState<SortState>({
     key: defaultSortKey,
@@ -75,16 +79,6 @@ export function SortableTable({
             : "asc"
           : columnDefaultDirection;
 
-      if (urlBacked) {
-        const nextParams = new URLSearchParams(searchParams.toString());
-        nextParams.set("sort", key);
-        nextParams.set("direction", nextDirection);
-        nextParams.delete("page");
-        router.push(
-          `?${nextParams.toString()}${scrollTarget ? `#${encodeURIComponent(scrollTarget)}` : ""}`,
-        );
-        return;
-      }
       const columnIndex = header.cellIndex;
       const rows = Array.from(body.rows);
 
@@ -112,12 +106,36 @@ export function SortableTable({
 
       setSortState({ key, direction: nextDirection });
     },
-    [activeDirection, activeKey, router, searchParams, scrollTarget, urlBacked],
+    [activeDirection, activeKey],
+  );
+
+  const sortHref = useCallback(
+    (key: string, columnDefaultDirection: SortDirection) => {
+      if (!urlBacked) return null;
+      const nextDirection =
+        activeKey === key
+          ? activeDirection === "asc"
+            ? "desc"
+            : "asc"
+          : columnDefaultDirection;
+      const nextParams = new URLSearchParams(searchParams.toString());
+      nextParams.set("sort", key);
+      nextParams.set("direction", nextDirection);
+      nextParams.delete("page");
+      return `${pathname}?${nextParams.toString()}${scrollTarget ? `#${encodeURIComponent(scrollTarget)}` : ""}`;
+    }, [
+      activeDirection,
+      activeKey,
+      pathname,
+      searchParams,
+      scrollTarget,
+      urlBacked,
+    ],
   );
 
   const contextValue = useMemo(
-    () => ({ key: activeKey, direction: activeDirection, sort }),
-    [activeDirection, activeKey, sort],
+    () => ({ key: activeKey, direction: activeDirection, sort, sortHref }),
+    [activeDirection, activeKey, sort, sortHref],
   );
 
   return (
