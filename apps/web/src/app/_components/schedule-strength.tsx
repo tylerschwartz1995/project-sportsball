@@ -1,133 +1,59 @@
-"use client";
-
-import Link from "next/link";
-import { useState } from "react";
-
-import { SortableHeader } from "@/app/_components/sortable-header";
-import { SortableTable } from "@/app/_components/sortable-table";
-import { TeamLogo } from "@/app/_components/team-logo";
+import { ScheduleStrengthMetricControl } from "@/app/_components/schedule-strength-metric-control";
+import { ScheduleStrengthTable } from "@/app/_components/schedule-strength-table";
 import { MetricTile, SectionHeader } from "@/app/_components/ui-primitives";
-import type {
-  ScheduleStrengthGame,
-  ScheduleStrengthMetric,
-  TeamScheduleStrength,
-} from "@/contracts/schedule-strength";
-
-const metricDefinitions: Record<
-  ScheduleStrengthMetric,
-  { label: string; shortLabel: string; description: string }
-> = {
-  standings: {
-    label: "Standings-based",
-    shortLabel: "Points %",
-    description:
-      "Opponent points percentage before each game. Higher values mean a harder schedule.",
-  },
-  "goal-differential": {
-    label: "Goal differential",
-    shortLabel: "Goal diff. / game",
-    description:
-      "Opponent goal differential per prior game. Higher values mean a harder schedule.",
-  },
-  "expected-goals": {
-    label: "Expected goals",
-    shortLabel: "5v5 xG%",
-    description:
-      "Opponent five-on-five expected-goal share before each game. Higher values mean a harder schedule.",
-  },
-};
-const metricOptions = Object.keys(metricDefinitions) as ScheduleStrengthMetric[];
-const scheduleContextSuffix =
-  "Completed-game ratings are frozen at the matchup date; remaining-game ratings use only results available now.";
-
-const scheduleDateFormatter = new Intl.DateTimeFormat("en-CA", {
-  month: "short",
-  day: "numeric",
-  year: "numeric",
-  timeZone: "America/Vancouver",
-});
+import type { ScheduleStrengthGame, TeamScheduleStrength } from "@/contracts/schedule-strength";
+import {
+  difficultyLabel,
+  formatScheduleStrengthMetric,
+  scheduleStrengthMetricDefinitions,
+  scheduleStrengthMetricOptions,
+  scheduleStrengthMetricValue,
+} from "@/lib/schedule-strength-metrics";
 
 export function ScheduleStrength({
   data,
   metric,
 }: {
   data: TeamScheduleStrength;
-  metric: ScheduleStrengthMetric;
+  metric: (typeof scheduleStrengthMetricOptions)[number];
 }) {
-  const [activeMetric, setActiveMetric] = useState(metric);
-
-  const completed = data.games.filter((game) => game.completed);
-  const upcoming = data.games.filter((game) => !game.completed);
-  function selectMetric(nextMetric: ScheduleStrengthMetric) {
-    // Keep this local: changing the App Router query string triggers a full
-    // navigation and scroll restoration for data that is already in memory.
-    setActiveMetric(nextMetric);
+  const completed: ScheduleStrengthGame[] = [];
+  const upcoming: ScheduleStrengthGame[] = [];
+  for (const game of data.games) {
+    (game.completed ? completed : upcoming).push(game);
   }
 
   return (
-    <section id="schedule-strength" className="mt-12 scroll-mt-6">
-      <SectionHeader
-        eyebrow="Schedule context"
-        title="Strength of Schedule"
+    <section
+      id="schedule-strength"
+      className="workspace-schedule-strength mt-12 scroll-mt-6"
+      data-strength-metric={metric}
+      data-sort-variant={metric}
+    >
+      <SectionHeader eyebrow="Schedule context" title="Strength of Schedule" />
+      <ScheduleStrengthMetricControl
+        key={`${data.seasonId}-${metric}`}
+        initialMetric={metric}
       />
-      <div className="mt-2 grid max-w-2xl">
-        {metricOptions.map((option) => (
-          <p
-            key={option}
-            aria-hidden={activeMetric === option ? undefined : true}
-            className={`col-start-1 row-start-1 text-sm leading-6 text-slate-400 ${
-              activeMetric === option ? "" : "invisible"
-            }`}
-          >
-            {metricDefinitions[option].description} {scheduleContextSuffix}
-          </p>
-        ))}
-      </div>
-
-      <nav
-        className="workspace-standings-scope mt-5"
-        aria-label="Strength of schedule definition"
-      >
-        {metricOptions.map((option) => (
-          <button
-            key={option}
-            type="button"
-            onClick={() => selectMetric(option)}
-            aria-current={activeMetric === option ? "page" : undefined}
-          >
-            {metricDefinitions[option].label}
-          </button>
-        ))}
-      </nav>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        <ScheduleSummary
-          title="Completed schedule"
-          games={completed}
-          metric={activeMetric}
-        />
-        <ScheduleSummary
-          title="Remaining schedule"
-          games={upcoming}
-          metric={activeMetric}
-        />
+        <ScheduleSummary title="Completed schedule" games={completed} />
+        <ScheduleSummary title="Remaining schedule" games={upcoming} />
       </div>
 
       {upcoming.length > 0 ? (
-        <ScheduleGamesTable
+        <ScheduleStrengthTable
           title="Remaining games"
           games={upcoming}
-          metric={activeMetric}
           seasonId={data.seasonId}
           open
         />
       ) : null}
 
       {completed.length > 0 ? (
-        <ScheduleGamesTable
+        <ScheduleStrengthTable
           title="Completed games"
           games={[...completed].reverse()}
-          metric={activeMetric}
           seasonId={data.seasonId}
         />
       ) : null}
@@ -149,28 +75,39 @@ export function ScheduleStrength({
 function ScheduleSummary({
   title,
   games,
-  metric,
 }: {
   title: string;
   games: ScheduleStrengthGame[];
-  metric: ScheduleStrengthMetric;
 }) {
-  const rated = games
-    .map((game) => metricValue(game, metric))
-    .filter((value): value is number => value !== null);
-  const average =
-    rated.length > 0
-      ? rated.reduce((total, value) => total + value, 0) / rated.length
-      : null;
-  const homeGames = games.filter((game) => game.isHome).length;
-  const backToBacks = games.filter((game) => game.isBackToBack).length;
-  const travelLegs = games
-    .map((game) => game.travelDistanceKm)
-    .filter((distance): distance is number => distance !== null);
-  const totalTravel = travelLegs.reduce(
-    (total, distance) => total + distance,
-    0,
-  );
+  const summaries = Object.fromEntries(
+    scheduleStrengthMetricOptions.map((metric) => [
+      metric,
+      { count: 0, total: 0 },
+    ]),
+  ) as Record<
+    (typeof scheduleStrengthMetricOptions)[number],
+    { count: number; total: number }
+  >;
+  let homeGames = 0;
+  let backToBacks = 0;
+  let totalTravel = 0;
+  let travelLegs = 0;
+
+  for (const game of games) {
+    if (game.isHome) homeGames += 1;
+    if (game.isBackToBack) backToBacks += 1;
+    if (game.travelDistanceKm !== null) {
+      totalTravel += game.travelDistanceKm;
+      travelLegs += 1;
+    }
+    for (const metric of scheduleStrengthMetricOptions) {
+      const value = scheduleStrengthMetricValue(game, metric);
+      if (value !== null) {
+        summaries[metric].count += 1;
+        summaries[metric].total += value;
+      }
+    }
+  }
 
   return (
     <article className="surface-panel flex h-full flex-col p-5 sm:p-6">
@@ -181,16 +118,28 @@ function ScheduleSummary({
         </span>
       </div>
       <dl className="mt-4 grid flex-1 auto-rows-fr grid-cols-2 gap-3 sm:grid-cols-3">
-        <MetricTile
-          label={`Avg. ${metricDefinitions[metric].shortLabel}`}
-          value={formatMetric(average, metric)}
-          detail={
-            average === null
-              ? "No rated games"
-              : `${difficultyLabel(average, metric)} · ${rated.length} rated`
-          }
-          emphasis
-        />
+        {scheduleStrengthMetricOptions.map((metric) => {
+          const summary = summaries[metric];
+          const average =
+            summary.count > 0 ? summary.total / summary.count : null;
+          return (
+            <div
+              key={metric}
+              data-strength-tile={metric}
+            >
+              <MetricTile
+                label={`Avg. ${scheduleStrengthMetricDefinitions[metric].shortLabel}`}
+                value={formatScheduleStrengthMetric(average, metric)}
+                detail={
+                  average === null
+                    ? "No rated games"
+                    : `${difficultyLabel(average, metric)} · ${summary.count} rated`
+                }
+                emphasis
+              />
+            </div>
+          );
+        })}
         <MetricTile
           label="Home share"
           value={games.length > 0 ? formatPercentage(homeGames / games.length) : "—"}
@@ -203,197 +152,25 @@ function ScheduleSummary({
         />
         <MetricTile
           label="Estimated travel"
-          value={travelLegs.length > 0 ? formatDistance(totalTravel) : "—"}
+          value={travelLegs > 0 ? formatDistance(totalTravel) : "—"}
           detail={
-            travelLegs.length > 0
-              ? `${formatDistance(totalTravel / travelLegs.length)} per mapped leg`
+            travelLegs > 0
+              ? `${formatDistance(totalTravel / travelLegs)} per mapped leg`
               : "No mapped travel legs"
           }
         />
-        <MetricTile
-          label="Rated games"
-          value={rated.length}
-          detail={`${games.length - rated.length} without prior sample`}
-        />
+        {scheduleStrengthMetricOptions.map((metric) => (
+          <div key={metric} data-strength-tile={metric}>
+            <MetricTile
+              label="Rated games"
+              value={summaries[metric].count}
+              detail={`${games.length - summaries[metric].count} without prior sample`}
+            />
+          </div>
+        ))}
       </dl>
     </article>
   );
-}
-
-function ScheduleGamesTable({
-  title,
-  games,
-  metric,
-  seasonId,
-  open = false,
-}: {
-  title: string;
-  games: ScheduleStrengthGame[];
-  metric: ScheduleStrengthMetric;
-  seasonId: number;
-  open?: boolean;
-}) {
-  const [isOpen, setIsOpen] = useState(open);
-
-  return (
-    <details className="surface-panel mt-5 overflow-hidden" open={isOpen}>
-      <summary
-        className="cursor-pointer px-5 py-4 font-medium text-white marker:text-cyan-300"
-        onClick={(event) => {
-          event.preventDefault();
-          setIsOpen((current) => !current);
-        }}
-      >
-        {title}{" "}
-        <span className="ml-2 text-sm text-slate-500">({games.length})</span>
-      </summary>
-      {isOpen ? (
-        <SortableTable
-          defaultSortKey="date"
-          defaultDirection={open ? "asc" : "desc"}
-        >
-          <div className="workspace-table-scroll border-t border-white/[0.07]">
-            <table className="workspace-table workspace-table-dense workspace-table-semantic workspace-schedule-strength-table min-w-[1040px]">
-              <colgroup>
-                <col className="workspace-col-date" />
-                <col className="workspace-col-entity" />
-                <col className="workspace-col-label" />
-                <col className="workspace-col-split" />
-                <col className="workspace-col-number" />
-                <col className="workspace-col-time" />
-                <col className="workspace-col-split" />
-                <col className="workspace-col-split" />
-              </colgroup>
-              <thead>
-                <tr>
-                  <SortableHeader label="Date" sortKey="date" align="left" defaultDirection="asc" />
-                  <SortableHeader label="Opponent" sortKey="opponent" align="left" defaultDirection="asc" />
-                  <SortableHeader label="Site" sortKey="site" align="left" defaultDirection="asc" />
-                  <SortableHeader label={metricDefinitions[metric].shortLabel} sortKey="strength" />
-                  <SortableHeader label="Prior GP" sortKey="sample" />
-                  <SortableHeader label="Rest" sortKey="rest" />
-                  <SortableHeader label="Travel" sortKey="travel" />
-                  <SortableHeader label="Result" sortKey="result" align="left" />
-                </tr>
-              </thead>
-              <tbody>
-                {games.map((game) => {
-                  const strength = metricValue(game, metric);
-                  const ratingSeasonId = metricRatingSeasonId(game, metric);
-                  const result = game.completed
-                    ? `${game.teamScore! > game.opponentScore! ? "W" : "L"} ${game.teamScore}–${game.opponentScore}`
-                    : scheduleStateLabel(game.state);
-                  return (
-                    <tr key={game.nhlGameId}>
-                      <td data-sort-value={game.startTimeUtc}>
-                        <Link href={`/games/${game.nhlGameId}`}>
-                          {formatDate(game.startTimeUtc)}
-                        </Link>
-                      </td>
-                      <td data-sort-value={game.opponentName} className="workspace-team-cell">
-                        <div className="flex items-center gap-2">
-                          <TeamLogo
-                            nhlTeamId={game.opponentNhlTeamId}
-                            abbreviation={game.opponentAbbreviation}
-                            name={game.opponentName}
-                            size="tiny"
-                            decorative
-                          />
-                          <div>
-                            <Link href={`/teams/${game.opponentNhlTeamId}?season=${seasonId}`}>
-                              {game.opponentName}
-                            </Link>
-                            <small>{game.opponentAbbreviation}</small>
-                          </div>
-                        </div>
-                      </td>
-                      <td
-                        data-sort-value={game.isHome ? "home" : "away"}
-                        className="workspace-schedule-site-cell"
-                      >
-                        <strong>{game.isHome ? "Home" : "Away"}</strong>
-                        {game.siteName ? <small>{game.siteName}</small> : null}
-                      </td>
-                      <td data-sort-value={strength ?? ""} className="workspace-semantic-number text-center font-medium tabular-nums text-cyan-100">
-                        {formatMetric(strength, metric)}
-                      </td>
-                      <td data-sort-value={game.opponentPriorGames} className="workspace-semantic-number text-center tabular-nums">
-                        {game.opponentPriorGames}
-                        {ratingSeasonId !== null && ratingSeasonId !== seasonId ? (
-                          <span
-                            className="ml-1 text-slate-500"
-                            title={`Rating uses the ${formatSeasonId(ratingSeasonId)} season`}
-                          >
-                            *
-                          </span>
-                        ) : null}
-                      </td>
-                      <td data-sort-value={game.restDays ?? ""} className="workspace-semantic-number text-center tabular-nums">
-                        {game.isBackToBack ? "B2B" : game.restDays === null ? "—" : `${game.restDays}d`}
-                      </td>
-                      <td data-sort-value={game.travelDistanceKm ?? ""} className="workspace-semantic-number text-center tabular-nums">
-                        {game.travelDistanceKm === null
-                          ? "—"
-                          : formatDistance(game.travelDistanceKm)}
-                      </td>
-                      <td data-sort-value={result}>{result}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </SortableTable>
-      ) : null}
-    </details>
-  );
-}
-
-function metricValue(
-  game: ScheduleStrengthGame,
-  metric: ScheduleStrengthMetric,
-): number | null {
-  if (metric === "goal-differential") {
-    return game.opponentGoalDifferentialPerGame;
-  }
-  if (metric === "expected-goals") {
-    return game.opponentExpectedGoalsPercentage;
-  }
-  return game.opponentPointsPercentage;
-}
-
-function metricRatingSeasonId(
-  game: ScheduleStrengthGame,
-  metric: ScheduleStrengthMetric,
-): number | null {
-  return metric === "expected-goals"
-    ? game.opponentExpectedGoalsSeasonId
-    : game.opponentResultsSeasonId;
-}
-
-function formatMetric(
-  value: number | null,
-  metric: ScheduleStrengthMetric,
-): string {
-  if (value === null) return "—";
-  if (metric === "goal-differential") {
-    return `${value > 0 ? "+" : ""}${value.toFixed(2)}`;
-  }
-  if (metric === "standings") return value.toFixed(3).replace(/^0/, "");
-  return formatPercentage(value);
-}
-
-function difficultyLabel(
-  value: number,
-  metric: ScheduleStrengthMetric,
-): string {
-  const normalized =
-    metric === "goal-differential" ? 0.5 + value / 4 : value;
-  if (normalized >= 0.56) return "Very difficult";
-  if (normalized >= 0.52) return "Difficult";
-  if (normalized > 0.48) return "Balanced";
-  if (normalized > 0.44) return "Favorable";
-  return "Very favorable";
 }
 
 function formatPercentage(value: number): string {
@@ -402,20 +179,4 @@ function formatPercentage(value: number): string {
 
 function formatDistance(value: number): string {
   return `${Math.round(value).toLocaleString("en-CA")} km`;
-}
-
-function formatDate(value: string): string {
-  return scheduleDateFormatter.format(new Date(value));
-}
-
-function formatSeasonId(seasonId: number): string {
-  const start = Math.floor(seasonId / 10_000);
-  const end = seasonId % 10_000;
-  return `${start}–${String(end).slice(2)}`;
-}
-
-function scheduleStateLabel(state: string): string {
-  if (state === "FUT" || state === "PRE") return "Scheduled";
-  if (state === "LIVE" || state === "CRIT") return "Live";
-  return state;
 }

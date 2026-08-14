@@ -146,7 +146,12 @@ function sortableValue(cell: HTMLTableCellElement | null): SortableValue {
     return null;
   }
 
-  const rawValue = cell.dataset.sortValue ?? cell.textContent ?? "";
+  const sortVariant = cell.closest<HTMLElement>("[data-sort-variant]")?.dataset
+    .sortVariant;
+  const variantValue = sortVariant
+    ? cell.getAttribute(`data-sort-${sortVariant}`)
+    : null;
+  const rawValue = variantValue ?? cell.dataset.sortValue ?? cell.textContent ?? "";
   const normalized = rawValue.trim();
 
   if (!normalized || normalized === "—" || normalized === "-") {

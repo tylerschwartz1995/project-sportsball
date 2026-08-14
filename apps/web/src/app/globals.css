@@ -3021,6 +3021,39 @@ html[data-theme="light"] .theme-toggle-label::after {
   color: var(--on-accent);
 }
 
+.workspace-schedule-strength [data-strength-description],
+.workspace-schedule-strength [data-strength-tile],
+.workspace-schedule-strength [data-strength-inline] {
+  display: none;
+}
+
+.workspace-schedule-strength[data-strength-metric="standings"]
+  [data-strength-description="standings"],
+.workspace-schedule-strength[data-strength-metric="goal-differential"]
+  [data-strength-description="goal-differential"],
+.workspace-schedule-strength[data-strength-metric="expected-goals"]
+  [data-strength-description="expected-goals"] {
+  display: block;
+}
+
+.workspace-schedule-strength[data-strength-metric="standings"]
+  [data-strength-tile="standings"],
+.workspace-schedule-strength[data-strength-metric="goal-differential"]
+  [data-strength-tile="goal-differential"],
+.workspace-schedule-strength[data-strength-metric="expected-goals"]
+  [data-strength-tile="expected-goals"] {
+  display: contents;
+}
+
+.workspace-schedule-strength[data-strength-metric="standings"]
+  [data-strength-inline="standings"],
+.workspace-schedule-strength[data-strength-metric="goal-differential"]
+  [data-strength-inline="goal-differential"],
+.workspace-schedule-strength[data-strength-metric="expected-goals"]
+  [data-strength-inline="expected-goals"] {
+  display: inline;
+}
+
 .workspace-phase-filter {
   display: flex;
   flex-wrap: wrap;
