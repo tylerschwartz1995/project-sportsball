@@ -39,11 +39,12 @@ import {
   listCachedScheduleSeasons,
   listCachedSeasons,
   listCachedTeamsBySeason,
+  getCachedTeamScheduleStrength,
 } from "@/data/page-cache";
-import { getTeamScheduleStrength } from "@/data/schedule-strength";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
 import {
   getTeamSeasonDetail,
+  getTeamSeasonProfile,
   getTeamIdentityForSeason,
   listTeamSeasonIds,
 } from "@/data/teams";
@@ -140,7 +141,9 @@ export default async function TeamPage({
     scheduleStrength,
     overviewPeers,
   ] = await Promise.all([
-      getTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType),
+      view === "skaters" || view === "goalies"
+        ? getTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType)
+        : getTeamSeasonProfile(nhlTeamId, selectedSeason.id),
       view === "advanced"
         ? getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id, gameType)
         : Promise.resolve(null),
@@ -161,7 +164,7 @@ export default async function TeamPage({
         ? getTeamGameLog(nhlTeamId, selectedSeason.id)
         : Promise.resolve(null),
       view === "strength" && phase === "regular"
-        ? getTeamScheduleStrength(nhlTeamId, selectedSeason.id)
+        ? getCachedTeamScheduleStrength(nhlTeamId, selectedSeason.id)
         : Promise.resolve(null),
       view === "overview"
         ? listCachedTeamsBySeason(selectedSeason.id, gameType)
@@ -616,6 +619,7 @@ function teamViewTabs({
       return {
         ...tab,
         href: `/teams/${nhlTeamId}?${params.toString()}`,
+        prefetch: tab.id === "strength" ? true : undefined,
       };
     });
 }

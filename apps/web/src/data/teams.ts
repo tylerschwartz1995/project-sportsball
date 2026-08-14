@@ -256,6 +256,34 @@ export async function getTeamSeasonDetail(
   };
 }
 
+export async function getTeamSeasonProfile(
+  nhlTeamId: number,
+  seasonId: number,
+): Promise<TeamSeasonDetail | null> {
+  const statsRows = await query<TeamStatsRow>(
+    `
+      ${teamStatsSelect}
+      WHERE team.nhl_id = $1
+        AND stats.season_id = $2
+      ORDER BY stats.game_type
+    `,
+    [nhlTeamId, seasonId],
+  );
+  const firstRow = statsRows[0];
+  if (!firstRow) return null;
+  const statsByType = new Map(
+    statsRows.map((row) => [row.game_type, mapTeamStats(row)]),
+  );
+  return {
+    team: mapTeamIdentity(firstRow),
+    seasonId,
+    regularSeason: statsByType.get(2) ?? null,
+    playoffs: statsByType.get(3) ?? null,
+    skaters: [],
+    goalies: [],
+  };
+}
+
 function mapTeamIdentity(row: TeamStatsRow): TeamIdentity {
   return {
     id: row.team_id,

@@ -8,6 +8,7 @@ vi.mock("@/data/database", () => ({
 
 import {
   getTeamIdentityForSeason,
+  getTeamSeasonProfile,
   listTeamsBySeason,
   listTeamSeasonIds,
 } from "@/data/teams";
@@ -124,6 +125,54 @@ describe("getTeamIdentityForSeason", () => {
     expect(queryMock).toHaveBeenCalledWith(
       expect.stringContaining("team_season.season_id = $2"),
       [8, 20262027],
+    );
+  });
+});
+
+describe("getTeamSeasonProfile", () => {
+  beforeEach(() => {
+    queryMock.mockReset();
+  });
+
+  it("loads profile identity and totals without roster queries", async () => {
+    queryMock.mockResolvedValueOnce([
+      {
+        team_id: 6,
+        nhl_team_id: 26,
+        franchise_id: 14,
+        abbreviation: "LAK",
+        team_name: "Los Angeles Kings",
+        season_id: 20252026,
+        game_type: 2,
+        games_played: 82,
+        wins: 42,
+        losses: 30,
+        regulation_wins: 36,
+        overtime_wins: 4,
+        shootout_wins: 2,
+        regulation_losses: 25,
+        overtime_losses: 5,
+        shootout_losses: 0,
+        standings_points: 89,
+        goals_for: 240,
+        goals_against: 220,
+        shots_for: 2400,
+        shots_against: 2300,
+      },
+    ]);
+
+    await expect(getTeamSeasonProfile(26, 20252026)).resolves.toMatchObject({
+      team: { nhlTeamId: 26, abbreviation: "LAK" },
+      regularSeason: { gamesPlayed: 82 },
+      skaters: [],
+      goalies: [],
+    });
+    expect(queryMock).toHaveBeenCalledOnce();
+    expect(queryMock.mock.calls[0]?.[0]).not.toContain(
+      "official_skater_season_stats",
+    );
+    expect(queryMock.mock.calls[0]?.[0]).not.toContain(
+      "official_goalie_season_stats",
     );
   });
 });

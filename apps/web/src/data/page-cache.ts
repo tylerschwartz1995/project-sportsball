@@ -3,6 +3,7 @@ import "server-only";
 import { unstable_cache } from "next/cache";
 
 import { listScheduleSeasons, listSeasons } from "@/data/seasons";
+import { getTeamScheduleStrength } from "@/data/schedule-strength";
 import { getStandings, getStandingsPointsHistory } from "@/data/standings";
 import { listTeamsBySeason } from "@/data/teams";
 
@@ -38,4 +39,10 @@ export const listCachedTeamsBySeason = unstable_cache(
   listTeamsBySeason,
   ["page-teams-by-season-v1"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams"] },
+);
+
+export const getCachedTeamScheduleStrength = unstable_cache(
+  getTeamScheduleStrength,
+  ["page-team-schedule-strength-v1"],
+  { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams", "games"] },
 );
