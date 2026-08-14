@@ -336,7 +336,6 @@ export default async function TeamPage({
           <ScheduleStrength
             data={scheduleStrength}
             metric={scheduleStrengthMetric}
-            phase={phase}
           />
         ) : null}
 
