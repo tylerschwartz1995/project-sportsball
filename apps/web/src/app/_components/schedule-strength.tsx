@@ -36,6 +36,9 @@ const metricDefinitions: Record<
       "Opponent five-on-five expected-goal share before each game. Higher values mean a harder schedule.",
   },
 };
+const metricOptions = Object.keys(metricDefinitions) as ScheduleStrengthMetric[];
+const scheduleContextSuffix =
+  "Completed-game ratings are frozen at the matchup date; remaining-game ratings use only results available now.";
 
 const scheduleDateFormatter = new Intl.DateTimeFormat("en-CA", {
   month: "short",
@@ -55,18 +58,10 @@ export function ScheduleStrength({
 
   const completed = data.games.filter((game) => game.completed);
   const upcoming = data.games.filter((game) => !game.completed);
-  const definition = metricDefinitions[activeMetric];
-
   function selectMetric(nextMetric: ScheduleStrengthMetric) {
+    // Keep this local: changing the App Router query string triggers a full
+    // navigation and scroll restoration for data that is already in memory.
     setActiveMetric(nextMetric);
-
-    const url = new URL(window.location.href);
-    url.searchParams.set("sos", nextMetric);
-    window.history.replaceState(
-      window.history.state,
-      "",
-      `${url.pathname}?${url.searchParams.toString()}${url.hash}`,
-    );
   }
 
   return (
@@ -74,25 +69,35 @@ export function ScheduleStrength({
       <SectionHeader
         eyebrow="Schedule context"
         title="Strength of Schedule"
-        description={`${definition.description} Completed-game ratings are frozen at the matchup date; remaining-game ratings use only results available now.`}
       />
+      <div className="mt-2 grid max-w-2xl">
+        {metricOptions.map((option) => (
+          <p
+            key={option}
+            aria-hidden={activeMetric === option ? undefined : true}
+            className={`col-start-1 row-start-1 text-sm leading-6 text-slate-400 ${
+              activeMetric === option ? "" : "invisible"
+            }`}
+          >
+            {metricDefinitions[option].description} {scheduleContextSuffix}
+          </p>
+        ))}
+      </div>
 
       <nav
         className="workspace-standings-scope mt-5"
         aria-label="Strength of schedule definition"
       >
-        {(Object.keys(metricDefinitions) as ScheduleStrengthMetric[]).map(
-          (option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => selectMetric(option)}
-              aria-current={activeMetric === option ? "page" : undefined}
-            >
-              {metricDefinitions[option].label}
-            </button>
-          ),
-        )}
+        {metricOptions.map((option) => (
+          <button
+            key={option}
+            type="button"
+            onClick={() => selectMetric(option)}
+            aria-current={activeMetric === option ? "page" : undefined}
+          >
+            {metricDefinitions[option].label}
+          </button>
+        ))}
       </nav>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
