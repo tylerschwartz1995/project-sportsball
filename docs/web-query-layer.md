@@ -196,7 +196,9 @@ five minutes with one hour of stale-while-revalidate coverage. Team and player
 endpoints use the same policy. Website pages are dynamically rendered and read
 PostgreSQL directly. Page renders share one-hour season-list entries and
 five-minute standings, standings-history, and team-directory entries through
-the Next.js data cache. Cache keys include function arguments, so seasons,
+the Next.js data cache. Schedule-strength results use the same five-minute
+policy because their time-aware opponent ratings are comparatively expensive
+to calculate. Cache keys include function arguments, so seasons,
 game types, and other query variants remain isolated. These lifetimes match the
 daily ingestion model while bounding active-data staleness.
 
