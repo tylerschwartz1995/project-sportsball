@@ -26,6 +26,10 @@ import { getPlayerGameLog } from "@/data/game-logs";
 import { getPlayerDetail } from "@/data/players";
 import { listCachedSeasons } from "@/data/page-cache";
 import { countryName } from "@/lib/country-name";
+import {
+  goalieCareerTotals,
+  skaterCareerTotals,
+} from "@/lib/player-career-totals";
 import { formatPlayerPositionLong } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
@@ -564,6 +568,8 @@ function SkaterHistory({
   rows: SkaterSeasonSummary[];
   seasonLabels: Map<number, string>;
 }) {
+  const totals = skaterCareerTotals(rows);
+
   return (
     <HistoryTable
       headers={["Season", "Team(s)", "GP", "G", "A", "PTS", "+/-", "PIM"]}
@@ -581,6 +587,14 @@ function SkaterHistory({
         formatSigned(row.plusMinus),
         row.penaltyMinutes,
       ])}
+      totalValues={[
+        totals.gamesPlayed,
+        totals.goals,
+        totals.assists,
+        totals.points,
+        formatSigned(totals.plusMinus),
+        totals.penaltyMinutes,
+      ]}
     />
   );
 }
@@ -592,6 +606,8 @@ function GoalieHistory({
   rows: GoalieSeasonSummary[];
   seasonLabels: Map<number, string>;
 }) {
+  const totals = goalieCareerTotals(rows);
+
   return (
     <HistoryTable
       headers={["Season", "Team(s)", "GP", "GS", "W", "L", "OTL", "SV%"]}
@@ -609,6 +625,14 @@ function GoalieHistory({
         row.overtimeLosses,
         formatSavePercentage(row.savePercentage),
       ])}
+      totalValues={[
+        totals.gamesPlayed,
+        totals.gamesStarted,
+        totals.wins,
+        totals.losses,
+        totals.overtimeLosses,
+        formatSavePercentage(totals.savePercentage),
+      ]}
     />
   );
 }
@@ -616,9 +640,11 @@ function GoalieHistory({
 function HistoryTable({
   headers,
   rows,
+  totalValues,
 }: {
   headers: string[];
   rows: React.ReactNode[][];
+  totalValues: React.ReactNode[];
 }) {
   if (rows.length === 0) {
     return (
@@ -672,6 +698,29 @@ function HistoryTable({
                 </tr>
               ))}
             </tbody>
+            <tfoot>
+              <tr className="workspace-player-history-total">
+                <th
+                  scope="row"
+                  colSpan={2}
+                  className="px-4 py-3 text-left"
+                >
+                  Career Total
+                </th>
+                {totalValues.map((value, index) => (
+                  <td
+                    key={`${headers[index + 2]}-total`}
+                    className={`workspace-semantic-number px-4 py-3 text-right tabular-nums ${
+                      index === 2
+                        ? "workspace-player-history-total-highlight"
+                        : ""
+                    }`}
+                  >
+                    {value}
+                  </td>
+                ))}
+              </tr>
+            </tfoot>
           </table>
         </div>
       </SortableTable>

@@ -6284,6 +6284,17 @@ html[data-theme="light"] .theme-toggle-label::after {
   background: var(--surface-subtle);
 }
 
+.workspace-player-history-total {
+  border-top: 2px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  color: var(--foreground);
+  font-weight: 700;
+}
+
+.workspace-player-history-total-highlight {
+  color: var(--accent);
+}
+
 .workspace-unit-games-table tbody td {
   padding: 0.68rem 0.8rem;
 }
