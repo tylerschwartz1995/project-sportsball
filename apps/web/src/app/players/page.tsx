@@ -260,7 +260,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                                         name={player.name}
                                         phase={phase}
                                       />
-                                      <span className="ml-2 text-xs text-slate-500">
+                                      <span className="ml-2 text-xs text-[var(--muted)]">
                                         {formatPlayerPosition(player.position)}
                                       </span>
                                     </div>
@@ -432,7 +432,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
             )}
           </>
         ) : (
-          <div className="mt-10 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
+          <div className="mt-10 rounded-2xl border border-[color-mix(in_srgb,var(--warning)_42%,var(--border))] bg-[var(--warning-soft)] p-6 text-[var(--warning)]">
             No player statistics are available for this season.
           </div>
         )}
@@ -497,7 +497,7 @@ function MobileSkaterCard({
   phase: string;
 }) {
   return (
-    <article className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+    <article className="rounded-2xl border border-[var(--border)] bg-[var(--table-background)] p-4">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-2">
           <TeamLogoStack teams={player.teams} size="compact" prominent />
@@ -508,22 +508,22 @@ function MobileSkaterCard({
               name={player.name}
               phase={phase}
             />
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-[var(--muted)]">
               {formatPlayerPosition(player.position, "Skater")} ·{" "}
               {player.gamesPlayed} games
             </p>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-semibold tabular-nums text-cyan-200">
+          <p className="text-2xl font-semibold tabular-nums text-[var(--accent)]">
             {player.points}
           </p>
-          <p className="text-xs uppercase tracking-[0.12em] text-slate-600">
+          <p className="text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
             points
           </p>
         </div>
       </div>
-      <dl className="mt-4 grid grid-cols-4 gap-3 border-t border-white/[0.06] pt-4">
+      <dl className="mt-4 grid grid-cols-4 gap-3 border-t border-[var(--border)] pt-4">
         <MobilePlayerStat label="Goals" value={player.goals} />
         <MobilePlayerStat label="Assists" value={player.assists} />
         <MobilePlayerStat label="+/-" value={formatSigned(player.plusMinus)} />
@@ -543,7 +543,7 @@ function MobileGoalieCard({
   phase: string;
 }) {
   return (
-    <article className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+    <article className="rounded-2xl border border-[var(--border)] bg-[var(--table-background)] p-4">
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-2">
           <TeamLogoStack teams={player.teams} size="compact" prominent />
@@ -554,21 +554,21 @@ function MobileGoalieCard({
               name={player.name}
               phase={phase}
             />
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-[var(--muted)]">
               {player.gamesPlayed} games · {player.gamesStarted} starts
             </p>
           </div>
         </div>
         <div className="text-right">
-          <p className="text-2xl font-semibold tabular-nums text-cyan-200">
+          <p className="text-2xl font-semibold tabular-nums text-[var(--accent)]">
             {formatSavePercentage(player.savePercentage)}
           </p>
-          <p className="text-xs uppercase tracking-[0.12em] text-slate-600">
+          <p className="text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
             save %
           </p>
         </div>
       </div>
-      <dl className="mt-4 grid grid-cols-4 gap-3 border-t border-white/[0.06] pt-4">
+      <dl className="mt-4 grid grid-cols-4 gap-3 border-t border-[var(--border)] pt-4">
         <MobilePlayerStat label="Wins" value={player.wins} />
         <MobilePlayerStat label="Losses" value={player.losses} />
         <MobilePlayerStat label="OTL" value={player.overtimeLosses} />
@@ -587,10 +587,10 @@ function MobilePlayerStat({
 }) {
   return (
     <div>
-      <dt className="text-[0.65rem] uppercase tracking-[0.1em] text-slate-600">
+      <dt className="text-[0.65rem] uppercase tracking-[0.1em] text-[var(--muted)]">
         {label}
       </dt>
-      <dd className="mt-1 text-sm font-medium tabular-nums text-slate-200">
+      <dd className="mt-1 text-sm font-medium tabular-nums text-[var(--foreground-soft)]">
         {value}
       </dd>
     </div>
@@ -621,10 +621,10 @@ function PlayerSectionHeader({
   return (
     <div id={id} className="mt-12 scroll-mt-6 flex flex-wrap items-end justify-between gap-3">
       <div>
-        <h3 className="text-2xl font-semibold text-white">{title}</h3>
-        <p className="mt-1 text-sm text-slate-500">{description}</p>
+        <h3 className="text-2xl font-semibold text-[var(--foreground)]">{title}</h3>
+        <p className="mt-1 text-sm text-[var(--muted)]">{description}</p>
       </div>
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-[var(--muted)]">
         {count} {count === 1 ? "player" : "players"}
       </p>
     </div>
@@ -645,7 +645,7 @@ function PlayerLink({
   return (
     <Link
       href={`/players/${playerId}${seasonId ? `?season=${seasonId}${phase ? `&phase=${phase}` : ""}` : ""}`}
-      className="font-medium text-white transition hover:text-cyan-200"
+      className="font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
     >
       {name}
     </Link>
@@ -662,7 +662,7 @@ function NumericCell({
   return (
     <td
       className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${
-        highlight ? "font-semibold text-cyan-200" : "text-slate-300"
+        highlight ? "font-semibold text-[var(--accent)]" : "text-[var(--foreground-soft)]"
       }`}
     >
       {value}

@@ -99,21 +99,21 @@ export default async function PlayerGamesPage({
       <section className="py-10">
         <Link
           href={`/players/${log.profile.nhlPlayerId}?season=${selectedSeason.id}&phase=${phase}`}
-          className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
+          className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
         >
           ← {log.profile.name}
         </Link>
 
         <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
+            <p className="font-mono text-sm uppercase tracking-[0.18em] text-[var(--accent)]">
               {formatPlayerPosition(log.profile.position, "Player")} ·{" "}
               {seasonPhaseLabel(phase)}
             </p>
-            <h1 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
+            <h1 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-[var(--foreground)] sm:text-5xl">
               {log.profile.name} Game Log
             </h1>
-            <p className="mt-4 text-base text-slate-400">
+            <p className="mt-4 text-base text-[var(--muted)]">
               {selectedSeason.label} game-by-game traditional and advanced
               performance.
             </p>
@@ -177,13 +177,13 @@ function SkaterRecentForm({ games }: { games: SkaterGameLogEntry[] }) {
             key={game.nhlGameId}
             href={`/games/${game.nhlGameId}`}
             title={`${formatDate(game.gameDate)}: ${game.points} ${game.points === 1 ? "point" : "points"} vs ${game.opponent.name}`}
-            className="group flex min-h-20 flex-col justify-end rounded-lg border border-white/10 bg-white/[0.035] p-2 transition hover:border-cyan-300/30 hover:bg-cyan-300/[0.07]"
+            className="group flex min-h-20 flex-col justify-end rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] p-2 transition hover:border-[color-mix(in_srgb,var(--accent)_42%,var(--border))] hover:bg-[var(--accent-soft)]"
           >
             <span
-              className="block rounded-sm bg-cyan-300/70 transition group-hover:bg-cyan-200"
+              className="block rounded-sm bg-[var(--accent)] transition group-hover:bg-[var(--foreground)]"
               style={{ height: `${Math.max(4, Math.min(48, game.points * 14))}px` }}
             />
-            <span className="mt-2 text-center text-xs font-semibold text-white">
+            <span className="mt-2 text-center text-xs font-semibold text-[var(--foreground)]">
               {game.points} P
             </span>
           </Link>
@@ -205,12 +205,12 @@ function GoalieRecentForm({ games }: { games: GoalieGameLogEntry[] }) {
             key={game.nhlGameId}
             href={`/games/${game.nhlGameId}`}
             title={`${formatDate(game.gameDate)}: ${formatSavePercentage(game.savePercentage)} vs ${game.opponent.name}`}
-            className="rounded-lg border border-white/10 bg-white/[0.035] px-2 py-4 text-center transition hover:border-cyan-300/30 hover:bg-cyan-300/[0.07]"
+            className="rounded-lg border border-[var(--border)] bg-[var(--surface-subtle)] px-2 py-4 text-center transition hover:border-[color-mix(in_srgb,var(--accent)_42%,var(--border))] hover:bg-[var(--accent-soft)]"
           >
-            <span className="block text-xs text-slate-500">
+            <span className="block text-xs text-[var(--muted)]">
               {game.decision ?? "—"}
             </span>
-            <span className="mt-1 block text-xs font-semibold text-white">
+            <span className="mt-1 block text-xs font-semibold text-[var(--foreground)]">
               {formatSavePercentage(game.savePercentage)}
             </span>
           </Link>
@@ -231,14 +231,14 @@ function RecentFormSection({
     <section className="mt-10">
       <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
             Recent form
           </p>
-          <h3 className="mt-2 text-2xl font-semibold text-white">
+          <h3 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">
             Last {gameCount} Games
           </h3>
         </div>
-        <p className="text-sm text-slate-500">Newest game appears first</p>
+        <p className="text-sm text-[var(--muted)]">Newest game appears first</p>
       </div>
       {children}
     </section>
@@ -273,7 +273,7 @@ function SkaterGameTable({
         <div className="workspace-table-scroll-viewport">
           <table className="workspace-table-dense workspace-sticky-table-header w-full min-w-[1380px] text-sm">
             <thead>
-              <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+              <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                 <LogHeaders goalie={false} />
               </tr>
             </thead>
@@ -281,7 +281,7 @@ function SkaterGameTable({
               {gamePage.items.map((game) => (
                 <tr
                   key={game.nhlGameId}
-                  className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
+                  className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                 >
                   <GameIdentityCells game={game} seasonId={seasonId} />
                   <NumericCell value={game.goals} />
@@ -349,7 +349,7 @@ function GoalieGameTable({
         <div className="workspace-table-scroll-viewport">
           <table className="workspace-table-dense workspace-sticky-table-header w-full min-w-[1220px] text-sm">
             <thead>
-              <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+              <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                 <LogHeaders goalie />
               </tr>
             </thead>
@@ -357,13 +357,13 @@ function GoalieGameTable({
               {gamePage.items.map((game) => (
                 <tr
                   key={game.nhlGameId}
-                  className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
+                  className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                 >
                   <GameIdentityCells game={game} seasonId={seasonId} />
                   <td className="px-3 py-3 text-center">
                     {game.starter ? "Yes" : "No"}
                   </td>
-                  <td className="px-3 py-3 text-center font-semibold text-white">
+                  <td className="px-3 py-3 text-center font-semibold text-[var(--foreground)]">
                     {game.decision ?? "—"}
                   </td>
                   <NumericCell value={game.goalsAgainst} />
@@ -475,7 +475,7 @@ function GameIdentityCells({
       >
         <Link
           href={`/games/${game.nhlGameId}`}
-          className="font-medium text-white transition hover:text-cyan-200"
+          className="font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
         >
           {formatDate(game.gameDate)}
         </Link>
@@ -486,7 +486,7 @@ function GameIdentityCells({
           <TeamLogo {...game.team} size="tiny" decorative />
           <Link
             href={`/teams/${game.team.nhlTeamId}?season=${seasonId}`}
-            className="transition hover:text-cyan-200"
+            className="transition hover:text-[var(--accent)]"
           >
             {game.team.abbreviation}
           </Link>
@@ -498,7 +498,7 @@ function GameIdentityCells({
           <TeamLogo {...game.opponent} size="tiny" decorative />
           <Link
             href={`/teams/${game.opponent.nhlTeamId}?season=${seasonId}`}
-            className="transition hover:text-cyan-200"
+            className="transition hover:text-[var(--accent)]"
           >
             {game.opponent.abbreviation}
           </Link>
@@ -537,17 +537,17 @@ function GameTableSection({
     <section className="mt-12" id="game-log-results">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-cyan-300">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
             {eyebrow}
           </p>
-          <h3 className="mt-2 text-2xl font-semibold text-white">{title}</h3>
+          <h3 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{title}</h3>
         </div>
-        <p className="text-sm text-slate-500">{detail}</p>
+        <p className="text-sm text-[var(--muted)]">{detail}</p>
       </div>
-      <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+      <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         {children}
       </div>
-      <p className="mt-3 text-xs text-slate-500">{note}</p>
+      <p className="mt-3 text-xs text-[var(--muted)]">{note}</p>
     </section>
   );
 }
@@ -605,7 +605,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${highlight ? "font-semibold text-white" : ""}`}
+      className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${highlight ? "font-semibold text-[var(--foreground)]" : ""}`}
       data-sort-value={sortValue ?? value ?? ""}
     >
       {value ?? "—"}

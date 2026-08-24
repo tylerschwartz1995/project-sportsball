@@ -40,8 +40,8 @@ export function Pagination({
             aria-current={page === currentPage ? "page" : undefined}
             className={`min-w-10 rounded-lg px-3 py-2 text-center text-sm font-medium transition ${
               page === currentPage
-                ? "bg-cyan-300 text-slate-950"
-                : "border border-white/10 text-slate-300 hover:border-white/20 hover:text-white"
+                ? "bg-[var(--accent)] text-[var(--on-accent)]"
+                : "border border-[var(--border)] text-[var(--foreground-soft)] hover:border-[var(--border-strong)] hover:text-[var(--foreground)]"
             }`}
           >
             {page}
@@ -70,14 +70,14 @@ function PageLink({
   return disabled ? (
     <span
       aria-disabled="true"
-      className="rounded-lg border border-white/[0.06] px-4 py-2 text-sm font-medium text-slate-700"
+      className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--muted)]"
     >
       {children}
     </span>
   ) : (
     <Link
       href={href}
-      className="rounded-lg border border-white/10 px-4 py-2 text-sm font-medium text-slate-300 transition hover:border-white/20 hover:text-white"
+      className="rounded-lg border border-[var(--border)] px-4 py-2 text-sm font-medium text-[var(--foreground-soft)] transition hover:border-[var(--border-strong)] hover:text-[var(--foreground)]"
     >
       {children}
     </Link>

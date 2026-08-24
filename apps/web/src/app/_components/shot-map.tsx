@@ -70,7 +70,8 @@ function TeamShotMap({
   );
   const goals = shots.filter((shot) => shot.isGoal).length;
   const expectedGoals = sumExpectedGoals(shots);
-  const color = accent === "cyan" ? "#67e8f9" : "#c4b5fd";
+  const color =
+    accent === "cyan" ? "var(--chart-primary)" : "var(--chart-secondary)";
   const selectedShot =
     shots.find((shot) => shotKey(shot) === selectedShotId) ?? null;
   const activeShotId =
@@ -107,17 +108,17 @@ function TeamShotMap({
 
   return (
     <figure className="surface-panel flex h-full flex-col overflow-hidden">
-      <figcaption className="border-b border-white/[0.07] px-5 py-4">
+      <figcaption className="border-b border-[var(--border)] px-5 py-4">
         <div className="flex min-w-0 items-center gap-3">
           <TeamLogo {...team} size="compact" decorative />
           <div className="min-w-0">
-            <p className="font-mono text-xs uppercase tracking-[0.14em] text-slate-500">
+            <p className="font-mono text-xs uppercase tracking-[0.14em] text-[var(--muted)]">
               {team.abbreviation} attempts
             </p>
-            <p className="mt-1 whitespace-nowrap font-semibold text-white">
+            <p className="mt-1 whitespace-nowrap font-semibold text-[var(--foreground)]">
               {team.name}
             </p>
-            <p className="mt-2 whitespace-nowrap text-sm tabular-nums text-slate-400">
+            <p className="mt-2 whitespace-nowrap text-sm tabular-nums text-[var(--muted)]">
               {shots.length} attempts · {goals} goals ·{" "}
               {expectedGoals.toFixed(2)} xG
             </p>
@@ -144,7 +145,7 @@ function TeamShotMap({
             y1={SHOT_RINK.top}
             x2={mapShotX(25)}
             y2={SHOT_RINK.top + SHOT_RINK.height}
-            stroke="#2563eb"
+            stroke="var(--rink-line-blue)"
             strokeWidth="2"
             opacity="0.55"
           />
@@ -153,20 +154,20 @@ function TeamShotMap({
             y1={SHOT_RINK.top + 2}
             x2={mapShotX(89)}
             y2={SHOT_RINK.top + SHOT_RINK.height - 2}
-            stroke="#ef4444"
+            stroke="var(--rink-line-red)"
             strokeWidth="2"
             opacity="0.7"
           />
           <path
             d={`M${mapShotX(89)} ${SHOT_RINK.centerY - 12} C${mapShotX(95)} ${SHOT_RINK.centerY - 12} ${mapShotX(95)} ${SHOT_RINK.centerY + 12} ${mapShotX(89)} ${SHOT_RINK.centerY + 12}`}
             fill="none"
-            stroke="#ef4444"
+            stroke="var(--rink-line-red)"
             strokeWidth="2"
           />
           <path
             d={`M${mapShotX(89)} ${SHOT_RINK.centerY - 18} A18 18 0 0 0 ${mapShotX(89)} ${SHOT_RINK.centerY + 18}`}
-            fill="color-mix(in srgb, #38bdf8 12%, transparent)"
-            stroke="#38bdf8"
+            fill="color-mix(in srgb, var(--rink-crease) 12%, transparent)"
+            stroke="var(--rink-crease)"
             strokeWidth="1.5"
             opacity="0.7"
           />
@@ -175,7 +176,7 @@ function TeamShotMap({
             y1={SHOT_RINK.top + 2}
             x2={SHOT_RINK.left}
             y2={SHOT_RINK.top + SHOT_RINK.height - 2}
-            stroke="#ef4444"
+            stroke="var(--rink-line-red)"
             strokeWidth="3"
             opacity="0.75"
           />
@@ -187,7 +188,7 @@ function TeamShotMap({
                 cy={y}
                 r="45"
                 fill="none"
-                stroke="#ef4444"
+                stroke="var(--rink-line-red)"
                 strokeWidth="1.25"
                 opacity="0.35"
               />
@@ -195,7 +196,7 @@ function TeamShotMap({
                 cx={mapShotX(69)}
                 cy={y}
                 r="3"
-                fill="#ef4444"
+                fill="var(--rink-line-red)"
                 opacity="0.65"
               />
             </g>
@@ -286,7 +287,7 @@ function TeamShotMap({
 
         <div
           id={instructionsId}
-          className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-slate-500"
+          className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[var(--muted)]"
         >
           <LegendDot color={color} label="Missed" dashed />
           <LegendDot color={color} label="Saved" fillOpacity={0.3} />
@@ -319,7 +320,7 @@ function ShotDetails({
 }) {
   if (!shot) {
     return (
-      <p className="mt-4 rounded-xl border border-dashed border-white/10 bg-white/[0.025] px-4 py-3 text-sm text-slate-500">
+      <p className="mt-4 rounded-xl border border-dashed border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-3 text-sm text-[var(--muted)]">
         Select any shot marker to see the shooter, result, game situation, and
         shot-quality details.
       </p>
@@ -341,22 +342,22 @@ function ShotDetails({
   return (
     <div
       aria-live="polite"
-      className="mt-4 rounded-xl border border-white/10 bg-white/[0.035] p-4"
+      className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
+          <p className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--muted)]">
             Selected shot
           </p>
-          <p className="mt-1 font-semibold text-white">
+          <p className="mt-1 font-semibold text-[var(--foreground)]">
             {shot.shooter?.name ?? "Unknown shooter"}
           </p>
         </div>
         <span
           className={
             shot.isGoal
-              ? "rounded-full bg-emerald-300/15 px-2.5 py-1 text-xs font-semibold text-emerald-200"
-              : "rounded-full bg-white/[0.06] px-2.5 py-1 text-xs font-semibold text-slate-300"
+              ? "rounded-full bg-[var(--positive-soft)] px-2.5 py-1 text-xs font-semibold text-[var(--positive)]"
+              : "rounded-full bg-[var(--surface-subtle)] px-2.5 py-1 text-xs font-semibold text-[var(--foreground-soft)]"
           }
         >
           {shotOutcome(shot)}
@@ -391,7 +392,7 @@ function ShotDetails({
           {tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full border border-white/10 px-2.5 py-1 text-xs text-slate-400"
+              className="rounded-full border border-[var(--border)] px-2.5 py-1 text-xs text-[var(--muted)]"
             >
               {tag}
             </span>
@@ -405,8 +406,8 @@ function ShotDetails({
 function ShotDetail({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs text-slate-500">{label}</dt>
-      <dd className="mt-0.5 tabular-nums text-slate-200">{value}</dd>
+      <dt className="text-xs text-[var(--muted)]">{label}</dt>
+      <dd className="mt-0.5 tabular-nums text-[var(--foreground-soft)]">{value}</dd>
     </div>
   );
 }

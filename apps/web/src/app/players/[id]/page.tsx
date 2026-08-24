@@ -158,7 +158,7 @@ export default async function PlayerPage({
       <section className="py-10">
         <Link
           href={`/players${selectedSeason ? `?season=${selectedSeason.id}&phase=${phase}` : ""}`}
-          className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
+          className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
         >
           ← All players
         </Link>
@@ -172,15 +172,15 @@ export default async function PlayerPage({
                 prominent
               />
               <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
-                <h1 className="text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
+                <h1 className="text-4xl font-semibold tracking-[-0.035em] text-[var(--foreground)] sm:text-5xl">
                   {profile.name}
                 </h1>
-                <span className="rounded-full border border-cyan-300/25 bg-cyan-300/[0.08] px-2.5 py-1 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-cyan-200">
+                <span className="rounded-full border border-[color-mix(in_srgb,var(--accent)_42%,var(--border))] bg-[var(--accent-soft)] px-2.5 py-1 font-mono text-xs font-semibold uppercase tracking-[0.14em] text-[var(--accent)]">
                   {formatPlayerPositionLong(profile.position)}
                 </span>
               </div>
             </div>
-            <p className="mt-4 text-base text-slate-400">
+            <p className="mt-4 text-base text-[var(--muted)]">
               {selectedSeason
                 ? `${selectedSeason.label} and career statistics`
                 : "Player profile"}
@@ -295,18 +295,18 @@ export default async function PlayerPage({
         {selectedSeason ? (
           <Link
             href={`/players/${profile.nhlPlayerId}/games?season=${selectedSeason.id}&phase=${phase}`}
-            className="workspace-player-overview-block mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.06] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.09]"
+            className="workspace-player-overview-block mt-5 flex items-center justify-between gap-4 rounded-2xl border border-[color-mix(in_srgb,var(--accent)_42%,var(--border))] bg-[var(--accent-soft)] px-5 py-4 transition hover:border-[color-mix(in_srgb,var(--accent)_64%,var(--border))] hover:bg-[color-mix(in_srgb,var(--accent)_18%,var(--surface))]"
           >
             <span>
-              <span className="block font-medium text-white">
+              <span className="block font-medium text-[var(--foreground)]">
                 Explore the {selectedSeason.label} game log
               </span>
-              <span className="mt-1 block text-sm text-slate-400">
+              <span className="mt-1 block text-sm text-[var(--muted)]">
                 Game-by-game performance, recent form, and available advanced
                 metrics.
               </span>
             </span>
-            <span className="shrink-0 text-cyan-300">View games →</span>
+            <span className="shrink-0 text-[var(--accent)]">View games →</span>
           </Link>
         ) : null}
         </>
@@ -358,7 +358,7 @@ export default async function PlayerPage({
           />
         ) : null}
         {phase === "playoffs" ? (
-          <p className="mt-8 rounded-2xl border border-violet-300/20 bg-violet-300/[0.06] p-5 text-sm text-slate-300">
+          <p className="mt-8 rounded-2xl border border-[color-mix(in_srgb,var(--accent-secondary)_42%,var(--border))] bg-[var(--accent-secondary-soft)] p-5 text-sm text-[var(--foreground-soft)]">
             Player-level MoneyPuck playoff files are not available, so advanced
             skater and goalie panels remain regular-season only.
           </p>
@@ -469,12 +469,12 @@ function SectionTitle({
   return (
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-cyan-300">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
           {eyebrow}
         </p>
-        <h3 className="mt-2 text-2xl font-semibold text-white">{title}</h3>
+        <h3 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{title}</h3>
       </div>
-      {detail ? <p className="text-sm text-slate-500">{detail}</p> : null}
+      {detail ? <p className="text-sm text-[var(--muted)]">{detail}</p> : null}
     </div>
   );
 }
@@ -545,9 +545,9 @@ function GoaliePanel({
 
 function EmptyPanel({ title }: { title: string }) {
   return (
-    <article className="rounded-2xl border border-white/10 bg-white/[0.025] p-6">
-      <h4 className="font-semibold text-white">{title}</h4>
-      <p className="mt-5 text-sm text-slate-500">Did not participate.</p>
+    <article className="rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-6">
+      <h4 className="font-semibold text-[var(--foreground)]">{title}</h4>
+      <p className="mt-5 text-sm text-[var(--muted)]">Did not participate.</p>
     </article>
   );
 }
@@ -648,14 +648,14 @@ function HistoryTable({
 }) {
   if (rows.length === 0) {
     return (
-      <p className="rounded-xl border border-white/10 bg-white/[0.025] p-5 text-sm text-slate-500">
+      <p className="rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-5 text-sm text-[var(--muted)]">
         No appearances.
       </p>
     );
   }
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+    <div className="min-w-0 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
       <SortableTable defaultSortKey={headers[0]} defaultDirection="desc">
         <div className="min-w-0 max-w-full overflow-x-auto">
           <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[700px]">
@@ -665,7 +665,7 @@ function HistoryTable({
               <col className="workspace-col-number" span={Math.max(headers.length - 2, 0)} />
             </colgroup>
             <thead>
-              <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+              <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                 {headers.map((header, index) => (
                   <SortableHeader
                     key={header}
@@ -681,7 +681,7 @@ function HistoryTable({
               {rows.map((row, rowIndex) => (
                 <tr
                   key={`${String(row[0])}-${rowIndex}`}
-                  className="border-b border-white/[0.06] text-slate-300 last:border-0"
+                  className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0"
                 >
                   {row.map((value, index) => (
                     <td
@@ -690,7 +690,7 @@ function HistoryTable({
                         index >= 2 ? "workspace-semantic-number " : ""
                       }${
                         index === 0 ? "text-left" : "text-right"
-                      } ${index === 4 ? "font-semibold text-cyan-200" : ""}`}
+                      } ${index === 4 ? "font-semibold text-[var(--accent)]" : ""}`}
                     >
                       {value}
                     </td>
@@ -737,7 +737,7 @@ function HistoryGroup({
 }) {
   return (
     <div className="min-w-0">
-      <h4 className="mb-3 text-sm font-semibold text-white">{title}</h4>
+      <h4 className="mb-3 text-sm font-semibold text-[var(--foreground)]">{title}</h4>
       {children}
     </div>
   );

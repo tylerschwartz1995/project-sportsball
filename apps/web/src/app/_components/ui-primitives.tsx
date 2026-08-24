@@ -18,16 +18,16 @@ export function SectionHeader({
       <div>
         <p
           className={`font-mono text-xs uppercase tracking-[0.18em] ${
-            tone === "violet" ? "text-violet-300" : "text-cyan-300"
+            tone === "violet" ? "text-[var(--accent-secondary)]" : "text-[var(--accent)]"
           }`}
         >
           {eyebrow}
         </p>
-        <h3 className="mt-2 text-2xl font-semibold tracking-[-0.025em] text-white">
+        <h3 className="mt-2 text-2xl font-semibold tracking-[-0.025em] text-[var(--foreground)]">
           {title}
         </h3>
         {description ? (
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted)]">
             {description}
           </p>
         ) : null}
@@ -56,22 +56,22 @@ export function MetricTile({
     <div
       className={
         emphasis
-          ? "rounded-xl border border-cyan-300/20 bg-cyan-300/[0.07] p-4"
-          : "rounded-xl border border-white/[0.07] bg-black/10 p-4"
+          ? "rounded-xl border border-[color-mix(in_srgb,var(--accent)_42%,var(--border))] bg-[var(--accent-soft)] p-4"
+          : "rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4"
       }
     >
-      <dt className="text-[0.68rem] font-medium uppercase tracking-[0.13em] text-slate-500">
+      <dt className="text-[0.68rem] font-medium uppercase tracking-[0.13em] text-[var(--muted)]">
         {label}
       </dt>
       <dd
         className={`mt-2 text-xl font-semibold tabular-nums ${
-          emphasis ? "text-cyan-100" : "text-white"
+          emphasis ? "text-[var(--accent)]" : "text-[var(--foreground)]"
         }`}
       >
         {value}
       </dd>
       {detail ? (
-        <p className="mt-1 text-xs tabular-nums text-slate-500">{detail}</p>
+        <p className="mt-1 text-xs tabular-nums text-[var(--muted)]">{detail}</p>
       ) : null}
     </div>
   );

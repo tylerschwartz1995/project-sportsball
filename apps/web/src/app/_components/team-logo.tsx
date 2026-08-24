@@ -64,10 +64,10 @@ export function TeamLogo({
     (nhlTeamId ? teamAbbreviations[nhlTeamId] : undefined) ?? "NHL";
   const src = teamLogoUrl(resolvedAbbreviation);
   const className = size === "profile"
-    ? "relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl border border-white/70 bg-slate-50/95 p-2 shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_8px_24px_rgb(2_8_23/0.22)]"
+    ? "relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl border border-[var(--border)] bg-slate-50/95 p-2 shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_8px_24px_rgb(2_8_23/0.22)]"
     : size === "compact"
-      ? "relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-white/70 bg-slate-50/95 p-1 shadow-sm"
-      : "relative grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-md border border-white/70 bg-slate-50/95 p-0.5 shadow-sm";
+      ? "relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-[var(--border)] bg-slate-50/95 p-1 shadow-sm"
+      : "relative grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-md border border-[var(--border)] bg-slate-50/95 p-0.5 shadow-sm";
   const imageScale = size === "tiny"
     ? prominent
       ? "scale-[1.55]"
@@ -146,7 +146,7 @@ export function TeamLogoStack({
         />
       ))}
       {uniqueTeams.length > max ? (
-        <span className="ml-1 text-[0.65rem] text-slate-500">
+        <span className="ml-1 text-[0.65rem] text-[var(--muted)]">
           +{uniqueTeams.length - max}
         </span>
       ) : null}

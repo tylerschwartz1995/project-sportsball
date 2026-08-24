@@ -94,7 +94,7 @@ export default async function TeamGamesPage({
       <section className="py-10">
         <Link
           href={`/teams/${log.team.nhlTeamId}?season=${selectedSeason.id}&phase=${phase}`}
-          className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
+          className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
         >
           ← {log.team.name}
         </Link>
@@ -103,13 +103,13 @@ export default async function TeamGamesPage({
           <div className="flex items-center gap-4">
             <TeamLogo {...log.team} size="compact" decorative />
             <div>
-              <p className="font-mono text-sm uppercase tracking-[0.18em] text-cyan-300">
+              <p className="font-mono text-sm uppercase tracking-[0.18em] text-[var(--accent)]">
                 {log.team.abbreviation} · {seasonPhaseLabel(phase)}
               </p>
-              <h1 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-white sm:text-5xl">
+              <h1 className="mt-3 text-4xl font-semibold tracking-[-0.035em] text-[var(--foreground)] sm:text-5xl">
                 {log.team.name} Game Log
               </h1>
-              <p className="mt-4 text-base text-slate-400">
+              <p className="mt-4 text-base text-[var(--muted)]">
                 {selectedSeason.label} results, shot totals, and five-on-five
                 expected-goal share.
               </p>
@@ -131,14 +131,14 @@ export default async function TeamGamesPage({
         <section className="mt-10">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
+              <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
                 Recent form
               </p>
-              <h3 className="mt-2 text-2xl font-semibold text-white">
+              <h3 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">
                 Last {recentGames.length} Games
               </h3>
             </div>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-[var(--muted)]">
               Newest game appears first
             </p>
           </div>
@@ -163,24 +163,24 @@ export default async function TeamGamesPage({
         <section className="mt-12" id="game-log-results">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.18em] text-cyan-300">
+              <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
                 Full season
               </p>
-              <h3 className="mt-2 text-2xl font-semibold text-white">
+              <h3 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">
                 {seasonPhaseLabel(phase)} Games
               </h3>
             </div>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-[var(--muted)]">
               {gamePage.firstItem}–{gamePage.lastItem} of {gamePage.totalItems} completed games
             </p>
           </div>
 
-          <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+          <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
             <SortableTable defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
               <div className="workspace-table-scroll-viewport">
                 <table className="workspace-table-dense workspace-sticky-table-header w-full min-w-[1040px] text-sm">
                   <thead>
-                    <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+                    <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                       <SortableHeader
                         label="Date"
                         sortKey="date"
@@ -240,7 +240,7 @@ export default async function TeamGamesPage({
             pageSize={pageSize}
             scrollTarget="game-log-results"
           />
-          <p className="mt-3 text-xs text-slate-500">
+          <p className="mt-3 text-xs text-[var(--muted)]">
             Advanced columns are five-on-five MoneyPuck metrics. A dash means
             that provider coverage is unavailable for that game.
           </p>
@@ -291,14 +291,14 @@ function TeamGameRow({
   seasonId: number;
 }) {
   return (
-    <tr className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]">
+    <tr className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]">
       <td
         className="px-3 py-3"
         data-sort-value={game.gameDate.replaceAll("-", "")}
       >
         <Link
           href={`/games/${game.nhlGameId}`}
-          className="font-medium text-white transition hover:text-cyan-200"
+          className="font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
         >
           {formatDate(game.gameDate)}
         </Link>
@@ -310,7 +310,7 @@ function TeamGameRow({
           <TeamLogo {...game.opponent} size="tiny" decorative />
           <Link
             href={`/teams/${game.opponent.nhlTeamId}?season=${seasonId}`}
-            className="transition hover:text-cyan-200"
+            className="transition hover:text-[var(--accent)]"
           >
             {game.opponent.abbreviation}
           </Link>
@@ -356,7 +356,7 @@ function NumericCell({
 }) {
   return (
     <td
-      className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${highlight ? "font-semibold text-white" : ""}`}
+      className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${highlight ? "font-semibold text-[var(--foreground)]" : ""}`}
       data-sort-value={sortValue ?? value ?? ""}
     >
       {value ?? "—"}
@@ -383,22 +383,22 @@ function formatDecimal(value: number | null): string {
 
 function resultClassName(result: TeamGameLogEntry["result"]): string {
   if (result === "W") {
-    return "border-emerald-300/30 bg-emerald-300/10 text-emerald-200";
+    return "border-[color-mix(in_srgb,var(--positive)_42%,var(--border))] bg-[var(--positive-soft)] text-[var(--positive)]";
   }
   if (result === "OTL") {
-    return "border-amber-300/30 bg-amber-300/10 text-amber-200";
+    return "border-[color-mix(in_srgb,var(--warning)_42%,var(--border))] bg-[var(--warning-soft)] text-[var(--warning)]";
   }
-  return "border-rose-300/30 bg-rose-300/10 text-rose-200";
+  return "border-[color-mix(in_srgb,var(--negative)_42%,var(--border))] bg-[var(--negative-soft)] text-[var(--negative)]";
 }
 
 function resultTextClassName(result: TeamGameLogEntry["result"]): string {
   if (result === "W") {
-    return "text-emerald-300";
+    return "text-[var(--positive)]";
   }
   if (result === "OTL") {
-    return "text-amber-300";
+    return "text-[var(--warning)]";
   }
-  return "text-rose-300";
+  return "text-[var(--negative)]";
 }
 
 function firstValue(value: string | string[] | undefined): string | undefined {

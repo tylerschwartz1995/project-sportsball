@@ -35,7 +35,7 @@ export function SortableHeader({
     description ?? (typeof label === "string" ? metricDefinition(label) : undefined);
   const helpId = useId();
   const href = sortHref(sortKey, defaultDirection);
-  const controlClassName = `relative flex min-h-11 w-full items-center gap-1 rounded-sm px-3 py-3 transition hover:text-cyan-200 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-cyan-300 ${
+  const controlClassName = `relative flex min-h-11 w-full items-center gap-1 rounded-sm px-3 py-3 transition hover:text-[var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[var(--accent)] ${
     nowrap ? "whitespace-nowrap" : ""
   } ${
     align === "left"
@@ -50,7 +50,7 @@ export function SortableHeader({
       <span
         aria-hidden="true"
         className={`shrink-0 ${
-          isActive ? "text-cyan-300" : "text-slate-700"
+          isActive ? "text-[var(--accent)]" : "text-[var(--muted)]"
         }`}
       >
         {isActive ? (direction === "asc" ? "↑" : "↓") : "↕"}

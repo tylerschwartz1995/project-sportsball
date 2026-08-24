@@ -25,14 +25,14 @@ type StandingsPointsChartProps = {
 };
 
 const COLORS = [
-  "#67e8f9",
-  "#fbbf24",
-  "#a78bfa",
-  "#34d399",
-  "#fb7185",
-  "#60a5fa",
-  "#f97316",
-  "#c084fc",
+  "var(--chart-series-1)",
+  "var(--chart-series-2)",
+  "var(--chart-series-3)",
+  "var(--chart-series-4)",
+  "var(--chart-series-5)",
+  "var(--chart-series-6)",
+  "var(--chart-series-7)",
+  "var(--chart-series-8)",
 ];
 
 export function StandingsPointsChart({
@@ -95,30 +95,33 @@ export function StandingsPointsChart({
             data={chartData}
             margin={{ top: 14, right: 20, bottom: 8, left: 4 }}
           >
-            <CartesianGrid stroke="rgba(148,163,184,0.12)" vertical={false} />
+            <CartesianGrid stroke="var(--chart-grid)" vertical={false} />
             <XAxis
               dataKey="date"
               tickFormatter={formatDate}
               minTickGap={42}
-              tick={{ fill: "#94a3b8", fontSize: "0.84rem" }}
-              axisLine={{ stroke: "rgba(148,163,184,0.2)" }}
+              tick={{ fill: "var(--chart-label)", fontSize: "0.84rem" }}
+              axisLine={{ stroke: "var(--chart-axis)" }}
               tickLine={false}
             />
             <YAxis
               allowDecimals={false}
               width={42}
-              tick={{ fill: "#94a3b8", fontSize: "0.84rem" }}
+              tick={{ fill: "var(--chart-label)", fontSize: "0.84rem" }}
               axisLine={false}
               tickLine={false}
             />
             <Tooltip
               labelFormatter={(label) => formatLongDate(String(label))}
               contentStyle={{
-                background: "#081626",
-                border: "1px solid rgba(148,163,184,0.24)",
+                background: "var(--surface-raised)",
+                border: "1px solid var(--border-strong)",
                 borderRadius: 12,
+                color: "var(--foreground)",
                 fontSize: "0.84rem",
               }}
+              itemStyle={{ color: "var(--foreground)" }}
+              labelStyle={{ color: "var(--foreground)" }}
             />
             {selectedTeams.map((team, index) => (
               <Line

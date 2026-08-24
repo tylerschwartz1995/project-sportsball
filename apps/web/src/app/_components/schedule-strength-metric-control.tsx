@@ -44,7 +44,7 @@ export function ScheduleStrengthMetricControl({
             key={metric}
             data-strength-description={metric}
             aria-hidden={activeMetric === metric ? undefined : true}
-            className="col-start-1 row-start-1 text-sm leading-6 text-slate-400"
+            className="col-start-1 row-start-1 text-sm leading-6 text-[var(--muted)]"
           >
             {scheduleStrengthMetricDefinitions[metric].description}{" "}
             {scheduleContextSuffix}

@@ -52,7 +52,7 @@ export function TeamAdvancedAnalytics({
         </div>
       ) : null}
 
-      <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+      <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         <SortableTable>
         <div className="overflow-x-auto">
           <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
@@ -62,7 +62,7 @@ export function TeamAdvancedAnalytics({
               <col className="workspace-col-number" span={4} />
             </colgroup>
             <thead>
-              <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+              <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                 <MetricHeader label="Situation" align="left" />
                 <MetricHeader label="xG%" />
                 <MetricHeader label="CF%" />
@@ -175,11 +175,11 @@ function AdvancedSection({
     <section className={`workspace-width-${width} mt-12`}>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent-secondary)]">
             Advanced analytics
           </p>
-          <h3 className="mt-2 text-2xl font-semibold text-white">{title}</h3>
-          <p className="mt-2 text-sm text-slate-500">{description}</p>
+          <h3 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{title}</h3>
+          <p className="mt-2 text-sm text-[var(--muted)]">{description}</p>
         </div>
         <MoneyPuckAttribution />
       </div>
@@ -213,7 +213,7 @@ function SkaterAdvancedTable({
           />
         </div>
       ) : null}
-      <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+      <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         <SortableTable>
         <div className="overflow-x-auto">
           <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[840px]">
@@ -224,7 +224,7 @@ function SkaterAdvancedTable({
               <col className="workspace-col-number" span={4} />
             </colgroup>
             <thead>
-              <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+              <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                 <MetricHeader label="Team" align="left" />
                 <MetricHeader label="Situation" align="left" />
                 <MetricHeader label="xG%" />
@@ -240,7 +240,7 @@ function SkaterAdvancedTable({
               {rows.map((row) => (
                 <tr
                   key={`${row.team.nhlTeamId}-${row.situation}`}
-                  className="border-b border-white/[0.06] text-slate-300 last:border-0"
+                  className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0"
                 >
                   <TeamCell team={row.team} />
                   <TextCell value={situationLabel(row.situation)} />
@@ -302,7 +302,7 @@ function GoalieAdvancedTable({
           />
         </div>
       ) : null}
-      <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+      <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         <SortableTable>
         <div className="overflow-x-auto">
           <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
@@ -312,7 +312,7 @@ function GoalieAdvancedTable({
               <col className="workspace-col-number" span={5} />
             </colgroup>
             <thead>
-              <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+              <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                 <MetricHeader label="Team" align="left" />
                 <MetricHeader label="Situation" align="left" />
                 <MetricHeader label="xGA" />
@@ -326,7 +326,7 @@ function GoalieAdvancedTable({
               {rows.map((row) => (
                 <tr
                   key={`${row.team.nhlTeamId}-${row.situation}`}
-                  className="border-b border-white/[0.06] text-slate-300 last:border-0"
+                  className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0"
                 >
                   <TeamCell team={row.team} />
                   <TextCell value={situationLabel(row.situation)} />
@@ -358,7 +358,7 @@ function GoalieAdvancedTable({
 
 function TeamAdvancedRow({ row }: { row: MoneyPuckTeamSituation }) {
   return (
-    <tr className="border-b border-white/[0.06] text-slate-300 last:border-0">
+    <tr className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0">
       <TextCell value={situationLabel(row.situation)} />
       <ValueCell
         value={formatPercentage(row.expectedGoalsPercentage)}
@@ -376,11 +376,11 @@ function TeamAdvancedRow({ row }: { row: MoneyPuckTeamSituation }) {
 
 function AdvancedCard({ label, value }: { label: string; value: string }) {
   return (
-    <article className="rounded-xl border border-violet-300/15 bg-violet-300/[0.06] p-4">
-      <p className="text-xs uppercase tracking-[0.12em] text-violet-200/70">
+    <article className="rounded-xl border border-[color-mix(in_srgb,var(--accent-secondary)_42%,var(--border))] bg-[var(--accent-secondary-soft)] p-4">
+      <p className="text-xs uppercase tracking-[0.12em] text-[var(--accent-secondary)]">
         {label}
       </p>
-      <p className="mt-2 text-xl font-semibold tabular-nums text-white">
+      <p className="mt-2 text-xl font-semibold tabular-nums text-[var(--foreground)]">
         {value}
       </p>
     </article>
@@ -389,18 +389,18 @@ function AdvancedCard({ label, value }: { label: string; value: string }) {
 
 function MetricDefinitions({ seasonId }: { seasonId: number }) {
   return (
-    <div className="mt-5 rounded-xl border border-white/10 bg-white/[0.025] p-4 text-sm leading-6 text-slate-400">
+    <div className="mt-5 rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4 text-sm leading-6 text-[var(--muted)]">
       <p>
-        <strong className="text-slate-200">xG%</strong> is the share of expected
+        <strong className="text-[var(--foreground-soft)]">xG%</strong> is the share of expected
         goals while the team or player was on the ice.{" "}
-        <strong className="text-slate-200">CF%</strong> is the share of all shot
-        attempts. <strong className="text-slate-200">FF%</strong> excludes
-        blocked attempts. <strong className="text-slate-200">GSAx</strong> is
+        <strong className="text-[var(--foreground-soft)]">CF%</strong> is the share of all shot
+        attempts. <strong className="text-[var(--foreground-soft)]">FF%</strong> excludes
+        blocked attempts. <strong className="text-[var(--foreground-soft)]">GSAx</strong> is
         expected goals against minus actual goals against; positive is better.
       </p>
       <Link
         href={`/analytics/guide?season=${seasonId}`}
-        className="mt-3 inline-block font-medium text-violet-300 transition hover:text-violet-200"
+        className="mt-3 inline-block font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
       >
         Open the full metric guide →
       </Link>
@@ -414,7 +414,7 @@ function MoneyPuckAttribution() {
       href="https://moneypuck.com/"
       target="_blank"
       rel="noreferrer"
-      className="text-sm font-medium text-violet-300 transition hover:text-violet-200"
+      className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
     >
       Data: MoneyPuck.com ↗
     </a>
@@ -429,14 +429,14 @@ function AdvancedUnavailable({
   entity: "team" | "player";
 }) {
   return (
-    <section className="mt-12 rounded-2xl border border-white/10 bg-white/[0.025] p-6">
-      <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
+    <section className="mt-12 rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-6">
+      <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent-secondary)]">
         Advanced analytics
       </p>
-      <h3 className="mt-2 text-xl font-semibold text-white">
+      <h3 className="mt-2 text-xl font-semibold text-[var(--foreground)]">
         MoneyPuck data unavailable
       </h3>
-      <p className="mt-3 text-sm leading-6 text-slate-400">
+      <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
         {seasonId < 20082009
           ? "MoneyPuck season summaries begin with the 2008–09 season."
           : `No MoneyPuck ${entity} season summary is stored for this selection.`}
@@ -463,12 +463,12 @@ function MetricHeader({
 }
 
 function TextCell({ value }: { value: string }) {
-  return <td className="px-4 py-3 text-left font-medium text-white">{value}</td>;
+  return <td className="px-4 py-3 text-left font-medium text-[var(--foreground)]">{value}</td>;
 }
 
 function TeamCell({ team }: { team: MoneyPuckSkaterSituation["team"] }) {
   return (
-    <td className="px-4 py-3 text-left font-medium text-white">
+    <td className="px-4 py-3 text-left font-medium text-[var(--foreground)]">
       <span className="inline-flex items-center gap-2">
         <TeamLogo {...team} size="tiny" decorative />
         {team.abbreviation}
@@ -487,7 +487,7 @@ function ValueCell({
   return (
     <td
       className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${
-        highlight ? "font-semibold text-violet-200" : "text-slate-300"
+        highlight ? "font-semibold text-[var(--accent-secondary)]" : "text-[var(--foreground-soft)]"
       }`}
     >
       {value}

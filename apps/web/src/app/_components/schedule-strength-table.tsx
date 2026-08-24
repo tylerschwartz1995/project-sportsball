@@ -41,21 +41,21 @@ export function ScheduleStrengthTable({
   return (
     <details className="surface-panel mt-5 overflow-hidden" open={isOpen}>
       <summary
-        className="cursor-pointer px-5 py-4 font-medium text-white marker:text-cyan-300"
+        className="cursor-pointer px-5 py-4 font-medium text-[var(--foreground)] marker:text-[var(--accent)]"
         onClick={(event) => {
           event.preventDefault();
           setIsOpen((current) => !current);
         }}
       >
         {title}{" "}
-        <span className="ml-2 text-sm text-slate-500">({games.length})</span>
+        <span className="ml-2 text-sm text-[var(--muted)]">({games.length})</span>
       </summary>
       {isOpen ? (
         <SortableTable
           defaultSortKey="date"
           defaultDirection={open ? "asc" : "desc"}
         >
-          <div className="workspace-table-scroll border-t border-white/[0.07]">
+          <div className="workspace-table-scroll border-t border-[var(--border)]">
             <table className="workspace-table workspace-table-dense workspace-table-semantic workspace-schedule-strength-table min-w-[1040px]">
               <colgroup>
                 <col className="workspace-col-date" />
@@ -178,7 +178,7 @@ function ScheduleStrengthRow({
         data-sort-standings={values.standings ?? ""}
         data-sort-goal-differential={values["goal-differential"] ?? ""}
         data-sort-expected-goals={values["expected-goals"] ?? ""}
-        className="workspace-semantic-number text-center font-medium tabular-nums text-cyan-100"
+        className="workspace-semantic-number text-center font-medium tabular-nums text-[var(--accent)]"
       >
         {scheduleStrengthMetricOptions.map((metric) => (
           <span key={metric} data-strength-inline={metric}>
@@ -200,7 +200,7 @@ function ScheduleStrengthRow({
             <span
               key={metric}
               data-strength-inline={metric}
-              className="ml-1 text-slate-500"
+              className="ml-1 text-[var(--muted)]"
               title={`Rating uses the ${formatSeasonId(ratingSeasonId)} season`}
             >
               *
