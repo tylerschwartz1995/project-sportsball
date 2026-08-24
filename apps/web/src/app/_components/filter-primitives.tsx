@@ -34,19 +34,17 @@ export function FilterActions({
   applyLabel = "Apply Filters",
   clearLabel = "Clear Filters",
   canClear = true,
-  accent = "primary",
   children,
 }: {
   clearHref: string;
   applyLabel?: string;
   clearLabel?: string;
   canClear?: boolean;
-  accent?: "primary" | "secondary";
   children?: ReactNode;
 }) {
   return (
     <div className="workspace-filter-actions">
-      <button type="submit" data-accent={accent}>
+      <button type="submit">
         {applyLabel}
       </button>
       {canClear ? (

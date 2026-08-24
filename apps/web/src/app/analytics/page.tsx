@@ -211,7 +211,7 @@ export default async function AnalyticsPage({
                   }}
                 />
               ) : (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-[var(--muted)]">
                   Player-level MoneyPuck leaderboards are regular-season only.
                 </p>
               )}
@@ -342,7 +342,6 @@ function AnalyticsFilters({
       <FilterActions
         clearHref={`/analytics?${clearParams.toString()}`}
         canClear={activeFilterCount > 0}
-        accent="secondary"
       />
     </form>
   );
@@ -373,7 +372,7 @@ function LeaderboardTable({
 }) {
   if (rows.length === 0) {
     return (
-      <p className="mt-8 rounded-2xl border border-white/10 bg-white/[0.025] p-6 text-sm text-slate-400">
+      <p className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-6 text-sm text-[var(--muted)]">
         No records meet the selected situation and ice-time threshold.
       </p>
     );
@@ -430,7 +429,7 @@ function TeamLeaderboard({
           <col className="workspace-col-number" span={2} data-column-group="results" />
         </colgroup>
         <thead>
-          <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+          <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
             <SortableHeader label="Team" sortKey="team" align="left" defaultDirection="asc" sticky metricGroup="core possession shot-quality results" />
             <SortableHeader label="GP" sortKey="games" metricGroup="core possession shot-quality results" />
             <SortableHeader label="TOI" sortKey="iceTime" metricGroup="core possession shot-quality results" />
@@ -447,7 +446,7 @@ function TeamLeaderboard({
           {rows.map((row) => (
             <tr
               key={row.team.nhlTeamId}
-              className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
+              className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
             >
               <EntityCell
                 href={`/teams/${row.team.nhlTeamId}?season=${seasonId}&phase=${phase}`}
@@ -497,7 +496,7 @@ function SkaterLeaderboard({
           <col className="workspace-col-number" span={2} data-column-group="results" />
         </colgroup>
         <thead>
-          <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+          <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
             <SortableHeader label="Player" sortKey="player" align="left" defaultDirection="asc" sticky metricGroup="core possession shot-quality results" />
             <SortableHeader label="GP" sortKey="games" metricGroup="core possession shot-quality results" />
             <SortableHeader label="TOI" sortKey="iceTime" metricGroup="core possession shot-quality results" />
@@ -513,7 +512,7 @@ function SkaterLeaderboard({
           {rows.map((row) => (
             <tr
               key={`${row.player.nhlPlayerId}-${row.team.nhlTeamId}`}
-              className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
+              className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
             >
               <EntityCell
                 href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
@@ -563,7 +562,7 @@ function GoalieLeaderboard({
           <col className="workspace-col-number" data-column-group="results" />
         </colgroup>
         <thead>
-          <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+          <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
             <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" sticky metricGroup="core shot-quality results" />
             <SortableHeader label="GP" sortKey="games" metricGroup="core shot-quality results" />
             <SortableHeader label="TOI" sortKey="iceTime" metricGroup="core shot-quality results" />
@@ -578,7 +577,7 @@ function GoalieLeaderboard({
           {rows.map((row) => (
             <tr
               key={`${row.player.nhlPlayerId}-${row.team.nhlTeamId}`}
-              className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
+              className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
             >
               <EntityCell
                 href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
@@ -615,7 +614,7 @@ function LeaderboardFrame({
 }) {
   return (
     <section className="mt-8">
-      <div className="mb-4 flex items-center justify-between gap-3 text-sm text-slate-500">
+      <div className="mb-4 flex items-center justify-between gap-3 text-sm text-[var(--muted)]">
         <p>{description}</p>
         <p>{count === 200 ? "Top 200 qualifying rows" : `${count} qualifying rows`}</p>
       </div>
@@ -656,11 +655,11 @@ function EntityCell({
         <div>
           <Link
             href={href}
-            className="workspace-entity-name font-medium text-white transition hover:text-violet-200"
+            className="workspace-entity-name font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
           >
             {name}
           </Link>
-          <span className="mt-0.5 block max-w-48 truncate text-xs text-slate-600">
+          <span className="mt-0.5 block max-w-48 truncate text-xs text-[var(--muted)]">
             {detail}
           </span>
         </div>
@@ -681,7 +680,7 @@ function ValueCell({
   return (
     <td
       className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${
-        highlight ? "font-semibold text-violet-200" : "text-slate-300"
+        highlight ? "font-semibold text-[var(--accent-secondary)]" : "text-[var(--foreground-soft)]"
       }`}
       data-column-group={metricGroup}
     >
@@ -693,20 +692,20 @@ function ValueCell({
 function AnalyticsGuide({ seasonId }: { seasonId: number }) {
   return (
     <section className="mt-8 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-start">
-      <div className="rounded-2xl border border-white/10 bg-white/[0.025] p-5 text-sm leading-6 text-slate-400">
+      <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-5 text-sm leading-6 text-[var(--muted)]">
         <p>
-          <strong className="text-slate-200">xG%</strong> is the share of
-          expected goals. <strong className="text-slate-200">CF%</strong> is the
+          <strong className="text-[var(--foreground-soft)]">xG%</strong> is the share of
+          expected goals. <strong className="text-[var(--foreground-soft)]">CF%</strong> is the
           share of all shot attempts, while{" "}
-          <strong className="text-slate-200">FF%</strong> excludes blocked
-          attempts. <strong className="text-slate-200">ixG</strong>{" "}
+          <strong className="text-[var(--foreground-soft)]">FF%</strong> excludes blocked
+          attempts. <strong className="text-[var(--foreground-soft)]">ixG</strong>{" "}
           estimates the goals created by an individual player&apos;s shots.{" "}
-          <strong className="text-slate-200">GSAx</strong> is expected goals
+          <strong className="text-[var(--foreground-soft)]">GSAx</strong> is expected goals
           against minus actual goals against; positive is better.
         </p>
         <Link
           href={`/analytics/guide?season=${seasonId}`}
-          className="mt-3 inline-block font-medium text-violet-300 transition hover:text-violet-200"
+          className="mt-3 inline-block font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
         >
           Open the full metric guide →
         </Link>
@@ -715,7 +714,7 @@ function AnalyticsGuide({ seasonId }: { seasonId: number }) {
         href="https://moneypuck.com/"
         target="_blank"
         rel="noreferrer"
-        className="rounded-lg border border-violet-300/20 px-4 py-3 text-sm font-medium text-violet-300 transition hover:border-violet-300/40 hover:text-violet-200"
+        className="rounded-lg border border-[color-mix(in_srgb,var(--accent)_42%,var(--border))] px-4 py-3 text-sm font-medium text-[var(--accent)] transition hover:border-[var(--accent)] hover:text-[var(--foreground)]"
       >
         Data: MoneyPuck.com ↗
       </a>
@@ -725,7 +724,7 @@ function AnalyticsGuide({ seasonId }: { seasonId: number }) {
 
 function CoverageNotice() {
   return (
-    <p className="mt-8 rounded-2xl border border-white/10 bg-white/[0.025] p-6 text-sm leading-6 text-slate-400">
+    <p className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-6 text-sm leading-6 text-[var(--muted)]">
       MoneyPuck season-summary coverage begins in 2008–09. Earlier seasons
       retain traditional NHL statistics, results, box scores, and play-by-play.
     </p>

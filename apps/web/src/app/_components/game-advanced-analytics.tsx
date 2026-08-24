@@ -175,7 +175,7 @@ function TeamGameAnalytics({
         homeShare={home?.expectedGoalsPercentage ?? null}
       />
 
-      <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+      <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         <SortableTable>
           <div className="overflow-x-auto">
             <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
@@ -189,7 +189,7 @@ function TeamGameAnalytics({
                 Team advanced statistics by game situation
               </caption>
               <thead>
-                <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+                <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                   <MetricHeader label="Team" align="left" />
                   <MetricHeader label="Situation" align="left" />
                   <MetricHeader label="xG%" />
@@ -207,7 +207,7 @@ function TeamGameAnalytics({
                 {rows.map((row) => (
                   <tr
                     key={`${row.team.nhlTeamId}-${row.situation}`}
-                    className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
+                    className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                   >
                     <TeamCell team={row.team} />
                     <TextCell value={situationLabel(row.situation)} />
@@ -267,7 +267,7 @@ function PlayerGameAnalytics({
       description="All-situations game totals. Open a player profile for season context and career history."
     >
       {allSituationSkaters.length > 0 ? (
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+        <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
           <SortableTable defaultSortKey="Game score">
             <div className="overflow-x-auto">
               <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1040px]">
@@ -284,7 +284,7 @@ function PlayerGameAnalytics({
                   MoneyPuck skater game statistics
                 </caption>
                 <thead>
-                  <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+                  <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                     <MetricHeader label="Player" align="left" />
                     <MetricHeader label="Team" align="left" />
                     <MetricHeader label="Pos" />
@@ -302,13 +302,13 @@ function PlayerGameAnalytics({
                   {allSituationSkaters.map((row) => (
                     <tr
                       key={`${row.team.nhlTeamId}-${row.player.nhlPlayerId}`}
-                      className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
+                      className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                     >
                       <td className="px-4 py-3 text-left">
                         <div>
                           <Link
                             href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
-                            className="workspace-entity-name font-medium text-white transition hover:text-violet-200"
+                            className="workspace-entity-name font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
                           >
                             {row.player.name}
                           </Link>
@@ -349,7 +349,7 @@ function PlayerGameAnalytics({
       ) : null}
 
       {allSituationGoalies.length > 0 ? (
-        <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+        <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
           <SortableTable defaultSortKey="GSAx">
             <div className="overflow-x-auto">
               <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[800px]">
@@ -366,7 +366,7 @@ function PlayerGameAnalytics({
                   MoneyPuck goalie game statistics
                 </caption>
                 <thead>
-                  <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+                  <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                     <MetricHeader label="Goalie" align="left" />
                     <MetricHeader label="Team" align="left" />
                     <MetricHeader label="TOI" />
@@ -381,13 +381,13 @@ function PlayerGameAnalytics({
                   {allSituationGoalies.map((row) => (
                     <tr
                       key={`${row.team.nhlTeamId}-${row.player.nhlPlayerId}`}
-                      className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
+                      className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                     >
                       <td className="px-4 py-3 text-left">
                         <div>
                           <Link
                             href={`/players/${row.player.nhlPlayerId}?season=${seasonId}`}
-                            className="workspace-entity-name font-medium text-white transition hover:text-violet-200"
+                            className="workspace-entity-name font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
                           >
                             {row.player.name}
                           </Link>
@@ -468,7 +468,7 @@ function UnitTable({
   seasonId: number;
 }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+    <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
       <SortableTable defaultSortKey="TOI">
         <div className="overflow-x-auto">
           <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1320px]">
@@ -481,7 +481,7 @@ function UnitTable({
             </colgroup>
             <caption className="sr-only">{title}</caption>
             <thead>
-              <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+              <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                 <MetricHeader label="Team" align="left" />
                 <MetricHeader label={title} align="left" />
                 <MetricHeader label="TOI" />
@@ -500,17 +500,17 @@ function UnitTable({
               {rows.map((row) => (
                 <tr
                   key={`${row.team.nhlTeamId}-${row.unitType}-${row.sourceLineId}`}
-                  className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
+                  className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                 >
                   <TeamCell team={row.team} />
                   <td className="px-4 py-3 text-left">
                     <div className="flex whitespace-nowrap">
                       {row.players.map((player, index) => (
                         <span key={player.nhlPlayerId}>
-                          {index > 0 ? <span className="text-slate-600"> / </span> : null}
+                          {index > 0 ? <span className="text-[var(--muted)]"> / </span> : null}
                           <Link
                             href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
-                            className="font-medium text-white transition hover:text-violet-200"
+                            className="font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
                           >
                             {player.name}
                           </Link>
@@ -553,11 +553,11 @@ function SectionHeading({
   return (
     <div className="flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
+        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent-secondary)]">
           {eyebrow}
         </p>
-        <h2 className="mt-2 text-3xl font-semibold text-white">{title}</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
+        <h2 className="mt-2 text-3xl font-semibold text-[var(--foreground)]">{title}</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--muted)]">
           {description}
         </p>
       </div>
@@ -577,8 +577,8 @@ function Subsection({
 }) {
   return (
     <section className="mt-12">
-      <h3 className="text-2xl font-semibold text-white">{title}</h3>
-      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+      <h3 className="text-2xl font-semibold text-[var(--foreground)]">{title}</h3>
+      <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted)]">
         {description}
       </p>
       <div className="mt-5">{children}</div>
@@ -703,7 +703,7 @@ function TextCell({
 }) {
   return (
     <td
-      className={`px-4 py-3 font-medium text-white ${
+      className={`px-4 py-3 font-medium text-[var(--foreground)] ${
         align === "center" ? "text-center" : "text-left"
       }`}
     >
@@ -714,7 +714,7 @@ function TextCell({
 
 function TeamCell({ team }: { team: MoneyPuckGameTeam }) {
   return (
-    <td className="px-4 py-3 text-left font-medium text-white">
+    <td className="px-4 py-3 text-left font-medium text-[var(--foreground)]">
       <span className="inline-flex items-center gap-2">
         <TeamLogo {...team} size="tiny" decorative />
         {team.abbreviation}
@@ -733,7 +733,7 @@ function ValueCell({
   return (
     <td
       className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${
-        highlight ? "font-semibold text-violet-200" : "text-slate-300"
+        highlight ? "font-semibold text-[var(--accent-secondary)]" : "text-[var(--foreground-soft)]"
       }`}
     >
       {value}
@@ -743,7 +743,7 @@ function ValueCell({
 
 function CoverageNote({ children }: { children: React.ReactNode }) {
   return (
-    <p className="mt-6 rounded-2xl border border-white/10 bg-white/[0.025] px-5 py-4 text-sm leading-6 text-slate-500">
+    <p className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] px-5 py-4 text-sm leading-6 text-[var(--muted)]">
       {children}
     </p>
   );
@@ -751,19 +751,19 @@ function CoverageNote({ children }: { children: React.ReactNode }) {
 
 function MetricDefinitions({ seasonId }: { seasonId: number }) {
   return (
-    <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.025] p-4 text-sm leading-6 text-slate-400">
+    <div className="mt-8 rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4 text-sm leading-6 text-[var(--muted)]">
       <p>
-        <strong className="text-slate-200">xG</strong> estimates shot quality.{" "}
-        <strong className="text-slate-200">xG%</strong> is a team or on-ice
-        share of expected goals. <strong className="text-slate-200">CF%</strong>{" "}
+        <strong className="text-[var(--foreground-soft)]">xG</strong> estimates shot quality.{" "}
+        <strong className="text-[var(--foreground-soft)]">xG%</strong> is a team or on-ice
+        share of expected goals. <strong className="text-[var(--foreground-soft)]">CF%</strong>{" "}
         measures all shot attempts, while{" "}
-        <strong className="text-slate-200">FF%</strong> excludes blocked
-        attempts. <strong className="text-slate-200">GSAx</strong> is expected
+        <strong className="text-[var(--foreground-soft)]">FF%</strong> excludes blocked
+        attempts. <strong className="text-[var(--foreground-soft)]">GSAx</strong> is expected
         goals against minus actual goals against; positive is better.
       </p>
       <Link
         href={`/analytics/guide?season=${seasonId}`}
-        className="mt-3 inline-block font-medium text-violet-300 transition hover:text-violet-200"
+        className="mt-3 inline-block font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
       >
         Open the full metric guide →
       </Link>
@@ -777,7 +777,7 @@ function MoneyPuckAttribution() {
       href="https://moneypuck.com/"
       target="_blank"
       rel="noreferrer"
-      className="text-sm font-medium text-violet-300 transition hover:text-violet-200"
+      className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
     >
       Data: MoneyPuck.com ↗
     </a>
@@ -787,13 +787,13 @@ function MoneyPuckAttribution() {
 function GameAdvancedUnavailable({ seasonId }: { seasonId: number }) {
   return (
     <section className="workspace-section-divider">
-      <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
+      <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent-secondary)]">
         Advanced analytics
       </p>
-      <h2 className="mt-2 text-xl font-semibold text-white">
+      <h2 className="mt-2 text-xl font-semibold text-[var(--foreground)]">
         MoneyPuck game data unavailable
       </h2>
-      <p className="mt-3 text-sm leading-6 text-slate-400">
+      <p className="mt-3 text-sm leading-6 text-[var(--muted)]">
         {seasonId < 20072008
           ? "MoneyPuck game coverage begins with shot data in 2007–08 and broader game data in 2008–09."
           : "No MoneyPuck advanced records are stored for this game."}

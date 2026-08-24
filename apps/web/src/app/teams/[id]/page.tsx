@@ -209,7 +209,7 @@ export default async function TeamPage({
       <section className="py-8 sm:py-10">
         <Link
           href={`/teams?season=${selectedSeason.id}&phase=${phase}`}
-          className="inline-flex items-center gap-2 text-sm font-medium text-slate-400 transition hover:text-cyan-200"
+          className="inline-flex items-center gap-2 text-sm font-medium text-[var(--muted)] transition hover:text-[var(--accent)]"
         >
           <span aria-hidden="true">←</span> All teams
         </Link>
@@ -217,7 +217,7 @@ export default async function TeamPage({
         <div className="surface-panel relative mt-6 overflow-hidden p-6 sm:p-8">
           <span
             aria-hidden="true"
-            className="pointer-events-none absolute -bottom-10 -right-3 font-mono text-[9rem] font-semibold leading-none tracking-[-0.09em] text-white/[0.025] sm:text-[13rem]"
+            className="pointer-events-none absolute -bottom-10 -right-3 font-mono text-[9rem] font-semibold leading-none tracking-[-0.09em] text-[color-mix(in_srgb,var(--foreground)_2.5%,transparent)] sm:text-[13rem]"
           >
             {profileDetail.team.abbreviation}
           </span>
@@ -229,22 +229,22 @@ export default async function TeamPage({
                 nhlTeamId={profileDetail.team.nhlTeamId}
               />
               <div>
-                <p className="font-mono text-xs uppercase tracking-[0.18em] text-cyan-300">
+                <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
                   Team profile
                 </p>
-                <h1 className="mt-2 text-4xl font-semibold tracking-[-0.045em] text-white sm:text-5xl">
+                <h1 className="mt-2 text-4xl font-semibold tracking-[-0.045em] text-[var(--foreground)] sm:text-5xl">
                   {profileDetail.team.name}
                 </h1>
-                <div className="mt-4 flex flex-wrap gap-2 text-sm text-slate-400">
-                  <span className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1">
+                <div className="mt-4 flex flex-wrap gap-2 text-sm text-[var(--muted)]">
+                  <span className="rounded-full border border-[var(--border)] bg-[var(--surface-subtle)] px-3 py-1">
                     {selectedSeason.label}
                   </span>
-                  <span className="rounded-full border border-white/10 bg-white/[0.035] px-3 py-1">
+                  <span className="rounded-full border border-[var(--border)] bg-[var(--surface-subtle)] px-3 py-1">
                     {seasonPhaseLabel(phase)}
                   </span>
                   <Link
                     href={`/drafts?view=board&year=all&team=${profileDetail.team.abbreviation}`}
-                    className="rounded-full border border-cyan-300/25 bg-cyan-300/[0.06] px-3 py-1 font-medium text-cyan-200 transition hover:border-cyan-300/45 hover:text-cyan-100"
+                    className="rounded-full border border-[color-mix(in_srgb,var(--accent)_42%,var(--border))] bg-[var(--accent-soft)] px-3 py-1 font-medium text-[var(--accent)] transition hover:border-[color-mix(in_srgb,var(--accent)_64%,var(--border))] hover:text-[var(--foreground)]"
                   >
                     Draft history →
                   </Link>
@@ -261,7 +261,7 @@ export default async function TeamPage({
                 scheduleState: view === "schedule" ? scheduleFilter : undefined,
                 ...chartParams,
               }}
-              className="relative !max-w-none border-white/15 bg-slate-950/55"
+              className="relative !max-w-none border-[var(--border)] bg-[var(--table-background)]"
             />
           </div>
         </div>
@@ -313,18 +313,18 @@ export default async function TeamPage({
             />
             <Link
               href={`/teams/${profileDetail.team.nhlTeamId}/games?season=${selectedSeason.id}&phase=${phase}`}
-              className="workspace-width-compact group mt-5 flex items-center justify-between gap-4 rounded-2xl border border-cyan-300/20 bg-cyan-300/[0.055] px-5 py-4 transition hover:border-cyan-300/40 hover:bg-cyan-300/[0.085]"
+              className="workspace-width-compact group mt-5 flex items-center justify-between gap-4 rounded-2xl border border-[color-mix(in_srgb,var(--accent)_42%,var(--border))] bg-[var(--accent-soft)] px-5 py-4 transition hover:border-[color-mix(in_srgb,var(--accent)_64%,var(--border))] hover:bg-[color-mix(in_srgb,var(--accent)_18%,var(--surface))]"
             >
               <span>
-                <span className="block font-medium text-white">
+                <span className="block font-medium text-[var(--foreground)]">
                   Explore the {selectedSeason.label} game log
                 </span>
-                <span className="mt-1 block text-sm text-slate-400">
+                <span className="mt-1 block text-sm text-[var(--muted)]">
                   Results, recent form, shot totals, and five-on-five expected
                   goals.
                 </span>
               </span>
-              <span className="shrink-0 text-cyan-300 transition group-hover:translate-x-0.5">
+              <span className="shrink-0 text-[var(--accent)] transition group-hover:translate-x-0.5">
                 View games →
               </span>
             </Link>
@@ -383,7 +383,7 @@ export default async function TeamPage({
             title="Skaters"
             description={`Traditional ${seasonPhaseLabel(phase).toLowerCase()} production for every player who appeared with this team.`}
             action={
-              <p className="text-sm tabular-nums text-slate-500">
+              <p className="text-sm tabular-nums text-[var(--muted)]">
                 {profileDetail.skaters.length} player-team rows
               </p>
             }
@@ -397,7 +397,7 @@ export default async function TeamPage({
                     <col className="workspace-col-number" span={6} />
                   </colgroup>
                   <thead>
-                    <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
+                    <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-left text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                       <SortableHeader
                         label="Player"
                         sortKey="player"
@@ -416,17 +416,17 @@ export default async function TeamPage({
                     {profileDetail.skaters.map((player) => (
                       <tr
                         key={`${player.nhlPlayerId}-${player.gamesPlayed}`}
-                        className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
+                        className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                       >
                         <td className="px-4 py-3">
                           <div>
                             <Link
                               href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                              className="workspace-entity-name font-medium text-white transition hover:text-cyan-200"
+                              className="workspace-entity-name font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
                             >
                               {player.name}
                             </Link>
-                            <span className="ml-2 text-xs text-slate-500">
+                            <span className="ml-2 text-xs text-[var(--muted)]">
                               {formatPlayerPosition(player.position)}
                             </span>
                           </div>
@@ -454,7 +454,7 @@ export default async function TeamPage({
             title="Goalies"
             description={`Traditional ${seasonPhaseLabel(phase).toLowerCase()} appearances, decisions, and save results.`}
             action={
-              <p className="text-sm tabular-nums text-slate-500">
+              <p className="text-sm tabular-nums text-[var(--muted)]">
                 {profileDetail.goalies.length} player-team rows
               </p>
             }
@@ -470,7 +470,7 @@ export default async function TeamPage({
                     <col className="workspace-col-number" />
                   </colgroup>
                   <thead>
-                    <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
+                    <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-left text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                       <SortableHeader
                         label="Goalie"
                         sortKey="goalie"
@@ -495,13 +495,13 @@ export default async function TeamPage({
                     {profileDetail.goalies.map((player) => (
                       <tr
                         key={`${player.nhlPlayerId}-${player.gamesPlayed}`}
-                        className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
+                        className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                       >
                         <td className="px-4 py-3">
                           <div>
                             <Link
                               href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                              className="workspace-entity-name font-medium text-white transition hover:text-cyan-200"
+                              className="workspace-entity-name font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
                             >
                               {player.name}
                             </Link>
@@ -549,7 +549,7 @@ export default async function TeamPage({
               action={
                 <Link
                   href={`/lines?season=${selectedSeason.id}&minimum=100`}
-                  className="text-sm font-medium text-violet-300 transition hover:text-violet-200"
+                  className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
                 >
                   View league rankings →
                 </Link>
@@ -666,7 +666,7 @@ function NumericCell({
   return (
     <td
       className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${
-        highlight ? "font-semibold text-cyan-200" : "text-slate-300"
+        highlight ? "font-semibold text-[var(--accent)]" : "text-[var(--foreground-soft)]"
       }`}
     >
       {value ?? "—"}

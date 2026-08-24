@@ -58,7 +58,7 @@ export function ScheduleStrength({
         />
       ) : null}
 
-      <p className="mt-4 text-xs leading-5 text-slate-500">
+      <p className="mt-4 text-xs leading-5 text-[var(--muted)]">
         Ratings use only an opponent&apos;s earlier regular-season games. Rest is
         the number of full off-days since this team&apos;s previous game; a
         back-to-back has no full off-day. Until an opponent has a result in the
@@ -112,8 +112,8 @@ function ScheduleSummary({
   return (
     <article className="surface-panel flex h-full flex-col p-5 sm:p-6">
       <div className="flex items-center justify-between gap-4">
-        <h4 className="font-semibold text-white">{title}</h4>
-        <span className="text-sm tabular-nums text-slate-500">
+        <h4 className="font-semibold text-[var(--foreground)]">{title}</h4>
+        <span className="text-sm tabular-nums text-[var(--muted)]">
           {games.length} games
         </span>
       </div>

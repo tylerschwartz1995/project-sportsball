@@ -188,7 +188,7 @@ function ScheduleFilterLink({
       aria-current={active ? "page" : undefined}
       className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
         active
-          ? "bg-[var(--accent)] text-[var(--accent-contrast)]"
+          ? "bg-[var(--accent)] text-[var(--on-accent)]"
           : "text-[var(--muted)] hover:bg-[var(--surface-raised)] hover:text-[var(--foreground)]"
       }`}
     >
@@ -306,7 +306,7 @@ function resultClassName(result: string) {
       : result === "L"
         ? "border-[var(--negative)]/30 bg-[var(--negative)]/10 text-[var(--negative)]"
         : result === "OTL"
-          ? "border-[var(--chart-secondary)]/30 bg-[var(--chart-secondary)]/10 text-[var(--chart-secondary)]"
+          ? "border-[var(--warning)]/30 bg-[var(--warning-soft)] text-[var(--warning)]"
           : "border-[var(--border)] bg-[var(--surface-raised)] text-[var(--muted)]";
   return `inline-flex rounded-full border px-2 py-0.5 text-xs font-semibold ${tone}`;
 }

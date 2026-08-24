@@ -44,18 +44,18 @@ export function GamePlayByPlayView({
     >
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-cyan-300">
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
             Official NHL play-by-play
           </p>
-          <h2 className="mt-2 text-3xl font-semibold text-white">
+          <h2 className="mt-2 text-3xl font-semibold text-[var(--foreground)]">
             Scoring and game timeline
           </h2>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-400">
+          <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--muted)]">
             Review every scoring play, then expand a period to follow the
             recorded events in chronological order.
           </p>
         </div>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-[var(--muted)]">
           {data.events.length} recorded plays
         </p>
       </div>
@@ -80,14 +80,14 @@ export function GamePlayByPlayView({
       <div id="timeline" className="mt-10 scroll-mt-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.18em] text-violet-300">
+            <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
               Event timeline
             </p>
-            <h3 className="mt-2 text-2xl font-semibold text-white">
+            <h3 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">
               Period by period
             </h3>
           </div>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-[var(--muted)]">
             Goals and penalties are highlighted
           </p>
         </div>
@@ -124,14 +124,14 @@ function ScoringSummary({
   return (
     <section className="mt-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <h3 className="text-xl font-semibold text-white">Scoring Summary</h3>
-        <p className="text-sm text-slate-500">
+        <h3 className="text-xl font-semibold text-[var(--foreground)]">Scoring Summary</h3>
+        <p className="text-sm text-[var(--muted)]">
           {goals.length} {goals.length === 1 ? "goal" : "goals"}
         </p>
       </div>
 
       {goals.length === 0 ? (
-        <p className="mt-4 rounded-2xl border border-white/10 bg-white/[0.025] p-5 text-sm text-slate-400">
+        <p className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-5 text-sm text-[var(--muted)]">
           No goals were recorded in the play-by-play.
         </p>
       ) : (
@@ -149,7 +149,7 @@ function ScoringSummary({
                   <col className="workspace-col-score" />
                 </colgroup>
                 <thead>
-                  <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+                  <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                     <SortableHeader
                       label="Period"
                       sortKey="period"
@@ -205,7 +205,7 @@ function ScoringSummary({
                     return (
                       <tr
                         key={goal.sourceEventId}
-                        className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
+                        className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                       >
                         <td
                           className="px-4 py-3"
@@ -225,7 +225,7 @@ function ScoringSummary({
                               <TeamLogo {...goal.ownerTeam} size="tiny" decorative />
                               <Link
                                 href={`/teams/${goal.ownerTeam.nhlTeamId}?season=${seasonId}`}
-                                className="font-medium text-white transition hover:text-cyan-200"
+                                className="font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
                               >
                                 {goal.ownerTeam.abbreviation}
                               </Link>
@@ -251,14 +251,14 @@ function ScoringSummary({
                               ))}
                             </span>
                           ) : (
-                            <span className="text-slate-600">Unassisted</span>
+                            <span className="text-[var(--muted)]">Unassisted</span>
                           )}
                         </td>
                         <td className="px-4 py-3">
                           {goalTypeLabel(goal, awayTeam, homeTeam)}
                         </td>
                         <td
-                          className="whitespace-nowrap px-4 py-3 text-center font-semibold tabular-nums text-white"
+                          className="whitespace-nowrap px-4 py-3 text-center font-semibold tabular-nums text-[var(--foreground)]"
                           data-sort-value={
                             (goal.awayScore ?? 0) + (goal.homeScore ?? 0)
                           }
@@ -308,29 +308,29 @@ function PeriodTimeline({
       <Link
         href={gameTimelineHref(nhlGameId, expanded ? null : periodNumber)}
         aria-expanded={expanded}
-        className="flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-white/[0.035] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300"
+        className="flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-[var(--surface-subtle)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
       >
         <span>
           <span
             id={`period-${periodNumber}-title`}
-            className="font-semibold text-white"
+            className="font-semibold text-[var(--foreground)]"
           >
             {periodLabel(periodNumber, periodType)}
           </span>
-          <span className="ml-3 text-sm text-slate-500">
+          <span className="ml-3 text-sm text-[var(--muted)]">
             {events.length} plays · {goalCount} G · {penaltyCount} penalties
           </span>
         </span>
         <span
           aria-hidden="true"
-          className={`text-cyan-300 transition ${expanded ? "rotate-45" : ""}`}
+          className={`text-[var(--accent)] transition ${expanded ? "rotate-45" : ""}`}
         >
           +
         </span>
       </Link>
 
       {expanded ? (
-        <ol className="border-t border-white/[0.07]">
+        <ol className="border-t border-[var(--border)]">
           {events.map((event) => (
             <TimelineEvent
               key={event.sourceEventId}
@@ -356,25 +356,25 @@ function TimelineEvent({
 
   return (
     <li
-      className={`grid gap-3 border-b border-white/[0.055] px-5 py-4 [contain-intrinsic-size:auto_96px] [content-visibility:auto] last:border-0 sm:grid-cols-[4.5rem_7rem_1fr] ${
+      className={`grid gap-3 border-b border-[var(--border)] px-5 py-4 [contain-intrinsic-size:auto_96px] [content-visibility:auto] last:border-0 sm:grid-cols-[4.5rem_7rem_1fr] ${
         prominent
           ? event.typeDescription === "goal"
-            ? "bg-emerald-300/[0.055]"
-            : "bg-amber-300/[0.045]"
+            ? "bg-[var(--positive-soft)]"
+            : "bg-[var(--warning-soft)]"
           : ""
       }`}
     >
-      <time className="font-mono text-sm tabular-nums text-slate-400">
+      <time className="font-mono text-sm tabular-nums text-[var(--muted)]">
         {event.timeInPeriod}
       </time>
       <div>
         <p
           className={`text-xs font-semibold uppercase tracking-[0.12em] ${
             event.typeDescription === "goal"
-              ? "text-emerald-300"
+              ? "text-[var(--positive)]"
               : event.typeDescription === "penalty"
-                ? "text-amber-300"
-                : "text-slate-500"
+                ? "text-[var(--warning)]"
+                : "text-[var(--muted)]"
           }`}
         >
           {humanize(event.typeDescription)}
@@ -384,7 +384,7 @@ function TimelineEvent({
             <TeamLogo {...event.ownerTeam} size="tiny" decorative />
             <Link
               href={`/teams/${event.ownerTeam.nhlTeamId}?season=${seasonId}`}
-              className="text-xs text-cyan-300 transition hover:text-cyan-200"
+              className="text-xs text-[var(--accent)] transition hover:text-[var(--foreground)]"
             >
               {event.ownerTeam.abbreviation}
             </Link>
@@ -392,7 +392,7 @@ function TimelineEvent({
         ) : null}
       </div>
       <div>
-        <p className="text-sm leading-6 text-slate-300">
+        <p className="text-sm leading-6 text-[var(--foreground-soft)]">
           {eventDescription(event)}
         </p>
         {event.players.length > 0 ? (
@@ -400,10 +400,10 @@ function TimelineEvent({
             {event.players.map((player) => (
               <span
                 key={`${event.sourceEventId}-${player.sourcePlayerId}-${player.role}`}
-                className="rounded-md border border-white/[0.07] bg-slate-950/45 px-2 py-1 text-xs text-slate-500"
+                className="rounded-md border border-[var(--border)] bg-[var(--table-background)] px-2 py-1 text-xs text-[var(--muted)]"
               >
                 <PlayerLink player={player} seasonId={seasonId} />
-                <span className="ml-1 text-slate-600">
+                <span className="ml-1 text-[var(--muted)]">
                   · {humanize(player.role)}
                 </span>
               </span>
@@ -423,16 +423,16 @@ function PlayerLink({
   seasonId: number;
 }) {
   if (!player) {
-    return <span className="text-slate-600">Unavailable</span>;
+    return <span className="text-[var(--muted)]">Unavailable</span>;
   }
 
   const name = player.name ?? `NHL player ${player.sourcePlayerId}`;
   return player.nhlPlayerId === null ? (
-    <span className="text-slate-400">{name}</span>
+    <span className="text-[var(--muted)]">{name}</span>
   ) : (
     <Link
       href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
-      className="text-slate-200 transition hover:text-cyan-200"
+      className="text-[var(--foreground-soft)] transition hover:text-[var(--accent)]"
     >
       {name}
     </Link>

@@ -137,7 +137,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
       <section className="py-10">
         <Link
           href={`/games?season=${game.seasonId}&phase=${game.gameType === 3 ? "playoffs" : "regular"}&date=${game.gameDate}`}
-          className="text-sm font-medium text-cyan-300 transition hover:text-cyan-200"
+          className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
         >
           ← Games on {formatDate(game.gameDate)}
         </Link>
@@ -200,7 +200,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
             <TeamBoxScore team={boxScore.homeTeam} seasonId={game.seasonId} />
           </div>
         ) : view === "box-score" ? (
-          <div className="mt-10 rounded-2xl border border-amber-300/20 bg-amber-300/10 p-6 text-amber-100">
+          <div className="mt-10 rounded-2xl border border-[color-mix(in_srgb,var(--warning)_42%,var(--border))] bg-[var(--warning-soft)] p-6 text-[var(--warning)]">
             The player box score is not available yet.
           </div>
         ) : null}
@@ -289,21 +289,21 @@ function TeamBoxScore({
               decorative
               prominent
             />
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-[var(--muted)]">
               {team.skaters.length} skaters · {team.goalies.length} goalies
             </p>
           </div>
         }
       />
 
-      <h3 className="mt-7 text-lg font-semibold text-white">Skaters</h3>
+      <h3 className="mt-7 text-lg font-semibold text-[var(--foreground)]">Skaters</h3>
       <SkaterTable
         players={team.skaters}
         seasonId={seasonId}
         team={team}
       />
 
-      <h3 className="mt-8 text-lg font-semibold text-white">Goalies</h3>
+      <h3 className="mt-8 text-lg font-semibold text-[var(--foreground)]">Goalies</h3>
       <GoalieTable
         players={team.goalies}
         seasonId={seasonId}
@@ -334,7 +334,7 @@ function SkaterTable({
           </colgroup>
           <caption className="sr-only">{team.name} skater box score</caption>
           <thead>
-            <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
+            <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-left text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
               <SortableHeader label="Player" sortKey="player" align="left" defaultDirection="asc" />
               <SortableHeader label="G" sortKey="goals" />
               <SortableHeader label="A" sortKey="assists" />
@@ -351,17 +351,17 @@ function SkaterTable({
             {players.map((player) => (
               <tr
                 key={player.nhlPlayerId}
-                className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
+                className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
               >
                 <td className="px-4 py-3">
                   <div>
                       <Link
                         href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
-                        className="workspace-entity-name font-medium text-white transition hover:text-cyan-200"
+                        className="workspace-entity-name font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
                       >
                         {player.name}
                       </Link>
-                      <span className="ml-2 text-xs text-slate-500">
+                      <span className="ml-2 text-xs text-[var(--muted)]">
                         {player.sweaterNumber === null
                           ? ""
                           : `#${player.sweaterNumber} · `}
@@ -411,7 +411,7 @@ function GoalieTable({
           </colgroup>
           <caption className="sr-only">{team.name} goalie box score</caption>
           <thead>
-            <tr className="border-b border-white/10 bg-white/[0.035] text-left text-xs uppercase tracking-[0.12em] text-slate-400">
+            <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-left text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
               <SortableHeader label="Goalie" sortKey="goalie" align="left" defaultDirection="asc" />
               <SortableHeader label="DEC" sortKey="decision" defaultDirection="asc" />
               <SortableHeader label="SA" sortKey="shotsAgainst" />
@@ -427,17 +427,17 @@ function GoalieTable({
             {players.map((player) => (
               <tr
                 key={player.nhlPlayerId}
-                className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.035]"
+                className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
               >
                 <td className="px-4 py-3">
                   <div>
                       <Link
                         href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
-                        className="workspace-entity-name font-medium text-white transition hover:text-cyan-200"
+                        className="workspace-entity-name font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
                       >
                         {player.name}
                       </Link>
-                      <span className="ml-2 text-xs text-slate-500">
+                      <span className="ml-2 text-xs text-[var(--muted)]">
                         {player.starter ? "Starter" : "Backup"}
                       </span>
                   </div>
@@ -483,7 +483,7 @@ function NumericCell({
   return (
     <td
       className={`workspace-semantic-number px-3 py-3 text-center tabular-nums ${
-        highlight ? "font-semibold text-cyan-200" : "text-slate-300"
+        highlight ? "font-semibold text-[var(--accent)]" : "text-[var(--foreground-soft)]"
       }`}
     >
       {value}

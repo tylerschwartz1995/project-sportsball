@@ -198,12 +198,12 @@ export function HistoryScoringEnvironment({
             type="monotoneX"
             dataKey="value"
             name={config.label}
-            stroke="var(--accent-secondary)"
+            stroke="var(--chart-primary)"
             strokeWidth={2.5}
             strokeLinecap="round"
             strokeLinejoin="round"
             dot={false}
-            activeDot={{ r: 4, fill: "var(--accent-secondary)" }}
+            activeDot={{ r: 4, fill: "var(--chart-primary)" }}
           />
           </LineChart>
         </ResponsiveContainer>

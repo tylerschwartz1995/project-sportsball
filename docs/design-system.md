@@ -18,9 +18,13 @@ competing with it.
   light.
 - **Surfaces:** layered navy panels separated by restrained borders, not heavy
   shadows.
-- **Primary accent:** cyan for navigation, traditional statistics, links, and
-  active controls.
-- **Secondary accent:** violet for model-based analytics and derived metrics.
+- **Primary accent:** cyan for every interactive state—navigation, links,
+  buttons, selected controls, sorting, and keyboard focus—and for traditional
+  observed-statistic chart series.
+- **Secondary accent:** violet identifies model-based analytics and derived
+  metrics in headings, values, chart series, annotations, and restrained
+  section tint. Violet does not indicate that a control is interactive or
+  selected.
 - **State colors:** emerald for positive status and rose for negative results.
 - **Typography:** Geist Sans for interface and reading; Geist Mono for compact
   labels, identifiers, and technical metadata. Tabular numerals are required
@@ -60,6 +64,8 @@ width. The shell owns sport context, primary navigation, data status, and the
 theme control; pages own their season and dataset controls.
 
 Light and dark modes use semantic tokens rather than separate component markup.
+Components must reference those tokens directly; dark-palette utility colors
+must not rely on light-mode override selectors for translation.
 Muted text and accent links maintain at least WCAG AA text contrast against the
 canvas, panels, and raised surfaces. Accent-filled controls use explicit
 `--on-accent` tokens instead of assuming the canvas color is readable, and
@@ -146,6 +152,12 @@ and a pre-render bootstrap applies it before the interface is painted.
 - Charts use semantic CSS tokens so the same component remains legible in light
   and dark modes. Cyan represents traditional results; violet represents
   derived or model-based measures.
+- Categorical chart palettes are theme-specific. Every series must maintain at
+  least 3:1 contrast against its chart surface, while axis and tooltip text
+  maintain WCAG AA text contrast. Tooltips use semantic surface and foreground
+  tokens rather than a fixed dark presentation. In a multi-category chart,
+  palette hues (including violet) are non-semantic series identifiers and must
+  remain paired with labels or a legend.
 - Axes use percentages or explicit units, restrained horizontal grid lines, and
   a labeled reference line when a meaningful baseline exists.
 - When two series use materially different units, a color-matched axis appears

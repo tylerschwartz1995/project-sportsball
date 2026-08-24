@@ -93,10 +93,10 @@ function SeasonUnitTable({
     <section>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h3 className="text-2xl font-semibold text-white">{title}</h3>
-          <p className="mt-2 text-sm text-slate-500">{description}</p>
+          <h3 className="text-2xl font-semibold text-[var(--foreground)]">{title}</h3>
+          <p className="mt-2 text-sm text-[var(--muted)]">{description}</p>
         </div>
-        <div className="text-right text-sm text-slate-500">
+        <div className="text-right text-sm text-[var(--muted)]">
           <p>
             {rows.length === 100
               ? "Top 100 qualifying units"
@@ -104,7 +104,7 @@ function SeasonUnitTable({
           </p>
           <Link
             href={`/analytics/guide?season=${seasonId}`}
-            className="mt-1 inline-block font-medium text-violet-300 hover:text-violet-200"
+            className="mt-1 inline-block font-medium text-[var(--accent)] hover:text-[var(--foreground)]"
           >
             Metric Guide →
           </Link>
@@ -112,7 +112,7 @@ function SeasonUnitTable({
       </div>
 
       {rows.length > 0 ? (
-        <div className="mt-5 overflow-hidden rounded-2xl border border-white/10 bg-slate-950/50">
+        <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
           <ColumnPresetTable
             presets={UNIT_COLUMN_PRESETS}
             defaultSortKey={urlSort?.key ?? "xgPercentage"}
@@ -136,7 +136,7 @@ function SeasonUnitTable({
                   {title} season rankings
                 </caption>
                 <thead>
-                  <tr className="border-b border-white/10 bg-white/[0.035] text-xs uppercase tracking-[0.12em] text-slate-400">
+                  <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                     {showTeam ? (
                       <SortableHeader
                         label="Team"
@@ -171,7 +171,7 @@ function SeasonUnitTable({
                   {rows.map((row) => (
                     <tr
                       key={`${row.team.nhlTeamId}-${row.unitType}-${row.players.map((player) => player.nhlPlayerId).join("-")}`}
-                      className="border-b border-white/[0.06] text-slate-300 last:border-0 hover:bg-white/[0.025]"
+                      className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                     >
                       {showTeam ? (
                         <td className="workspace-sticky-entity px-4 py-3 text-left" data-column-group="core possession shot-quality results">
@@ -179,7 +179,7 @@ function SeasonUnitTable({
                             <TeamLogo {...row.team} size="tiny" decorative />
                             <Link
                               href={`/teams/${row.team.nhlTeamId}?season=${seasonId}`}
-                              className="font-medium text-white transition hover:text-violet-200"
+                              className="font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
                             >
                               {row.team.abbreviation}
                             </Link>
@@ -196,11 +196,11 @@ function SeasonUnitTable({
                               {row.players.map((player, index) => (
                                 <span key={player.nhlPlayerId}>
                                   {index > 0 ? (
-                                    <span className="text-slate-600"> / </span>
+                                    <span className="text-[var(--muted)]"> / </span>
                                   ) : null}
                                   <Link
                                     href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
-                                    className="font-medium text-white transition hover:text-violet-200"
+                                    className="font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
                                   >
                                     {player.name}
                                   </Link>
@@ -211,7 +211,7 @@ function SeasonUnitTable({
                           <Link
                             href={`/lines/${row.unitType}-${row.players.map((player) => player.nhlPlayerId).join("-")}?season=${seasonId}&team=${row.team.nhlTeamId}`}
                             aria-label={`View supporting games for ${row.players.map((player) => player.name).join(", ")} with ${row.team.name}`}
-                            className="shrink-0 text-xs font-semibold text-cyan-300 transition hover:text-cyan-200"
+                            className="shrink-0 text-xs font-semibold text-[var(--accent)] transition hover:text-[var(--foreground)]"
                           >
                             Games →
                           </Link>
@@ -242,7 +242,7 @@ function SeasonUnitTable({
           </ColumnPresetTable>
         </div>
       ) : (
-        <p className="mt-5 rounded-2xl border border-white/10 bg-white/[0.025] p-5 text-sm text-slate-500">
+        <p className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-5 text-sm text-[var(--muted)]">
           No combinations meet this season and ice-time threshold.
         </p>
       )}
@@ -262,7 +262,7 @@ function ValueCell({
   return (
     <td
       className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${
-        highlight ? "font-semibold text-violet-200" : "text-slate-300"
+        highlight ? "font-semibold text-[var(--accent-secondary)]" : "text-[var(--foreground-soft)]"
       }`}
       data-column-group={metricGroup}
     >
