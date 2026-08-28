@@ -1,5 +1,12 @@
 # Local MVP release record
 
+## Document status
+
+This record preserves the original July 31, 2026 MVP sign-off and its evidence.
+Last reviewed on August 27, 2026, the current application has continued to
+improve on `main`; the post-release section below records material changes
+delivered after the `v0.1.0-mvp` tag.
+
 ## Release decision
 
 Sportsball's NHL website is complete as a local MVP as of July 31, 2026. The
@@ -56,6 +63,33 @@ The following checks were completed against the July 31 local database:
   routes returned their expected HTTP status without a rendered application or
   server error.
 
+## Post-release progress
+
+The following product improvements were delivered after the `v0.1.0-mvp` tag
+and are part of the current local application:
+
+- The draft archive now contains every official NHL selection from 1963
+  through 2026, including players who never appeared in the NHL, historical
+  team identities, traded-pick ownership, and true appearance-rate
+  denominators.
+- Team pages now include completed and remaining schedule-strength analysis,
+  venue, rest, back-to-back, estimated travel, and supporting-game context.
+- The line-combination workspace now supports league and team scope, rolling
+  windows, minimum-ice-time filtering, and drill-down to supporting games.
+- Game pages now include interactive game-flow views, the playoff workspace
+  includes expanded series analysis, and team pages include a
+  results-versus-process comparison.
+- History, schedule, draft, comparison, and analytical controls received
+  broader URL-backed state, clearer filters, and substantial desktop and
+  responsive-layout refinements.
+- Page caching, query pagination, lazy-loaded visualizations, reduced game
+  payloads, performance telemetry, and regression coverage improved runtime
+  performance and maintainability.
+
+These additions expand the MVP without changing its release boundary: the
+application remains a local product until hosting and scheduled production
+operation are deliberately activated.
+
 ## Known limitations and deferred work
 
 - The site is local only. Hosting, production secrets, managed backups, alerts,
@@ -66,15 +100,15 @@ The following checks were completed against the July 31 local database:
   begins.
 - MoneyPuck coverage is source-limited and does not provide every historical or
   playoff table available from official NHL data.
-- The initial draft page covers drafted players represented in stored NHL
-  history, not every player who was selected and never reached the league.
-- Contracts, salary cap, transactions, injuries, complete draft history,
-  historical query exploration, saved comparisons, and era-adjusted records
-  remain in the product backlog.
+- Contracts, salary cap, transactions, injuries, historical query exploration,
+  named saved-comparison collections, and era-adjusted records remain in the
+  product backlog. Several analytical and comparison views now preserve their
+  state in the URL, but there is no user account or server-side saved library.
 - Multiple sports and predictive models are explicitly post-MVP stages.
 
 ## Next stage
 
-This task ends with the local MVP. Subsequent work should begin from the MVP
-tag and focus on the user's planned refactors and product refinements before
-any hosting decision or predictive-modelling implementation.
+The `v0.1.0-mvp` tag remains the reproducible original sign-off point. Current
+work should begin from the latest `main`, which includes the post-release
+improvements above. The next release boundary remains hosted operation:
+deployment, scheduled writes, managed recovery, and production monitoring.
