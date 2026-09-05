@@ -1,10 +1,12 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Fraunces, Barlow_Condensed, Space_Grotesk } from "next/font/google";
 import Script from "next/script";
 import { WebVitals } from "@/app/_components/web-vitals";
 import "./globals.css";
 import "./editorial.css";
+import "./style-studio.css";
+import { palettes, typefaces, paletteStorageKey, typefaceStorageKey } from "@/lib/appearance";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,8 +18,35 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  preload: false,
+});
+const barlow = Barlow_Condensed({
+  variable: "--font-barlow",
+  subsets: ["latin"],
+  weight: ["400", "600", "700"],
+  preload: false,
+});
+const grotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
+  subsets: ["latin"],
+  preload: false,
+});
+
 const themeBootstrap = `
 (function () {
+  try {
+    var palette = localStorage.getItem(${JSON.stringify(paletteStorageKey)});
+    var typeface = localStorage.getItem(${JSON.stringify(typefaceStorageKey)});
+    document.documentElement.dataset.palette = ${JSON.stringify(palettes.map((option) => option.id))}.includes(palette) ? palette : "copper";
+    document.documentElement.dataset.typeface = ${JSON.stringify(typefaces.map((option) => option.id))}.includes(typeface) ? typeface : "georgia";
+  } catch (_) {
+    document.documentElement.dataset.palette = "copper";
+    document.documentElement.dataset.typeface = "georgia";
+  }
   try {
     var stored = localStorage.getItem("sportsball-theme");
     var theme = stored === "light" || stored === "dark"
@@ -50,7 +79,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${barlow.variable} ${grotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <WebVitals />

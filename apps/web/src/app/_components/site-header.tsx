@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { ActiveNavigationScroller } from "@/app/_components/active-navigation-scroller";
+import { StyleStudio } from "@/app/_components/style-studio";
 import { ThemeToggle } from "@/app/_components/theme-toggle";
 
 export type SiteSection =
@@ -75,6 +76,7 @@ export function SiteHeader({ active }: SiteHeaderProps) {
         ))}
         <ActiveNavigationScroller active={active} />
       </nav>
+      <StyleStudio />
     </header>
   );
 }

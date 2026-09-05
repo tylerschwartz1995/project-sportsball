@@ -90,3 +90,33 @@ chart calculations, and phase behavior are unchanged.
 This pass intentionally increases typographic contrast and front-page branding.
 Inner-page titles can span two lines; this is a deliberate editorial choice,
 while numeric tables retain their existing row geometry and scrolling behavior.
+
+## Colour and typography studio
+
+Open **Style Studio** beneath the main navigation on any page. Four suggested
+pairings offer quick comparisons:
+
+| Palette | Suggested type | Character |
+| --- | --- | --- |
+| Copper | Georgia | Warm paper, charcoal, and a classic newspaper serif |
+| Racing Green | Fraunces | Ivory, forest green, brass, and a softer expressive serif |
+| Cobalt | Barlow Condensed | Cool white, midnight blue, and condensed sports-page lettering |
+| Oxblood | Space Grotesk | Blush paper, burgundy, and geometric sans-serif type |
+
+Colour and typography can also be selected independently: sixteen combinations,
+each supporting the existing light/dark switch. **Reset Style** restores Copper
+and Georgia without changing the light/dark preference. The studio starts closed
+so the comparison controls do not displace the content while browsing.
+
+Selections persist on the device and are applied before paint when storage is
+available. Invalid preferences fall back to Copper/Georgia. With storage blocked,
+selection still works for the current page. Controls wait for hydration before
+accepting clicks. Neither filters nor statistics change when appearance changes.
+
+The three additional fonts are served through `next/font`, with optional font
+preloading disabled so unused experiments are not eagerly downloaded. Fraunces
+and Barlow use Geist for the statistical body; Space Grotesk also changes the
+reading face. Monospaced numeric metadata remains stable. Theme-specific
+categorical chart colors stay distinct; observed/derived chart colors follow
+the selected palette. Colour tokens and typography adjustments live in
+`apps/web/src/app/style-studio.css`.
