@@ -52,7 +52,7 @@ const links = [
 
 export function SiteHeader({ active }: SiteHeaderProps) {
   return (
-    <header className="record-header">
+    <header className={`record-header ${active === "home" ? "record-header-front" : "record-header-section"}`}>
       <div className="record-masthead">
         <p className="record-edition">The Hockey Edition<span>Statistics / Analysis / History</span></p>
         <Link href="/" className="record-brand" aria-label="Sportsball home">

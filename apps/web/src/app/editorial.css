@@ -275,3 +275,191 @@ main :is(select, input:not([type="radio"]):not([type="checkbox"]), button,
 .workspace-history-record-list header { padding-left: 0; padding-right: 0; }
 .workspace-history-record-list header h2 { font-family: var(--font-editorial); font-size: 1.5rem; }
 .workspace-history-intro h2 { font-family: var(--font-editorial); font-weight: 400; letter-spacing: -0.025em; }
+
+/* Second exploration: a full editorial spread, with a compact inner-page flag. */
+:root {
+  --record-table-heading: #dedbcf;
+  --record-table-ink: #252820;
+  --record-table-accent: #923f22;
+}
+html[data-theme="light"] {
+  --record-table-heading: #33392e;
+  --record-table-ink: #faf6e9;
+  --record-table-accent: #ffc3a2;
+}
+.record-header-front .record-masthead {
+  grid-template-columns: 1fr auto;
+  gap: 0;
+  padding-top: 0.7rem;
+}
+.record-header-front .record-edition { align-self: start; }
+.record-header-front .record-edition span { display: inline; margin-left: 1rem; }
+.record-header-front .record-utilities { grid-column: 2; grid-row: 1; }
+.record-header-front .record-dataset { display: none; }
+.record-header-front .record-brand {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  padding: 0.25rem 0 1rem;
+  font-size: clamp(5rem, 15.7vw, 15rem);
+  line-height: 0.95;
+  text-align: center;
+  letter-spacing: -0.07em;
+}
+.record-header-section .record-masthead { min-height: 5rem; }
+.record-header-section .record-brand { font-size: 3.25rem; }
+.record-navigation { justify-content: space-between; gap: 1.25rem; }
+.record-navigation a { text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.06em; }
+
+.workspace-page-header h1 { font-size: clamp(3rem, 5.9vw, 5.5rem); max-width: 18ch; }
+.workspace-page-header { padding-top: 0.5rem; padding-bottom: 2rem; }
+.workspace-description { font-family: var(--font-editorial); font-size: 1.12rem; line-height: 1.45; max-width: 58ch; }
+.record-home .workspace-page-header { align-items: end; padding-bottom: 1.25rem; }
+.record-home .workspace-page-header h1 { max-width: none; font-size: clamp(2rem, 3.2vw, 3.2rem); }
+.record-home .workspace-description { font-size: 1rem; }
+.record-home .workspace-eyebrow { margin-bottom: 0.6rem; }
+
+.record-front-page { display: grid; gap: 2rem; margin-top: 2rem; }
+.record-form-guide .workspace-panel-header { display: block; padding-top: 0; }
+.record-form-guide .workspace-panel-header h3 { font-size: clamp(2.5rem, 4vw, 4rem); font-style: italic; line-height: 1.1; }
+.record-form-guide .workspace-panel-header a { display: inline-block; margin-top: 0.7rem; }
+.record-form-guide .workspace-home-movement > a { padding-block: 0.85rem; }
+.record-form-guide .workspace-home-movement-team b { font-size: 1.05rem; }
+.record-form-guide .workspace-home-movement-rank { font-family: var(--font-editorial); font-style: italic; font-size: 1.5rem; }
+.record-form-guide.workspace-panel { border-top: 0; }
+.record-scoring-rail.workspace-panel { border-top: 0; }
+.record-scoring-rail .workspace-panel-header { padding-top: 0; flex-wrap: wrap; gap: 0.5rem; }
+.record-scoring-rail .workspace-panel-header h3 { font-size: 1.65rem; }
+.record-scoring-rail .workspace-leader-grid { display: block; padding: 0; }
+.record-scoring-rail .workspace-leader-grid a {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  grid-template-areas: "rank name points" ". detail points";
+  column-gap: 0.6rem;
+  padding: 1rem 0;
+  border-right: 0;
+  border-bottom: 1px solid var(--border);
+}
+.record-scoring-rail .workspace-leader-grid a > span { grid-area: rank; font-size: 0.7rem; padding-top: 0.3rem; }
+.record-scoring-rail .workspace-leader-grid b { grid-area: name; margin: 0; font-family: var(--font-editorial); font-size: 1.25rem; font-weight: 400; white-space: normal; }
+.record-scoring-rail .workspace-leader-grid small { grid-area: detail; font-size: 0.72rem; }
+.record-scoring-rail .workspace-leader-grid strong { grid-area: points; margin: 0; align-self: center; font-size: 1.35rem; white-space: nowrap; }
+.record-scoring-rail .workspace-leader-grid a:first-child { grid-template-areas: "rank name name" ". detail detail" ". points points"; }
+.record-scoring-rail .workspace-leader-grid a:first-child b { font-size: 2.4rem; line-height: 1.08; }
+.record-scoring-rail .workspace-leader-grid a:first-child strong { font-size: 3.8rem; line-height: 1.2; margin-top: 0.5rem; }
+
+.record-league-digest .workspace-panel-header h3 { font-size: 2rem; }
+.record-league-digest .workspace-home-trend-rows { display: grid; gap: 1.25rem; }
+.record-league-digest .workspace-home-trend-rows > a { display: flex; flex-direction: column; align-items: start; gap: 0.5rem; border-bottom: 0; }
+.record-league-digest .workspace-home-trend-rows strong { font-family: var(--font-editorial); font-size: 2.8rem; font-weight: 400; line-height: 1.1; }
+.record-league-digest .workspace-home-trend-rows small { font-size: 0.72rem; }
+.record-league-digest .workspace-home-trend-rows em { font-size: 0.8rem; }
+.record-home .workspace-home-primary { margin-top: 2.5rem; }
+.record-home .workspace-home-explore { counter-reset: archive; gap: 0; }
+.record-home .workspace-home-explore a { counter-increment: archive; padding: 1.5rem 1rem 1.5rem 0; }
+.record-home .workspace-home-explore a::before { content: "0" counter(archive); font: italic 1.5rem var(--font-editorial); color: var(--muted); }
+.record-home .workspace-home-explore b { font-size: 1.8rem; }
+.record-home .workspace-analytics-link { padding: 1.5rem 0; border-width: 3px 0 1px; background: none; }
+.record-home .workspace-analytics-link b { font-family: var(--font-editorial); font-size: 2.5rem; font-weight: 400; font-style: italic; }
+
+/* Identity is a headline on the page, not a card around a headline. */
+.record-profile-identity { border-bottom: 3px double var(--border-strong); padding: 1rem 0 2rem; }
+.record-profile-identity h1 { font-size: clamp(3rem, 5.5vw, 5.5rem); max-width: 17ch; }
+.record-player-identity > div { min-width: 0; }
+.record-player-identity .workspace-page-actions { flex-shrink: 0; }
+.record-team-identity .rounded-full,
+.record-player-identity .rounded-full { border: 0; border-radius: 0; background: none; padding-left: 0; }
+.record-profile-identity > div > div { min-width: 0; }
+.surface-panel { border-width: 1px 0 0; border-color: var(--border-strong); padding-right: 0; padding-left: 0; }
+.surface-panel h3,
+.workspace-history-intro h2,
+.workspace-schedule-results-heading h2,
+.workspace-team-conferences h2 { font-family: var(--font-editorial); font-size: 2.2rem; font-weight: 400; }
+.workspace-team-division h3 { font-family: var(--font-editorial); font-size: 1.35rem; font-weight: 400; }
+.workspace-team-directory-card strong { font-family: var(--font-editorial); font-size: 1.35rem; font-weight: 400; }
+.workspace-team-directory-card { padding-block: 1rem; }
+
+/* Statistical tables have the visual weight of a printed reference table. */
+main table thead th {
+  background: var(--record-table-heading);
+  color: var(--record-table-ink);
+  border-bottom: 0;
+  font-family: var(--font-geist-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+main table thead th :is(button, a) { color: inherit; }
+main table thead th[aria-sort="ascending"],
+main table thead th[aria-sort="descending"] { color: var(--record-table-accent); }
+main table tbody tr:nth-child(even) { background: var(--surface-subtle); }
+main table tbody tr:hover { background: var(--accent-soft); }
+.data-table-shell { border-width: 0 0 1px; border-radius: 0; }
+.workspace-history-table thead .workspace-history-rank-col,
+.workspace-history-table thead .workspace-history-entity-col { background: var(--record-table-heading); }
+
+/* Filters become compact working strips, rather than separate dashboard cards. */
+.workspace-analytics-filters,
+.workspace-player-filters,
+.workspace-directory-controls,
+.workspace-draft-filters { border-width: 1px 0; border-radius: 0; background: var(--surface-subtle); }
+.workspace-filter-header strong { font-family: var(--font-editorial); font-size: 1.35rem; font-weight: 400; }
+.workspace-filter-header small { border: 0; border-radius: 0; background: none; }
+.workspace-scroll-nav { border-bottom-color: var(--border-strong); }
+.workspace-scroll-nav a[aria-current="page"] { box-shadow: inset 0 -3px var(--accent); }
+.workspace-phase-filter > div { border: 0; background: var(--surface-subtle); }
+
+@media (min-width: 1024px) {
+  .record-front-page { grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); column-gap: 3rem; }
+  .record-scoring-rail { border-left: 1px solid var(--border); padding-left: 2rem; }
+  .record-league-digest { grid-column: 1 / -1; }
+  .workspace-analytics-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 1rem; max-width: none; padding: 1rem; }
+  .workspace-analytics-filters .workspace-filter-header { width: 100%; padding: 0 0 0.6rem; }
+  .workspace-analytics-filters .workspace-filter-actions { padding: 0; border: 0; }
+  .workspace-analytics-filters > label { min-width: 12rem; }
+}
+@media (min-width: 640px) {
+  .record-league-digest .workspace-home-trend-rows { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .record-league-digest .workspace-home-trend-rows > a + a { border-left: 1px solid var(--border); padding-left: 1.25rem; }
+}
+@media (max-width: 700px) {
+  .record-header-front .record-edition { padding-top: 0; grid-column: 1; }
+  .record-header-front .record-edition span { display: none; }
+  .record-header-front .record-brand { font-size: clamp(3.6rem, 17vw, 7.5rem); }
+  .record-header-section .record-masthead { gap: 0.4rem; }
+  .record-header-section .record-brand { font-size: 2.8rem; }
+  .record-header-section .record-edition { padding-top: 0.5rem; }
+  .record-navigation { justify-content: flex-start; }
+  .workspace-page-header h1 { font-size: 3rem; }
+  .record-home .workspace-page-header { align-items: start; }
+  .record-home .workspace-page-header h1 { font-size: 2.2rem; }
+  .record-profile-identity h1 { font-size: 3.2rem; overflow-wrap: anywhere; }
+  .record-player-identity .workspace-page-actions { flex-shrink: 1; }
+  .record-front-page { gap: 2rem; }
+  .record-scoring-rail .workspace-leader-grid a:first-child b { font-size: 2rem; }
+  .record-league-digest .workspace-home-trend-rows { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .record-league-digest .workspace-home-trend-rows > a { border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+  .record-league-digest .workspace-home-trend-rows strong { font-size: 2.3rem; }
+  .record-home .workspace-analytics-link { align-items: start; flex-direction: column; }
+}
+
+@media (min-width: 1024px) {
+  .workspace-analytics-filters[data-type] { width: 100%; max-width: none; }
+}
+
+/* Sort buttons and frozen identity headings share the inverted header palette. */
+.workspace-table thead .workspace-sortable-header,
+.workspace-column-preset-table thead .workspace-sticky-entity {
+  background: var(--record-table-heading);
+  color: var(--record-table-ink);
+}
+.workspace-table thead .workspace-sortable-header button,
+.workspace-table thead .workspace-sortable-header button > span[aria-hidden="true"] {
+  color: var(--record-table-ink);
+}
+.workspace-table thead .workspace-sortable-header:is([aria-sort="ascending"], [aria-sort="descending"]) button,
+.workspace-table thead .workspace-sortable-header:is([aria-sort="ascending"], [aria-sort="descending"]) button > span[aria-hidden="true"] {
+  color: var(--record-table-accent);
+}
+.workspace-table thead .workspace-sortable-header button:focus-visible { outline-color: var(--record-table-accent); }
+@media (min-width: 1024px) {
+  .workspace-analytics-filters > .workspace-filter-header { margin: 0; }
+}

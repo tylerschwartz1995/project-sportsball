@@ -71,3 +71,22 @@ long tables as users scroll.
 
 This is a presentation-only exploration. No deployment, database changes,
 scheduled writes, or change of analytical definitions is included.
+
+## Second pass: a stronger editorial composition
+
+The front-page flag now spans most of the page width; inner pages use a compact
+masthead so research views keep more room for their content. The front page is
+an asymmetric form-guide/scoring-leader spread, followed by a four-column league
+trends digest and the results desk. The leading scorer gets a typographic lead;
+all five leaders still link to profiles and retain their exact totals.
+
+Team and player identities use oversized serif titles and a double rule instead
+of a surrounding card. The decorative team-abbreviation watermark is removed.
+Table headers now use a contrasting ink band, with explicit sort states and
+alternating body rows. Analytics filters occupy a horizontal working strip on
+desktop; on phones they stack. Statistical definitions, filters, data queries,
+chart calculations, and phase behavior are unchanged.
+
+This pass intentionally increases typographic contrast and front-page branding.
+Inner-page titles can span two lines; this is a deliberate editorial choice,
+while numeric tables retain their existing row geometry and scrolling behavior.

@@ -94,13 +94,13 @@ export default async function Home({ searchParams }: HomeProps) {
 
       <section className="py-8 sm:py-10">
         <WorkspacePageHeader
-          eyebrow="The League Notebook"
+          eyebrow="NHL / Season Review"
           title={
             selectedSeason
-              ? `${selectedSeason.label}, on the Ice.`
+              ? `The ${selectedSeason.label} Notebook`
               : "NHL Data Unavailable"
           }
-          description="Follow the results. Study the form. Get beneath the score."
+          description="A season in results, form, and individual performance."
           action={
             <SeasonPicker
               seasons={seasons}
@@ -111,9 +111,10 @@ export default async function Home({ searchParams }: HomeProps) {
 
         {selectedSeason && leagueLeader ? (
           <>
-            <div className="workspace-home-insights mt-5">
+            <div className="record-front-page">
               <WorkspacePanel
-                title="Standings Movement"
+                title="The Form Guide"
+                className="record-form-guide"
                 description="Current top six and the exact points earned in each club's last 10 games, compared with its preceding 10."
                 action={
                   <Link href={`/standings?season=${selectedSeason.id}`}>
@@ -127,7 +128,38 @@ export default async function Home({ searchParams }: HomeProps) {
                 />
               </WorkspacePanel>
               <WorkspacePanel
-                title="League Trends"
+                className="record-scoring-rail"
+                title="Scoring Leaders"
+                action={
+                  <Link href={`/players?season=${selectedSeason.id}`}>
+                    All Players →
+                  </Link>
+                }
+              >
+                <div className="workspace-leader-grid">
+                  {scoringLeaders.map((player, index) => (
+                    <Link
+                      key={player.nhlPlayerId}
+                      href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
+                    >
+                      <span>#{index + 1}</span>
+                      <b className="flex items-center gap-2">
+                        <TeamLogoStack teams={player.teams} />
+                        {player.name}
+                      </b>
+                      <small>
+                        {formatPlayerPosition(player.position, "Skater")} ·{" "}
+                        {player.gamesPlayed} GP
+                      </small>
+                      <strong>{player.points} PTS</strong>
+                    </Link>
+                  ))}
+                </div>
+              </WorkspacePanel>
+
+              <WorkspacePanel
+                title="Around the League"
+                className="record-league-digest"
                 description="Latest 30 completed regular-season games versus the preceding 30, calculated from available results."
                 action={
                   <Link href={`/games?season=${selectedSeason.id}`}>
@@ -218,36 +250,6 @@ export default async function Home({ searchParams }: HomeProps) {
                 </div>
               </WorkspacePanel>
             </div>
-
-            <WorkspacePanel
-              className="mt-5"
-              title="Scoring Leaders"
-              action={
-                <Link href={`/players?season=${selectedSeason.id}`}>
-                  All Players →
-                </Link>
-              }
-            >
-              <div className="workspace-leader-grid">
-                {scoringLeaders.map((player, index) => (
-                  <Link
-                    key={player.nhlPlayerId}
-                    href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                  >
-                    <span>#{index + 1}</span>
-                    <b className="flex items-center gap-2">
-                      <TeamLogoStack teams={player.teams} />
-                      {player.name}
-                    </b>
-                    <small>
-                      {formatPlayerPosition(player.position, "Skater")} ·{" "}
-                      {player.gamesPlayed} GP
-                    </small>
-                    <strong>{player.points} PTS</strong>
-                  </Link>
-                ))}
-              </div>
-            </WorkspacePanel>
 
             {selectedSeason.id >= 20082009 ? (
               <Link
