@@ -185,7 +185,7 @@ export function TeamRollingPerformanceChart({
                   value: "50%",
                   position: "insideTopLeft",
                   fill: "var(--chart-label)",
-                  fontSize: "0.78rem",
+                  fontSize: "0.8125rem",
                 }}
               />
               <Tooltip

@@ -337,8 +337,8 @@ function ComparisonTable({
   phase: string;
 }) {
   return (
-    <div className="workspace-table-scroll">
-      <table className="workspace-table workspace-comparison-matrix min-w-[900px]">
+    <div className="workspace-table-scroll modern-comparison-scroll" tabIndex={0} role="region" aria-label="Player comparison table, scroll horizontally for more players">
+      <table className="workspace-table workspace-comparison-matrix" style={{ minWidth: `${9.5 + players.length * 8}rem` }}>
         <colgroup>
           <col className="workspace-comparison-metric-column" />
           {players.map((player) => (

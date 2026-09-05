@@ -122,14 +122,14 @@ export function PlayerDirectoryFilters({
 
       <FilterHeader
         title="Filter Players"
-        description="Search by name or choose a position. Open advanced filters only when you need them."
+        description="Search by name, type, or position."
         activeCount={activeFilterCount}
       />
 
       <fieldset
         className={`workspace-player-filter-group is-primary${category === "skaters" ? " has-position" : ""}`}
       >
-        <legend>Find Players</legend>
+        <legend className="sr-only">Find Players</legend>
         <div>
           <label className="is-wide">
             Player Search
@@ -170,7 +170,7 @@ export function PlayerDirectoryFilters({
         <summary>
           <span>
             <strong>Advanced Filters</strong>
-            <small>Season totals, birthplace, and compact-screen sorting</small>
+            <small className="sr-only">Season totals, birthplace, and sorting</small>
           </span>
           <b>
             {advancedFilterCount > 0

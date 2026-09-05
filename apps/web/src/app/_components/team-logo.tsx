@@ -68,13 +68,7 @@ export function TeamLogo({
     : size === "compact"
       ? "relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-[var(--border)] bg-slate-50/95 p-1 shadow-sm"
       : "relative grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-md border border-[var(--border)] bg-slate-50/95 p-0.5 shadow-sm";
-  const imageScale = size === "tiny"
-    ? prominent
-      ? "scale-[1.55]"
-      : "scale-[1.45]"
-    : prominent
-      ? "scale-[1.62]"
-      : "scale-[1.42]";
+  const imageScale = prominent ? "scale-[1.4]" : "scale-[1.3]";
 
   return (
     <span className={`team-crest team-crest-${size} ${className}`}>

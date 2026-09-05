@@ -202,14 +202,14 @@ function TeamShotMap({
             </g>
           ))}
 
-          <text x="18" y="28" fill="var(--muted)" fontSize="9">
+          <text x="18" y="28" fill="var(--muted)" fontSize="13">
             CENTRE
           </text>
           <text
             x="300"
             y="28"
             fill="var(--muted)"
-            fontSize="9"
+            fontSize="13"
             textAnchor="end"
           >
             ATTACKING →

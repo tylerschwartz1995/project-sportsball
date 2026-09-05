@@ -171,10 +171,10 @@ function BracketTeam({
   showWins: boolean;
 }) {
   return (
-    <span className={winner ? "is-winner" : ""}>
+    <span className={winner ? "is-winner" : ""} data-seeded={Boolean(team?.seedLabel)}>
       {team ? (
         <>
-          <small>{team.seedLabel ?? ""}</small>
+          {team.seedLabel ? <small>{team.seedLabel}</small> : null}
           <TeamLogo
             nhlTeamId={team.nhlTeamId}
             abbreviation={team.abbreviation}

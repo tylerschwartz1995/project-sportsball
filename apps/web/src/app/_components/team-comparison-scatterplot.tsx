@@ -183,7 +183,7 @@ export function TeamComparisonScatterplot({
                   position: "insideBottom",
                   offset: -20,
                   fill: "var(--chart-label)",
-                  fontSize: "0.78rem",
+                  fontSize: "0.8125rem",
                 }}
               />
               <YAxis
@@ -206,7 +206,7 @@ export function TeamComparisonScatterplot({
                   position: "insideLeft",
                   offset: -8,
                   fill: "var(--chart-label)",
-                  fontSize: "0.78rem",
+                  fontSize: "0.8125rem",
                 }}
               />
               <ZAxis range={[95, 95]} />
@@ -230,6 +230,8 @@ export function TeamComparisonScatterplot({
               />
               {GROUPS.map((series) => (
                 <Scatter
+                  stroke="transparent"
+                  strokeWidth={12}
                   key={series.value}
                   name={series.label}
                   data={plotPoints.filter(

@@ -414,6 +414,8 @@ export function PlayerComparisonPlots(props: PlayerComparisonPlotsProps) {
                     />
                     {groupOptions.map((series) => (
                       <Scatter
+                        stroke="transparent"
+                        strokeWidth={12}
                         key={series.value}
                         name={series.label}
                         data={visiblePoints.filter(
@@ -870,6 +872,6 @@ function axisLabel(
     position,
     offset,
     fill: "var(--chart-label)",
-    fontSize: "0.78rem",
+    fontSize: "0.8125rem",
   };
 }

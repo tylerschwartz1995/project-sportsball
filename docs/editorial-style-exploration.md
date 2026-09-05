@@ -50,7 +50,7 @@ entity links, and statistical definitions retain their existing behavior.
 ## Implementation and review
 
 `apps/web/src/app/modern.css` owns the alternative theme and shared visual rules.
-`globals.css` retains component geometry with a stable 16px root and a readable
+`globals.css` retains component geometry with a browser-relative root (16px by default) and a readable
 minimum for legacy labels. The abandoned editorial and Style Studio styles,
 font configuration, and preference controls have been removed. Old palette and
 font preferences no longer affect the page; the dark/light preference remains.
@@ -64,3 +64,31 @@ Validation uses `make web-check`, the existing Playwright browser audit, and a
 15-route desktop/mobile dark/light layout sweep against the local database.
 Use `SPORTSBALL_E2E_BASE_URL=http://localhost:3000` for the browser audit in this
 local environment. No query or database changes are part of this revision.
+
+
+## Sizing audit follow-up
+
+The shared scale now also reaches utility-based labels and chart props: meaningful
+metadata is at least 13px, with 18px panel headings and 20px major sections.
+History charts reduce tick density when necessary. Rink orientation labels are
+readable, and scatterplots have transparent pointer padding around visible marks.
+The root uses the browser’s font-size preference instead of fixing it in pixels.
+
+Selected-player names wrap in full, remove and dialog-close targets are 44px,
+and optional suggestions collapse once a comparison has enough players. The
+comparison table sizes itself to the number of players, keeps its metric column
+visible while scrolling, and provides a scroll cue. Bracket tiles reserve room
+for complete team abbreviations and only allocate a seed column when needed.
+
+The mobile score header aligns both scores on the right with smaller crests;
+records and shot counts share a supporting line. Player and analytics filters
+use tighter working rows, and combination-window explanations live in a native
+disclosure. Combination detail shows linked player names separately from its
+page title. SVG utility icons and restrained crest scaling unify optical size.
+Result-map filters and player controls can reflow when text is enlarged.
+
+Validation includes the existing six browser checks and six sizing regressions
+in `apps/web/e2e/sizing.spec.ts`, a 24-view dark/light phone/desktop sweep, and
+six enlarged-root layout stress checks. Those stress checks are a diagnostic,
+not native iOS/Safari zoom certification. Wide statistical tables still scroll
+horizontally; they are not compressed into unreadably narrow columns.

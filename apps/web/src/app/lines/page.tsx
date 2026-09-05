@@ -11,7 +11,6 @@ import { SeasonUnitTables } from "@/app/_components/season-unit-tables";
 import { SiteHeader } from "@/app/_components/site-header";
 import {
   WorkspacePageHeader,
-  WorkspacePanel,
 } from "@/app/_components/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
 import { listCachedSeasons, listCachedTeamsBySeason } from "@/data/page-cache";
@@ -109,7 +108,7 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
         <WorkspacePageHeader
           eyebrow="MoneyPuck five-on-five units"
           title={`${selectedSeason?.label ?? "No Season"} Top Combinations`}
-          description="Compare the most-used forward lines and defensive pairings. Season totals combine available game-level results, with every percentage recalculated from those totals."
+          description="Compare five-on-five forward lines and defensive pairings. Rates are recalculated from available game totals."
           action={
             <SeasonPicker
               seasons={seasons}
@@ -133,11 +132,7 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
 
         {selectedSeason && selectedSeason.id >= 20082009 ? (
           <>
-            <WorkspacePanel
-              className="mt-8"
-              title="Combination Scope"
-              description="Compare full-season results or each team's most recent 10, 20, or 40 regular-season games. Rolling windows use the last team games in the selected season, then recompute every rate from the supporting totals."
-            >
+            <div className="modern-combination-controls mt-5">
               <CombinationFilters
                 seasonId={selectedSeason.id}
                 selectedMinutes={minimumMinutes}
@@ -149,8 +144,9 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
                 sort={sort}
                 direction={direction}
               />
-            </WorkspacePanel>
-            <div className="mt-10">
+              <details className="modern-scope-help"><summary>How sample windows work</summary><p>Compare full-season results or each team’s most recent 10, 20, or 40 regular-season games. Rolling windows use the last team games in the selected season and recompute every rate from the supporting totals.</p></details>
+            </div>
+            <div className="mt-5">
               <nav className="workspace-subview-tabs" aria-label="Combination type">
                 <Link href={unitViewHref(navigationParams, "lines")} aria-current={view === "lines" ? "page" : undefined}>
                   Forward Lines <span>{units.forwardLines.length}</span>

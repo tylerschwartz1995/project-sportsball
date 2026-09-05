@@ -60,7 +60,7 @@ export function MetricTile({
           : "rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4"
       }
     >
-      <dt className="text-[0.68rem] font-medium uppercase tracking-[0.13em] text-[var(--muted)]">
+      <dt className="text-[0.8125rem] font-medium uppercase tracking-[0.13em] text-[var(--muted)]">
         {label}
       </dt>
       <dd

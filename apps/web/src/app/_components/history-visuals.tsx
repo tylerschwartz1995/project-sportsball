@@ -105,15 +105,16 @@ export function HistoryRecordProgression({
             type="number"
             domain={["dataMin", "dataMax"]}
             ticks={decadeTicks(data)}
-            interval={0}
-            tick={{ fill: "var(--muted)", fontSize: "0.68rem" }}
+            interval="preserveStartEnd"
+            minTickGap={20}
+            tick={{ fill: "var(--muted)", fontSize: "0.8125rem" }}
             axisLine={{ stroke: "var(--border)" }}
             tickLine={false}
           />
           <YAxis
             width={48}
             tickFormatter={(value) => Number(value).toLocaleString("en-CA")}
-            tick={{ fill: "var(--muted)", fontSize: "0.78rem" }}
+            tick={{ fill: "var(--muted)", fontSize: "0.8125rem" }}
             axisLine={false}
             tickLine={false}
           />
@@ -177,8 +178,9 @@ export function HistoryScoringEnvironment({
             type="number"
             domain={["dataMin", "dataMax"]}
             ticks={decadeTicks(data)}
-            interval={0}
-            tick={{ fill: "var(--muted)", fontSize: "0.68rem" }}
+            interval="preserveStartEnd"
+            minTickGap={20}
+            tick={{ fill: "var(--muted)", fontSize: "0.8125rem" }}
             axisLine={{ stroke: "var(--border)" }}
             tickLine={false}
           />
@@ -189,7 +191,7 @@ export function HistoryScoringEnvironment({
             ]}
             width={42}
             tickFormatter={(value) => formatChartValue(Number(value), config.axisDecimals, config.omitLeadingZero)}
-            tick={{ fill: "var(--muted)", fontSize: "0.78rem" }}
+            tick={{ fill: "var(--muted)", fontSize: "0.8125rem" }}
             axisLine={false}
             tickLine={false}
           />

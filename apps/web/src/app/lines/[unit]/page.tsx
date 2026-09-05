@@ -47,7 +47,7 @@ export default async function UnitPage({
   if (!detail) {
     notFound();
   }
-  const title = detail.players.map((player) => player.name).join(" / ");
+  const title = detail.unitType === "line" ? "Forward Line" : "Defensive Pairing";
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -74,6 +74,9 @@ export default async function UnitPage({
               </Link>
             }
           />
+          <ul className="modern-unit-players" aria-label="Players in this combination">
+            {detail.players.map((player) => <li key={player.nhlPlayerId}><Link href={`/players/${player.nhlPlayerId}?season=${seasonId}`}>{player.name}</Link></li>)}
+          </ul>
         </div>
 
         <WorkspacePanel

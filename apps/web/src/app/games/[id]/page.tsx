@@ -240,19 +240,14 @@ function ScoreTeam({
             {align === "right" ? "Home" : "Away"} · {team.abbreviation}
           </small>
           <div className="workspace-game-score-name">
-            {align === "right" ? (
-              <TeamGameRecord record={team.record} />
-            ) : null}
             <Link
               href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
             >
               {team.name}
             </Link>
-            {align === "left" ? (
-              <TeamGameRecord record={team.record} />
-            ) : null}
           </div>
-          <p>
+          <p className="modern-game-support">
+            <TeamGameRecord record={team.record} />
             {team.shotsOnGoal === null
               ? "Shots unavailable"
               : `${team.shotsOnGoal} shots`}

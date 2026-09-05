@@ -109,7 +109,7 @@ export function TeamPerformanceResultMap({
       </header>
 
       <div
-        className="mt-5 grid grid-cols-2 gap-2 xl:grid-cols-5"
+        className="modern-result-filters mt-5"
         role="group"
         aria-label="Filter games by result and share of play"
       >
@@ -259,6 +259,8 @@ export function TeamPerformanceResultMap({
               />
               {GROUPS.map((group) => (
                 <Scatter
+                  stroke="transparent"
+                  strokeWidth={12}
                   key={group.value}
                   name={group.label}
                   data={visiblePoints.filter(
@@ -459,7 +461,7 @@ function quadrantLabel(
     value,
     position,
     fill: "var(--chart-label)",
-    fontSize: "0.75rem",
+    fontSize: "0.8125rem",
     letterSpacing: "0.08em",
   } as const;
 }

@@ -193,7 +193,7 @@ export function GameFlowChart({ flow }: { flow: GameFlow }) {
                 angle: -90,
                 position: "insideLeft",
                 fill: "var(--chart-label)",
-                fontSize: "0.78rem",
+                fontSize: "0.8125rem",
               }}
             />
 
