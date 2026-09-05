@@ -1,122 +1,66 @@
-# The Sportsball Record — styling exploration
+# Modern Stats Exploration
 
-This is a competing design on `agent/editorial-style-exploration`, branched from
-`main`. **Do not merge this exploration into main.** It is a working alternative
-for comparison, not a replacement of the selected production design.
+This competing design lives on `agent/editorial-style-exploration`, branched from
+`main`. The branch and PR are the deliverable. **Do not merge or deploy it.**
 
 ## Direction
 
-An independent sports statistics publication: a strong masthead, serif headlines,
-quiet surfaces, and dense, ruled data. The front page leads with standings
-movement and league trends; results, upcoming games, standings, and scoring
-leaders follow. Existing data, qualifications, phase separation, sorting, URL
-filters, and chart behavior are retained.
+A quiet, modern stats interface that makes navigation and information easy to
+scan. One consistent Manrope sans-serif family replaces the newspaper masthead,
+serif headlines, and selectable font experiments. Geist Mono remains available
+for numeric annotations. Fonts are served through Next.js.
 
-The visible name remains Sportsball. “The Sportsball Record” names this design
-experiment, not a separate product or a claim of editorial reporting.
+The typography scale is fixed across screen sizes: 13px metadata, 14px controls
+and table cells, 15px body copy, 18–20px section headings, and 32px page titles
+(28px on phones). Legacy component labels have a 13px floor. Scores and chart
+annotations retain their meaningful local hierarchy.
 
-## References examined
+Dark mode is the default: neutral graphite surfaces, clear text, and a restrained
+mint accent for links and selected controls. Light mode uses white surfaces and
+a darker green accent. Semantic tokens also coordinate plots and numeric states.
+Neither theme has a decorative grid, glow, or inverted newspaper table headings.
 
-- [Silver Bulletin](https://www.natesilver.net/): a distinctive central masthead,
-  horizontal topic navigation, and an editorial hierarchy divided by fine rules.
-  Adapt the publication structure, not its subscription interface or branding.
-- [Dunks & Threes](https://dunksandthrees.com/teams): a quiet dark canvas, restrained
-  horizontal navigation, and direct access to teams and statistical tools.
-- [Cleaning the Glass](https://cleaningtheglass.com/): strong typographic identity,
-  explanatory copy near statistics, and compact comparisons.
-- [FanGraphs leaderboard interface](https://blogs.fangraphs.com/weve-updated-our-major-league-leaderboards-interface/):
-  retain the depth of a research tool and its explicit filters rather than
-  turning useful statistics into promotional cards.
+## References
 
-## Design choices
+- [FotMob](https://www.fotmob.com/): grouped score rows, clear dates, and familiar
+  navigation put useful information ahead of branding.
+- [Dunks & Threes](https://dunksandthrees.com/): restrained surfaces and compact
+  analytical tables keep a large amount of data approachable.
+- [Sofascore](https://www.sofascore.com/): visible selected navigation and scannable
+  score lists. Sportsball keeps a quieter shell with fewer competing controls.
 
-- Charcoal/ivory dark theme and warm paper/ink light theme. Dark remains the first
-  visit default; the existing preference persists across reloads.
-- Copper denotes interactive and observed-statistic accents. Sage identifies
-  derived measures; explicit labels continue to distinguish statistical meaning.
-  Categorical plots retain distinct theme-specific series colors.
-- Georgia headlines and masthead pair with the existing Geist statistical body
-  and monospaced metadata. No additional font download or dependency is needed.
-- The desktop sidebar becomes one horizontal navigation shared with mobile.
-  On phones it scrolls, and the current section is automatically brought into
-  view. Active links have a visible underline as well as color.
-- Main sections use rules and open space instead of shadows, glowing backgrounds,
-  or rounded cards. Form controls have crisp corners; tables retain their own
-  scrolling boundaries and all statistical columns.
-- A 16–18px base scale makes fuller use of the width recovered from the sidebar.
-  Serif headlines establish hierarchy without inflating the statistical rows.
-- A shared footer provides source context and access to the metric guide.
+These are design references, not sources for Sportsball's statistics. The earlier
+Silver Bulletin-inspired editorial explorations are preserved in Git history.
 
-## Implementation and comparison
+## Page structure
 
-`apps/web/src/app/editorial.css` is loaded after the existing stylesheet. It owns
-this direction's theme tokens, typography, masthead, control shapes, and section
-presentation. The underlying layout and data styles remain available in
-`globals.css`; some unused sidebar rules are intentionally retained to keep this
-experiment easy to compare. Shared header markup and homepage section order are
-also changed, so disabling the CSS import alone is not a complete rollback.
+A compact wordmark and sport label sit above one primary navigation row. The
+current section has an underline; on narrow screens the row scrolls and brings
+that section into view. Theme switching remains available in the header.
 
-Run the normal local server on this branch:
+The homepage starts with recent results, upcoming games, and standings. Recent
+form and scoring leaders follow, with trends and archive links below. All scorer
+rows use the same hierarchy. Upcoming fixtures omit repeated team-record badges
+on the overview; supporting game pages still show their detailed records.
 
-```bash
-SPORTSBALL_WEB_DATABASE_URL=postgresql://sportsball:sportsball@localhost:5432/sportsball \
-  npm run dev --prefix apps/web
-```
+Shared panels, tables, filters, and team/player identities use consistent type,
+subtle boundaries, and rounded corners. Sort controls, phase filters, URL state,
+entity links, and statistical definitions retain their existing behavior.
 
-Compare home, standings, team/player profiles, analytics, and history in both
-themes. The tradeoffs to evaluate are the space taken by the publication masthead,
-the smaller statistical base size, and the loss of a permanently visible desktop
-sidebar. Navigation remains at the top of the document rather than following
-long tables as users scroll.
+## Implementation and review
 
-This is a presentation-only exploration. No deployment, database changes,
-scheduled writes, or change of analytical definitions is included.
+`apps/web/src/app/modern.css` owns the alternative theme and shared visual rules.
+`globals.css` retains component geometry with a stable 16px root and a readable
+minimum for legacy labels. The abandoned editorial and Style Studio styles,
+font configuration, and preference controls have been removed. Old palette and
+font preferences no longer affect the page; the dark/light preference remains.
 
-## Second pass: a stronger editorial composition
+Compare the local site with `main` using the same season and viewport. Review the
+home, standings, games, analytics, history, and entity pages in both themes and
+on desktop and mobile. Check visible information, sorting, filter navigation,
+and chart readability as well as appearance.
 
-The front-page flag now spans most of the page width; inner pages use a compact
-masthead so research views keep more room for their content. The front page is
-an asymmetric form-guide/scoring-leader spread, followed by a four-column league
-trends digest and the results desk. The leading scorer gets a typographic lead;
-all five leaders still link to profiles and retain their exact totals.
-
-Team and player identities use oversized serif titles and a double rule instead
-of a surrounding card. The decorative team-abbreviation watermark is removed.
-Table headers now use a contrasting ink band, with explicit sort states and
-alternating body rows. Analytics filters occupy a horizontal working strip on
-desktop; on phones they stack. Statistical definitions, filters, data queries,
-chart calculations, and phase behavior are unchanged.
-
-This pass intentionally increases typographic contrast and front-page branding.
-Inner-page titles can span two lines; this is a deliberate editorial choice,
-while numeric tables retain their existing row geometry and scrolling behavior.
-
-## Colour and typography studio
-
-Open **Style Studio** beneath the main navigation on any page. Four suggested
-pairings offer quick comparisons:
-
-| Palette | Suggested type | Character |
-| --- | --- | --- |
-| Copper | Georgia | Warm paper, charcoal, and a classic newspaper serif |
-| Racing Green | Fraunces | Ivory, forest green, brass, and a softer expressive serif |
-| Cobalt | Barlow Condensed | Cool white, midnight blue, and condensed sports-page lettering |
-| Oxblood | Space Grotesk | Blush paper, burgundy, and geometric sans-serif type |
-
-Colour and typography can also be selected independently: sixteen combinations,
-each supporting the existing light/dark switch. **Reset Style** restores Copper
-and Georgia without changing the light/dark preference. The studio starts closed
-so the comparison controls do not displace the content while browsing.
-
-Selections persist on the device and are applied before paint when storage is
-available. Invalid preferences fall back to Copper/Georgia. With storage blocked,
-selection still works for the current page. Controls wait for hydration before
-accepting clicks. Neither filters nor statistics change when appearance changes.
-
-The three additional fonts are served through `next/font`, with optional font
-preloading disabled so unused experiments are not eagerly downloaded. Fraunces
-and Barlow use Geist for the statistical body; Space Grotesk also changes the
-reading face. Monospaced numeric metadata remains stable. Theme-specific
-categorical chart colors stay distinct; observed/derived chart colors follow
-the selected palette. Colour tokens and typography adjustments live in
-`apps/web/src/app/style-studio.css`.
+Validation uses `make web-check`, the existing Playwright browser audit, and a
+15-route desktop/mobile dark/light layout sweep against the local database.
+Use `SPORTSBALL_E2E_BASE_URL=http://localhost:3000` for the browser audit in this
+local environment. No query or database changes are part of this revision.

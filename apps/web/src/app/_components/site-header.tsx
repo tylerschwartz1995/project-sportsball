@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { ActiveNavigationScroller } from "@/app/_components/active-navigation-scroller";
-import { StyleStudio } from "@/app/_components/style-studio";
 import { ThemeToggle } from "@/app/_components/theme-toggle";
 
 export type SiteSection =
@@ -53,18 +52,18 @@ const links = [
 
 export function SiteHeader({ active }: SiteHeaderProps) {
   return (
-    <header className={`record-header ${active === "home" ? "record-header-front" : "record-header-section"}`}>
-      <div className="record-masthead">
-        <p className="record-edition">The Hockey Edition<span>Statistics / Analysis / History</span></p>
-        <Link href="/" className="record-brand" aria-label="Sportsball home">
-          Sportsball<span aria-hidden="true">.</span>
+    <header className="site-header">
+      <div className="site-topbar">
+        <Link href="/" className="site-brand" aria-label="Sportsball home">
+          <svg viewBox="0 0 28 28" width="28" height="28" fill="none" aria-hidden="true">
+            <path d="M5 20V13M14 20V5M23 20V9" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+          </svg>
+          Sportsball
         </Link>
-        <div className="record-utilities">
-          <span className="record-dataset">The Game, in Numbers</span>
-          <ThemeToggle />
-        </div>
+        <span className="site-sport">NHL</span>
+        <div className="site-utilities"><ThemeToggle /></div>
       </div>
-      <nav aria-label="Primary navigation" className="record-navigation">
+      <nav aria-label="Primary navigation" className="site-navigation">
         {links.map((link) => (
           <Link
             key={link.id}
@@ -76,7 +75,6 @@ export function SiteHeader({ active }: SiteHeaderProps) {
         ))}
         <ActiveNavigationScroller active={active} />
       </nav>
-      <StyleStudio />
     </header>
   );
 }

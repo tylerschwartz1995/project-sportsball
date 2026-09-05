@@ -7,7 +7,6 @@ import {
 } from "@/app/_components/homepage-insights";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
-import { TeamGameRecord } from "@/app/_components/team-game-record";
 import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
 import {
   WorkspacePageHeader,
@@ -89,18 +88,18 @@ export default async function Home({ searchParams }: HomeProps) {
   const leagueTrends = buildLeagueTrendSummary(recentGames);
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-7xl record-home px-4 py-6 sm:px-8 lg:px-10">
+    <main className="mx-auto min-h-screen w-full max-w-7xl modern-home px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="home" />
 
       <section className="py-8 sm:py-10">
         <WorkspacePageHeader
-          eyebrow="NHL / Season Review"
+          eyebrow="Season Overview"
           title={
             selectedSeason
-              ? `The ${selectedSeason.label} Notebook`
+              ? "NHL Overview"
               : "NHL Data Unavailable"
           }
-          description="A season in results, form, and individual performance."
+          description="Scores, standings, and the players shaping the season."
           action={
             <SeasonPicker
               seasons={seasons}
@@ -111,69 +110,6 @@ export default async function Home({ searchParams }: HomeProps) {
 
         {selectedSeason && leagueLeader ? (
           <>
-            <div className="record-front-page">
-              <WorkspacePanel
-                title="The Form Guide"
-                className="record-form-guide"
-                description="Current top six and the exact points earned in each club's last 10 games, compared with its preceding 10."
-                action={
-                  <Link href={`/standings?season=${selectedSeason.id}`}>
-                    Points history →
-                  </Link>
-                }
-              >
-                <HomeStandingsMovement
-                  entries={standingsMovement}
-                  seasonId={selectedSeason.id}
-                />
-              </WorkspacePanel>
-              <WorkspacePanel
-                className="record-scoring-rail"
-                title="Scoring Leaders"
-                action={
-                  <Link href={`/players?season=${selectedSeason.id}`}>
-                    All Players →
-                  </Link>
-                }
-              >
-                <div className="workspace-leader-grid">
-                  {scoringLeaders.map((player, index) => (
-                    <Link
-                      key={player.nhlPlayerId}
-                      href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                    >
-                      <span>#{index + 1}</span>
-                      <b className="flex items-center gap-2">
-                        <TeamLogoStack teams={player.teams} />
-                        {player.name}
-                      </b>
-                      <small>
-                        {formatPlayerPosition(player.position, "Skater")} ·{" "}
-                        {player.gamesPlayed} GP
-                      </small>
-                      <strong>{player.points} PTS</strong>
-                    </Link>
-                  ))}
-                </div>
-              </WorkspacePanel>
-
-              <WorkspacePanel
-                title="Around the League"
-                className="record-league-digest"
-                description="Latest 30 completed regular-season games versus the preceding 30, calculated from available results."
-                action={
-                  <Link href={`/games?season=${selectedSeason.id}`}>
-                    All results →
-                  </Link>
-                }
-              >
-                <HomeLeagueTrends
-                  summary={leagueTrends}
-                  seasonId={selectedSeason.id}
-                />
-              </WorkspacePanel>
-            </div>
-
             <div className="workspace-home-primary mt-7">
               <WorkspacePanel
                 title={latestDate ? `Results · ${formatDate(latestDate)}` : "Results"}
@@ -201,7 +137,7 @@ export default async function Home({ searchParams }: HomeProps) {
               </WorkspacePanel>
 
               <WorkspacePanel
-                title="Next Games"
+                title="Upcoming Games"
                 action={
                   <Link href={upcomingGames[0] ? `/games?season=${upcomingGames[0].seasonId}&date=${upcomingGames[0].gameDate}` : "/games"}>
                     Full Schedule →
@@ -251,6 +187,69 @@ export default async function Home({ searchParams }: HomeProps) {
               </WorkspacePanel>
             </div>
 
+            <div className="modern-insights">
+              <WorkspacePanel
+                title="Recent Form"
+                className="modern-form"
+                description="Top six teams · Points in the last 10 games vs. the previous 10."
+                action={
+                  <Link href={`/standings?season=${selectedSeason.id}`}>
+                    Points History →
+                  </Link>
+                }
+              >
+                <HomeStandingsMovement
+                  entries={standingsMovement}
+                  seasonId={selectedSeason.id}
+                />
+              </WorkspacePanel>
+              <WorkspacePanel
+                className="modern-scoring"
+                title="Scoring Leaders"
+                action={
+                  <Link href={`/players?season=${selectedSeason.id}`}>
+                    All Players →
+                  </Link>
+                }
+              >
+                <div className="workspace-leader-grid">
+                  {scoringLeaders.map((player, index) => (
+                    <Link
+                      key={player.nhlPlayerId}
+                      href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
+                    >
+                      <span>#{index + 1}</span>
+                      <b className="flex items-center gap-2">
+                        <TeamLogoStack teams={player.teams} />
+                        {player.name}
+                      </b>
+                      <small>
+                        {formatPlayerPosition(player.position, "Skater")} ·{" "}
+                        {player.gamesPlayed} GP
+                      </small>
+                      <strong>{player.points} PTS</strong>
+                    </Link>
+                  ))}
+                </div>
+              </WorkspacePanel>
+
+              <WorkspacePanel
+                title="League Trends"
+                className="modern-trends"
+                description="Latest 30 regular-season games compared with the previous 30."
+                action={
+                  <Link href={`/games?season=${selectedSeason.id}`}>
+                    All Results →
+                  </Link>
+                }
+              >
+                <HomeLeagueTrends
+                  summary={leagueTrends}
+                  seasonId={selectedSeason.id}
+                />
+              </WorkspacePanel>
+            </div>
+
             {selectedSeason.id >= 20082009 ? (
               <Link
                 href={`/analytics?season=${selectedSeason.id}`}
@@ -268,7 +267,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
             <WorkspacePanel
               className="mt-5"
-              title="Explore the NHL Archive"
+              title="Explore More"
             >
               <nav className="workspace-home-explore" aria-label="Explore Sportsball">
                 <HomeDestination href="/history" title="Historical Leaders" detail="Career records and best seasons since 1917–18" />
@@ -293,11 +292,9 @@ function UpcomingGame({ game }: { game: GameSummary }) {
       <span className="inline-flex items-center gap-1.5">
         <TeamLogo {...game.awayTeam} size="tiny" decorative />
         <b>{game.awayTeam.abbreviation}</b>
-        <TeamGameRecord record={game.awayTeam.record} />
         at
         <TeamLogo {...game.homeTeam} size="tiny" decorative />
         <b>{game.homeTeam.abbreviation}</b>
-        <TeamGameRecord record={game.homeTeam.record} />
       </span>
       <small>{game.gameType === 3 ? "Playoffs" : formatSeason(game.seasonId)}</small>
     </Link>

@@ -163,7 +163,7 @@ export default async function PlayerPage({
           ← All players
         </Link>
 
-        <div className="record-profile-identity record-player-identity mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="modern-profile-identity modern-player-identity mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="flex items-center gap-4 sm:gap-5">
               <TeamLogoStack

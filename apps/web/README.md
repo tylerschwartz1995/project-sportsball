@@ -1,7 +1,7 @@
 # Sportsball web
 
-> **Exploration branch:** this checkout uses [The Sportsball Record](../../docs/editorial-style-exploration.md),
-> a competing editorial style. Keep it on the feature branch; do not merge it
+> **Exploration branch:** this checkout uses [Modern Stats Exploration](../../docs/editorial-style-exploration.md),
+> a clean, modern alternative style. Keep it on the feature branch; do not merge it
 > into `main`. The production design described below remains the baseline.
 
 The server-rendered Next.js application for NHL statistics and analytics.

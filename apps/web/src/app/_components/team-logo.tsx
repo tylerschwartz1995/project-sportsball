@@ -77,7 +77,7 @@ export function TeamLogo({
       : "scale-[1.42]";
 
   return (
-    <span className={className}>
+    <span className={`team-crest team-crest-${size} ${className}`}>
       <span
         aria-hidden="true"
         className={`font-mono font-semibold text-slate-800 ${size === "profile" ? "text-sm" : "text-[0.45rem]"}`}

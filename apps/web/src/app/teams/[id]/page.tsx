@@ -214,9 +214,9 @@ export default async function TeamPage({
           <span aria-hidden="true">←</span> All teams
         </Link>
 
-        <div className="record-profile-identity record-team-identity relative mt-6">
-          <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_16rem] lg:items-end">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+        <div className="modern-profile-identity modern-team-identity relative mt-6">
+          <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_12rem] lg:items-end">
+            <div className="modern-team-name flex items-center gap-4">
               <TeamLogo
                 name={profileDetail.team.name}
                 abbreviation={profileDetail.team.abbreviation}

@@ -26,10 +26,6 @@ export function TeamSeasonIdentity({
   return (
     <section className="workspace-width-data mt-8 space-y-6">
       <article className="surface-panel relative overflow-hidden p-5 sm:p-6">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-16 -top-28 h-80 w-80 rounded-full bg-[var(--accent)] opacity-[0.07] blur-3xl"
-        />
         <div className="relative">
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.16em] text-[var(--accent)]">
