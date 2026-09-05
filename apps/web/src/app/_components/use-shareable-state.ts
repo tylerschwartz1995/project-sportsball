@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 
 import { resolveUrlChoice } from "@/lib/shareable-state";
 
@@ -13,21 +13,16 @@ export function useUrlChoice<T extends string>(
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const requested = searchParams.get(parameter);
-  const initialValue = resolveUrlChoice(requested, choices, fallback);
-  const [localValue, setLocalValue] = useState<T | null>(null);
-  const value = localValue !== null && choices.includes(localValue)
-    ? localValue
-    : initialValue;
+  const value = resolveUrlChoice(requested, choices, fallback);
 
   const setValue = useCallback(
     (next: T) => {
-      setLocalValue(next);
       const params = new URLSearchParams(window.location.search);
       if (next === fallback) params.delete(parameter);
       else params.set(parameter, next);
       const query = params.toString();
       window.history.replaceState(
-        window.history.state,
+        null,
         "",
         `${pathname}${query ? `?${query}` : ""}${window.location.hash}`,
       );
