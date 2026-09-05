@@ -1,8 +1,10 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { WebVitals } from "@/app/_components/web-vitals";
 import "./globals.css";
+import "./editorial.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -64,6 +66,11 @@ export default function RootLayout({
         <div id="main-content" tabIndex={-1}>
           {children}
         </div>
+        <footer className="record-footer">
+          <Link href="/" className="record-footer-brand">Sportsball.</Link>
+          <p>Hockey, on the record.<span>Official NHL statistics · MoneyPuck advanced data</span></p>
+          <Link href="/analytics/guide">A Guide to the Numbers ↗</Link>
+        </footer>
       </body>
     </html>
   );

@@ -89,18 +89,18 @@ export default async function Home({ searchParams }: HomeProps) {
   const leagueTrends = buildLeagueTrendSummary(recentGames);
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
+    <main className="mx-auto min-h-screen w-full max-w-7xl record-home px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="home" />
 
       <section className="py-8 sm:py-10">
         <WorkspacePageHeader
-          eyebrow="League / Overview"
+          eyebrow="The League Notebook"
           title={
             selectedSeason
-              ? `${selectedSeason.label} NHL Overview`
+              ? `${selectedSeason.label}, on the Ice.`
               : "NHL Data Unavailable"
           }
-          description="Results, standings, scoring leaders, and advanced analysis in one compact league overview."
+          description="Follow the results. Study the form. Get beneath the score."
           action={
             <SeasonPicker
               seasons={seasons}
@@ -111,6 +111,37 @@ export default async function Home({ searchParams }: HomeProps) {
 
         {selectedSeason && leagueLeader ? (
           <>
+            <div className="workspace-home-insights mt-5">
+              <WorkspacePanel
+                title="Standings Movement"
+                description="Current top six and the exact points earned in each club's last 10 games, compared with its preceding 10."
+                action={
+                  <Link href={`/standings?season=${selectedSeason.id}`}>
+                    Points history →
+                  </Link>
+                }
+              >
+                <HomeStandingsMovement
+                  entries={standingsMovement}
+                  seasonId={selectedSeason.id}
+                />
+              </WorkspacePanel>
+              <WorkspacePanel
+                title="League Trends"
+                description="Latest 30 completed regular-season games versus the preceding 30, calculated from available results."
+                action={
+                  <Link href={`/games?season=${selectedSeason.id}`}>
+                    All results →
+                  </Link>
+                }
+              >
+                <HomeLeagueTrends
+                  summary={leagueTrends}
+                  seasonId={selectedSeason.id}
+                />
+              </WorkspacePanel>
+            </div>
+
             <div className="workspace-home-primary mt-7">
               <WorkspacePanel
                 title={latestDate ? `Results · ${formatDate(latestDate)}` : "Results"}
@@ -185,37 +216,6 @@ export default async function Home({ searchParams }: HomeProps) {
                     </Link>
                   ))}
                 </div>
-              </WorkspacePanel>
-            </div>
-
-            <div className="workspace-home-insights mt-5">
-              <WorkspacePanel
-                title="Standings Movement"
-                description="Current top six and the exact points earned in each club's last 10 games, compared with its preceding 10."
-                action={
-                  <Link href={`/standings?season=${selectedSeason.id}`}>
-                    Points history →
-                  </Link>
-                }
-              >
-                <HomeStandingsMovement
-                  entries={standingsMovement}
-                  seasonId={selectedSeason.id}
-                />
-              </WorkspacePanel>
-              <WorkspacePanel
-                title="League Trends"
-                description="Latest 30 completed regular-season games versus the preceding 30, calculated from available results."
-                action={
-                  <Link href={`/games?season=${selectedSeason.id}`}>
-                    All results →
-                  </Link>
-                }
-              >
-                <HomeLeagueTrends
-                  summary={leagueTrends}
-                  seasonId={selectedSeason.id}
-                />
               </WorkspacePanel>
             </div>
 

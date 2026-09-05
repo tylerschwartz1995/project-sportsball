@@ -1,5 +1,9 @@
 # Sportsball web
 
+> **Exploration branch:** this checkout uses [The Sportsball Record](../../docs/editorial-style-exploration.md),
+> a competing editorial style. Keep it on the feature branch; do not merge it
+> into `main`. The production design described below remains the baseline.
+
 The server-rendered Next.js application for NHL statistics and analytics.
 
 The web server uses a Node-compatible PostgreSQL URL. From the repository root:

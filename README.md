@@ -1,5 +1,9 @@
 # Sportsball
 
+> **Exploration branch:** this checkout uses [The Sportsball Record](docs/editorial-style-exploration.md),
+> a competing editorial style. Keep it on the feature branch; do not merge it
+> into `main`. The production design described below remains the baseline.
+
 A personal NHL statistics website with all-time traditional season records from
 1917–18 onward and detailed game and advanced data across their supported eras.
 

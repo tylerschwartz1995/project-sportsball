@@ -1,5 +1,9 @@
 # Sportsball visual design system
 
+> **Exploration branch:** this checkout uses [The Sportsball Record](editorial-style-exploration.md),
+> a competing editorial style. Keep it on the feature branch; do not merge it
+> into `main`. The production design described below remains the baseline.
+
 This document defines the selected Data Workspace production direction. The
 system is deliberately sport-neutral so a future basketball, baseball, or
 football section can reuse the same application shell and data components
