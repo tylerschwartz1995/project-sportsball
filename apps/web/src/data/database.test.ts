@@ -1,22 +1,36 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { EventEmitter } from "node:events";
 
 const poolQueryMock = vi.hoisted(() => vi.fn());
 
 vi.mock("pg", () => ({
-  Pool: class {
+  Pool: class extends EventEmitter {
     query = poolQueryMock;
     end = vi.fn();
   },
 }));
 
-import { query } from "@/data/database";
+import { closeDatabasePool, query } from "@/data/database";
 
 describe("database query telemetry", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await closeDatabasePool();
     poolQueryMock.mockReset();
     vi.restoreAllMocks();
     process.env.SPORTSBALL_WEB_DATABASE_URL = "postgresql://test:test@localhost/test";
     process.env.SPORTSBALL_SLOW_QUERY_MS = "0";
+  });
+
+  it("handles idle connection errors without exposing details or blocking later reads", async () => {
+    poolQueryMock.mockResolvedValue({ rows: [{ id: 1 }], rowCount: 1 });
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
+    await query("SELECT 1");
+    const pool = (globalThis as typeof globalThis & { sportsballPool?: EventEmitter }).sportsballPool;
+    expect(pool).toBeDefined();
+    expect(() => pool!.emit("error", new Error("private connection details"))).not.toThrow();
+    expect(warn).toHaveBeenCalledWith(JSON.stringify({ event: "database-pool-error" }));
+    expect(JSON.stringify(warn.mock.calls)).not.toContain("private");
+    await expect(query("SELECT 1")).resolves.toEqual([{ id: 1 }]);
   });
 
   it("logs slow-query metadata without SQL values", async () => {

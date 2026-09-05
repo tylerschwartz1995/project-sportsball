@@ -36,8 +36,7 @@ function reportWebVital(metric: WebVitalMetric) {
     navigationType: metric.navigationType,
     ...(documentRoute ?? { path: window.location.pathname }),
   });
-  if (navigator.sendBeacon) {
-    navigator.sendBeacon("/api/web-vitals", body);
+  if (navigator.sendBeacon?.("/api/web-vitals", body)) {
     return;
   }
   void fetch("/api/web-vitals", {
@@ -45,6 +44,8 @@ function reportWebVital(metric: WebVitalMetric) {
     body,
     headers: { "Content-Type": "application/json" },
     keepalive: true,
+  }).catch(() => {
+    // Best-effort telemetry must not produce an unhandled application error.
   });
 }
 

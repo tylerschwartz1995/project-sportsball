@@ -214,6 +214,11 @@ dimensions distinguish known application views without logging searches,
 identifiers, or arbitrary query values. Set `NEXT_PUBLIC_WEB_VITALS_SAMPLE_RATE`
 between `0` and `1` at build time to disable or tune sampling.
 
+The endpoint limits the actual request stream to 2 KiB even without a trustworthy
+`Content-Length`, rejects query strings and fragments in paths, and logs only
+validated fields. Browser delivery falls back to `fetch` if a beacon cannot be
+queued, and delivery failures do not become unhandled application errors.
+
 An opt-in Playwright suite checks click-to-visible latency, scroll retention,
 bounded large-table rendering, mobile tab visibility, and soft season/filter
 navigation against a populated local database and optimized production server:
@@ -236,6 +241,17 @@ parameters or connection details. Set `SPORTSBALL_SLOW_QUERY_MS` to tune the
 threshold. A log drain or hosting log query can aggregate these events into
 p50/p95 latency and Core Web Vitals dashboards without changing application
 code.
+
+Idle pool failures emit a generic `database-pool-error` warning. The pool removes
+the failed connection and can establish a replacement for later requests;
+background connection failures do not escape as unhandled error events.
+
+Run the complete browser suite, including URL history, blocked theme storage,
+and schedule-control clipping regressions, against the same production server:
+
+```bash
+npx --prefix apps/web playwright test --config apps/web/playwright.config.ts
+```
 
 ## Testing
 

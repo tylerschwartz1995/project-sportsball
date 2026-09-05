@@ -8,7 +8,11 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
     const nextTheme = root.dataset.theme === "light" ? "dark" : "light";
     root.dataset.theme = nextTheme;
     root.style.colorScheme = nextTheme;
-    localStorage.setItem(STORAGE_KEY, nextTheme);
+    try {
+      localStorage.setItem(STORAGE_KEY, nextTheme);
+    } catch {
+      // The theme still works when browser privacy settings block storage.
+    }
   }
 
   return (

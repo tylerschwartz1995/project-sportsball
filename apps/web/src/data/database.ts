@@ -26,6 +26,10 @@ function getPool(): Pool {
       connectionTimeoutMillis: 5_000,
       idleTimeoutMillis: 30_000,
     });
+    // Idle connections can fail outside a query's promise (for example on restart).
+    globalDatabase.sportsballPool.on("error", () => {
+      console.warn(JSON.stringify({ event: "database-pool-error" }));
+    });
   }
   return globalDatabase.sportsballPool;
 }
