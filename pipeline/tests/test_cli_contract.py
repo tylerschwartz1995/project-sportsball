@@ -62,6 +62,7 @@ def test_existing_command_contracts_are_preserved() -> None:
         "backfill-players": ["max_players", "retry_failed"],
         "backfill-season": ["season_id", "max_requests"],
         "backfill-seasons": ["start_season", "end_season", "max_seasons"],
+        "build-descriptive-analytics": [],
         "build-season-stats": ["start_season", "end_season"],
         "ingest-historical-seasons": ["start_season", "end_season"],
         "ingest-draft-history": ["start_year", "end_year"],

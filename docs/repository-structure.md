@@ -42,8 +42,11 @@ queries never import routes or components. Direct PostgreSQL access belongs in
 `require` calls, resolving both `@/` and relative paths. The `server-only`
 imports also protect query modules from client bundles.
 
-Drafts is the first fully decomposed route. Other routes can follow its pattern
-when they change; moving every page at once is unnecessary. Pure draft sorting,
+The data-bearing routes now delegate to feature-local loaders and views. Player
+and team directories, profiles and game logs; games; standings; playoffs; lines;
+history; analytics; comparisons; and the home page follow this boundary. Larger
+tables and history sections have their own modules. The playoff bracket separates
+its dialog, games, player tables, overview, and formatting. Pure draft sorting,
 view parsing, and descriptive insight formatting are in `features/drafts/logic.ts`.
 The feature-specific lazy chart loader lives in `features/charts/`, because it
 knows which hockey charts to load; neutral chart controls live in `components/`.
@@ -89,19 +92,31 @@ import unrelated ingestion jobs.
 | Responsibility | Owner | Examples |
 | --- | --- | --- |
 | Provider parsing and identity normalization | Python normalization | Source fields, season-aware identities |
-| Persisted descriptive calculations | Python analytics | Season totals, season line/pairing aggregates |
-| Bounded interactive retrieval and aggregation | Web data queries | Filtered rankings, historical peaks, schedule difficulty |
+| Persisted descriptive calculations | Python analytics | Season totals, line/pairing aggregates, historical windows/era baselines, opponent schedule context |
+| Bounded interactive retrieval and aggregation | Web data queries | Filtered rankings, pagination, aggregate ratios over stored era baselines |
 | Display transformations and interaction | Web lib/features | Chart windows, sorting, labels, shareable URL state |
 | Model inputs and observation-time rules | Python features/datasets | Latest recorded revision available at a cutoff |
 | User-facing metric meanings | Metric guide and data-definition docs | Units, denominators, phase, coverage, unavailable values |
 
-The existing SQL historical and schedule-strength calculations remain descriptive
-web queries. A model or explorer that needs their meaning must use an explicitly
-versioned, tested analytical definition; it must not independently copy a web
-formula and assume equivalent time/coverage semantics. Move reusable transforms
-to Python when introducing that consumer, and reconcile their outputs against
-existing reference cases. Routine query filtering, ordering, and aggregation
-remain appropriate SQL responsibilities.
+`analytics/history.py` owns consecutive peak windows and era baselines;
+`analytics/schedule.py` owns pre-game opponent results, independent expected-goal
+coverage, prior-season fallbacks, and rest. The definitions are versioned as
+`historical-v1` and `schedule-context-v1`. Their derived tables link to audited
+builds. The web reads them through `data/history/` and `data/schedule-strength.ts`;
+it never invokes Python during a request. Source joins, arbitrary interactive
+filters, career sums, ordering, pagination, and ratios over stored denominators
+remain SQL responsibilities. Browser-specific travel/display calculations stay
+in the web layer.
+
+Run `make analytics-build` after upgrading an existing database or completing
+standalone game/schedule/MoneyPuck backfills. Historical summary ingestion rebuilds
+all historical windows and rates in the same transaction, including windows
+crossing the imported range. The daily coordinator rebuilds schedule context
+after source updates. Builds replace only derived output, retain ingestion audit
+history, serialize competing builds with transaction-scoped locks, and roll back
+fully on failure. They rebuild every stored season so a correction also updates
+the next season's fallback. No upstream calls, model training, or predictions are
+part of this operation.
 
 The metric guide (`src/lib/metric-definitions.ts`), source/coverage documentation,
 and feature contracts must agree on units, denominator, missingness, and phase.
@@ -132,7 +147,8 @@ an existing directory. Write artifacts under ignored `data/processed/`; a
 `manifest.json` is written after the observations and is the completion marker.
 An interrupted output directory must not be used as a completed dataset.
 
-These utilities are tested foundations, not a trained model or an automated
+Modelling is explicitly deferred. These existing utilities are tested foundations,
+not a trained model or an automated
 extractor from live tables. A target-specific adapter, feature calculations,
 labels, time-based training/evaluation splits, baselines, prediction storage, and
 outcome tracking are still required. Existing corrected tables must not be
@@ -154,6 +170,8 @@ SPORTSBALL_DATABASE_URL=postgresql+psycopg://sportsball:sportsball@localhost:543
   make db-migrate
 SPORTSBALL_WEB_DATABASE_URL=postgresql://sportsball:sportsball@localhost:5432/sportsball_web_test \
   make web-fixture
+SPORTSBALL_DATABASE_URL=postgresql+psycopg://sportsball:sportsball@localhost:5432/sportsball_web_test \
+  make analytics-build
 SPORTSBALL_WEB_DATABASE_URL=postgresql://sportsball:sportsball@localhost:5432/sportsball_web_test \
   make web-test-fixture
 ```
@@ -173,7 +191,7 @@ SPORTSBALL_WEB_DATABASE_URL=postgresql://sportsball:sportsball@localhost:5432/sp
 
 The dedicated smoke configuration starts and stops a production server on port
 3100 and runs Chromium at desktop/mobile sizes in both themes. CI uses a fresh
-PostgreSQL service, applies migrations, seeds fixtures, and runs these queries
+PostgreSQL service, applies migrations, seeds fixtures, builds descriptive analytics with Python, and runs these queries
 and browser checks in the required Web application job. The opt-in full-archive
 integration suite and browser suite remain separate local checks.
 

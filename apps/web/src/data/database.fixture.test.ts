@@ -1,13 +1,14 @@
-import { afterAll, describe, expect, it } from "vitest";
-import { closeDatabasePool } from "@/data/database";
-import { listSeasons, listScheduleSeasons } from "@/data/seasons";
-import { getGameBoxScore, getGamesByDate, getGamesForSeasonByType } from "@/data/games";
-import { getTeamIdentityForSeason } from "@/data/teams";
 import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";
-import { getHistoricalPlayerSeasons } from "@/data/history";
+import { closeDatabasePool } from "@/data/database";
+import { getDraftAnalytics } from "@/data/drafts";
+import { getGameBoxScore, getGamesByDate, getGamesForSeasonByType } from "@/data/games";
+import { getHistoricalEraScores, getHistoricalPlayerSeasons } from "@/data/history";
 import { getPlayerCareer } from "@/data/player-career";
 import { findPlayers } from "@/data/player-search";
-import { getDraftAnalytics } from "@/data/drafts";
+import { getTeamScheduleStrength } from "@/data/schedule-strength";
+import { listScheduleSeasons, listSeasons } from "@/data/seasons";
+import { getTeamIdentityForSeason } from "@/data/teams";
+import { afterAll, describe, expect, it } from "vitest";
 
 // A reproducible schema contract suite, independent of the full archive audit.
 describe.skipIf(process.env.SPORTSBALL_RUN_WEB_FIXTURE_TESTS !== "1")("migrated web fixtures", () => {
@@ -53,4 +54,21 @@ describe.skipIf(process.env.SPORTSBALL_RUN_WEB_FIXTURE_TESTS !== "1")("migrated 
     expect(draft.outcomes).toHaveLength(2);
     expect(draft.teamPerformance[0]).toMatchObject({ selections: 2, playersWithNhlGames: 1 });
   });
+  it("reads Python-built descriptive context without turning missing coverage into zero", async () => {
+    const schedule = await getTeamScheduleStrength(6, 20252026);
+    expect(schedule.games[0]).toMatchObject({
+      nhlGameId: 2025020001,
+      opponentPriorGames: 1,
+      opponentResultsSeasonId: 20242025,
+      opponentExpectedGoalsSeasonId: null,
+      opponentExpectedGoalsPercentage: null,
+      restDays: null,
+    });
+    const scores = await getHistoricalEraScores(2, {
+      startYear: 1917, endYear: 1918, minimumGames: 0,
+      position: null, team: null, country: null,
+    });
+    expect(scores[0]).toMatchObject({ nhlPlayerId: 8470002, eraScore: 100 });
+  });
+
 });

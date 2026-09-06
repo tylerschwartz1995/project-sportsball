@@ -1,5 +1,8 @@
 """Public mappings; importing this package registers every table with Alembic."""
 
+from sportsball.persistence.models.analytics import HistoricalEraRate as HistoricalEraRate
+from sportsball.persistence.models.analytics import HistoricalPeakStats as HistoricalPeakStats
+from sportsball.persistence.models.analytics import ScheduleGameContext as ScheduleGameContext
 from sportsball.persistence.models.audit import BoxscoreBackfillGame as BoxscoreBackfillGame
 from sportsball.persistence.models.audit import IngestionRun as IngestionRun
 from sportsball.persistence.models.audit import MoneyPuckLineBackfill as MoneyPuckLineBackfill

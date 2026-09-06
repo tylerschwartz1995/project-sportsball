@@ -95,3 +95,22 @@ seasons (including historical-only summaries).
 This separation prevents all-time summary seasons from appearing in views that
 need box scores or advanced data and allows future schedule seasons to appear
 only where they are valid.
+
+## Reusable descriptive calculations
+
+Python owns the `historical-v1` definition in `analytics/history.py`.
+`historical_peak_stats` stores complete three/five-season windows; `common_teams`
+is the intersection of each season's source team abbreviations, so selecting a
+team retains a window only when every season qualifies. Missing metric values
+remain unavailable, and a gap in seasons invalidates the window.
+
+`historical_era_rates` stores the full season/phase population's points per game
+and covered goalie save rate. Web queries apply player/team/country filters only
+to the selected player population and aggregate against these stored denominators.
+The published index formulas and goalie coverage exclusions are unchanged.
+
+The historical importer updates these tables atomically with the source summary
+range. `make analytics-build` rebuilds them from retained observations without
+fetching sources. Rows retain definition version and ingestion-run lineage. These
+are descriptive calculations over corrected history, not proof that an observation
+was available at a past prediction cutoff. Modelling remains deferred.

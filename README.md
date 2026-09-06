@@ -244,6 +244,11 @@ The website runs at `http://localhost:3000`. `/api/health` checks database acces
 and audited daily-run freshness, so a new or stale local database can return
 503 even while historical pages work. See [Operational data health](docs/data-health.md).
 
+After migrating an existing archive or completing standalone schedule, box-score,
+or MoneyPuck team-game backfills, run `make analytics-build` to refresh descriptive
+historical and schedule tables. The daily coordinator refreshes schedule context;
+historical summary ingestion refreshes historical calculations automatically.
+
 Run `make web-check` for web lint, types, unit tests, and the production build.
 Database and browser checks require additional setup described in the
 [web README](apps/web/README.md).

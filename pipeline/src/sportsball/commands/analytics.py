@@ -59,3 +59,11 @@ def build_official_player_season_stats_command(
         f"skaters={result.skaters_processed} goalies={result.goalies_processed} "
         f"total={result.records_processed}"
     )
+
+
+@app.command("build-descriptive-analytics")
+def build_descriptive_analytics_command() -> None:
+    """Rebuild historical peaks, era baselines, and pre-game opponent context."""
+    from sportsball.ingestion.orchestration.descriptive import build_descriptive_analytics
+
+    typer.echo(f"rows={build_descriptive_analytics()}")

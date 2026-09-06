@@ -108,6 +108,7 @@ jobs:
           uv sync --project pipeline --locked
           uv run --project pipeline --frozen alembic --config database/alembic.ini upgrade head
           node scripts/seed-web-test-database.mjs
+          uv run --project pipeline --frozen sportsball build-descriptive-analytics
 
       - name: Lint
         run: npm run lint --prefix apps/web

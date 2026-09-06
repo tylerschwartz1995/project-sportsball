@@ -63,3 +63,7 @@ web-fixture:
 
 web-test-fixture:
 	npm run test:database:fixture --prefix apps/web
+
+.PHONY: analytics-build
+analytics-build:
+	$(UV) run --project pipeline --frozen sportsball build-descriptive-analytics
