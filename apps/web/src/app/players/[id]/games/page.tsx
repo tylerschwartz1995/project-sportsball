@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 import { notFound } from "next/navigation";
 
 import { SeasonPicker } from "@/app/_components/season-picker";

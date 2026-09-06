@@ -487,22 +487,24 @@ function PlayerOutcomesView({ analytics }: { analytics: DraftAnalytics }) {
     analytics.latestMatureDraftYear !== null &&
     selectedYear > analytics.latestMatureDraftYear;
   const insights = buildOutcomeInsights(analytics.outcomes, isDeveloping);
-  const plotOutcomes: DraftPlotOutcome[] = analytics.outcomes.map((outcome) => ({
-    name: outcome.name,
-    position: outcome.position,
-    draftYear: outcome.draftYear,
-    draftTeamAbbreviation: outcome.draftTeamAbbreviation,
-    draftRound: outcome.draftRound,
-    draftOverallPick: outcome.draftOverallPick,
-    careerGames: outcome.careerGames,
-    careerPoints: outcome.careerPoints,
-    careerWins: outcome.careerWins,
-    careerGameScore: outcome.careerGameScore,
-    careerIndividualExpectedGoals: outcome.careerIndividualExpectedGoals,
-    careerOnIceExpectedGoalsPercentage:
-      outcome.careerOnIceExpectedGoalsPercentage,
-    careerGoalsSavedAboveExpected: outcome.careerGoalsSavedAboveExpected,
-  }));
+  const plotOutcomes: DraftPlotOutcome[] = analytics.outcomes.map(
+    (outcome) => ({
+      name: outcome.name,
+      position: outcome.position,
+      draftYear: outcome.draftYear,
+      draftTeamAbbreviation: outcome.draftTeamAbbreviation,
+      draftRound: outcome.draftRound,
+      draftOverallPick: outcome.draftOverallPick,
+      careerGames: outcome.careerGames,
+      careerPoints: outcome.careerPoints,
+      careerWins: outcome.careerWins,
+      careerGameScore: outcome.careerGameScore,
+      careerIndividualExpectedGoals: outcome.careerIndividualExpectedGoals,
+      careerOnIceExpectedGoalsPercentage:
+        outcome.careerOnIceExpectedGoalsPercentage,
+      careerGoalsSavedAboveExpected: outcome.careerGoalsSavedAboveExpected,
+    }),
+  );
   const leaders = [...analytics.outcomes]
     .filter((outcome) => outcome.careerGames > 0)
     .sort(
@@ -524,8 +526,8 @@ function PlayerOutcomesView({ analytics }: { analytics: DraftAnalytics }) {
       {isDeveloping ? (
         <div className="workspace-draft-developing-note mt-6">
           <strong>Developing class:</strong> this draft has fewer than five
-          seasons of observation. Totals describe progress so far and are not
-          a final success rate.
+          seasons of observation. Totals describe progress so far and are not a
+          final success rate.
         </div>
       ) : null}
 
@@ -545,32 +547,53 @@ function PlayerOutcomesView({ analytics }: { analytics: DraftAnalytics }) {
           </section>
 
           <div className="mt-7">
-            <DraftOutcomePlot outcomes={plotOutcomes} />
-          </div>
-
-          <details className="mt-5"><summary>Class Leaders by Career GP</summary><WorkspacePanel
-            className="mt-7"
-            title="Class Leaders"
-            description="Players with the most stored regular-season NHL games from this draft class."
-            action={
-              selectedYear ? (
-                <Link
-                  href={`/drafts?view=board&year=${selectedYear}`}
-                  className="workspace-panel-link"
-                >
-                  Open full draft board →
-                </Link>
-              ) : null
-            }
-          >
-            {leaders.length > 0 ? (
-              <OutcomeLeadersTable rows={leaders} />
+            {plotOutcomes.some((row) => row.careerGames > 0) ? (
+              <DraftOutcomePlot outcomes={plotOutcomes} />
             ) : (
-              <div className="workspace-empty-state">
-                No player from this class has a stored NHL appearance yet.
+              <div className="ux-empty-guidance">
+                <h2>Outcomes Begin With NHL Appearances</h2>
+                <p>
+                  No NHL appearances are stored for this class yet. The draft
+                  board remains available; compare an older class to explore how
+                  draft position relates to career outcomes.
+                </p>
+                <Link href="/drafts?view=outcomes">
+                  Explore the Latest Mature Class →
+                </Link>
+                <details>
+                  <summary>Show This Class’s Outcome Plot</summary>
+                  <DraftOutcomePlot outcomes={plotOutcomes} />
+                </details>
               </div>
             )}
-          </WorkspacePanel></details>
+          </div>
+
+          <details className="mt-5">
+            <summary>Class Leaders by Career GP</summary>
+            <WorkspacePanel
+              className="mt-7"
+              title="Class Leaders"
+              description="Players with the most stored regular-season NHL games from this draft class."
+              action={
+                selectedYear ? (
+                  <Link
+                    href={`/drafts?view=board&year=${selectedYear}`}
+                    className="workspace-panel-link"
+                  >
+                    Open full draft board →
+                  </Link>
+                ) : null
+              }
+            >
+              {leaders.length > 0 ? (
+                <OutcomeLeadersTable rows={leaders} />
+              ) : (
+                <div className="workspace-empty-state">
+                  No player from this class has a stored NHL appearance yet.
+                </div>
+              )}
+            </WorkspacePanel>
+          </details>
         </>
       ) : (
         <div className="workspace-empty-state mt-7">

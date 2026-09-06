@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link, { ReturnLink } from "@/app/_components/exploration-link";
 import { notFound } from "next/navigation";
 
 import {
@@ -50,7 +50,10 @@ type GamePageProps = {
   }>;
 };
 
-export default async function GamePage({ params, searchParams }: GamePageProps) {
+export default async function GamePage({
+  params,
+  searchParams,
+}: GamePageProps) {
   const [routeParams, pageParams] = await Promise.all([params, searchParams]);
   const nhlGameId = parseNhlId(routeParams.id);
   if (nhlGameId === null) {
@@ -118,8 +121,15 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
     availability.advanced
       ? {
           id: "advanced" as const,
-          label: "Advanced Analytics",
-          href: `/games/${game.nhlGameId}?view=advanced&advancedView=${advancedView}`,
+          label: "Shot Quality",
+          href: `/games/${game.nhlGameId}?view=advanced&advancedView=teams`,
+        }
+      : null,
+    availability.advanced
+      ? {
+          id: "shots" as const,
+          label: "Shot Maps",
+          href: `/games/${game.nhlGameId}?view=advanced&advancedView=shots`,
         }
       : null,
   ].filter((tab): tab is NonNullable<typeof tab> => tab !== null);
@@ -135,12 +145,11 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
       <SiteHeader active="games" />
 
       <section className="py-10">
-        <Link
-          href={`/games?season=${game.seasonId}&phase=${game.gameType === 3 ? "playoffs" : "regular"}&date=${game.gameDate}`}
-          className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
+        <ReturnLink
+          fallback={`/games?season=${game.seasonId}&phase=${game.gameType === 3 ? "playoffs" : "regular"}&date=${game.gameDate}`}
         >
           ← Games on {formatDate(game.gameDate)}
-        </Link>
+        </ReturnLink>
 
         <div className="workspace-game-hero">
           <div className="workspace-game-hero-meta">
@@ -151,15 +160,15 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
               {game.awayTeam.name} at {game.homeTeam.name}
             </h1>
             <strong>
-              {completed ? finalLabel(game.lastPeriodType) : formatGameState(game.state)}
+              {completed
+                ? finalLabel(game.lastPeriodType)
+                : formatGameState(game.state)}
             </strong>
           </div>
 
           <div className="workspace-game-hero-score">
             <ScoreTeam team={game.awayTeam} seasonId={game.seasonId} />
-            <div className="workspace-game-hero-at">
-              at
-            </div>
+            <div className="workspace-game-hero-at">at</div>
             <ScoreTeam
               team={game.homeTeam}
               seasonId={game.seasonId}
@@ -173,13 +182,21 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
           </div>
         </div>
 
-        {!completed && tabs.length === 0 ? <p className="mt-5 text-sm text-[var(--muted)]">Results will appear after play begins.</p> : null}
-        {tabs.length > 0 ? <ViewTabs
-          active={view}
-          ariaLabel="Game views"
-          label="Game view"
-          tabs={tabs}
-        /> : null}
+        {!completed && tabs.length === 0 ? (
+          <p className="mt-5 text-sm text-[var(--muted)]">
+            Results will appear after play begins.
+          </p>
+        ) : null}
+        {tabs.length > 0 ? (
+          <ViewTabs
+            active={
+              view === "advanced" && advancedView === "shots" ? "shots" : view
+            }
+            ariaLabel="Game views"
+            label="Game view"
+            tabs={tabs}
+          />
+        ) : null}
 
         {view === "scoring" ? (
           <GamePlayByPlayView

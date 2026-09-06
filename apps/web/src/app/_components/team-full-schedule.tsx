@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 
 import { LocalGameTime } from "@/app/_components/local-game-time";
 import { TeamGameRecord } from "@/app/_components/team-game-record";

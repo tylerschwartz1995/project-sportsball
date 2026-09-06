@@ -1,6 +1,6 @@
 import { FilterForm } from "@/app/_components/filter-form";
 import { DataViews } from "@/app/_components/data-views";
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 
 import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
 import { SortableTable } from "@/app/_components/sortable-table";
@@ -75,7 +75,17 @@ export default async function AnalyticsPage({
   searchParams,
 }: AnalyticsPageProps) {
   const params = await searchParams;
-  const chartParams = pickQueryParams(params, ["display","plotMetric", "plotGroup", "xMetric", "yMetric", "teamA", "teamB", "playerA", "playerB"]);
+  const chartParams = pickQueryParams(params, [
+    "display",
+    "plotMetric",
+    "plotGroup",
+    "xMetric",
+    "yMetric",
+    "teamA",
+    "teamB",
+    "playerA",
+    "playerB",
+  ]);
   const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
@@ -93,9 +103,7 @@ export default async function AnalyticsPage({
     firstQueryValue(params.minimum),
     defaultMinimum,
   );
-  const hasCoverage = Boolean(
-    selectedSeason && selectedSeason.id >= 20082009,
-  );
+  const hasCoverage = Boolean(selectedSeason && selectedSeason.id >= 20082009);
   const gameType = gameTypeForPhase(phase);
   const [rows, comparisonAdvancedRows, comparisonTeamRows] =
     selectedSeason && hasCoverage
@@ -108,11 +116,7 @@ export default async function AnalyticsPage({
             gameType,
           ),
           type === "teams" && situation !== "5on5"
-            ? listAdvancedTeamLeaders(
-                selectedSeason.id,
-                "5on5",
-                gameType,
-              )
+            ? listAdvancedTeamLeaders(selectedSeason.id, "5on5", gameType)
             : Promise.resolve(null),
           type === "teams"
             ? listCachedTeamsBySeason(selectedSeason.id, gameType)
@@ -131,15 +135,11 @@ export default async function AnalyticsPage({
       : [];
   const skaterComparisonPoints =
     type === "skaters"
-      ? buildSkaterComparisonPoints(
-          rows as AdvancedSkaterLeaderboardRow[],
-        )
+      ? buildSkaterComparisonPoints(rows as AdvancedSkaterLeaderboardRow[])
       : [];
   const goalieComparisonPoints =
     type === "goalies"
-      ? buildGoalieComparisonPoints(
-          rows as AdvancedGoalieLeaderboardRow[],
-        )
+      ? buildGoalieComparisonPoints(rows as AdvancedGoalieLeaderboardRow[])
       : [];
 
   return (
@@ -150,7 +150,13 @@ export default async function AnalyticsPage({
         <WorkspacePageHeader
           eyebrow="MoneyPuck leaderboards"
           title={`${selectedSeason?.label ?? "No Season"} Advanced Analytics`}
-          description={type === "teams" ? `${seasonPhaseLabel(phase)} shot quality and possession.` : type === "goalies" ? "Regular-season goaltending, split by team." : "Regular-season shot creation and on-ice results, split by team."}
+          description={
+            type === "teams"
+              ? `${seasonPhaseLabel(phase)} shot quality and possession.`
+              : type === "goalies"
+                ? "Regular-season goaltending, split by team."
+                : "Regular-season shot creation and on-ice results, split by team."
+          }
           action={
             <SeasonPicker
               seasons={seasons}
@@ -169,7 +175,10 @@ export default async function AnalyticsPage({
         {selectedSeason ? (
           <>
             <div className="workspace-context-navs">
-              <AnalyticsSectionTabs seasonId={selectedSeason.id} active={type} />
+              <AnalyticsSectionTabs
+                seasonId={selectedSeason.id}
+                active={type}
+              />
 
               {type === "teams" ? (
                 <SeasonPhaseFilter
@@ -187,39 +196,64 @@ export default async function AnalyticsPage({
 
             {hasCoverage ? (
               <>
-                <AnalyticsFilters
-                  seasonId={selectedSeason.id}
-                  type={type}
-                  situation={situation}
-                  minimumMinutes={minimumMinutes}
-                  phase={phase}
-                  chartParams={chartParams}
+                <DataViews
+                  table={
+                    <>
+                      {" "}
+                      <AnalyticsFilters
+                        seasonId={selectedSeason.id}
+                        type={type}
+                        situation={situation}
+                        minimumMinutes={minimumMinutes}
+                        phase={phase}
+                        chartParams={chartParams}
+                      />
+                      <LeaderboardTable
+                        type={type}
+                        rows={rows}
+                        seasonId={selectedSeason.id}
+                        phase={phase}
+                      />
+                    </>
+                  }
+                  charts={
+                    <>
+                      {type !== "teams" ? (
+                        <AnalyticsFilters
+                          seasonId={selectedSeason.id}
+                          type={type}
+                          situation={situation}
+                          minimumMinutes={minimumMinutes}
+                          phase={phase}
+                          chartParams={chartParams}
+                        />
+                      ) : null}{" "}
+                      <p className="mt-4 text-sm text-[var(--muted)]">
+                        {type === "teams"
+                          ? "Five-on-Five Team Comparison · All teams stay visible. Choose a process metric below."
+                          : `Up to 200 qualifying player-team rows, selected by ${type === "skaters" ? "Game Score" : "GSAx"}. Filters and comparisons operate within this sample.`}
+                      </p>{" "}
+                      {type === "teams" ? (
+                        <TeamComparisonScatterplot
+                          points={comparisonPoints}
+                          phase={phase}
+                        />
+                      ) : null}
+                      {type === "skaters" ? (
+                        <PlayerComparisonPlots
+                          kind="skater"
+                          points={skaterComparisonPoints}
+                        />
+                      ) : null}
+                      {type === "goalies" ? (
+                        <PlayerComparisonPlots
+                          kind="goalie"
+                          points={goalieComparisonPoints}
+                        />
+                      ) : null}
+                    </>
+                  }
                 />
-                <DataViews table={<>                 <LeaderboardTable
-                  type={type}
-                  rows={rows}
-                  seasonId={selectedSeason.id}
-                  phase={phase}
-                />
- </>} charts={<> <p className="mt-4 text-sm text-[var(--muted)]">{type === "teams" ? "Five-on-five process compared with team results; independent of the table situation." : `Up to 200 qualifying player-team rows, selected by ${type === "skaters" ? "Game Score" : "GSAx"}. Filters and comparisons operate within this sample.`}</p>                {type === "teams" ? (
-                  <TeamComparisonScatterplot
-                    points={comparisonPoints}
-                    phase={phase}
-                  />
-                ) : null}
-                {type === "skaters" ? (
-                  <PlayerComparisonPlots
-                    kind="skater"
-                    points={skaterComparisonPoints}
-                  />
-                ) : null}
-                {type === "goalies" ? (
-                  <PlayerComparisonPlots
-                    kind="goalie"
-                    points={goalieComparisonPoints}
-                  />
-                ) : null}
- </>} />
                 <AnalyticsGuide seasonId={selectedSeason.id} />
               </>
             ) : (
@@ -398,17 +432,76 @@ function TeamLeaderboard({
           <col className="workspace-col-number" span={2} />
         </colgroup>
         <thead>
+          <tr className="ux-metric-groups">
+            <th colSpan={3} scope="colgroup">
+              Team & Workload
+            </th>
+            <th colSpan={3} scope="colgroup">
+              Share of Play
+            </th>
+            <th colSpan={2} scope="colgroup">
+              Expected Goals
+            </th>
+            <th colSpan={2} scope="colgroup">
+              Actual Goals
+            </th>
+          </tr>
           <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
-            <SortableHeader label="Team" sortKey="team" align="left" defaultDirection="asc" sticky metricGroup="core possession shot-quality results" />
-            <SortableHeader label="GP" sortKey="games" metricGroup="core possession shot-quality results" />
-            <SortableHeader label="TOI" sortKey="iceTime" metricGroup="core possession shot-quality results" />
-            <SortableHeader label="xG%" sortKey="xgPercentage" metricGroup="core possession" />
-            <SortableHeader label="CF%" sortKey="corsiPercentage" metricGroup="possession" />
-            <SortableHeader label="FF%" sortKey="fenwickPercentage" metricGroup="possession" />
-            <SortableHeader label="xGF" sortKey="xGoalsFor" metricGroup="shot-quality" />
-            <SortableHeader label="xGA" sortKey="xGoalsAgainst" defaultDirection="asc" metricGroup="shot-quality" />
-            <SortableHeader label="GF" sortKey="goalsFor" metricGroup="results" />
-            <SortableHeader label="GA" sortKey="goalsAgainst" defaultDirection="asc" metricGroup="results" />
+            <SortableHeader
+              label="Team"
+              sortKey="team"
+              align="left"
+              defaultDirection="asc"
+              sticky
+              metricGroup="core possession shot-quality results"
+            />
+            <SortableHeader
+              label="GP"
+              sortKey="games"
+              metricGroup="core possession shot-quality results"
+            />
+            <SortableHeader
+              label="TOI"
+              sortKey="iceTime"
+              metricGroup="core possession shot-quality results"
+            />
+            <SortableHeader
+              label="xG%"
+              sortKey="xgPercentage"
+              metricGroup="core possession"
+            />
+            <SortableHeader
+              label="CF%"
+              sortKey="corsiPercentage"
+              metricGroup="possession"
+            />
+            <SortableHeader
+              label="FF%"
+              sortKey="fenwickPercentage"
+              metricGroup="possession"
+            />
+            <SortableHeader
+              label="xGF"
+              sortKey="xGoalsFor"
+              metricGroup="shot-quality"
+            />
+            <SortableHeader
+              label="xGA"
+              sortKey="xGoalsAgainst"
+              defaultDirection="asc"
+              metricGroup="shot-quality"
+            />
+            <SortableHeader
+              label="GF"
+              sortKey="goalsFor"
+              metricGroup="results"
+            />
+            <SortableHeader
+              label="GA"
+              sortKey="goalsAgainst"
+              defaultDirection="asc"
+              metricGroup="results"
+            />
           </tr>
         </thead>
         <tbody>
@@ -424,15 +517,43 @@ function TeamLeaderboard({
                 team={row.team}
                 metricGroup="core possession shot-quality results"
               />
-              <ValueCell value={String(row.gamesPlayed)} metricGroup="core possession shot-quality results" />
-              <ValueCell value={formatMinutes(row.iceTimeSeconds)} metricGroup="core possession shot-quality results" />
-              <ValueCell value={formatPercentage(row.expectedGoalsPercentage)} highlight metricGroup="core possession" />
-              <ValueCell value={formatPercentage(row.corsiPercentage)} metricGroup="possession" />
-              <ValueCell value={formatPercentage(row.fenwickPercentage)} metricGroup="possession" />
-              <ValueCell value={formatDecimal(row.expectedGoalsFor)} metricGroup="shot-quality" />
-              <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} metricGroup="shot-quality" />
-              <ValueCell value={formatDecimal(row.goalsFor, 0)} metricGroup="results" />
-              <ValueCell value={formatDecimal(row.goalsAgainst, 0)} metricGroup="results" />
+              <ValueCell
+                value={String(row.gamesPlayed)}
+                metricGroup="core possession shot-quality results"
+              />
+              <ValueCell
+                value={formatMinutes(row.iceTimeSeconds)}
+                metricGroup="core possession shot-quality results"
+              />
+              <ValueCell
+                value={formatPercentage(row.expectedGoalsPercentage)}
+                highlight
+                metricGroup="core possession"
+              />
+              <ValueCell
+                value={formatPercentage(row.corsiPercentage)}
+                metricGroup="possession"
+              />
+              <ValueCell
+                value={formatPercentage(row.fenwickPercentage)}
+                metricGroup="possession"
+              />
+              <ValueCell
+                value={formatDecimal(row.expectedGoalsFor)}
+                metricGroup="shot-quality"
+              />
+              <ValueCell
+                value={formatDecimal(row.expectedGoalsAgainst)}
+                metricGroup="shot-quality"
+              />
+              <ValueCell
+                value={formatDecimal(row.goalsFor, 0)}
+                metricGroup="results"
+              />
+              <ValueCell
+                value={formatDecimal(row.goalsAgainst, 0)}
+                metricGroup="results"
+              />
             </tr>
           ))}
         </tbody>

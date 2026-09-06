@@ -6,6 +6,7 @@ import type {
   MoneyPuckGameTeam,
   MoneyPuckShot,
 } from "@/contracts/advanced-game";
+import { useUrlChoice } from "@/app/_components/use-shareable-state";
 import { TeamLogo } from "@/app/_components/team-logo";
 import { formatMoneyPuckPeriodClock } from "@/lib/moneypuck-shot";
 import {
@@ -24,23 +25,111 @@ export function ShotMaps({
   awayTeam: MoneyPuckGameTeam;
   homeTeam: MoneyPuckGameTeam;
 }) {
+  const [period, setPeriod] = useUrlChoice(
+    "shotPeriod",
+    ["all", ...new Set(shots.map((shot) => String(shot.period)))],
+    "all",
+  );
+  const [result, setResult] = useUrlChoice(
+    "shotResult",
+    ["all", "goal", "saved", "missed"],
+    "all",
+  );
+  const shooters = [
+    ...new Set(
+      shots
+        .map((shot) => shot.shooter?.name)
+        .filter((name): name is string => Boolean(name)),
+    ),
+  ].sort();
+  const [shooter, setShooter] = useUrlChoice(
+    "shotShooter",
+    ["all", ...shooters],
+    "all",
+  );
+  const filtered = shots.filter(
+    (shot) =>
+      (period === "all" || String(shot.period) === period) &&
+      (shooter === "all" || shot.shooter?.name === shooter) &&
+      (result === "all" ||
+        (result === "goal"
+          ? shot.isGoal
+          : result === "saved"
+            ? shot.wasOnGoal && !shot.isGoal
+            : !shot.wasOnGoal && !shot.isGoal)),
+  );
   return (
-    <div className="grid gap-5 lg:grid-cols-2">
-      <TeamShotMap
-        team={awayTeam}
-        shots={shots.filter(
-          (shot) => shot.shootingTeam.nhlTeamId === awayTeam.nhlTeamId,
-        )}
-        accent="cyan"
-      />
-      <TeamShotMap
-        team={homeTeam}
-        shots={shots.filter(
-          (shot) => shot.shootingTeam.nhlTeamId === homeTeam.nhlTeamId,
-        )}
-        accent="violet"
-      />
-    </div>
+    <section>
+      <div className="ux-shot-filters">
+        <label>
+          Period
+          <select
+            value={period}
+            onChange={(event) => setPeriod(event.target.value)}
+          >
+            <option value="all">All Periods</option>
+            {[...new Set(shots.map((shot) => shot.period))]
+              .sort((a, b) => a - b)
+              .map((value) => (
+                <option key={value} value={value}>
+                  Period {value}
+                </option>
+              ))}
+          </select>
+        </label>
+        <label>
+          Shot Result
+          <select
+            value={result}
+            onChange={(event) =>
+              setResult(
+                event.target.value as "all" | "goal" | "saved" | "missed",
+              )
+            }
+          >
+            <option value="all">All Results</option>
+            <option value="goal">Goals</option>
+            <option value="saved">Saved</option>
+            <option value="missed">Missed</option>
+          </select>
+        </label>
+        <label>
+          Shooter
+          <select
+            value={shooter}
+            onChange={(event) => setShooter(event.target.value)}
+          >
+            <option value="all">All Shooters</option>
+            {shooters.map((name) => (
+              <option key={name}>{name}</option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <p className="ux-chart-reading">
+        {filtered.length} of {shots.length} attempts shown. Map totals reflect
+        these filters. Use the shot list below each rink to select overlapping
+        attempts.
+      </p>
+      <div className="grid gap-5 lg:grid-cols-2">
+        <TeamShotMap
+          key={`away-${period}-${result}-${shooter}`}
+          team={awayTeam}
+          shots={filtered.filter(
+            (shot) => shot.shootingTeam.nhlTeamId === awayTeam.nhlTeamId,
+          )}
+          accent="cyan"
+        />
+        <TeamShotMap
+          key={`home-${period}-${result}-${shooter}`}
+          team={homeTeam}
+          shots={filtered.filter(
+            (shot) => shot.shootingTeam.nhlTeamId === homeTeam.nhlTeamId,
+          )}
+          accent="violet"
+        />
+      </div>
+    </section>
   );
 }
 
@@ -58,8 +147,7 @@ function TeamShotMap({
   const instructionsId = useId();
   const plottedShots = shots.filter(
     (shot) =>
-      shot.adjustedXCoordinate !== null &&
-      shot.adjustedYCoordinate !== null,
+      shot.adjustedXCoordinate !== null && shot.adjustedYCoordinate !== null,
   );
   const renderedShots = [
     ...plottedShots.filter((shot) => !shot.isGoal),
@@ -247,9 +335,7 @@ function TeamShotMap({
                     cx={x}
                     cy={y}
                     r={
-                      shot.isGoal
-                        ? goalOuterRadius(radius) + 2.5
-                        : radius + 3.5
+                      shot.isGoal ? goalOuterRadius(radius) + 2.5 : radius + 3.5
                     }
                     fill="none"
                     stroke="var(--foreground)"
@@ -296,6 +382,23 @@ function TeamShotMap({
           ) : null}
         </div>
 
+        <label className="ux-chart-subject">
+          Select an Attempt
+          <select
+            value={selectedShotId ?? ""}
+            onChange={(event) => setSelectedShotId(event.target.value || null)}
+          >
+            <option value="">Choose an attempt</option>
+            {shots.map((shot) => (
+              <option key={shotKey(shot)} value={shotKey(shot)}>
+                P{shot.period} ·{" "}
+                {formatMoneyPuckPeriodClock(shot.gameTimeSeconds, shot.period)}{" "}
+                · {shot.shooter?.name ?? "Unknown shooter"} ·{" "}
+                {shot.isGoal ? "Goal" : shot.wasOnGoal ? "Saved" : "Missed"}
+              </option>
+            ))}
+          </select>
+        </label>
         <ShotDetails shot={selectedShot} team={team} />
       </div>
     </figure>

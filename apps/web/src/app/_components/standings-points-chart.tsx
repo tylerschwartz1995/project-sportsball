@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   CartesianGrid,
   Line,
+  LabelList,
   LineChart,
   ResponsiveContainer,
   Tooltip,
@@ -40,10 +41,12 @@ export function StandingsPointsChart({
   standings,
 }: StandingsPointsChartProps) {
   const divisions = useMemo(() => divisionOptions(standings), [standings]);
-  const [division, setDivision] = useUrlChoice("chartDivision", divisions.map((option) => option.value), divisions[0]?.value ?? "");
-  const activeDivision = divisions.some(
-    (option) => option.value === division,
-  )
+  const [division, setDivision] = useUrlChoice(
+    "chartDivision",
+    divisions.map((option) => option.value),
+    divisions[0]?.value ?? "",
+  );
+  const activeDivision = divisions.some((option) => option.value === division)
     ? division
     : (divisions[0]?.value ?? "");
   const selectedTeams = useMemo(
@@ -58,6 +61,11 @@ export function StandingsPointsChart({
     [history, selectedTeams],
   );
 
+  const [highlight, setHighlight] = useUrlChoice(
+    "highlightTeam",
+    ["", ...selectedTeams.map((team) => String(team.nhlTeamId))],
+    "",
+  );
   if (history.length === 0) {
     return null;
   }
@@ -88,12 +96,31 @@ export function StandingsPointsChart({
             ))}
           </select>
         </label>
+        <label className="ux-chart-subject">
+          Highlight Team
+          <select
+            value={highlight}
+            onChange={(event) => setHighlight(event.target.value)}
+          >
+            <option value="">All Teams</option>
+            {selectedTeams.map((team) => (
+              <option key={team.nhlTeamId} value={team.nhlTeamId}>
+                {team.teamName}
+              </option>
+            ))}
+          </select>
+        </label>
       </div>
+      <p className="ux-chart-reading">
+        Choose a team or select its legend button to follow its line. Values are
+        total standings points; teams may have played different numbers of
+        games.
+      </p>
       <div className="workspace-chart">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={chartData}
-            margin={{ top: 14, right: 20, bottom: 8, left: 4 }}
+            margin={{ top: 14, right: 85, bottom: 8, left: 4 }}
           >
             <CartesianGrid stroke="var(--chart-grid)" vertical={false} />
             <XAxis
@@ -130,17 +157,52 @@ export function StandingsPointsChart({
                 dataKey={String(team.nhlTeamId)}
                 name={team.teamAbbreviation}
                 stroke={COLORS[index % COLORS.length]}
-                strokeWidth={2.5}
+                strokeWidth={highlight === String(team.nhlTeamId) ? 4 : 2.5}
+                strokeOpacity={
+                  !highlight || highlight === String(team.nhlTeamId) ? 1 : 0.2
+                }
                 dot={false}
                 connectNulls
-              />
+                isAnimationActive={false}
+              >
+                {highlight === String(team.nhlTeamId) ? (
+                  <LabelList
+                    dataKey={String(team.nhlTeamId)}
+                    position="right"
+                    content={({ x, y, index }) =>
+                      index === chartData.length - 1 ? (
+                        <text
+                          x={Number(x) + 8}
+                          y={Number(y)}
+                          fill="var(--foreground)"
+                          fontSize={14}
+                        >
+                          {team.teamAbbreviation}{" "}
+                          {chartData[index][String(team.nhlTeamId)]}
+                        </text>
+                      ) : null
+                    }
+                  />
+                ) : null}
+              </Line>
             ))}
           </LineChart>
         </ResponsiveContainer>
       </div>
       <div className="workspace-chart-legend">
         {selectedTeams.map((team, index) => (
-          <span key={team.nhlTeamId}>
+          <button
+            type="button"
+            key={team.nhlTeamId}
+            aria-pressed={highlight === String(team.nhlTeamId)}
+            onClick={() =>
+              setHighlight(
+                highlight === String(team.nhlTeamId)
+                  ? ""
+                  : String(team.nhlTeamId),
+              )
+            }
+          >
             <TeamLogo
               nhlTeamId={team.nhlTeamId}
               abbreviation={team.teamAbbreviation}
@@ -149,8 +211,9 @@ export function StandingsPointsChart({
               decorative
             />
             <i style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-            {team.teamAbbreviation}
-          </span>
+            {team.teamAbbreviation} ·{" "}
+            {chartData.at(-1)?.[String(team.nhlTeamId)] ?? "—"}
+          </button>
         ))}
       </div>
     </div>

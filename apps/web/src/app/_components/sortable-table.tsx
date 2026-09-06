@@ -132,7 +132,8 @@ export function SortableTable({
       nextParams.set("direction", nextDirection);
       nextParams.delete("page");
       return `${pathname}?${nextParams.toString()}${scrollTarget ? `#${encodeURIComponent(scrollTarget)}` : ""}`;
-    }, [
+    },
+    [
       activeDirection,
       activeKey,
       pathname,
@@ -150,14 +151,26 @@ export function SortableTable({
   return (
     <SortableTableContext.Provider value={contextValue}>
       <div id={tableId} className={className} data-sort-key={activeKey}>
-        {secondaryColumns?.length ? <div className="workspace-column-preset-toolbar">
-          <button type="button" disabled={!ready} aria-pressed={showAllColumns} onClick={() => setShowAllColumns(!showAllColumns)}>{showAllColumns ? "Core Columns" : "More Columns"}</button>
-        </div> : null}
-        {secondaryColumns?.length && !showAllColumns ? <style>{`
-          ${secondaryColumns.flatMap(index => [`#${tableId} table > thead > tr > :nth-child(${index})`, `#${tableId} table > tbody > tr > :nth-child(${index})`]).join(",")} { display: none; }
+        {secondaryColumns?.length ? (
+          <div className="workspace-column-preset-toolbar">
+            <button
+              type="button"
+              disabled={!ready}
+              aria-label="Show all columns"
+              aria-pressed={showAllColumns}
+              onClick={() => setShowAllColumns(!showAllColumns)}
+            >
+              {showAllColumns ? "Columns: All" : "Columns: Essential"}
+            </button>
+          </div>
+        ) : null}
+        {secondaryColumns?.length && !showAllColumns ? (
+          <style>{`
+          ${secondaryColumns.flatMap((index) => [`#${tableId} table > thead > tr > :nth-child(${index})`, `#${tableId} table > tbody > tr > :nth-child(${index})`]).join(",")} { display: none; }
           #${tableId} table > colgroup, #${tableId} table > thead > tr[data-column-groups] { display: none; }
-          #${tableId} table { min-width: 0; width: 100%; }
-        `}</style> : null}
+          #${tableId} table:not(.workspace-standings-table) { min-width: 0; width: 100%; }
+        `}</style>
+        ) : null}
         {children}
       </div>
     </SortableTableContext.Provider>

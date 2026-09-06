@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   CartesianGrid,
   ReferenceLine,
+  ReferenceDot,
   ResponsiveContainer,
   Scatter,
   ScatterChart,
@@ -94,19 +95,28 @@ export function TeamComparisonScatterplot({
     [points, processMetric],
   );
   const xDomain = useMemo(
-    () =>
-      comparisonDomain(
-        plotPoints.map((point) => point.processPercentage),
-      ),
+    () => comparisonDomain(plotPoints.map((point) => point.processPercentage)),
     [plotPoints],
   );
   const yDomain = useMemo(
-    () =>
-      comparisonDomain(
-        points.map((point) => point.resultPercentage),
-      ),
+    () => comparisonDomain(points.map((point) => point.resultPercentage)),
     [points],
   );
+  const [highlightTeam, setHighlightTeam] = useUrlChoice(
+    "highlightTeam",
+    ["", ...points.map((point) => String(point.nhlTeamId))],
+    "",
+  );
+  const highlighted = plotPoints.find(
+    (point) => String(point.nhlTeamId) === highlightTeam,
+  );
+  const overlapping = highlighted
+    ? plotPoints.filter(
+        (point) =>
+          point.processPercentage === highlighted.processPercentage &&
+          point.resultPercentage === highlighted.resultPercentage,
+      )
+    : [];
   const resultLabel =
     phase === "regular" ? "Points Percentage" : "Win Percentage";
 
@@ -117,183 +127,233 @@ export function TeamComparisonScatterplot({
   return (
     <>
       <section className="workspace-chart-panel workspace-comparison-panel">
-      <header className="workspace-player-chart-header">
-        <div>
-          <p>League comparison</p>
-          <h4>Results vs. Five-on-Five Process</h4>
-        </div>
-        <p>
-          Compare each team&apos;s selected five-on-five process metric with
-          its {resultLabel.toLowerCase()}. The 50% reference lines describe observed results and process; they are not a forecast.
-        </p>
-      </header>
+        <header className="workspace-player-chart-header">
+          <div>
+            <p>League comparison</p>
+            <h4>Results vs. Five-on-Five Process</h4>
+          </div>
+          <p>
+            Compare each team&apos;s selected five-on-five process metric with
+            its {resultLabel.toLowerCase()}. The 50% reference lines describe
+            observed results and process; they are not a forecast.
+          </p>
+        </header>
 
-      <div className="workspace-team-process-control">
-        <label>
-          Process metric
+        <div className="workspace-team-process-control">
+          <label>
+            Process metric
+            <select
+              value={processMetric}
+              onChange={(event) =>
+                setProcessMetric(event.target.value as TeamProcessMetric)
+              }
+            >
+              {PROCESS_METRICS.map((metric) => (
+                <option key={metric.value} value={metric.value}>
+                  {metric.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <label className="ux-chart-subject">
+          Find a Team in the Plot
           <select
-            value={processMetric}
-            onChange={(event) =>
-              setProcessMetric(event.target.value as TeamProcessMetric)
-            }
+            value={highlightTeam}
+            onChange={(event) => setHighlightTeam(event.target.value)}
           >
-            {PROCESS_METRICS.map((metric) => (
-              <option key={metric.value} value={metric.value}>
-                {metric.label}
-              </option>
-            ))}
+            <option value="">All Teams</option>
+            {[...points]
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((point) => (
+                <option key={point.nhlTeamId} value={point.nhlTeamId}>
+                  {point.name}
+                </option>
+              ))}
           </select>
         </label>
-      </div>
-
-      <div className="workspace-chart-toolbar workspace-team-chart-toolbar">
-        <p>
-          Hover or tap a team for exact values. Every team remains visible so
-          the plot always preserves the full league context.
-        </p>
-      </div>
-
-      {plotPoints.length > 0 ? (
-        <div
-          className="workspace-chart workspace-comparison-chart"
-          role="img"
-          aria-label={`Scatterplot comparing ${plotPoints.length} teams by ${processDefinition.label.toLowerCase()} and ${resultLabel.toLowerCase()}.`}
-        >
-          <ResponsiveContainer width="100%" height="100%">
-            <ScatterChart
-              margin={{ top: 18, right: 20, bottom: 34, left: 18 }}
-              accessibilityLayer
-            >
-              <CartesianGrid
-                stroke="var(--chart-grid)"
-                strokeDasharray="3 5"
-              />
-              <XAxis
-                type="number"
-                dataKey="processPercentage"
-                name={processDefinition.label}
-                domain={xDomain}
-                tickFormatter={formatPercentage}
-                tick={{
-                  fill: "var(--chart-label)",
-                  fontSize: "0.875rem",
-                }}
-                tickLine={false}
-                axisLine={{ stroke: "var(--chart-axis)" }}
-                label={{
-                  value: processDefinition.shortLabel,
-                  position: "insideBottom",
-                  offset: -20,
-                  fill: "var(--chart-label)",
-                  fontSize: "0.875rem",
-                }}
-              />
-              <YAxis
-                type="number"
-                dataKey="resultPercentage"
-                name={resultLabel}
-                domain={yDomain}
-                tickFormatter={formatPercentage}
-                tick={{
-                  fill: "var(--chart-label)",
-                  fontSize: "0.875rem",
-                }}
-                tickLine={false}
-                axisLine={{ stroke: "var(--chart-axis)" }}
-                width={52}
-                label={{
-                  value: resultLabel,
-                  angle: -90,
-                  position: "insideLeft",
-                  offset: -8,
-                  fill: "var(--chart-label)",
-                  fontSize: "0.875rem",
-                }}
-              />
-              <ZAxis range={[112, 112]} />
-              <ReferenceLine
-                x={50}
-                stroke="var(--chart-reference)"
-                strokeDasharray="5 5"
-              />
-              <ReferenceLine
-                y={50}
-                stroke="var(--chart-reference)"
-                strokeDasharray="5 5"
-              />
-              <Tooltip
-                content={
-                  <TeamComparisonTooltip
-                    processLabel={processDefinition.shortLabel}
-                  />
-                }
-                cursor={{ stroke: "var(--chart-reference)" }}
-              />
-              {GROUPS.map((series) => (
-                <Scatter
-                  stroke="transparent"
-                  strokeWidth={12}
-                  key={series.value}
-                  name={series.label}
-                  data={plotPoints.filter(
-                    (point) => point.group === series.value,
-                  )}
-                  fill={series.color}
-                  shape={series.shape}
-                  isAnimationActive={false}
-                />
-              ))}
-            </ScatterChart>
-          </ResponsiveContainer>
+        {highlighted ? (
+          <p className="ux-chart-reading" aria-live="polite">
+            <strong>{highlighted.name}</strong> · {processDefinition.shortLabel}
+            : {formatDetailedPercentage(highlighted.processPercentage)} ·{" "}
+            {resultLabel}:{" "}
+            {formatDetailedPercentage(highlighted.resultPercentage)} ·{" "}
+            {groupLabel(highlighted.group)}.
+            {overlapping.length > 1
+              ? ` Same plotted position: ${overlapping.map((point) => point.name).join(", ")}. Use Find a Team to select each one.`
+              : ""}
+          </p>
+        ) : highlightTeam ? (
+          <p>No values for this team and metric.</p>
+        ) : null}
+        <div className="workspace-chart-toolbar workspace-team-chart-toolbar">
+          <p>
+            Hover or tap a team for exact values. Every team remains visible so
+            the plot always preserves the full league context.
+          </p>
         </div>
-      ) : (
-        <p className="workspace-chart-empty">
-          Team comparison data is unavailable for this process metric.
-        </p>
-      )}
 
-      <div className="workspace-comparison-key" aria-label="Quadrant key">
-        {GROUPS.map((item) => (
-          <div key={item.value}>
-            <span data-chart-shape={item.shape} style={{ background: item.color }} aria-hidden="true" />
-            <p>
-              <b>{item.label}</b>
-              {item.description}
-            </p>
+        {plotPoints.length > 0 ? (
+          <div
+            className="workspace-chart workspace-comparison-chart"
+            role="img"
+            aria-label={`Scatterplot comparing ${plotPoints.length} teams by ${processDefinition.label.toLowerCase()} and ${resultLabel.toLowerCase()}.`}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <ScatterChart
+                margin={{ top: 18, right: 20, bottom: 34, left: 18 }}
+                accessibilityLayer
+              >
+                <CartesianGrid
+                  stroke="var(--chart-grid)"
+                  strokeDasharray="3 5"
+                />
+                <XAxis
+                  type="number"
+                  dataKey="processPercentage"
+                  name={processDefinition.label}
+                  domain={xDomain}
+                  tickFormatter={formatPercentage}
+                  tick={{
+                    fill: "var(--chart-label)",
+                    fontSize: "0.875rem",
+                  }}
+                  tickLine={false}
+                  axisLine={{ stroke: "var(--chart-axis)" }}
+                  label={{
+                    value: processDefinition.shortLabel,
+                    position: "insideBottom",
+                    offset: -20,
+                    fill: "var(--chart-label)",
+                    fontSize: "0.875rem",
+                  }}
+                />
+                <YAxis
+                  type="number"
+                  dataKey="resultPercentage"
+                  name={resultLabel}
+                  domain={yDomain}
+                  tickFormatter={formatPercentage}
+                  tick={{
+                    fill: "var(--chart-label)",
+                    fontSize: "0.875rem",
+                  }}
+                  tickLine={false}
+                  axisLine={{ stroke: "var(--chart-axis)" }}
+                  width={52}
+                  label={{
+                    value: resultLabel,
+                    angle: -90,
+                    position: "insideLeft",
+                    offset: -8,
+                    fill: "var(--chart-label)",
+                    fontSize: "0.875rem",
+                  }}
+                />
+                <ZAxis range={[112, 112]} />
+                <ReferenceLine
+                  x={50}
+                  stroke="var(--chart-reference)"
+                  strokeDasharray="5 5"
+                />
+                <ReferenceLine
+                  y={50}
+                  stroke="var(--chart-reference)"
+                  strokeDasharray="5 5"
+                />
+                <Tooltip
+                  content={
+                    <TeamComparisonTooltip
+                      processLabel={processDefinition.shortLabel}
+                    />
+                  }
+                  cursor={{ stroke: "var(--chart-reference)" }}
+                />
+                {GROUPS.map((series) => (
+                  <Scatter
+                    stroke="transparent"
+                    strokeWidth={12}
+                    key={series.value}
+                    name={series.label}
+                    data={plotPoints.filter(
+                      (point) => point.group === series.value,
+                    )}
+                    fill={series.color}
+                    shape={series.shape}
+                    isAnimationActive={false}
+                  />
+                ))}
+                {highlighted ? (
+                  <ReferenceDot
+                    x={highlighted.processPercentage}
+                    y={highlighted.resultPercentage}
+                    r={10}
+                    fill="none"
+                    stroke="var(--foreground)"
+                    strokeWidth={2}
+                    label={{
+                      value: highlighted.abbreviation,
+                      position: "top",
+                      fill: "var(--foreground)",
+                      fontSize: 14,
+                    }}
+                  />
+                ) : null}
+              </ScatterChart>
+            </ResponsiveContainer>
           </div>
-        ))}
-      </div>
+        ) : (
+          <p className="workspace-chart-empty">
+            Team comparison data is unavailable for this process metric.
+          </p>
+        )}
 
-      <div className="sr-only">
-        <table>
-        <caption>Team comparison plot values</caption>
-        <thead>
-          <tr>
-            <th>Team</th>
-            <th>{processDefinition.label}</th>
-            <th>{resultLabel}</th>
-            <th>Group</th>
-          </tr>
-        </thead>
-        <tbody>
-          {plotPoints.map((point) => (
-            <tr key={point.nhlTeamId}>
-              <td>{point.name}</td>
-              <td>
-                {formatDetailedPercentage(
-                  point.processPercentage,
-                )}
-              </td>
-              <td>{formatDetailedPercentage(point.resultPercentage)}</td>
-              <td>{groupLabel(point.group)}</td>
-            </tr>
+        <div className="workspace-comparison-key" aria-label="Quadrant key">
+          {GROUPS.map((item) => (
+            <div key={item.value}>
+              <span
+                data-chart-shape={item.shape}
+                style={{ background: item.color }}
+                aria-hidden="true"
+              />
+              <p>
+                <b>{item.label}</b>
+                {item.description}
+              </p>
+            </div>
           ))}
-        </tbody>
-        </table>
-      </div>
+        </div>
+
+        <div className="sr-only">
+          <table>
+            <caption>Team comparison plot values</caption>
+            <thead>
+              <tr>
+                <th>Team</th>
+                <th>{processDefinition.label}</th>
+                <th>{resultLabel}</th>
+                <th>Group</th>
+              </tr>
+            </thead>
+            <tbody>
+              {plotPoints.map((point) => (
+                <tr key={point.nhlTeamId}>
+                  <td>{point.name}</td>
+                  <td>{formatDetailedPercentage(point.processPercentage)}</td>
+                  <td>{formatDetailedPercentage(point.resultPercentage)}</td>
+                  <td>{groupLabel(point.group)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </section>
 
-      <details className="mt-5"><summary>Compare Teams</summary><DirectTeamComparison points={points} /></details>
+      <details className="mt-5">
+        <summary>Compare Teams</summary>
+        <DirectTeamComparison points={points} />
+      </details>
     </>
   );
 }

@@ -1,30 +1,64 @@
 import { expect, test } from "@playwright/test";
 
 for (const width of [390, 1280]) {
-  test(`essential content remains accessible at ${width}px`, async ({ page }) => {
+  test(`essential content remains accessible at ${width}px`, async ({
+    page,
+  }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "NHL Overview" })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "Scoring Leaders" })).toBeVisible();
-    const scoring = page.getByRole("table", { name: "Scoring Leaders · Regular season · Top five", exact: true });
+    await expect(
+      page.getByRole("heading", { name: "NHL Overview" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Scoring Leaders" }),
+    ).toBeVisible();
+    const scoring = page.getByRole("table", {
+      name: "Scoring Leaders · Regular season · Top five",
+      exact: true,
+    });
     await expect(scoring.locator("tbody tr")).toHaveCount(5);
-    await expect(page.getByRole("heading", { name: "Goaltending", exact: true })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Goaltending", exact: true }),
+    ).toBeVisible();
     await expect(page.locator(".home-player-leader-link")).toHaveCount(3);
     await scoring.getByRole("button", { name: "G", exact: true }).click();
-    const goals = await scoring.locator("tbody tr td:nth-child(3)").allTextContents();
+    const goals = await scoring
+      .locator("tbody tr td:nth-child(3)")
+      .allTextContents();
     expect(goals.map(Number)).toEqual(goals.map(Number).sort((a, b) => b - a));
-    await expect(page.getByRole("heading", { name: "Recent Form" })).toHaveCount(0);
-    await expect(page.getByRole("heading", { name: "Explore More" })).toHaveCount(0);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    await expect(
+      page.getByRole("heading", { name: "Recent Form" }),
+    ).toHaveCount(0);
+    await expect(
+      page.getByRole("heading", { name: "Explore More" }),
+    ).toHaveCount(0);
+    expect(
+      await page.evaluate(
+        () => document.documentElement.scrollWidth <= window.innerWidth,
+      ),
+    ).toBe(true);
 
     await page.goto("/standings");
-    await expect(page.getByRole("columnheader", { name: "PTS", exact: true }).first()).toBeVisible();
-    await expect(page.getByRole("columnheader", { name: "GF", exact: true }).first()).toBeHidden();
-    await page.getByRole("button", { name: "More Columns", exact: true }).first().click();
-    await expect(page.getByRole("columnheader", { name: "GF", exact: true }).first()).toBeVisible();
+    await expect(
+      page.getByRole("columnheader", { name: "PTS", exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("columnheader", { name: "GF", exact: true }).first(),
+    ).toBeHidden();
+    await page
+      .getByRole("button", { name: "Show all columns", exact: true })
+      .first()
+      .click();
+    await expect(
+      page.getByRole("columnheader", { name: "GF", exact: true }).first(),
+    ).toBeVisible();
     await page.getByRole("button", { name: "GF", exact: true }).first().click();
-    await page.getByRole("link", { name: "Points Progression", exact: true }).click();
-    await expect(page.getByRole("navigation", { name: "Standings grouping" })).toHaveCount(0);
+    await page
+      .getByRole("link", { name: "Points Progression", exact: true })
+      .click();
+    await expect(
+      page.getByRole("navigation", { name: "Standings grouping" }),
+    ).toHaveCount(0);
   });
 }
 

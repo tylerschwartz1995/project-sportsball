@@ -33,7 +33,8 @@ export function SortableHeader({
   const { key, direction, sort, sortHref } = useSortableTable();
   const isActive = key === sortKey;
   const effectiveDescription =
-    description ?? (typeof label === "string" ? metricDefinition(label) : undefined);
+    description ??
+    (typeof label === "string" ? metricDefinition(label) : undefined);
   const helpId = useId();
   const href = sortHref(sortKey, defaultDirection);
   const controlClassName = `relative flex min-h-11 w-full items-center gap-1 rounded-sm px-3 py-3 transition hover:text-[var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[var(--accent)] ${
@@ -67,12 +68,9 @@ export function SortableHeader({
   return (
     <th
       scope="col"
+      aria-label={typeof label === "string" ? label : undefined}
       aria-sort={
-        isActive
-          ? direction === "asc"
-            ? "ascending"
-            : "descending"
-          : "none"
+        isActive ? (direction === "asc" ? "ascending" : "descending") : "none"
       }
       data-column-group={metricGroup}
       className={`workspace-sortable-header p-0 font-medium ${
@@ -85,26 +83,38 @@ export function SortableHeader({
             : "text-right"
       }`}
     >
-      {href ? (
-        <Link
-          href={href}
-          title={effectiveDescription}
-          aria-describedby={effectiveDescription ? helpId : undefined}
-          className={controlClassName}
-        >
-          {content}
-        </Link>
-      ) : (
-        <button
-          type="button"
-          onClick={(event) => sort(event, sortKey, defaultDirection)}
-          title={effectiveDescription}
-          aria-describedby={effectiveDescription ? helpId : undefined}
-          className={controlClassName}
-        >
-          {content}
-        </button>
-      )}
+      <div className="ux-column-heading">
+        {href ? (
+          <Link
+            href={href}
+            title={effectiveDescription}
+            aria-describedby={effectiveDescription ? helpId : undefined}
+            className={controlClassName}
+          >
+            {content}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={(event) => sort(event, sortKey, defaultDirection)}
+            title={effectiveDescription}
+            aria-describedby={effectiveDescription ? helpId : undefined}
+            className={controlClassName}
+          >
+            {content}
+          </button>
+        )}
+        {effectiveDescription ? (
+          <details className="ux-metric-help">
+            <summary
+              aria-label={`Explain ${typeof label === "string" ? label : "metric"}`}
+            >
+              ?
+            </summary>
+            <p>{effectiveDescription}</p>
+          </details>
+        ) : null}
+      </div>
     </th>
   );
 }

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 import { unstable_cache } from "next/cache";
 
 import { SeasonPicker } from "@/app/_components/season-picker";
@@ -77,11 +77,7 @@ export default async function Home({ searchParams }: HomeProps) {
       <section className="py-8 sm:py-10">
         <WorkspacePageHeader
           eyebrow=""
-          title={
-            selectedSeason
-              ? "NHL Overview"
-              : "NHL Data Unavailable"
-          }
+          title={selectedSeason ? "NHL Overview" : "NHL Data Unavailable"}
           description=""
           action={
             <SeasonPicker
@@ -95,7 +91,9 @@ export default async function Home({ searchParams }: HomeProps) {
           <>
             <div className="workspace-home-primary mt-7">
               <WorkspacePanel
-                title={latestDate ? `Results · ${formatDate(latestDate)}` : "Results"}
+                title={
+                  latestDate ? `Results · ${formatDate(latestDate)}` : "Results"
+                }
                 action={
                   <Link
                     href={
@@ -120,9 +118,15 @@ export default async function Home({ searchParams }: HomeProps) {
               </WorkspacePanel>
 
               <WorkspacePanel
-                title="Upcoming Games"
+                title={`Upcoming Games${upcomingGames[0] ? ` · ${Math.floor(upcomingGames[0].seasonId / 10000)}–${String(upcomingGames[0].seasonId % 10000).slice(-2)}` : ""}`}
                 action={
-                  <Link href={upcomingGames[0] ? `/games?season=${upcomingGames[0].seasonId}&date=${upcomingGames[0].gameDate}` : "/games"}>
+                  <Link
+                    href={
+                      upcomingGames[0]
+                        ? `/games?season=${upcomingGames[0].seasonId}&date=${upcomingGames[0].gameDate}`
+                        : "/games"
+                    }
+                  >
                     Full Schedule →
                   </Link>
                 }
@@ -170,8 +174,12 @@ export default async function Home({ searchParams }: HomeProps) {
               </WorkspacePanel>
             </div>
 
-            <HomePlayerLeaders seasonId={selectedSeason.id} scoring={scoringLeaders} skaters={advancedSkaters} goalies={advancedGoalies} />
-
+            <HomePlayerLeaders
+              seasonId={selectedSeason.id}
+              scoring={scoringLeaders}
+              skaters={advancedSkaters}
+              goalies={advancedGoalies}
+            />
           </>
         ) : (
           <>
@@ -179,7 +187,9 @@ export default async function Home({ searchParams }: HomeProps) {
             {upcomingGames.length > 0 ? (
               <WorkspacePanel title="Upcoming Games" className="mt-5">
                 <div className="workspace-upcoming-list">
-                  {upcomingGames.map(game => <UpcomingGame key={game.nhlGameId} game={game} />)}
+                  {upcomingGames.map((game) => (
+                    <UpcomingGame key={game.nhlGameId} game={game} />
+                  ))}
                 </div>
               </WorkspacePanel>
             ) : null}

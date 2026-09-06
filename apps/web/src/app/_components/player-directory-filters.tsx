@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { AutoSubmitSelect } from "@/app/_components/auto-submit-select";
+import {
+  skaterSortOptions,
+  goalieSortOptions,
+} from "@/lib/player-sort-options";
 import { FilterForm } from "@/app/_components/filter-form";
 import { useMemo, useState } from "react";
 
@@ -12,11 +15,6 @@ import {
 import { countryName } from "@/lib/country-name";
 import { playerDirectoryClearHref } from "@/lib/player-directory-url";
 import type { PlayerPositionFilter } from "@/lib/player-position";
-
-type Option = {
-  value: string;
-  label: string;
-};
 
 type PlayerLocation = {
   country: string;
@@ -32,7 +30,6 @@ type PlayerDirectoryFiltersProps = {
   position: PlayerPositionFilter;
   sort: string;
   direction: "asc" | "desc";
-  sortOptions: Option[];
   locations: PlayerLocation[];
   filters: {
     minGames: string;
@@ -55,10 +52,17 @@ export function PlayerDirectoryFilters({
   position,
   sort,
   direction,
-  sortOptions,
   locations,
   filters,
 }: PlayerDirectoryFiltersProps) {
+  const [draftCategory, setDraftCategory] = useState(category);
+  const sortOptions =
+    draftCategory === "goalies" ? goalieSortOptions : skaterSortOptions;
+  const selectedSort = sortOptions.some((option) => option.value === sort)
+    ? sort
+    : draftCategory === "goalies"
+      ? "savePercentage"
+      : "points";
   const [country, setCountry] = useState(filters.country);
   const [region, setRegion] = useState(filters.region);
   const [city, setCity] = useState(filters.city);
@@ -122,14 +126,16 @@ export function PlayerDirectoryFilters({
       <input type="hidden" name="season" value={seasonId} />
       <input type="hidden" name="phase" value={phase} />
 
-      <FilterHeader
-        title="Filter Players"
-        description="Search by name, type, or position."
-        activeCount={activeFilterCount}
-      />
+      {activeFilterCount > 0 ? (
+        <FilterHeader
+          title="Active Filters"
+          description="Choose filters, then Apply Filters."
+          activeCount={activeFilterCount}
+        />
+      ) : null}
 
       <fieldset
-        className={`workspace-player-filter-group is-primary${category === "skaters" ? " has-position" : ""}`}
+        className={`workspace-player-filter-group is-primary${draftCategory === "skaters" ? " has-position" : ""}`}
       >
         <legend className="sr-only">Find Players</legend>
         <div>
@@ -144,13 +150,18 @@ export function PlayerDirectoryFilters({
           </label>
           <label>
             Player Type
-            <AutoSubmitSelect name="type" defaultValue={category} resetFields={["position", "minGoals", "minAssists", "minPoints", "minWins", "minSavePercentage", "sort"]}>
+            <select
+              name="type"
+              value={draftCategory}
+              onChange={(event) =>
+                setDraftCategory(event.target.value as "skaters" | "goalies")
+              }
+            >
               <option value="skaters">Skaters</option>
               <option value="goalies">Goalies</option>
-            </AutoSubmitSelect>
-            <small className="workspace-control-help">Changing type applies the form.</small>
+            </select>
           </label>
-          {category === "skaters" ? (
+          {draftCategory === "skaters" ? (
             <label>
               Position
               <select name="position" defaultValue={position}>
@@ -173,12 +184,10 @@ export function PlayerDirectoryFilters({
         <summary>
           <span>
             <strong>Advanced Filters</strong>
-            <small className="sr-only">Season totals, birthplace, and sorting</small>
+            <small className="sr-only">Season totals and birthplace</small>
           </span>
           <b>
-            {advancedFilterCount > 0
-              ? `${advancedFilterCount} active`
-              : null}
+            {advancedFilterCount > 0 ? `${advancedFilterCount} active` : null}
           </b>
           <i className="workspace-disclosure-icon" aria-hidden="true" />
         </summary>
@@ -192,7 +201,7 @@ export function PlayerDirectoryFilters({
                 name="minGames"
                 value={filters.minGames}
               />
-              {category === "skaters" ? (
+              {draftCategory === "skaters" ? (
                 <>
                   <NumberFilter
                     label="Goals"
@@ -228,7 +237,12 @@ export function PlayerDirectoryFilters({
                       aria-describedby="save-percentage-help"
                       defaultValue={filters.minSavePercentage}
                     />
-                    <small id="save-percentage-help" className="workspace-control-help">Use a decimal, e.g. 0.915 for 91.5%.</small>
+                    <small
+                      id="save-percentage-help"
+                      className="workspace-control-help"
+                    >
+                      Use a decimal, e.g. 0.915 for 91.5%.
+                    </small>
                   </label>
                 </>
               )}
@@ -250,11 +264,15 @@ export function PlayerDirectoryFilters({
                   }}
                 >
                   <option value="">All Countries</option>
-                  {[...new Set([...countries, country].filter(Boolean))].sort((a, b) => countryName(a).localeCompare(countryName(b))).map((option) => (
-                    <option key={option} value={option}>
-                      {countryName(option)}
-                    </option>
-                  ))}
+                  {[...new Set([...countries, country].filter(Boolean))]
+                    .sort((a, b) =>
+                      countryName(a).localeCompare(countryName(b)),
+                    )
+                    .map((option) => (
+                      <option key={option} value={option}>
+                        {countryName(option)}
+                      </option>
+                    ))}
                 </select>
               </label>
               <label>
@@ -273,11 +291,13 @@ export function PlayerDirectoryFilters({
                       ? "All Provinces / States"
                       : "Choose Country First"}
                   </option>
-                  {[...new Set([...regions, region].filter(Boolean))].map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
+                  {[...new Set([...regions, region].filter(Boolean))].map(
+                    (option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ),
+                  )}
                 </select>
               </label>
               <label>
@@ -291,34 +311,13 @@ export function PlayerDirectoryFilters({
                   <option value="">
                     {country ? "All Cities" : "Choose Country First"}
                   </option>
-                  {[...new Set([...cities, city].filter(Boolean))].map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          </fieldset>
-
-          <fieldset className="workspace-player-filter-group workspace-directory-sort md:hidden">
-            <legend>Sort Results</legend>
-            <div>
-              <label>
-                Sort By
-                <select name="sort" defaultValue={sort}>
-                  {sortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Direction
-                <select name="dir" defaultValue={direction}>
-                  <option value="desc">Descending</option>
-                  <option value="asc">Ascending</option>
+                  {[...new Set([...cities, city].filter(Boolean))].map(
+                    (option) => (
+                      <option key={option} value={option}>
+                        {option}
+                      </option>
+                    ),
+                  )}
                 </select>
               </label>
             </div>
@@ -326,6 +325,28 @@ export function PlayerDirectoryFilters({
         </div>
       </details>
 
+      <fieldset className="workspace-player-filter-group workspace-directory-sort md:hidden">
+        <legend>Sort Results</legend>
+        <div>
+          <label>
+            Sort By
+            <select key={draftCategory} name="sort" defaultValue={selectedSort}>
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Direction
+            <select name="dir" defaultValue={direction}>
+              <option value="desc">Descending</option>
+              <option value="asc">Ascending</option>
+            </select>
+          </label>
+        </div>
+      </fieldset>
       <FilterActions
         clearHref={playerDirectoryClearHref({
           seasonId,
