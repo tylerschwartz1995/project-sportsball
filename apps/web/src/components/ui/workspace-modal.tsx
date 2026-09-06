@@ -1,5 +1,6 @@
 "use client";
 
+import { prepareScrollNavigation } from "@/components/shell/scroll-navigation";
 import { useRouter } from "next/navigation";
 import {
   type MouseEvent,
@@ -29,11 +30,13 @@ export function WorkspaceModal({
     const dialog = dialogRef.current;
     const handleCancel = (event: Event) => {
       event.preventDefault();
+      prepareScrollNavigation(closeHref, "preserve");
       router.replace(closeHref, { scroll: false });
     };
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
       event.preventDefault();
+      prepareScrollNavigation(closeHref, "preserve");
       router.replace(closeHref, { scroll: false });
     };
 
@@ -51,6 +54,7 @@ export function WorkspaceModal({
   }, [closeHref, router]);
 
   function closeModal() {
+    prepareScrollNavigation(closeHref, "preserve");
     router.replace(closeHref, { scroll: false });
   }
 

@@ -74,10 +74,10 @@ export function LinesPageView({
             </div>
             <div className="mt-5">
               <nav className="workspace-subview-tabs" aria-label="Combination type">
-                <Link href={unitViewHref(navigationParams, "lines")} aria-current={view === "lines" ? "page" : undefined}>
+                <Link navigation="tabs" href={unitViewHref(navigationParams, "lines")} aria-current={view === "lines" ? "page" : undefined}>
                   Forward Lines {view === "lines" ? <span>{units.length}</span> : null}
                 </Link>
-                <Link href={unitViewHref(navigationParams, "pairings")} aria-current={view === "pairings" ? "page" : undefined}>
+                <Link navigation="tabs" href={unitViewHref(navigationParams, "pairings")} aria-current={view === "pairings" ? "page" : undefined}>
                   Defensive Pairings {view === "pairings" ? <span>{units.length}</span> : null}
                 </Link>
               </nav>

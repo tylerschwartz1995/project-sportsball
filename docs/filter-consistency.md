@@ -19,6 +19,10 @@ coverage boundaries.
 | Chart state disappeared through neighboring links | Same-page context links and GET navigation read the current presentation parameters. Explicit presentation-tab changes still take precedence. |
 | Historical and advanced selectors were not shareable | Record, league, decade, and advanced situation choices have independent URL parameters. |
 
+The follow-up [scroll and navigation audit](scroll-navigation-audit-2026-09-06.md)
+standardizes Apply/Clear, refresh, pagination, tabs, schedule controls, and return
+navigation.
+
 ## Interaction and styling rules
 
 - Season, phase, chart, and selection-only draft controls apply immediately.

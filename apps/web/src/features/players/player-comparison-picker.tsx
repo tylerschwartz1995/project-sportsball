@@ -1,4 +1,5 @@
 "use client";
+import { prepareScrollNavigation } from "@/components/shell/scroll-navigation";
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
@@ -41,6 +42,7 @@ export function PlayerComparisonPicker({
   function updateSelection(nextIds: number[]) {
     setSelectedIds(nextIds);
     setQuery("");
+    prepareScrollNavigation(playerComparisonHref({ seasonId, phase, category, playerIds: nextIds }), "preserve");
     startTransition(() => {
       router.replace(
         playerComparisonHref({

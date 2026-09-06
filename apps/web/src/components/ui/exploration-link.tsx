@@ -30,7 +30,7 @@ export function ReturnLink({
   const search = useSearchParams();
   const back = safeReturnPath(search.get("returnTo"));
   return (
-    <Link className="workspace-return-link" href={back ?? fallback}>
+    <Link className="workspace-return-link" navigation="restore" href={back ?? fallback}>
       {back ? "← Back to Results" : children}
     </Link>
   );

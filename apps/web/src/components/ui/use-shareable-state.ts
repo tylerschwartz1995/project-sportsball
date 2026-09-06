@@ -3,6 +3,7 @@
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 
+import { prepareScrollNavigation } from "@/components/shell/scroll-navigation";
 import { resolveUrlChoice } from "@/lib/shareable-state";
 
 export function useUrlChoice<T extends string>(
@@ -21,6 +22,7 @@ export function useUrlChoice<T extends string>(
       if (next === fallback) params.delete(parameter);
       else params.set(parameter, next);
       const query = params.toString();
+      prepareScrollNavigation(`${pathname}${query ? `?${query}` : ""}${window.location.hash}`, "preserve");
       window.history.replaceState(
         null,
         "",

@@ -1,6 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { Suspense } from "react";
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
+import { IntentLink as Link } from "@/components/ui/intent-link";
 
 export default function ErrorPage({ reset }: { reset: () => void }) {
   return (
@@ -18,6 +20,7 @@ export default function ErrorPage({ reset }: { reset: () => void }) {
           <Link href="/">Return Home</Link>
         </div>
       </section>
+      <Suspense><NavigationComplete /></Suspense>
     </main>
   );
 }

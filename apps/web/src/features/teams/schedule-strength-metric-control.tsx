@@ -1,4 +1,5 @@
 "use client";
+import { prepareScrollNavigation } from "@/components/shell/scroll-navigation";
 
 import { useState, type MouseEvent } from "react";
 
@@ -74,6 +75,7 @@ export function ScheduleStrengthMetricControl({
 function replaceShareableMetric(metric: ScheduleStrengthMetric) {
   const url = new URL(window.location.href);
   url.searchParams.set("sos", metric);
+  prepareScrollNavigation(url.href, "preserve");
   window.history.replaceState(
     window.history.state,
     "",

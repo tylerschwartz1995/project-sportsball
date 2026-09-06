@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "@/components/ui/exploration-link";
+import { useGetFormNavigation } from "@/components/ui/use-get-form-navigation";
 import type { ChangeEvent } from "react";
 import { useState } from "react";
 
@@ -41,10 +42,16 @@ export function GamePicker({
   teams,
   selectedTeamId,
 }: GamePickerProps) {
+  const { navigate, isPending } = useGetFormNavigation();
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(
     `${scheduleMonthKey(selectedDate)}-01`,
   );
+  const [previousDate, setPreviousDate] = useState(selectedDate);
+  if (previousDate !== selectedDate) {
+    setPreviousDate(selectedDate);
+    setCalendarMonth(`${scheduleMonthKey(selectedDate)}-01`);
+  }
   const counts = new Map(
     gameDates.map((entry) => [entry.date, entry.gameCount]),
   );
@@ -82,7 +89,7 @@ export function GamePicker({
       aria-label="Schedule controls"
     >
       <div className="workspace-schedule-toolbar">
-        <form method="get">
+        <form onSubmit={event => { event.preventDefault(); navigate(event.currentTarget); }} aria-busy={isPending || undefined} method="get">
           <input type="hidden" name="phase" value={phase} />
           {selectedTeamId ? (
             <input type="hidden" name="team" value={selectedTeamId} />
@@ -90,6 +97,8 @@ export function GamePicker({
           <label>
             Season
             <select
+              key={selectedSeasonId}
+              disabled={isPending}
               name="season"
               defaultValue={selectedSeasonId}
               onChange={submitSelect}
@@ -123,13 +132,15 @@ export function GamePicker({
           </div>
         </nav>
 
-        <form method="get">
+        <form onSubmit={event => { event.preventDefault(); navigate(event.currentTarget); }} aria-busy={isPending || undefined} method="get">
           <input type="hidden" name="season" value={selectedSeasonId} />
           <input type="hidden" name="phase" value={phase} />
           <input type="hidden" name="date" value={selectedDate} />
           <label>
             Find a Team
             <select
+              key={selectedTeamId ?? "all"}
+              disabled={isPending}
               name="team"
               defaultValue={selectedTeamId ?? ""}
               onChange={submitSelect}
@@ -144,7 +155,7 @@ export function GamePicker({
           </label>
         </form>
 
-        <form method="get" className="workspace-schedule-calendar">
+        <form onSubmit={event => { event.preventDefault(); navigate(event.currentTarget); }} aria-busy={isPending || undefined} method="get" className="workspace-schedule-calendar">
           <input type="hidden" name="season" value={selectedSeasonId} />
           <input type="hidden" name="phase" value={phase} />
           {selectedTeamId ? (
@@ -154,6 +165,8 @@ export function GamePicker({
             Jump to Date
             <input
               type="date"
+              key={selectedDate}
+              disabled={isPending}
               name="date"
               min={firstDate}
               max={lastDate}
