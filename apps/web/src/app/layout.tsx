@@ -1,7 +1,8 @@
-import Link from "next/link";
+import { IntentLink as Link } from "@/components/ui/intent-link";
 import type { Metadata } from "next";
 import { Manrope, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { NavigationMetrics } from "@/components/shell/navigation-metrics";
 import { WebVitals } from "@/components/shell/web-vitals";
 import "@/styles/index.css";
 
@@ -53,6 +54,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col">
         <WebVitals />
+        <NavigationMetrics />
         <a className="workspace-skip-link" href="#main-content">
           Skip to Main Content
         </a>

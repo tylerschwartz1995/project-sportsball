@@ -1,11 +1,9 @@
+import { withReadContext } from "@/data/read-context";
 import { parseSeasonId } from "@/contracts/season";
-import { getGamesForSeasonByType } from "@/data/games";
+import { getGamesForSeasonByType } from "@/data/performance-cache";
 import { getCachedStandings, listCachedSeasons } from "@/data/page-cache";
 import { listGoalieLeadersBySeason } from "@/data/players";
-import {
-  getPlayoffScoringLeaders,
-  getPlayoffSeriesInsights,
-} from "@/data/playoffs";
+import { getPlayoffScoringLeaders, getPlayoffSeriesInsights } from "@/data/performance-cache";
 import { firstQueryValue } from "@/lib/directory";
 import {
   attachPlayoffSeriesInsights,
@@ -14,7 +12,7 @@ import {
 } from "@/lib/playoff-bracket";
 import "server-only";
 import { PlayoffsPageProps, parsePlayoffView } from './logic';
-export async function loadPlayoffsPage({
+async function loadPlayoffsPageData({
   searchParams,
 }: PlayoffsPageProps) {
   const params = await searchParams;
@@ -63,4 +61,8 @@ export async function loadPlayoffsPage({
     leaders,
     goalieLeaders,
   } as const;
+}
+
+export function loadPlayoffsPage(...args: Parameters<typeof loadPlayoffsPageData>) {
+  return withReadContext("playoffs/directory", () => loadPlayoffsPageData(...args));
 }

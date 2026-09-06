@@ -668,3 +668,30 @@ function mapGoalie(row: GoalieRow): GoalieSeasonSummary {
     timeOnIceSeconds: row.time_on_ice_seconds,
   };
 }
+
+/** Picker identities only; full statistics are loaded for the chosen players. */
+export async function listPlayerComparisonOptions(seasonId: number, gameType: number, category: "skaters" | "goalies") {
+  const table = category === "skaters" ? "skater_season_stats" : "goalie_season_stats";
+  const splits = category === "skaters" ? "official_skater_season_stats" : "official_goalie_season_stats";
+  const rows = await query<{ nhlPlayerId: number; name: string; position: string | null; teamAbbreviations: string[] }>(`
+    SELECT player.nhl_id::integer AS "nhlPlayerId", player.display_name AS name, player.position,
+      COALESCE(array_agg(DISTINCT COALESCE(identity.abbreviation, team.abbreviation)) FILTER (WHERE team.id IS NOT NULL), ARRAY[]::text[]) AS "teamAbbreviations"
+    FROM ${table} stats JOIN players player ON player.id = stats.player_id
+    LEFT JOIN ${splits} split ON split.player_id = stats.player_id AND split.season_id = stats.season_id AND split.game_type = stats.game_type
+    LEFT JOIN teams team ON team.id = split.team_id
+    LEFT JOIN team_seasons identity ON identity.team_id = team.id AND identity.season_id = stats.season_id
+    WHERE stats.season_id = $1 AND stats.game_type = $2
+    GROUP BY player.nhl_id, player.display_name, player.position
+    ORDER BY ${category === "skaters" ? "MAX(stats.points) DESC, MAX(stats.goals) DESC" : "MAX(stats.games_played) DESC, MAX(stats.wins) DESC"}, player.display_name, player.nhl_id
+  `, [seasonId, gameType]);
+  return rows;
+}
+
+export async function getPlayerComparisonRows(seasonId: number, gameType: number, category: "skaters" | "goalies", playerIds: number[]) {
+  const ids = [...new Set(playerIds)].sort((a, b) => a - b).slice(0, 4);
+  if (!ids.length) return [];
+  const where = " WHERE stats.season_id = $1 AND stats.game_type = $2 AND player.nhl_id = ANY($3::bigint[])";
+  return category === "skaters"
+    ? (await query<SkaterRow>(skaterSelect + where, [seasonId, gameType, ids])).map(mapSkater)
+    : (await query<GoalieRow>(goalieSelect + where, [seasonId, gameType, ids])).map(mapGoalie);
+}

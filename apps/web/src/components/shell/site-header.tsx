@@ -1,7 +1,7 @@
 "use client";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useRef } from "react";
-import Link from "next/link";
+import { IntentLink as Link } from "@/components/ui/intent-link";
 
 import { ActiveNavigationScroller } from "@/components/shell/active-navigation-scroller";
 import { ThemeToggle } from "@/components/shell/theme-toggle";

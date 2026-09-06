@@ -1,3 +1,4 @@
+import { withReadContext } from "@/data/read-context";
 import { parseSeasonId } from "@/contracts/season";
 import {
   getCachedStandings,
@@ -8,7 +9,7 @@ import { firstQueryValue } from "@/lib/directory";
 import { TeamsPageProps, groupTeams } from './logic';
 
 import "server-only";
-export async function loadTeamsPage({ searchParams }: TeamsPageProps) {
+async function loadTeamsPageData({ searchParams }: TeamsPageProps) {
   const params = await searchParams;
   const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
@@ -30,4 +31,8 @@ export async function loadTeamsPage({ searchParams }: TeamsPageProps) {
     sortedTeams,
     teamGroups,
   } as const;
+}
+
+export function loadTeamsPage(...args: Parameters<typeof loadTeamsPageData>) {
+  return withReadContext("teams/directory", () => loadTeamsPageData(...args));
 }

@@ -315,7 +315,7 @@ export async function listPlayerGameSeasonIds(
       FROM players AS player
       JOIN (
         SELECT player_id, game_id FROM player_game_stats
-        UNION
+        UNION ALL
         SELECT player_id, game_id FROM goalie_game_stats
       ) AS appearances
         ON appearances.player_id = player.id

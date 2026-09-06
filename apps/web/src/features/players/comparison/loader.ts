@@ -1,3 +1,4 @@
+import { withReadContext } from "@/data/read-context";
 import type {
   GoalieSeasonSummary,
   SkaterSeasonSummary,
@@ -7,13 +8,13 @@ import {
   gameTypeForPhase,
   parseSeasonPhase
 } from "@/contracts/season-phase";
-import { getMoneyPuckPlayerSeason } from "@/data/advanced";
+import { getMoneyPuckPlayerSeasons } from "@/data/performance-cache";
 import { listCachedSeasons } from "@/data/page-cache";
-import { listPlayersBySeason } from "@/data/players";
+import { listPlayerComparisonOptions, getPlayerComparisonRows } from "@/data/performance-cache";
 import { firstQueryValue } from "@/lib/directory";
 import "server-only";
 import { GOALIE_METRICS, PlayerCategory, PlayerComparePageProps, SKATER_METRICS, buildGoalieEntry, buildSkaterEntry, parsePlayerIds } from './logic';
-export async function loadPlayerComparePage({
+async function loadPlayerComparePageData({
   searchParams,
 }: PlayerComparePageProps) {
   const params = await searchParams;
@@ -24,30 +25,20 @@ export async function loadPlayerComparePage({
   const phase = parseSeasonPhase(firstQueryValue(params.phase));
   const category: PlayerCategory =
     firstQueryValue(params.type) === "goalies" ? "goalies" : "skaters";
-  const index = selectedSeason
-    ? await listPlayersBySeason(selectedSeason.id, gameTypeForPhase(phase))
-    : { seasonId: 0, skaters: [], goalies: [] };
-  const availablePlayers =
-    category === "skaters" ? index.skaters : index.goalies;
+  const availablePlayers = selectedSeason
+    ? await listPlayerComparisonOptions(selectedSeason.id, gameTypeForPhase(phase), category)
+    : [];
   const requestedIds = parsePlayerIds(firstQueryValue(params.players));
   const availableIds = new Set(
     availablePlayers.map((player) => player.nhlPlayerId),
   );
   const selectedIds = requestedIds.filter((id) => availableIds.has(id));
-  const selectedRows = selectedIds
-    .map((id) => availablePlayers.find((player) => player.nhlPlayerId === id))
-    .filter(
-      (player): player is SkaterSeasonSummary | GoalieSeasonSummary =>
-        player !== undefined,
-    );
-  const advanced =
-    selectedSeason && phase === "regular"
-      ? await Promise.all(
-        selectedRows.map((player) =>
-          getMoneyPuckPlayerSeason(player.nhlPlayerId, selectedSeason.id),
-        ),
-      )
-      : [];
+  const ids = [...selectedIds].sort((a, b) => a - b);
+  const [unsortedRows, advanced] = selectedSeason ? await Promise.all([
+    getPlayerComparisonRows(selectedSeason.id, gameTypeForPhase(phase), category, ids),
+    phase === "regular" ? getMoneyPuckPlayerSeasons(ids, selectedSeason.id) : Promise.resolve([]),
+  ]) : [[], []];
+  const selectedRows = selectedIds.flatMap(id => unsortedRows.filter(row => row.nhlPlayerId === id));
   const metrics = category === "skaters" ? SKATER_METRICS : GOALIE_METRICS;
   const comparisonEntries =
     category === "skaters"
@@ -73,4 +64,8 @@ export async function loadPlayerComparePage({
     comparisonEntries,
     metrics,
   } as const;
+}
+
+export function loadPlayerComparePage(...args: Parameters<typeof loadPlayerComparePageData>) {
+  return withReadContext("players/comparison", () => loadPlayerComparePageData(...args));
 }

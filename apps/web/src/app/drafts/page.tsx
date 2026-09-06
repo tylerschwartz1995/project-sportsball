@@ -1,7 +1,10 @@
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import { ViewTabs } from "@/components/ui/view-tabs";
 import { WorkspacePageHeader } from "@/components/ui/workspace-primitives";
-import { getDraftAnalytics } from "@/data/drafts";
+import { getCachedDraftAnalytics } from "@/data/draft-cache";
+import { Suspense } from "react";
+import { withReadContext } from "@/data/read-context";
 import { DraftBoardView } from "@/features/drafts/board";
 import { ClassRankingsView } from "@/features/drafts/classes";
 import { draftViewTabs, parseDraftView, parseDraftYear } from "@/features/drafts/logic";
@@ -13,7 +16,7 @@ export const dynamic = "force-dynamic";
 
 import type { DraftsPageProps } from "@/features/drafts/route-state";
 
-export default async function DraftsPage({ searchParams }: DraftsPageProps) {
+async function DraftResults({ searchParams }: DraftsPageProps) {
   const params = await searchParams;
   const view = parseDraftView(firstQueryValue(params.view));
   const outcomeMetric = firstQueryValue(params.outcomeMetric);
@@ -31,7 +34,7 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
     allYears &&
     requestedFromYear !== null &&
     requestedToYear !== null;
-  const analytics = await getDraftAnalytics(
+  const analytics = await withReadContext("drafts", () => getCachedDraftAnalytics(
     view === "teams"
       ? {
           yearRange: true,
@@ -58,8 +61,8 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
           allYears,
           defaultYear: view === "outcomes" ? "mature" : "latest",
           includeAdvanced: view === "outcomes",
-        },
-  );
+        }, view,
+  ));
   const selectedBoardTeam = view === "board"
     ? (analytics.selectedTeamAbbreviation ?? "")
     : "";
@@ -71,16 +74,7 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
       ? requestedTeam
       : "";
   return (
-    <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
-      <SiteHeader active="drafts" />
-      <section className="py-8 sm:py-10">
-        <WorkspacePageHeader
-          eyebrow="League / Drafts"
-          title="NHL Drafts"
-          description="Explore every NHL draft since 1963, trace each selection, and evaluate player and team outcomes."
-          descriptionClassName="workspace-description-single-line"
-        />
-
+    <>
         <ViewTabs
           active={view}
           ariaLabel="Draft views"
@@ -119,7 +113,22 @@ export default async function DraftsPage({ searchParams }: DraftsPageProps) {
         {view === "classes" ? (
           <ClassRankingsView analytics={analytics} params={params} />
         ) : null}
-      </section>
-    </main>
+    <NavigationComplete />
+    </>
   );
+}
+
+export default async function DraftsPage(props: DraftsPageProps) {
+  const params = await props.searchParams;
+  return <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
+    <SiteHeader active="drafts" />
+    <section className="py-8 sm:py-10">
+      <WorkspacePageHeader eyebrow="League / Drafts" title="NHL Drafts"
+        description="Explore every NHL draft since 1963, trace each selection, and evaluate player and team outcomes."
+        descriptionClassName="workspace-description-single-line" />
+      <Suspense key={JSON.stringify(params)} fallback={<p role="status" className="workspace-empty-state">Loading draft results…</p>}>
+        <DraftResults {...props} />
+      </Suspense>
+    </section>
+  </main>;
 }

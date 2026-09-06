@@ -1,6 +1,8 @@
 /** Client-only presentation choices that survive same-page context changes. */
 export const PRESENTATION_PARAMETERS = [
   "resultView",
+  "tableSort",
+  "tableDirection",
   "returnTo",
   "highlightTeam",
   "shotPeriod",

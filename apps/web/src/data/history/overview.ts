@@ -10,6 +10,7 @@ import { DEFAULT_HISTORY_FILTERS, historyDefaultMinimumGames } from './rows';
 import { getHistoryLeagueTrend } from './trends';
 export async function getHistoryOverview(
   gameType: number,
+  includeSupplement = true,
 ): Promise<HistoryOverview> {
   const filters = { ...DEFAULT_HISTORY_FILTERS };
   const teamFilters = {
@@ -59,8 +60,8 @@ export async function getHistoryOverview(
         1,
         3,
       ),
-      getHistoryRecordProgression(gameType),
-      getHistoryLeagueTrend(gameType),
+      includeSupplement ? getHistoryRecordProgression(gameType) : Promise.resolve([]),
+      includeSupplement ? getHistoryLeagueTrend(gameType) : Promise.resolve([]),
     ]);
 
   return {

@@ -1,3 +1,4 @@
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import Link from "@/components/ui/exploration-link";
 import {
@@ -81,14 +82,7 @@ export function PlayerComparePageView({
             <div className="mt-6">
               <PlayerComparisonPicker
                 key={`${category}:${selectedIds.join(",")}`}
-                options={availablePlayers.map((player) => ({
-                  nhlPlayerId: player.nhlPlayerId,
-                  name: player.name,
-                  position: player.position,
-                  teamAbbreviations: player.teams.map(
-                    (team) => team.abbreviation,
-                  ),
-                }))}
+                options={availablePlayers}
                 initialPlayerIds={selectedIds}
                 seasonId={selectedSeason.id}
                 phase={phase}
@@ -129,6 +123,7 @@ export function PlayerComparePageView({
           </div>
         )}
       </section>
+    <NavigationComplete />
     </main>
   );
 }

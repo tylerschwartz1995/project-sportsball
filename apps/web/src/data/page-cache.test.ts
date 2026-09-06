@@ -33,12 +33,12 @@ describe("page cache policy", () => {
     expect(unstableCacheMock).toHaveBeenCalledTimes(12);
     expect(unstableCacheMock).toHaveBeenCalledWith(
       expect.any(Function),
-      ["page-seasons-v1"],
+      ["page-seasons-v1", "envelope-v2"],
       { revalidate: 3_600, tags: ["seasons"] },
     );
     expect(unstableCacheMock).toHaveBeenCalledWith(
       expect.any(Function),
-      ["page-schedule-seasons-v1"],
+      ["page-schedule-seasons-v1", "envelope-v2"],
       { revalidate: 3_600, tags: ["seasons"] },
     );
     for (const key of [
@@ -55,7 +55,7 @@ describe("page cache policy", () => {
     ]) {
       expect(unstableCacheMock).toHaveBeenCalledWith(
         expect.any(Function),
-        [key],
+        [key, "envelope-v2"],
         expect.objectContaining({ revalidate: 300 }),
       );
     }

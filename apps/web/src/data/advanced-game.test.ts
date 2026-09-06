@@ -13,6 +13,17 @@ describe("MoneyPuck advanced game query", () => {
     queryMock.mockReset();
   });
 
+  it("loads the same fallback subview that the tabs select when the requested one is missing", async () => {
+    const context = { ...gameRow, has_teams: false, has_shots: true, has_players: true, has_units: false };
+    queryMock.mockResolvedValueOnce([context]).mockResolvedValueOnce([])
+      .mockResolvedValueOnce([context]).mockResolvedValueOnce([shotRow]);
+    const result = await getMoneyPuckGameAnalytics(2025021312, "teams");
+    expect(queryMock).toHaveBeenCalledTimes(4);
+    expect(queryMock).toHaveBeenLastCalledWith(expect.stringContaining("FROM moneypuck_shots AS stats"), [2025021312]);
+    expect(result?.shots).toHaveLength(1);
+    expect(result?.skaterSituations).toEqual([]);
+  });
+
   it("maps game, player, shot, line, and pairing records", async () => {
     queryMock
       .mockResolvedValueOnce([gameRow])

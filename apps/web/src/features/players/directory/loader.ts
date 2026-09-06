@@ -1,3 +1,4 @@
+import { withReadContext } from "@/data/read-context";
 import type {
   GoalieSeasonSummary,
   SkaterSeasonSummary
@@ -27,7 +28,7 @@ import {
 } from "@/lib/player-sort-options";
 import "server-only";
 import { emptyDirectoryPage, parseMinimum, PlayersPageProps } from './logic';
-export async function loadPlayersPage({ searchParams }: PlayersPageProps) {
+async function loadPlayersPageData({ searchParams }: PlayersPageProps) {
   const params = await searchParams;
   const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
@@ -142,4 +143,8 @@ export async function loadPlayersPage({ searchParams }: PlayersPageProps) {
     goaliePage,
     minGames,
   } as const;
+}
+
+export function loadPlayersPage(...args: Parameters<typeof loadPlayersPageData>) {
+  return withReadContext("players/directory", () => loadPlayersPageData(...args));
 }

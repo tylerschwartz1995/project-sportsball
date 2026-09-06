@@ -1,21 +1,17 @@
+import { withReadContext } from "@/data/read-context";
 import { parseNhlId } from "@/contracts/entity";
 import {
   type GameBoxScore,
   type GameSummary
 } from "@/contracts/game";
-import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";
-import {
-  getGameBoxScore,
-  getGameSummary,
-  getGameViewAvailability,
-} from "@/data/games";
-import { getGamePlayByPlay } from "@/data/play-by-play";
-import { buildGameFlow } from "@/lib/game-flow";
+import { getMoneyPuckGameAnalytics } from "@/data/performance-cache";
+import { getGameBoxScore, getGameSummary, getGameViewAvailability } from "@/data/performance-cache";
+import { getGamePlayByPlay } from "@/data/performance-cache";
 import { parseTimelinePeriod } from "@/lib/play-by-play-timeline";
 import { notFound } from "next/navigation";
 import "server-only";
 import { GamePageProps, firstValue, normalizeGameView, parseGameAdvancedView, parseGameView } from './logic';
-export async function loadGamePage({
+async function loadGamePageData({
   params,
   searchParams,
 }: GamePageProps) {
@@ -50,18 +46,18 @@ export async function loadGamePage({
     boxScore = loadedBoxScore;
     game = loadedBoxScore;
   }
-  const [advanced, playByPlay] = await Promise.all([
+  const advancedView = parseGameAdvancedView(
+    firstValue(pageParams.advancedView),
+  );
+  const content = Promise.all([
     view === "advanced" || view === "scoring"
-      ? getMoneyPuckGameAnalytics(nhlGameId)
+      ? getMoneyPuckGameAnalytics(nhlGameId, view === "scoring" ? "scoring" : advancedView)
       : Promise.resolve(null),
     view === "scoring"
       ? getGamePlayByPlay(nhlGameId)
       : Promise.resolve({ nhlGameId, events: [] }),
   ]);
   const hasBoxScore = availability.boxScore;
-  const advancedView = parseGameAdvancedView(
-    firstValue(pageParams.advancedView),
-  );
   const timelinePeriod = parseTimelinePeriod(
     firstValue(pageParams.timelinePeriod),
   );
@@ -96,24 +92,20 @@ export async function loadGamePage({
       }
       : null,
   ].filter((tab): tab is NonNullable<typeof tab> => tab !== null);
-  const gameFlow = buildGameFlow({
-    shots: advanced?.shots ?? [],
-    events: playByPlay.events,
-    awayTeam: game.awayTeam,
-    homeTeam: game.homeTeam,
-  });
   return {
     game,
     completed,
     tabs,
     view,
     advancedView,
-    gameFlow,
     timelinePeriod,
     hasBoxScore,
     boxScore,
-    playByPlay,
     availability,
-    advanced,
+    content,
   } as const;
+}
+
+export function loadGamePage(...args: Parameters<typeof loadGamePageData>) {
+  return withReadContext("games/detail", () => loadGamePageData(...args));
 }

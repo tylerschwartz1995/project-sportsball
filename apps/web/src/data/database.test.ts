@@ -2,10 +2,14 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EventEmitter } from "node:events";
 
 const poolQueryMock = vi.hoisted(() => vi.fn());
+const releaseMock = vi.hoisted(() => vi.fn());
+const optionsMock = vi.hoisted(() => vi.fn());
 
 vi.mock("pg", () => ({
   Pool: class extends EventEmitter {
+    constructor(options: unknown) { super(); optionsMock(options); }
     query = poolQueryMock;
+    connect = vi.fn(async () => ({ query: poolQueryMock, release: releaseMock }));
     end = vi.fn();
   },
 }));
@@ -16,6 +20,7 @@ describe("database query telemetry", () => {
   beforeEach(async () => {
     await closeDatabasePool();
     poolQueryMock.mockReset();
+    releaseMock.mockClear();
     vi.restoreAllMocks();
     process.env.SPORTSBALL_WEB_DATABASE_URL = "postgresql://test:test@localhost/test";
     process.env.SPORTSBALL_SLOW_QUERY_MS = "0";
@@ -46,6 +51,9 @@ describe("database query telemetry", () => {
       rowCount: 1,
       operation: "SELECT",
     });
+    expect(releaseMock).toHaveBeenCalledOnce();
+    expect(optionsMock).toHaveBeenLastCalledWith(expect.objectContaining({ statement_timeout: 10_000 }));
+    expect(JSON.parse(logged)).toMatchObject({ poolWaitMs: expect.any(Number), executionMs: expect.any(Number) });
     expect(logged).not.toContain("8478402");
     expect(logged).not.toContain("players WHERE");
   });
@@ -56,6 +64,7 @@ describe("database query telemetry", () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
 
     await expect(query("SELECT 1")).rejects.toBe(error);
+    expect(releaseMock).toHaveBeenCalledOnce();
     expect(JSON.parse(String(warn.mock.calls[0]?.[0]))).toMatchObject({
       event: "database-query-error",
       rowCount: null,

@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { IntentLink as Link } from "@/components/ui/intent-link";
 import { usePathname, useSearchParams } from "next/navigation";
 import type { ComponentProps } from "react";
 import { explorationHref, safeReturnPath } from "@/lib/exploration-context";

@@ -1,3 +1,4 @@
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import Link, { ReturnLink } from "@/components/ui/exploration-link";
 import { SortableHeader } from "@/components/ui/sortable-header";
@@ -422,6 +423,7 @@ export function TeamPageView({
           </section>
         ) : null}
       </section>
+    <NavigationComplete />
     </main>
   );
 }

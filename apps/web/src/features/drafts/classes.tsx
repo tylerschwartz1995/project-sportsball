@@ -6,7 +6,7 @@ import { SortableTable } from "@/components/ui/sortable-table";
 import { WorkspacePanel } from "@/components/ui/workspace-primitives";
 import type { DraftAnalytics, DraftClassPerformance } from "@/contracts/draft";
 import { NumberCell } from "@/features/drafts/cells";
-import { ClassRankingVisuals } from "@/features/drafts/class-ranking-visuals";
+import { ClassRankingVisuals } from "@/features/charts/lazy-charts";
 import { formatPercentage, relativeRangePosition, sortedValues } from "@/features/drafts/logic";
 import { DraftsPageProps } from "@/features/drafts/route-state";
 import { firstQueryValue, paginate, parsePage, parseSortDirection } from "@/lib/directory";

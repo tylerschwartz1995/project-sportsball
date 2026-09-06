@@ -1,3 +1,4 @@
+"use client";
 import Link from "@/components/ui/exploration-link";
 
 import type { DraftClassPerformance } from "@/contracts/draft";

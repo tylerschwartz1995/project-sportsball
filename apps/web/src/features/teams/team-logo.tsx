@@ -53,17 +53,17 @@ export function TeamLogo({
     (nhlTeamId ? teamAbbreviations[nhlTeamId] : undefined) ?? "NHL";
   const src = teamLogoUrl(resolvedAbbreviation);
   const className = size === "profile"
-    ? "relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl border border-[var(--border)] bg-slate-50/95 p-2 shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_8px_24px_rgb(2_8_23/0.22)]"
+    ? "relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--crest-surface)] p-2 shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_8px_24px_rgb(2_8_23/0.22)]"
     : size === "compact"
-      ? "relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-[var(--border)] bg-slate-50/95 p-1 shadow-sm"
-      : "relative grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-md border border-[var(--border)] bg-slate-50/95 p-0.5 shadow-sm";
+      ? "relative grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-[var(--border)] bg-[var(--crest-surface)] p-1 shadow-sm"
+      : "relative grid h-6 w-6 shrink-0 place-items-center overflow-hidden rounded-md border border-[var(--border)] bg-[var(--crest-surface)] p-0.5 shadow-sm";
   const imageScale = prominent ? "scale-[1.4]" : "scale-[1.3]";
 
   return (
     <span className={`team-crest team-crest-${size} ${className}`}>
       <span
         aria-hidden="true"
-        className={`font-mono font-semibold text-slate-800 ${size === "profile" ? "text-sm" : "text-[0.45rem]"}`}
+        className={`font-mono font-semibold text-[var(--crest-foreground)] ${size === "profile" ? "text-sm" : "text-[0.45rem]"}`}
       >
         {resolvedAbbreviation}
       </span>
@@ -73,6 +73,10 @@ export function TeamLogo({
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
+        loading={size === "profile" || prominent ? "eager" : "lazy"}
+        decoding="async"
+        width={size === "profile" ? 80 : size === "compact" ? 36 : 24}
+        height={size === "profile" ? 80 : size === "compact" ? 36 : 24}
         alt={decorative ? "" : `${name ?? resolvedAbbreviation} logo`}
         className={`absolute inset-0 h-full w-full object-contain ${imageScale}`}
       />

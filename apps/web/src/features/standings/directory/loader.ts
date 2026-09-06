@@ -1,3 +1,4 @@
+import { withReadContext } from "@/data/read-context";
 import { parseSeasonId } from "@/contracts/season";
 import {
   getCachedStandings,
@@ -10,7 +11,7 @@ import {
 } from "@/lib/directory";
 import "server-only";
 import { StandingsPageProps, buildGroups, parseStandingsDisplay, parseView, standingsColumns } from './logic';
-export async function loadStandingsPage({
+async function loadStandingsPageData({
   searchParams,
 }: StandingsPageProps) {
   const params = await searchParams;
@@ -54,4 +55,8 @@ export async function loadStandingsPage({
     pointsHistory,
     standings,
   } as const;
+}
+
+export function loadStandingsPage(...args: Parameters<typeof loadStandingsPageData>) {
+  return withReadContext("standings/directory", () => loadStandingsPageData(...args));
 }

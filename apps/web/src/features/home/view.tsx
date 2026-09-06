@@ -1,3 +1,5 @@
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
+import { Suspense } from "react";
 import { SiteHeader } from "@/components/shell/site-header";
 import Link from "@/components/ui/exploration-link";
 import {
@@ -14,9 +16,7 @@ export function HomeView({
   latestGames,
   upcomingGames,
   standings,
-  scoringLeaders,
-  advancedSkaters,
-  advancedGoalies,
+  leaders,
   selectedSeason,
   seasons,
   latestDate,
@@ -126,12 +126,9 @@ export function HomeView({
               </WorkspacePanel>
             </div>
 
-            <HomePlayerLeaders
-              seasonId={selectedSeason.id}
-              scoring={scoringLeaders}
-              skaters={advancedSkaters}
-              goalies={advancedGoalies}
-            />
+            <Suspense fallback={<p role="status" className="workspace-empty-state">Loading player leaders…</p>}>
+              <PlayerLeaders leaders={leaders} seasonId={selectedSeason.id} />
+            </Suspense>
           </>
         ) : (
           <>
@@ -148,6 +145,15 @@ export function HomeView({
           </>
         )}
       </section>
+    <NavigationComplete />
     </main>
   );
+}
+
+async function PlayerLeaders({ leaders, seasonId }: {
+  leaders: Awaited<ReturnType<typeof loadHome>>["leaders"]; seasonId: number;
+}) {
+  const rows = await leaders;
+  if (!rows) return null;
+  return <HomePlayerLeaders seasonId={seasonId} scoring={rows[0]} skaters={rows[1]} goalies={rows[2]} />;
 }

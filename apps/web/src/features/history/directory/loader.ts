@@ -1,9 +1,10 @@
+import { withReadContext } from "@/data/read-context";
 import {
   parseSeasonPhase
 } from "@/contracts/season-phase";
 import "server-only";
 import { HistoryPageProps, firstValue, historySectionTabs, parseHistorySection } from './logic';
-export async function loadHistoryPage({ searchParams }: HistoryPageProps) {
+async function loadHistoryPageData({ searchParams }: HistoryPageProps) {
   const params = await searchParams;
   const section = parseHistorySection(
     firstValue(params.section),
@@ -18,4 +19,8 @@ export async function loadHistoryPage({ searchParams }: HistoryPageProps) {
     sectionTabs,
     params,
   } as const;
+}
+
+export function loadHistoryPage(...args: Parameters<typeof loadHistoryPageData>) {
+  return withReadContext("history/directory", () => loadHistoryPageData(...args));
 }

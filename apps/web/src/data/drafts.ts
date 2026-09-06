@@ -54,6 +54,7 @@ const MATURE_DRAFT_LAG_YEARS = 5;
 
 export async function getDraftAnalytics(
   options: DraftAnalyticsOptions = {},
+  projection: "full" | "board" | "outcomes" | "classes" | "teams" = "full",
 ): Promise<DraftAnalytics> {
   const {
     draftYear = null,
@@ -323,9 +324,9 @@ export async function getDraftAnalytics(
   );
   const outcomes = outcomeRows.map(mapOutcome);
   return {
-    outcomes,
-    classPerformance: buildClassPerformance(outcomes),
-    teamPerformance: buildTeamPerformance(outcomes),
+    outcomes: projection === "classes" ? [] : outcomes,
+    classPerformance: projection === "full" || projection === "classes" ? buildClassPerformance(outcomes) : [],
+    teamPerformance: projection === "full" || projection === "teams" ? buildTeamPerformance(outcomes) : [],
     draftYears,
     teamOptions,
     selectedDraftYear,
@@ -447,10 +448,9 @@ function buildTeamPerformance(
   const expectedGames = buildExpectedGamesByDraftBand(outcomes);
   const teams = new Map<string, DraftPlayerOutcome[]>();
   for (const outcome of outcomes) {
-    teams.set(outcome.draftTeamAbbreviation, [
-      ...(teams.get(outcome.draftTeamAbbreviation) ?? []),
-      outcome,
-    ]);
+    const players = teams.get(outcome.draftTeamAbbreviation) ?? [];
+    players.push(outcome);
+    teams.set(outcome.draftTeamAbbreviation, players);
   }
 
   return [...teams.entries()]

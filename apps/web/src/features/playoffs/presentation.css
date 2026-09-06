@@ -1,0 +1,9 @@
+/* Keep late shared overrides after the route stylesheet, matching the original cascade. */
+.workspace-bracket-round h3 { font-size: 0.875rem; white-space: normal; line-height: 1.5; }
+.workspace-bracket { grid-template-columns: repeat(7, minmax(10rem, 1fr)); min-width: 73rem; }
+.workspace-bracket-series > span { grid-template-columns: 1.5rem minmax(4ch, 1fr) 1.25rem; gap: 0.5rem; padding: 0.5rem 0.75rem; min-height: 3rem; }
+.workspace-bracket-series > span[data-seeded="true"] { grid-template-columns: 1.75rem 1.5rem minmax(4ch, 1fr) 1.25rem; }
+.workspace-bracket-series small { font-size: var(--text-meta); letter-spacing: 0; }
+.workspace-bracket-team-name { font-size: var(--text-control); overflow: visible; text-overflow: clip; }
+.workspace-bracket-team-name { font-size: 0.9375rem; }
+.workspace-bracket-series b { font-size: 1rem; }

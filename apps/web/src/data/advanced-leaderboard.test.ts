@@ -82,7 +82,7 @@ describe("advanced leaderboard queries", () => {
 
     expect(queryMock).toHaveBeenCalledWith(
       expect.stringContaining("stats.ice_time_seconds >= $3"),
-      [20252026, "5on5", 18000],
+      [20252026, "5on5", 18000, 200],
     );
     expect(result[0]).toMatchObject({
       player: { nhlPlayerId: 8478402, name: "Connor McDavid" },
@@ -117,7 +117,7 @@ describe("advanced leaderboard queries", () => {
 
     expect(queryMock).toHaveBeenCalledWith(
       expect.stringContaining("goals_saved_above_expected"),
-      [20252026, "all", 36000],
+      [20252026, "all", 36000, 200],
     );
     expect(result[0]).toMatchObject({
       player: { name: "Scott Wedgewood" },

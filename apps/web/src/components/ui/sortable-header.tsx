@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { IntentLink as Link } from "@/components/ui/intent-link";
 import { useId, type ReactNode } from "react";
 
 import { SortIndicator } from "@/components/ui/sizing-icons";

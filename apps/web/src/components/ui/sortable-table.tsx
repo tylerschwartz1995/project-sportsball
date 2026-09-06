@@ -45,6 +45,7 @@ export function SortableTable({
   scrollTarget,
   secondaryColumns,
   initialExpanded = false,
+  onSortChange,
 }: {
   children: ReactNode;
   className?: string;
@@ -54,6 +55,7 @@ export function SortableTable({
   scrollTarget?: string;
   secondaryColumns?: number[];
   initialExpanded?: boolean;
+  onSortChange?: (key: string, direction: SortDirection) => void;
 }) {
   const ready = useClientReady();
   const tableId = `content-table-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
@@ -64,8 +66,8 @@ export function SortableTable({
     key: defaultSortKey,
     direction: defaultDirection,
   });
-  const activeKey = urlBacked ? defaultSortKey : sortState.key;
-  const activeDirection = urlBacked ? defaultDirection : sortState.direction;
+  const activeKey = urlBacked || onSortChange ? defaultSortKey : sortState.key;
+  const activeDirection = urlBacked || onSortChange ? defaultDirection : sortState.direction;
 
   const sort = useCallback(
     (
@@ -88,6 +90,7 @@ export function SortableTable({
             : "asc"
           : columnDefaultDirection;
 
+      if (onSortChange) { onSortChange(key, nextDirection); return; }
       const columnIndex = header.cellIndex;
       const rows = Array.from(body.rows);
 
@@ -115,7 +118,7 @@ export function SortableTable({
 
       setSortState({ key, direction: nextDirection });
     },
-    [activeDirection, activeKey],
+    [activeDirection, activeKey, onSortChange],
   );
 
   const sortHref = useCallback(

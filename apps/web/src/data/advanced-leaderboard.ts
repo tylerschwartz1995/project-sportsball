@@ -179,6 +179,7 @@ export async function listAdvancedSkaterLeaders(
   seasonId: number,
   situation: string,
   minimumIceTimeSeconds: number,
+  limit = 200,
 ): Promise<AdvancedSkaterLeaderboardRow[]> {
   const rows = await query<SkaterRow>(
     `
@@ -203,9 +204,9 @@ export async function listAdvancedSkaterLeaders(
         AND stats.situation = $2
         AND stats.ice_time_seconds >= $3
       ORDER BY stats.game_score DESC NULLS LAST, player_name, team_name
-      LIMIT 200
+      LIMIT $4
     `,
-    [seasonId, situation, minimumIceTimeSeconds],
+    [seasonId, situation, minimumIceTimeSeconds, Math.min(200, Math.max(1, limit))],
   );
 
   return rows.map((row) => ({
@@ -228,6 +229,7 @@ export async function listAdvancedGoalieLeaders(
   seasonId: number,
   situation: string,
   minimumIceTimeSeconds: number,
+  limit = 200,
 ): Promise<AdvancedGoalieLeaderboardRow[]> {
   const rows = await query<GoalieRow>(
     `
@@ -258,9 +260,9 @@ export async function listAdvancedGoalieLeaders(
         AND stats.ice_time_seconds >= $3
       ORDER BY goals_saved_above_expected DESC NULLS LAST,
                player_name, team_name
-      LIMIT 200
+      LIMIT $4
     `,
-    [seasonId, situation, minimumIceTimeSeconds],
+    [seasonId, situation, minimumIceTimeSeconds, Math.min(200, Math.max(1, limit))],
   );
 
   return rows.map((row) => ({

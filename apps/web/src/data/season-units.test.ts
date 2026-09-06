@@ -73,7 +73,7 @@ describe("MoneyPuck season unit queries", () => {
     });
 
     expect(queryMock).toHaveBeenCalledWith(
-      expect.stringContaining("DENSE_RANK() OVER"),
+      expect.stringContaining("ROW_NUMBER() OVER"),
       [20252026, "line", 1_200, 12, 100, 20],
     );
     expect(result[0]?.gamesPlayed).toBe(40);

@@ -1,3 +1,4 @@
+import { withReadContext } from "@/data/read-context";
 import type {
   AdvancedGoalieLeaderboardRow,
   AdvancedSkaterLeaderboardRow,
@@ -8,9 +9,7 @@ import {
   gameTypeForPhase,
   parseSeasonPhase
 } from "@/contracts/season-phase";
-import {
-  listAdvancedTeamLeaders
-} from "@/data/advanced-leaderboard";
+import { listAdvancedTeamLeaders } from "@/data/performance-cache";
 import { listCachedSeasons, listCachedTeamsBySeason } from "@/data/page-cache";
 import { firstQueryValue } from "@/lib/directory";
 import {
@@ -19,8 +18,9 @@ import {
 } from "@/lib/player-comparison";
 import { buildTeamComparisonPoints } from "@/lib/team-comparison";
 import "server-only";
-import { AnalyticsPageProps, loadLeaderboard, parseLeaderboardType, parseMinimumMinutes, parseSituation, pickQueryParams } from './logic';
-export async function loadAnalyticsPage({
+import { loadLeaderboard } from "./queries";
+import { AnalyticsPageProps, parseLeaderboardType, parseMinimumMinutes, parseSituation, pickQueryParams } from './logic';
+async function loadAnalyticsPageData({
   searchParams,
 }: AnalyticsPageProps) {
   const params = await searchParams;
@@ -104,4 +104,8 @@ export async function loadAnalyticsPage({
     goalieComparisonPoints,
     rows,
   } as const;
+}
+
+export function loadAnalyticsPage(...args: Parameters<typeof loadAnalyticsPageData>) {
+  return withReadContext("analytics/directory", () => loadAnalyticsPageData(...args));
 }

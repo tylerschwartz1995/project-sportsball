@@ -1,3 +1,4 @@
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import { MobileDataView } from "@/components/ui/mobile-data-view";
 import { Pagination } from "@/components/ui/pagination";
@@ -19,7 +20,7 @@ import {
 } from "@/lib/player-position";
 import type { loadPlayersPage } from './loader';
 import { formatSavePercentage, formatSigned, goalieTableColumns, skaterTableColumns } from './logic';
-import { DirectoryEmptyState, MobileGoalieCard, MobileSkaterCard, NumericCell, PlayerLink, PlayerSectionHeader } from './sections';
+import { DirectoryEmptyState, NumericCell, PlayerLink, PlayerSectionHeader } from './sections';
 export function PlayersPageView({
   selectedSeason,
   phase,
@@ -84,18 +85,7 @@ export function PlayersPageView({
                     description="Combined totals across all teams played for."
                   />
                   {skaterPage.items.length > 0 ? (
-                    <>
-                      <div className="mt-5 grid gap-3 md:hidden">
-                        {skaterPage.items.map((player) => (
-                          <MobileSkaterCard
-                            key={player.nhlPlayerId}
-                            player={player}
-                            seasonId={selectedSeason.id}
-                            phase={phase}
-                          />
-                        ))}
-                      </div>
-                      <div className="workspace-data-table-shell min-w-0 hidden md:block">
+                    <><div className="workspace-data-table-shell min-w-0">
                         <SortableTable
                           secondaryColumns={[6, 7, 9]}
                           initialExpanded={[
@@ -224,18 +214,7 @@ export function PlayersPageView({
                     }
                   />
                   {goaliePage.items.length > 0 ? (
-                    <>
-                      <div className="mt-5 grid gap-3 md:hidden">
-                        {goaliePage.items.map((player) => (
-                          <MobileGoalieCard
-                            key={player.nhlPlayerId}
-                            player={player}
-                            seasonId={selectedSeason.id}
-                            phase={phase}
-                          />
-                        ))}
-                      </div>
-                      <div className="workspace-data-table-shell min-w-0 hidden md:block">
+                    <><div className="workspace-data-table-shell min-w-0">
                         <SortableTable
                           secondaryColumns={[3, 5, 6, 7, 8]}
                           initialExpanded={[
@@ -352,6 +331,7 @@ export function PlayersPageView({
           </div>
         )}
       </section>
+    <NavigationComplete />
     </main>
   );
 }

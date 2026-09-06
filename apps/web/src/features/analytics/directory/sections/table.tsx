@@ -1,3 +1,6 @@
+"use client";
+import { useContext } from "react";
+import { LeaderboardState } from "../table-state";
 import { SortableTable } from "@/components/ui/sortable-table";
 import { DataTableShell } from "@/components/ui/ui-primitives";
 import type {
@@ -63,6 +66,8 @@ export function LeaderboardFrame({
   defaultSortKey: string;
   children: React.ReactNode;
 }) {
+  const controls = useContext(LeaderboardState);
+  count = controls?.total ?? count;
   return (
     <section className="mt-8">
       <div className="mb-4 flex items-center justify-between gap-3 text-sm text-[var(--muted)]">
@@ -70,7 +75,9 @@ export function LeaderboardFrame({
         <p>{count === 200 ? `Top 200 by ${description === "Goalie results" ? "GSAx" : "Game Score"}; sorting applies to this sample` : `${count} qualifying rows`}</p>
       </div>
       <SortableTable
-        defaultSortKey={defaultSortKey}
+        defaultSortKey={controls?.sort ?? defaultSortKey}
+        defaultDirection={controls?.direction}
+        onSortChange={controls?.onSortChange}
       >
         <DataTableShell>
           <div className="workspace-table-scroll">{children}</div>

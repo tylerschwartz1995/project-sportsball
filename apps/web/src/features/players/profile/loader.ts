@@ -1,18 +1,19 @@
+import { withReadContext } from "@/data/read-context";
 import { parseNhlId } from "@/contracts/entity";
 import { parseSeasonId } from "@/contracts/season";
 import {
   gameTypeForPhase,
   parseSeasonPhase
 } from "@/contracts/season-phase";
-import { getMoneyPuckPlayerSeason } from "@/data/advanced";
-import { getPlayerGameLog } from "@/data/game-logs";
+import { getMoneyPuckPlayerSeason } from "@/data/performance-cache";
+import { getPlayerGameLog } from "@/data/performance-cache";
 import { listCachedSeasons } from "@/data/page-cache";
-import { getPlayerCareer } from "@/data/player-career";
-import { getPlayerDetail } from "@/data/players";
+import { getPlayerCareer } from "@/data/performance-cache";
+import { getPlayerDetail } from "@/data/performance-cache";
 import { notFound } from "next/navigation";
 import "server-only";
 import { PlayerPageProps, firstValue, parsePlayerView } from './logic';
-export async function loadPlayerPage({
+async function loadPlayerPageData({
   params,
   searchParams,
 }: PlayerPageProps) {
@@ -174,4 +175,8 @@ export async function loadPlayerPage({
     seasons,
     advanced,
   } as const;
+}
+
+export function loadPlayerPage(...args: Parameters<typeof loadPlayerPageData>) {
+  return withReadContext("players/profile", () => loadPlayerPageData(...args));
 }

@@ -151,6 +151,7 @@ export type MoneyPuckGameUnit = {
 };
 
 export type MoneyPuckGameAnalytics = {
+  availableViews?: { teams: boolean; players: boolean; shots: boolean; combinations: boolean };
   game: MoneyPuckGameContext;
   teamSituations: MoneyPuckTeamGameSituation[];
   skaterSituations: MoneyPuckSkaterGameSituation[];
