@@ -1,6 +1,9 @@
 # Implementation roadmap
 
-Status values reflect the repository at local MVP sign-off on July 31, 2026.
+Status reviewed against `main` on September 6, 2026. Milestones 1–5 retain the
+July 31 local MVP checkpoint and include subsequent shipped improvements. The
+[MVP release record](mvp-release.md) separates original sign-off evidence from
+post-release work.
 
 ## Milestone 1: foundation — complete
 
@@ -109,8 +112,23 @@ Status values reflect the repository at local MVP sign-off on July 31, 2026.
   long tables, aligned home sections, compact filters and summaries, stable
   entity/stat columns, and an ultrawide-screen ceiling.
 
-Saved comparison collections and additional shareable plot state remain
-post-MVP enhancements rather than release requirements.
+Post-MVP improvements now shipped:
+
+- [x] Adopt Modern Stats Exploration with Manrope, graphite/green themes,
+  horizontal desktop navigation, and a grouped mobile Menu.
+- [x] Add time-aware schedule difficulty, rest, and estimated travel context.
+- [x] Add rolling 10/20/40-team-game combination rankings and full-season
+  supporting-game drill-downs.
+- [x] Add Game Flow, expanded playoff series analysis, and draft class rankings.
+- [x] Add the curated historical record book, three/five-season peaks, decade
+  leaders, and era-relative skater and goalie indexes.
+- [x] Preserve chart selections and comparison state in shareable URLs.
+- [x] Add page caching, bounded queries, deferred charts, and performance telemetry.
+- [x] Complete the application, sizing, theme, content, filter, and usability
+  audit fixes, including all-season player discovery and complete career totals.
+
+Named saved-comparison collections remain backlog. See
+[Product ideas](product-ideas.md) for implemented boundaries and future extensions.
 
 ## Milestone 6: daily operation — local foundation complete; deployment deferred
 

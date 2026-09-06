@@ -45,9 +45,9 @@ ingestion-run status are retained in the shared audit tables.
 
 ## Website presentation
 
-The standings header keeps the Presidents' Trophy leader as the primary
-season result, then adds conference playoff cut lines and league-wide scoring
-context. This avoids repeating the same team for points, wins, and goal
-differential while giving the table useful competitive and scoring context.
-Every team and cut-line abbreviation links to the supporting historical team
-profile.
+The standings page presents Overall, Conference, and Division table groupings,
+plus a Points Progression view with its own division and highlighted-team
+controls. GP, W, L, OT, and PTS form the essential table; regulation wins, goals,
+and differential are available through expanded columns. Snapshot date, source,
+and clinch markers are explained once per page. Team names link to the
+supporting historical team profile.

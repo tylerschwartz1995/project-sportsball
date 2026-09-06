@@ -4,7 +4,7 @@ The database is reproducible from retained sources and upstream downloads, but
 a complete rebuild takes substantial time and network traffic. Backups are
 therefore required before production activation.
 
-## Current deployment assessment
+## Recorded recovery rehearsal (July 30, 2026)
 
 The local PostgreSQL 18 database was measured on July 30, 2026:
 
@@ -23,12 +23,16 @@ database. The restored database reported:
 - 27,166 games;
 - 62,767 ingestion audit records.
 
-The scratch database was removed automatically after verification.
+The scratch database was removed automatically after verification. These
+counts and the revision describe that rehearsal, not the current schema or
+database size. Later migrations add all-time summaries and draft selections;
+measure the current database and verify a fresh backup before sizing hosting.
 
 A hosted plan should start with at least 25 GB of database storage so indexes,
 daily growth, maintenance operations, and restore testing are not constrained
-by the current 8.5 GB snapshot. It must support PostgreSQL 18 or pass an
-explicit compatibility restore test before selection.
+by the recorded 8.5 GB baseline; remeasure before selecting a plan. It must
+support PostgreSQL 18 or pass an explicit compatibility restore test before
+selection.
 
 The provider must also support:
 

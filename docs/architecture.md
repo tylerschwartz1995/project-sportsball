@@ -23,13 +23,16 @@ selected during the deployment milestone.
 
 ### Application API
 
-Read-only application endpoints and Server Components query normalized records
+Read-only statistics endpoints and Server Components query normalized records
 through a shared, server-only TypeScript data layer. Typed contracts cover
 seasons, standings, schedules, box scores, teams, players, and MoneyPuck season
 and game analytics, including combined traditional and advanced game logs. No
 page or route calls an upstream NHL or MoneyPuck source during a user request,
 keeping the site responsive and preventing public traffic from multiplying
-provider requests.
+provider requests. `POST /api/web-vitals` is a separate telemetry endpoint: it
+validates bounded browser metrics and emits logs without writing statistics.
+Find a Player, historical records, draft classes, and comparison workspaces
+share the same server-only boundary.
 
 ### Database
 
@@ -48,6 +51,8 @@ Implemented entity groups:
 - play-by-play events and event participants;
 - derived and NHL-published season statistics;
 - official standings snapshots;
+- all-time skater, goalie, and team season summaries;
+- complete draft selections, including nullable NHL identities and pick ownership;
 - MoneyPuck season, game, shot, line, and pairing observations;
 - ingestion runs, retained JSON payloads, and retained downloaded artifacts.
 
@@ -66,7 +71,7 @@ Python is the standard data-processing language for:
 - feature engineering;
 - model training, evaluation, and prediction.
 
-Each import will be idempotent: rerunning the same date or game must update the
+Each implemented import is idempotent: rerunning the same date or game must update the
 same records without creating duplicates.
 
 The ingestion pipeline is:
@@ -76,7 +81,11 @@ source fetch -> raw payload -> validation -> normalization -> database upsert
              -> audit record -> derived aggregates
 ```
 
-### Feature engineering
+### Feature engineering (planned)
+
+Predictive feature/training pipelines are not implemented. The requirements
+below govern that future stage; current descriptive transformations already
+use Python/Polars.
 
 Feature pipelines will be ordinary versioned Python modules with unit tests.
 They will read timestamped observations from PostgreSQL, calculate features
@@ -97,7 +106,7 @@ This point-in-time design is required to prevent future game results or revised
 statistics from leaking into historical training examples. SQL remains a
 storage and retrieval tool rather than the feature-engineering language.
 
-### Implemented ingestion package layout
+### Representative ingestion package layout
 
 Ingestion orchestration remains separate from source clients, normalization,
 persistence, and validation:
@@ -109,7 +118,9 @@ pipeline/
 │   ├── clients/
 │   │   ├── nhl/
 │   │   │   ├── client.py
-│   │   │   └── schemas.py
+│   │   │   ├── schemas.py
+│   │   │   ├── stats_client.py
+│   │   │   └── records_client.py
 │   │   └── moneypuck/
 │   │       └── client.py
 │   ├── ingestion/
@@ -121,6 +132,9 @@ pipeline/
 │   │   │   ├── player_profiles.py
 │   │   │   ├── standings.py
 │   │   │   ├── season_stats.py
+│   │   │   ├── daily_update.py
+│   │   │   ├── historical_seasons.py
+│   │   │   ├── drafts.py
 │   │   │   └── moneypuck_*.py
 │   ├── normalization/
 │   │   ├── games.py
@@ -136,7 +150,10 @@ pipeline/
 │   ├── reference/
 │   │   └── team_identities.py
 │   ├── validation/
-│   │   └── completeness.py
+│   │   ├── completeness.py
+│   │   └── data_health.py
+│   ├── operations/
+│   │   └── ingestion_recovery.py
 │   └── cli.py
 └── tests/
     ├── fixtures/
@@ -236,7 +253,10 @@ under `pipeline/tests/fixtures`.
 
 ### Dependency direction
 
-- `pipeline` owns all source-specific and analytical logic.
+- `pipeline` owns source acquisition, normalization, and persisted aggregate
+  builds. The web query layer also derives bounded descriptive views such as
+  rolling unit rankings, series totals, and historical rankings; UI libraries
+  calculate chart windows and presentation metrics from those typed results.
 - Polars is the default dataframe engine throughout `pipeline`.
 - `database` defines storage independently of any one data source.
 - `apps/web` uses stable serializable read contracts backed by parameterized,

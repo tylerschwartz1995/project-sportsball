@@ -1,6 +1,10 @@
 # Content audit implementation
 
-This branch applies the [full baseline audit](content-audit-2026-09-06.md).
+This records the implementation merged in PR #143 from the
+[full baseline audit](content-audit-2026-09-06.md). Later
+[usability refinements](usability-audit-implementation.md) open the team result
+map and player comparison chart by default, rename profile views, and add
+all-season search. The table below records the content-audit decisions at merge.
 The product rule is that information should answer the current question, help
 choose an action, or prevent a misleading interpretation. Availability in the
 database alone does not justify prominent placement.
@@ -47,7 +51,7 @@ the league for every alternate metric. Unit drill-downs intentionally show full
 season evidence and say so. Historical biography can still be unavailable even
 when the career statistics are complete.
 
-## Validation
+## Validation recorded for PR #143
 
 - Web lint, type checking and production build passed.
 - All 242 unit/database tests passed, including read-only checks for historical totals and goalie appearances.
@@ -55,6 +59,7 @@ when the career statistics are complete.
   schedule recovery, historical phases, theme contrast and existing interaction flows.
 - Visual inspection of local dark/light pages through the browser.
 
-Run browser checks against `http://localhost:3000` for the current local preview;
-its `127.0.0.1` development websocket connection does not hydrate reliably.
-No application deployment or production writes are part of this branch.
+The recorded browser checks used `http://localhost:3000`; that local preview
+did not hydrate reliably through its `127.0.0.1` development websocket connection.
+See the [web README](../apps/web/README.md) for the current test procedure.
+No application deployment or production writes were part of PR #143.

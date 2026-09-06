@@ -1,7 +1,6 @@
 # Team and player pages
 
-The core website exposes traditional season and game statistics through six
-server-rendered routes:
+The core team/player website exposes these server-rendered routes:
 
 - `/teams?season=20252026` provides a clickable directory grouped vertically
   by division, with the Western and Eastern conferences side by side;
@@ -11,7 +10,11 @@ server-rendered routes:
 - `/players?season=20252026` lists every participating skater and goalie;
 - `/players/8478402?season=20252026` shows a player profile and career history;
 - `/players/8478402/games?season=20252026` shows game-by-game performance and
-  recent form.
+  recent form;
+- `/players/compare` compares two to four skaters or goalies;
+- `/search?q=Gretzky` searches stored player profiles across all seasons and
+  links to career history. Results are capped at 50, with a prompt to narrow
+  the name when the cap is reached.
 
 All pages query PostgreSQL directly from React Server Components. Matching JSON
 endpoints under `/api/teams` and `/api/players` reuse the same typed query
@@ -29,8 +32,10 @@ visible.
 The player directory uses the Polars-derived `skater_season_stats` and
 `goalie_season_stats`. Their grain is one player, season, and game type. A
 traded player therefore has one combined total and a `teamsPlayedFor` count.
-The player detail page displays those combined rows across the player's full
-stored career.
+Player profiles read the all-time NHL summary archive through
+`getPlayerCareer()` and add derived rows only for season/phase/kind keys absent
+from that archive. Overlapping seasons are never added twice. Biography can
+remain sparse for historical players even when their season history is present.
 
 Team game logs join each completed `team_game_stats` row to the opponent's row
 for the same game. Player game logs read traditional `player_game_stats` or
@@ -63,8 +68,9 @@ Team queries join `team_seasons` for the requested season. Relocations and
 rebrands therefore use the name and abbreviation active at that time, while
 the underlying NHL team and franchise identifiers remain stable for linking
 and lineage analysis. A team profile queries its available season identifiers
-before rendering the selector, so an expansion team cannot navigate to a
-season in which it did not participate.
+before rendering the selector, combining statistical participation with
+scheduled seasons. Future schedules are selectable before totals exist, while
+seasons before expansion are excluded.
 
 ## Directory controls
 
@@ -78,22 +84,24 @@ controls; minimum totals and birthplace filters live in an Advanced Filters
 disclosure that opens automatically when one is active. Player pages show 50
 results per page and separate skater and goalie views. Each player row also
 provides a direct **Compare +** action so a comparison can begin without first
-opening a separate builder.
+opening a separate builder. On phones, sortable tables with a sticky identity
+column are the default; a Cards view remains available.
 
 The comparison workspace accepts two to four skaters or two to four goalies.
 It starts with suggested season leaders and supports search by player name,
 position, or team abbreviation. Selected players occupy numbered slots, and
 adding, removing, or clearing a player updates the shareable URL and the
-comparison immediately; there is no separate submit step.
+comparison immediately; there is no separate submit step. Search collapses
+after two selections. The table comes first, followed by an initially open
+comparison chart defaulting to points for skaters or save percentage for goalies.
 
-Every statistics table uses a shared client-side sorter. Column-heading buttons
-reorder the visible rows immediately without a route transition; clicking the
-active heading reverses its direction. This applies to standings, the player
-directory, team rosters, player histories, box scores, advanced game
-comparisons, and MoneyPuck season tables. The team directory instead uses
-clickable cards because standings already provide the sortable league-wide
-comparison. The underlying traditional-stat response contracts and statistical
-grains are unchanged.
+Statistics tables support column sorting. Shared client sorters handle bounded
+rosters, histories, standings, box scores, and advanced tables. The player
+directory sorts and filters the full selected population in PostgreSQL before
+50-row pagination. Historical rankings and the draft board likewise sort before
+pagination; advanced league/unit tables retain explicit top-200/top-100 caps.
+The team directory uses linked conference/division groups instead of numeric
+rankings.
 
 Team and player profile pages link to their selected-season game log. Each game
 log begins with a compact chronological form strip, then shows the selected
@@ -103,9 +111,13 @@ visible result range and keeps headings visible inside its bounded table area.
 Advanced columns use a dash when MoneyPuck coverage is unavailable and include
 an inline coverage note.
 
-Player profiles use URL-backed Overview, Trends, Advanced, All-Time Records,
-and Season History views so only one distinct task is presented at a time.
-The Trends view visualizes rolling performance after every appearance.
+Player profiles use URL-backed Overview, Recent Form (`view=trends`), Shot
+Quality (`view=advanced`), and Season History (`view=seasons`) views. Legacy
+`view=records` links resolve to Season History. Unsupported detailed or
+advanced views are omitted from normal navigation, with coverage notices for
+direct links. Season History omits the irrelevant season picker and follows
+the regular-season/playoff control.
+The Recent Form view visualizes rolling performance after every appearance.
 The chart shows one selected metric at a time to avoid overlapping scales.
 Skaters can choose official scoring and shot rates or individual expected
 goals, game score, and on-ice expected-goal share. Goalies can choose official
@@ -114,16 +126,20 @@ Both support 5-, 10-, and 20-game windows plus all, home, and away venue
 filters. Trend metrics, windows, venues, and team-series visibility are stored
 in the URL and can be copied directly from the chart.
 Advanced rates exclude games where the provider metric is unavailable
-rather than treating missing values as zero. Career history appears in separate
-regular-season and playoff tables, and the season advanced-analytics section
-can be filtered to one game situation.
+rather than treating missing values as zero. Career history shows only the
+selected phase, with weighted career save percentage unavailable when required
+shot coverage is incomplete. Shot Quality can be filtered to one game situation
+and retains traded-player team splits.
 
 Team and player detail pages also show the available MoneyPuck season summaries.
 See [Advanced analytics presentation](advanced-analytics.md) for the initial
 metrics, source attribution, and coverage behavior.
 
-Team profiles use URL-backed Overview, Schedule, Strength, Trends, Skaters,
-Goalies, Advanced, and Combinations views. Changing views preserves season and
+Team profiles use URL-backed Overview, Schedule, Recent Form, Players, Shot
+Quality, and Lines & Pairings views. Schedule Difficulty is nested under
+Schedule; Skaters and Goalies are nested under Players. Stable URL keys
+(`strength`, `trends`, `skaters`, `goalies`, `advanced`, `combinations`) remain
+compatible with existing links. Changing views preserves season and
 regular-season/playoff context and fetches only the data needed by the selected
 view. The Schedule view presents the full selected-season and selected-phase
 schedule, groups games by month, distinguishes completed results from upcoming
@@ -141,8 +157,10 @@ when it preserves the available sample and otherwise falls back to shot share.
 Its four result/process groups can be filtered and every game links to its full
 record. Regular-season series outcomes use standings points, while playoff
 series outcomes use wins. Seasons without stored game-level coverage retain
-their league comparison and disclose the missing context.
-The Trends view compares all-situations goal share with five-on-five
+their league comparison and disclose the missing context. Situation and
+opponent breakdowns use disclosures; the result/process map opens by default.
+The compact record uses W–L–OT and points in regular season, and W–L in playoffs.
+The Recent Form view compares all-situations goal share with five-on-five
 expected-goal share over a selectable 5-, 10-, or
 20-game window. Readers can filter the rolling sample to all, home, or away
 games and independently show either available series. Venue filtering happens

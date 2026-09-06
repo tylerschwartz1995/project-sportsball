@@ -1,5 +1,6 @@
 # Filter consistency
 
+This records the filter fixes merged in PR #144 and their regression rules.
 The September 2026 filter audit covered page filters, chart controls, context
 navigation, disclosures, and adjacent sorting/pagination controls across the
 app. The follow-up fixes preserve the existing statistical definitions and

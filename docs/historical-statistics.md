@@ -88,8 +88,10 @@ shots against contribute to the goalie calculation. Both indexes provide era
 context rather than claiming rules, deployment, ice time, and competition were
 identical across eras.
 
-The detailed-season selectors elsewhere deliberately require rows in
-`team_season_stats`, while the Games page uses seasons containing `games`.
+General detailed-season selectors require rows in `team_season_stats`, while
+the Games page uses seasons containing `games`. Team profiles also include
+that team's scheduled seasons, and player profiles use their available career
+seasons (including historical-only summaries).
 This separation prevents all-time summary seasons from appearing in views that
 need box scores or advanced data and allows future schedule seasons to appear
 only where they are valid.

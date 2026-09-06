@@ -10,7 +10,8 @@ server-only TypeScript queries.
   league-wide advanced leaderboards with situation and qualifying-ice-time
   controls.
 - `/analytics/guide?season={seasonId}` provides the shared plain-language
-  reference for every advanced metric used by the website.
+  reference for advanced metrics. Definitions have no season filter; the
+  optional season parameter preserves context for navigation back to analytics.
 - `/teams/{nhlTeamId}?season={seasonId}` displays team situation splits.
 - `/players/{nhlPlayerId}?season={seasonId}` displays player-team situation
   splits for skaters or goalies.
@@ -74,11 +75,12 @@ The league analytics route includes:
 - URL-backed plot metrics, groups, axes, and direct team/player selections,
   with a copy-link action that restores the exact analytical view.
 
-The league leaderboards and centralized guide use the shared Data Workspace
-page hierarchy, semantic filters, compact metric cards, table shells, and
-responsive section navigation. Advanced controls and highlights use the
-secondary violet accent while retaining the same light/dark theme behavior as
-traditional-stat routes.
+The league leaderboards and centralized guide use the shared Modern Stats
+Exploration hierarchy, semantic filters, table shells, and section navigation.
+Tables and Charts are separate choices; distributions and direct-comparison
+controls are optional. The team plot stays five-on-five independently of the
+leaderboard situation selector. See the [design system](design-system.md) for
+the current palette and interaction rules.
 
 Teams, Skaters, Goalies, Lines & Pairings, and the Metric Guide share one
 persistent section selector. The links use full document navigation so large
@@ -87,7 +89,8 @@ out of sync.
 
 League skater and goalie tables retain player-team splits rather than silently
 combining traded-player rows. They show at most 200 qualifying rows for the
-selected view.
+selected view: skaters are selected by Game Score and goalies by GSAx. Alternate
+table sorts and plots operate within that capped player-team population.
 
 Team and skater views include:
 
@@ -114,7 +117,8 @@ Game pages add:
   pointer or with roving arrow-key, Home, and End controls to reveal its
   shooter, result, time, goalie, shot type, distance, score, and contextual
   tags. Attempts without source coordinates are counted but disclosed as not
-  plotted;
+  plotted. Period, result, and shooter filters are URL-backed, and per-team
+  attempt lists allow selection of overlapping events;
 - sortable all-situations skater and goalie advanced results;
 - sortable five-on-five forward-line and defensive-pairing tables.
 
@@ -142,6 +146,11 @@ Rows retain MoneyPuck's published situations: all situations, 5-on-5, 5-on-4,
 4-on-5, and other. Player records remain split by team so traded-player context
 is not lost.
 
+The homepage includes top-five all-situations season Game Score and GSAx lists
+alongside official scoring leaders. Advanced lists preserve player-team splits;
+workload and supporting expected-goal metrics are visible. Sorting applies only
+to each displayed top-five sample.
+
 ## Coverage and attribution
 
 Season-summary coverage begins in 2008–09. Shot maps begin in 2007–08. Team
@@ -163,11 +172,7 @@ and shootout attempts are excluded.
 ## Future analytics presentation
 
 - cross-season advanced comparisons;
-- saved comparison views and shareable plot URLs;
-- richer filters and shot-map filtering;
-- rolling-window and score-state line-combination splits.
-
-The homepage includes top-five all-situations season Game Score and GSAx lists
-alongside official scoring leaders. Advanced lists preserve player-team splits;
-workload and supporting expected-goal metrics are visible. Sorting applies only
-to each displayed top-five sample.
+- named saved comparison collections (shareable plot URLs already exist);
+- additional shot filters beyond the implemented period, result, and shooter;
+- score-state and venue line-combination splits (10/20/40-team-game rolling
+  rankings already exist).

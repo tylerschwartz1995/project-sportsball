@@ -3,7 +3,7 @@
 ## Document status
 
 This record preserves the original July 31, 2026 MVP sign-off and its evidence.
-Last reviewed on August 27, 2026, the current application has continued to
+Last reviewed on September 6, 2026, the current application has continued to
 improve on `main`; the post-release section below records material changes
 delivered after the `v0.1.0-mvp` tag.
 
@@ -32,7 +32,7 @@ product and engineering checkpoint, not a public deployment.
   support.
 - Idempotent Python ingestion, retained source artifacts, PostgreSQL storage,
   completeness auditing, local backup/restore tooling, CI, and a disabled-by-
-  default daily coordinator.
+  default scheduled workflow and a manually runnable daily coordinator.
 
 ## Data coverage
 
@@ -85,6 +85,13 @@ and are part of the current local application:
 - Page caching, query pagination, lazy-loaded visualizations, reduced game
   payloads, performance telemetry, and regression coverage improved runtime
   performance and maintainability.
+- Modern Stats Exploration replaced the original sidebar/palette with Manrope,
+  graphite/green themes, horizontal desktop navigation, and a grouped mobile Menu.
+- Content, filter, and usability follow-ups added complete historical career
+  totals, all-season player search, context-preserving return links, clearer
+  staged forms, shot filters, and reduced default content.
+- Draft Class Rankings and historical peaks, progression, decade leaders, and
+  era-relative skater/goalie indexes are available as descriptive research tools.
 
 These additions expand the MVP without changing its release boundary: the
 application remains a local product until hosting and scheduled production
@@ -94,16 +101,16 @@ operation are deliberately activated.
 
 - The site is local only. Hosting, production secrets, managed backups, alerts,
   and scheduler activation remain Milestone 6 work.
-- The operational health command reports that no audited daily update has
-  completed. This is expected while scheduled writes remain disabled; source
-  freshness and ingestion readiness should be revalidated when deployment work
-  begins.
+- The September 5 audit recorded no completed daily update and stale source
+  freshness. Disabling the scheduler does not itself prevent manual updates;
+  rerun the health command to determine current readiness before deployment.
 - MoneyPuck coverage is source-limited and does not provide every historical or
   playoff table available from official NHL data.
 - Contracts, salary cap, transactions, injuries, historical query exploration,
-  named saved-comparison collections, and era-adjusted records remain in the
-  product backlog. Several analytical and comparison views now preserve their
-  state in the URL, but there is no user account or server-side saved library.
+  named saved-comparison collections, and broader era/opportunity adjustment
+  remain in the product backlog. Descriptive era-relative scoring and goalie
+  Save Index views are already implemented. Analytical and comparison views
+  preserve applicable state in the URL, but there is no user account or server-side saved library.
 - Multiple sports and predictive models are explicitly post-MVP stages.
 
 ## Next stage

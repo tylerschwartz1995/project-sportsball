@@ -15,11 +15,11 @@ is selected first; otherwise the latest completed date is selected.
 Each result shows:
 
 - the historical team name and abbreviation active in that season;
-- away and home scores;
-- away and home shots on goal;
+- away and home scores and shots on goal for completed games;
 - each club's season-phase record at that point in the schedule: after the
   result for completed games and through the latest earlier result for
-  scheduled games;
+  scheduled games in the read contract. The UI omits pregame record, score,
+  and shot placeholders;
 - whether the game ended in regulation, overtime, or a shootout;
 - the start time in the visitor's browser timezone, with the timezone made
   explicit. UTC remains the stored system value.

@@ -1,7 +1,7 @@
 # Usability audit implementation
 
-This change addresses all ten findings from the navigation, first-use, and
-information-presentation walkthrough. Statistical definitions and source
+This record documents PR #145, merged on `main`, addressing all ten findings
+from the navigation, first-use, and information-presentation walkthrough. Statistical definitions and source
 coverage remain unchanged.
 
 | Finding | Implemented behavior | Verification |
