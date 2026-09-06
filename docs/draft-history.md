@@ -67,6 +67,11 @@ being treated as zero. On-ice expected-goal share is recomputed from stored
 expected goals for and against; goalie GSAx is expected goals against minus
 actual goals against.
 
+Class comparisons are descriptive: requiring five seasons of observation does
+not equalize career opportunity across eras. Specialist columns and the
+all-class distribution are optional; no maturity-adjusted composite grade is
+implemented.
+
 The complete selection board is therefore the denominator for team and class
 rates. The workspace separates four user tasks:
 
@@ -99,6 +104,6 @@ rates. The workspace separates four user tasks:
   the comparison stays focused while every supporting value remains visible,
   without turning those metrics into one opaque grade.
 
-The all-years board remains available with pagination. Its URL-backed sorting
+The all-years board remains available with pagination (25 rows by default). Its URL-backed sorting
 is applied to the complete filtered result before pagination, rather than only
 reordering the visible page.

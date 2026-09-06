@@ -20,7 +20,7 @@ directly from Server Components. They do not make internal HTTP requests to
 their own APIs. The API routes reuse the same query functions when an HTTP
 representation is useful to a client or future application.
 
-## Implemented modules
+## Representative modules
 
 ```text
 apps/web/src/
@@ -88,9 +88,11 @@ game reads select their candidate game identifiers before deriving those
 records, so the record calculation only runs for rows that will be returned.
 
 The homepage keeps its season list in the shared Next.js data cache for one
-hour and its six-query season package for five minutes. The page remains
-dynamically rendered, while repeat visits avoid recalculating unchanged
-standings, trends, leaders, results, and upcoming-game records. A cold cache
+hour, its five-query season package for five minutes, and upcoming games in a
+separate five-minute entry. The season package contains standings, official
+scoring leaders, latest results, advanced skater leaders, and advanced goalie
+leaders. Removed form/trend panels no longer add queries. The page remains
+dynamically rendered while repeat visits reuse those cached records. A cold cache
 still reads PostgreSQL directly and never depends on an internal HTTP request.
 
 `history.ts` reads the dedicated all-time summary tables for career totals and
@@ -98,20 +100,24 @@ best seasons. Metric names are selected from strict allowlists before they are
 used as SQL identifiers. Regular season/playoff, season range, minimum games,
 position, team, and known birth-country controls remain parameterized. Career
 rate metrics are calculated from the summed numerators and denominators rather
-than averaging season rates. The same module supplies complete historical rows
-to clickable player profiles. `seasons.ts` exposes separate detailed-stat and schedule
-season lists so 1917–2004 summaries do not leak into pages requiring detailed
+than averaging season rates. `player-career.ts` separately retrieves all-time
+skater and goalie rows for player profiles. The page adds detailed-season fallback rows only for missing
+season/phase/kind keys, preventing overlapping totals. `seasons.ts` exposes
+separate detailed-stat and schedule season lists so 1917–2004 summaries do not leak into pages requiring detailed
 games, while the future 2026–27 schedule remains selectable on `/games`.
 
-Advanced analytics use two server-only query modules. `advanced.ts` returns
+Advanced analytics use several server-only query modules. `advanced.ts` returns
 MoneyPuck season summaries for team and player pages.
 `advanced-game.ts` returns one game package with team, skater, goalie, shot,
 forward-line, and defensive-pairing records. The six parameterized reads run in
 parallel, and every returned date and identity is a plain serializable value
 safe to pass from a Server Component to a visualization component.
-The game page starts this package, the traditional three-query box-score read,
-and the normalized play-by-play read together, avoiding a server-side request
-waterfall.
+The game page first reads game identity (or the three-query box score when
+requested) and view availability in parallel. It then loads only the selected
+view: scoring reads the advanced package and play-by-play together; advanced
+reads its package; box scores avoid unrelated timeline/advanced payloads.
+`advanced-leaderboard.ts` serves bounded league leaderboards, while
+`season-units.ts` handles full-season/rolling rankings and supporting games.
 
 `play-by-play.ts` performs event and participant reads in parallel, then groups
 semantic player roles beneath each event while preserving NHL sort order. The
@@ -120,8 +126,10 @@ period-by-period timeline without an upstream request.
 
 `getMoneyPuckSeasonUnitLeaders()` reads the Polars-derived unit-season table.
 Forward lines and defensive pairings are queried in parallel with an explicit
-ice-time threshold, optional team filter, and bounded result limit. Team pages
-start this read alongside their traditional and MoneyPuck season queries.
+ice-time threshold, optional team filter, and bounded result limit. Rolling
+windows aggregate the last 10/20/40 games per team from game-level unit facts.
+Team pages request units only for Lines & Pairings, alongside the selected
+team profile read.
 
 `game-logs.ts` provides selected-season team, skater, and goalie game logs.
 Traditional box-score appearances establish the complete row set. MoneyPuck
@@ -162,7 +170,15 @@ website. The ingestion worker retains a separate write-capable role.
 
 ## Endpoints
 
-`GET /api/seasons` returns seasons newest first.
+`GET /api/seasons` returns detailed-stat seasons newest first.
+
+`GET /api/health` reports database and daily-run readiness with no caching; see
+[Operational data health](data-health.md).
+
+`GET /api/playoffs/series?season=20252026&round=4&matchup=1` returns official
+and shot-model player totals for one series. It validates season, round (1–4),
+and matchup (1–8), returning 400 for invalid input and 503 for a database
+failure. A valid selection without rows returns an empty data package.
 
 `GET /api/standings?season=20242025` validates the eight-digit NHL season key,
 selects the latest regular-season snapshot in that season, and returns teams
@@ -219,14 +235,16 @@ The endpoint limits the actual request stream to 2 KiB even without a trustworth
 validated fields. Browser delivery falls back to `fetch` if a beacon cannot be
 queued, and delivery failures do not become unhandled application errors.
 
+Start the production server separately as described in the
+[web README](../apps/web/README.md); Playwright does not start it.
 An opt-in Playwright suite checks click-to-visible latency, scroll retention,
 bounded large-table rendering, mobile tab visibility, and soft season/filter
 navigation against a populated local database and optimized production server:
 
 ```bash
 (cd apps/web && npx playwright install chromium)
-SPORTSBALL_E2E_BASE_URL=http://127.0.0.1:3000 \
-  npm run test:browser:performance --prefix apps/web
+SPORTSBALL_E2E_BASE_URL=http://localhost:3000 \
+  npm run test:browser:performance --prefix apps/web -- --workers=1
 ```
 
 The team, season, game, and latency limits can be overridden with the
@@ -250,7 +268,8 @@ Run the complete browser suite, including URL history, blocked theme storage,
 and schedule-control clipping regressions, against the same production server:
 
 ```bash
-npx --prefix apps/web playwright test --config apps/web/playwright.config.ts
+SPORTSBALL_E2E_BASE_URL=http://localhost:3000 \
+  npx --prefix apps/web playwright test --config apps/web/playwright.config.ts --workers=1
 ```
 
 ## Testing

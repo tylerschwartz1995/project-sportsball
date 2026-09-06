@@ -1,4 +1,4 @@
-> This is the pre-change audit baseline. See [implementation decisions](content-audit-implementation.md) for the branch’s resulting behavior and validation.
+> This is the pre-change audit baseline. See [implementation decisions](content-audit-implementation.md) for the merged changes and validation, and [usability refinements](usability-audit-implementation.md) for later behavior. Findings below describe the baseline, not unresolved current defects.
 
 # Sportsball content audit
 

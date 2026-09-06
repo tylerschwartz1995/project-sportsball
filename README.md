@@ -1,8 +1,7 @@
 # Sportsball
 
-> **Current visual system:** this application uses [Modern Stats Exploration](docs/editorial-style-exploration.md),
-> a clean, modern statistical interface with audited sizing and readable dark/light themes.
-> The linked document records the current visual direction and overrides earlier styling guidance.
+> **Current visual system:** [Modern Stats Exploration](docs/design-system.md),
+> with a dark-default graphite theme, light-mode support, and readable statistical tables.
 
 A personal NHL statistics website with all-time traditional season records from
 1917–18 onward and detailed game and advanced data across their supported eras.
@@ -29,20 +28,22 @@ predictive modelling are deliberately deferred. See the
 [MVP release record](docs/mvp-release.md) for the shipped scope, verification,
 and known limitations.
 
-Historical ingestion is complete for the initial NHL and MoneyPuck scope.
-PostgreSQL contains official skater, goalie, and team season summaries from
-1917–18 through 2025–26. It also contains all 21 detailed seasons from 2005–06
+The completed local backfill covers the initial NHL and MoneyPuck scope.
+The recorded local database contains official skater, goalie, and team season
+summaries from 1917–18 through 2025–26. It also contains all 21 detailed seasons from 2005–06
 through 2025–26, including
 schedules, results, box scores, play-by-play, player profiles, traditional
 season statistics, standings, and the published MoneyPuck datasets described
 in [Data sources and coverage](docs/data-sources.md).
 The complete published 2026–27 regular-season schedule is stored as 1,344
 future games. The schedule supports week, calendar, phase, and team navigation
-with local start times. Team pages show their next games across season
-boundaries, and a dedicated History page presents sortable career and
-single-season leaders.
+with local start times. Team profiles include complete selected-season
+schedules and future schedule-only seasons. History provides career and
+single-season rankings, multi-season peaks, and era-relative comparisons.
 
-The full completeness audit currently passes every season with no errors.
+The September 5, 2026 completeness audit passed all 21 detailed seasons with
+no errors. These are recorded audit results, not a live health guarantee or data
+installed by cloning the repository.
 Three early seasons contain warnings for a total of 41 play-by-play participant
 references that the NHL source identifies but that cannot be mapped to a
 canonical player. Those source identifiers remain preserved. The core website
@@ -71,7 +72,7 @@ daily-update coordinator and opt-in GitHub Actions scheduler are implemented;
 scheduled writes remain disabled until the deployment milestone provides a
 hosted database, secrets, and tested recovery. Operational health checks now
 cover source freshness, stuck jobs, recent-game completeness, and HTTP
-deployment readiness. The selected Data Workspace interface provides responsive
+deployment readiness. The Modern Stats Exploration interface provides responsive
 global navigation, persistent light/dark themes with a dark first-visit
 default, and native workspace presentations for the league overview, standings,
 team and player directories, primary team and player profiles, and the complete
@@ -82,9 +83,16 @@ metric guide use the same native workspace system.
 
 Prerequisites:
 
-- [uv](https://docs.astral.sh/uv/getting-started/installation/)
-- Docker Desktop with Docker Compose
-- Node.js and npm
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) 0.12.x;
+  the pipeline requires Python 3.13 (managed by uv)
+- Docker Desktop with Docker Compose for PostgreSQL 18
+- Node.js 24 and npm, matching CI
+
+Run commands from the repository root. Defaults work with the local Compose
+database; `.env.example` lists configuration names. For custom values, create a
+root `.env` for Compose/Python and an ignored `apps/web/.env.local` for the
+Node-compatible `SPORTSBALL_WEB_DATABASE_URL`. Next.js does not load the root
+`.env` automatically.
 
 Create the project-local Python environment and install the locked dependencies:
 
@@ -104,6 +112,11 @@ docker compose up --detach postgres
 uv run --project pipeline --frozen alembic \
   --config database/alembic.ini upgrade head
 ```
+
+Migrations create the schema, not the historical archive. The commands below
+are individual ingestion examples, not a complete website bootstrap. See the
+[documentation index](docs/README.md) for the ordered ingestion guides and
+coverage checks. No source refresh happens when the website starts.
 
 Ingest an NHL schedule request anchored to a historical date:
 
@@ -220,15 +233,23 @@ make pipeline-check
 Install and start the website:
 
 ```bash
-npm install --prefix apps/web
+npm ci --prefix apps/web
 SPORTSBALL_WEB_DATABASE_URL=postgresql://sportsball:sportsball@localhost:5432/sportsball \
   npm run dev --prefix apps/web
 ```
 
-The website runs at `http://localhost:3000` and its initial health endpoint is
-`http://localhost:3000/api/health`.
+The website runs at `http://localhost:3000`. `/api/health` checks database access
+and audited daily-run freshness, so a new or stale local database can return
+503 even while historical pages work. See [Operational data health](docs/data-health.md).
+
+Run `make web-check` for web lint, types, unit tests, and the production build.
+Database and browser checks require additional setup described in the
+[web README](apps/web/README.md).
 
 ## Documentation
+
+The [complete documentation index](docs/README.md) separates current guides,
+operational procedures, and historical audit/decision records.
 
 - [Agent working agreement](AGENTS.md)
 - [Data sources and coverage](docs/data-sources.md)

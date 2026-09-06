@@ -1,8 +1,10 @@
 # Modern Stats Exploration
 
-This design was developed on `agent/editorial-style-exploration`, branched from
-`main`. The design and final theme corrections are approved for merge in PR #142.
-Deployment remains outside this work.
+This implementation record documents the design and verification merged in
+[PR #142](https://github.com/tylerschwartz1995/project-sportsball/pull/142).
+It preserves that review snapshot. The [current design guide](design-system.md)
+incorporates later content, filter, and usability refinements; use it for new
+changes. Deployment remains deferred.
 
 ## Direction
 
@@ -36,11 +38,14 @@ Silver Bulletin-inspired editorial explorations are preserved in Git history.
 ## Page structure
 
 A compact wordmark and sport label sit above one primary navigation row. The
-current section has an underline; on narrow screens the row scrolls and brings
-that section into view. Theme switching remains available in the header.
+current section has an underline. The original narrow-screen navigation row
+scrolled to the active section; the later usability update uses a grouped Menu
+on phones. Theme switching remains available in the header.
 
-The homepage starts with recent results, upcoming games, and standings. Recent
-form and scoring leaders follow, with trends and archive links below. All scorer
+At the PR #142 snapshot, the homepage started with results, upcoming games,
+and standings, followed by form, leaders, trends, and archive links. The later
+content audit removed form, trends, and duplicate destination promotions; the
+current page retains results, upcoming games, standings, and player leaders. All scorer
 rows use the same hierarchy. Upcoming fixtures omit repeated team-record badges
 on the overview; supporting game pages still show their detailed records.
 
@@ -50,7 +55,7 @@ entity links, and statistical definitions retain their existing behavior.
 
 ## Implementation and review
 
-`apps/web/src/app/modern.css` owns the alternative theme and shared visual rules.
+`apps/web/src/app/modern.css` owns the selected theme and shared visual rules.
 `globals.css` retains component geometry with a browser-relative root (16px by default) and a readable
 minimum for legacy labels. The abandoned editorial and Style Studio styles,
 font configuration, and preference controls have been removed. Old palette and
@@ -124,7 +129,7 @@ Validation includes all 51 desktop route requests from the audit, populated regu
 
 The automated browser sweep covers 96 combinations of 24 views × phone/desktop × dark/light, plus 21 checks at 320/768/1920px and six 200%-root-text stress checks. No document overflow or uncaught page errors were found. The enlarged-root checks exercise layout reflow, not native Safari/iOS zoom certification. Wide tables and navigation intentionally scroll internally. Browser regressions cover actual font sizes, metric-column resizing, conditional cues, non-scaling shot labels, dense versus sparse tables, and natural dialog height in addition to the existing interaction checks.
 
-The final design is approved for merge after the theme corrections below and passing CI.
+The final design was merged after the theme corrections below and passing CI.
 
 
 ## Final Theme Contrast Review

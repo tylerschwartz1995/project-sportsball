@@ -8,28 +8,23 @@ Use two independently replaceable source adapters:
    play-by-play, and traditional statistics.
 2. MoneyPuck's published data downloads for advanced statistics.
 
-Raw source responses will be retained separately from normalized database
+Raw source responses are retained separately from normalized database
 records. This makes imports reproducible and limits the impact of upstream
 schema changes.
 
 ## NHL data
 
-The NHL website currently uses JSON endpoints under:
+The implemented adapters use these endpoint families:
 
-- `https://api-web.nhle.com/v1`
-- `https://api.nhle.com/stats/rest`
-- `https://records.nhl.com/site/api`
+| Adapter base | Paths used by the code |
+| --- | --- |
+| `https://api-web.nhle.com/v1` | `/schedule/{date}`, `/standings/{date}`, `/player/{player-id}/landing`, `/gamecenter/{game-id}/boxscore`, `/gamecenter/{game-id}/play-by-play` |
+| `https://api.nhle.com/stats/rest/en` | `/skater/summary`, `/goalie/summary`, `/team/summary` |
+| `https://records.nhl.com/site/api` | `/draft`, filtered by draft year |
 
-Implemented endpoint families include:
-
-- `/standings/now`
-- `/schedule/{date}`
-- `/club-schedule-season/{team}/{season}`
-- `/club-stats/{team}/{season}/{game-type}`
-- `/player/{player-id}/landing`
-- `/gamecenter/{game-id}/boxscore`
-- `/gamecenter/{game-id}/play-by-play`
-- `/draft`
+Club-schedule and club-stats endpoints are not used by the current adapters.
+The ranges below describe the completed local backfill, not data installed by
+cloning the repository or guaranteed current upstream availability.
 
 Schedules, box scores, play-by-play, profiles, and standings have been
 backfilled across 2005–06 through 2025–26. Early play-by-play is less detailed
@@ -49,29 +44,25 @@ Official dated standings are retained separately from Python-derived team
 season aggregates. Historical final-snapshot behavior and team mapping are
 documented in [Official NHL standings](official-standings.md).
 
-These endpoints are not treated as a stable, supported public API. The
-ingestion layer must therefore:
+These endpoints are not treated as a stable, supported public API. Clients
+throttle requests, send a descriptive user agent, retry transient failures with
+backoff, and validate responses before normalized replacement. Completed-game
+backfills skip existing complete facts; the daily correction window deliberately
+re-fetches recent finals. Raw payloads and audited failures preserve evidence
+for source-change diagnosis. Production notifications remain deferred.
 
-- throttle requests and use a descriptive user agent;
-- cache immutable completed-game responses;
-- retry transient failures with exponential backoff;
-- validate every response before replacing normalized data;
-- alert on schema changes;
-- avoid NHL logos and other protected branding unless permission is obtained.
-
-The NHL terms currently permit personal, non-commercial informational use but
-also place significant restrictions on copying, publishing, database use, and
-NHL intellectual property. Before making the site public, the intended display
-and storage approach should receive a terms review:
-
-https://www.nhl.com/info/terms-of-service
+The local UI uses NHL team-logo URLs through `TeamLogo`; this is an implemented
+branding dependency, not a record of permission to publish those assets. Public
+launch still requires a review of intended storage, display, and branding use
+against the [NHL terms](https://www.nhl.com/info/terms-of-service). This document
+does not establish publication rights.
 
 ## Advanced analytics
 
-MoneyPuck publishes downloadable datasets for non-commercial use and requires
-clear attribution wherever its data is used. Only the files explicitly
-provided on its download page should be fetched; the rest of the website must
-not be scraped without approval.
+The project's MoneyPuck acquisition policy is limited to its published download
+files for the personal, non-commercial scope, with visible attribution. Other
+website pages must not be scraped without approval. Recheck the provider's
+usage conditions before a public launch or a change of scope.
 
 Source and usage details:
 
@@ -94,7 +85,7 @@ provider limitations are documented in
 
 ## Coverage shown on the website
 
-| Data category | Initial coverage |
+| Data category | Implemented coverage boundary |
 | --- | --- |
 | Schedule index | 2005–06 through the published 2026–27 schedule |
 | Results, box scores, and detailed game statistics | 2005–06 onward as games are completed |
@@ -123,5 +114,6 @@ Detailed 2005–06+ database coverage is checked by
 - Run the regular daily import after the previous NHL game day has completed.
 - Re-fetch recent completed games to pick up official scoring corrections.
 - Treat older completed games as immutable unless a repair job is requested.
-- Record source, source timestamp, fetched timestamp, checksum, and importer
-  version for every raw payload.
+- Retain source/provider, source key or URL, fetch timestamp, checksum, and
+  ingestion-run provenance. Preserve provider timestamps when supplied; do not
+  imply every feed supplies one or that every payload stores an importer version.

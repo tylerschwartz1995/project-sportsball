@@ -1,15 +1,14 @@
 # Sportsball web
 
-> **Current visual system:** this application uses [Modern Stats Exploration](../../docs/editorial-style-exploration.md),
-> a clean, modern statistical interface with audited sizing and readable dark/light themes.
-> The linked document records the current visual direction and overrides earlier styling guidance.
+> **Current visual system:** [Modern Stats Exploration](../../docs/design-system.md),
+> with a dark-default graphite theme, light-mode support, and readable statistical tables.
 
 The server-rendered Next.js application for NHL statistics and analytics.
 
 The web server uses a Node-compatible PostgreSQL URL. From the repository root:
 
 ```bash
-npm install --prefix apps/web
+npm ci --prefix apps/web
 SPORTSBALL_WEB_DATABASE_URL=postgresql://sportsball:sportsball@localhost:5432/sportsball \
   npm run dev --prefix apps/web
 ```
@@ -25,8 +24,8 @@ call NHL or MoneyPuck endpoints while rendering user requests.
 
 The current read-only slice provides:
 
-- a server-rendered league homepage with recent results, standings, last-ten
-  movement, latest-30 league trends, and scoring-leader snapshots;
+- a server-rendered league homepage with results, upcoming games, standings,
+  and top-five scoring, season Game Score, and GSAx leaderboards;
 - dedicated sortable NHL standings with overall, conference, and division
   views plus a filterable cumulative-points plot;
 - a server-rendered schedule and results page with season/date navigation;
@@ -37,7 +36,7 @@ The current read-only slice provides:
   expandable play-by-play timelines, advanced team/player results, shot maps,
   forward lines, and defensive pairings;
 - a conference-and-division team directory and team detail pages with official
-  player splits, MoneyPuck season metrics, cross-season upcoming schedules, and
+  player splits, MoneyPuck season metrics, complete selected-season schedules, and
   time-aware completed and remaining strength-of-schedule analysis with rest,
   back-to-back, and estimated travel context;
 - complete player leaderboards with minimum-stat and birth-region filters,
@@ -61,27 +60,34 @@ The current read-only slice provides:
   plus drill-down to every supporting game;
 - selectable, keyboard-accessible shot-map events with shooter, result, time,
   goalie, and shot-quality details;
-- immediate column sorting on every statistics table;
+- sortable statistics tables, with server sorting before pagination for the
+  player directory and historical rankings; bounded advanced populations are
+  labeled so alternate sorts are not mistaken for complete-league rankings;
+- Find a Player search across stored profiles from all seasons, with links to
+  career history and context-preserving Back to Results navigation;
 - URL-backed single-view tabs for long team, player, game, standings,
   postseason, draft, and historical-leader pages;
 
-Team, player and game summaries link to their supporting detail pages. Team
-profile season selectors only offer seasons in which that team has stored
-statistics, preventing expansion teams from linking to seasons before they
-existed. The team profile is also the reference implementation for the shared
-sport-neutral visual design system documented in `../../docs/design-system.md`.
-The selected Data Workspace shell now provides responsive global navigation,
-a persistent light/dark toggle with a dark first-visit default, and native
-workspace presentations for the league overview, standings, team and player
-directories, primary team and player profiles, and the complete game
-directory-to-box-score workflow. Advanced team, skater, and goalie leaderboards
-and the metric guide also use the native workspace system.
+Team, player, and game summaries link to their supporting detail pages. Team
+profile season selectors include stored statistical participation and scheduled
+seasons, so future schedules remain available before season totals exist.
+The [design system](../../docs/design-system.md) documents the horizontal desktop
+navigation, grouped mobile Menu, theme tokens, and shared data components.
+
+JSON endpoints include:
+
 - `GET /api/seasons`;
 - `GET /api/standings?season=20242025`;
 - `GET /api/games?season=20252026&date=2026-06-14`;
 - `GET /api/games/2025030416`;
 - `GET /api/teams?season=20252026` and `GET /api/teams/12?season=20252026`;
-- `GET /api/players?season=20252026` and `GET /api/players/8478402`.
+- `GET /api/players?season=20252026` and `GET /api/players/8478402`;
+- `GET /api/playoffs/series?season=20252026&round=4&matchup=1`;
+- `GET /api/health` for database and daily-run readiness.
+
+`POST /api/web-vitals` accepts bounded performance telemetry and emits server
+logs; it does not write statistics to PostgreSQL. Configuration and contracts
+are documented in [Web query layer](../../docs/web-query-layer.md).
 
 Set `SPORTSBALL_RUN_WEB_DATABASE_TESTS=1` alongside the database URL to include
 the opt-in PostgreSQL query integration test:
@@ -91,6 +97,27 @@ SPORTSBALL_RUN_WEB_DATABASE_TESTS=1 \
 SPORTSBALL_WEB_DATABASE_URL=postgresql://sportsball:sportsball@localhost:5432/sportsball \
   npm run test --prefix apps/web
 ```
+
+Browser checks require a populated local database and a separately running app;
+Playwright does not start a server. Build with `make web-check`, then run:
+
+```bash
+SPORTSBALL_WEB_DATABASE_URL=postgresql://sportsball:sportsball@localhost:5432/sportsball \
+  npm run start --prefix apps/web
+```
+
+In a second terminal:
+
+```bash
+(cd apps/web && npx playwright install chromium)
+SPORTSBALL_E2E_BASE_URL=http://localhost:3000 \
+  npx --prefix apps/web playwright test --config apps/web/playwright.config.ts --workers=1
+```
+
+One worker matches the latest full browser verification. Use the same host as
+the running app; local development verification used `localhost` to avoid the
+hydration issue recorded in the content audit. Browser and web database suites
+are opt-in locally; CI runs web unit checks/build and Python database tests.
 
 See [Web query layer](../../docs/web-query-layer.md) for the request flow,
 contracts, caching, and security boundary.

@@ -1,8 +1,8 @@
 # Desktop UX regression checklist
 
 Use this checklist after a user-facing web change and before merging a broad UI
-release. The baseline viewport is 1280 by 720 pixels with the desktop sidebar
-visible. Wider desktop checks are useful, but they do not replace this
+release. The baseline viewport is 1280 by 720 pixels with the horizontal
+primary navigation visible. Wider desktop checks are useful, but they do not replace this
 constrained-width pass. Mobile is tracked separately.
 
 ## Automated checks
@@ -55,17 +55,21 @@ the local database when an example identifier changes.
 
 ### Tables and long results
 
-- Numeric columns sort in both directions, with the active sort announced in
-  the URL and header state.
-- Column presets retain the identity column and explain unfamiliar metrics.
-- Long results expose 25, 50, and 100 row sizes, a current range, previous/next
-  controls, and stable state after refresh.
+- Numeric columns sort in both directions with an accessible active header
+  state. Check URL persistence where supported. Player-directory and historical
+  sorts apply before server pagination; advanced sorts retain their stated caps.
+- Essential/All controls retain identity and explain unfamiliar metrics where
+  offered. League analytics and season combinations show all columns.
+- Paginated results expose their supported sizes, current range, navigation,
+  and stable URL state. Do not assume every route offers 25/50/100 rows: the
+  player directory uses 50 and historical rankings use 25.
 - Sticky headers and identity columns remain aligned while a table scrolls.
 
 ### Navigation and information hierarchy
 
-- Sidebar groups and active states correctly distinguish Follow, Explore, and
-  Research destinations.
+- Horizontal navigation marks the current destination. At phone widths, the
+  Menu exposes Follow, Explore, and Research groups, Find a Player, and Lines
+  & Pairings, and closes with Escape or selection.
 - Page-view tabs, season phase controls, filters, and in-page actions use
   visually distinct patterns.
 - Teams, players, and games link to their available detail pages.

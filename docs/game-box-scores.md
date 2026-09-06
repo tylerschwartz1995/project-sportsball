@@ -19,13 +19,16 @@ NHL game as its response grain and displays:
 
 Team and player names link to their existing season and career pages.
 The desktop scoreboard uses flexible team tracks so long historical names,
-records, logos, and scores remain visible together instead of being clipped by
-the fixed application sidebar.
+records, logos, and scores remain visible together within the bounded content
+canvas beneath the horizontal application header.
 
 ## Query model
 
-The page starts its traditional box-score, normalized play-by-play, and
-advanced analytics reads in parallel.
+The page first loads game identity (or the requested box score) and view
+availability in parallel. It then loads data for the selected view: scoring
+reads play-by-play and advanced data together, Shot Quality reads advanced
+data, and Box Score avoids the timeline/advanced payload. Scheduled games show
+identity, time, and status without empty analytics warnings.
 `getGameBoxScore()` runs three independent parameterized queries:
 
 ```text
@@ -36,7 +39,8 @@ goalie game stats
 
 The query layer then groups player rows beneath the game's canonical away and
 home team identifiers. This produces one serializable `GameBoxScore` contract
-without recalculating any statistics during a web request.
+while preserving source NHL totals; the game-summary query also derives each
+team's point-in-time season-phase record from stored results.
 
 `getMoneyPuckGameAnalytics()` runs six parameterized reads for the game
 context, team situations, skaters, goalies, shots, and units. It returns a
@@ -69,10 +73,13 @@ All team names and abbreviations join through `team_seasons`, so a 2005–06 box
 score uses the identity active in 2005–06 rather than a later relocation or
 rebrand.
 
-Every displayed table has immediate client-side column sorting. Shot maps use
-regulation half-rink proportions and expose their markers through one keyboard
+Statistical box-score and advanced tables have column sorting; chronological
+scoring/timeline and period-summary tables preserve their meaningful order.
+Shot maps use regulation half-rink proportions and expose their markers through one keyboard
 tab stop plus arrow-key navigation, avoiding a separate tab stop for every
-attempt. They do not require a charting library or a browser data request.
+attempt. URL-backed period, result, and shooter filters update map totals;
+per-team shot lists make overlapping attempts selectable. Maps do not require
+a charting library or a browser data request.
 
 ## Endpoint
 

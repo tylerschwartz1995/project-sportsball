@@ -1,5 +1,9 @@
 # Application audit — September 5, 2026
 
+This is a dated verification record, not a live health or dependency advisory
+report. Later content, filter, and usability records are listed in the
+[documentation index](README.md).
+
 This audit covered the local Next.js application, shared interactions, API and
 query boundaries, dependency advisories, Python pipeline, migrations, historical
 completeness, operational health, CI, and recovery/scheduling configuration.
@@ -51,9 +55,10 @@ The schedule clipping was also confirmed by visual inspection.
 
 ## Operational limitations
 
-The current-data health check reports four errors: no completed audited daily
-update, stale schedules, stale official standings, and stale MoneyPuck data.
-There are no stuck ingestion runs and no missing recent final-game records.
+At the audit, the current-data health check reported four errors: no completed
+audited daily update, stale schedules, stale official standings, and stale
+MoneyPuck data. There were no stuck ingestion runs or missing recent final-game
+records.
 These are local freshness findings, not failures of the historical completeness
 check. The audit did not refresh source data or activate scheduled writes.
 

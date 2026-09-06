@@ -1,13 +1,14 @@
 # Sportsball visual design system
 
-> **Current visual system:** this application uses [Modern Stats Exploration](editorial-style-exploration.md),
-> a clean, modern statistical interface with audited sizing and readable dark/light themes.
-> The linked document records the current visual direction and overrides earlier styling guidance.
+This is the current **Modern Stats Exploration** design guide, reviewed against
+the application on September 6, 2026. It supersedes the former Data Workspace
+palette, sidebar, and viewport-scaled typography. Shared components remain
+reasonably sport-neutral; hockey data contracts remain explicit.
 
-This document defines the selected Data Workspace production direction. The
-system is deliberately sport-neutral so a future basketball, baseball, or
-football section can reuse the same application shell and data components
-without looking like a hockey reskin.
+The [design implementation record](editorial-style-exploration.md) preserves
+PR #142's sizing and contrast evidence. Subsequent
+[content](content-audit-implementation.md), [filter](filter-consistency.md), and
+[usability](usability-audit-implementation.md) decisions define current behavior.
 
 ## Product character
 
@@ -18,29 +19,30 @@ competing with it.
 
 ## Foundations
 
-- **Canvas:** deep navy with a quiet grid and low-contrast cyan/violet ambient
-  light.
-- **Surfaces:** layered navy panels separated by restrained borders, not heavy
-  shadows.
-- **Primary accent:** cyan for every interactive state—navigation, links,
-  buttons, selected controls, sorting, and keyboard focus—and for traditional
-  observed-statistic chart series.
-- **Secondary accent:** violet identifies model-based analytics and derived
-  metrics in headings, values, chart series, annotations, and restrained
-  section tint. Violet does not indicate that a control is interactive or
-  selected.
-- **State colors:** emerald for positive status and rose for negative results.
-- **Typography:** Geist Sans for interface and reading; Geist Mono for compact
-  labels, identifiers, and technical metadata. Tabular numerals are required
-  for comparable statistics. The desktop root scale grows gradually from 18
-  to 20 pixels as the viewport widens, so typography, controls, logos, and
-  rem-based component geometry remain visually balanced on larger monitors.
-- **Shape:** 16-pixel primary panel radius and 12-pixel nested-control radius.
-- **Spacing:** page sections use a compact 32-pixel rhythm, compressing
-  naturally on small screens so useful content remains close to its controls.
+- **Canvas and surfaces:** neutral graphite in dark mode; a grey canvas and
+  white panels in light mode. Subtle borders separate content without grids,
+  ambient glow, or heavy shadows.
+- **Primary accent:** mint in dark mode and darker green in light mode, used
+  for links, selected controls, sorting, keyboard focus, and observed-stat plots.
+- **Secondary accent:** blue for derived/model-based measures. Use semantic
+  tokens rather than embedding a palette in components.
+- **State colors:** green for positive, red for negative, and amber for warning.
+  Results-versus-process categories also use distinct shapes and labels.
+- **Typography:** Manrope for reading and navigation; Geist Mono for compact
+  numeric annotations. The legacy `--font-geist-sans` variable now holds
+  Manrope. Tabular numerals are required for comparable statistics.
+- **Scale:** the root follows the browser font preference (normally 16px).
+  Primary reading/navigation is 16px, dense figures 15px, supporting labels
+  14px, section headings 20px, and page titles 32px (28px on phones).
+  Major History subsections use 24px. Values scale with the root preference.
+- **Shape and spacing:** shared panel radius is 0.625rem (10px at the default
+  root). Compact, consistent spacing keeps results close to their controls.
 
-The canonical CSS tokens live in `apps/web/src/app/globals.css`. Reusable React
-primitives live in `apps/web/src/app/_components/ui-primitives.tsx`.
+`apps/web/src/app/globals.css` defines base tokens and component geometry;
+`apps/web/src/app/modern.css`, imported after it, supplies the current theme,
+typography, and interaction refinements. Both files matter when checking the
+rendered style. Shared primitives live in `ui-primitives.tsx` and
+`workspace-primitives.tsx` under `apps/web/src/app/_components/`.
 
 ## Information hierarchy
 
@@ -57,8 +59,9 @@ back/forward navigation. Closely related summaries and tables may remain
 together; separate tasks such as a draft board, pick-value plot, and team
 performance comparison should not be stacked into one long page.
 
-Traditional statistics use cyan accents. Advanced statistics use violet accents
-and retain provider attribution and definition links.
+Observed and derived chart measures use `--chart-primary` and
+`--chart-secondary`; advanced statistics retain provider attribution and
+definition links.
 
 ## Application shell
 
@@ -83,8 +86,9 @@ a clear `All …` or named default. Phase selectors keep their context in an
 accessible label without repeating it beside self-explanatory options. Helper
 text is reserved for information that is not already expressed by the adjacent
 heading or field labels.
-Filter panels use one shared anatomy: a concise title and purpose, an active
-filter count, labelled fields, then `Apply Filters` and `Clear Filters` actions.
+Filter panels use labelled fields and meaningful context, with optional active
+filter counts and `Apply Filters` / `Clear Filters` actions where applicable.
+Omit generic headings and explanations that repeat the labels.
 Forms that apply immediately omit a redundant apply button. Zero active-filter
 counts and inactive clear actions are omitted. Season, phase, page view, and sort order are context controls and
 do not inflate the active-filter count. Clearing filters preserves that context
@@ -113,14 +117,13 @@ and a pre-render bootstrap applies it before the interface is painted.
   values. The ordinary desktop canvas stops growing at 80rem so even wide data
   remains coherent on ultrawide monitors; exceptionally dense tables scroll
   inside that canvas rather than stretching indefinitely.
-- Full-width scoreboards and seven-round playoff brackets must fit the desktop
+- Full-width scoreboards and four-round playoff brackets must fit the desktop
   canvas without hiding content beneath the viewport edge. At constrained
   desktop widths, team names may wrap and bracket cards compact their internal
   spacing, but scores and three-letter team abbreviations remain fully visible.
 - Store the canvas and compact, standard, and data-width boundaries as shared
-  CSS tokens. Width tiers scale with the desktop root size, preserving their
-  information hierarchy while avoiding tiny content in a wide application
-  shell. Do not add viewport-specific font overrides to individual pages.
+  CSS tokens. Width tiers follow the browser-relative root size and bounded
+  canvas. Do not increase the root size with desktop viewport width.
 - Column width follows meaning: ranks, logos, positions, dates, seasons, and
   numeric values remain content-sized and on one line. Primary team, player,
   matchup, and metric labels use a stable readable track instead of absorbing
@@ -161,13 +164,13 @@ and a pre-render bootstrap applies it before the interface is painted.
 ## Plot conventions
 
 - Charts use semantic CSS tokens so the same component remains legible in light
-  and dark modes. Cyan represents traditional results; violet represents
-  derived or model-based measures.
+  and dark modes. The primary green represents traditional results; the
+  secondary blue represents derived or model-based measures.
 - Categorical chart palettes are theme-specific. Every series must maintain at
   least 3:1 contrast against its chart surface, while axis and tooltip text
   maintain WCAG AA text contrast. Tooltips use semantic surface and foreground
   tokens rather than a fixed dark presentation. In a multi-category chart,
-  palette hues (including violet) are non-semantic series identifiers and must
+  palette hues are non-semantic series identifiers and must
   remain paired with labels or a legend.
 - Axes use percentages or explicit units, restrained horizontal grid lines, and
   a labeled reference line when a meaningful baseline exists.
@@ -185,7 +188,9 @@ and a pre-render bootstrap applies it before the interface is painted.
   least one available line visible.
 - Standings progression compares every team in one selected division. Current
   divisions show eight clubs; historical seasons preserve the division size
-  that existed in that season. No separate team selector is shown.
+  that existed in that season. A team selector and clickable legend highlight
+  one line without changing the division population; the highlighted line has
+  endpoint labels.
 - League comparison scatterplots use fixed axes while filtering so a subject
   never appears to move when its comparison group changes. Meaningful
   horizontal and vertical baselines define plain-language quadrants, and the
@@ -212,8 +217,9 @@ and a pre-render bootstrap applies it before the interface is painted.
 
 ## Responsive and accessibility rules
 
-- Touch targets should be at least 40 pixels tall wherever practical.
-- Visible keyboard focus uses the primary cyan accent.
+- Form controls and primary actions use 44px targets; compact column and
+  pagination controls use 40px targets.
+- Visible keyboard focus uses the semantic primary accent.
 - Color never carries meaning without a label or value.
 - Dense tables scroll horizontally rather than hiding columns or silently
   changing statistical grain.
@@ -241,7 +247,10 @@ validated together.
 
 Follow [the content audit decisions](content-audit-implementation.md). Show
 identity, result, workload, sample, and the measures central to the selected
-task first. Secondary columns remain available through Columns: Essential / Columns: All; specialist
-charts and explanations use disclosures or explicit views. Avoid duplicate
+task first. Where secondary columns are useful, expose them through
+Columns: Essential / Columns: All. League analytics and season combination
+rankings intentionally show all columns without presets. Specialist charts and
+explanations use disclosures or explicit views; the team result map and direct
+player comparison chart open by default after the usability follow-up. Avoid duplicate
 summary cards and navigation promotions. Source, coverage, phase, qualification,
 and accessible chart values remain part of the interpretation.

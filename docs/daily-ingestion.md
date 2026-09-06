@@ -12,13 +12,14 @@ domain logic into scheduler configuration.
 1. Refresh schedule pages covering three days before through seven days after
    the run date.
 2. Resolve the active season from an explicit override or the most recent
-   stored game in that window.
+   stored regular-season/playoff game no later than the lookahead boundary.
+   The game may precede the lookback window during the offseason.
 3. Re-fetch box scores and play-by-play for final games from the last three
    days. Complete games are deliberately refreshed so late NHL corrections
    replace their previous values.
-4. Refresh the profiles and NHL-published season splits of players who
-   appeared in those games, then fill any newly discovered profiles still
-   missing from earlier work.
+4. Refresh player landing profiles (which include NHL-published season splits)
+   for players from those box scores, then attempt up to 100 missing profiles from
+   earlier work by default (`--max-new-profiles` changes that bound).
 5. Store the official standings snapshot for the run date.
 6. Rebuild traditional and NHL-published player season aggregates.
 7. Replace the active season's MoneyPuck season, team-game, player-game, shot,
@@ -64,6 +65,15 @@ investigation. Without it, the coordinator selects the season belonging to the
 most recent stored game no later than the end of the schedule lookahead
 window. This keeps the completed season active during summer and switches
 automatically once the next season's schedule enters the refreshed window.
+
+## Coverage outside the coordinator
+
+The daily coordinator does not refresh the separate all-time NHL Stats summary
+archive or draft selections. Run `ingest-historical-seasons` and
+`ingest-draft-history` explicitly when those archives need updating. A fresh
+career or draft outcome page therefore also depends on those stored summaries,
+not only on a successful daily run. The coordinator refreshes a bounded schedule
+window; it is not a replacement for complete future-season schedule ingestion.
 
 ## GitHub Actions scheduler
 

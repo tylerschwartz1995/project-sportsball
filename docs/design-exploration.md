@@ -1,6 +1,11 @@
-# Visual direction decision
+# Original visual direction decision (historical)
 
-Sportsball uses the **Data Workspace** application system. It was selected
+This records the original local MVP choice. The palette, sidebar, and typography
+below were superseded by [Modern Stats Exploration](design-system.md) in PR
+#142 and subsequent usability work. The comparison route remains removed; use
+the current design guide for implementation.
+
+Sportsball originally selected the **Data Workspace** application system
 after a temporary local design lab compared three architectures with the same
 Colorado Avalanche season and NHL standings data. The comparison route was
 removed after the decision.

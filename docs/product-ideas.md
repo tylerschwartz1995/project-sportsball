@@ -7,7 +7,7 @@ work.
 
 ## Implementation status audit
 
-Last checked against the repository on August 2, 2026.
+Last checked against the repository on September 6, 2026.
 
 | Idea | Current status | Implemented boundary |
 | --- | --- | --- |
@@ -18,11 +18,11 @@ Last checked against the repository on August 2, 2026.
 | Contracts and salary-cap analysis | Not implemented | There are no contract or cap models, migrations, ingestion clients, queries, or pages. |
 | Strength of schedule | Expanded non-model version implemented | Team pages provide time-aware completed and remaining difficulty using points percentage, goal differential, and five-on-five expected-goal share, with supporting games, venue, rest, back-to-back, and estimated travel context. A governed model-based rating remains. |
 | Transactions explorer | Not implemented | There are no transaction models, ingestion jobs, queries, or routes. |
-| Homepage information redesign | Expanded redesign implemented | Results, upcoming games, standings, last-ten movement, latest-30 league trends, scoring leaders, advanced analytics, and archive destinations are live. Further insights can be added only when they reveal a distinct, evidence-linked pattern. |
+| Homepage information redesign | Expanded redesign implemented | Results, upcoming games, standings, and top-five scoring, Game Score, and GSAx leaders are live. Recent Form, League Trends, and duplicate destination promotions were removed in the content audit. Further insights can be added only when they reveal a distinct, evidence-linked pattern. |
 | Complete draft history | Complete archive implemented | Every official NHL selection from 1963–2026 is stored, including non-NHL players, nullable source IDs, historical team codes, and traded-pick ownership. Draft boards and team NHL-appearance and 100-game rates use all 13,152 selections as the denominator. |
-| Draft class rankings | Not implemented | Complete draft boards and career outcomes are available, but there is no cross-year ranking, maturity adjustment, or governed composite score for comparing entire draft classes. |
-| Historical records and best seasons | Expanded traditional version implemented | Career and single-season skater, goalie, and team tables support phase, range, participation, position, team, birthplace, and total/rate filters. Era adjustment, milestones, age curves, multi-season peaks, franchise aggregation, and advanced historical rankings remain. |
-| Saved comparisons and shareable plot state | Partially implemented | The dedicated player comparison restores season, phase, player type, and two-to-four selected players from its URL. Analytics plot controls, rolling-chart controls, named local saves, and copy-link actions are not persisted. |
+| Draft class rankings | Descriptive rankings implemented | Mature classes can be ranked by appearance, 100/500-game rates, games per pick, points per skater pick, and covered Game Score. Distributions and metric heat bands are available. Equal-opportunity adjustment and a governed composite score remain unimplemented. |
+| Historical records and best seasons | Expanded traditional version implemented | Career and single-season skater, goalie, and team tables support phase, range, participation, position, team, birthplace, and total/rate filters. The record book, three/five-season peaks, progression, decade leaders, and era-relative scoring/Save Index are implemented. Dated milestones, age curves, franchise aggregation, and advanced historical leaderboards remain. |
+| Saved comparisons and shareable plot state | URL state implemented; saved collections deferred | Player comparisons, analytics plots, rolling charts, standings, draft outcomes, Game Flow, and shot filters restore applicable URL controls. Charts offer copy-link actions; named local saves and a server-side library remain unimplemented. |
 
 ## 1. Historical query explorer
 
@@ -186,7 +186,8 @@ league/team, minimum-ice-time, and sortable metric controls. Visitors can use
 full-season results or rolling samples covering each team's latest 10, 20, or
 40 regular-season games. Every combination links to its supporting game log,
 including opponent, venue, score, usage, expected-goal, possession, goal, and
-shot results. Percentages are recomputed from the totals in the selected
+shot results. Drill-downs explicitly show Full-Season Supporting Games, even
+when opened from a rolling ranking. Percentages are recomputed from the totals in the selected
 window.
 
 Potential future extensions include:
@@ -303,14 +304,11 @@ assignments, injured-reserve moves, retirements, and other roster changes.
 
 **Status:** Expanded redesign implemented
 
-The local MVP homepage now prioritizes latest results, upcoming games,
-standings, scoring leaders, advanced analytics, and direct archive navigation.
-It uses dense lists and tables rather than low-information summary cards. A
-standings-movement panel shows the current top six teams' exact point outcomes
-over their last 10 games and compares that segment with the preceding 10. A
-league-trends panel compares the latest 30 completed games with the prior 30
-for scoring, home wins, one-goal results, and extra-time frequency, and links
-to the supporting results and highest-scoring game.
+The homepage prioritizes latest results, upcoming games, standings, and compact
+scoring, season Game Score, and GSAx leaderboards. It uses dense lists and tables.
+The September content audit removed last-ten standings movement, latest-30
+league trends, and duplicate archive/analytics promotions. Future additions
+must answer a distinct question and link to supporting evidence.
 
 Potential post-MVP extensions include:
 
@@ -334,7 +332,7 @@ pages through the full archive.
 
 Career outcomes join to NHL-published all-time regular-season summaries.
 The workspace separates the complete draft board, player outcomes, and team
-drafting into distinct URL-backed views. Organizational tables publish
+drafting, plus Class Rankings, into distinct URL-backed views. Organizational tables publish
 NHL-appearance and 100-game rates using every selection as the denominator,
 plus games per selection and late-round regulars. Player outcomes default to
 the latest class with five seasons of observation, while team comparisons use
@@ -344,8 +342,8 @@ their current zeros as final performance.
 
 Potential extensions include:
 
-- a league-wide ranking of complete draft classes by realized NHL value, with
-  separate total-output, per-selection, and hit-rate views;
+- extend the existing descriptive Class Rankings with additional governed
+  total-output and positional measures where they add useful context;
 - age- and maturity-adjusted comparisons so recent classes are not penalized
   for having fewer completed career seasons and older classes do not win only
   through longer observation windows;
@@ -357,10 +355,9 @@ Potential extensions include:
 - time-to-debut, peak value, career longevity, awards, and playoff outcomes;
 - team pages showing the best and worst draft classes in franchise history.
 
-The ranking should expose its component metrics rather than hide them behind a
-single unexplained score. Candidate inputs include NHL appearance rate,
-100-game rate, games per selection, skater points, goalie wins, star-player hit
-rate, and value above expected pick position. Visitors should be able to rank
+The existing ranking exposes component metrics rather than a composite score.
+Additional candidate measures include goalie wins, a defined star-player hit
+rate, and class-level value above expected pick position. Visitors should be able to rank
 all draft years or compare a small set of classes side by side, then drill into
 the complete board that produced each result.
 
