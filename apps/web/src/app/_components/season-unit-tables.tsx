@@ -1,43 +1,12 @@
 import Link from "next/link";
 
-import {
-  ColumnPresetTable,
-  type ColumnPreset,
-} from "@/app/_components/column-preset-table";
+import { SortableTable } from "@/app/_components/sortable-table";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { TeamLogo } from "@/app/_components/team-logo";
 import type {
   MoneyPuckSeasonUnitLeaders,
   MoneyPuckSeasonUnitStats,
 } from "@/contracts/season-unit";
-
-const UNIT_COLUMN_PRESETS: ColumnPreset[] = [
-  {
-    value: "core",
-    label: "Core",
-    description: "Identity, workload, and expected-goal share.",
-  },
-  {
-    value: "possession",
-    label: "Possession",
-    description: "Expected-goal and shot-attempt shares.",
-  },
-  {
-    value: "shot-quality",
-    label: "Shot Quality",
-    description: "Expected goals created and allowed.",
-  },
-  {
-    value: "results",
-    label: "Results",
-    description: "Goals and shots for and against.",
-  },
-  {
-    value: "all",
-    label: "All Columns",
-    description: "Every available unit metric.",
-  },
-];
 
 export function SeasonUnitTables({
   data,
@@ -100,7 +69,7 @@ function SeasonUnitTable({
           <p>
             {rows.length === 100
               ? "Top 100 qualifying units"
-              : `${rows.length} qualifying units`}
+              : `${rows.length} units shown`}
           </p>
           <Link
             href={`/analytics/guide?season=${seasonId}`}
@@ -113,8 +82,7 @@ function SeasonUnitTable({
 
       {rows.length > 0 ? (
         <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
-          <ColumnPresetTable
-            presets={UNIT_COLUMN_PRESETS}
+          <SortableTable
             defaultSortKey={urlSort?.key ?? "xgPercentage"}
             defaultDirection={urlSort?.direction}
             urlBacked={Boolean(urlSort)}
@@ -123,14 +91,14 @@ function SeasonUnitTable({
             <div className="workspace-table-scroll-viewport">
               <table className="workspace-table workspace-table-dense workspace-table-semantic workspace-sticky-table-header min-w-[1500px]">
                 <colgroup>
-                  {showTeam ? <col className="workspace-col-team" data-column-group="core possession shot-quality results" /> : null}
-                  <col className="workspace-col-season-unit" data-column-group="core possession shot-quality results" />
-                  <col className="workspace-col-number" data-column-group="core possession shot-quality results" />
-                  <col className="workspace-col-time" data-column-group="core possession shot-quality results" />
-                  <col className="workspace-col-percentage" data-column-group="core possession" />
-                  <col className="workspace-col-percentage" data-column-group="possession" />
-                  <col className="workspace-col-number" span={2} data-column-group="shot-quality" />
-                  <col className="workspace-col-number" span={4} data-column-group="results" />
+                  {showTeam ? <col className="workspace-col-team" /> : null}
+                  <col className="workspace-col-season-unit" />
+                  <col className="workspace-col-number" />
+                  <col className="workspace-col-time" />
+                  <col className="workspace-col-percentage" />
+                  <col className="workspace-col-percentage" />
+                  <col className="workspace-col-number" span={2} />
+                  <col className="workspace-col-number" span={4} />
                 </colgroup>
                 <caption className="sr-only">
                   {title} season rankings
@@ -174,7 +142,7 @@ function SeasonUnitTable({
                       className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                     >
                       {showTeam ? (
-                        <td className="workspace-sticky-entity px-4 py-3 text-left" data-column-group="core possession shot-quality results">
+                        <td className="workspace-sticky-entity px-4 py-3 text-left">
                           <div className="flex items-center gap-2">
                             <TeamLogo {...row.team} size="tiny" decorative />
                             <Link
@@ -186,7 +154,7 @@ function SeasonUnitTable({
                           </div>
                         </td>
                       ) : null}
-                      <td className={`${showTeam ? "" : "workspace-sticky-entity"} px-4 py-3 text-left`} data-column-group="core possession shot-quality results">
+                      <td className={`${showTeam ? "" : "workspace-sticky-entity"} px-4 py-3 text-left`}>
                         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
                           <div className="flex min-w-0 items-center gap-2">
                             {!showTeam ? (
@@ -239,7 +207,7 @@ function SeasonUnitTable({
                 </tbody>
               </table>
             </div>
-          </ColumnPresetTable>
+          </SortableTable>
         </div>
       ) : (
         <p className="mt-5 rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-5 text-sm text-[var(--muted)]">

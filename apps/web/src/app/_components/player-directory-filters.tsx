@@ -175,7 +175,7 @@ export function PlayerDirectoryFilters({
           <b>
             {advancedFilterCount > 0
               ? `${advancedFilterCount} active`
-              : "Optional"}
+              : null}
           </b>
         </summary>
         <div>

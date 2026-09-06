@@ -48,7 +48,7 @@ test("playoff abbreviations fit without reducing readable type", async ({ page }
 
 test("team overview supporting labels use a readable size", async ({ page }) => {
   await page.goto("/teams/26?season=20252026");
-  const label = page.getByText("Percent of possible standings points earned", { exact: true });
+  const label = page.getByText("Points Percentage", { exact: true });
   await expect(label).toBeVisible();
   expect(await label.evaluate((element) => parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(13);
 });
@@ -106,7 +106,7 @@ test("desktop tables distinguish sparse totals from dense histories", async ({ p
   await row.scrollIntoViewIfNeeded();
   expect((await row.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await page.goto("/history?section=careers");
-  await expect(page.locator(".workspace-history-ranking-summary h2")).toHaveCSS("font-size", "24px");
+  await expect(page.locator(".workspace-history-results h3")).toHaveCSS("font-size", "24px");
   await expect(page.locator(".workspace-history-table tbody td.workspace-history-metric").first()).toHaveCSS("font-size", "15px");
   await page.locator(".workspace-history-table").scrollIntoViewIfNeeded();
   expect((await page.locator(".workspace-history-table thead th").first().boundingBox())!.height).toBeGreaterThanOrEqual(40);

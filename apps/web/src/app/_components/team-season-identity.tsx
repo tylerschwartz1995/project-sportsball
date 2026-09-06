@@ -21,7 +21,6 @@ export function TeamSeasonIdentity({
   phase,
   phaseLabel,
 }: TeamSeasonIdentityProps) {
-  const seriesSummary = countOpponentOutcomes(identity.opponents);
 
   return (
     <section className="modern-team-performance workspace-width-data mt-8 space-y-6">
@@ -42,31 +41,22 @@ export function TeamSeasonIdentity({
           <dl className="mt-4 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
             <div
               aria-hidden="true"
-              className="hidden grid-cols-[minmax(0,1.35fr)_minmax(9rem,0.5fr)_minmax(8rem,0.38fr)_minmax(12rem,0.8fr)] gap-4 border-b border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-2 font-mono text-[0.8125rem] uppercase tracking-[0.13em] text-[var(--muted)] md:grid"
+              className="hidden grid-cols-[minmax(0,1.35fr)_minmax(9rem,0.5fr)_minmax(8rem,0.38fr)] gap-4 border-b border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-2 font-mono text-[0.8125rem] uppercase tracking-[0.13em] text-[var(--muted)] md:grid"
             >
               <span>Metric</span>
               <span>Team result</span>
               <span>NHL rank</span>
-              <span>League position</span>
             </div>
             {identity.fingerprint.map((metric) => {
-              const rankPosition =
-                metric.teamCount <= 1
-                  ? 0
-                  : ((metric.rank - 1) / (metric.teamCount - 1)) * 100;
-
               return (
                 <div
                   key={metric.key}
-                  className="grid grid-cols-2 items-start gap-3 border-b border-[var(--border)] p-4 last:border-b-0 md:grid-cols-[minmax(0,1.35fr)_minmax(9rem,0.5fr)_minmax(8rem,0.38fr)_minmax(12rem,0.8fr)] md:items-center md:gap-4 md:py-3"
+                  className="grid grid-cols-2 items-start gap-3 border-b border-[var(--border)] p-4 last:border-b-0 md:grid-cols-[minmax(0,1.35fr)_minmax(9rem,0.5fr)_minmax(8rem,0.38fr)] md:items-center md:gap-4 md:py-3"
                 >
                   <div className="col-span-full md:col-span-1">
                     <dt className="font-medium text-[var(--foreground)]">
                       {metric.label}
                     </dt>
-                    <p className="mt-0.5 text-[0.8125rem] leading-4 text-[var(--muted)]">
-                      {metric.description}
-                    </p>
                   </div>
                   <dd>
                     <span className="block font-mono text-[0.8125rem] uppercase tracking-[0.12em] text-[var(--muted)] md:hidden">
@@ -84,23 +74,7 @@ export function TeamSeasonIdentity({
                       {ordinal(metric.rank)} of {metric.teamCount}
                     </span>
                   </dd>
-                  <dd className="col-span-full md:col-span-1">
-                    <div className="flex items-center gap-2 font-mono text-[0.8125rem] text-[var(--muted)] tabular-nums">
-                      <span>1st</span>
-                      <div
-                        className="relative h-1.5 flex-1 rounded-full bg-[var(--chart-track)]"
-                        role="img"
-                        aria-label={`${metric.label}: ${metric.formattedValue}; ranked ${metric.rank} of ${metric.teamCount}`}
-                      >
-                        <span
-                          aria-hidden="true"
-                          className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-[var(--surface)] bg-[var(--accent)] shadow-sm"
-                          style={{ left: `${rankPosition}%` }}
-                        />
-                      </div>
-                      <span>{ordinal(metric.teamCount)}</span>
-                    </div>
-                  </dd>
+
                 </div>
               );
             })}
@@ -109,15 +83,16 @@ export function TeamSeasonIdentity({
       </article>
 
       {identity.performanceResultMap ? (
+      <details><summary>Results and Performance</summary>
         <TeamPerformanceResultMap
           data={identity.performanceResultMap}
           phaseLabel={phaseLabel}
         />
+      </details>
       ) : null}
-
       {identity.gamesAnalyzed > 0 ? (
         <div className="space-y-6">
-          <article className="surface-panel p-6">
+          <details className="surface-panel p-6"><summary>Situational Records</summary>
             <SectionIntroduction
               eyebrow="Situational breakdown"
               title="Where the record came from"
@@ -136,30 +111,20 @@ export function TeamSeasonIdentity({
               One game may appear in more than one situation. Extra-time losses
               combine overtime and shootout decisions.
             </p>
-          </article>
+          </details>
 
-          <article className="surface-panel p-6">
+          <details className="surface-panel p-6"><summary>Results by Opponent</summary>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <SectionIntroduction
                 eyebrow="Opponent ledger"
                 title="The season, team by team"
                 description={
                   phase === "regular"
-                    ? "Series outcomes compare the standings points earned by each team. Every score links to its supporting game."
+                    ? "Regular-season records against each opponent. Every score links to its game."
                     : "Series outcomes compare wins. Every score links to its supporting game."
                 }
               />
-              <p className="text-xs text-[var(--muted)] tabular-nums">
-                <span className="text-[var(--positive)]">
-                  {seriesSummary.won} won
-                </span>
-                <span aria-hidden="true"> · </span>
-                {seriesSummary.tied} tied
-                <span aria-hidden="true"> · </span>
-                <span className="text-[var(--negative)]">
-                  {seriesSummary.lost} lost
-                </span>
-              </p>
+
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {identity.opponents.map((entry) => (
@@ -171,7 +136,7 @@ export function TeamSeasonIdentity({
                 />
               ))}
             </div>
-          </article>
+          </details>
         </div>
       ) : (
         <div className="workspace-empty-state">
@@ -267,8 +232,7 @@ function OpponentLedgerCard({
       </Link>
       <div className="mt-2 flex items-center justify-between gap-2">
         <p className={`text-[0.8125rem] capitalize ${outcomeClass}`}>
-          <span className="sr-only">Series </span>
-          {entry.outcome}
+          {phase === "playoffs" ? entry.outcome : "Record"}
         </p>
         <p className="whitespace-nowrap text-sm font-semibold text-[var(--foreground)] tabular-nums">
           {formatRecord(entry, phase === "regular")}
@@ -299,16 +263,6 @@ function formatRecord(record: {
   return includeOvertimeLosses
     ? `${record.wins}–${record.regulationLosses}–${record.overtimeLosses}`
     : `${record.wins}–${record.regulationLosses}`;
-}
-
-function countOpponentOutcomes(opponents: OpponentLedgerEntry[]) {
-  return opponents.reduce(
-    (summary, opponent) => {
-      summary[opponent.outcome] += 1;
-      return summary;
-    },
-    { won: 0, tied: 0, lost: 0 },
-  );
 }
 
 function resultClass(result: "W" | "L" | "OTL") {

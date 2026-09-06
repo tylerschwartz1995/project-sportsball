@@ -158,7 +158,7 @@ main table { font-variant-numeric: tabular-nums; }
 main table thead th { background: var(--surface-raised); color: var(--muted); font-size: 0.875rem; font-weight: 600; letter-spacing: 0; }
 main table tbody td { font-size: 0.9375rem; font-weight: 500; }
 .workspace-table thead .workspace-sortable-header,
-.workspace-column-preset-table thead .workspace-sticky-entity,
+.workspace-table thead .workspace-sticky-entity,
 .workspace-history-table thead .workspace-history-rank-col,
 .workspace-history-table thead .workspace-history-entity-col { background: var(--surface-raised); }
 .workspace-table thead .workspace-sortable-header :is(button, a) { font-size: 0.875rem; }
@@ -403,8 +403,7 @@ main .workspace-table tbody :is(small, .text-xs) { font-size: 0.875rem; font-wei
 main .workspace-table tbody td.font-semibold,
 main .workspace-table tbody .workspace-points-cell,
 main .workspace-table tbody .is-active { font-weight: 650; }
-main .modern-table-readable tbody td,
-main.modern-analytics .workspace-column-preset-table[data-column-preset="core"] tbody td { font-size: 1rem; }
+main .modern-table-readable tbody td { font-size: 1rem; }
 main .workspace-standings-table tbody td { padding-block: 0.875rem; }
 main .workspace-comparison-matrix tbody td { font-size: 1rem; font-weight: 500; white-space: nowrap; }
 .workspace-comparison-matrix tbody th { font-size: 0.9375rem; line-height: 1.5; }

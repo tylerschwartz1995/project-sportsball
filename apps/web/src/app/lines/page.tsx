@@ -155,7 +155,7 @@ export default async function LinesPage({ searchParams }: LinesPageProps) {
                   Defensive Pairings <span>{units.defensivePairings.length}</span>
                 </Link>
               </nav>
-              <div id="combination-results">
+              <div id="combination-results"><p className="mt-4 text-sm text-[var(--muted)]">Up to 100 qualifying units per type, selected by xG%. Sorting applies within that sample.</p>
                 <SeasonUnitTables
                   data={{
                     forwardLines: view === "lines" ? unitPage.items : [],

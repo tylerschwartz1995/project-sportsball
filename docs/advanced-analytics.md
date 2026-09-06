@@ -68,8 +68,7 @@ The league analytics route includes:
 - all-situations, five-on-five, power-play, and penalty-kill filters;
 - explicit minimum-ice-time thresholds for skaters and goalies;
 - sortable tables with links to supporting team and player profiles;
-- task-focused Core, Possession, Shot Quality, and Results column presets, with
-  an All Columns option for expert review;
+- a single all-columns table without column presets;
 - plain-language metric definitions on hover or keyboard focus, a visible link
   to the Metric Guide, and a sticky identity column for wide tables.
 - URL-backed plot metrics, groups, axes, and direct team/player selections,
@@ -167,3 +166,8 @@ and shootout attempts are excluded.
 - saved comparison views and shareable plot URLs;
 - richer filters and shot-map filtering;
 - rolling-window and score-state line-combination splits.
+
+The homepage includes top-five all-situations season Game Score and GSAx lists
+alongside official scoring leaders. Advanced lists preserve player-team splits;
+workload and supporting expected-goal metrics are visible. Sorting applies only
+to each displayed top-five sample.

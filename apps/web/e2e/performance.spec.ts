@@ -19,7 +19,8 @@ test.describe("production navigation performance", () => {
       page.getByRole("heading", { name: "Performance vs. NHL" }),
     ).toBeVisible();
 
-    const strengthLink = page.getByRole("link", { name: "Strength", exact: true });
+    await page.getByRole("navigation", { name: /views$/ }).first().getByRole("link", { name: "Schedule", exact: true }).click();
+    const strengthLink = page.getByRole("link", { name: "Schedule Difficulty", exact: true });
     await expect(
       strengthLink.locator("xpath=.."),
       "view tabs hydrated",
@@ -41,7 +42,8 @@ test.describe("production navigation performance", () => {
       page.getByRole("heading", { name: "Performance vs. NHL" }),
     ).toBeVisible();
 
-    const strengthLink = page.getByRole("link", { name: "Strength", exact: true });
+    await page.getByRole("navigation", { name: /views$/ }).first().getByRole("link", { name: "Schedule", exact: true }).click();
+    const strengthLink = page.getByRole("link", { name: "Schedule Difficulty", exact: true });
     await expect(
       strengthLink.locator("xpath=.."),
       "view tabs hydrated",
@@ -188,7 +190,7 @@ test.describe("production navigation performance", () => {
     );
     await expect(page).toHaveURL(/sos=expected-goals/);
     await expect(
-      page.getByRole("link", { name: "Strength", exact: true }),
+      page.getByRole("link", { name: "Schedule Difficulty", exact: true }),
     ).toHaveAttribute("href", /sos=expected-goals/);
 
     await page.reload();

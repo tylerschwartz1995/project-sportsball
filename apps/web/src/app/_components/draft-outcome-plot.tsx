@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   CartesianGrid,
   ResponsiveContainer,
@@ -136,6 +136,7 @@ export function DraftOutcomePlot({
   outcomes: DraftPlotOutcome[];
 }) {
   const [metricKey, setMetricKey] = useUrlChoice<DraftMetric>("outcomeMetric", METRICS.map((metric) => metric.key), "careerGames");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [roundGroup, setRoundGroup] = useUrlChoice<RoundGroup>("roundGroup", ["all", "1", "2", "3plus"], "all");
   const metric = METRICS.find((option) => option.key === metricKey) ?? METRICS[0];
   const points = useMemo<DraftPlotPoint[]>(
@@ -184,6 +185,7 @@ export function DraftOutcomePlot({
       </header>
       <div className="workspace-chart-toolbar">
         <div className="workspace-draft-plot-controls">
+          <label><input type="checkbox" checked={showAdvanced || metric.advanced} onChange={event => { setShowAdvanced(event.target.checked); if (!event.target.checked) setMetricKey("careerGames"); }} /> Advanced Metrics</label>
           <label className="workspace-chart-metric-select">
             Outcome Metric
             <select
@@ -192,7 +194,7 @@ export function DraftOutcomePlot({
                 setMetricKey(event.target.value as DraftMetric)
               }
             >
-              {METRIC_GROUPS.map((group) => (
+              {METRIC_GROUPS.filter(group => showAdvanced || metric.advanced || group === "Career Outcomes").map((group) => (
                 <optgroup key={group} label={group}>
                   {METRICS.filter((option) => option.group === group).map(
                     (option) => (

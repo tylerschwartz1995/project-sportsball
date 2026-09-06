@@ -51,7 +51,7 @@ export function ScheduleStrengthTable({
         <span className="ml-2 text-sm text-[var(--muted)]">({games.length})</span>
       </summary>
       {isOpen ? (
-        <SortableTable
+        <SortableTable secondaryColumns={[7]}
           defaultSortKey="date"
           defaultDirection={open ? "asc" : "desc"}
         >

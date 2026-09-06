@@ -1,3 +1,4 @@
+import { getPlayerCareer } from "@/data/player-career";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";
@@ -33,6 +34,19 @@ const databaseTestsEnabled =
 describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
   afterAll(async () => {
     await closeDatabasePool();
+  });
+
+  it("preserves full historical careers and excludes goalie non-appearances", async () => {
+    const career = await getPlayerCareer(8447400);
+    const regular = career.filter(row => row.gameType === 2);
+    expect(regular).toHaveLength(20);
+    expect(regular.reduce((sum, row) => sum + (row.points ?? 0), 0)).toBe(2857);
+    expect(career.filter(row => row.gameType === 3).reduce((sum, row) => sum + (row.points ?? 0), 0)).toBe(382);
+    expect(new Set(career.map(row => `${row.kind}-${row.seasonId}-${row.gameType}`)).size).toBe(career.length);
+    const log = await getPlayerGameLog(8475883, 20252026);
+    expect(log?.goalieGames.length).toBeGreaterThan(0);
+    expect(log?.goalieGames.every(game => (game.timeOnIceSeconds ?? 0) > 0 || (game.shotsAgainst ?? 0) > 0 || Boolean(game.decision))).toBe(true);
+    expect(log?.goalieGames.some(game => game.gameDate === "2026-04-13")).toBe(false);
   });
 
   it("loads the complete season index, standings, and latest results", async () => {

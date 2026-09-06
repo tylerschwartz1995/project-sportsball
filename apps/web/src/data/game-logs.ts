@@ -286,6 +286,7 @@ export async function getPlayerGameLog(
          AND advanced.situation = 'all'
         WHERE player.nhl_id = $1
           AND game.season_id = $2
+          AND (stats.time_on_ice_seconds > 0 OR stats.shots_against > 0 OR stats.decision IS NOT NULL)
         ORDER BY game.game_date DESC, game.start_time_utc DESC, game.nhl_id DESC
       `,
       [nhlPlayerId, seasonId],

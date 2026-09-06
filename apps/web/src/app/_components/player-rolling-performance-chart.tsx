@@ -202,10 +202,6 @@ export function PlayerRollingPerformanceChart(
           <p>{kind === "skater" ? "Skater trend" : "Goalie trend"}</p>
           <h4>Rolling {metric.label}</h4>
         </div>
-        <p>
-          One metric at a time keeps the trend readable. Choose from official
-          and advanced measures below.
-        </p>
       </header>
 
       <div className="workspace-chart-toolbar workspace-player-trend-toolbar">

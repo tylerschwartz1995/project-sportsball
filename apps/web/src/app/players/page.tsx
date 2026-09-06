@@ -213,7 +213,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                       ))}
                     </div>
                     <div className="workspace-data-table-shell min-w-0 hidden md:block">
-                      <SortableTable
+                      <SortableTable secondaryColumns={[6, 7, 9]} initialExpanded={["plusMinus", "penaltyMinutes", "teamsPlayedFor"].includes(sort)}
                         defaultSortKey={sort}
                         defaultDirection={direction}
                       >
@@ -318,7 +318,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                   id="player-results"
                   title="Goalies"
                   count={goaliePage.totalItems}
-                  description="Participating goalies only; dressed backups are excluded."
+                  description={minGames === 0 ? "Unqualified save-percentage ranking · No minimum games. Totals combine all teams." : "Combined totals across all teams played for."}
                 />
                 {goaliePage.items.length > 0 ? (
                   <>
@@ -333,7 +333,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                       ))}
                     </div>
                     <div className="workspace-data-table-shell min-w-0 hidden md:block">
-                      <SortableTable
+                      <SortableTable secondaryColumns={[3, 5, 6, 7, 8]} initialExpanded={["gamesStarted", "losses", "overtimeLosses", "goalsAgainst", "saves"].includes(sort)}
                         defaultSortKey={sort}
                         defaultDirection={direction}
                       >

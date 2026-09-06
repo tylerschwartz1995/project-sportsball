@@ -73,12 +73,6 @@ export function GameAdvancedAnalytics({
 
   return (
     <section className="workspace-section-divider workspace-width-standard">
-      <SectionHeading
-        eyebrow="MoneyPuck game analytics"
-        title="How the Game Was Played"
-        description="Expected goals, possession, shot quality, and on-ice combinations from the stored MoneyPuck game files."
-      />
-
       <ViewTabs
         active={activeView}
         ariaLabel="Advanced analytics views"
@@ -268,7 +262,7 @@ function PlayerGameAnalytics({
     >
       {allSituationSkaters.length > 0 ? (
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
-          <SortableTable defaultSortKey="Game score">
+          <SortableTable secondaryColumns={[3, 7, 8, 9, 11]} defaultSortKey="Game score">
             <div className="overflow-x-auto">
               <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1040px]">
                 <colgroup>
@@ -350,7 +344,7 @@ function PlayerGameAnalytics({
 
       {allSituationGoalies.length > 0 ? (
         <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
-          <SortableTable defaultSortKey="GSAx">
+          <SortableTable secondaryColumns={[7]} defaultSortKey="GSAx">
             <div className="overflow-x-auto">
               <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[800px]">
                 <colgroup>
@@ -469,7 +463,7 @@ function UnitTable({
 }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
-      <SortableTable defaultSortKey="TOI">
+      <SortableTable secondaryColumns={[5, 6, 7, 8, 9, 10, 11, 12]} defaultSortKey="TOI">
         <div className="overflow-x-auto">
           <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1320px]">
             <colgroup>
@@ -541,30 +535,6 @@ function UnitTable({
   );
 }
 
-function SectionHeading({
-  eyebrow,
-  title,
-  description,
-}: {
-  eyebrow: string;
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent-secondary)]">
-          {eyebrow}
-        </p>
-        <h2 className="mt-2 text-3xl font-semibold text-[var(--foreground)]">{title}</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--muted)]">
-          {description}
-        </p>
-      </div>
-      <MoneyPuckAttribution />
-    </div>
-  );
-}
 
 function Subsection({
   title,
@@ -749,27 +719,12 @@ function CoverageNote({ children }: { children: React.ReactNode }) {
   );
 }
 
-function MetricDefinitions({ seasonId }: { seasonId: number }) {
-  return (
-    <div className="mt-8 rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4 text-sm leading-6 text-[var(--muted)]">
-      <p>
-        <strong className="text-[var(--foreground-soft)]">xG</strong> estimates shot quality.{" "}
-        <strong className="text-[var(--foreground-soft)]">xG%</strong> is a team or on-ice
-        share of expected goals. <strong className="text-[var(--foreground-soft)]">CF%</strong>{" "}
-        measures all shot attempts, while{" "}
-        <strong className="text-[var(--foreground-soft)]">FF%</strong> excludes blocked
-        attempts. <strong className="text-[var(--foreground-soft)]">GSAx</strong> is expected
-        goals against minus actual goals against; positive is better.
-      </p>
-      <Link
+function MetricDefinitions({ seasonId }: { seasonId: number }) { return <p className="mt-5 text-sm"><MoneyPuckAttribution /> · <Link
         href={`/analytics/guide?season=${seasonId}`}
         className="mt-3 inline-block font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
       >
         Open the full metric guide →
-      </Link>
-    </div>
-  );
-}
+      </Link></p>; }
 
 function MoneyPuckAttribution() {
   return (

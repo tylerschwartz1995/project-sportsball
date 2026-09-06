@@ -25,33 +25,12 @@ export function TeamAdvancedAnalytics({
     return <AdvancedUnavailable seasonId={seasonId} entity="team" />;
   }
 
-  const fiveOnFive = data.situations.find(
-    (row) => row.situation === "5on5",
-  );
-
   return (
     <AdvancedSection
       title="Team Advanced Analytics"
       description="Possession and expected-goal results by game situation."
       width="compact"
     >
-      {fiveOnFive ? (
-        <div className="grid gap-4 sm:grid-cols-3">
-          <AdvancedCard
-            label="5-on-5 xG share"
-            value={formatPercentage(fiveOnFive.expectedGoalsPercentage)}
-          />
-          <AdvancedCard
-            label="5-on-5 Corsi share"
-            value={formatPercentage(fiveOnFive.corsiPercentage)}
-          />
-          <AdvancedCard
-            label="5-on-5 Fenwick share"
-            value={formatPercentage(fiveOnFive.fenwickPercentage)}
-          />
-        </div>
-      ) : null}
-
       <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         <SortableTable>
         <div className="overflow-x-auto">
@@ -193,40 +172,21 @@ function SkaterAdvancedTable({
 }: {
   rows: MoneyPuckSkaterSituation[];
 }) {
-  const fiveOnFive = rows.find((row) => row.situation === "5on5");
-
   return (
     <>
-      {fiveOnFive ? (
-        <div className="grid gap-4 sm:grid-cols-3">
-          <AdvancedCard
-            label="5-on-5 xG share"
-            value={formatPercentage(fiveOnFive.onIceExpectedGoalsPercentage)}
-          />
-          <AdvancedCard
-            label="5-on-5 individual xG"
-            value={formatDecimal(fiveOnFive.individualExpectedGoals)}
-          />
-          <AdvancedCard
-            label="Season game score"
-            value={formatDecimal(fiveOnFive.gameScore)}
-          />
-        </div>
-      ) : null}
       <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         <SortableTable>
         <div className="overflow-x-auto">
           <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[840px]">
             <colgroup>
               <col className="workspace-col-team" />
-              <col className="workspace-col-label" />
               <col className="workspace-col-percentage" span={3} />
               <col className="workspace-col-number" span={4} />
             </colgroup>
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                 <MetricHeader label="Team" align="left" />
-                <MetricHeader label="Situation" align="left" />
+
                 <MetricHeader label="xG%" />
                 <MetricHeader label="CF%" />
                 <MetricHeader label="FF%" />
@@ -243,7 +203,7 @@ function SkaterAdvancedTable({
                   className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0"
                 >
                   <TeamCell team={row.team} />
-                  <TextCell value={situationLabel(row.situation)} />
+
                   <ValueCell
                     value={formatPercentage(
                       row.onIceExpectedGoalsPercentage,
@@ -276,45 +236,20 @@ function GoalieAdvancedTable({
 }: {
   rows: MoneyPuckGoalieSituation[];
 }) {
-  const allSituations = rows.find((row) => row.situation === "all");
-  const goalsSavedAboveExpected = allSituations
-    ? difference(
-        allSituations.expectedGoalsAgainst,
-        allSituations.goalsAgainst,
-      )
-    : null;
-
   return (
     <>
-      {allSituations ? (
-        <div className="grid gap-4 sm:grid-cols-3">
-          <AdvancedCard
-            label="Goals saved above expected"
-            value={formatSignedDecimal(goalsSavedAboveExpected)}
-          />
-          <AdvancedCard
-            label="Expected goals against"
-            value={formatDecimal(allSituations.expectedGoalsAgainst)}
-          />
-          <AdvancedCard
-            label="Actual goals against"
-            value={formatDecimal(allSituations.goalsAgainst)}
-          />
-        </div>
-      ) : null}
       <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         <SortableTable>
         <div className="overflow-x-auto">
           <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
             <colgroup>
               <col className="workspace-col-team" />
-              <col className="workspace-col-label" />
               <col className="workspace-col-number" span={5} />
             </colgroup>
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                 <MetricHeader label="Team" align="left" />
-                <MetricHeader label="Situation" align="left" />
+
                 <MetricHeader label="xGA" />
                 <MetricHeader label="GA" />
                 <MetricHeader label="GSAx" />
@@ -329,7 +264,7 @@ function GoalieAdvancedTable({
                   className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0"
                 >
                   <TeamCell team={row.team} />
-                  <TextCell value={situationLabel(row.situation)} />
+
                   <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} />
                   <ValueCell value={formatDecimal(row.goalsAgainst)} />
                   <ValueCell
@@ -374,30 +309,9 @@ function TeamAdvancedRow({ row }: { row: MoneyPuckTeamSituation }) {
   );
 }
 
-function AdvancedCard({ label, value }: { label: string; value: string }) {
-  return (
-    <article className="modern-advanced-card rounded-xl border border-[color-mix(in_srgb,var(--accent-secondary)_42%,var(--border))] bg-[var(--accent-secondary-soft)] p-4">
-      <p className="text-xs uppercase tracking-[0.12em] text-[var(--accent-secondary)]">
-        {label}
-      </p>
-      <p className="mt-2 text-xl font-semibold tabular-nums text-[var(--foreground)]">
-        {value}
-      </p>
-    </article>
-  );
-}
-
 function MetricDefinitions({ seasonId }: { seasonId: number }) {
   return (
     <div className="mt-5 rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4 text-sm leading-6 text-[var(--muted)]">
-      <p>
-        <strong className="text-[var(--foreground-soft)]">xG%</strong> is the share of expected
-        goals while the team or player was on the ice.{" "}
-        <strong className="text-[var(--foreground-soft)]">CF%</strong> is the share of all shot
-        attempts. <strong className="text-[var(--foreground-soft)]">FF%</strong> excludes
-        blocked attempts. <strong className="text-[var(--foreground-soft)]">GSAx</strong> is
-        expected goals against minus actual goals against; positive is better.
-      </p>
       <Link
         href={`/analytics/guide?season=${seasonId}`}
         className="mt-3 inline-block font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"

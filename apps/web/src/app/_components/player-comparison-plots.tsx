@@ -430,7 +430,7 @@ export function PlayerComparisonPlots(props: PlayerComparisonPlotsProps) {
               </div>
             </div>
 
-            <div>
+            <details><summary>Distribution</summary>
               <div className="workspace-comparison-plot-heading">
                 <h5>{yDefinition.shortLabel} Distribution</h5>
                 <p>
@@ -491,7 +491,7 @@ export function PlayerComparisonPlots(props: PlayerComparisonPlotsProps) {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </details>
           </div>
         ) : (
           <p className="workspace-chart-empty">
@@ -529,11 +529,11 @@ export function PlayerComparisonPlots(props: PlayerComparisonPlotsProps) {
         </div>
       </section>
 
-      <DirectPlayerComparison
+<details className="mt-5"><summary>Compare Players</summary>      <DirectPlayerComparison
         points={allPoints}
         metrics={metrics}
         kind={kind}
-      />
+      /></details>
     </>
   );
 }

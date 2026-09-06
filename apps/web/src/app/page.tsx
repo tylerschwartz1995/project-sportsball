@@ -1,13 +1,9 @@
 import Link from "next/link";
 import { unstable_cache } from "next/cache";
 
-import {
-  HomeLeagueTrends,
-  HomeStandingsMovement,
-} from "@/app/_components/homepage-insights";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
-import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
+import { TeamLogo } from "@/app/_components/team-logo";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -17,21 +13,14 @@ import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
 import {
   getLatestGamesForSeason,
-  getRecentLeagueTrendGames,
   getUpcomingGames,
 } from "@/data/games";
 import { listSkaterLeadersBySeason } from "@/data/players";
 import { listCachedSeasons } from "@/data/page-cache";
-import {
-  getStandings,
-  getStandingsPointsHistory,
-} from "@/data/standings";
+import { getStandings } from "@/data/standings";
 import { firstQueryValue } from "@/lib/directory";
-import {
-  buildLeagueTrendSummary,
-  buildStandingsMovement,
-} from "@/lib/homepage-insights";
-import { formatPlayerPosition } from "@/lib/player-position";
+import { HomePlayerLeaders } from "@/app/_components/home-player-leaders";
+import { listAdvancedSkaterLeaders, listAdvancedGoalieLeaders } from "@/data/advanced-leaderboard";
 
 export const dynamic = "force-dynamic";
 
@@ -43,12 +32,12 @@ const loadHomeSeasonData = unstable_cache(
   async (seasonId: number) =>
     Promise.all([
       getStandings(seasonId),
-      getStandingsPointsHistory(seasonId),
       listSkaterLeadersBySeason(seasonId, 5),
       getLatestGamesForSeason(seasonId),
-      getRecentLeagueTrendGames(seasonId),
+      listAdvancedSkaterLeaders(seasonId, "all", 0),
+      listAdvancedGoalieLeaders(seasonId, "all", 0),
     ]),
-  ["home-season-data"],
+  ["home-season-data-player-overview"],
   { revalidate: 300 },
 );
 
@@ -69,23 +58,17 @@ export default async function Home({ searchParams }: HomeProps) {
         loadHomeSeasonData(selectedSeason.id),
         loadHomeUpcomingGames(),
       ])
-    : [[[], [], [], [], []], []];
+    : [[[], [], [], [], []], await loadHomeUpcomingGames()];
   const [
     standings,
-    standingsHistory,
     scoringLeaders,
     latestGames,
-    recentGames,
+    advancedSkaters,
+    advancedGoalies,
   ] = seasonData;
 
   const latestDate = latestGames[0]?.gameDate;
   const latestPhase = latestGames[0]?.gameType === 3 ? "playoffs" : "regular";
-  const leagueLeader = standings[0];
-  const standingsMovement = buildStandingsMovement(
-    standings,
-    standingsHistory,
-  );
-  const leagueTrends = buildLeagueTrendSummary(recentGames);
 
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl modern-home px-4 py-6 sm:px-8 lg:px-10">
@@ -93,13 +76,13 @@ export default async function Home({ searchParams }: HomeProps) {
 
       <section className="py-8 sm:py-10">
         <WorkspacePageHeader
-          eyebrow="Season Overview"
+          eyebrow=""
           title={
             selectedSeason
               ? "NHL Overview"
               : "NHL Data Unavailable"
           }
-          description="Scores, standings, and the players shaping the season."
+          description=""
           action={
             <SeasonPicker
               seasons={seasons}
@@ -108,7 +91,7 @@ export default async function Home({ searchParams }: HomeProps) {
           }
         />
 
-        {selectedSeason && leagueLeader ? (
+        {selectedSeason ? (
           <>
             <div className="workspace-home-primary mt-7">
               <WorkspacePanel
@@ -157,7 +140,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
               <WorkspacePanel
                 title="Standings"
-                description="Top six in the final NHL snapshot"
+                description="Regular season · Top six by points"
                 action={
                   <Link href={`/standings?season=${selectedSeason.id}`}>
                     Full Table →
@@ -187,98 +170,20 @@ export default async function Home({ searchParams }: HomeProps) {
               </WorkspacePanel>
             </div>
 
-            <div className="modern-insights">
-              <WorkspacePanel
-                title="Recent Form"
-                className="modern-form"
-                description="Top six teams · Points in the last 10 games vs. the previous 10."
-                action={
-                  <Link href={`/standings?season=${selectedSeason.id}`}>
-                    Points History →
-                  </Link>
-                }
-              >
-                <HomeStandingsMovement
-                  entries={standingsMovement}
-                  seasonId={selectedSeason.id}
-                />
-              </WorkspacePanel>
-              <WorkspacePanel
-                className="modern-scoring"
-                title="Scoring Leaders"
-                action={
-                  <Link href={`/players?season=${selectedSeason.id}`}>
-                    All Players →
-                  </Link>
-                }
-              >
-                <div className="workspace-leader-grid">
-                  {scoringLeaders.map((player, index) => (
-                    <Link
-                      key={player.nhlPlayerId}
-                      href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                    >
-                      <span>#{index + 1}</span>
-                      <b className="flex items-center gap-2">
-                        <TeamLogoStack teams={player.teams} />
-                        {player.name}
-                      </b>
-                      <small>
-                        {formatPlayerPosition(player.position, "Skater")} ·{" "}
-                        {player.gamesPlayed} GP
-                      </small>
-                      <strong>{player.points} PTS</strong>
-                    </Link>
-                  ))}
-                </div>
-              </WorkspacePanel>
+            <HomePlayerLeaders seasonId={selectedSeason.id} scoring={scoringLeaders} skaters={advancedSkaters} goalies={advancedGoalies} />
 
-              <WorkspacePanel
-                title="League Trends"
-                className="modern-trends"
-                description="Latest 30 regular-season games compared with the previous 30."
-                action={
-                  <Link href={`/games?season=${selectedSeason.id}`}>
-                    All Results →
-                  </Link>
-                }
-              >
-                <HomeLeagueTrends
-                  summary={leagueTrends}
-                  seasonId={selectedSeason.id}
-                />
-              </WorkspacePanel>
-            </div>
-
-            {selectedSeason.id >= 20082009 ? (
-              <Link
-                href={`/analytics?season=${selectedSeason.id}`}
-                className="workspace-analytics-link"
-              >
-                <span>
-                  <b>Advanced Analytics</b>
-                  <small>
-                    xG, possession, game score, GSAx, lines, and pairings
-                  </small>
-                </span>
-                Open analytics →
-              </Link>
-            ) : null}
-
-            <WorkspacePanel
-              className="mt-5"
-              title="Explore More"
-            >
-              <nav className="workspace-home-explore" aria-label="Explore Sportsball">
-                <HomeDestination href="/history" title="Historical Leaders" detail="Career records and best seasons since 1917–18" />
-                <HomeDestination href={`/playoffs?season=${selectedSeason.id}`} title="Playoffs" detail="Bracket, projected matchups, and postseason leaders" />
-                <HomeDestination href="/drafts" title="Draft History" detail="Complete boards and team drafting performance" />
-                <HomeDestination href={`/players/compare?season=${selectedSeason.id}`} title="Compare Players" detail="Official and advanced metrics side by side" />
-              </nav>
-            </WorkspacePanel>
           </>
         ) : (
-          <EmptyState message="The selected season does not have a complete dashboard yet." />
+          <>
+            <EmptyState message="Season statistics are not available yet." />
+            {upcomingGames.length > 0 ? (
+              <WorkspacePanel title="Upcoming Games" className="mt-5">
+                <div className="workspace-upcoming-list">
+                  {upcomingGames.map(game => <UpcomingGame key={game.nhlGameId} game={game} />)}
+                </div>
+              </WorkspacePanel>
+            ) : null}
+          </>
         )}
       </section>
     </main>
@@ -299,10 +204,6 @@ function UpcomingGame({ game }: { game: GameSummary }) {
       <small>{game.gameType === 3 ? "Playoffs" : formatSeason(game.seasonId)}</small>
     </Link>
   );
-}
-
-function HomeDestination({ href, title, detail }: { href: string; title: string; detail: string }) {
-  return <Link href={href}><span><b>{title}</b><small>{detail}</small></span><strong>Explore →</strong></Link>;
 }
 
 function GameResult({ game }: { game: GameSummary }) {

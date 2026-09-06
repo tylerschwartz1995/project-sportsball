@@ -33,7 +33,7 @@ for (const theme of ["light", "dark"] as const) {
 
   test(`${theme} analytical categories have distinct colours and shapes`, async ({ page }) => {
     await page.addInitScript(value => localStorage.setItem("sportsball-theme", value), theme);
-    await page.goto("/analytics");
+    await page.goto("/analytics?display=charts");
     const key = page.locator(".workspace-comparison-key");
     await key.scrollIntoViewIfNeeded();
     const markers = await key.locator("[data-chart-shape]").evaluateAll(elements => elements.map(element => ({

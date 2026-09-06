@@ -42,23 +42,12 @@ export function GamePlayByPlayView({
       id="scoring"
       className="workspace-section-divider workspace-width-data scroll-mt-6"
     >
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
-            Official NHL play-by-play
-          </p>
-          <h2 className="mt-2 text-3xl font-semibold text-[var(--foreground)]">
-            Scoring and game timeline
-          </h2>
-          <p className="mt-3 max-w-3xl text-sm leading-6 text-[var(--muted)]">
-            Review every scoring play, then expand a period to follow the
-            recorded events in chronological order.
-          </p>
-        </div>
-        <p className="text-sm text-[var(--muted)]">
-          {data.events.length} recorded plays
-        </p>
-      </div>
+      <ScoringSummary
+        goals={goals}
+        awayTeam={awayTeam}
+        homeTeam={homeTeam}
+        seasonId={seasonId}
+      />
 
       {gameFlow ? (
         <GameFlowChart flow={gameFlow} />
@@ -70,13 +59,6 @@ export function GamePlayByPlayView({
         </p>
       )}
 
-      <ScoringSummary
-        goals={goals}
-        awayTeam={awayTeam}
-        homeTeam={homeTeam}
-        seasonId={seasonId}
-      />
-
       <div id="timeline" className="mt-10 scroll-mt-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
@@ -87,9 +69,6 @@ export function GamePlayByPlayView({
               Period by period
             </h3>
           </div>
-          <p className="text-sm text-[var(--muted)]">
-            Goals and penalties are highlighted
-          </p>
         </div>
 
         <div className="mt-5 space-y-3">
@@ -125,9 +104,6 @@ function ScoringSummary({
     <section className="mt-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <h3 className="text-xl font-semibold text-[var(--foreground)]">Scoring Summary</h3>
-        <p className="text-sm text-[var(--muted)]">
-          {goals.length} {goals.length === 1 ? "goal" : "goals"}
-        </p>
       </div>
 
       {goals.length === 0 ? (

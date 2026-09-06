@@ -9,8 +9,7 @@ export default function ErrorPage({ reset }: { reset: () => void }) {
         <p className="workspace-eyebrow">Page unavailable</p>
         <h1>We couldn’t load this page.</h1>
         <p>
-          The data service may still be starting or the connection may have
-          been interrupted. You can retry now or return to the homepage.
+          Try again or return to the homepage.
         </p>
         <div className="workspace-system-actions">
           <button type="button" onClick={reset}>

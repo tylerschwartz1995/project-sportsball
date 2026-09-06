@@ -188,12 +188,6 @@ export default async function PlayerComparePage({
 
             {comparisonEntries.length >= 2 ? (
               <>
-                <div className="mt-7">
-                  <PlayerDirectComparisonChart
-                    players={comparisonEntries}
-                    metrics={metrics}
-                  />
-                </div>
                 <WorkspacePanel
                   className="mt-7"
                   width="compact"
@@ -207,13 +201,15 @@ export default async function PlayerComparePage({
                     phase={phase}
                   />
                 </WorkspacePanel>
+<details className="mt-5"><summary>Comparison Chart</summary>                <div className="mt-7">
+                  <PlayerDirectComparisonChart
+                    players={comparisonEntries}
+                    metrics={metrics}
+                  />
+                </div>
+</details>
               </>
-            ) : (
-              <div className="workspace-empty-state">
-                Select at least two {category === "skaters" ? "skaters" : "goalies"} to
-                generate the comparison.
-              </div>
-            )}
+            ) : null}
           </>
         ) : (
           <div className="workspace-empty-state">

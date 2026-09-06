@@ -173,12 +173,13 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
           </div>
         </div>
 
-        <ViewTabs
+        {!completed && tabs.length === 0 ? <p className="mt-5 text-sm text-[var(--muted)]">Results will appear after play begins.</p> : null}
+        {tabs.length > 0 ? <ViewTabs
           active={view}
           ariaLabel="Game views"
           label="Game view"
           tabs={tabs}
-        />
+        /> : null}
 
         {view === "scoring" ? (
           <GamePlayByPlayView
@@ -205,7 +206,7 @@ export default async function GamePage({ params, searchParams }: GamePageProps) 
           </div>
         ) : null}
 
-        {view === "advanced" && advanced ? (
+        {view === "advanced" && availability.advanced && advanced ? (
           <div>
             <GameAdvancedAnalytics data={advanced} view={advancedView} />
           </div>
@@ -247,15 +248,15 @@ function ScoreTeam({
             </Link>
           </div>
           <p className="modern-game-support">
-            <TeamGameRecord record={team.record} />
+            {team.score !== null ? <TeamGameRecord record={team.record} /> : null}
             {team.shotsOnGoal === null
-              ? "Shots unavailable"
+              ? team.score !== null ? "Shots unavailable" : null
               : `${team.shotsOnGoal} shots`}
           </p>
         </div>
       </div>
       <strong>
-        {team.score ?? "—"}
+        {team.score ?? ""}
       </strong>
     </div>
   );
@@ -273,7 +274,6 @@ function TeamBoxScore({
       <SectionHeader
         eyebrow={`${team.abbreviation} box score`}
         title={team.name}
-        description="Official NHL player results for this game."
         action={
           <div className="flex items-center gap-3">
             <TeamLogo
@@ -284,9 +284,6 @@ function TeamBoxScore({
               decorative
               prominent
             />
-            <p className="text-sm text-[var(--muted)]">
-              {team.skaters.length} skaters · {team.goalies.length} goalies
-            </p>
           </div>
         }
       />
@@ -319,7 +316,7 @@ function SkaterTable({
 }) {
   return (
     <DataTableShell>
-      <SortableTable defaultSortKey="points">
+      <SortableTable secondaryColumns={[5, 7, 8, 9]} defaultSortKey="points">
       <div className="workspace-table-scroll">
         <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[940px]">
           <colgroup>
@@ -394,7 +391,7 @@ function GoalieTable({
 }) {
   return (
     <DataTableShell>
-      <SortableTable defaultSortKey="shotsAgainst">
+      <SortableTable secondaryColumns={[7, 8]} defaultSortKey="shotsAgainst">
       <div className="workspace-table-scroll">
         <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
           <colgroup>

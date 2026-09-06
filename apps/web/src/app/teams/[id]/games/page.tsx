@@ -138,9 +138,6 @@ export default async function TeamGamesPage({
                 Last {recentGames.length} Games
               </h3>
             </div>
-            <p className="text-sm text-[var(--muted)]">
-              Newest game appears first
-            </p>
           </div>
 
           <div
@@ -176,7 +173,7 @@ export default async function TeamGamesPage({
           </div>
 
           <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
-            <SortableTable defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
+            <SortableTable secondaryColumns={[2, 10, 11]} initialExpanded={["type", "xGoalsFor", "xGoalsAgainst"].includes(sort)} defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
               <div className="workspace-table-scroll-viewport">
                 <table className="workspace-table-dense workspace-sticky-table-header w-full min-w-[1040px] text-sm">
                   <thead>

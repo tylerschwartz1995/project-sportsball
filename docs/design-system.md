@@ -62,9 +62,9 @@ and retain provider attribution and definition links.
 
 ## Application shell
 
-Desktop routes use a persistent left sidebar. Small screens use a compact,
-horizontally scrollable top navigation so content retains the full screen
-width. The shell owns sport context, primary navigation, data status, and the
+All routes use the horizontal primary navigation selected by Modern Stats
+Exploration. Small screens retain horizontally scrollable navigation and the
+full content width. The shell owns sport context, primary navigation and the
 theme control; pages own their season and dataset controls.
 
 Light and dark modes use semantic tokens rather than separate component markup.
@@ -85,8 +85,8 @@ text is reserved for information that is not already expressed by the adjacent
 heading or field labels.
 Filter panels use one shared anatomy: a concise title and purpose, an active
 filter count, labelled fields, then `Apply Filters` and `Clear Filters` actions.
-Forms that apply immediately say `Updates automatically` and omit a redundant
-apply button. Season, phase, page view, and sort order are context controls and
+Forms that apply immediately omit a redundant apply button. Zero active-filter
+counts and inactive clear actions are omitted. Season, phase, page view, and sort order are context controls and
 do not inflate the active-filter count. Clearing filters preserves that context
 in the URL while removing only optional refinements.
 Dark is the first-visit default, an explicit selection persists on the device,
@@ -94,8 +94,9 @@ and a pre-render bootstrap applies it before the interface is painted.
 
 ## Data components
 
-- Section headings contain one eyebrow, one descriptive title, optional
-  explanatory copy, and no more than one primary action.
+- Page headings use one clear title and relevant controls. Omit generic
+  eyebrows and instructions already communicated by labels. Section headings
+  add scope or a new question rather than repeating the page title.
 - Metric tiles use a short label, a dominant tabular value, and optional context.
 - Desktop component width follows the amount of information being presented.
   Use the compact width for short leader, schedule, and two-entity comparison
@@ -229,3 +230,12 @@ The repeatable route matrix and critical desktop interaction stories are kept
 in `docs/desktop-ux-regression.md`. Run that constrained-width pass after broad
 interface changes so navigation, filters, tables, charts, and detail views are
 validated together.
+
+## Content priority
+
+Follow [the content audit decisions](content-audit-implementation.md). Show
+identity, result, workload, sample, and the measures central to the selected
+task first. Secondary columns remain available through More Columns; specialist
+charts and explanations use disclosures or explicit views. Avoid duplicate
+summary cards and navigation promotions. Source, coverage, phase, qualification,
+and accessible chart values remain part of the interpretation.

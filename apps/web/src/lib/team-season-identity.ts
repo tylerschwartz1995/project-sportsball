@@ -123,7 +123,7 @@ function buildFingerprint(
   }> = [
     {
       key: "results",
-      label: isPlayoffs ? "Games won" : "Standings points earned",
+      label: isPlayoffs ? "Win Percentage" : "Points Percentage",
       description: isPlayoffs
         ? "Share of playoff games won"
         : "Percent of possible standings points earned",

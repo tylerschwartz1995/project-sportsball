@@ -1,5 +1,4 @@
 import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
-import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
 import { WorkspacePageHeader } from "@/app/_components/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
@@ -71,7 +70,7 @@ const metricGroups = [
         abbreviation: "Game score",
         name: "Single-game contribution",
         definition:
-          "MoneyPuck’s combined single-game estimate using scoring, shot, penalty, and defensive events.",
+          "MoneyPuck’s combined single-game estimate using scoring, shot, penalty, and defensive events. Season and career displays sum the covered games; they are not per-game averages.",
         reading: "Best used as a compact game summary, not a complete player evaluation.",
       },
     ],
@@ -125,12 +124,7 @@ export default async function MetricGuidePage({
           eyebrow="Advanced analytics reference"
           title="Metric Guide"
           description="Plain-language definitions for the advanced statistics used across team, player, line, goalie, and game views."
-          action={
-            <SeasonPicker
-              seasons={seasons}
-              selectedSeasonId={selectedSeason?.id}
-            />
-          }
+
         />
 
         {selectedSeason ? (
