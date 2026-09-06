@@ -171,7 +171,7 @@ export function GameFlowChart({ flow }: { flow: GameFlow }) {
               ticks={periodTicks(flow.gameEndSeconds)}
               tickFormatter={(time) => periodTickLabel(Number(time))}
               stroke="var(--chart-axis)"
-              tick={{ fill: "var(--chart-label)", fontSize: "0.82rem" }}
+              tick={{ fill: "var(--chart-label)", fontSize: "0.875rem" }}
               tickLine={false}
               axisLine={{ stroke: "var(--chart-axis)" }}
               allowDataOverflow
@@ -183,7 +183,7 @@ export function GameFlowChart({ flow }: { flow: GameFlow }) {
                 formatAxisTick(view === "pressure" ? Math.abs(value) : value)
               }
               stroke="var(--chart-axis)"
-              tick={{ fill: "var(--chart-label)", fontSize: "0.82rem" }}
+              tick={{ fill: "var(--chart-label)", fontSize: "0.875rem" }}
               tickLine={false}
               axisLine={false}
               allowDataOverflow
@@ -193,7 +193,7 @@ export function GameFlowChart({ flow }: { flow: GameFlow }) {
                 angle: -90,
                 position: "insideLeft",
                 fill: "var(--chart-label)",
-                fontSize: "0.8125rem",
+                fontSize: "0.875rem",
               }}
             />
 

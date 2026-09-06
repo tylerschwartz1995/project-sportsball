@@ -1,3 +1,5 @@
+import type { CSSProperties } from "react";
+import { ComparisonScrollRegion } from "@/app/_components/comparison-scroll-region";
 import Link from "next/link";
 
 import { PlayerDirectComparisonChart } from "@/app/_components/lazy-charts";
@@ -337,8 +339,8 @@ function ComparisonTable({
   phase: string;
 }) {
   return (
-    <div className="workspace-table-scroll modern-comparison-scroll" tabIndex={0} role="region" aria-label="Player comparison table, scroll horizontally for more players">
-      <table className="workspace-table workspace-comparison-matrix" style={{ minWidth: `${9.5 + players.length * 8}rem` }}>
+    <ComparisonScrollRegion>
+      <table className="workspace-table workspace-comparison-matrix" style={{ "--comparison-players": players.length } as CSSProperties}>
         <colgroup>
           <col className="workspace-comparison-metric-column" />
           {players.map((player) => (
@@ -385,7 +387,7 @@ function ComparisonTable({
           ))}
         </tbody>
       </table>
-    </div>
+    </ComparisonScrollRegion>
   );
 }
 

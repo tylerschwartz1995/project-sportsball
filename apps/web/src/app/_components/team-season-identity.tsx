@@ -24,7 +24,7 @@ export function TeamSeasonIdentity({
   const seriesSummary = countOpponentOutcomes(identity.opponents);
 
   return (
-    <section className="workspace-width-data mt-8 space-y-6">
+    <section className="modern-team-performance workspace-width-data mt-8 space-y-6">
       <article className="surface-panel relative overflow-hidden p-5 sm:p-6">
         <div className="relative">
           <div>

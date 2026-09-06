@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 
+import { SortIndicator } from "@/app/_components/sizing-icons";
 import { AutoSubmitSelect } from "@/app/_components/auto-submit-select";
 import { FilterHeader } from "@/app/_components/filter-primitives";
 import { ClassRankingVisuals } from "@/app/_components/class-ranking-visuals";
@@ -919,7 +920,7 @@ function DraftBoardTable({
 }) {
   return (
     <div className="workspace-table-scroll">
-      <table className="workspace-table workspace-table-dense min-w-[930px]">
+      <table className="modern-draft-board workspace-table workspace-table-dense min-w-[930px]">
         <thead>
           <tr>
             <DraftSortHeader label="Player" sortKey="player" align="left" {...{ sort, direction, params }} />
@@ -1024,7 +1025,7 @@ function DraftSortHeader({
         scroll={false}
       >
         {label}
-        <span aria-hidden="true">{active ? (direction === "asc" ? "↑" : "↓") : "↕"}</span>
+        <SortIndicator direction={active ? direction : undefined} />
       </Link>
     </th>
   );

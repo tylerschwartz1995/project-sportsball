@@ -92,3 +92,35 @@ in `apps/web/e2e/sizing.spec.ts`, a 24-view dark/light phone/desktop sweep, and
 six enlarged-root layout stress checks. Those stress checks are a diagnostic,
 not native iOS/Safari zoom certification. Wide statistical tables still scroll
 horizontally; they are not compressed into unreadably narrow columns.
+
+## Full desktop sizing audit implementation
+
+The follow-up implements the complete September 5 desktop audit across the existing exploration branch. It keeps the selected Manrope, graphite/green visual direction and both themes. The root remains at the browser default; these are component reading sizes, not global zoom.
+
+| Audited family | Implemented reading and geometry contract |
+| --- | --- |
+| Header and navigation | 16px main navigation, 15px subnavigation and phase controls, 14px theme label; retain 22px brand, 32/28px page titles, 18px theme icon and 44px target. |
+| Homepage | 20px panel headings and scores, 15px panel actions, 16px team/player names and standings points, 18px scoring-leader points, 14px records and supporting lines; retain 24px trend headlines. Fixture crests alone become 28px. |
+| Filters and pagination | 15px field labels, 16px values/actions, 44px native controls; expanded player and History fields use the same scale. Presets and pagination use 40px targets. Descriptions are 14px and optional badges remain 13px. |
+| Tables | 14px headers, 16px entity names, 14px context, 15px dense figures and ordinary 500 weight. Sparse standings, player directory, core analytics, team goalie/advanced and playoff scorer tables use 16px figures. Dense rows gain modest padding; analytics and draft padding is separately restrained. Selected metrics retain stronger weight and all numeric alignment remains tabular. |
+| Team directory | 17px team names, 18px division names; 32px crests retained. |
+| Player profiles | 16px biography, 14px stat labels, 20px totals and 23px headline points/save percentage; 56px profile crests retained. Season-history identity is 16px and dense figures 15px. |
+| Team performance and strength | 16px primary metric/result and explanations, 14px supporting text with comfortable line height, 18px strength-panel titles, retained 20px summary values. |
+| Advanced profiles | 14px summary labels, retained 20px figures, 16px situation identity, explicit sparse/dense table roles, and 16px space beneath the situation selector. Profile content begins around 32px after phase navigation. |
+| Comparison | 16px full player names and values, 15px metric labels, 240px desktop/152px phone sticky metric column. A ResizeObserver shows the scroll cue only when the table actually overflows, including after resizing and player changes. Existing 44px remove buttons remain. |
+| Schedule and games | 16px team/date identity, 15px dense scores and figures, 14px context, 16/14px calendar date/count scale. The calendar uses a 16px SVG. Desktop hero names/scores/crests remain 24/52/56px, with the compact mobile score arrangement preserved. |
+| Combinations and box scores | 16px identity, 15px dense statistics, 14px jersey/position/status context. Unit names wrap between complete players; individual names never shrink to fit. Detail links keep their 44px targets. |
+| Shot maps | Orientation moved outside the scaled SVG into 14px HTML labels; team headings 18px, totals 15px, legend/instructions 14px, selected shooter 16px and detail values 15px. Rink geometry, shot encoding and keyboard interaction are unchanged. |
+| Charts and tooltips | 14px ticks, 15px axis titles, 20px chart headings, 16px relationship subheadings, 14px legends and 16px tooltip values. Sparse team markers receive a modest visible increase; dense player marks and expanded hit regions are retained. Duplicate percent suffixes on team scatter axes are removed. |
+| Team drafting | 14px ticks/notes, 15px axis titles; 28px nominal row pitch plus axis margins and explicit 18px stacked bars. The plot grows vertically for 32 teams. |
+| Draft board and definitions | 16px player identity including unlinked prospects, 14px school/context, 14–15px ranking definitions. Existing 28.8px outcome summaries remain. |
+| Playoffs | 15px bracket abbreviations, 16px wins, 14px wrapping round names; 18px dialog team names and unchanged 32px series score. Tabs are 15px/44px, stat toggles 15px/40px, names 16px and figures 15px. Short Games tabs fit their content; all dialogs are capped at viewport height minus 64px and stats scroll internally. |
+| History | 20px semibold record headings, 16px names, 18px record numbers, 24px substantial subsection/banner headings, 15px banner values. Ranking headers are at least 44px, with 16px names/15px figures. Era examples use 16px numbers/14px definitions and wrap in pairs; decade labels are 16px. |
+| Guide and empty/loading states | Guide terms and reading copy use 16px, 24–26px line height and a bounded measure; section headings are 20px. Empty results use a modest 18px heading and 16px reading/action text; loading copy uses body size. |
+| Preserved proportions | Inner content width, 1px separators, 10px panel radius, ordinary panel padding, 24px dense-row crests, dark/light parity, browser text preferences and stable hover/focus dimensions remain intact. |
+
+Validation includes all 51 desktop route requests from the audit, populated regular-season game player/unit analytics, selected shots, four-player and all-column comparisons, expanded filters/calendar, and all four series tabs. Two playoff-game player/unit requests correctly fall back to team data when those datasets are unavailable; populated regular-season views cover the actual components.
+
+The automated browser sweep covers 96 combinations of 24 views × phone/desktop × dark/light, plus 21 checks at 320/768/1920px and six 200%-root-text stress checks. No document overflow or uncaught page errors were found. The enlarged-root checks exercise layout reflow, not native Safari/iOS zoom certification. Wide tables and navigation intentionally scroll internally. Browser regressions cover actual font sizes, metric-column resizing, conditional cues, non-scaling shot labels, dense versus sparse tables, and natural dialog height in addition to the existing interaction checks.
+
+The exploration PR remains open and **must not be merged into main** for this experiment.

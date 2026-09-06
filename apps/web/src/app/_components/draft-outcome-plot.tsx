@@ -242,7 +242,7 @@ export function DraftOutcomePlot({
                   dataKey="draftOverallPick"
                   name="Overall Pick"
                   domain={["dataMin", "dataMax"]}
-                  tick={{ fill: "var(--chart-label)", fontSize: "0.84rem" }}
+                  tick={{ fill: "var(--chart-label)", fontSize: "0.875rem" }}
                   tickLine={false}
                   axisLine={{ stroke: "var(--chart-axis)" }}
                   label={{
@@ -250,7 +250,7 @@ export function DraftOutcomePlot({
                     position: "insideBottom",
                     offset: -20,
                     fill: "var(--chart-label)",
-                    fontSize: "0.84rem",
+                    fontSize: "0.875rem",
                   }}
                 />
                 <YAxis
@@ -258,7 +258,7 @@ export function DraftOutcomePlot({
                   dataKey="value"
                   name={metric.shortLabel}
                   allowDecimals={metric.format !== "integer"}
-                  tick={{ fill: "var(--chart-label)", fontSize: "0.84rem" }}
+                  tick={{ fill: "var(--chart-label)", fontSize: "0.875rem" }}
                   tickLine={false}
                   axisLine={{ stroke: "var(--chart-axis)" }}
                   width={58}
@@ -268,7 +268,7 @@ export function DraftOutcomePlot({
                     position: "insideLeft",
                     offset: 0,
                     fill: "var(--chart-label)",
-                    fontSize: "0.84rem",
+                    fontSize: "0.875rem",
                   }}
                 />
                 <ZAxis range={[38, 38]} />

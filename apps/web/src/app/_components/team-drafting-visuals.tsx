@@ -63,7 +63,7 @@ export function TeamDraftingVisuals({
     medianHundredGameRate,
     medianAverageGames,
   );
-  const outcomeChartHeight = Math.max(34, chartRows.length * 1.55);
+  const outcomeChartHeight = Math.max(20, chartRows.length * 1.75 + 4.25);
   const windowLabel =
     fromYear === null || toYear === null
       ? "the selected draft window"
@@ -223,6 +223,7 @@ export function TeamDraftingVisuals({
             <BarChart
               data={chartRows}
               layout="vertical"
+              barSize={18}
               margin={{ top: 10, right: 28, bottom: 28, left: 12 }}
               accessibilityLayer
             >
@@ -235,7 +236,7 @@ export function TeamDraftingVisuals({
                 type="number"
                 domain={[0, 1]}
                 tickFormatter={formatPercentage}
-                tick={{ fill: "var(--chart-label)", fontSize: "0.8rem" }}
+                tick={{ fill: "var(--chart-label)", fontSize: "0.875rem" }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
               />
@@ -244,7 +245,7 @@ export function TeamDraftingVisuals({
                 dataKey="teamAbbreviation"
                 interval={0}
                 width={52}
-                tick={{ fill: "var(--chart-label)", fontSize: "0.82rem" }}
+                tick={{ fill: "var(--chart-label)", fontSize: "0.875rem" }}
                 tickLine={false}
                 axisLine={false}
               />

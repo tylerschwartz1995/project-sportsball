@@ -21,7 +21,7 @@ test("selected player names and remove controls stay usable on phones", async ({
 
 test("comparison metric labels remain visible while values scroll", async ({ page }) => {
   await page.goto("/players/compare?season=20252026&players=8478402,8479318");
-  const region = page.getByRole("region", { name: "Player comparison table, scroll horizontally for more players" });
+  const region = page.getByRole("region", { name: "Player comparison table" });
   const label = region.locator("tbody th").first();
   await label.scrollIntoViewIfNeeded();
   const before = await label.boundingBox();
@@ -70,4 +70,63 @@ test("comparison remains contained on a narrow phone", async ({ page }) => {
   await expect(page.locator(".workspace-comparison-matrix")).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(320);
+});
+
+test("desktop comparison uses a wider metric column and only cues real overflow", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/players/compare?season=20252026&players=8478402,8479318,8477934,8477492");
+  const region = page.getByRole("region", { name: "Player comparison table", exact: true });
+  await expect(region).toHaveAttribute("data-overflow", "false");
+  expect((await region.locator("tbody th").first().boundingBox())!.width).toBeCloseTo(240, 0);
+  await expect(region.locator("tbody td").first()).toHaveCSS("font-size", "16px");
+  await page.setViewportSize({ width: 390, height: 900 });
+  await expect(region).toHaveAttribute("data-overflow", "true");
+  expect((await region.locator("tbody th").first().boundingBox())!.width).toBeCloseTo(152, 0);
+});
+
+test("shot orientation stays readable without scaling with the rink", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/games/2025030416?view=advanced&advancedView=shots");
+  const map = page.locator(".modern-shot-map").first();
+  const orientation = map.locator(".modern-shot-orientation");
+  await expect(orientation).toHaveCSS("font-size", "14px");
+  await expect(map.locator("svg text")).toHaveCount(0);
+  const marker = map.locator('svg g[role="button"]').first();
+  await marker.click();
+  await expect(map.locator('[aria-live="polite"]')).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 900 });
+  await expect(orientation).toHaveCSS("font-size", "14px");
+});
+
+test("desktop tables distinguish sparse totals from dense histories", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/players?season=20252026");
+  await expect(page.locator("table tbody td.workspace-semantic-number").first()).toHaveCSS("font-size", "16px");
+  const row = page.locator("table tbody tr").first();
+  expect((await row.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await page.goto("/history?section=careers");
+  await expect(page.locator(".workspace-history-ranking-summary h2")).toHaveCSS("font-size", "24px");
+  await expect(page.locator(".workspace-history-table tbody td.workspace-history-metric").first()).toHaveCSS("font-size", "15px");
+  await page.locator(".workspace-history-table").scrollIntoViewIfNeeded();
+  expect((await page.locator(".workspace-history-table thead th").first().boundingBox())!.height).toBeGreaterThanOrEqual(40);
+  await page.locator(".workspace-history-filter-drawer > summary").click();
+  const input = page.locator('.workspace-history-filter-drawer input:not([type="hidden"])').first();
+  await expect(input).toHaveCSS("font-size", "16px");
+  expect((await input.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+});
+
+test("short series game lists use natural height and stats retain internal scrolling", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto("/playoffs?season=20252026");
+  await page.locator(".workspace-bracket-series").first().click();
+  const dialog = page.getByRole("dialog");
+  await page.getByRole("tab", { name: /Games \(/ }).click();
+  await expect(dialog).toHaveAttribute("data-view", "games");
+  expect(await dialog.evaluate(element => element.getBoundingClientRect().height - element.querySelector(".workspace-series-dialog-card")!.getBoundingClientRect().height)).toBeLessThan(3);
+  expect((await dialog.boundingBox())!.height).toBeLessThanOrEqual(936);
+  await page.getByRole("tab", { name: "Player Stats", exact: true }).click();
+  await expect(dialog.locator(".workspace-series-table").first()).toBeVisible();
+  await expect(dialog.locator(".workspace-series-table td").first()).toHaveCSS("font-size", "15px");
+  await expect(dialog.locator(".workspace-series-tabs button").first()).toHaveCSS("font-size", "15px");
+  await expect(page.getByRole("button", { name: "Close series details" })).toBeVisible();
 });

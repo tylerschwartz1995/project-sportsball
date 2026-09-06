@@ -169,12 +169,11 @@ export function TeamComparisonScatterplot({
                 type="number"
                 dataKey="processPercentage"
                 name={processDefinition.label}
-                unit="%"
                 domain={xDomain}
                 tickFormatter={formatPercentage}
                 tick={{
                   fill: "var(--chart-label)",
-                  fontSize: "0.84rem",
+                  fontSize: "0.875rem",
                 }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
@@ -183,19 +182,18 @@ export function TeamComparisonScatterplot({
                   position: "insideBottom",
                   offset: -20,
                   fill: "var(--chart-label)",
-                  fontSize: "0.8125rem",
+                  fontSize: "0.875rem",
                 }}
               />
               <YAxis
                 type="number"
                 dataKey="resultPercentage"
                 name={resultLabel}
-                unit="%"
                 domain={yDomain}
                 tickFormatter={formatPercentage}
                 tick={{
                   fill: "var(--chart-label)",
-                  fontSize: "0.84rem",
+                  fontSize: "0.875rem",
                 }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--chart-axis)" }}
@@ -206,10 +204,10 @@ export function TeamComparisonScatterplot({
                   position: "insideLeft",
                   offset: -8,
                   fill: "var(--chart-label)",
-                  fontSize: "0.8125rem",
+                  fontSize: "0.875rem",
                 }}
               />
-              <ZAxis range={[95, 95]} />
+              <ZAxis range={[112, 112]} />
               <ReferenceLine
                 x={50}
                 stroke="var(--chart-reference)"

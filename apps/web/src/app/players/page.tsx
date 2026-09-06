@@ -218,7 +218,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         defaultDirection={direction}
                       >
                       <div className="overflow-x-auto">
-                        <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
+                        <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
                           <colgroup>
                             <col className="workspace-col-entity" />
                             <col className="workspace-col-stat" span={7} />
@@ -338,7 +338,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         defaultDirection={direction}
                       >
                       <div className="overflow-x-auto">
-                        <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
+                        <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
                           <colgroup>
                             <col className="workspace-col-entity" />
                             <col className="workspace-col-stat" span={7} />

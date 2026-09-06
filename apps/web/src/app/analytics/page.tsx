@@ -171,7 +171,7 @@ export default async function AnalyticsPage({
       : [];
 
   return (
-    <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
+    <main className="modern-analytics mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="analytics" />
 
       <section className="py-10">

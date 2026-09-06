@@ -1,9 +1,9 @@
 /* Modern stats exploration: quiet surfaces, one type family, predictable hierarchy. */
 :root {
   --text-meta: 0.8125rem;
-  --text-control: 0.875rem;
-  --text-body: 0.9375rem;
-  --text-section: 1.125rem;
+  --text-control: 1rem;
+  --text-body: 1rem;
+  --text-section: 1.25rem;
   --text-page: 2rem;
   --background: #111416;
   --foreground: #edf1f3;
@@ -112,8 +112,8 @@ main :is(input, select, button) { font-family: inherit; }
 .workspace-panel, .surface-panel, .data-table-shell { border: 1px solid var(--border); border-radius: var(--radius-panel); background: var(--surface); box-shadow: none; }
 .workspace-panel-header { align-items: center; padding: 1rem 1.125rem; }
 .workspace-panel-header h3 { font-size: var(--text-section); font-weight: 700; }
-.workspace-panel-header p { font-size: var(--text-meta); line-height: 1.6; max-width: 48rem; }
-.workspace-panel-header a { font-size: var(--text-meta); }
+.workspace-panel-header p { font-size: 0.9375rem; line-height: 1.6; max-width: 48rem; }
+.workspace-panel-header a { font-size: 0.9375rem; }
 .surface-panel h3, .workspace-history-intro h2, .workspace-schedule-results-heading h2, .workspace-team-conferences h2 { font-size: 1.25rem; font-weight: 700; }
 main :is(.rounded-xl, .rounded-2xl, .rounded-lg) { border-radius: var(--radius-panel); }
 :is(.workspace-directory-controls, .workspace-player-filters, .workspace-draft-filters,
@@ -129,13 +129,13 @@ main :is(.rounded-xl, .rounded-2xl, .rounded-lg) { border-radius: var(--radius-p
 .workspace-filter-header strong { font-size: var(--text-body); }
 .workspace-filter-header small { font-size: var(--text-meta); }
 main table { font-variant-numeric: tabular-nums; }
-main table thead th { background: var(--surface-raised); color: var(--muted); font-size: var(--text-meta); font-weight: 600; letter-spacing: 0; }
-main table tbody td { font-size: var(--text-control); }
+main table thead th { background: var(--surface-raised); color: var(--muted); font-size: 0.875rem; font-weight: 600; letter-spacing: 0; }
+main table tbody td { font-size: 0.9375rem; font-weight: 500; }
 .workspace-table thead .workspace-sortable-header,
 .workspace-column-preset-table thead .workspace-sticky-entity,
 .workspace-history-table thead .workspace-history-rank-col,
 .workspace-history-table thead .workspace-history-entity-col { background: var(--surface-raised); }
-.workspace-table thead .workspace-sortable-header button { font-size: var(--text-meta); }
+.workspace-table thead .workspace-sortable-header :is(button, a) { font-size: 0.875rem; }
 main table tbody tr:hover { background: var(--surface-subtle); }
 .modern-profile-identity { padding: 0.5rem 0 1.5rem; border-bottom: 1px solid var(--border); }
 .modern-profile-identity > div, .modern-profile-identity > div > div { min-width: 0; }
@@ -210,16 +210,16 @@ main table tbody tr:hover { background: var(--surface-subtle); }
 }
 
 /* Shared sizing contract, including the older detail-page components. */
-main h2[class], main h3[class] { font-size: 1.25rem; line-height: 1.35; }
+main h2, main h3 { font-size: 1.25rem; line-height: 1.35; }
 .workspace-panel-header h3, .workspace-player-picker-heading h3,
 .workspace-history-record-list header h2 { font-size: var(--text-section); }
 .workspace-guide-group > header h2 { font-size: var(--text-section); }
-.workspace-bracket-round h3 { font-size: var(--text-meta); }
+.workspace-bracket-round h3 { font-size: 0.875rem; white-space: normal; line-height: 1.5; }
 .theme-toggle-icon { display: grid; place-items: center; width: 1.125rem; height: 1.125rem; }
 .theme-toggle-icon svg { width: 1.125rem; height: 1.125rem; }
 .site-utilities .theme-toggle { min-width: 2.75rem; min-height: 2.75rem; }
 .team-crest-compact { width: 2rem; height: 2rem; }
-.workspace-result-matchup strong { font-size: 1.125rem; }
+.workspace-result-matchup strong { font-size: 1.25rem; }
 .workspace-player-picker-selected { grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
 .workspace-player-picker-selected strong { white-space: normal; overflow-wrap: anywhere; font-size: var(--text-body); }
 .workspace-player-picker-selected button { display: grid; place-items: center; min-width: 2.75rem; min-height: 2.75rem; }
@@ -228,8 +228,8 @@ main h2[class], main h3[class] { font-size: 1.25rem; line-height: 1.35; }
 .workspace-player-picker-heading { margin-bottom: 0.75rem; }
 .workspace-player-picker-search { margin-top: 0.75rem; }
 .workspace-player-picker-selected { margin-top: 0.75rem; padding-top: 0.75rem; }
-.workspace-comparison-matrix { table-layout: fixed; }
-.workspace-comparison-matrix .workspace-comparison-metric-column { width: 9.5rem; }
+.workspace-comparison-matrix { --comparison-metric-width: 15rem; table-layout: fixed; min-width: calc(var(--comparison-metric-width) + var(--comparison-players) * 8rem); }
+.workspace-comparison-matrix .workspace-comparison-metric-column { width: var(--comparison-metric-width); }
 .workspace-comparison-matrix :is(thead th:first-child, tbody th) { position: sticky; left: 0; z-index: 2; background: var(--surface); border-right: 1px solid var(--border); }
 .workspace-comparison-matrix thead th:first-child { background: var(--surface-raised); z-index: 3; }
 .workspace-comparison-matrix thead a { white-space: normal; overflow-wrap: anywhere; font-size: var(--text-control); line-height: 1.4; }
@@ -237,7 +237,7 @@ main h2[class], main h3[class] { font-size: 1.25rem; line-height: 1.35; }
 .workspace-comparison-matrix tbody th { font-size: var(--text-control); }
 .workspace-table-scroll { overscroll-behavior-x: contain; }
 .modern-comparison-scroll { position: relative; }
-.modern-comparison-scroll::before { content: "Scroll horizontally to compare players →"; display: block; position: sticky; left: 0; padding: 0.6rem 0.8rem; color: var(--muted); font-size: var(--text-meta); }
+.modern-comparison-scroll[data-overflow="true"]::before { content: "Scroll horizontally to compare players →"; display: block; position: sticky; left: 0; padding: 0.6rem 0.8rem; color: var(--muted); font-size: var(--text-meta); }
 .workspace-bracket { grid-template-columns: repeat(7, minmax(10rem, 1fr)); min-width: 73rem; }
 .workspace-bracket-series > span { grid-template-columns: 1.5rem minmax(4ch, 1fr) 1.25rem; gap: 0.5rem; padding: 0.5rem 0.75rem; min-height: 3rem; }
 .workspace-bracket-series > span[data-seeded="true"] { grid-template-columns: 1.75rem 1.5rem minmax(4ch, 1fr) 1.25rem; }
@@ -334,3 +334,199 @@ main h2[class], main h3[class] { font-size: 1.25rem; line-height: 1.35; }
   .workspace-schedule-toolbar > .workspace-schedule-phase { grid-column: 1 / -1; grid-row: 2; }
   .workspace-schedule-toolbar > form:nth-of-type(2) { grid-column: 1 / -1; grid-row: 3; }
 }
+
+/* Desktop audit: reading roles, rather than a page-wide zoom. */
+.site-utilities .theme-toggle, .site-footer > a:last-child { font-size: 0.875rem; }
+.workspace-scroll-nav a, .workspace-phase-filter a, .workspace-schedule-phase a,
+.workspace-standings-scope :is(a, button), .workspace-history-explorer-nav a,
+.workspace-history-peaks-heading nav a { font-size: 0.9375rem; }
+main :is(input:not([type="checkbox"]):not([type="radio"]), select) { font-size: 1rem; min-height: 2.75rem; }
+main :is(form label, .workspace-chart-toolbar label, .workspace-season-picker label,
+.workspace-advanced-situation-filter, .workspace-history-filter-drawer label) { font-size: 0.9375rem; }
+.workspace-filter-actions > :is(button, a, span), .workspace-draft-filter-actions > *,
+.workspace-history-filter-actions > *, .workspace-history-actions > *,
+.workspace-draft-table-search button { font-size: 1rem; min-height: 2.75rem; }
+.workspace-filter-header small, .workspace-player-advanced-filters summary,
+.modern-scope-help, .workspace-table-note, .workspace-column-preset-toolbar span { font-size: 0.875rem; line-height: 1.5; }
+.workspace-column-preset-toolbar button { min-height: 2.5rem; font-size: 0.875rem; }
+main nav[aria-label*="agination"] :is(a, span) { font-size: 0.9375rem; min-height: 2.5rem; }
+.workspace-sort-icon { display: inline-block; flex-shrink: 0; vertical-align: middle; width: 1rem; height: 1rem; }
+.workspace-draft-sort-link { font-size: 0.875rem; }
+.workspace-schedule-calendar-action button { font-size: 0.9375rem; min-height: 2.75rem; gap: 0.5rem; }
+.workspace-schedule-calendar-action svg { flex-shrink: 0; }
+
+/* Home: names and central values lead, records remain subordinate. */
+.modern-scoring .workspace-leader-grid strong { font-size: 1.125rem; }
+.modern-scoring .workspace-leader-grid :is(small, a > span),
+.modern-trends .workspace-home-trend-rows :is(small, em),
+.workspace-home-movement-team small, .workspace-home-movement-change small,
+.workspace-standing-list small, .workspace-upcoming-list small { font-size: 0.875rem; }
+.workspace-standing-list :is(b, strong), .workspace-home-movement-change strong,
+.workspace-upcoming-list a > span, .workspace-home-trend-rows b { font-size: 1rem; }
+.workspace-upcoming-list time { font-size: 0.9375rem; }
+.workspace-upcoming-list .team-crest-tiny { width: 1.75rem; height: 1.75rem; }
+.workspace-team-directory-card strong { font-size: 1.0625rem; }
+.workspace-team-division h3 { font-size: 1.125rem; }
+
+/* Dense tables retain internal scrolling; sparse tables use the body scale. */
+main .workspace-table tbody td { line-height: 1.5; }
+main .workspace-table-dense tbody td { padding-top: 0.6875rem; padding-bottom: 0.6875rem; }
+main .workspace-table tbody :is(a, .workspace-entity-name),
+main .workspace-table tbody td.text-left.font-medium { font-size: 1rem; font-weight: 550; }
+main .workspace-table tbody :is(small, .text-xs) { font-size: 0.875rem; font-weight: 400; }
+main .workspace-table tbody td.font-semibold,
+main .workspace-table tbody .workspace-points-cell,
+main .workspace-table tbody .is-active { font-weight: 650; }
+main .modern-table-readable tbody td,
+main.modern-analytics .workspace-column-preset-table[data-column-preset="core"] tbody td { font-size: 1rem; }
+main .workspace-standings-table tbody td { padding-block: 0.875rem; }
+main .workspace-comparison-matrix tbody td { font-size: 1rem; font-weight: 500; white-space: nowrap; }
+.workspace-comparison-matrix tbody th { font-size: 0.9375rem; line-height: 1.5; }
+.workspace-comparison-matrix thead a { font-size: 1rem; }
+.workspace-player-picker-heading h3 { font-weight: 600; }
+.workspace-player-picker-selected small, .workspace-player-picker-results small { font-size: 0.875rem; }
+.workspace-player-picker-results strong { font-size: 1rem; }
+.modern-unit-players a { font-weight: 550; }
+.workspace-empty-state, .workspace-empty-state a, .workspace-history-empty p { font-size: 1rem; line-height: 1.5; }
+.workspace-empty-state strong, .workspace-history-empty strong { font-size: 1.125rem; }
+
+/* Profile summaries and explanatory content. */
+.workspace-player-profile-fact dd { font-size: 1rem; }
+.workspace-player-season-metric dt { font-size: 0.875rem; letter-spacing: 0.04em; }
+.workspace-player-season-metric dd { font-size: 1.25rem; white-space: nowrap; }
+.workspace-player-season-totals-header span { font-size: 1.4375rem; white-space: nowrap; }
+.workspace-player-season-totals-header h4 { font-size: 1rem; }
+.modern-advanced-card > p:first-child { font-size: 0.875rem; letter-spacing: 0.04em; }
+.workspace-advanced-situation-filter { margin-bottom: 1rem; }
+.modern-advanced-section > div:first-child p:last-child { font-size: 1rem; line-height: 1.5; }
+.workspace-schedule-strength { margin-top: 2rem; }
+.workspace-schedule-strength h4 { font-size: 1.125rem; }
+.workspace-schedule-strength dt { font-size: 0.875rem; }
+.workspace-schedule-strength > div:first-child p:last-child { font-size: 1rem; line-height: 1.5; }
+.workspace-team-game-record { font-size: 0.8125rem; margin-inline-start: 0.25rem; }
+.workspace-schedule-week strong, .workspace-schedule-month-grid strong { font-size: 1rem; }
+.workspace-schedule-week small, .workspace-schedule-month-grid small { font-size: 0.875rem; }
+.workspace-game-team-name { font-size: 1rem; }
+.workspace-xg-comparison small { font-size: 0.9375rem; }
+
+/* Guide copy has a reading measure rather than a metadata scale. */
+.workspace-guide-card h3, .workspace-guide-card strong { font-size: 1rem; font-weight: 600; }
+.workspace-guide-card > p, .workspace-guide-card .workspace-guide-reading,
+.workspace-guide-note > p, .workspace-guide-group > header p { font-size: 1rem; line-height: 1.6; max-width: 75ch; }
+.workspace-guide-note h2 { font-size: 1.25rem; }
+.workspace-guide-note a { font-size: 1rem; }
+
+/* History keeps substantial section titles distinct from the page heading. */
+.workspace-history-ranking-summary h2, .workspace-history-peaks-heading h2,
+.workspace-history-decades h2, .workspace-history-results > header h3 { font-size: 1.5rem; font-weight: 650; }
+.workspace-history-record-list header h2 { font-size: 1.25rem; font-weight: 650; }
+.workspace-history-record-list li strong, .workspace-history-entity strong { font-size: 1rem; font-weight: 550; }
+.workspace-history-record-list li > b { font-size: 1.125rem; }
+.workspace-history-record-list li small { font-size: 0.875rem; }
+.workspace-history-record-list header > a { font-size: 0.9375rem; }
+.workspace-history-ranking-summary dd { font-size: 0.9375rem; }
+.workspace-history-table thead th { height: 2.75rem; font-size: 0.875rem; }
+.workspace-history-table thead th > a { display: flex; align-items: center; justify-content: flex-end; gap: 0.25rem; min-height: 2.75rem; }
+.workspace-history-table tbody td { padding-block: 0.6875rem; }
+.workspace-history-filter-drawer legend { font-size: 1rem; }
+.workspace-history-filter-drawer label { font-size: 0.9375rem; }
+.workspace-history-era-definition dl { flex-wrap: wrap; gap: 0.75rem 1.5rem; }
+.workspace-history-era-definition dl > div { flex-wrap: wrap; }
+.workspace-history-era-definition dt { font-size: 1rem; white-space: nowrap; }
+.workspace-history-era-definition dd { font-size: 0.875rem; }
+.workspace-history-decades-table tbody th { font-size: 1rem; }
+.workspace-history-decades-table tbody td { font-size: 0.9375rem; }
+.workspace-history-intro > p, .workspace-history-era-definition > p { font-size: 1rem; line-height: 1.6; max-width: 75ch; }
+
+/* Charts: labels use actual CSS sizes, never the rink's scaled drawing units. */
+.recharts-cartesian-axis-tick text { font-size: 0.875rem; }
+.recharts-label { font-size: 0.9375rem; }
+.workspace-chart-toolbar :is(h3, h4), .workspace-history-chart header h3,
+.workspace-player-direct-chart h3 { font-size: 1.25rem; font-weight: 650; }
+.workspace-player-comparison-plots h5 { font-size: 1rem; font-weight: 600; }
+.workspace-chart-legend, .workspace-chart-legend-label, .workspace-team-drafting-legend,
+.workspace-team-drafting-x-ticks, .workspace-team-drafting-y-tick { font-size: 0.875rem; }
+.workspace-team-drafting-x-title, .workspace-team-drafting-y-title { font-size: 0.9375rem; }
+.workspace-team-drafting-chart-note, .workspace-draft-range-note,
+.workspace-class-definitions { font-size: 0.875rem; line-height: 1.5; }
+.workspace-chart-tooltip { width: min(21rem, calc(100vw - 2rem)); max-width: calc(100vw - 2rem); }
+.workspace-chart-tooltip :is(b, strong) { font-size: 1rem; }
+.workspace-chart-tooltip :is(dt, small) { font-size: 0.875rem; }
+.modern-shot-orientation { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.875rem; color: var(--muted); margin-bottom: 0.5rem; }
+.modern-shot-map figcaption p:nth-child(2) { font-size: 1.125rem; white-space: normal; }
+.modern-shot-map figcaption p:nth-child(3) { font-size: 0.9375rem; white-space: normal; }
+.modern-shot-map .text-xs { font-size: 0.875rem; line-height: 1.5; }
+.modern-shot-map [aria-live] dl { font-size: 0.9375rem; }
+.modern-shot-map [aria-live] dt { font-size: 0.875rem; }
+.modern-shot-map [aria-live] p.font-semibold { font-size: 1rem; }
+
+/* Playoff overview, short game lists and dense dialog tables have different needs. */
+.workspace-bracket-team-name { font-size: 0.9375rem; }
+.workspace-bracket-series b { font-size: 1rem; }
+.workspace-series-dialog { max-height: calc(100dvh - 4rem); }
+.workspace-series-dialog[data-view="games"] { height: fit-content; }
+.workspace-series-dialog[data-view="games"] .workspace-series-dialog-card { height: auto; max-height: calc(100dvh - 4rem); }
+.workspace-series-team strong { font-size: 1.125rem; }
+.workspace-series-tabs button { font-size: 0.9375rem; min-height: 2.75rem; }
+.workspace-series-stat-row span { font-size: 0.875rem; }
+.workspace-series-stats-toggle button { font-size: 0.9375rem; min-height: 2.5rem; }
+.workspace-series-game-meta strong, .workspace-series-game-team strong { font-size: 1rem; }
+.workspace-series-game-meta :is(time, span) { font-size: 0.875rem; }
+.workspace-series-game-team b { font-size: 1.25rem; }
+.workspace-series-game-link { font-size: 0.9375rem; }
+.workspace-series-table thead th { font-size: 0.875rem; }
+.workspace-series-table td { font-size: 0.9375rem; }
+.workspace-series-player-identity strong { font-size: 1rem; }
+.workspace-series-player-identity small { font-size: 0.875rem; }
+.workspace-series-loading, .workspace-series-empty { font-size: 1rem; }
+@media (max-width: 700px) {
+  .workspace-comparison-matrix { --comparison-metric-width: 9.5rem; }
+}
+.modern-section-heading > div > p:last-child:not(:first-child) { font-size: 1rem; line-height: 1.5; }
+.modern-team-performance dt, .modern-team-performance dd > span.font-semibold { font-size: 1rem; }
+.modern-team-performance dt + p { font-size: 0.875rem; line-height: 1.5; }
+.modern-team-performance .text-xs { font-size: 0.875rem; }
+.modern-unit-names { display: flex; flex-wrap: wrap; min-width: 16rem; gap: 0.15rem 0.25rem; }
+.modern-unit-names > span { white-space: nowrap; }
+.workspace-comparison-plot-heading h5 { font-size: 1rem; font-weight: 600; }
+.workspace-chart-tooltip-value { font-size: 1rem; }
+.workspace-phase-filter + section { margin-top: 2rem; }
+.workspace-player-filters + section { margin-top: 1.25rem; }
+.workspace-player-chart-header :is(h3, h4), .workspace-direct-comparison h4 { font-size: 1.25rem; font-weight: 650; }
+.workspace-player-chart-header > p, .workspace-player-chart-header > div > p:last-child:not(:first-child),
+.workspace-history-header-copy > p { font-size: 1rem; line-height: 1.6; }
+.workspace-chart-tooltip dd { font-size: 1rem; }
+.workspace-game-team a { font-size: 1rem; }
+.workspace-game-card time, .workspace-game-card > a { font-size: 0.9375rem; }
+main :is(.workspace-player-picker-search, .workspace-player-plot-controls, .workspace-team-plot-controls) label { font-size: 0.9375rem; }
+.workspace-player-picker-actions > button { min-height: 2.75rem; font-size: 1rem; }
+.workspace-player-picker-actions > div span { font-size: 0.875rem; }
+.workspace-class-ranking-guide :is(dd, p > span) { font-size: 0.875rem; line-height: 1.5; }
+.workspace-class-ranking-guide dt { font-size: 0.9375rem; }
+.workspace-chart-filter-group :is(legend, button), .workspace-player-plot-controls button { font-size: 0.9375rem; }
+.workspace-chart-filter-group button { min-height: 2.5rem; }
+.workspace-filter-actions .workspace-disabled-action { font-size: 1rem; }
+.workspace-history-chart-heading-copy > span { font-size: 0.875rem; }
+.workspace-direct-comparison > header h4 { font-size: 1.25rem; font-weight: 650; }
+.workspace-direct-comparison > header > p, .workspace-direct-comparison-empty { font-size: 1rem; }
+.workspace-direct-comparison-selectors label { font-size: 0.9375rem; }
+.workspace-filter-header > div > span { font-size: 0.875rem; }
+.workspace-filter-header small { font-size: 0.8125rem; }
+.workspace-draft-range-note.is-footer { font-size: 0.875rem; line-height: 1.5; }
+.workspace-game-flow-header h3 { font-size: 1.25rem; }
+.workspace-game-flow-header p { font-size: 1rem; line-height: 1.5; }
+.workspace-game-flow-source, .workspace-game-flow-key { font-size: 0.875rem; line-height: 1.5; }
+.workspace-game-flow-periods :is(td, th, caption) { font-size: 0.9375rem; }
+.workspace-xg-comparison-share span { font-size: 0.9375rem; }
+main.modern-analytics .workspace-table-dense tbody td { padding-block: 0.4375rem; }
+main .modern-draft-board tbody td { padding-block: 0.5rem; }
+.workspace-player-picker-selected > li.is-empty p { font-size: 0.875rem; }
+.workspace-player-history-total :is(th, td) { font-size: 1rem; }
+.workspace-column-preset-toolbar strong { font-size: 0.875rem; }
+.workspace-loading-status { font-size: 1rem; }
+main .modern-player-history tbody td:first-child { font-size: 1rem; }
+main .workspace-table .workspace-team-cell > div > strong { font-size: 1rem; font-weight: 550; }
+.workspace-player-picker-results span { font-size: 0.875rem; }
+main .workspace-table tbody .workspace-points-cell { font-size: 1rem; }
+.workspace-series-table td { font-weight: 500; }
+.workspace-series-table td.is-highlight { font-weight: 650; }

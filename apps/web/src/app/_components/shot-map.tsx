@@ -107,7 +107,7 @@ function TeamShotMap({
   }
 
   return (
-    <figure className="surface-panel flex h-full flex-col overflow-hidden">
+    <figure className="modern-shot-map surface-panel flex h-full flex-col overflow-hidden">
       <figcaption className="border-b border-[var(--border)] px-5 py-4">
         <div className="flex min-w-0 items-center gap-3">
           <TeamLogo {...team} size="compact" decorative />
@@ -127,6 +127,10 @@ function TeamShotMap({
       </figcaption>
 
       <div className="flex flex-1 flex-col p-4">
+        <div className="modern-shot-orientation" aria-hidden="true">
+          <span>CENTRE</span>
+          <span>ATTACKING →</span>
+        </div>
         <svg
           viewBox="0 0 320 275"
           role="group"
@@ -201,19 +205,6 @@ function TeamShotMap({
               />
             </g>
           ))}
-
-          <text x="18" y="28" fill="var(--muted)" fontSize="13">
-            CENTRE
-          </text>
-          <text
-            x="300"
-            y="28"
-            fill="var(--muted)"
-            fontSize="13"
-            textAnchor="end"
-          >
-            ATTACKING →
-          </text>
 
           {renderedShots.map((shot) => {
             const x = mapShotX(shot.adjustedXCoordinate!);

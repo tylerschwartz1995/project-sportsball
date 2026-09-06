@@ -272,6 +272,7 @@ function SeriesDialog({
     <dialog
       ref={dialogRef}
       className="workspace-series-dialog"
+      data-view={activeTab}
       tabIndex={-1}
       aria-label={series ? `${formatMatchup(series)} series details` : undefined}
       onClose={onClose}

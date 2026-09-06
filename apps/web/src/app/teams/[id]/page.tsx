@@ -456,7 +456,7 @@ export default async function TeamPage({
           <DataTableShell>
             <SortableTable defaultSortKey="savePercentage">
               <div className="overflow-x-auto">
-                <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
+                <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
                   <colgroup>
                     <col className="workspace-col-entity" />
                     <col className="workspace-col-number" span={6} />

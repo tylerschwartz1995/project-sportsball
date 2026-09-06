@@ -461,7 +461,7 @@ function quadrantLabel(
     value,
     position,
     fill: "var(--chart-label)",
-    fontSize: "0.8125rem",
+    fontSize: "0.875rem",
     letterSpacing: "0.08em",
   } as const;
 }

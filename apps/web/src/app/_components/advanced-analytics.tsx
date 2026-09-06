@@ -55,7 +55,7 @@ export function TeamAdvancedAnalytics({
       <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         <SortableTable>
         <div className="overflow-x-auto">
-          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
+          <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
             <colgroup>
               <col className="workspace-col-entity" />
               <col className="workspace-col-percentage" span={3} />
@@ -172,7 +172,7 @@ function AdvancedSection({
   width: "compact" | "standard";
 }) {
   return (
-    <section className={`workspace-width-${width} mt-12`}>
+    <section className={`modern-advanced-section workspace-width-${width} mt-8`}>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent-secondary)]">
@@ -376,7 +376,7 @@ function TeamAdvancedRow({ row }: { row: MoneyPuckTeamSituation }) {
 
 function AdvancedCard({ label, value }: { label: string; value: string }) {
   return (
-    <article className="rounded-xl border border-[color-mix(in_srgb,var(--accent-secondary)_42%,var(--border))] bg-[var(--accent-secondary-soft)] p-4">
+    <article className="modern-advanced-card rounded-xl border border-[color-mix(in_srgb,var(--accent-secondary)_42%,var(--border))] bg-[var(--accent-secondary-soft)] p-4">
       <p className="text-xs uppercase tracking-[0.12em] text-[var(--accent-secondary)]">
         {label}
       </p>

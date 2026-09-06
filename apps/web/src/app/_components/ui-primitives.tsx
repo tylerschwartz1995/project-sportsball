@@ -14,7 +14,7 @@ export function SectionHeader({
   tone?: "cyan" | "violet";
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="modern-section-heading flex flex-wrap items-end justify-between gap-4">
       <div>
         <p
           className={`font-mono text-xs uppercase tracking-[0.18em] ${
@@ -60,7 +60,7 @@ export function MetricTile({
           : "rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4"
       }
     >
-      <dt className="text-[0.8125rem] font-medium uppercase tracking-[0.13em] text-[var(--muted)]">
+      <dt className="text-sm font-medium uppercase tracking-[0.13em] text-[var(--muted)]">
         {label}
       </dt>
       <dd

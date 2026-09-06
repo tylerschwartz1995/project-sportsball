@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { ChangeEvent } from "react";
 import { useState } from "react";
 
+import { CalendarIcon } from "@/app/_components/sizing-icons";
 import type { GameDateSummary } from "@/contracts/game";
 import type { GamePhase } from "@/contracts/season-phase";
 import type { TeamIdentity } from "@/contracts/team";
@@ -165,7 +166,7 @@ export function GamePicker({
           aria-controls="schedule-month-calendar"
           onClick={() => setIsCalendarOpen((current) => !current)}
         >
-          <span aria-hidden="true">▦</span>
+          <CalendarIcon />
           {isCalendarOpen ? "Hide Calendar" : "Calendar View"}
         </button>
         <p>Browse a full month and see the number of games on each day.</p>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useId, type ReactNode } from "react";
 
+import { SortIndicator } from "@/app/_components/sizing-icons";
 import { useSortableTable } from "@/app/_components/sortable-table";
 import { metricDefinition } from "@/lib/metric-definitions";
 
@@ -53,7 +54,7 @@ export function SortableHeader({
           isActive ? "text-[var(--accent)]" : "text-[var(--muted)]"
         }`}
       >
-        {isActive ? (direction === "asc" ? "↑" : "↓") : "↕"}
+        <SortIndicator direction={isActive ? direction : undefined} />
       </span>
       {effectiveDescription ? (
         <span id={helpId} role="tooltip" className="workspace-metric-tooltip">

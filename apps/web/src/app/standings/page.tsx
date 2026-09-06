@@ -204,7 +204,7 @@ function StandingsTable({
         defaultDirection={defaultDirection}
       >
         <div className="workspace-table-scroll">
-          <table className="workspace-table workspace-table-dense workspace-table-semantic workspace-standings-table min-w-[900px]">
+          <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic workspace-standings-table min-w-[900px]">
             <colgroup>
               <col className="workspace-col-rank" />
               <col className="workspace-col-entity" />
