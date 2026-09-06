@@ -1,8 +1,8 @@
 # Sportsball
 
-> **Exploration branch:** this checkout uses [Modern Stats Exploration](docs/editorial-style-exploration.md),
-> a clean, modern alternative style. Keep it on the feature branch; do not merge it
-> into `main`. The production design described below remains the baseline.
+> **Current visual system:** this application uses [Modern Stats Exploration](docs/editorial-style-exploration.md),
+> a clean, modern statistical interface with audited sizing and readable dark/light themes.
+> The linked document records the current visual direction and overrides earlier styling guidance.
 
 A personal NHL statistics website with all-time traditional season records from
 1917–18 onward and detailed game and advanced data across their supported eras.

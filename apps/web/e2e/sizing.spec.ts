@@ -103,6 +103,7 @@ test("desktop tables distinguish sparse totals from dense histories", async ({ p
   await page.goto("/players?season=20252026");
   await expect(page.locator("table tbody td.workspace-semantic-number").first()).toHaveCSS("font-size", "16px");
   const row = page.locator("table tbody tr").first();
+  await row.scrollIntoViewIfNeeded();
   expect((await row.boundingBox())!.height).toBeGreaterThanOrEqual(44);
   await page.goto("/history?section=careers");
   await expect(page.locator(".workspace-history-ranking-summary h2")).toHaveCSS("font-size", "24px");

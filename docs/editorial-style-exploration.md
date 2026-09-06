@@ -1,7 +1,8 @@
 # Modern Stats Exploration
 
-This competing design lives on `agent/editorial-style-exploration`, branched from
-`main`. The branch and PR are the deliverable. **Do not merge or deploy it.**
+This design was developed on `agent/editorial-style-exploration`, branched from
+`main`. The design and final theme corrections are approved for merge in PR #142.
+Deployment remains outside this work.
 
 ## Direction
 
@@ -10,9 +11,9 @@ scan. One consistent Manrope sans-serif family replaces the newspaper masthead,
 serif headlines, and selectable font experiments. Geist Mono remains available
 for numeric annotations. Fonts are served through Next.js.
 
-The typography scale is fixed across screen sizes: 13px metadata, 14px controls
-and table cells, 15px body copy, 18–20px section headings, and 32px page titles
-(28px on phones). Legacy component labels have a 13px floor. Scores and chart
+The audited typography scale uses 16px primary reading and navigation, 15px
+dense figures, 14px supporting labels, 20px section headings, and 32px page
+titles (28px on phones). Major History subsections use 24px. Scores and chart
 annotations retain their meaningful local hierarchy.
 
 Dark mode is the default: neutral graphite surfaces, clear text, and a restrained
@@ -123,4 +124,27 @@ Validation includes all 51 desktop route requests from the audit, populated regu
 
 The automated browser sweep covers 96 combinations of 24 views × phone/desktop × dark/light, plus 21 checks at 320/768/1920px and six 200%-root-text stress checks. No document overflow or uncaught page errors were found. The enlarged-root checks exercise layout reflow, not native Safari/iOS zoom certification. Wide tables and navigation intentionally scroll internally. Browser regressions cover actual font sizes, metric-column resizing, conditional cues, non-scaling shot labels, dense versus sparse tables, and natural dialog height in addition to the existing interaction checks.
 
-The exploration PR remains open and **must not be merged into main** for this experiment.
+The final design is approved for merge after the theme corrections below and passing CI.
+
+
+## Final Theme Contrast Review
+
+Retain both themes with dark mode as the default. Light mode now separates the
+grey page canvas, white panels, tinted table headers, borders, and controls.
+Supporting text is darker to remain readable on the stronger header surfaces.
+Chart axes, reference lines, quadrant backgrounds, and team rank tracks are
+more visible.
+
+Strong/underperforming and process-positive wins/losses previously shared green.
+The four analytical categories now use green circles, blue diamonds, amber
+triangles, and red squares, with matching legends and filters in both themes.
+
+Draft heatmaps use five explicit theme-specific bands with a corresponding
+foreground for each band. Sorting still selects the highlighted metric; missing
+values remain uncoloured. Browser regression tests verify rendered cell contrast
+and distinct category colours/shapes in both themes.
+
+Validation: `make web-check` (lint, types, 238 unit tests, production build),
+20 browser tests, and visual inspection of eight populated views in both themes.
+The sizing test scrolls its measured row into view before reading geometry,
+matching the browser's deferred rendering of offscreen table content.

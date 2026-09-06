@@ -32,30 +32,35 @@ const GROUPS = [
     label: "Process+ wins",
     description: "50%+ share",
     color: "var(--positive)",
+    shape: "circle",
   },
   {
     value: "outplayed-win",
     label: "Process− wins",
     description: "Under 50% share",
     color: "var(--chart-secondary)",
+    shape: "diamond",
   },
   {
     value: "controlled-loss",
     label: "Process+ losses",
     description: "50%+ share",
-    color: "var(--chart-primary)",
+    color: "var(--chart-underperforming)",
+    shape: "triangle",
   },
   {
     value: "outplayed-loss",
     label: "Process− losses",
     description: "Under 50% share",
     color: "var(--negative)",
+    shape: "square",
   },
 ] as const satisfies ReadonlyArray<{
   value: PerformanceResultGroup;
   label: string;
   description: string;
   color: string;
+  shape: "circle" | "diamond" | "triangle" | "square";
 }>;
 
 type ResultMapFilter = "all" | PerformanceResultGroup;
@@ -139,6 +144,7 @@ export function TeamPerformanceResultMap({
             label={group.label}
             description={group.description}
             color={group.color}
+            shape={group.shape}
             onClick={() => setFilter(group.value)}
           />
         ))}
@@ -165,7 +171,7 @@ export function TeamPerformanceResultMap({
                 y1={0}
                 y2={yBound}
                 fill="var(--positive)"
-                fillOpacity={0.035}
+                fillOpacity="var(--chart-quadrant-opacity)"
                 strokeOpacity={0}
                 label={quadrantLabel("P+ / WIN", "insideTopRight")}
               />
@@ -175,7 +181,7 @@ export function TeamPerformanceResultMap({
                 y1={0}
                 y2={yBound}
                 fill="var(--chart-secondary)"
-                fillOpacity={0.035}
+                fillOpacity="var(--chart-quadrant-opacity)"
                 strokeOpacity={0}
                 label={quadrantLabel("P− / WIN", "insideTopLeft")}
               />
@@ -184,8 +190,8 @@ export function TeamPerformanceResultMap({
                 x2={xDomain[1]}
                 y1={-yBound}
                 y2={0}
-                fill="var(--chart-primary)"
-                fillOpacity={0.035}
+                fill="var(--chart-underperforming)"
+                fillOpacity="var(--chart-quadrant-opacity)"
                 strokeOpacity={0}
                 label={quadrantLabel("P+ / LOSS", "insideBottomRight")}
               />
@@ -195,7 +201,7 @@ export function TeamPerformanceResultMap({
                 y1={-yBound}
                 y2={0}
                 fill="var(--negative)"
-                fillOpacity={0.035}
+                fillOpacity="var(--chart-quadrant-opacity)"
                 strokeOpacity={0}
                 label={quadrantLabel("P− / LOSS", "insideBottomLeft")}
               />
@@ -267,6 +273,7 @@ export function TeamPerformanceResultMap({
                     (point) => point.group === group.value,
                   )}
                   fill={group.color}
+                  shape={group.shape}
                   activeShape={{
                     stroke: "var(--foreground)",
                     strokeWidth: 2,
@@ -331,6 +338,7 @@ function FilterButton({
   label,
   description,
   color,
+  shape,
   wide = false,
   onClick,
 }: {
@@ -340,6 +348,7 @@ function FilterButton({
   label: string;
   description: string;
   color?: string;
+  shape?: string;
   wide?: boolean;
   onClick: () => void;
 }) {
@@ -358,6 +367,7 @@ function FilterButton({
         <span
           aria-hidden="true"
           className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full"
+          data-chart-shape={shape}
           style={{ background: color }}
         />
       ) : null}

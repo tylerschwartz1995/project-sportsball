@@ -1757,9 +1757,9 @@ function ClassMetricCell({
 
   const rangePosition = relativeRangePosition(comparisonValues, value);
   const heatLevel = Math.min(4, Math.floor(rangePosition * 5));
-  const heatStrength = [12, 28, 44, 60, 76][heatLevel];
   const style = {
-    "--heat-strength": `${heatStrength}%`,
+    "--heat-background": `var(--heat-level-${heatLevel + 1})`,
+    "--heat-foreground": `var(--heat-text-${heatLevel + 1})`,
   } as CSSProperties;
 
   return (

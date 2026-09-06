@@ -1,8 +1,8 @@
 # Sportsball visual design system
 
-> **Exploration branch:** this checkout uses [Modern Stats Exploration](editorial-style-exploration.md),
-> a clean, modern alternative style. Keep it on the feature branch; do not merge it
-> into `main`. The production design described below remains the baseline.
+> **Current visual system:** this application uses [Modern Stats Exploration](editorial-style-exploration.md),
+> a clean, modern statistical interface with audited sizing and readable dark/light themes.
+> The linked document records the current visual direction and overrides earlier styling guidance.
 
 This document defines the selected Data Workspace production direction. The
 system is deliberately sport-neutral so a future basketball, baseball, or

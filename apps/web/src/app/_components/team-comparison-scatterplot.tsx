@@ -49,24 +49,28 @@ const GROUPS = [
     label: "Strong",
     description: "Results and process are both above 50%.",
     color: "var(--positive)",
+    shape: "circle",
   },
   {
     value: "outperforming",
     label: "Outperforming",
     description: "Results are above 50%, but process is below it.",
     color: "var(--chart-secondary)",
+    shape: "diamond",
   },
   {
     value: "underperforming",
     label: "Underperforming",
     description: "Process is above 50%, but results are below it.",
-    color: "var(--chart-primary)",
+    color: "var(--chart-underperforming)",
+    shape: "triangle",
   },
   {
     value: "struggling",
     label: "Struggling",
     description: "Results and process are both below 50%.",
     color: "var(--negative)",
+    shape: "square",
   },
 ] as const;
 
@@ -236,6 +240,7 @@ export function TeamComparisonScatterplot({
                     (point) => point.group === series.value,
                   )}
                   fill={series.color}
+                  shape={series.shape}
                   isAnimationActive={false}
                 />
               ))}
@@ -251,7 +256,7 @@ export function TeamComparisonScatterplot({
       <div className="workspace-comparison-key" aria-label="Quadrant key">
         {GROUPS.map((item) => (
           <div key={item.value}>
-            <span style={{ background: item.color }} aria-hidden="true" />
+            <span data-chart-shape={item.shape} style={{ background: item.color }} aria-hidden="true" />
             <p>
               <b>{item.label}</b>
               {item.description}

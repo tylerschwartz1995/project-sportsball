@@ -88,7 +88,7 @@ export function TeamSeasonIdentity({
                     <div className="flex items-center gap-2 font-mono text-[0.8125rem] text-[var(--muted)] tabular-nums">
                       <span>1st</span>
                       <div
-                        className="relative h-1.5 flex-1 rounded-full bg-[var(--border)]"
+                        className="relative h-1.5 flex-1 rounded-full bg-[var(--chart-track)]"
                         role="img"
                         aria-label={`${metric.label}: ${metric.formattedValue}; ranked ${metric.rank} of ${metric.teamCount}`}
                       >
