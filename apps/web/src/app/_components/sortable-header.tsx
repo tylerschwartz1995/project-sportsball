@@ -104,16 +104,6 @@ export function SortableHeader({
             {content}
           </button>
         )}
-        {effectiveDescription ? (
-          <details className="ux-metric-help">
-            <summary
-              aria-label={`Explain ${typeof label === "string" ? label : "metric"}`}
-            >
-              ?
-            </summary>
-            <p>{effectiveDescription}</p>
-          </details>
-        ) : null}
       </div>
     </th>
   );

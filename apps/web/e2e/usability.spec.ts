@@ -139,14 +139,11 @@ test("filtered player results survive a detail visit", async ({ page }) => {
   await expect(page).toHaveURL(/sort=goals/);
 });
 
-test("standings highlight and metric explanations are accessible", async ({ page }) => {
+test("standings highlight remains shareable", async ({ page }) => {
   await page.goto("/standings?display=progress");
   const highlight = page.getByRole("combobox", { name: "Highlight Team" });
   await highlight.selectOption({ index: 1 });
   await expect(page.locator(".workspace-chart-legend button[aria-pressed=true]")).toHaveCount(1);
   await page.reload();
   await expect(highlight).not.toHaveValue("");
-  await page.goto("/standings");
-  await page.getByText("?", { exact: true }).first().click();
-  await expect(page.locator(".ux-metric-help[open] p")).toBeVisible();
 });

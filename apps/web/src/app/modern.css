@@ -595,11 +595,6 @@ main > section.py-10 { padding-block: 1.25rem; }
 .workspace-table th[aria-sort=ascending], .workspace-table th[aria-sort=descending] { box-shadow: inset 0 -2px var(--accent); color: var(--accent); }
 .ux-column-heading { display: flex; align-items: center; justify-content: center; }
 .ux-column-heading > :is(a,button) { padding-inline: 0.45rem; }
-.ux-metric-help { position: relative; flex-shrink: 0; font-weight: 400; }
-.ux-metric-help > summary { display: grid; place-items: center; width: 28px; min-height: 44px; cursor: pointer; color: var(--muted); list-style: none; }
-.ux-metric-help > summary::-webkit-details-marker { display: none; }
-.ux-metric-help[open] { position: static; }
-.ux-metric-help p { position: absolute; z-index: 8; left: 0; right: 0; padding: 1rem; background: var(--surface-raised); border: 1px solid var(--control-border); color: var(--foreground); white-space: normal; font-size: 0.875rem; text-align: left; box-shadow: 0 6px 16px var(--border); }
 .workspace-sortable-header { position: relative; }
 .ux-search-form, .ux-shot-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 0.75rem; margin-block: 1rem; }
 .ux-search-form label, .ux-shot-filters label, .ux-chart-subject { display: grid; gap: 0.35rem; min-width: 0; font-size: 0.875rem; }
@@ -640,7 +635,6 @@ main > section.py-10 { padding-block: 1.25rem; }
 .workspace-player-filters > .workspace-filter-header span { display: none; }
 .workspace-player-filters .workspace-player-filter-group { margin: 0; }
 .ux-mobile-data-switch { display: none; }
-.ux-metric-help p { position: fixed; left: 1rem; right: 1rem; bottom: 1rem; max-width: 28rem; padding: 1rem; }
 @media (min-width: 768px) {
   .workspace-player-filters { display: grid; grid-template-columns: minmax(0,1fr) auto; }
   .workspace-player-filters > .workspace-filter-header, .workspace-player-filters > .is-primary { grid-column: 1 / -1; }
