@@ -93,11 +93,11 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
       : "";
   const filters = {
     minGames: firstQueryValue(params.minGames) ?? "0",
-    minGoals: firstQueryValue(params.minGoals) ?? "0",
-    minAssists: firstQueryValue(params.minAssists) ?? "0",
-    minPoints: firstQueryValue(params.minPoints) ?? "0",
-    minWins: firstQueryValue(params.minWins) ?? "0",
-    minSavePercentage: firstQueryValue(params.minSavePercentage) ?? "0",
+    minGoals: category === "skaters" ? firstQueryValue(params.minGoals) ?? "0" : "0",
+    minAssists: category === "skaters" ? firstQueryValue(params.minAssists) ?? "0" : "0",
+    minPoints: category === "skaters" ? firstQueryValue(params.minPoints) ?? "0" : "0",
+    minWins: category === "goalies" ? firstQueryValue(params.minWins) ?? "0" : "0",
+    minSavePercentage: category === "goalies" ? firstQueryValue(params.minSavePercentage) ?? "0" : "0",
     country: firstQueryValue(params.country) ?? "",
     region: firstQueryValue(params.region) ?? "",
     city: firstQueryValue(params.city) ?? "",
@@ -146,6 +146,8 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
   const locations =
     category === "skaters" ? skaterPage.locations : goaliePage.locations;
 
+  const contextParams = { phase, type: category, q: query, position, sort, dir: direction, ...filters };
+
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="players" />
@@ -159,11 +161,7 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
             <SeasonPicker
               seasons={seasons}
               selectedSeasonId={selectedSeason?.id}
-              params={{
-                phase,
-                type: category,
-                position: position || undefined,
-              }}
+              params={contextParams}
             />
           }
         />
@@ -173,13 +171,10 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
             <SeasonPhaseFilter
               active={phase}
               path="/players"
-              params={{
-                season: selectedSeason.id,
-                type: category,
-                position: position || undefined,
-              }}
+              params={{ ...contextParams, season: selectedSeason.id }}
             />
             <PlayerDirectoryFilters
+              key={JSON.stringify([selectedSeason.id, contextParams])}
               seasonId={selectedSeason.id}
               phase={phase}
               category={category}

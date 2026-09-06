@@ -124,8 +124,8 @@ export function TeamPerformanceResultMap({
           total={data.totalGames}
           label={
             data.gamesAnalyzed === data.totalGames
-              ? "All games"
-              : "All plotted games"
+              ? "All Games"
+              : "All Plotted Games"
           }
           description={
             data.gamesAnalyzed === data.totalGames

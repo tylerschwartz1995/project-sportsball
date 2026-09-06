@@ -44,6 +44,7 @@ export function SeasonPicker({
       <label>
         Season
         <select
+          key={selectedSeasonId}
           name="season"
           defaultValue={selectedSeasonId}
           disabled={isPending}
@@ -60,7 +61,7 @@ export function SeasonPicker({
         </select>
       </label>
       <noscript>
-        <button type="submit">Apply season</button>
+        <button type="submit">Apply Season</button>
       </noscript>
     </form>
   );

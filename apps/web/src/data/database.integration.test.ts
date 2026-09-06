@@ -16,6 +16,7 @@ import {
   getHistoricalGoalieEraScores,
   getHistoricalGoalieDecadeLeaders,
   getHistoryLeagueTrend,
+  getHistoryFilterOptions,
   getHistoricalLeaderboard,
   getHistoricalLeaders,
   getHistoricalPeaks,
@@ -34,6 +35,14 @@ const databaseTestsEnabled =
 describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
   afterAll(async () => {
     await closeDatabasePool();
+  });
+
+  it("labels historical filter clubs without changing their source abbreviations", async () => {
+    const options = await getHistoryFilterOptions(2);
+    expect(options.teams).toContain("AFM");
+    expect(options.teamNames.AFM).toBe("Atlanta Flames");
+    expect(options.teamNames.EDM).toBe("Edmonton Oilers");
+    expect(new Set(options.teams).size).toBe(options.teams.length);
   });
 
   it("preserves full historical careers and excludes goalie non-appearances", async () => {

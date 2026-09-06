@@ -89,6 +89,12 @@ Forms that apply immediately omit a redundant apply button. Zero active-filter
 counts and inactive clear actions are omitted. Season, phase, page view, and sort order are context controls and
 do not inflate the active-filter count. Clearing filters preserves that context
 in the URL while removing only optional refinements.
+Fields share 44px minimum height, label typography, border/radius tokens, and
+visible keyboard focus. Multi-field forms announce unapplied changes; context
+selectors apply immediately. Filter and supplementary disclosures share a
+chevron. See [filter consistency](filter-consistency.md) for the state-preservation
+rules and regression coverage.
+
 Dark is the first-visit default, an explicit selection persists on the device,
 and a pre-render bootstrap applies it before the interface is painted.
 

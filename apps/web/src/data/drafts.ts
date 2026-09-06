@@ -7,6 +7,7 @@ import type {
   DraftPlayerOutcome,
   DraftTeamPerformance,
 } from "@/contracts/draft";
+import { TEAM_DRAFT_WINDOW_YEARS } from "@/contracts/draft";
 import { query } from "@/data/database";
 
 type DraftOutcomeRow = {
@@ -50,7 +51,6 @@ type DraftFilterRow = {
 };
 
 const MATURE_DRAFT_LAG_YEARS = 5;
-const TEAM_DRAFT_WINDOW_YEARS = 10;
 
 export async function getDraftAnalytics(
   options: DraftAnalyticsOptions = {},

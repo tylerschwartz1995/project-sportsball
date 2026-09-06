@@ -18,7 +18,7 @@ export function DeferredSection({ title, children }: { title: string; children: 
         aria-controls={id}
         onClick={() => setOpen(!open)}
       >
-        <span aria-hidden="true">{open ? "▾" : "▸"}</span> {title}
+        <span className="workspace-disclosure-icon" aria-hidden="true" /> {title}
       </button>
       <div id={id}>{open ? children : null}</div>
     </section>

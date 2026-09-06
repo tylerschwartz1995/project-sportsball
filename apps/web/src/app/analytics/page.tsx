@@ -1,3 +1,4 @@
+import { FilterForm } from "@/app/_components/filter-form";
 import { DataViews } from "@/app/_components/data-views";
 import Link from "next/link";
 
@@ -262,8 +263,8 @@ function AnalyticsFilters({
     if (value) clearParams.set(name, value);
   });
   return (
-    <form
-      method="get"
+    <FilterForm
+      key={`${seasonId}:${type}:${phase}:${situation}:${minimumMinutes}`}
       className="workspace-analytics-filters"
       data-type={type}
     >
@@ -280,7 +281,7 @@ function AnalyticsFilters({
         activeCount={activeFilterCount}
       />
       <label>
-        Game situation
+        Game Situation
         <select
           name="situation"
           defaultValue={situation}
@@ -294,7 +295,7 @@ function AnalyticsFilters({
       </label>
       {type === "teams" ? null : (
         <label>
-          Minimum ice time
+          Minimum Ice Time
           <select
             name="minimum"
             defaultValue={minimumMinutes}
@@ -311,7 +312,7 @@ function AnalyticsFilters({
         clearHref={`/analytics?${clearParams.toString()}`}
         canClear={activeFilterCount > 0}
       />
-    </form>
+    </FilterForm>
   );
 }
 

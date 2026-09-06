@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
   CartesianGrid,
   ResponsiveContainer,
@@ -12,7 +12,7 @@ import {
   ZAxis,
   type TooltipContentProps,
 } from "recharts";
-import { useUrlChoice } from "@/app/_components/use-shareable-state";
+import { useUrlChoice, useUrlBoolean } from "@/app/_components/use-shareable-state";
 
 import { TeamLogo } from "@/app/_components/team-logo";
 import { formatPlayerPosition } from "@/lib/player-position";
@@ -136,7 +136,7 @@ export function DraftOutcomePlot({
   outcomes: DraftPlotOutcome[];
 }) {
   const [metricKey, setMetricKey] = useUrlChoice<DraftMetric>("outcomeMetric", METRICS.map((metric) => metric.key), "careerGames");
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useUrlBoolean("advancedMetrics", false);
   const [roundGroup, setRoundGroup] = useUrlChoice<RoundGroup>("roundGroup", ["all", "1", "2", "3plus"], "all");
   const metric = METRICS.find((option) => option.key === metricKey) ?? METRICS[0];
   const points = useMemo<DraftPlotPoint[]>(
@@ -185,7 +185,7 @@ export function DraftOutcomePlot({
       </header>
       <div className="workspace-chart-toolbar">
         <div className="workspace-draft-plot-controls">
-          <label><input type="checkbox" checked={showAdvanced || metric.advanced} onChange={event => { setShowAdvanced(event.target.checked); if (!event.target.checked) setMetricKey("careerGames"); }} /> Advanced Metrics</label>
+          <label className="workspace-checkbox-control"><input type="checkbox" checked={showAdvanced || metric.advanced} onChange={event => { setShowAdvanced(event.target.checked); if (!event.target.checked) setMetricKey("careerGames"); }} /> Advanced Metrics</label>
           <label className="workspace-chart-metric-select">
             Outcome Metric
             <select

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { ContextLink as Link } from "@/app/_components/context-link";
 
 import type { GamePhase, SeasonPhase } from "@/contracts/season-phase";
 
@@ -23,7 +23,7 @@ export function SeasonPhaseFilter({
   label = "Season phase",
 }: SeasonPhaseFilterProps) {
   const options: PhaseOption[] = [
-    ...(includeAll ? [{ value: "all" as const, label: "All games" }] : []),
+    ...(includeAll ? [{ value: "all" as const, label: "All Games" }] : []),
     { value: "regular", label: "Regular Season" },
     { value: "playoffs", label: "Playoffs" },
   ];
@@ -34,6 +34,7 @@ export function SeasonPhaseFilter({
       <div>
         {options.map((option) => (
           <Link
+            preserveDisplay
             key={option.value}
             href={buildPhaseHref(path, params, option.value)}
             aria-current={active === option.value ? "page" : undefined}
