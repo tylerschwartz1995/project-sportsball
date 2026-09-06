@@ -181,11 +181,7 @@ export default async function AnalyticsPage({
                     ...chartParams,
                   }}
                 />
-              ) : (
-                <p className="text-sm text-[var(--muted)]">
-                  Player-level MoneyPuck leaderboards are regular-season only.
-                </p>
-              )}
+              ) : null}
             </div>
 
             {hasCoverage ? (

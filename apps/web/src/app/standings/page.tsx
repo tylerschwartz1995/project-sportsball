@@ -246,7 +246,7 @@ function StandingsTable({
                         </Link>
                         <small>
                           <span>
-                            {team.teamAbbreviation} · {team.divisionName}
+                            {team.teamAbbreviation}
                           </span>
                           {team.clinchIndicator ? (
                             <span className="workspace-clinch-indicator">

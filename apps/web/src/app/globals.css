@@ -8536,3 +8536,14 @@ html[data-theme="light"] textarea {
 .workspace-presentation-tabs > button:hover { color: var(--foreground); }
 .workspace-presentation-tabs > button[aria-pressed="true"]:hover { color: var(--on-accent); }
 .workspace-presentation-tabs > button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+/* Let team names set their own width when optional standings columns are hidden. */
+.workspace-standings-table {
+  table-layout: auto;
+}
+.workspace-standings-table .workspace-team-cell {
+  white-space: nowrap;
+}
+.workspace-standings-table .workspace-rank-cell {
+  width: 4rem;
+}
