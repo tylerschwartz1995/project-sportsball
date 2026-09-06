@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
+import { useUrlChoice } from "@/app/_components/use-shareable-state";
 import {
   CartesianGrid,
   Line,
@@ -78,7 +79,7 @@ export function HistoryRecordProgression({
 }: {
   points: HistoryRecordProgressionPoint[];
 }) {
-  const [metric, setMetric] = useState<RecordMetric>("points");
+  const [metric, setMetric] = useUrlChoice<RecordMetric>("recordMetric", RECORD_METRICS.map(item => item.value), "points");
   const metricLabel = RECORD_METRICS.find((item) => item.value === metric)?.label ?? "Points";
   const selectedPoints = points.filter((point) => point.metric === metric);
   if (selectedPoints.length === 0) return null;
@@ -94,7 +95,7 @@ export function HistoryRecordProgression({
     <HistoryChartShell
       title={`Career ${metricLabel} Record Progression`}
       description={`Tracks seasons in which the NHL career-${metricLabel.toLowerCase()} record moved higher. Hover or focus the chart to see the record holder.`}
-      control={<MetricSelect label="Record metric" value={metric} options={RECORD_METRICS} onChange={(value) => setMetric(value as RecordMetric)} />}
+      control={<MetricSelect label="Record Metric" value={metric} options={RECORD_METRICS} onChange={(value) => setMetric(value as RecordMetric)} />}
     >
       <div className="workspace-history-chart-plot">
         <ResponsiveContainer width="100%" height="100%">
@@ -146,7 +147,7 @@ export function HistoryScoringEnvironment({
   view?: "skaters" | "goalies";
 }) {
   const allowedMetrics = view === "goalies" ? GOALIE_LEAGUE_METRICS : SKATER_LEAGUE_METRICS;
-  const [metric, setMetric] = useState<LeagueMetric>(allowedMetrics[0]);
+  const [metric, setMetric] = useUrlChoice<LeagueMetric>("leagueMetric", allowedMetrics, allowedMetrics[0]);
   const selectedMetric = allowedMetrics.includes(metric) ? metric : allowedMetrics[0];
   const config = LEAGUE_METRICS.find((item) => item.value === selectedMetric) ?? LEAGUE_METRICS[0];
   if (points.length === 0) return null;
@@ -167,7 +168,7 @@ export function HistoryScoringEnvironment({
       description={view === "goalies"
         ? "League goaltending rates have changed across eras. Save percentage is weighted by shots faced; GAA is weighted by recorded time on ice."
         : "League scoring and results have changed across eras. Use this context when comparing raw totals and rates from different periods."}
-      control={<MetricSelect label="League metric" value={selectedMetric} options={options} onChange={(value) => setMetric(value as LeagueMetric)} />}
+      control={<MetricSelect label="League Metric" value={selectedMetric} options={options} onChange={(value) => setMetric(value as LeagueMetric)} />}
     >
       <div className="workspace-history-chart-plot">
         <ResponsiveContainer width="100%" height="100%">

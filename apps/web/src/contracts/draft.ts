@@ -1,3 +1,5 @@
+export const TEAM_DRAFT_WINDOW_YEARS = 10;
+
 export type DraftPlayerOutcome = {
   nhlPlayerId: number | null;
   name: string;

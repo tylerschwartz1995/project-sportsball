@@ -1,5 +1,8 @@
+import { TEAM_DRAFT_WINDOW_YEARS } from "@/contracts/draft";
+import { redirect } from "next/navigation";
+import { FilterForm } from "@/app/_components/filter-form";
 import { DeferredSection } from "@/app/_components/deferred-section";
-import Link from "next/link";
+import { ContextLink as Link } from "@/app/_components/context-link";
 import type { CSSProperties } from "react";
 
 import { SortIndicator } from "@/app/_components/sizing-icons";
@@ -350,10 +353,19 @@ function DraftBoardView({
   selectedTeam: string;
 }) {
   const query = normalizeSearch(firstQueryValue(params.q));
-  const selectedRound = parseRound(firstQueryValue(params.round));
+  const requestedRound = parseRound(firstQueryValue(params.round));
   const availableRounds = [
     ...new Set(analytics.outcomes.map((outcome) => outcome.draftRound)),
   ].sort((left, right) => left - right);
+  if (requestedRound !== null && !availableRounds.includes(requestedRound)) {
+    const corrected = new URLSearchParams();
+    for (const [key, raw] of Object.entries(params)) {
+      const value = firstQueryValue(raw);
+      if (key !== "round" && value) corrected.set(key, value);
+    }
+    redirect(`/drafts?${corrected.toString()}`);
+  }
+  const selectedRound = requestedRound;
   const defaultSort: DraftSort = analytics.allYears ? "year" : "overall";
   const sort = parseDraftSort(firstQueryValue(params.sort), defaultSort);
   const direction = parseSortDirection(
@@ -397,6 +409,8 @@ function DraftBoardView({
   return (
     <>
       <DraftBoardFilters
+        sort={sort}
+        direction={direction}
         years={analytics.draftYears}
         teams={analytics.teamOptions}
         rounds={availableRounds}
@@ -426,6 +440,8 @@ function DraftBoardView({
         }
         action={
           <DraftBoardSearch
+            sort={sort}
+            direction={direction}
             selectedYear={selectedYear}
             selectedTeam={selectedTeam}
             selectedRound={selectedRound}
@@ -711,6 +727,8 @@ function DraftBoardFilters({
   query,
   fromYear,
   toYear,
+  sort,
+  direction,
 }: {
   years: number[];
   teams: DraftTeamOption[];
@@ -722,9 +740,11 @@ function DraftBoardFilters({
   query: string;
   fromYear: number | null;
   toYear: number | null;
+  sort: DraftSort;
+  direction: "asc" | "desc";
 }) {
   const resetYear = allYears ? "all" : selectedYear;
-  const resetParams = new URLSearchParams({ view: "board" });
+  const resetParams = new URLSearchParams({ view: "board", sort, dir: direction });
   if (resetYear !== null) resetParams.set("year", String(resetYear));
   if (fromYear !== null) resetParams.set("from", String(fromYear));
   if (toYear !== null) resetParams.set("to", String(toYear));
@@ -735,6 +755,8 @@ function DraftBoardFilters({
   return (
     <form method="get" className="workspace-draft-filters is-board">
       <input type="hidden" name="view" value="board" />
+      <input type="hidden" name="sort" value={sort} />
+      <input type="hidden" name="dir" value={direction} />
       <input type="hidden" name="q" value={query} />
       <input type="hidden" name="from" value={fromYear ?? ""} />
       <input type="hidden" name="to" value={toYear ?? ""} />
@@ -787,11 +809,7 @@ function DraftBoardFilters({
       <div className="workspace-draft-filter-actions">
         {activeFilterCount > 0 ? (
           <Link href={resetHref}>Clear Filters</Link>
-        ) : (
-          <span className="workspace-disabled-action" aria-disabled="true">
-            Clear Filters
-          </span>
-        )}
+        ) : null}
       </div>
     </form>
   );
@@ -804,6 +822,8 @@ function DraftBoardSearch({
   query,
   fromYear,
   toYear,
+  sort,
+  direction,
 }: {
   selectedYear: number | "all";
   selectedTeam: string;
@@ -811,17 +831,21 @@ function DraftBoardSearch({
   query: string;
   fromYear: number | null;
   toYear: number | null;
+  sort: DraftSort;
+  direction: "asc" | "desc";
 }) {
   return (
-    <form method="get" className="workspace-draft-table-search">
+    <FilterForm key={JSON.stringify([selectedYear, selectedTeam, selectedRound, query, fromYear, toYear])} className="workspace-draft-table-search">
       <input type="hidden" name="view" value="board" />
+      <input type="hidden" name="sort" value={sort} />
+      <input type="hidden" name="dir" value={direction} />
       <input type="hidden" name="year" value={selectedYear} />
       <input type="hidden" name="team" value={selectedTeam} />
       <input type="hidden" name="round" value={selectedRound ?? ""} />
       <input type="hidden" name="from" value={fromYear ?? ""} />
       <input type="hidden" name="to" value={toYear ?? ""} />
       <label>
-        <span className="sr-only">Search selections</span>
+        <span className="sr-only">Search Selections</span>
         <input
           type="search"
           name="q"
@@ -829,8 +853,8 @@ function DraftBoardSearch({
           placeholder="Player or amateur club…"
         />
       </label>
-      <button type="submit">Search</button>
-    </form>
+      <button type="submit">Apply Filters</button>
+    </FilterForm>
   );
 }
 
@@ -879,6 +903,13 @@ function DraftRangeFilter({
   const matureYears = years.filter(
     (year) => matureThrough === null || year <= matureThrough,
   );
+  const defaultEnd = matureThrough;
+  const defaultStart = defaultEnd === null ? null : Math.max(
+    years.at(-1) ?? defaultEnd, defaultEnd - TEAM_DRAFT_WINDOW_YEARS + 1,
+  );
+  const hasCustomWindow = fromYear !== defaultStart || toYear !== defaultEnd;
+  const clearParams = new URLSearchParams({ view: "teams" });
+  if (selectedTeam) clearParams.set("team", selectedTeam);
   return (
     <form method="get" className="workspace-draft-filters is-range">
       <input type="hidden" name="view" value="teams" />
@@ -900,7 +931,7 @@ function DraftRangeFilter({
         </AutoSubmitSelect>
       </label>
       <div className="workspace-draft-filter-actions">
-        <Link href="/drafts?view=teams">Reset Window</Link>
+        {hasCustomWindow ? <Link href={`/drafts?${clearParams.toString()}`}>Clear Filters</Link> : null}
       </div>
     </form>
   );

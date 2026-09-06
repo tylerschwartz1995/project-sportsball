@@ -1,3 +1,4 @@
+import { FilterForm } from "@/app/_components/filter-form";
 import Link from "next/link";
 
 import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
@@ -227,8 +228,8 @@ function CombinationFilters({
     (rollingGames ? 1 : 0) +
     (selectedMinutes === DEFAULT_MINIMUM_MINUTES ? 0 : 1);
   return (
-    <form
-      method="get"
+    <FilterForm
+      key={`${seasonId}:${view}:${selectedTeamId}:${rollingGames}:${selectedMinutes}`}
       className="workspace-unit-filter"
     >
       <input type="hidden" name="season" value={seasonId} />
@@ -243,7 +244,7 @@ function CombinationFilters({
       <label>
         Team
         <select name="team" defaultValue={selectedTeamId ?? ""}>
-          <option value="">All teams</option>
+          <option value="">All Teams</option>
           {teams.map((team) => (
             <option key={team.nhlTeamId} value={team.nhlTeamId}>
               {team.name}
@@ -254,7 +255,7 @@ function CombinationFilters({
       <label>
         Sample
         <select name="window" defaultValue={rollingGames ?? ""}>
-          <option value="">Full season</option>
+          <option value="">Full Season</option>
           {WINDOW_OPTIONS.map((games) => (
             <option key={games} value={games}>
               Last {games} team games
@@ -263,7 +264,7 @@ function CombinationFilters({
         </select>
       </label>
       <label>
-        Minimum five-on-five TOI
+        Minimum 5-on-5 Ice Time
         <select
           name="minimum"
           defaultValue={selectedMinutes}
@@ -279,7 +280,7 @@ function CombinationFilters({
         clearHref={`/lines?season=${seasonId}&view=${view}&perPage=${pageSize}&sort=${sort}&direction=${direction}`}
         canClear={activeFilterCount > 0}
       />
-    </form>
+    </FilterForm>
   );
 }
 

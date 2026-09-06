@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { useUrlChoice } from "@/app/_components/use-shareable-state";
 
 import type {
   MoneyPuckGoalieSituation,
@@ -83,7 +84,7 @@ export function PlayerAdvancedAnalytics({
       ).sort(situationOrder),
     [data.goalieSituations, data.skaterSituations],
   );
-  const [situation, setSituation] = useState(
+  const [situation, setSituation] = useUrlChoice("advancedSituation", situations,
     hasSkaterRows && situations.includes("5on5")
       ? "5on5"
       : situations.includes("all")
@@ -108,7 +109,7 @@ export function PlayerAdvancedAnalytics({
       width="standard"
     >
       <label className="workspace-advanced-situation-filter">
-        Game situation
+        Game Situation
         <select
           value={situation}
           onChange={(event) => setSituation(event.target.value)}

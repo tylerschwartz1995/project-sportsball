@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { ContextLink as Link } from "@/app/_components/context-link";
 import { unstable_cache } from "next/cache";
 import type { ReactNode } from "react";
 
@@ -63,7 +63,7 @@ const loadHistoryOverview = unstable_cache(
 );
 const loadHistoryFilterOptions = unstable_cache(
   getHistoryFilterOptions,
-  ["history-filter-options"],
+  ["history-filter-options-v3"],
   { revalidate: 3_600 },
 );
 const loadHistoryLeagueTrend = unstable_cache(
@@ -298,6 +298,7 @@ async function HistoryPeaksContent({
         </nav>
       </div>
       <HistoryFilters
+        window={window}
         section="peaks"
         view={view}
         metric={metric}

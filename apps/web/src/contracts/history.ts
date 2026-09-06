@@ -132,6 +132,7 @@ export type HistoryFilters = {
 };
 
 export type HistoryFilterOptions = {
+  teamNames: Record<string, string>;
   positions: string[];
   teams: string[];
   countries: string[];

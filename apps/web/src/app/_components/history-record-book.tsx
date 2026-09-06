@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { FilterForm } from "@/app/_components/filter-form";
+import { ContextLink as Link } from "@/app/_components/context-link";
 
 import { SortIndicator } from "@/app/_components/sizing-icons";
 import { FilterActions } from "@/app/_components/filter-primitives";
@@ -200,6 +201,7 @@ export function HistoryFilters({
   options,
   isOpen,
   minimumIsCustom,
+  window,
 }: {
   section: string;
   view: HistoryView;
@@ -209,6 +211,7 @@ export function HistoryFilters({
   options: HistoryFilterOptions;
   isOpen: boolean;
   minimumIsCustom: boolean;
+  window?: 3 | 5;
 }) {
   const summary = view === "skaters"
     ? "Season range, eligibility, position, team, and birthplace"
@@ -234,9 +237,10 @@ export function HistoryFilters({
               : summary}
           </small>
         </span>
-        <b aria-hidden="true">+</b>
+        <b className="workspace-disclosure-icon" aria-hidden="true" />
       </summary>
-      <form action="/history" method="get">
+      <FilterForm key={JSON.stringify([section, view, metric, phase, filters, window])} action="/history">
+        {window ? <input type="hidden" name="window" value={window} /> : null}
         <input type="hidden" name="section" value={section} />
         <input type="hidden" name="entity" value={view} />
         <input type="hidden" name="metric" value={metric} />
@@ -250,7 +254,7 @@ export function HistoryFilters({
             <label>End Season<select name="endYear" defaultValue={filters.endYear}>
               {HISTORY_SEASON_START_YEARS.map((year) => <option key={year} value={year}>{formatSeasonStartYear(year)}</option>)}
             </select></label>
-            <label>Minimum Games<input name="minimumGames" type="number" min="0" max="5000" defaultValue={filters.minimumGames} /></label>
+            <label>Minimum Games<input name="minimumGames" type="number" min="0" max="5000" defaultValue={filters.minimumGames} /><small className="workspace-control-help">0 means no minimum.</small></label>
           </div>
         </fieldset>
         {view !== "teams" ? (
@@ -265,20 +269,20 @@ export function HistoryFilters({
               ) : null}
               <label>Played For<select name="team" defaultValue={filters.team ?? ""}>
                 <option value="">All Teams</option>
-                {options.teams.map((value) => <option key={value} value={value}>{value}</option>)}
+                {options.teams.toSorted((a, b) => (options.teamNames[a] ?? a).localeCompare(options.teamNames[b] ?? b)).map((value) => <option key={value} value={value}>{options.teamNames[value] && options.teamNames[value] !== value ? `${options.teamNames[value]} (${value})` : value}</option>)}
               </select></label>
               <label>Birth Country<select name="country" defaultValue={filters.country ?? ""}>
                 <option value="">All Countries</option>
-                {options.countries.map((value) => <option key={value} value={value}>{countryLabel(value)}</option>)}
+                {options.countries.toSorted((a, b) => countryName(a).localeCompare(countryName(b))).map((value) => <option key={value} value={value}>{countryLabel(value)}</option>)}
               </select></label>
             </div>
           </fieldset>
         ) : null}
         <FilterActions
-          clearHref={`/history?section=${section}&entity=${view}&metric=${metric}&phase=${phase}`}
+          clearHref={`/history?section=${section}&entity=${view}&metric=${metric}&phase=${phase}${window ? `&window=${window}` : ""}`}
           canClear={activeCount > 0}
         />
-      </form>
+      </FilterForm>
     </details>
   );
 }

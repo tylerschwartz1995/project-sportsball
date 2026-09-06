@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useUrlChoice } from "@/app/_components/use-shareable-state";
 
 import type {
   HistoricalDecadeLeader,
@@ -45,7 +45,7 @@ export function HistoryDecadeLeaders({
 }: {
   rows: HistoricalDecadeLeader[];
 }) {
-  const [metric, setMetric] = useState<HistoricalDecadeMetric>("points");
+  const [metric, setMetric] = useUrlChoice<HistoricalDecadeMetric>("skaterDecadeMetric", DECADE_METRICS.map(item => item.value), "points");
   const selectedMetric = DECADE_METRICS.find(
     (option) => option.value === metric,
   ) ?? DECADE_METRICS[0];
@@ -56,7 +56,7 @@ export function HistoryDecadeLeaders({
       <header>
         <h2>Decade {selectedMetric.label} Leaders</h2>
         <label className="workspace-history-chart-metric">
-          <span>Leader metric</span>
+          <span>Leader Metric</span>
           <select
             value={metric}
             onChange={(event) =>
@@ -87,7 +87,7 @@ export function HistoryGoalieDecadeLeaders({
   rows: HistoricalGoalieDecadeLeader[];
   minimumGames: number;
 }) {
-  const [metric, setMetric] = useState<HistoricalGoalieDecadeMetric>("wins");
+  const [metric, setMetric] = useUrlChoice<HistoricalGoalieDecadeMetric>("goalieDecadeMetric", GOALIE_DECADE_METRICS.map(item => item.value), "wins");
   const selectedMetric = GOALIE_DECADE_METRICS.find(
     (option) => option.value === metric,
   ) ?? GOALIE_DECADE_METRICS[0];
@@ -101,7 +101,7 @@ export function HistoryGoalieDecadeLeaders({
           <p>Minimum {minimumGames.toLocaleString("en-CA")} games played within the decade.</p>
         </div>
         <label className="workspace-history-chart-metric">
-          <span>Leader metric</span>
+          <span>Leader Metric</span>
           <select
             value={metric}
             onChange={(event) =>

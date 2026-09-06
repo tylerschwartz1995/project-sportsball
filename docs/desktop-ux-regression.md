@@ -45,6 +45,14 @@ the local database when an example identifier changes.
 - The four desktop filter controls fit at 1280 pixels: phase labels stay on one
   line and full team names remain readable.
 
+- Clearing player birthplace filters clears the visible controls and the next
+  submission. Browser Back restores both season labels and data.
+- Historical five-season peaks retain their window after Apply/Clear. Draft
+  year changes retain compatible rounds and remove unavailable ones.
+- Current chart metrics and venue survive adjacent context links and resets.
+- Multi-field edits show a pending message until applied; all controls show
+  keyboard focus. Use `e2e/filter-consistency.spec.ts` for the repeatable pass.
+
 ### Tables and long results
 
 - Numeric columns sort in both directions, with the active sort announced in

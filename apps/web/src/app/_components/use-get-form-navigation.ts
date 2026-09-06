@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { preservePresentation } from "@/lib/filter-context";
 
 export function useGetFormNavigation() {
   const pathname = usePathname();
@@ -16,6 +17,9 @@ export function useGetFormNavigation() {
       if (typeof value === "string" && value !== "") {
         search.append(name, value);
       }
+    }
+    if (target.pathname === pathname) {
+      preservePresentation(search, new URLSearchParams(window.location.search));
     }
     target.search = search.toString();
 

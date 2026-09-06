@@ -26,12 +26,6 @@ export function useUrlChoice<T extends string>(
         "",
         `${pathname}${query ? `?${query}` : ""}${window.location.hash}`,
       );
-      document
-        .querySelectorAll<HTMLInputElement>(`input[type="hidden"][name="${parameter}"]`)
-        .forEach((input) => {
-          input.value = next === fallback ? "" : next;
-          input.disabled = next === fallback;
-        });
     },
     [fallback, parameter, pathname],
   );

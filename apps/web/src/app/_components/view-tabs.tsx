@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { ContextLink as Link } from "@/app/_components/context-link";
 import {
   useEffect,
   useLayoutEffect,

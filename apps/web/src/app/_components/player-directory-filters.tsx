@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
+import { AutoSubmitSelect } from "@/app/_components/auto-submit-select";
+import { FilterForm } from "@/app/_components/filter-form";
 import { useMemo, useState } from "react";
 
 import {
   FilterActions,
   FilterHeader,
 } from "@/app/_components/filter-primitives";
-import { countryNameWithCode } from "@/lib/country-name";
+import { countryName } from "@/lib/country-name";
 import { playerDirectoryClearHref } from "@/lib/player-directory-url";
 import type { PlayerPositionFilter } from "@/lib/player-position";
 
@@ -116,7 +118,7 @@ export function PlayerDirectoryFilters({
   ].filter(Boolean).length;
 
   return (
-    <form action="/players" method="get" className="workspace-player-filters">
+    <FilterForm action="/players" className="workspace-player-filters">
       <input type="hidden" name="season" value={seasonId} />
       <input type="hidden" name="phase" value={phase} />
 
@@ -142,10 +144,11 @@ export function PlayerDirectoryFilters({
           </label>
           <label>
             Player Type
-            <select name="type" defaultValue={category}>
+            <AutoSubmitSelect name="type" defaultValue={category} resetFields={["position", "minGoals", "minAssists", "minPoints", "minWins", "minSavePercentage", "sort"]}>
               <option value="skaters">Skaters</option>
               <option value="goalies">Goalies</option>
-            </select>
+            </AutoSubmitSelect>
+            <small className="workspace-control-help">Changing type applies the form.</small>
           </label>
           {category === "skaters" ? (
             <label>
@@ -177,10 +180,12 @@ export function PlayerDirectoryFilters({
               ? `${advancedFilterCount} active`
               : null}
           </b>
+          <i className="workspace-disclosure-icon" aria-hidden="true" />
         </summary>
         <div>
           <fieldset className="workspace-player-filter-group">
             <legend>Minimum Season Totals</legend>
+            <p className="workspace-control-help">0 means no minimum.</p>
             <div>
               <NumberFilter
                 label="Games Played"
@@ -220,8 +225,10 @@ export function PlayerDirectoryFilters({
                       min="0"
                       max="1"
                       step="0.001"
+                      aria-describedby="save-percentage-help"
                       defaultValue={filters.minSavePercentage}
                     />
+                    <small id="save-percentage-help" className="workspace-control-help">Use a decimal, e.g. 0.915 for 91.5%.</small>
                   </label>
                 </>
               )}
@@ -243,9 +250,9 @@ export function PlayerDirectoryFilters({
                   }}
                 >
                   <option value="">All Countries</option>
-                  {countries.map((option) => (
+                  {[...new Set([...countries, country].filter(Boolean))].sort((a, b) => countryName(a).localeCompare(countryName(b))).map((option) => (
                     <option key={option} value={option}>
-                      {countryNameWithCode(option)}
+                      {countryName(option)}
                     </option>
                   ))}
                 </select>
@@ -266,7 +273,7 @@ export function PlayerDirectoryFilters({
                       ? "All Provinces / States"
                       : "Choose Country First"}
                   </option>
-                  {regions.map((option) => (
+                  {[...new Set([...regions, region].filter(Boolean))].map((option) => (
                     <option key={option} value={option}>
                       {option}
                     </option>
@@ -284,7 +291,7 @@ export function PlayerDirectoryFilters({
                   <option value="">
                     {country ? "All Cities" : "Choose Country First"}
                   </option>
-                  {cities.map((option) => (
+                  {[...new Set([...cities, city].filter(Boolean))].map((option) => (
                     <option key={option} value={option}>
                       {option}
                     </option>
@@ -328,7 +335,6 @@ export function PlayerDirectoryFilters({
           direction,
         })}
         canClear={activeFilterCount > 0}
-        applyLabel="Show Players"
       >
         <Link
           href={`/players/compare?season=${seasonId}&phase=${phase}&type=${category}`}
@@ -337,7 +343,7 @@ export function PlayerDirectoryFilters({
           Compare Players →
         </Link>
       </FilterActions>
-    </form>
+    </FilterForm>
   );
 }
 
