@@ -32,10 +32,6 @@ export function HomePlayerLeaders({ seasonId, scoring, skaters, goalies }: {
           metrics={[{ label: "GP" }, { label: "xGA", decimals: 1 }, { label: "GSAx", decimals: 1 }]}
           rows={goalies.filter(p => p.goalsSavedAboveExpected !== null).slice(0, 5).map(p => ({ id: p.player.nhlPlayerId, name: p.player.name, teams: [p.team], values: [p.gamesPlayed, p.expectedGoalsAgainst, p.goalsSavedAboveExpected] }))} />
       </div>
-      <footer className="home-player-leaders-note">
-        <details><summary>Top five · Season totals · About these rankings</summary><p>Sorting compares the five displayed rows. NHL scoring combines teams. MoneyPuck rankings retain player-team splits; source coverage can differ. Game Score and GSAx are cumulative, not per-game rates.</p></details>
-        <Link href={`/analytics/guide?season=${seasonId}`}>Metric Guide →</Link>
-      </footer>
     </WorkspacePanel>
   );
 }
