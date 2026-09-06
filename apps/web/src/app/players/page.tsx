@@ -2,20 +2,20 @@ import {
   skaterSortOptions,
   goalieSortOptions,
 } from "@/lib/player-sort-options";
-import { MobileDataView } from "@/app/_components/mobile-data-view";
-import Link from "@/app/_components/exploration-link";
+import { MobileDataView } from "@/components/ui/mobile-data-view";
+import Link from "@/components/ui/exploration-link";
 
-import { Pagination } from "@/app/_components/pagination";
-import { PlayerDirectoryFilters } from "@/app/_components/player-directory-filters";
-import { SeasonPicker } from "@/app/_components/season-picker";
-import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
-import { SiteHeader } from "@/app/_components/site-header";
-import { SortableHeader } from "@/app/_components/sortable-header";
-import { SortableTable } from "@/app/_components/sortable-table";
-import { TeamLogoStack } from "@/app/_components/team-logo";
+import { Pagination } from "@/components/ui/pagination";
+import { PlayerDirectoryFilters } from "@/features/players/player-directory-filters";
+import { SeasonPicker } from "@/features/league/season-picker";
+import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
+import { SiteHeader } from "@/components/shell/site-header";
+import { SortableHeader } from "@/components/ui/sortable-header";
+import { SortableTable } from "@/components/ui/sortable-table";
+import { TeamLogoStack } from "@/features/teams/team-logo";
 import {
   WorkspacePageHeader,
-} from "@/app/_components/workspace-primitives";
+} from "@/components/ui/workspace-primitives";
 import type {
   GoalieSeasonSummary,
   PlayerLocation,

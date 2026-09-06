@@ -1,5 +1,5 @@
-import Link from "@/app/_components/exploration-link";
-import { SiteHeader } from "@/app/_components/site-header";
+import Link from "@/components/ui/exploration-link";
+import { SiteHeader } from "@/components/shell/site-header";
 import { findPlayers } from "@/data/player-search";
 export const dynamic = "force-dynamic";
 export default async function SearchPage({

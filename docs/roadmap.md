@@ -124,6 +124,9 @@ Post-MVP improvements now shipped:
   leaders, and era-relative skater and goalie indexes.
 - [x] Preserve chart selections and comparison state in shareable URLs.
 - [x] Add page caching, bounded queries, deferred charts, and performance telemetry.
+- [x] Separate shared UI and feature presentation, decompose Drafts, consolidate
+  theme tokens, and split Python models/commands while preserving interfaces.
+- [x] Add migrated synthetic database and browser smoke checks to web CI.
 - [x] Complete the application, sizing, theme, content, filter, and usability
   audit fixes, including all-season player discovery and complete career totals.
 
@@ -148,6 +151,10 @@ Named saved-comparison collections remain backlog. See
 - Complete the production recovery and source-change runbooks.
 
 ## Milestone 7: predictive modelling
+
+- [x] Add conservative point-in-time observation selection and versioned dataset
+  manifests, with tests for revised results and late historical backfills.
+  Target-specific extraction, feature construction, and modelling remain below.
 
 - Define prediction targets without leaking future information.
 - Build point-in-time Python feature pipelines.

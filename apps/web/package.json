@@ -9,7 +9,9 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "test:browser:performance": "playwright test e2e/performance.spec.ts"
+    "test:browser:performance": "playwright test e2e/performance.spec.ts",
+    "test:browser:smoke": "playwright test --config playwright.smoke.config.ts",
+    "test:database:fixture": "SPORTSBALL_RUN_WEB_FIXTURE_TESTS=1 vitest run src/data/database.fixture.test.ts"
   },
   "dependencies": {
     "next": "16.2.12",

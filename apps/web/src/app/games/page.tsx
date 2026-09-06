@@ -1,14 +1,14 @@
-import { SeasonPicker } from "@/app/_components/season-picker";
-import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
-import Link from "@/app/_components/exploration-link";
+import { SeasonPicker } from "@/features/league/season-picker";
+import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
+import Link from "@/components/ui/exploration-link";
 import { redirect } from "next/navigation";
 
-import { GamePicker } from "@/app/_components/game-picker";
-import { LocalGameTime } from "@/app/_components/local-game-time";
-import { SiteHeader } from "@/app/_components/site-header";
-import { TeamGameRecord } from "@/app/_components/team-game-record";
-import { TeamLogo } from "@/app/_components/team-logo";
-import { WorkspacePageHeader } from "@/app/_components/workspace-primitives";
+import { GamePicker } from "@/features/games/game-picker";
+import { LocalGameTime } from "@/features/games/local-game-time";
+import { SiteHeader } from "@/components/shell/site-header";
+import { TeamGameRecord } from "@/features/teams/team-game-record";
+import { TeamLogo } from "@/features/teams/team-logo";
+import { WorkspacePageHeader } from "@/components/ui/workspace-primitives";
 import {
   formatGameState,
   parseGameDate,

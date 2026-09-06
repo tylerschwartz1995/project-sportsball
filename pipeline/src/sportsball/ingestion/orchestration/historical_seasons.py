@@ -15,11 +15,11 @@ from sportsball.clients.nhl.stats_schemas import (
     SkaterSeasonSummary,
     TeamSeasonSummary,
 )
-from sportsball.ingestion.orchestration.multi_season_backfill import season_ids_in_range
 from sportsball.normalization.historical_seasons import historical_season_frames
 from sportsball.persistence.database import session_scope
 from sportsball.persistence.models import IngestionRun, SourcePayload
 from sportsball.persistence.repositories.historical_seasons import HistoricalSeasonRepository
+from sportsball.reference.seasons import season_ids_in_range
 
 NHL_GAME_TYPES = (2, 3)
 

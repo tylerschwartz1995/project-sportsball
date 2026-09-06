@@ -7,10 +7,10 @@ from datetime import date
 from sqlalchemy import func, select
 
 from sportsball.clients.nhl.client import NhlClient
-from sportsball.ingestion.orchestration.multi_season_backfill import season_ids_in_range
 from sportsball.ingestion.orchestration.standings import ingest_standings
 from sportsball.persistence.database import session_scope
 from sportsball.persistence.models import Game, OfficialStandingsSnapshot
+from sportsball.reference.seasons import season_ids_in_range
 
 
 @dataclass(frozen=True)

@@ -69,7 +69,7 @@ Limits: this is a comprehensive template-level content audit, not an assertion t
 
 ## 1. Shared shell, navigation and explanatory copy
 
-Evidence: [site header](../apps/web/src/app/_components/site-header.tsx), [page/panel headers](../apps/web/src/app/_components/workspace-primitives.tsx), [filter primitives](../apps/web/src/app/_components/filter-primitives.tsx), [view tabs](../apps/web/src/app/_components/view-tabs.tsx), [layout/footer](../apps/web/src/app/layout.tsx).
+Evidence: [site header](../apps/web/src/components/shell/site-header.tsx), [page/panel headers](../apps/web/src/components/ui/workspace-primitives.tsx), [filter primitives](../apps/web/src/components/ui/filter-primitives.tsx), [view tabs](../apps/web/src/components/ui/view-tabs.tsx), [layout/footer](../apps/web/src/app/layout.tsx).
 
 | ID | Content | Decision and reason |
 | --- | --- | --- |
@@ -88,7 +88,7 @@ Evidence: [site header](../apps/web/src/app/_components/site-header.tsx), [page/
 
 ## 2. Homepage
 
-Evidence: [homepage](../apps/web/src/app/page.tsx), [insight components](../apps/web/src/app/_components/homepage-insights.tsx), [insight calculations](../apps/web/src/lib/homepage-insights.ts).
+Evidence: [homepage](../apps/web/src/app/page.tsx), [insight components](../apps/web/src/features/league/homepage-insights.tsx), [insight calculations](../apps/web/src/lib/homepage-insights.ts).
 
 | ID | Content | Decision and reason |
 | --- | --- | --- |
@@ -109,7 +109,7 @@ Proposed homepage: one title and season control; latest results; clearly labeled
 
 ## 3. Standings
 
-Evidence: [standings page](../apps/web/src/app/standings/page.tsx), [progression chart](../apps/web/src/app/_components/standings-points-chart.tsx).
+Evidence: [standings page](../apps/web/src/app/standings/page.tsx), [progression chart](../apps/web/src/features/standings/standings-points-chart.tsx).
 
 - **Keep** overall, conference and division groupings; team identity; GP, W, L, OT, PTS and clinch information. These answer where a team stands.
 - **Keep secondary** RW, GF, GA and DIFF. RW explains a tiebreak; goal differential gives performance context. These are reasonable in a dedicated standings table, even if a compact default later hides GF/GA.
@@ -121,7 +121,7 @@ Evidence: [standings page](../apps/web/src/app/standings/page.tsx), [progression
 
 ## 4. Schedule and game previews
 
-Evidence: [schedule](../apps/web/src/app/games/page.tsx), [calendar controls](../apps/web/src/app/_components/game-picker.tsx), [game page](../apps/web/src/app/games/[id]/page.tsx).
+Evidence: [schedule](../apps/web/src/app/games/page.tsx), [calendar controls](../apps/web/src/features/games/game-picker.tsx), [game page](../apps/web/src/app/games/[id]/page.tsx).
 
 - **Keep** season, phase, team and date; the week strip; calendar access; clear final/OT status; linked teams; local start time for scheduled games.
 - **Simplify** the page description. “Using the team name active in that season” is a data convention, not a necessary introduction on every visit.
@@ -136,7 +136,7 @@ Evidence: [schedule](../apps/web/src/app/games/page.tsx), [calendar controls](..
 
 ## 5. Completed game detail
 
-Evidence: [game page](../apps/web/src/app/games/[id]/page.tsx), [scoring/timeline](../apps/web/src/app/_components/play-by-play.tsx), [Game Flow](../apps/web/src/app/_components/game-flow-chart.tsx), [advanced game views](../apps/web/src/app/_components/game-advanced-analytics.tsx), [shot map](../apps/web/src/app/_components/shot-map.tsx).
+Evidence: [game page](../apps/web/src/app/games/[id]/page.tsx), [scoring/timeline](../apps/web/src/features/games/play-by-play.tsx), [Game Flow](../apps/web/src/features/games/game-flow-chart.tsx), [advanced game views](../apps/web/src/features/games/game-advanced-analytics.tsx), [shot map](../apps/web/src/features/games/shot-map.tsx).
 
 | Surface | Decision |
 | --- | --- |
@@ -158,7 +158,7 @@ Evidence: [game page](../apps/web/src/app/games/[id]/page.tsx), [scoring/timelin
 
 ## 6. Team directory and team profile
 
-Evidence: [directory](../apps/web/src/app/teams/page.tsx), [profile](../apps/web/src/app/teams/[id]/page.tsx), [overview](../apps/web/src/app/_components/team-season-identity.tsx), [result map](../apps/web/src/app/_components/team-performance-result-map.tsx).
+Evidence: [directory](../apps/web/src/app/teams/page.tsx), [profile](../apps/web/src/app/teams/[id]/page.tsx), [overview](../apps/web/src/features/teams/team-season-identity.tsx), [result map](../apps/web/src/features/teams/team-performance-result-map.tsx).
 
 **Directory:** Keep conference/division grouping, season, names and logos. Remove division team counts and repeated abbreviations where the full name is already prominent. Shorten or remove the sentence instructing users to select a club. Do not reintroduce search or standings cards: this is a directory, and its current narrow responsibility is good.
 
@@ -189,7 +189,7 @@ Evidence: [directory](../apps/web/src/app/teams/page.tsx), [profile](../apps/web
 
 ## 7. Strength of schedule
 
-Evidence: [strength presentation](../apps/web/src/app/_components/schedule-strength.tsx), [supporting table](../apps/web/src/app/_components/schedule-strength-table.tsx).
+Evidence: [strength presentation](../apps/web/src/features/teams/schedule-strength.tsx), [supporting table](../apps/web/src/features/teams/schedule-strength-table.tsx).
 
 Keep the central question: how difficult were the opponents already faced, and how difficult are the opponents remaining?
 
@@ -203,7 +203,7 @@ Keep the central question: how difficult were the opponents already faced, and h
 
 ## 8. Player directory
 
-Evidence: [player directory](../apps/web/src/app/players/page.tsx), [filters](../apps/web/src/app/_components/player-directory-filters.tsx).
+Evidence: [player directory](../apps/web/src/app/players/page.tsx), [filters](../apps/web/src/features/players/player-directory-filters.tsx).
 
 - **Keep** name search, skater/goalie choice, position, season and phase.
 - **Keep optional** minimum games and scoring/win/save-rate filters. The current collapsed Advanced Filters pattern is good.
@@ -258,7 +258,7 @@ The profile formatter also treats missing draft year as “Undrafted.” **Unkno
 
 ## 10. Player comparison
 
-Evidence: [comparison page](../apps/web/src/app/players/compare/page.tsx), [picker](../apps/web/src/app/_components/player-comparison-picker.tsx), [chart](../apps/web/src/app/_components/player-direct-comparison-chart.tsx).
+Evidence: [comparison page](../apps/web/src/app/players/compare/page.tsx), [picker](../apps/web/src/features/players/player-comparison-picker.tsx), [chart](../apps/web/src/features/players/player-direct-comparison-chart.tsx).
 
 - **Keep** two-to-four-player comparison, phase/type/season scope, selected names, remove controls, search and the complete comparison table.
 - **Move the chart below the table or make it optional.** It defaults to Games Played, drawing a large bar chart of two simple workload numbers before the meaningful comparison. If a chart remains default, choose a metric with an actual comparison purpose and show workload alongside it.
@@ -269,7 +269,7 @@ Evidence: [comparison page](../apps/web/src/app/players/compare/page.tsx), [pick
 
 ## 11. League analytics and metric guide
 
-Evidence: [analytics page](../apps/web/src/app/analytics/page.tsx), [query limits](../apps/web/src/data/advanced-leaderboard.ts), [team plot](../apps/web/src/app/_components/team-comparison-scatterplot.tsx), [player plots](../apps/web/src/app/_components/player-comparison-plots.tsx), [guide](../apps/web/src/app/analytics/guide/page.tsx).
+Evidence: [analytics page](../apps/web/src/app/analytics/page.tsx), [query limits](../apps/web/src/data/advanced-leaderboard.ts), [team plot](../apps/web/src/features/teams/team-comparison-scatterplot.tsx), [player plots](../apps/web/src/features/players/player-comparison-plots.tsx), [guide](../apps/web/src/app/analytics/guide/page.tsx).
 
 - **Keep** team/skater/goalie distinction, situation, qualification, source and team splits.
 - **Keep compact column presets.** The tables already avoid showing every stored field by default. Improve their content instead of discarding the pattern.
@@ -290,7 +290,7 @@ Evidence: [analytics page](../apps/web/src/app/analytics/page.tsx), [query limit
 
 ## 12. Lines and pairings
 
-Evidence: [explorer](../apps/web/src/app/lines/page.tsx), [presets](../apps/web/src/app/_components/season-unit-tables.tsx), [detail](../apps/web/src/app/lines/[unit]/page.tsx), [query boundary](../apps/web/src/data/season-units.ts).
+Evidence: [explorer](../apps/web/src/app/lines/page.tsx), [presets](../apps/web/src/features/lines/season-unit-tables.tsx), [detail](../apps/web/src/app/lines/[unit]/page.tsx), [query boundary](../apps/web/src/data/season-units.ts).
 
 - **Keep** forward-line/pairing choice, team, season, full/10/20/40-team-game sample, minimum shared TOI and core table. These choices materially affect the result.
 - **Keep** GP and TOI alongside xG%; tiny samples must not look established.
@@ -304,7 +304,7 @@ Evidence: [explorer](../apps/web/src/app/lines/page.tsx), [presets](../apps/web/
 
 ## 13. Drafts
 
-Evidence: [draft workspace](../apps/web/src/app/drafts/page.tsx), [outcome plot](../apps/web/src/app/_components/draft-outcome-plot.tsx), [team visuals](../apps/web/src/app/_components/team-drafting-visuals.tsx), [class distributions](../apps/web/src/app/_components/class-ranking-visuals.tsx).
+Evidence: [draft workspace](../apps/web/src/app/drafts/page.tsx), [outcome plot](../apps/web/src/features/drafts/draft-outcome-plot.tsx), [team visuals](../apps/web/src/features/drafts/team-drafting-visuals.tsx), [class distributions](../apps/web/src/features/drafts/class-ranking-visuals.tsx).
 
 ### Draft Board
 
@@ -340,7 +340,7 @@ Evidence: [draft workspace](../apps/web/src/app/drafts/page.tsx), [outcome plot]
 
 ## 14. History
 
-Evidence: [history workspace](../apps/web/src/app/history/page.tsx), [record book and filters](../apps/web/src/app/_components/history-record-book.tsx), [history charts](../apps/web/src/app/_components/history-visuals.tsx), [decade leaders](../apps/web/src/app/_components/history-decade-leaders.tsx).
+Evidence: [history workspace](../apps/web/src/app/history/page.tsx), [record book and filters](../apps/web/src/features/history/history-record-book.tsx), [history charts](../apps/web/src/features/history/history-visuals.tsx), [decade leaders](../apps/web/src/features/history/history-decade-leaders.tsx).
 
 - **Keep** Record Book, Careers and Single Seasons. Historical records are a clear research task and already have a dedicated destination.
 - **Keep the compact record-leader lists.** They offer a meaningful entrance to complete rankings. Do not expand them with more record categories solely because the database supports them.
@@ -360,7 +360,7 @@ Evidence: [history workspace](../apps/web/src/app/history/page.tsx), [record boo
 
 ## 15. Loading, missing, empty and error content
 
-Evidence: [loading component](../apps/web/src/app/_components/route-loading.tsx), [error](../apps/web/src/app/error.tsx), [not found](../apps/web/src/app/not-found.tsx), conditional branches in the audited pages.
+Evidence: [loading component](../apps/web/src/components/ui/route-loading.tsx), [error](../apps/web/src/app/error.tsx), [not found](../apps/web/src/app/not-found.tsx), conditional branches in the audited pages.
 
 | State | Decision |
 | --- | --- |

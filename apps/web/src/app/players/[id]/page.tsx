@@ -1,16 +1,16 @@
-import { ReturnLink } from "@/app/_components/exploration-link";
+import { ReturnLink } from "@/components/ui/exploration-link";
 import { getPlayerCareer } from "@/data/player-career";
-import { PlayerCareer } from "@/app/_components/player-career";
-import Link from "@/app/_components/exploration-link";
+import { PlayerCareer } from "@/features/players/player-career";
+import Link from "@/components/ui/exploration-link";
 import { notFound } from "next/navigation";
 
-import { PlayerAdvancedAnalytics } from "@/app/_components/advanced-analytics";
-import { PlayerRollingPerformanceChart } from "@/app/_components/lazy-charts";
-import { SeasonPicker } from "@/app/_components/season-picker";
-import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
-import { SiteHeader } from "@/app/_components/site-header";
-import { TeamLogoStack } from "@/app/_components/team-logo";
-import { ViewTabs } from "@/app/_components/view-tabs";
+import { PlayerAdvancedAnalytics } from "@/features/analytics/advanced-analytics";
+import { PlayerRollingPerformanceChart } from "@/features/charts/lazy-charts";
+import { SeasonPicker } from "@/features/league/season-picker";
+import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
+import { SiteHeader } from "@/components/shell/site-header";
+import { TeamLogoStack } from "@/features/teams/team-logo";
+import { ViewTabs } from "@/components/ui/view-tabs";
 import { parseNhlId } from "@/contracts/entity";
 import type {
   GoalieSeasonSummary,

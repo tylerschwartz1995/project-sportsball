@@ -293,3 +293,10 @@ SPORTSBALL_RUN_WEB_DATABASE_TESTS=1 \
 SPORTSBALL_WEB_DATABASE_URL=postgresql://sportsball:sportsball@localhost:5432/sportsball \
   npm run test --prefix apps/web
 ```
+
+## CI schema and browser contracts
+
+CI runs the query fixture suite against a fresh migrated PostgreSQL database,
+then checks draft/game navigation in both themes on desktop and mobile. This
+complements the populated-archive suite above. See the
+[fixture setup and ownership guide](repository-structure.md#reproducible-database-checks).

@@ -1,0 +1,54 @@
+.workspace-empty-state.compact {
+  margin-top: 0;
+}
+
+@media (max-width: 800px) {
+  .workspace-leader-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workspace-leader-grid a {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .workspace-leader-grid a:nth-child(2n) {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .workspace-result-row {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
+
+  .workspace-result-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .workspace-standing-list a {
+    grid-template-columns: 1.3rem 1.5rem minmax(0, 1fr) 2.4rem;
+  }
+
+  .workspace-standing-list small {
+    display: none;
+  }
+
+  .workspace-home-movement > a {
+    grid-template-columns: 1.3rem 1.5rem minmax(0, 1fr) auto;
+  }
+
+  .workspace-home-form {
+    display: none;
+  }
+
+  .workspace-home-trend-rows > a {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .workspace-home-trend-rows em {
+    grid-column: 2;
+  }
+}

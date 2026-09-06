@@ -28,5 +28,9 @@ __pycache__/
 # Local data and generated model artifacts
 data/raw/
 data/processed/
-models/
+/models/
 backups/
+
+# Browser verification output
+test-results/
+playwright-report/

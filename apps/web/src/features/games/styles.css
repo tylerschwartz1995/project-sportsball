@@ -1,0 +1,1219 @@
+.workspace-schedule-toolbar {
+  display: grid;
+  grid-template-columns:
+    minmax(7.5rem, 0.75fr)
+    minmax(13rem, 1.1fr)
+    minmax(12rem, 1.25fr)
+    minmax(10.5rem, 1fr);
+  gap: 0.85rem;
+  border-bottom: 1px solid var(--border);
+  padding: 1rem;
+}
+
+.workspace-schedule-toolbar label,
+.workspace-schedule-phase > span {
+  display: block;
+  color: var(--muted);
+  font-size: var(--text-meta);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.workspace-schedule-toolbar select,
+.workspace-schedule-toolbar input[type="date"] {
+  width: 100%;
+  min-width: 0;
+  margin-top: 0.38rem;
+}
+
+.workspace-schedule-phase > div {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  min-height: 2.65rem;
+  margin-top: 0.38rem;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  padding: 0.2rem;
+  background: var(--surface-raised);
+}
+
+.workspace-schedule-phase a {
+  display: grid;
+  place-items: center;
+  border-radius: 0.38rem;
+  color: var(--muted);
+  font-size: var(--text-meta);
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.workspace-schedule-phase a[aria-current="page"] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.workspace-schedule-calendar-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  background: var(--surface-subtle);
+}
+
+.workspace-schedule-calendar-action button {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-radius: 0.55rem;
+  padding: 0 0.8rem;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 750;
+}
+
+.workspace-schedule-calendar-action button:hover {
+  border-color: var(--accent);
+}
+
+.workspace-schedule-calendar-action button span {
+  color: var(--accent);
+  font-size: 1rem;
+}
+
+.workspace-schedule-calendar-action p {
+  color: var(--muted);
+  font-size: var(--text-meta);
+}
+
+.workspace-schedule-month {
+  border-bottom: 1px solid var(--border);
+  padding: 1rem;
+  background: var(--surface);
+}
+
+.workspace-schedule-month-heading {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr 2.5rem;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+  text-align: center;
+}
+
+.workspace-schedule-month-heading span {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: var(--text-meta);
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-schedule-month-heading h2 {
+  margin-top: 0.15rem;
+  color: var(--foreground);
+  font-size: 1.1rem;
+}
+
+.workspace-schedule-month-heading button {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 0.55rem;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  cursor: pointer;
+  font: inherit;
+}
+
+.workspace-schedule-month-heading button:disabled {
+  cursor: default;
+  opacity: 0.35;
+}
+
+.workspace-schedule-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.7rem;
+  background: var(--border);
+}
+
+.workspace-schedule-month-grid > span,
+.workspace-schedule-month-grid > a {
+  display: grid;
+  min-width: 0;
+  min-height: 4.4rem;
+  align-content: space-between;
+  gap: 0.35rem;
+  padding: 0.55rem;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  text-decoration: none;
+}
+
+.workspace-schedule-month-grid > .is-weekday {
+  min-height: auto;
+  place-items: center;
+  padding: 0.45rem;
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: var(--text-meta);
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.workspace-schedule-month-grid > a:hover {
+  background: color-mix(in srgb, var(--accent) 7%, var(--surface-raised));
+}
+
+.workspace-schedule-month-grid > a[aria-current="date"] {
+  background: color-mix(in srgb, var(--accent) 13%, var(--surface));
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.workspace-schedule-month-grid > span[aria-disabled="true"] {
+  opacity: 0.4;
+}
+
+.workspace-schedule-month-grid strong {
+  font-size: 0.88rem;
+}
+
+.workspace-schedule-month-grid small {
+  color: var(--accent);
+  font-size: var(--text-meta);
+  font-weight: 700;
+}
+
+.workspace-schedule-month-grid [data-has-games="false"] small {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.workspace-schedule-week-actions,
+.workspace-schedule-day-actions {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+}
+
+.workspace-schedule-week-actions p {
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: var(--text-meta);
+  font-weight: 700;
+}
+
+.workspace-schedule-week-actions a,
+.workspace-schedule-week-actions span,
+.workspace-schedule-day-actions a,
+.workspace-schedule-day-actions span {
+  color: var(--muted);
+  font-size: var(--text-meta);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.workspace-schedule-week-actions > :last-child,
+.workspace-schedule-day-actions > :last-child {
+  text-align: right;
+}
+
+.workspace-schedule-week-actions [aria-disabled="true"],
+.workspace-schedule-day-actions [aria-disabled="true"] {
+  opacity: 0.4;
+}
+
+.workspace-schedule-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 1px;
+  border-block: 1px solid var(--border);
+  background: var(--border);
+}
+
+.workspace-schedule-week > a,
+.workspace-schedule-week > span {
+  display: grid;
+  min-width: 0;
+  min-height: 6.25rem;
+  align-content: center;
+  justify-items: center;
+  gap: 0.28rem;
+  padding: 0.75rem 0.4rem;
+  background: var(--surface);
+  color: var(--muted);
+  text-align: center;
+  text-decoration: none;
+}
+
+.workspace-schedule-week > a:hover {
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+}
+
+.workspace-schedule-week > a[aria-current="date"] {
+  position: relative;
+  z-index: 1;
+  background: color-mix(in srgb, var(--accent) 13%, var(--surface));
+  box-shadow: inset 0 0 0 2px var(--accent);
+  color: var(--foreground);
+}
+
+.workspace-schedule-week > span[aria-disabled="true"] {
+  opacity: 0.4;
+}
+
+.workspace-schedule-week span {
+  font-family: var(--font-geist-mono);
+  font-size: var(--text-meta);
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-schedule-week strong {
+  color: var(--foreground);
+  font-size: 0.98rem;
+}
+
+.workspace-schedule-week small {
+  font-size: var(--text-meta);
+}
+
+.workspace-schedule-week [data-has-games="false"] small {
+  color: var(--muted);
+}
+
+.workspace-schedule-day-actions {
+  border-bottom: 1px solid var(--border);
+}
+
+.workspace-schedule-day-actions > :nth-child(2) {
+  color: var(--accent);
+  text-align: center;
+}
+
+.workspace-schedule-results-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.75rem;
+}
+
+.workspace-schedule-results-heading p {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: var(--text-meta);
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-schedule-results-heading h2 {
+  margin-top: 0.25rem;
+  color: var(--foreground);
+  font-size: 1.5rem;
+}
+
+.workspace-schedule-results-heading > span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.workspace-shot-marker:focus {
+  outline: none;
+}
+
+@container (max-width: 50rem) {
+  .workspace-schedule-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@container (max-width: 28rem) {
+  .workspace-schedule-toolbar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.workspace-game-grid {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.25rem;
+}
+
+@media (min-width: 900px) {
+  .workspace-game-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.workspace-game-card {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.8rem;
+  background: var(--surface);
+  box-shadow: 0 10px 28px var(--shadow);
+}
+
+.workspace-game-card-header,
+.workspace-game-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 1rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.workspace-game-card-header {
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-geist-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-game-card-header strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.workspace-game-card-header strong[data-complete="true"] {
+  color: var(--positive);
+}
+
+.workspace-game-card-footer {
+  border-top: 1px solid var(--border);
+}
+
+.workspace-game-card-footer a {
+  color: var(--accent);
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.workspace-game-card-teams {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem;
+}
+
+.workspace-game-team {
+  display: grid;
+  grid-template-columns: 2.7rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.workspace-game-team > :first-child {
+  align-self: center;
+}
+
+.workspace-game-team-abbreviation {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.workspace-game-team a {
+  color: var(--foreground);
+  font-size: 0.92rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.workspace-game-team a:hover {
+  color: var(--accent);
+}
+
+.workspace-game-team-name,
+.workspace-game-score-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.55rem;
+}
+
+.workspace-game-team-venue {
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+  border-radius: 999px;
+  padding: 0.1rem 0.36rem;
+  background: color-mix(in srgb, var(--accent) 9%, var(--surface-raised));
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: var(--text-meta);
+  font-weight: 750;
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.workspace-game-score-team[data-align="right"] .workspace-game-score-name {
+  justify-content: flex-end;
+}
+
+.workspace-team-game-record {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.35rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.08rem 0.38rem;
+  background: var(--surface-raised);
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: var(--text-meta);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.workspace-game-team p {
+  margin-top: 0.15rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.workspace-game-team strong {
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 1.7rem;
+}
+
+.workspace-game-hero {
+  overflow: hidden;
+  margin-top: 1.1rem;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  background:
+    linear-gradient(135deg, var(--surface-subtle), transparent 65%),
+    var(--surface);
+  box-shadow: 0 16px 42px var(--shadow);
+}
+
+.workspace-game-hero-meta,
+.workspace-game-hero-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-color: var(--border);
+  padding: 0.8rem 1.2rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.workspace-game-hero-meta {
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-geist-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-game-hero-meta strong {
+  color: var(--positive);
+}
+
+.workspace-game-hero-score {
+  display: grid;
+  gap: 1.5rem;
+  padding: 2rem 1.2rem;
+}
+
+@media (min-width: 900px) {
+  .workspace-game-hero-score {
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 2.6rem 1.5rem;
+  }
+
+  .workspace-game-score-team {
+    gap: 0.4rem;
+  }
+
+  .workspace-game-score-identity {
+    gap: 0.45rem;
+  }
+
+  .workspace-game-score-name {
+    width: max-content;
+    flex-wrap: nowrap;
+    column-gap: 0.35rem;
+  }
+}
+
+.workspace-game-hero-at {
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: 0.88rem;
+  letter-spacing: 0.14em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.workspace-game-score-team {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.workspace-game-score-team[data-align="right"] {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.workspace-game-score-identity {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 1rem;
+}
+
+.workspace-game-score-identity > div {
+  min-width: 0;
+}
+
+.workspace-game-score-team[data-align="right"] .workspace-game-score-identity {
+  flex-direction: row-reverse;
+}
+
+.workspace-game-score-team small {
+  color: var(--accent);
+  font-family: var(--font-geist-mono);
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.workspace-game-score-team a {
+  color: var(--foreground);
+  font-size: clamp(1.15rem, 3vw, 1.5rem);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+@media (min-width: 900px) and (max-width: 1399px) {
+  .workspace-game-score-team a {
+    font-size: 1.35rem;
+  }
+
+  .workspace-game-score-name {
+    width: auto;
+    max-width: 15rem;
+    flex-wrap: wrap;
+  }
+
+  .workspace-game-score-name a {
+    line-height: 1.15;
+  }
+}
+
+@media (min-width: 1400px) {
+  .workspace-game-hero-score {
+    gap: 1rem;
+    padding-right: 2rem;
+    padding-left: 2rem;
+  }
+
+  .workspace-game-score-team {
+    gap: 0.7rem;
+  }
+
+  .workspace-game-score-identity {
+    gap: 0.75rem;
+  }
+
+  .workspace-game-score-name {
+    column-gap: 0.55rem;
+  }
+}
+
+.workspace-game-score-team p {
+  margin-top: 0.45rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.workspace-game-score-team > strong {
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: clamp(3rem, 8vw, 4.5rem);
+  line-height: 1;
+}
+
+.workspace-game-hero-footer {
+  border-top: 1px solid var(--border);
+}
+
+.workspace-section-divider {
+  margin-top: 2rem;
+  border-top: 1px solid var(--border);
+  padding-top: 2rem;
+}
+
+.workspace-xg-comparison {
+  overflow: hidden;
+  border: 1px solid
+    color-mix(in srgb, var(--accent-secondary) 28%, var(--border));
+  border-radius: 0.8rem;
+  padding: 1.1rem 1rem 1.15rem;
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--chart-primary) 7%, transparent),
+      color-mix(in srgb, var(--chart-secondary) 7%, transparent)
+    ),
+    var(--surface);
+  box-shadow: 0 12px 30px var(--shadow);
+}
+
+.workspace-xg-comparison-header {
+  display: grid;
+  justify-items: center;
+}
+
+.workspace-xg-comparison-header > p {
+  color: var(--accent-secondary);
+  font-family: var(--font-geist-mono);
+  font-size: 0.88rem;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.workspace-xg-comparison-stage {
+  position: relative;
+  width: min(100%, 40rem);
+  margin: 1rem auto 0;
+}
+
+.workspace-xg-comparison-advantage {
+  position: absolute;
+  top: 1.55rem;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 0.48rem 0.85rem;
+  background: color-mix(
+    in srgb,
+    var(--accent-secondary) 13%,
+    var(--surface-raised)
+  );
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 1rem;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.workspace-xg-comparison-teams {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8rem;
+}
+
+.workspace-xg-comparison-teams > div {
+  display: grid;
+  min-width: 0;
+  justify-items: center;
+  gap: 0.45rem;
+  text-align: center;
+}
+
+.workspace-xg-comparison-teams dt {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  gap: 0.45rem;
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.workspace-xg-comparison-teams dd {
+  display: grid;
+  justify-items: center;
+  gap: 0.1rem;
+}
+
+.workspace-xg-comparison-teams strong {
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-size: 2rem;
+  font-weight: 720;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.workspace-xg-comparison-teams dd > span {
+  color: var(--muted);
+  font-size: 0.96rem;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-xg-share-bar {
+  display: flex;
+  overflow: hidden;
+  width: min(100%, 40rem);
+  height: 0.6rem;
+  margin: 1rem auto 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-raised);
+}
+
+.workspace-xg-share-bar > span {
+  min-width: 0;
+}
+
+.workspace-xg-share-bar > span:first-child {
+  background: var(--chart-primary);
+}
+
+.workspace-xg-share-bar > span:last-child {
+  background: var(--chart-secondary);
+}
+
+.workspace-timeline-period {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+  box-shadow: 0 8px 22px var(--shadow);
+}
+
+.workspace-game-flow {
+  overflow: hidden;
+  margin-top: 2rem;
+  border: 1px solid
+    color-mix(in srgb, var(--accent-secondary) 26%, var(--border));
+  border-radius: var(--radius-panel);
+  background: var(--table-background);
+  box-shadow: 0 16px 40px var(--shadow);
+}
+
+.workspace-game-flow-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 1.1rem;
+}
+
+.workspace-game-flow-header > div:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.workspace-game-flow-header > div:first-child > p:first-child {
+  color: var(--accent-secondary);
+  font-family: var(--font-geist-mono);
+  font-size: var(--text-meta);
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.workspace-game-flow-header h3 {
+  margin-top: 0.25rem;
+  color: var(--foreground);
+  font-size: 1.3rem;
+  font-weight: 720;
+  letter-spacing: -0.025em;
+}
+
+.workspace-game-flow-header > div:first-child > p:last-child {
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.workspace-game-flow-key span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  color: var(--muted);
+  font-size: var(--text-meta);
+}
+
+.workspace-game-flow-key i {
+  display: inline-block;
+  width: 0.78rem;
+  height: 0.18rem;
+  border-radius: 999px;
+  background: var(--chart-reference);
+}
+
+.workspace-game-flow [data-series="primary"] {
+  background: var(--chart-primary);
+}
+
+.workspace-game-flow [data-series="secondary"] {
+  background: var(--chart-secondary);
+}
+
+.workspace-game-flow [data-series="goal"] {
+  width: 0.58rem;
+  height: 0.58rem;
+  border: 1.5px solid var(--chart-label);
+  border-radius: 50%;
+  background: var(--chart-puck);
+}
+
+.workspace-game-flow-controls {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem 0.3rem;
+}
+
+.workspace-game-flow-controls > p {
+  max-width: none;
+  padding-bottom: 0.18rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.workspace-game-flow-chart {
+  position: relative;
+  width: 100%;
+  height: 21rem;
+  padding: 0 0.45rem;
+}
+
+.workspace-game-flow-pressure-axis {
+  position: absolute;
+  z-index: 2;
+  inset: 0 0.3rem 2.3rem auto;
+  width: 3.7rem;
+  pointer-events: none;
+}
+
+.workspace-game-flow-pressure-axis::before,
+.workspace-game-flow-pressure-axis::after {
+  position: absolute;
+  left: 0.35rem;
+  display: block;
+  content: "";
+  background: var(--chart-reference);
+}
+
+.workspace-game-flow-pressure-axis::before {
+  top: 31%;
+  bottom: 31%;
+  width: 1px;
+}
+
+.workspace-game-flow-pressure-axis::after {
+  top: 50%;
+  width: 0.48rem;
+  height: 1px;
+}
+
+.workspace-game-flow-pressure-axis > span {
+  position: absolute;
+  top: 21%;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.18rem;
+  transform: translateY(-50%);
+  font-family: var(--font-geist-mono);
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+.workspace-game-flow-pressure-axis > span[data-chart-side="above"] strong {
+  color: var(--chart-primary);
+}
+
+.workspace-game-flow-pressure-axis > span[data-chart-side="below"] {
+  top: 79%;
+}
+
+.workspace-game-flow-pressure-axis > span[data-chart-side="below"] strong {
+  color: var(--chart-secondary);
+}
+
+.workspace-game-flow-pressure-axis strong {
+  font-weight: 760;
+}
+
+.workspace-game-flow-pressure-axis b {
+  color: var(--chart-label);
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.workspace-game-flow-pressure-axis small {
+  position: absolute;
+  top: 50%;
+  left: 0.95rem;
+  transform: translateY(-50%);
+  color: var(--chart-label);
+  font-family: var(--font-geist-mono);
+  font-size: var(--text-meta);
+  font-weight: 680;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.workspace-game-flow-goal-marker circle {
+  fill: var(--surface-raised);
+  stroke: var(--chart-label);
+  stroke-width: 1.5;
+}
+
+.workspace-game-flow-goal-marker[data-goal-series="primary"] circle {
+  stroke: var(--chart-primary);
+}
+
+.workspace-game-flow-goal-marker[data-goal-series="secondary"] circle {
+  stroke: var(--chart-secondary);
+}
+
+.workspace-game-flow-goal-marker ellipse,
+.workspace-game-flow-goal-marker path {
+  fill: var(--chart-puck);
+  stroke: var(--chart-puck-highlight);
+  stroke-width: 0.75;
+}
+
+.workspace-game-flow-goal-marker path:last-child {
+  fill: none;
+  stroke-width: 0.9;
+}
+
+.workspace-game-flow-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  border-top: 1px solid var(--border);
+  padding: 0.7rem 1.1rem;
+}
+
+.workspace-game-flow-tooltip-event {
+  display: grid;
+  gap: 0.2rem;
+  margin-top: 0.7rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.65rem;
+  font-size: 0.82rem;
+}
+
+.workspace-game-flow-tooltip.workspace-chart-tooltip {
+  min-width: 10.75rem;
+  border-radius: 0.6rem;
+  padding: 0.52rem 0.58rem;
+}
+
+.workspace-game-flow-tooltip .workspace-chart-tooltip-date {
+  font-size: var(--text-meta);
+}
+
+.workspace-game-flow-tooltip .workspace-chart-tooltip-game {
+  margin-top: 0.16rem;
+  font-size: 0.82rem;
+}
+
+.workspace-game-flow-tooltip dl {
+  gap: 0.24rem;
+  margin-top: 0.42rem;
+}
+
+.workspace-game-flow-tooltip dt {
+  font-size: var(--text-meta);
+}
+
+.workspace-game-flow-tooltip dd {
+  font-size: var(--text-meta);
+}
+
+.workspace-game-flow-tooltip .workspace-game-flow-tooltip-event {
+  gap: 0.12rem;
+  margin-top: 0.42rem;
+  padding-top: 0.4rem;
+  font-size: var(--text-meta);
+}
+
+.workspace-game-flow-tooltip .workspace-chart-tooltip-sample {
+  margin-top: 0.48rem;
+  font-size: var(--text-meta);
+}
+
+.workspace-game-flow-tooltip-event strong {
+  color: var(--foreground);
+  font-weight: 680;
+}
+
+.workspace-game-flow-tooltip-event span {
+  color: var(--muted);
+}
+
+.workspace-game-flow-periods {
+  overflow-x: auto;
+  border-top: 1px solid var(--border);
+}
+
+.workspace-game-flow-periods table {
+  width: 100%;
+  min-width: 28rem;
+  border-collapse: collapse;
+  font-size: 0.86rem;
+}
+
+.workspace-game-flow-periods caption {
+  padding: 0.85rem 1.1rem 0.45rem;
+  color: var(--foreground);
+  font-weight: 680;
+  text-align: left;
+}
+
+.workspace-game-flow-periods th,
+.workspace-game-flow-periods td {
+  border-top: 1px solid var(--border);
+  padding: 0.62rem 1.1rem;
+}
+
+.workspace-game-flow-periods thead th {
+  color: var(--muted);
+  font-family: var(--font-geist-mono);
+  font-size: var(--text-meta);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.workspace-game-flow-periods th:first-child {
+  text-align: left;
+}
+
+.workspace-game-flow-periods th:not(:first-child),
+.workspace-game-flow-periods td {
+  text-align: right;
+}
+
+.workspace-game-flow-periods thead span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.workspace-game-flow-periods tbody th {
+  color: var(--muted);
+  font-weight: 550;
+}
+
+.workspace-game-flow-periods td {
+  color: var(--foreground);
+  font-family: var(--font-geist-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.workspace-game-flow-periods tfoot {
+  background: var(--surface-subtle);
+  font-weight: 700;
+}
+
+.workspace-game-flow-source,
+.workspace-game-flow-unavailable {
+  color: var(--muted);
+  font-size: var(--text-meta);
+  line-height: 1.5;
+}
+
+.workspace-game-flow-source {
+  border-top: 1px solid var(--border);
+  padding: 0.85rem 1.1rem 1rem;
+}
+
+.workspace-game-flow-source a {
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.workspace-game-flow-unavailable {
+  margin-top: 2rem;
+  border: 1px dashed var(--border);
+  border-radius: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: var(--surface-subtle);
+}
+
+@media (max-width: 720px) {
+  .workspace-game-flow-header,
+  .workspace-game-flow-controls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .workspace-game-flow-controls > p {
+    text-align: left;
+    white-space: normal;
+  }
+
+  .workspace-game-flow-controls .workspace-chart-filter-group > div {
+    width: 100%;
+  }
+
+  .workspace-game-flow-controls .workspace-chart-filter-group button {
+    flex: 1 1 0;
+  }
+
+  .workspace-game-flow-chart {
+    height: 18rem;
+  }
+
+  .workspace-game-flow-pressure-axis {
+    right: 0.15rem;
+    width: 3.2rem;
+  }
+
+  .workspace-game-flow-pressure-axis > span {
+    font-size: var(--text-meta);
+  }
+
+  .workspace-game-flow-pressure-axis small {
+    font-size: var(--text-meta);
+  }
+
+  .workspace-game-flow-chart text[font-size="0.7rem"] {
+    display: none;
+  }
+}

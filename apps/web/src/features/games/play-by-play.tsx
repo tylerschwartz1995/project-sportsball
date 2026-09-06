@@ -1,0 +1,588 @@
+import Link from "@/components/ui/exploration-link";
+
+import { GameFlowChart } from "@/features/charts/lazy-charts";
+import { SortableHeader } from "@/components/ui/sortable-header";
+import { SortableTable } from "@/components/ui/sortable-table";
+import { TeamLogo } from "@/features/teams/team-logo";
+import type { GameTeamSummary } from "@/contracts/game";
+import type {
+  GamePlayByPlay,
+  PlayByPlayEvent,
+  PlayByPlayPlayer,
+} from "@/contracts/play-by-play";
+import type { GameFlow } from "@/contracts/game-flow";
+import { gameTimelineHref } from "@/lib/play-by-play-timeline";
+
+export function GamePlayByPlayView({
+  data,
+  awayTeam,
+  homeTeam,
+  seasonId,
+  gameFlow,
+  timelinePeriod,
+}: {
+  data: GamePlayByPlay;
+  awayTeam: GameTeamSummary;
+  homeTeam: GameTeamSummary;
+  seasonId: number;
+  gameFlow: GameFlow | null;
+  timelinePeriod: number | null;
+}) {
+  if (data.events.length === 0) {
+    return null;
+  }
+
+  const goals = data.events.filter(
+    (event) => event.typeDescription === "goal",
+  );
+  const periods = groupEventsByPeriod(data.events);
+
+  return (
+    <section
+      id="scoring"
+      className="workspace-section-divider workspace-width-data scroll-mt-6"
+    >
+      <ScoringSummary
+        goals={goals}
+        awayTeam={awayTeam}
+        homeTeam={homeTeam}
+        seasonId={seasonId}
+      />
+
+      {gameFlow ? (
+        <GameFlowChart flow={gameFlow} />
+      ) : (
+        <p className="workspace-game-flow-unavailable">
+          Game Flow is unavailable for this game. MoneyPuck modeled-shot
+          coverage begins in 2007–08 and occasionally excludes individual
+          games.
+        </p>
+      )}
+
+      <div id="timeline" className="mt-10 scroll-mt-6">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
+              Event timeline
+            </p>
+            <h3 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">
+              Period by period
+            </h3>
+          </div>
+        </div>
+
+        <div className="mt-5 space-y-3">
+          {periods.map(({ periodNumber, periodType, events }) => (
+            <PeriodTimeline
+              key={`${periodType}-${periodNumber}`}
+              periodNumber={periodNumber}
+              periodType={periodType}
+              events={events}
+              seasonId={seasonId}
+              nhlGameId={data.nhlGameId}
+              expanded={timelinePeriod === periodNumber}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ScoringSummary({
+  goals,
+  awayTeam,
+  homeTeam,
+  seasonId,
+}: {
+  goals: PlayByPlayEvent[];
+  awayTeam: GameTeamSummary;
+  homeTeam: GameTeamSummary;
+  seasonId: number;
+}) {
+  return (
+    <section className="mt-8">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <h3 className="text-xl font-semibold text-[var(--foreground)]">Scoring Summary</h3>
+      </div>
+
+      {goals.length === 0 ? (
+        <p className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-5 text-sm text-[var(--muted)]">
+          No goals were recorded in the play-by-play.
+        </p>
+      ) : (
+        <div className="data-table-shell mt-4">
+          <SortableTable defaultSortKey="gameTime" defaultDirection="asc">
+            <div className="workspace-table-scroll">
+              <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1150px]">
+                <colgroup>
+                  <col className="workspace-col-period" />
+                  <col className="workspace-col-time" />
+                  <col className="workspace-col-team" />
+                  <col className="workspace-col-entity" />
+                  <col className="workspace-col-assists" />
+                  <col className="workspace-col-event" />
+                  <col className="workspace-col-score" />
+                </colgroup>
+                <thead>
+                  <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
+                    <SortableHeader
+                      label="Period"
+                      sortKey="period"
+                      align="left"
+                      defaultDirection="asc"
+                    />
+                    <SortableHeader
+                      label="Time"
+                      sortKey="gameTime"
+                      align="left"
+                      defaultDirection="asc"
+                    />
+                    <SortableHeader
+                      label="Team"
+                      sortKey="team"
+                      align="left"
+                      defaultDirection="asc"
+                    />
+                    <SortableHeader
+                      label="Scorer"
+                      sortKey="scorer"
+                      align="left"
+                      defaultDirection="asc"
+                    />
+                    <SortableHeader
+                      label="Assists"
+                      sortKey="assists"
+                      align="left"
+                      defaultDirection="asc"
+                    />
+                    <SortableHeader
+                      label="Type"
+                      sortKey="type"
+                      align="left"
+                      defaultDirection="asc"
+                    />
+                    <SortableHeader label="Score" sortKey="score" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {goals.map((goal) => {
+                    const scorer = playerForRole(goal, "scorer");
+                    const assists = [
+                      playerForRole(goal, "primary_assist"),
+                      playerForRole(goal, "secondary_assist"),
+                    ].filter((player): player is PlayByPlayPlayer =>
+                      Boolean(player),
+                    );
+                    const gameTime =
+                      (goal.periodNumber - 1) * 1_200 +
+                      (goal.timeInPeriodSeconds ?? 0);
+
+                    return (
+                      <tr
+                        key={goal.sourceEventId}
+                        className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
+                      >
+                        <td
+                          className="px-4 py-3"
+                          data-sort-value={goal.periodNumber}
+                        >
+                          {periodLabel(goal.periodNumber, goal.periodType)}
+                        </td>
+                        <td
+                          className="px-4 py-3 tabular-nums"
+                          data-sort-value={gameTime}
+                        >
+                          {goal.timeInPeriod}
+                        </td>
+                        <td className="px-4 py-3">
+                          {goal.ownerTeam ? (
+                            <span className="inline-flex items-center gap-2">
+                              <TeamLogo {...goal.ownerTeam} size="tiny" decorative />
+                              <Link
+                                href={`/teams/${goal.ownerTeam.nhlTeamId}?season=${seasonId}`}
+                                className="font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
+                              >
+                                {goal.ownerTeam.abbreviation}
+                              </Link>
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="workspace-entity-name">
+                            <PlayerLink player={scorer} seasonId={seasonId} />
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 leading-6">
+                          {assists.length > 0 ? (
+                            <span className="flex flex-wrap gap-x-2 gap-y-1">
+                              {assists.map((player) => (
+                                <PlayerLink
+                                  key={`${goal.sourceEventId}-${player.role}`}
+                                  player={player}
+                                  seasonId={seasonId}
+                                />
+                              ))}
+                            </span>
+                          ) : (
+                            <span className="text-[var(--muted)]">Unassisted</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          {goalTypeLabel(goal, awayTeam, homeTeam)}
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-4 py-3 text-center font-semibold tabular-nums text-[var(--foreground)]"
+                          data-sort-value={
+                            (goal.awayScore ?? 0) + (goal.homeScore ?? 0)
+                          }
+                        >
+                          {scoreLabel(goal, awayTeam, homeTeam)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </SortableTable>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function PeriodTimeline({
+  periodNumber,
+  periodType,
+  events,
+  seasonId,
+  nhlGameId,
+  expanded,
+}: {
+  periodNumber: number;
+  periodType: string;
+  events: PlayByPlayEvent[];
+  seasonId: number;
+  nhlGameId: number;
+  expanded: boolean;
+}) {
+  const goalCount = events.filter(
+    (event) => event.typeDescription === "goal",
+  ).length;
+  const penaltyCount = events.filter(
+    (event) => event.typeDescription === "penalty",
+  ).length;
+
+  return (
+    <section
+      className="workspace-timeline-period"
+      aria-labelledby={`period-${periodNumber}-title`}
+    >
+      <Link
+        href={gameTimelineHref(nhlGameId, expanded ? null : periodNumber)}
+        aria-expanded={expanded}
+        className="flex items-center justify-between gap-4 px-5 py-4 transition hover:bg-[var(--surface-subtle)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--accent)]"
+      >
+        <span>
+          <span
+            id={`period-${periodNumber}-title`}
+            className="font-semibold text-[var(--foreground)]"
+          >
+            {periodLabel(periodNumber, periodType)}
+          </span>
+          <span className="ml-3 text-sm text-[var(--muted)]">
+            {events.length} plays · {goalCount} G · {penaltyCount} penalties
+          </span>
+        </span>
+        <span
+          aria-hidden="true"
+          className={`text-[var(--accent)] transition ${expanded ? "rotate-45" : ""}`}
+        >
+          +
+        </span>
+      </Link>
+
+      {expanded ? (
+        <ol className="border-t border-[var(--border)]">
+          {events.map((event) => (
+            <TimelineEvent
+              key={event.sourceEventId}
+              event={event}
+              seasonId={seasonId}
+            />
+          ))}
+        </ol>
+      ) : null}
+    </section>
+  );
+}
+
+function TimelineEvent({
+  event,
+  seasonId,
+}: {
+  event: PlayByPlayEvent;
+  seasonId: number;
+}) {
+  const prominent =
+    event.typeDescription === "goal" || event.typeDescription === "penalty";
+
+  return (
+    <li
+      className={`grid gap-3 border-b border-[var(--border)] px-5 py-4 [contain-intrinsic-size:auto_96px] [content-visibility:auto] last:border-0 sm:grid-cols-[4.5rem_7rem_1fr] ${
+        prominent
+          ? event.typeDescription === "goal"
+            ? "bg-[var(--positive-soft)]"
+            : "bg-[var(--warning-soft)]"
+          : ""
+      }`}
+    >
+      <time className="font-mono text-sm tabular-nums text-[var(--muted)]">
+        {event.timeInPeriod}
+      </time>
+      <div>
+        <p
+          className={`text-xs font-semibold uppercase tracking-[0.12em] ${
+            event.typeDescription === "goal"
+              ? "text-[var(--positive)]"
+              : event.typeDescription === "penalty"
+                ? "text-[var(--warning)]"
+                : "text-[var(--muted)]"
+          }`}
+        >
+          {humanize(event.typeDescription)}
+        </p>
+        {event.ownerTeam ? (
+          <span className="mt-1 inline-flex items-center gap-1.5">
+            <TeamLogo {...event.ownerTeam} size="tiny" decorative />
+            <Link
+              href={`/teams/${event.ownerTeam.nhlTeamId}?season=${seasonId}`}
+              className="text-xs text-[var(--accent)] transition hover:text-[var(--foreground)]"
+            >
+              {event.ownerTeam.abbreviation}
+            </Link>
+          </span>
+        ) : null}
+      </div>
+      <div>
+        <p className="text-sm leading-6 text-[var(--foreground-soft)]">
+          {eventDescription(event)}
+        </p>
+        {event.players.length > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {event.players.map((player) => (
+              <span
+                key={`${event.sourceEventId}-${player.sourcePlayerId}-${player.role}`}
+                className="rounded-md border border-[var(--border)] bg-[var(--table-background)] px-2 py-1 text-xs text-[var(--muted)]"
+              >
+                <PlayerLink player={player} seasonId={seasonId} />
+                <span className="ml-1 text-[var(--muted)]">
+                  · {humanize(player.role)}
+                </span>
+              </span>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    </li>
+  );
+}
+
+function PlayerLink({
+  player,
+  seasonId,
+}: {
+  player: PlayByPlayPlayer | undefined;
+  seasonId: number;
+}) {
+  if (!player) {
+    return <span className="text-[var(--muted)]">Unavailable</span>;
+  }
+
+  const name = player.name ?? `NHL player ${player.sourcePlayerId}`;
+  return player.nhlPlayerId === null ? (
+    <span className="text-[var(--muted)]">{name}</span>
+  ) : (
+    <Link
+      href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
+      className="text-[var(--foreground-soft)] transition hover:text-[var(--accent)]"
+    >
+      {name}
+    </Link>
+  );
+}
+
+function groupEventsByPeriod(events: PlayByPlayEvent[]) {
+  const groups = new Map<
+    string,
+    {
+      periodNumber: number;
+      periodType: string;
+      events: PlayByPlayEvent[];
+    }
+  >();
+
+  for (const event of events) {
+    const key = `${event.periodType}-${event.periodNumber}`;
+    const group = groups.get(key) ?? {
+      periodNumber: event.periodNumber,
+      periodType: event.periodType,
+      events: [],
+    };
+    group.events.push(event);
+    groups.set(key, group);
+  }
+
+  return Array.from(groups.values());
+}
+
+function playerForRole(
+  event: PlayByPlayEvent,
+  role: string,
+): PlayByPlayPlayer | undefined {
+  return event.players.find((player) => player.role === role);
+}
+
+function eventDescription(event: PlayByPlayEvent): string {
+  const playerName = (role: string) =>
+    playerForRole(event, role)?.name ?? "Unknown player";
+
+  switch (event.typeDescription) {
+    case "goal": {
+      const assists = [
+        playerForRole(event, "primary_assist")?.name,
+        playerForRole(event, "secondary_assist")?.name,
+      ].filter(Boolean);
+      const detail = [event.shotType ? `${humanize(event.shotType)} shot` : null]
+        .filter(Boolean)
+        .join(", ");
+      return `${playerName("scorer")} scored${detail ? ` on a ${detail}` : ""}${
+        assists.length > 0 ? `; assisted by ${assists.join(" and ")}` : ""
+      }.`;
+    }
+    case "penalty": {
+      const duration = event.penaltyDurationMinutes
+        ? `${event.penaltyDurationMinutes}-minute `
+        : "";
+      const description = humanize(
+        event.penaltyDescription ?? event.reason ?? "penalty",
+      );
+      const drawnBy = playerForRole(event, "penalty_drawn_by")?.name;
+      return `${playerName("penalty_committed_by")} received a ${duration}${description} penalty${
+        drawnBy ? ` drawn by ${drawnBy}` : ""
+      }.`;
+    }
+    case "shot-on-goal":
+      return `${playerName("shooter")} put a ${
+        event.shotType ? `${humanize(event.shotType)} ` : ""
+      }shot on goal against ${playerName("goalie_in_net")}.`;
+    case "missed-shot":
+      return `${playerName("shooter")} missed the net${
+        event.reason ? ` (${humanize(event.reason)})` : ""
+      }.`;
+    case "blocked-shot":
+      return `${playerName("shooter")}'s shot attempt was blocked by ${playerName("blocker")}.`;
+    case "hit":
+      return `${playerName("hitter")} hit ${playerName("hittee")}.`;
+    case "faceoff":
+      return `${playerName("faceoff_winner")} won the faceoff against ${playerName("faceoff_loser")}.`;
+    case "giveaway":
+      return `${playerName("event_player")} was charged with a giveaway.`;
+    case "takeaway":
+      return `${playerName("event_player")} recorded a takeaway.`;
+    case "stoppage":
+      return event.reason
+        ? `Play stopped: ${humanize(event.reason)}.`
+        : "Play stopped.";
+    case "period-start":
+      return `${periodLabel(event.periodNumber, event.periodType)} started.`;
+    case "period-end":
+      return `${periodLabel(event.periodNumber, event.periodType)} ended.`;
+    case "game-end":
+      return "The game ended.";
+    default:
+      return event.reason
+        ? `${humanize(event.typeDescription)}: ${humanize(event.reason)}.`
+        : `${humanize(event.typeDescription)} recorded.`;
+  }
+}
+
+function goalTypeLabel(
+  goal: PlayByPlayEvent,
+  awayTeam: GameTeamSummary,
+  homeTeam: GameTeamSummary,
+): string {
+  const strength = strengthLabel(goal, awayTeam, homeTeam);
+  const shot = goal.shotType ? humanize(goal.shotType) : null;
+  return [strength, shot].filter(Boolean).join(" · ") || "—";
+}
+
+function strengthLabel(
+  event: PlayByPlayEvent,
+  awayTeam: GameTeamSummary,
+  homeTeam: GameTeamSummary,
+): string | null {
+  if (!event.situationCode || !/^\d{4}$/.test(event.situationCode)) {
+    return null;
+  }
+
+  const [awayGoalie, awaySkaters, homeSkaters, homeGoalie] =
+    event.situationCode.split("").map(Number);
+  const ownerIsHome = event.ownerTeam?.nhlTeamId === homeTeam.nhlTeamId;
+  const ownerIsAway = event.ownerTeam?.nhlTeamId === awayTeam.nhlTeamId;
+
+  if (!ownerIsHome && !ownerIsAway) {
+    return null;
+  }
+
+  const opponentGoalie = ownerIsHome ? awayGoalie : homeGoalie;
+  if (opponentGoalie === 0) {
+    return "Empty net";
+  }
+
+  const forSkaters = ownerIsHome ? homeSkaters : awaySkaters;
+  const againstSkaters = ownerIsHome ? awaySkaters : homeSkaters;
+  return forSkaters === againstSkaters
+    ? `${forSkaters}-on-${againstSkaters}`
+    : forSkaters > againstSkaters
+      ? `Power play · ${forSkaters}-on-${againstSkaters}`
+      : `Short-handed · ${forSkaters}-on-${againstSkaters}`;
+}
+
+function scoreLabel(
+  event: PlayByPlayEvent,
+  awayTeam: GameTeamSummary,
+  homeTeam: GameTeamSummary,
+): string {
+  return event.awayScore === null || event.homeScore === null
+    ? "—"
+    : `${awayTeam.abbreviation} ${event.awayScore}–${event.homeScore} ${homeTeam.abbreviation}`;
+}
+
+function periodLabel(periodNumber: number, periodType: string): string {
+  if (periodType === "OT") {
+    return "Overtime";
+  }
+  if (periodType === "SO") {
+    return "Shootout";
+  }
+  const suffix =
+    periodNumber === 1
+      ? "st"
+      : periodNumber === 2
+        ? "nd"
+        : periodNumber === 3
+          ? "rd"
+          : "th";
+  return `${periodNumber}${suffix} period`;
+}
+
+function humanize(value: string): string {
+  return value
+    .replaceAll("-", " ")
+    .replaceAll("_", " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
+}

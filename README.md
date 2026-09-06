@@ -18,6 +18,8 @@ The local NHL MVP provides:
 - Advanced analytics
 
 The second stage will add predictive modelling for team and player performance.
+Tested point-in-time observation selection and versioned dataset manifests provide
+the initial foundation; prediction targets, training, and evaluation remain future work.
 
 ## Status
 
@@ -254,6 +256,7 @@ operational procedures, and historical audit/decision records.
 - [Agent working agreement](AGENTS.md)
 - [Data sources and coverage](docs/data-sources.md)
 - [Architecture](docs/architecture.md)
+- [Repository structure and reproducible test fixtures](docs/repository-structure.md)
 - [Implementation roadmap](docs/roadmap.md)
 - [Local MVP release record](docs/mvp-release.md)
 - [September 2026 application audit](docs/application-audit-2026-09-05.md)

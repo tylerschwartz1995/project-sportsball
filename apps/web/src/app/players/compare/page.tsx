@@ -1,17 +1,17 @@
 import type { CSSProperties } from "react";
-import { ComparisonScrollRegion } from "@/app/_components/comparison-scroll-region";
-import Link from "@/app/_components/exploration-link";
+import { ComparisonScrollRegion } from "@/components/ui/comparison-scroll-region";
+import Link from "@/components/ui/exploration-link";
 
-import { PlayerDirectComparisonChart } from "@/app/_components/lazy-charts";
-import { PlayerComparisonPicker } from "@/app/_components/player-comparison-picker";
-import { SeasonPicker } from "@/app/_components/season-picker";
-import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
-import { SiteHeader } from "@/app/_components/site-header";
-import { TeamLogoStack } from "@/app/_components/team-logo";
+import { PlayerDirectComparisonChart } from "@/features/charts/lazy-charts";
+import { PlayerComparisonPicker } from "@/features/players/player-comparison-picker";
+import { SeasonPicker } from "@/features/league/season-picker";
+import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
+import { SiteHeader } from "@/components/shell/site-header";
+import { TeamLogoStack } from "@/features/teams/team-logo";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
-} from "@/app/_components/workspace-primitives";
+} from "@/components/ui/workspace-primitives";
 import type { MoneyPuckPlayerSeason } from "@/contracts/advanced";
 import type {
   PlayerComparisonEntry,

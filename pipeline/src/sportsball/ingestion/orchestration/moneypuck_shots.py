@@ -8,8 +8,6 @@ from sqlalchemy import func, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from sportsball.clients.moneypuck.client import MoneyPuckClient
-from sportsball.ingestion.orchestration.moneypuck_seasons import store_source_artifact
-from sportsball.ingestion.orchestration.multi_season_backfill import season_ids_in_range
 from sportsball.normalization.moneypuck_shots import moneypuck_shot_frame
 from sportsball.persistence.database import session_scope
 from sportsball.persistence.models import (
@@ -22,6 +20,8 @@ from sportsball.persistence.models import (
 from sportsball.persistence.repositories.moneypuck_shots import (
     MoneyPuckShotRepository,
 )
+from sportsball.persistence.repositories.source_artifacts import store_source_artifact
+from sportsball.reference.seasons import season_ids_in_range
 
 MONEYPUCK_FIRST_SHOT_SEASON = 20072008
 

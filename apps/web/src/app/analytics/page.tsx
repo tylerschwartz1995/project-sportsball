@@ -1,23 +1,23 @@
-import { FilterForm } from "@/app/_components/filter-form";
-import { DataViews } from "@/app/_components/data-views";
-import Link from "@/app/_components/exploration-link";
+import { FilterForm } from "@/components/ui/filter-form";
+import { DataViews } from "@/features/league/data-views";
+import Link from "@/components/ui/exploration-link";
 
-import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
-import { SortableTable } from "@/app/_components/sortable-table";
+import { AnalyticsSectionTabs } from "@/features/analytics/analytics-section-tabs";
+import { SortableTable } from "@/components/ui/sortable-table";
 import {
   FilterActions,
   FilterHeader,
-} from "@/app/_components/filter-primitives";
-import { PlayerComparisonPlots, TeamComparisonScatterplot } from "@/app/_components/lazy-charts";
-import { SeasonPicker } from "@/app/_components/season-picker";
-import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
-import { SiteHeader } from "@/app/_components/site-header";
-import { SortableHeader } from "@/app/_components/sortable-header";
-import { TeamLogo } from "@/app/_components/team-logo";
-import { DataTableShell } from "@/app/_components/ui-primitives";
+} from "@/components/ui/filter-primitives";
+import { PlayerComparisonPlots, TeamComparisonScatterplot } from "@/features/charts/lazy-charts";
+import { SeasonPicker } from "@/features/league/season-picker";
+import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
+import { SiteHeader } from "@/components/shell/site-header";
+import { SortableHeader } from "@/components/ui/sortable-header";
+import { TeamLogo } from "@/features/teams/team-logo";
+import { DataTableShell } from "@/components/ui/ui-primitives";
 import {
   WorkspacePageHeader,
-} from "@/app/_components/workspace-primitives";
+} from "@/components/ui/workspace-primitives";
 import type {
   AdvancedGoalieLeaderboardRow,
   AdvancedSkaterLeaderboardRow,

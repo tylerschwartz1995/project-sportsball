@@ -55,12 +55,33 @@ jobs:
       - name: Apply database migrations
         run: uv run --project pipeline --frozen alembic --config database/alembic.ini upgrade head
 
+      - name: Verify model metadata matches migrations
+        run: uv run --project pipeline --frozen alembic --config database/alembic.ini check
+
       - name: Test
         run: uv run --project pipeline --frozen pytest pipeline/tests
 
   web:
     name: Web application
     runs-on: ubuntu-latest
+    env:
+      SPORTSBALL_DATABASE_URL: postgresql+psycopg://sportsball:sportsball@localhost:5432/sportsball_web_test
+      SPORTSBALL_WEB_DATABASE_URL: postgresql://sportsball:sportsball@localhost:5432/sportsball_web_test
+      SPORTSBALL_RUN_WEB_FIXTURE_TESTS: "1"
+    services:
+      postgres:
+        image: postgres:18-alpine
+        env:
+          POSTGRES_DB: sportsball_web_test
+          POSTGRES_USER: sportsball
+          POSTGRES_PASSWORD: sportsball
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U sportsball -d sportsball_web_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -75,6 +96,19 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefix apps/web
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.12.0"
+          working-directory: pipeline
+          enable-cache: true
+
+      - name: Prepare migrated web fixtures
+        run: |
+          uv sync --project pipeline --locked
+          uv run --project pipeline --frozen alembic --config database/alembic.ini upgrade head
+          node scripts/seed-web-test-database.mjs
+
       - name: Lint
         run: npm run lint --prefix apps/web
 
@@ -86,3 +120,9 @@ jobs:
 
       - name: Build
         run: npm run build --prefix apps/web
+
+      - name: Install browser
+        run: cd apps/web && npx playwright install --with-deps chromium
+
+      - name: Browser smoke tests
+        run: npm run test:browser:smoke --prefix apps/web

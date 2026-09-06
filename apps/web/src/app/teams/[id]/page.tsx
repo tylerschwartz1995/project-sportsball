@@ -1,30 +1,30 @@
-import { ReturnLink } from "@/app/_components/exploration-link";
-import Link from "@/app/_components/exploration-link";
+import { ReturnLink } from "@/components/ui/exploration-link";
+import Link from "@/components/ui/exploration-link";
 import { notFound } from "next/navigation";
 
-import { TeamAdvancedAnalytics } from "@/app/_components/advanced-analytics";
-import { SeasonPicker } from "@/app/_components/season-picker";
-import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
-import { ScheduleStrength } from "@/app/_components/schedule-strength";
-import { TeamUnitViews } from "@/app/_components/team-unit-views";
-import { SiteHeader } from "@/app/_components/site-header";
-import { SortableHeader } from "@/app/_components/sortable-header";
-import { SortableTable } from "@/app/_components/sortable-table";
-import { TeamLogo } from "@/app/_components/team-logo";
+import { TeamAdvancedAnalytics } from "@/features/analytics/advanced-analytics";
+import { SeasonPicker } from "@/features/league/season-picker";
+import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
+import { ScheduleStrength } from "@/features/teams/schedule-strength";
+import { TeamUnitViews } from "@/features/teams/team-unit-views";
+import { SiteHeader } from "@/components/shell/site-header";
+import { SortableHeader } from "@/components/ui/sortable-header";
+import { SortableTable } from "@/components/ui/sortable-table";
+import { TeamLogo } from "@/features/teams/team-logo";
 import {
   TeamFullSchedule,
   type TeamScheduleFilter,
-} from "@/app/_components/team-full-schedule";
-import { TeamSeasonIdentity } from "@/app/_components/team-season-identity";
-import { TeamRollingPerformanceChart } from "@/app/_components/lazy-charts";
+} from "@/features/teams/team-full-schedule";
+import { TeamSeasonIdentity } from "@/features/teams/team-season-identity";
+import { TeamRollingPerformanceChart } from "@/features/charts/lazy-charts";
 import {
   ViewTabs,
   type ViewTab,
-} from "@/app/_components/view-tabs";
+} from "@/components/ui/view-tabs";
 import {
   DataTableShell,
   SectionHeader,
-} from "@/app/_components/ui-primitives";
+} from "@/components/ui/ui-primitives";
 import { parseNhlId } from "@/contracts/entity";
 import { parseSeasonId } from "@/contracts/season";
 import { parseScheduleStrengthMetric } from "@/contracts/schedule-strength";

@@ -1,11 +1,11 @@
-import { ContextLink as Link } from "@/app/_components/context-link";
+import { ContextLink as Link } from "@/components/ui/context-link";
 import { unstable_cache } from "next/cache";
 import type { ReactNode } from "react";
 
 import {
   HistoryDecadeLeaders,
   HistoryGoalieDecadeLeaders,
-} from "@/app/_components/history-decade-leaders";
+} from "@/features/history/history-decade-leaders";
 import {
   HistoryEraTable,
   HistoryExplorerNav,
@@ -15,15 +15,15 @@ import {
   HistoryPeaksTable,
   HistoryRankingSummary,
   HistoryRecordBook,
-} from "@/app/_components/history-record-book";
+} from "@/features/history/history-record-book";
 import {
   HistoryRecordProgression,
   HistoryScoringEnvironment,
-} from "@/app/_components/lazy-charts";
-import { Pagination } from "@/app/_components/pagination";
-import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
-import { SiteHeader } from "@/app/_components/site-header";
-import { ViewTabs } from "@/app/_components/view-tabs";
+} from "@/features/charts/lazy-charts";
+import { Pagination } from "@/components/ui/pagination";
+import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
+import { SiteHeader } from "@/components/shell/site-header";
+import { ViewTabs } from "@/components/ui/view-tabs";
 import type {
   HistoryDisplay,
   HistoryFilters as HistoryFilterValues,

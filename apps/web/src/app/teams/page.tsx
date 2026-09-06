@@ -1,9 +1,9 @@
-import Link from "@/app/_components/exploration-link";
+import Link from "@/components/ui/exploration-link";
 
-import { SeasonPicker } from "@/app/_components/season-picker";
-import { SiteHeader } from "@/app/_components/site-header";
-import { TeamLogo } from "@/app/_components/team-logo";
-import { WorkspacePageHeader } from "@/app/_components/workspace-primitives";
+import { SeasonPicker } from "@/features/league/season-picker";
+import { SiteHeader } from "@/components/shell/site-header";
+import { TeamLogo } from "@/features/teams/team-logo";
+import { WorkspacePageHeader } from "@/components/ui/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
 import type { TeamSeasonSummary } from "@/contracts/team";

@@ -7,17 +7,15 @@ from datetime import UTC, datetime
 from sqlalchemy import update
 
 from sportsball.clients.moneypuck.client import MoneyPuckClient
-from sportsball.ingestion.orchestration.moneypuck_seasons import (
-    MONEYPUCK_FIRST_SEASON,
-    store_source_artifact,
-)
-from sportsball.ingestion.orchestration.multi_season_backfill import season_ids_in_range
 from sportsball.normalization.moneypuck_team_games import moneypuck_team_game_frame
 from sportsball.persistence.database import session_scope
 from sportsball.persistence.models import IngestionRun
 from sportsball.persistence.repositories.moneypuck_team_games import (
     MoneyPuckTeamGameRepository,
 )
+from sportsball.persistence.repositories.source_artifacts import store_source_artifact
+from sportsball.reference.coverage import MONEYPUCK_FIRST_SEASON
+from sportsball.reference.seasons import season_ids_in_range
 
 
 @dataclass(frozen=True)
