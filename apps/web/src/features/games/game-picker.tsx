@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "@/components/ui/exploration-link";
+import { useGetFormNavigation } from "@/components/ui/use-get-form-navigation";
 import type { ChangeEvent } from "react";
 import { useState } from "react";
 
@@ -41,11 +42,19 @@ export function GamePicker({
   teams,
   selectedTeamId,
 }: GamePickerProps) {
+  const { navigate, isPending } = useGetFormNavigation();
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(
     `${scheduleMonthKey(selectedDate)}-01`,
   );
-  const counts = new Map(gameDates.map((entry) => [entry.date, entry.gameCount]));
+  const [previousDate, setPreviousDate] = useState(selectedDate);
+  if (previousDate !== selectedDate) {
+    setPreviousDate(selectedDate);
+    setCalendarMonth(`${scheduleMonthKey(selectedDate)}-01`);
+  }
+  const counts = new Map(
+    gameDates.map((entry) => [entry.date, entry.gameCount]),
+  );
   const chronologicalDates = gameDates
     .map((entry) => entry.date)
     .toSorted((left, right) => left.localeCompare(right));
@@ -75,9 +84,12 @@ export function GamePicker({
   const activeMonth = scheduleMonthKey(calendarMonth);
 
   return (
-    <section className="workspace-schedule-navigator" aria-label="Schedule controls">
+    <section
+      className="workspace-schedule-navigator"
+      aria-label="Schedule controls"
+    >
       <div className="workspace-schedule-toolbar">
-        <form method="get">
+        <form onSubmit={event => { event.preventDefault(); navigate(event.currentTarget); }} aria-busy={isPending || undefined} method="get">
           <input type="hidden" name="phase" value={phase} />
           {selectedTeamId ? (
             <input type="hidden" name="team" value={selectedTeamId} />
@@ -85,6 +97,8 @@ export function GamePicker({
           <label>
             Season
             <select
+              key={selectedSeasonId}
+              disabled={isPending}
               name="season"
               defaultValue={selectedSeasonId}
               onChange={submitSelect}
@@ -118,13 +132,15 @@ export function GamePicker({
           </div>
         </nav>
 
-        <form method="get">
+        <form onSubmit={event => { event.preventDefault(); navigate(event.currentTarget); }} aria-busy={isPending || undefined} method="get">
           <input type="hidden" name="season" value={selectedSeasonId} />
           <input type="hidden" name="phase" value={phase} />
           <input type="hidden" name="date" value={selectedDate} />
           <label>
             Find a Team
             <select
+              key={selectedTeamId ?? "all"}
+              disabled={isPending}
               name="team"
               defaultValue={selectedTeamId ?? ""}
               onChange={submitSelect}
@@ -139,7 +155,7 @@ export function GamePicker({
           </label>
         </form>
 
-        <form method="get" className="workspace-schedule-calendar">
+        <form onSubmit={event => { event.preventDefault(); navigate(event.currentTarget); }} aria-busy={isPending || undefined} method="get" className="workspace-schedule-calendar">
           <input type="hidden" name="season" value={selectedSeasonId} />
           <input type="hidden" name="phase" value={phase} />
           {selectedTeamId ? (
@@ -149,6 +165,8 @@ export function GamePicker({
             Jump to Date
             <input
               type="date"
+              key={selectedDate}
+              disabled={isPending}
               name="date"
               min={firstDate}
               max={lastDate}
@@ -206,6 +224,9 @@ export function GamePicker({
               →
             </button>
           </div>
+          <p className="workspace-calendar-mobile-key">
+            Game counts below each date
+          </p>
           <div className="workspace-schedule-month-grid">
             {CALENDAR_WEEKDAYS.map((weekday) => (
               <span key={weekday} className="is-weekday">
@@ -222,9 +243,17 @@ export function GamePicker({
                 <>
                   <strong>{Number(date.slice(-2))}</strong>
                   <small>
-                    {gameCount === 0
-                      ? "No games"
-                      : `${gameCount} ${gameCount === 1 ? "game" : "games"}`}
+                    <span className="workspace-calendar-count-full">
+                      {gameCount === 0
+                        ? "No games"
+                        : `${gameCount} ${gameCount === 1 ? "game" : "games"}`}
+                    </span>
+                    <span
+                      className="workspace-calendar-count-compact"
+                      aria-hidden="true"
+                    >
+                      {gameCount}
+                    </span>
                   </small>
                 </>
               );
@@ -245,7 +274,12 @@ export function GamePicker({
                   {content}
                 </Link>
               ) : (
-                <span key={date} aria-disabled="true">
+                <span
+                  key={date}
+                  aria-disabled="true"
+                  data-has-games={gameCount > 0}
+                  aria-label={`${formatScheduleMonthDay(date)}, ${gameCount} ${gameCount === 1 ? "game" : "games"}`}
+                >
                   {content}
                 </span>
               );
@@ -276,6 +310,9 @@ export function GamePicker({
         />
       </div>
 
+      <p className="workspace-calendar-mobile-key">
+        Game counts below each date
+      </p>
       <div className="workspace-schedule-week" aria-label="Games by day">
         {week.map((date) => {
           const inRange = date >= firstDate && date <= lastDate;
@@ -283,11 +320,29 @@ export function GamePicker({
           const content = (
             <>
               <span>{formatScheduleDay(date)}</span>
-              <strong>{formatScheduleMonthDay(date)}</strong>
+              <strong>
+                <span className="workspace-calendar-date-full">
+                  {formatScheduleMonthDay(date)}
+                </span>
+                <span
+                  className="workspace-calendar-date-compact"
+                  aria-hidden="true"
+                >
+                  {Number(date.slice(-2))}
+                </span>
+              </strong>
               <small>
-                {gameCount === 0
-                  ? "No games"
-                  : `${gameCount} ${gameCount === 1 ? "game" : "games"}`}
+                <span className="workspace-calendar-count-full">
+                  {gameCount === 0
+                    ? "No games"
+                    : `${gameCount} ${gameCount === 1 ? "game" : "games"}`}
+                </span>
+                <span
+                  className="workspace-calendar-count-compact"
+                  aria-hidden="true"
+                >
+                  {gameCount}
+                </span>
               </small>
             </>
           );
@@ -303,11 +358,17 @@ export function GamePicker({
               })}
               aria-current={date === selectedDate ? "date" : undefined}
               data-has-games={gameCount > 0}
+              aria-label={`${formatScheduleDay(date)}, ${formatScheduleMonthDay(date)}, ${gameCount} ${gameCount === 1 ? "game" : "games"}`}
             >
               {content}
             </Link>
           ) : (
-            <span key={date} aria-disabled="true">
+            <span
+              key={date}
+              aria-disabled="true"
+              data-has-games={gameCount > 0}
+              aria-label={`${formatScheduleMonthDay(date)}, ${gameCount} ${gameCount === 1 ? "game" : "games"}`}
+            >
               {content}
             </span>
           );

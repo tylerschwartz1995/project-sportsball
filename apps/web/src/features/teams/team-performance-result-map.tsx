@@ -1,4 +1,5 @@
 "use client";
+import { prepareScrollNavigation } from "@/components/shell/scroll-navigation";
 
 import Link from "@/components/ui/exploration-link";
 import { useRouter } from "next/navigation";
@@ -284,7 +285,10 @@ export function TeamPerformanceResultMap({
                     const point = scatterPoint.payload as
                       | PerformanceResultPoint
                       | undefined;
-                    if (point) router.push(`/games/${point.nhlGameId}`);
+                    if (point) {
+                      prepareScrollNavigation(`/games/${point.nhlGameId}`, "top");
+                      router.push(`/games/${point.nhlGameId}`, { scroll: false });
+                    }
                   }}
                 />
               ))}

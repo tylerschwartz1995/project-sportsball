@@ -58,6 +58,8 @@ predictive modelling remain deferred.
 - [Season and rolling line/pairing rankings](season-line-rankings.md)
 - [Filter behavior and regression coverage](filter-consistency.md)
 - [Desktop interaction regression checklist](desktop-ux-regression.md)
+- [Visual polish audit and fixes](visual-polish-audit-2026-09-06.md)
+- [Scroll and navigation audit](scroll-navigation-audit-2026-09-06.md): refresh, filters, pagination, tabs, schedule navigation, and return-position rules.
 
 ## Release, audit, and design records
 

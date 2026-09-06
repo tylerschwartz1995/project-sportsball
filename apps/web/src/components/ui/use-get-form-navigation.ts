@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
+import { prepareScrollNavigation } from "@/components/shell/scroll-navigation";
 import { preservePresentation } from "@/lib/filter-context";
 
 export function useGetFormNavigation() {
@@ -23,6 +24,7 @@ export function useGetFormNavigation() {
     }
     target.search = search.toString();
 
+    prepareScrollNavigation(`${target.pathname}${target.search}${target.hash}`, "preserve", form);
     startTransition(() => {
       router.push(`${target.pathname}${target.search}${target.hash}`, {
         scroll: false,

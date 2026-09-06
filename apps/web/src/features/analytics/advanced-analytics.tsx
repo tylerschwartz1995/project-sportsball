@@ -39,7 +39,7 @@ export function TeamAdvancedAnalytics({
             <colgroup>
               <col className="workspace-col-entity" />
               <col className="workspace-col-percentage" span={3} />
-              <col className="workspace-col-number" span={4} />
+              <col className="workspace-col-percentage" span={4} />
             </colgroup>
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">

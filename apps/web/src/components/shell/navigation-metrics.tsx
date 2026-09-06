@@ -51,5 +51,5 @@ export function NavigationComplete() {
     });
     return () => { cancelAnimationFrame(first); cancelAnimationFrame(second); };
   }, [path, search]);
-  return null;
+  return <span hidden data-scroll-content-ready={path + (search ? `?${search}` : "")} />;
 }

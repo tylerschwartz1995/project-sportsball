@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import Link from "@/components/ui/exploration-link";
 import { SiteHeader } from "@/components/shell/site-header";
 import { findPlayers } from "@/data/player-search";
@@ -72,6 +74,7 @@ export default async function SearchPage({
           </p>
         )}
       </section>
+      <Suspense><NavigationComplete /></Suspense>
     </main>
   );
 }

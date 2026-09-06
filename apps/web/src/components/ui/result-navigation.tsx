@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { IntentLink as Link } from "@/components/ui/intent-link";
 
 import { Pagination } from "@/components/ui/pagination";
 

@@ -952,7 +952,7 @@
 }
 
 .workspace-class-rankings-table {
-  table-layout: fixed;
+  table-layout: auto;
   min-width: 0;
   font-size: 0.84rem;
 }

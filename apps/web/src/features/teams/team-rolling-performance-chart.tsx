@@ -181,12 +181,6 @@ export function TeamRollingPerformanceChart({
                 y={50}
                 stroke="var(--chart-reference)"
                 strokeDasharray="5 5"
-                label={{
-                  value: "50%",
-                  position: "insideTopLeft",
-                  fill: "var(--chart-label)",
-                  fontSize: "0.875rem",
-                }}
               />
               <Tooltip
                 content={

@@ -75,7 +75,7 @@ function ViewTabLink<T extends string>({
         tab.preservedSearchParameters?.join(" ")
       }
       prefetch={tab.prefetch === true || hasNavigationIntent}
-      scroll={false}
+      navigation="tabs"
       onFocus={() => {
         if (allowIntentPrefetch) setHasNavigationIntent(true);
       }}

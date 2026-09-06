@@ -453,7 +453,7 @@ function TeamTable({ rows, display, metric, metricHrefs }: {
 export function HistoryPeaksTable({ rows, metricLabel, window }: { rows: HistoricalPeak[]; metricLabel: string; window: number }) {
   if (rows.length === 0) return <HistoryEmptyState />;
   return <TableShell minWidth="660px"><table className="workspace-table workspace-table-dense workspace-table-semantic workspace-history-table">
-    <thead><tr className="workspace-data-table-header-row"><th className="workspace-history-rank-col">Rank</th><th className="workspace-history-entity-col">Player</th><th>Stretch</th><th>GP</th><th>{metricLabel}</th></tr></thead>
+    <thead><tr className="workspace-data-table-header-row"><th className="workspace-history-rank-col">Rank</th><th className="workspace-history-entity-col">Player</th><th className="workspace-history-stretch-col">Stretch</th><th>GP</th><th>{metricLabel}</th></tr></thead>
     <tbody>{rows.map((row) => <tr className="workspace-data-table-row" key={`${row.nhlPlayerId}-${row.endSeasonId}-${window}`}>
       <RankCell rank={row.rank} />
       <td className="workspace-entity-name workspace-history-sticky-entity"><div className="workspace-history-entity"><span className="workspace-history-entity-copy"><Link href={`/players/${row.nhlPlayerId}`}><strong>{row.name}</strong></Link><small>{formatPlayerPosition(row.position)}</small></span></div></td>

@@ -1,4 +1,6 @@
-import Link from "next/link";
+import { Suspense } from "react";
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
+import { IntentLink as Link } from "@/components/ui/intent-link";
 
 export default function NotFound() {
   return (
@@ -15,6 +17,7 @@ export default function NotFound() {
           <Link href="/players">Browse Players</Link>
         </div>
       </section>
+      <Suspense><NavigationComplete /></Suspense>
     </main>
   );
 }

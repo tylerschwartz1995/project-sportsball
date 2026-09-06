@@ -32,7 +32,7 @@ export function unitViewHref(
   Object.entries({ ...params, view, page: undefined }).forEach(([key, value]) => {
     if (value !== undefined) search.set(key, String(value));
   });
-  return `/lines?${search.toString()}#combination-results`;
+  return `/lines?${search.toString()}`;
 }
 
 export function sortUnits(
