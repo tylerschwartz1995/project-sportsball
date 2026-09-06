@@ -20,6 +20,7 @@ from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.sql import func
 
+from sportsball.operations.run_context import parent_run_id
 from sportsball.persistence.models.base import Base
 
 
@@ -33,6 +34,12 @@ class IngestionRun(Base):
     )
 
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    parent_run_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("ingestion_runs.id", ondelete="SET NULL"),
+        default=lambda: parent_run_id.get(),
+        index=True,
+    )
     job_name: Mapped[str] = mapped_column(String(100))
     status: Mapped[str] = mapped_column(String(30))
     parameters: Mapped[dict[str, Any]] = mapped_column(JSONB, default=dict)

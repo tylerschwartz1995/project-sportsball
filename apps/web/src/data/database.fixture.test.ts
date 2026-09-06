@@ -1,5 +1,6 @@
 import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";
 import { closeDatabasePool } from "@/data/database";
+import { getServiceHealth } from "@/data/health";
 import { getDraftAnalytics } from "@/data/drafts";
 import { getGameBoxScore, getGamesByDate, getGamesForSeasonByType } from "@/data/games";
 import { getHistoricalEraScores, getHistoricalPlayerSeasons } from "@/data/history";
@@ -13,6 +14,13 @@ import { afterAll, describe, expect, it } from "vitest";
 // A reproducible schema contract suite, independent of the full archive audit.
 describe.skipIf(process.env.SPORTSBALL_RUN_WEB_FIXTURE_TESTS !== "1")("migrated web fixtures", () => {
   afterAll(closeDatabasePool);
+
+  it("reads safe ingestion health against the migrated schema", async () => {
+    const health = await getServiceHealth();
+    expect(health.database).toBe("ok");
+    expect(Array.isArray(health.datasets)).toBe(true);
+    expect(JSON.stringify(health)).not.toContain("error_message");
+  });
 
   it("distinguishes statistical seasons from future schedule-only seasons", async () => {
     expect((await listSeasons()).map(row => row.id)).toEqual([20252026, 20242025]);

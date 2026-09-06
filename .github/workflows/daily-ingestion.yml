@@ -2,7 +2,8 @@ name: Daily ingestion
 
 on:
   schedule:
-    - cron: "0 15 * * *"
+    # Morning publication and an afternoon recovery opportunity. UTC is explicit.
+    - cron: "17 15,21 * * *"
   workflow_dispatch:
     inputs:
       run_date:
@@ -22,6 +23,10 @@ on:
 permissions:
   contents: read
 
+defaults:
+  run:
+    shell: bash
+
 concurrency:
   group: daily-ingestion
   cancel-in-progress: false
@@ -34,6 +39,8 @@ jobs:
     timeout-minutes: 90
     env:
       SPORTSBALL_DATABASE_URL: ${{ secrets.SPORTSBALL_DATABASE_URL }}
+      SPORTSBALL_WEB_URL: ${{ vars.SPORTSBALL_WEB_URL }}
+      SPORTSBALL_REVALIDATION_TOKEN: ${{ secrets.SPORTSBALL_REVALIDATION_TOKEN }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v6
@@ -48,33 +55,68 @@ jobs:
       - name: Sync pipeline
         run: uv sync --project pipeline --locked
 
-      - name: Require production database secret
+      - name: Require ingestion database secret
         run: |
-          if [[ -z "${SPORTSBALL_DATABASE_URL}" ]]; then
+          if [[ -z "$SPORTSBALL_DATABASE_URL" ]]; then
             echo "SPORTSBALL_DATABASE_URL must be configured as a repository secret."
             exit 1
           fi
 
-      - name: Apply database migrations
-        run: uv run --project pipeline --frozen alembic --config database/alembic.ini upgrade head
+      - name: Verify deployed schema without migrations
+        id: schema
+        run: uv run --project pipeline --frozen sportsball verify-database-schema
 
       - name: Run daily update
+        id: refresh
+        continue-on-error: true
         env:
           INPUT_RUN_DATE: ${{ inputs.run_date }}
           INPUT_SEASON_ID: ${{ inputs.season_id }}
           INPUT_SKIP_MONEYPUCK: ${{ inputs.skip_moneypuck }}
         run: |
           arguments=(daily-update)
-          if [[ -n "${INPUT_RUN_DATE}" ]]; then
-            arguments+=(--run-date "${INPUT_RUN_DATE}")
+          if [[ -n "$INPUT_RUN_DATE" ]]; then
+            arguments+=(--run-date "$INPUT_RUN_DATE")
           fi
-          if [[ -n "${INPUT_SEASON_ID}" ]]; then
-            arguments+=(--season-id "${INPUT_SEASON_ID}")
+          if [[ -n "$INPUT_SEASON_ID" ]]; then
+            arguments+=(--season-id "$INPUT_SEASON_ID")
           fi
-          if [[ "${INPUT_SKIP_MONEYPUCK}" == "true" ]]; then
+          if [[ "$INPUT_SKIP_MONEYPUCK" == "true" ]]; then
             arguments+=(--skip-moneypuck)
           fi
           uv run --project pipeline --frozen sportsball "${arguments[@]}"
 
-      - name: Verify data health
-        run: uv run --project pipeline --frozen sportsball check-data-health
+      - name: Verify data health even after an import failure
+        id: health
+        if: ${{ !cancelled() && steps.schema.outcome == 'success' }}
+        continue-on-error: true
+        run: |
+          uv run --project pipeline --frozen sportsball check-data-health | tee health-report.txt
+
+      - name: Refresh configured website caches
+        id: website
+        if: ${{ !cancelled() && steps.schema.outcome == 'success' && env.SPORTSBALL_WEB_URL != '' }}
+        continue-on-error: true
+        run: uv run --project pipeline --frozen sportsball revalidate-website
+
+      - name: Publish operational summary
+        if: ${{ !cancelled() }}
+        env:
+          REFRESH_OUTCOME: ${{ steps.refresh.outcome }}
+          HEALTH_OUTCOME: ${{ steps.health.outcome }}
+          WEBSITE_OUTCOME: ${{ steps.website.outcome }}
+        run: |
+          {
+            echo "## Daily ingestion"
+            echo "Refresh: $REFRESH_OUTCOME"
+            echo "Health: $HEALTH_OUTCOME"
+            echo "Website cache refresh: $WEBSITE_OUTCOME"
+            if [[ -f health-report.txt ]]; then
+              echo '```text'
+              cat health-report.txt
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [[ "$REFRESH_OUTCOME" != "success" || "$HEALTH_OUTCOME" != "success" || "$WEBSITE_OUTCOME" == "failure" ]]; then
+            exit 1
+          fi

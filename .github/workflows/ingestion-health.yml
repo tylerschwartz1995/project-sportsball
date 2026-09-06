@@ -1,0 +1,39 @@
+name: Ingestion health monitor
+
+on:
+  schedule:
+    - cron: "47 0,18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ingestion-health
+  cancel-in-progress: false
+
+jobs:
+  health:
+    name: Check ingestion freshness
+    if: github.event_name == 'workflow_dispatch' || vars.DAILY_INGESTION_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SPORTSBALL_DATABASE_URL: ${{ secrets.SPORTSBALL_DATABASE_URL }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.12.0"
+          working-directory: pipeline
+          enable-cache: true
+      - name: Sync pipeline
+        run: uv sync --project pipeline --locked
+      - name: Require ingestion database secret
+        run: test -n "$SPORTSBALL_DATABASE_URL"
+      - name: Verify deployed schema without migrations
+        run: uv run --project pipeline --frozen sportsball verify-database-schema
+      - name: Check freshness independently of the ingestion workflow
+        run: uv run --project pipeline --frozen sportsball check-data-health

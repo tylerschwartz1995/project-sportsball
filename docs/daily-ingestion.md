@@ -1,118 +1,195 @@
 # Daily ingestion
 
-The daily update is a bounded, idempotent refresh of current NHL and MoneyPuck
-data. It is implemented as a Python coordinator so the same operation can run
-locally, in GitHub Actions, or on a future hosting platform without moving
-domain logic into scheduler configuration.
+## Operating contract
 
-## Refresh order
+GitHub Actions is the selected scheduler. **Production activation remains
+explicitly deferred.** The committed schedules do not write until
+`DAILY_INGESTION_ENABLED=true`; manual dispatch requires the database secret.
+No hosted database, secrets, or enable flags were provisioned by this change.
 
-`sportsball daily-update` performs these steps:
+The initial product is next-morning completed-game statistics. Live scores and
+post-game polling remain separate future features. The morning run starts at
+15:17 UTC; a second run at 21:17 UTC provides another recovery opportunity.
+These are intended start times, not publication guarantees. GitHub schedules
+can be delayed or dropped. See [GitHub scheduling documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
 
-1. Refresh schedule pages covering three days before through seven days after
-   the run date.
-2. Resolve the active season from an explicit override or the most recent
-   stored regular-season/playoff game no later than the lookahead boundary.
-   The game may precede the lookback window during the offseason.
-3. Re-fetch box scores and play-by-play for final games from the last three
-   days. Complete games are deliberately refreshed so late NHL corrections
-   replace their previous values.
-4. Refresh player landing profiles (which include NHL-published season splits)
-   for players from those box scores, then attempt up to 100 missing profiles from
-   earlier work by default (`--max-new-profiles` changes that bound).
-5. Store the official standings snapshot for the run date.
-6. Rebuild traditional and NHL-published player season aggregates.
-7. Replace the active season's MoneyPuck season, team-game, player-game, shot,
-   line, pairing, and derived season-unit data.
-8. Rebuild descriptive schedule context from stored facts, including next-season
-   fallbacks affected by corrected results. This runs with or without MoneyPuck.
+The coordinator owns data policy; Actions only invokes it. The same command
+runs locally against PostgreSQL using Python and Polars. The website reads
+stored data only and never fetches NHL or MoneyPuck while rendering.
 
-Every source import and derived-table replacement uses its existing
-transaction. The parent `daily_update` ingestion run records the boundaries,
-total reported rows, completion status, and combined error message. If one
-independent game or source fails, the coordinator attempts the remaining
-independent work and exits unsuccessfully after recording all failures. The
-last committed version of a failed table remains available to the website.
+## Refresh and publication order
 
-MoneyPuck publishes datasets on its own cadence. A temporary upstream failure
-will make the run fail visibly while preserving the last good MoneyPuck
-tables. Operators can use `--skip-moneypuck` to isolate an NHL-only recovery
-run. The coordinator does not request a new season's MoneyPuck archives until
-at least one regular-season or playoff game is final, avoiding expected
-preseason archive failures.
+`sportsball daily-update` performs the following work:
 
-## Local operation
+1. Acquire a PostgreSQL session advisory lock shared by scheduled and manual
+   daily coordinators. An overlapping invocation exits without starting a run.
+   The lock also proves an interrupted earlier daily coordinator is gone; its
+   still-running parent and children are marked failed, retaining their audit IDs.
+2. Refresh schedules from three days before through seven days after the UTC
+   run date. Resolve the active season from an override or the latest stored
+   regular-season/playoff game within that lookahead.
+3. Enroll the active season and resume previously enrolled unfinished seasons.
+   Reconcile weekly schedule pages from September through August, including
+   future games. A separate `covered_through` cursor revisits the entire gap
+   since the previous discovery, even if the future schedule was already loaded.
+   Each page commits before advancing its cursor. Completed active-season
+   sweeps restart after seven days to pick up distant schedule changes.
+4. Queue recent final games for corrections, plus every missing final game
+   anywhere in the enrolled season and all unfinished game tasks. Missing and
+   failed games get priority. Process up to 100 games per season per invocation.
+   Games omitted by the bound remain queued after the correction window passes.
+5. Refresh box scores, play-by-play, and participating player profiles. Failed
+   profile refreshes also remain retryable after their original game date.
+   Postponed/non-final queued games wait for play without becoming health errors.
+6. Refresh the current/enrolled season's NHL Stats summaries used by career,
+   historical, and draft-outcome pages. This existing transactional import also
+   rebuilds historical peaks and era baselines. It does not reload the entire
+   all-time archive.
+7. Rebuild game-derived and NHL profile-derived season totals only if the
+   season's prerequisite work is complete. Previous aggregates remain when
+   discovery, profiles, or game imports are incomplete.
+8. Independently attempt MoneyPuck season, team-game, player-game, shot, line,
+   pairing, and derived unit imports after the season has a final game. Record
+   supported game coverage by regular season/playoffs separately from successful
+   download timestamps.
+9. Refresh official standings, attempt up to 100 missing player profiles, and
+   rebuild descriptive schedule context if core ingestion has no failures.
+10. Finish the parent audit. Actions runs health diagnostics even after an
+    ingestion failure and optionally expires configured website caches after
+    successful core publication.
 
-Start PostgreSQL and apply migrations before running the coordinator:
+The schedule discovery page bound defaults to 64 for each of the gap and
+season-sweep passes (`--max-schedule-pages`). The game bound is `--max-games`.
+These bounds apply per enrolled season. Historical repair dates use source
+snapshots available **now**, not point-in-time historical revisions. Game
+selection uses the NHL game date; audit clocks use UTC. Regular season and
+playoffs retain their existing separate data contracts. Preseason games do not
+enter completed-game statistical ingestion.
+
+## Persistent state and failure behavior
+
+- `daily_schedule_checkpoints`: next weekly page, results discovery coverage,
+  and last sweep activity per season. This is separate from historical backfill
+  checkpoints and does not imply historical backfill certification.
+- `daily_work`: dataset/source key, season, status, attempt count, latest parent
+  run, check/publication timestamps, retry time, error, and coverage counts.
+- `ingestion_runs.parent_run_id`: explicit parent/child provenance. Existing
+  standalone imports retain a null parent.
+
+Short transient retries stay in the existing throttled clients. Failed daily
+work receives a persisted two-hour cooldown. Interrupted work is retried after
+another coordinator obtains the lock. Failed work never expires merely because
+it is old. Cooling-down failures do not crowd out other eligible games.
+
+The parent is `succeeded` when all requested work is complete, `degraded` when
+core NHL publication succeeds but advanced data is pending/failed, or `failed`
+when core work is incomplete. Actual import failures still exit unsuccessfully,
+including advanced-only failures. Expected missing advanced game coverage is
+reported as a warning, with an error after its documented grace period.
+
+Transactions remain scoped to a game or source dataset. This is not a global
+atomic snapshot: readers can see new game facts before rebuilt season totals.
+Incomplete derived totals are not deliberately published; the previous complete
+aggregate remains while prerequisite work retries. `published_at` on a season
+job describes that dataset, not a guarantee that all providers agree.
+
+MoneyPuck coverage checks count game/dataset presence, not every individual
+player or shot. They exclude unsupported playoff player/line datasets. Exact
+row-level validation remains in the source importers and historical audit.
+MoneyPuck's files can lag NHL results; a successful unchanged download cannot
+clear a missing-game coverage warning.
+
+## Local operation and recovery
+
+Apply the release's migrations separately, then run:
 
 ```bash
-docker compose up --detach postgres
-uv run --project pipeline --frozen alembic \
-  --config database/alembic.ini upgrade head
+uv run --project pipeline --frozen sportsball verify-database-schema
 uv run --project pipeline --frozen sportsball daily-update
+uv run --project pipeline --frozen sportsball check-data-health
 ```
 
-Useful bounded overrides include:
+A bounded NHL-only recovery:
 
 ```bash
 uv run --project pipeline --frozen sportsball daily-update \
-  --run-date 2026-01-15 \
-  --season-id 20252026 \
-  --correction-days 5 \
-  --skip-moneypuck
+  --run-date 2026-01-15 --season-id 20252026 \
+  --correction-days 5 --max-games 100 --skip-moneypuck
 ```
 
-The season override is useful for an offseason recovery or source
-investigation. Without it, the coordinator selects the season belonging to the
-most recent stored game no later than the end of the schedule lookahead
-window. This keeps the completed season active during summer and switches
-automatically once the next season's schedule enters the refreshed window.
+An unsuccessful bounded invocation can mean unfinished work remains, rather
+than lost progress. Run again after the retry time. After fixing malformed
+source/schema data, wait for the cooldown or the next scheduled invocation.
+Never reset checkpoints or delete facts to make health green. Older completed
+game corrections outside the normal window remain explicit repair operations.
+Draft selections remain a separate seasonal import (`ingest-draft-history`).
 
-## Coverage outside the coordinator
+The first run after migration enrolls the resolved season. This is not a full
+archive bootstrap. Existing historical backfill commands still prepare earlier
+seasons; explicitly select a missed older season if it was never enrolled.
 
-The daily coordinator does not refresh the separate all-time NHL Stats summary
-archive or draft selections. Run `ingest-historical-seasons` and
-`ingest-draft-history` explicitly when those archives need updating. A fresh
-career or draft outcome page therefore also depends on those stored summaries,
-not only on a successful daily run. The coordinator refreshes a bounded schedule
-window; it is not a replacement for complete future-season schedule ingestion.
+## GitHub Actions and future activation
 
-After standalone schedule, box-score, or MoneyPuck team-game ingestion/backfills,
-run `make analytics-build` before checking schedule difficulty. Historical summary
-ingestion automatically rebuilds historical peaks and era baselines. An existing
-database also needs `make analytics-build` once after migration 0026. Failed
-builds retain the previous complete derived output and record an unsuccessful
-ingestion run; retry the build after resolving the error.
+- `.github/workflows/daily-ingestion.yml`: 15:17 and 21:17 UTC, manual overrides,
+  90-minute timeout, non-overlapping workflow runs, outcome/health summary.
+- `.github/workflows/ingestion-health.yml`: independent read-only checks at
+  00:47 and 18:47 UTC, plus manual dispatch. A dropped ingestion invocation can
+  therefore be detected without the failed job reaching its own health step.
+- Both schedules are gated by `DAILY_INGESTION_ENABLED`. Health warnings are
+  visible but only health errors fail the monitor. GitHub workflow failures use
+  the operator's GitHub notification settings; no external messaging is configured.
+- Both check the deployed Alembic revision. **Daily jobs do not apply migrations.**
+  Releases must apply migrations before the new ingestion version runs.
 
-## GitHub Actions scheduler
+When Tyler returns to production activation, complete these items:
 
-`.github/workflows/daily-ingestion.yml` runs at `15:00 UTC` and supports manual
-dispatches with date, season, and MoneyPuck overrides. Scheduled writes are
-intentionally disabled until production infrastructure exists.
+1. Select and restore-test a hosted PostgreSQL database. Use separate website
+   read credentials and ingestion write credentials. Do not expose the laptop DB.
+2. Apply migration 0027 and verify schema/backup recovery. Use a fresh logical
+   backup before migration and provider-managed recovery for routine operation.
+3. Configure the Actions `SPORTSBALL_DATABASE_URL` secret.
+4. After website deployment, optionally configure the Actions
+   `SPORTSBALL_WEB_URL` variable and `SPORTSBALL_REVALIDATION_TOKEN` secret;
+   configure the same token in the website. The authenticated
+   `POST /api/ingestion/revalidate` expires all shared statistics caches.
+   Without this integration, existing timed caches refresh on subsequent reads;
+   reference/history data can remain cached longer than active-game reads.
+   Multiple website instances require a shared cache/invalidation mechanism.
+5. Rehearse a manual run, inspect `/api/health` and Actions health output,
+   verify actual rendered data, and measure a busy night and late-season archive.
+6. Verify failure notifications, backup restoration, and an external uptime
+   monitor. The independent Actions health job still shares GitHub's failure
+   domain and cannot detect a complete GitHub outage on its own.
+7. Enable scheduled ingestion only after explicit activation authorization.
 
-Activation requires:
+## Capacity and retained data
 
-1. A hosted PostgreSQL database reachable from the selected runner.
-2. A repository Actions secret named `SPORTSBALL_DATABASE_URL` containing the
-   SQLAlchemy `postgresql+psycopg://...` connection URL.
-3. Tested backup and recovery procedures for that database.
-4. A repository Actions variable named `DAILY_INGESTION_ENABLED` set to
-   `true`.
+NHL requests remain incremental; MoneyPuck still downloads source archives and
+replaces changed/current season tables using the existing importers. Identical
+raw artifacts are deduplicated by checksum; each genuinely revised archive is
+retained. There is no automatic deletion/retention policy or new object store.
+There is also no new unchanged-normalization shortcut: preserving correction
+and repair behavior takes priority until measurements justify that optimization.
 
-Manual dispatches are allowed before the enable variable is set, but they
-still require the database secret. The workflow applies committed Alembic
-migrations before invoking the daily command, runs the operational data-health
-check after a successful refresh, and prevents concurrent daily runs from
-overlapping.
+Before hosting selection, measure database/artifact growth, download bytes,
+peak memory, per-source duration, and complete-run time against the 90-minute
+workflow limit. Synthetic recovery tests do not establish real-season capacity
+or upstream publication deadlines. Storage sizing and live load measurements
+remain deployment prerequisites, not evidence supplied by unit tests.
 
-Do not point the workflow at a laptop database. GitHub-hosted runners cannot
-depend on a personal computer remaining online, and exposing a local database
-to the public internet would add avoidable security and reliability risks.
+## Source-change runbook
 
-## Still required for production operation
+1. Inspect the Actions summary and the parent/child audited failure.
+2. Identify source unavailability, schema change, missing identity, or DB error.
+3. Preserve existing facts and retained source artifacts; repair the adapter
+   with a small recorded fixture and run the relevant isolated database tests.
+4. Release the fix, apply any required migrations outside daily automation,
+   then rerun the bounded command after its cooldown.
+5. Check game coverage, season totals, website caches, and operational health.
 
-- hosted database selection and deployment;
-- automated backups with a tested restore;
-- failure notifications;
-- a data-quality dashboard;
-- documented source-change and recovery playbooks.
+The ingestion connection must be direct PostgreSQL or use session pooling;
+transaction pooling cannot provide the coordinator's session lock. Do not run
+standalone mutating backfills concurrently with the daily coordinator: those
+commands retain their separate historical workflows. Automatic interrupted-run
+recovery only reconciles parents marked with this coordination version; legacy
+running audits still use the existing conservative reconciliation command.

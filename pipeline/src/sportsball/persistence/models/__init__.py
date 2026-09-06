@@ -21,6 +21,8 @@ from sportsball.persistence.models.audit import (
 from sportsball.persistence.models.audit import SourceArtifact as SourceArtifact
 from sportsball.persistence.models.audit import SourcePayload as SourcePayload
 from sportsball.persistence.models.base import Base as Base
+from sportsball.persistence.models.daily import DailyScheduleCheckpoint as DailyScheduleCheckpoint
+from sportsball.persistence.models.daily import DailyWork as DailyWork
 from sportsball.persistence.models.entities import DraftSelection as DraftSelection
 from sportsball.persistence.models.entities import Franchise as Franchise
 from sportsball.persistence.models.entities import Game as Game

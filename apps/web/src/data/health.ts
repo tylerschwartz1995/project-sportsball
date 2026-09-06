@@ -12,6 +12,16 @@ type DailyRunRow = {
   status: string;
   started_at: Date;
   finished_at: Date | null;
+  datasets?: DatasetFreshness[];
+  run_date?: string | null;
+};
+
+export type DatasetFreshness = {
+  dataset: string;
+  status: string;
+  checkedAt: string | null;
+  publishedAt: string | null;
+  coverage: Record<string, number | string | null>;
 };
 
 export type DailyIngestionHealth = {
@@ -27,16 +37,25 @@ export type ServiceHealth = {
   database: "ok";
   checkedAt: string;
   dailyIngestion: DailyIngestionHealth;
+  datasets: DatasetFreshness[];
 };
 
 export async function getServiceHealth(
   now: Date = new Date(),
 ): Promise<ServiceHealth> {
   const rows = await query<DailyRunRow>(`
-    SELECT status, started_at, finished_at
-    FROM ingestion_runs
-    WHERE job_name = 'daily_update'
-    ORDER BY started_at DESC
+    SELECT r.status, r.started_at, r.finished_at, r.parameters->>'run_date' AS run_date,
+      (SELECT COALESCE(json_agg(json_build_object(
+        'dataset', w.dataset, 'status', w.status,
+        'checkedAt', w.checked_at, 'publishedAt', w.published_at,
+        'coverage', w.coverage
+      ) ORDER BY w.dataset), '[]'::json)
+      FROM daily_work w
+      WHERE w.season_id::text = r.parameters->>'resolved_season_id'
+        AND w.source_key = w.season_id::text) AS datasets
+    FROM ingestion_runs r
+    WHERE r.job_name = 'daily_update'
+    ORDER BY r.started_at DESC
     LIMIT 1
   `);
   const dailyIngestion = evaluateDailyIngestion(rows[0] ?? null, now);
@@ -46,6 +65,7 @@ export async function getServiceHealth(
     database: "ok",
     checkedAt: now.toISOString(),
     dailyIngestion,
+    datasets: rows[0]?.datasets ?? [],
   };
 }
 
@@ -62,6 +82,15 @@ export function evaluateDailyIngestion(
     };
   }
 
+  if (run.run_date && Math.floor((Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+      - new Date(`${run.run_date}T00:00:00Z`).getTime()) / 86_400_000) > 2) {
+    return {
+      status: "error", runStatus: run.status,
+      lastCompletedAt: run.finished_at?.toISOString() ?? null,
+      message: "The latest update targets an old game date; a current refresh is overdue.",
+    };
+  }
+
   if (run.status === "running") {
     const age = Math.max(0, now.getTime() - run.started_at.getTime());
     return {
@@ -75,7 +104,7 @@ export function evaluateDailyIngestion(
     };
   }
 
-  if (run.status !== "succeeded" || !run.finished_at) {
+  if (!["succeeded", "degraded"].includes(run.status) || !run.finished_at) {
     return {
       status: "error",
       runStatus: run.status,
@@ -85,6 +114,14 @@ export function evaluateDailyIngestion(
   }
 
   const age = Math.max(0, now.getTime() - run.finished_at.getTime());
+  if (run.status === "degraded" && age <= ERROR_AGE_MS) {
+    return {
+      status: "degraded",
+      runStatus: run.status,
+      lastCompletedAt: run.finished_at.toISOString(),
+      message: "Official data updated; advanced statistics are delayed or need attention.",
+    };
+  }
   if (age <= HEALTHY_AGE_MS) {
     return {
       status: "ok",

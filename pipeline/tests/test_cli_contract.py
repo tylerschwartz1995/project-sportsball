@@ -18,6 +18,8 @@ def test_existing_command_contracts_are_preserved() -> None:
             "correction_days",
             "max_new_profiles",
             "skip_moneypuck",
+            "max_games",
+            "max_schedule_pages",
         ],
         "check-data-health": ["recent_days", "warnings_as_errors"],
         "reconcile-abandoned-runs": ["older_than_hours", "apply"],

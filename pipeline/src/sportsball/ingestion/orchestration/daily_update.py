@@ -2,15 +2,18 @@
 
 import uuid
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from datetime import UTC, date, datetime, timedelta
 
 from sqlalchemy import select, update
 
 from sportsball.clients.moneypuck.client import MoneyPuckClient
 from sportsball.clients.nhl.client import NhlClient
-from sportsball.ingestion.orchestration.boxscores import ingest_boxscore
+from sportsball.clients.nhl.stats_client import NhlStatsClient
+from sportsball.ingestion.orchestration.boxscores import BoxscoreIngestionResult, ingest_boxscore
+from sportsball.ingestion.orchestration.daily_discovery import discover_season, recovery_seasons
 from sportsball.ingestion.orchestration.descriptive import build_descriptive_analytics
+from sportsball.ingestion.orchestration.historical_seasons import ingest_historical_seasons
 from sportsball.ingestion.orchestration.moneypuck_lines import ingest_moneypuck_lines
 from sportsball.ingestion.orchestration.moneypuck_player_games import (
     ingest_moneypuck_player_games,
@@ -23,7 +26,10 @@ from sportsball.ingestion.orchestration.moneypuck_team_games import (
 from sportsball.ingestion.orchestration.official_player_seasons import (
     build_official_player_seasons,
 )
-from sportsball.ingestion.orchestration.play_by_play import ingest_play_by_play
+from sportsball.ingestion.orchestration.play_by_play import (
+    PlayByPlayIngestionResult,
+    ingest_play_by_play,
+)
 from sportsball.ingestion.orchestration.player_profile_backfill import (
     backfill_player_profiles,
 )
@@ -31,6 +37,17 @@ from sportsball.ingestion.orchestration.player_profiles import ingest_player_pro
 from sportsball.ingestion.orchestration.schedules import ingest_schedule_date
 from sportsball.ingestion.orchestration.season_stats import build_season_stats
 from sportsball.ingestion.orchestration.standings import ingest_standings
+from sportsball.operations.daily_state import (
+    begin_work,
+    coordinating_run,
+    daily_lock,
+    due_games,
+    finish_work,
+    missing_game_ids,
+    park_nonfinal_games,
+    pending_work,
+    queue_games,
+)
 from sportsball.persistence.database import session_scope
 from sportsball.persistence.models import (
     Game,
@@ -40,6 +57,7 @@ from sportsball.persistence.models import (
     PlayerGameStats,
     Season,
 )
+from sportsball.validation.daily_coverage import moneypuck_coverage
 
 FINAL_GAME_STATES = ("FINAL", "OFF")
 NHL_SEASON_GAME_TYPES = (2, 3)
@@ -56,6 +74,8 @@ class DailyUpdateOptions:
     correction_days: int = 3
     max_new_profiles: int = 100
     include_moneypuck: bool = True
+    max_games: int = 100
+    max_schedule_pages: int = 64
 
     def validate(self) -> None:
         """Reject invalid windows before creating an audited run."""
@@ -65,6 +85,8 @@ class DailyUpdateOptions:
             raise ValueError("schedule_lookahead_days cannot be negative")
         if self.correction_days < 0:
             raise ValueError("correction_days cannot be negative")
+        if self.max_games < 1 or self.max_schedule_pages < 1:
+            raise ValueError("max_games and max_schedule_pages must be positive")
         if self.max_new_profiles < 1:
             raise ValueError("max_new_profiles must be at least 1")
 
@@ -86,6 +108,7 @@ class DailyUpdateResult:
     season_id: int
     games_refreshed: int
     steps: tuple[DailyUpdateStep, ...]
+    warnings: tuple[str, ...] = ()
 
     @property
     def records_processed(self) -> int:
@@ -107,21 +130,138 @@ def run_daily_update(
     if options.include_moneypuck and moneypuck_client is None:
         raise ValueError("moneypuck_client is required when MoneyPuck is enabled")
 
-    run_id = _start_daily_run(options)
+    with daily_lock():
+        run_id = _start_daily_run(options)
+        with coordinating_run(run_id):
+            return _run_locked(options, nhl_client, moneypuck_client, run_id)
+
+
+def _run_locked(
+    options: DailyUpdateOptions,
+    nhl_client: NhlClient,
+    moneypuck_client: MoneyPuckClient | None,
+    run_id: uuid.UUID,
+) -> DailyUpdateResult:
     steps: list[DailyUpdateStep] = []
     failures: list[str] = []
+    advanced_failures: list[str] = []
+    warnings: list[str] = []
+    games_refreshed = 0
     try:
+        # Refresh the present first so season detection works on new installations.
         schedule_count = sum(
             ingest_schedule_date(anchor, nhl_client).games_processed
             for anchor in schedule_anchor_dates(options)
         )
         steps.append(DailyUpdateStep("nhl_schedules", schedule_count))
-
         season_id = _resolve_season_id(options)
-        game_ids = _recent_final_game_ids(options, season_id)
-        _refresh_recent_games(game_ids, nhl_client, steps, failures)
-        _refresh_recent_player_profiles(game_ids, nhl_client, steps, failures)
+        seasons = recovery_seasons(season_id, options.run_date)
+        with session_scope() as session:
+            parent = session.get(IngestionRun, run_id)
+            assert parent is not None
+            parent.parameters = {
+                **parent.parameters,
+                "resolved_season_id": season_id,
+                "season_ids": seasons,
+            }
+        for selected_season in seasons:
+            season_failures: list[str] = []
+            try:
+                count, discovered = discover_season(
+                    selected_season,
+                    options.run_date,
+                    nhl_client,
+                    max_pages=options.max_schedule_pages,
+                )
+                steps.append(DailyUpdateStep(f"schedule_discovery:{selected_season}", count))
+                if not discovered:
+                    season_failures.append("schedule catch-up has not reached the run date")
+            except Exception as error:
+                season_failures.append(f"schedule discovery: {error}")
 
+            park_nonfinal_games(selected_season, options.run_date)
+            candidates = _recent_final_game_ids(options, selected_season)
+            queue_games(candidates, selected_season)
+            game_ids = due_games(candidates)[: options.max_games]
+            if len(candidates) > len(game_ids):
+                season_failures.append(f"{len(candidates) - len(game_ids)} games remain queued")
+            _refresh_recent_games(game_ids, nhl_client, steps, season_failures, selected_season)
+            games_refreshed += len(game_ids)
+            _refresh_recent_player_profiles(
+                game_ids,
+                nhl_client,
+                steps,
+                season_failures,
+                selected_season,
+            )
+            if missing_game_ids(selected_season, options.run_date):
+                season_failures.append("completed games still lack box scores or play-by-play")
+
+            # Official published summaries are independent of our game imports.
+            if _season_has_final_game(selected_season):
+                with NhlStatsClient() as stats_client:
+                    _attempt_step(
+                        "historical_season_summaries",
+                        lambda selected_season=selected_season: (
+                            ingest_historical_seasons(
+                                selected_season,
+                                selected_season,
+                                stats_client,
+                            ).records_processed
+                        ),
+                        steps,
+                        season_failures,
+                        season_id=selected_season,
+                    )
+            if not season_failures:
+                _attempt_step(
+                    "derived_season_stats",
+                    lambda selected_season=selected_season: (
+                        build_season_stats(selected_season, selected_season).records_processed
+                    ),
+                    steps,
+                    season_failures,
+                    season_id=selected_season,
+                )
+                _attempt_step(
+                    "official_player_seasons",
+                    lambda selected_season=selected_season: (
+                        build_official_player_seasons(
+                            selected_season,
+                            selected_season,
+                        ).records_processed
+                    ),
+                    steps,
+                    season_failures,
+                    season_id=selected_season,
+                )
+            failures.extend(f"season {selected_season}: {message}" for message in season_failures)
+
+            if options.include_moneypuck and _season_has_final_game(selected_season):
+                assert moneypuck_client is not None
+                _refresh_moneypuck(selected_season, moneypuck_client, steps, advanced_failures)
+                coverage = moneypuck_coverage(selected_season, options.run_date)
+                if begin_work(
+                    "moneypuck_coverage", str(selected_season), selected_season, honor_retry=False
+                ):
+                    finish_work(
+                        "moneypuck_coverage",
+                        str(selected_season),
+                        coverage=coverage,
+                        waiting=bool(coverage["missing"]),
+                    )
+                if coverage["missing"]:
+                    warnings.append(f"season {selected_season}: advanced game data pending")
+            elif options.include_moneypuck:
+                steps.append(DailyUpdateStep("moneypuck_waiting_for_final_game", 0))
+
+        _attempt_step(
+            "official_standings",
+            lambda: ingest_standings(options.run_date, nhl_client).teams_processed,
+            steps,
+            failures,
+            season_id=season_id,
+        )
         profiles = backfill_player_profiles(
             nhl_client,
             max_players=options.max_new_profiles,
@@ -129,55 +269,27 @@ def run_daily_update(
         )
         steps.append(DailyUpdateStep("new_player_profiles", profiles.attempted_this_run))
         failures.extend(
-            f"player_profile:{failure.player_id}: {failure.error_message}"
-            for failure in profiles.failures
+            f"player_profile:{f.player_id}: {f.error_message}" for f in profiles.failures
         )
-
-        _attempt_step(
-            "official_standings",
-            lambda: ingest_standings(options.run_date, nhl_client).teams_processed,
-            steps,
-            failures,
-        )
-        _attempt_step(
-            "derived_season_stats",
-            lambda: build_season_stats(season_id, season_id).records_processed,
-            steps,
-            failures,
-        )
-        _attempt_step(
-            "official_player_seasons",
-            lambda: build_official_player_seasons(season_id, season_id).records_processed,
-            steps,
-            failures,
-        )
-
-        if options.include_moneypuck and _season_has_final_game(season_id):
-            assert moneypuck_client is not None
-            _refresh_moneypuck(season_id, moneypuck_client, steps, failures)
-        elif options.include_moneypuck:
-            steps.append(DailyUpdateStep("moneypuck_waiting_for_final_game", 0))
-        _attempt_step(
-            "descriptive_schedule_context",
-            lambda: build_descriptive_analytics(history=False),
-            steps,
-            failures,
-        )
+        if not failures:
+            _attempt_step(
+                "descriptive_schedule_context",
+                lambda: build_descriptive_analytics(history=False),
+                steps,
+                failures,
+                season_id=season_id,
+            )
     except Exception as error:
         _finish_daily_run(run_id, steps, failures=[*failures, str(error)])
         raise
 
-    if failures:
-        _finish_daily_run(run_id, steps, failures=failures)
-        raise DailyUpdateFailed("; ".join(failures))
-
-    _finish_daily_run(run_id, steps)
+    _finish_daily_run(
+        run_id, steps, failures=failures, advanced_failures=[*advanced_failures, *warnings]
+    )
+    if failures or advanced_failures:
+        raise DailyUpdateFailed("; ".join([*failures, *advanced_failures]))
     return DailyUpdateResult(
-        run_id=run_id,
-        run_date=options.run_date,
-        season_id=season_id,
-        games_refreshed=len(game_ids),
-        steps=tuple(steps),
+        run_id, options.run_date, season_id, games_refreshed, tuple(steps), tuple(warnings)
     )
 
 
@@ -199,28 +311,33 @@ def _refresh_recent_games(
     client: NhlClient,
     steps: list[DailyUpdateStep],
     failures: list[str],
+    season_id: int,
 ) -> None:
-    boxscore_records = 0
-    play_by_play_records = 0
     for game_id in game_ids:
-        try:
-            boxscore = ingest_boxscore(game_id, client)
-            boxscore_records += boxscore.skaters_processed + boxscore.goalies_processed + 2
-        except Exception as error:
-            failures.append(f"boxscore:{game_id}: {error}")
-        try:
-            play_by_play = ingest_play_by_play(game_id, client)
-            play_by_play_records += (
-                play_by_play.events_processed + play_by_play.participants_processed
-            )
-        except Exception as error:
-            failures.append(f"play_by_play:{game_id}: {error}")
-    steps.extend(
-        (
-            DailyUpdateStep("recent_boxscores", boxscore_records),
-            DailyUpdateStep("recent_play_by_play", play_by_play_records),
+        _attempt_step(
+            "boxscore",
+            lambda game_id=game_id: _boxscore_count(ingest_boxscore(game_id, client)),
+            steps,
+            failures,
+            season_id=season_id,
+            key=str(game_id),
         )
-    )
+        _attempt_step(
+            "play_by_play",
+            lambda game_id=game_id: _event_count(ingest_play_by_play(game_id, client)),
+            steps,
+            failures,
+            season_id=season_id,
+            key=str(game_id),
+        )
+
+
+def _boxscore_count(result: BoxscoreIngestionResult) -> int:
+    return result.skaters_processed + result.goalies_processed + 2
+
+
+def _event_count(result: PlayByPlayIngestionResult) -> int:
+    return result.events_processed + result.participants_processed
 
 
 def _refresh_recent_player_profiles(
@@ -228,17 +345,26 @@ def _refresh_recent_player_profiles(
     client: NhlClient,
     steps: list[DailyUpdateStep],
     failures: list[str],
+    season_id: int,
 ) -> None:
-    player_ids = _recent_player_ids(game_ids)
-    refreshed = 0
+    player_ids = sorted(
+        set(_recent_player_ids(game_ids))
+        | {int(key) for key in pending_work("player_profile", season_id)}
+    )
     for player_id in player_ids:
-        try:
-            ingest_player_profile(player_id, client)
-        except Exception as error:
-            failures.append(f"player_profile:{player_id}: {error}")
-        else:
-            refreshed += 1
-    steps.append(DailyUpdateStep("recent_player_profiles", refreshed))
+        _attempt_step(
+            "player_profile",
+            lambda player_id=player_id: _profile_count(player_id, client),
+            steps,
+            failures,
+            season_id=season_id,
+            key=str(player_id),
+        )
+
+
+def _profile_count(player_id: int, client: NhlClient) -> int:
+    ingest_player_profile(player_id, client)
+    return 1
 
 
 def _refresh_moneypuck(
@@ -252,30 +378,35 @@ def _refresh_moneypuck(
         lambda: ingest_moneypuck_season(season_id, client).records_processed,
         steps,
         failures,
+        season_id=season_id,
     )
     _attempt_step(
         "moneypuck_team_games",
         lambda: ingest_moneypuck_team_games(season_id, season_id, client).rows_processed,
         steps,
         failures,
+        season_id=season_id,
     )
     _attempt_step(
         "moneypuck_player_games",
         lambda: ingest_moneypuck_player_games(season_id, client).records_processed,
         steps,
         failures,
+        season_id=season_id,
     )
     _attempt_step(
         "moneypuck_shots",
         lambda: ingest_moneypuck_shots(season_id, client).rows_processed,
         steps,
         failures,
+        season_id=season_id,
     )
     _attempt_step(
         "moneypuck_lines",
         lambda: ingest_moneypuck_lines(season_id, client).rows_processed,
         steps,
         failures,
+        season_id=season_id,
     )
 
 
@@ -284,12 +415,21 @@ def _attempt_step(
     operation: Callable[[], int],
     steps: list[DailyUpdateStep],
     failures: list[str],
+    *,
+    season_id: int,
+    key: str | None = None,
 ) -> None:
+    source_key = key or str(season_id)
+    if not begin_work(name, source_key, season_id):
+        failures.append(f"{name}:{source_key}: retry deferred until the next attempt time")
+        return
     try:
         records_processed = operation()
     except Exception as error:
-        failures.append(f"{name}: {error}")
+        finish_work(name, source_key, error=str(error))
+        failures.append(f"{name}:{source_key}: {error}")
     else:
+        finish_work(name, source_key)
         steps.append(DailyUpdateStep(name, records_processed))
 
 
@@ -320,19 +460,27 @@ def _resolve_season_id(options: DailyUpdateOptions) -> int:
 
 def _recent_final_game_ids(options: DailyUpdateOptions, season_id: int) -> list[int]:
     earliest_date = options.run_date - timedelta(days=options.correction_days)
+    missing = missing_game_ids(season_id, options.run_date)
+    pending = {
+        int(key) for name in ("boxscore", "play_by_play") for key in pending_work(name, season_id)
+    }
     with session_scope() as session:
-        return list(
+        games = list(
             session.scalars(
-                select(Game.nhl_id)
+                select(Game)
                 .where(
                     Game.season_id == season_id,
                     Game.game_type.in_(NHL_SEASON_GAME_TYPES),
                     Game.state.in_(FINAL_GAME_STATES),
-                    Game.game_date.between(earliest_date, options.run_date),
+                    Game.game_date <= options.run_date,
                 )
                 .order_by(Game.game_date, Game.nhl_id)
             ).all()
         )
+    # Missing/failed work gets priority so repeated busy nights cannot starve it.
+    urgent = [g.nhl_id for g in games if g.nhl_id in missing | pending]
+    recent = [g.nhl_id for g in games if g.game_date >= earliest_date and g.nhl_id not in urgent]
+    return urgent + recent
 
 
 def _season_has_final_game(season_id: int) -> bool:
@@ -375,13 +523,9 @@ def _start_daily_run(options: DailyUpdateOptions) -> uuid.UUID:
             job_name="daily_update",
             status="running",
             parameters={
+                **asdict(options),
                 "run_date": options.run_date.isoformat(),
-                "season_id": options.season_id,
-                "schedule_lookback_days": options.schedule_lookback_days,
-                "schedule_lookahead_days": options.schedule_lookahead_days,
-                "correction_days": options.correction_days,
-                "max_new_profiles": options.max_new_profiles,
-                "include_moneypuck": options.include_moneypuck,
+                "coordination_version": 1,
             },
         )
         session.add(run)
@@ -394,14 +538,15 @@ def _finish_daily_run(
     steps: list[DailyUpdateStep],
     *,
     failures: list[str] | None = None,
+    advanced_failures: list[str] | None = None,
 ) -> None:
-    error_message = "; ".join(failures) if failures else None
+    error_message = "; ".join([*(failures or []), *(advanced_failures or [])]) or None
     with session_scope() as session:
         session.execute(
             update(IngestionRun)
             .where(IngestionRun.id == run_id)
             .values(
-                status="failed" if failures else "succeeded",
+                status="failed" if failures else "degraded" if advanced_failures else "succeeded",
                 records_processed=sum(step.records_processed for step in steps),
                 error_message=error_message,
                 finished_at=datetime.now(UTC),

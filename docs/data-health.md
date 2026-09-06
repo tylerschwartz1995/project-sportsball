@@ -19,7 +19,17 @@ The command evaluates:
 - the latest successful NHL schedule and standings imports;
 - box-score completeness for final games in the last three days;
 - play-by-play completeness for final games in the last three days;
-- the oldest latest-success timestamp across the five current MoneyPuck jobs.
+- current-season MoneyPuck task publication times (legacy runs fall back to job history);
+- unfinished core tasks outside the recent-game window;
+- source-supported advanced game coverage, separated by season and phase.
+
+A `degraded` daily parent means core NHL work completed while advanced imports
+failed or have pending game coverage. It produces a warning, not a core outage.
+A failed core parent still produces an error. A fresh unchanged MoneyPuck
+file cannot clear missing-game coverage. Missing supported game/dataset pairs
+warn initially and become errors when the oldest missing game date is more
+than four days old. This is a game-date grace period, not a measured provider SLA.
+Postponed queued games wait for play without failing health.
 
 Example output:
 
@@ -69,16 +79,26 @@ database connectivity and evaluates the latest audited daily parent run:
 - `503` and `status: "error"` when the run is missing, failed, stuck for over
   two hours, older than 48 hours, or the database cannot be reached.
 
+Recent advanced-only degradation returns HTTP 200 with `status: "degraded"`;
+core data older than 48 hours still returns 503. The response includes safe
+per-dataset `checkedAt`, `publishedAt`, status, and coverage fields for the
+resolved season. It does not expose task error messages or credentials. These
+timestamps describe datasets independently, not a single atomic site snapshot.
+
 Responses use `Cache-Control: no-store`. The endpoint does not expose database
 credentials, ingestion errors, or row-level source details. Operators use the
 CLI and audited `ingestion_runs` records for diagnosis.
 
 ## Automation
 
-The daily GitHub Actions workflow invokes `check-data-health` after a
-successful daily refresh. An error therefore fails the workflow and becomes
-available to the alerting system added later in the production-operations
-milestone.
+The daily GitHub Actions workflow invokes `check-data-health` even after a
+refresh failure when schema verification passed. It publishes the report in
+its Actions summary and preserves unsuccessful workflow outcomes.
+A separate read-only `ingestion-health.yml` checks at 00:47 and 18:47 UTC,
+independently of whether ingestion ran. Both schedules remain disabled until
+`DAILY_INGESTION_ENABLED=true`. GitHub workflow notification preferences and
+an external uptime monitor must be verified during deployment; no external
+alerting service has been configured.
 
 Recommended incident order:
 
