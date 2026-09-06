@@ -113,6 +113,10 @@ Detailed 2005–06+ database coverage is checked by
 - Poll live-game data separately from the daily import in a later milestone.
 - Run the regular daily import after the previous NHL game day has completed.
 - Re-fetch recent completed games to pick up official scoring corrections.
+- Resume missed schedule dates and unfinished enrolled-season game imports even
+  after they leave the recent correction window.
+- Refresh current-season NHL Stats summaries alongside daily game ingestion;
+  draft selections remain a separate seasonal operation.
 - Treat older completed games as immutable unless a repair job is requested.
 - Retain source/provider, source key or URL, fetch timestamp, checksum, and
   ingestion-run provenance. Preserve provider timestamps when supplied; do not

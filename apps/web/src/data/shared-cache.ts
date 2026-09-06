@@ -24,7 +24,7 @@ export function sharedRead<Args extends unknown[], Value>(
   const cached = unstable_cache(async (...args: Args) => ({
     value: await loader(...args),
     generatedBy: invocations.getStore(),
-  }), [name, "envelope-v2"], { revalidate: seconds, tags });
+  }), [name, "envelope-v3"], { revalidate: seconds, tags: ["ingestion", ...tags] });
   return async (...args) => {
     const startedAt = Date.now();
     const id = randomUUID();

@@ -1,13 +1,14 @@
 """Operational freshness and recent-game completeness checks."""
 
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 from enum import StrEnum
 
 from sqlalchemy import func, select
 
 from sportsball.persistence.database import session_scope
 from sportsball.persistence.models import (
+    DailyWork,
     Game,
     GameEvent,
     IngestionRun,
@@ -104,6 +105,7 @@ def check_data_health(
         ),
         *_recent_game_checks(now, recent_days),
         _moneypuck_freshness_check(now),
+        *_daily_work_checks(now),
     ]
     return DataHealthReport(checked_at=now, checks=tuple(checks))
 
@@ -125,6 +127,13 @@ def _daily_run_check(now: datetime) -> HealthCheck:
             HealthStatus.ERROR,
             "no audited daily update has completed",
         )
+    run_date = latest.parameters.get("run_date")
+    if isinstance(run_date, str) and (now.date() - date.fromisoformat(run_date)).days > 2:
+        return HealthCheck(
+            "daily_ingestion",
+            HealthStatus.ERROR,
+            "latest daily run targets an old game date; current refresh is overdue",
+        )
     if latest.status == "running":
         age = now - _as_utc(latest.started_at)
         status = HealthStatus.ERROR if age > STUCK_RUN_AGE else HealthStatus.WARNING
@@ -134,7 +143,7 @@ def _daily_run_check(now: datetime) -> HealthCheck:
             f"latest run is still running ({_format_age(age)})",
             latest.started_at,
         )
-    if latest.status != "succeeded":
+    if latest.status not in ("succeeded", "degraded"):
         return HealthCheck(
             "daily_ingestion",
             HealthStatus.ERROR,
@@ -148,13 +157,60 @@ def _daily_run_check(now: datetime) -> HealthCheck:
             "latest successful run has no completion timestamp",
             latest.started_at,
         )
-    return _classify_freshness(
+    freshness = _classify_freshness(
         "daily_ingestion",
         _as_utc(latest.finished_at),
         now,
         CORE_HEALTHY_AGE,
         CORE_ERROR_AGE,
     )
+    if latest.status == "degraded" and freshness.status is not HealthStatus.ERROR:
+        return HealthCheck(
+            "daily_ingestion",
+            HealthStatus.WARNING,
+            "core NHL update completed; advanced data is delayed or failed",
+            latest.finished_at,
+        )
+    return freshness
+
+
+def _daily_work_checks(now: datetime) -> list[HealthCheck]:
+    """Do not let a fresh download hide missing content or old retry work."""
+    with session_scope() as session:
+        unresolved = list(
+            session.scalars(
+                select(DailyWork).where(
+                    DailyWork.status != "succeeded",
+                )
+            ).all()
+        )
+    core = [
+        w
+        for w in unresolved
+        if not w.dataset.startswith("moneypuck") and w.status != "waiting_for_game"
+    ]
+    checks = [
+        HealthCheck(
+            "unfinished_core_work",
+            HealthStatus.ERROR if core else HealthStatus.HEALTHY,
+            f"{len(core)} unfinished core tasks",
+        )
+    ]
+    for work in unresolved:
+        if work.dataset != "moneypuck_coverage":
+            continue
+        oldest = work.coverage.get("oldest_missing_date")
+        overdue = isinstance(oldest, str) and (now.date() - date.fromisoformat(oldest)).days > 4
+        checks.append(
+            HealthCheck(
+                f"advanced_coverage:{work.season_id}",
+                HealthStatus.ERROR if overdue else HealthStatus.WARNING,
+                f"{work.coverage.get('missing', 0)} supported game/dataset pairs pending; "
+                f"oldest game date {oldest}",
+                work.checked_at,
+            )
+        )
+    return checks
 
 
 def _stuck_runs_check(now: datetime) -> HealthCheck:
@@ -206,6 +262,58 @@ def _source_freshness_check(
 
 
 def _moneypuck_freshness_check(now: datetime) -> HealthCheck:
+    # New coordinators enroll each source and season explicitly. Historical
+    # backfills cannot refresh these records or disguise current-source failures.
+    latest_parent = _latest_run(("daily_update",), successful_only=False)
+    season_id = latest_parent.parameters.get("resolved_season_id") if latest_parent else None
+    if season_id is not None:
+        with session_scope() as session:
+            has_final = session.scalar(
+                select(Game.id)
+                .where(
+                    Game.season_id == season_id,
+                    Game.state.in_(FINAL_GAME_STATES),
+                    Game.game_type.in_(NHL_SEASON_GAME_TYPES),
+                    Game.game_date <= now.date(),
+                )
+                .limit(1)
+            )
+            work = list(
+                session.scalars(
+                    select(DailyWork).where(
+                        DailyWork.season_id == season_id,
+                        DailyWork.dataset.in_(
+                            (
+                                "moneypuck_season_summaries",
+                                "moneypuck_team_games",
+                                "moneypuck_player_games",
+                                "moneypuck_shots",
+                                "moneypuck_lines",
+                            )
+                        ),
+                    )
+                ).all()
+            )
+        if has_final is None:
+            return HealthCheck(
+                "moneypuck", HealthStatus.HEALTHY, "waiting for the season's first final game"
+            )
+        if len(work) != 5 or any(w.published_at is None for w in work):
+            return HealthCheck(
+                "moneypuck", HealthStatus.WARNING, "current-season source imports pending"
+            )
+        freshness = _classify_freshness(
+            "moneypuck",
+            min(_as_utc(w.published_at) for w in work if w.published_at is not None),
+            now,
+            MONEYPUCK_HEALTHY_AGE,
+            MONEYPUCK_ERROR_AGE,
+        )
+        if any(w.status != "succeeded" for w in work) and freshness.status is HealthStatus.HEALTHY:
+            return HealthCheck(
+                "moneypuck", HealthStatus.WARNING, "current-season source retry pending"
+            )
+        return freshness
     completed: list[datetime] = []
     missing: list[str] = []
     for job_name in MONEYPUCK_JOBS:

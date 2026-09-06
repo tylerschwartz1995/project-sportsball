@@ -53,6 +53,21 @@ describe("service health", () => {
     expect(result.message).toContain("older than 36 hours");
   });
 
+  it("keeps official data available when advanced ingestion is degraded, but expires stale core data", () => {
+    const run = {
+      status: "degraded",
+      started_at: new Date("2026-01-10T13:00:00.000Z"),
+      finished_at: new Date("2026-01-10T14:00:00.000Z"),
+    };
+    expect(evaluateDailyIngestion(run, now).status).toBe("degraded");
+    expect(evaluateDailyIngestion(run, new Date("2026-01-13T15:00:00.000Z")).status).toBe("error");
+  });
+
+  it("does not let a successful historical repair clear current-data staleness", () => {
+    expect(evaluateDailyIngestion({ status: "succeeded", run_date: "2025-12-01",
+      started_at: now, finished_at: now }, now).status).toBe("error");
+  });
+
   it("reports failed, stuck, stale, and missing runs as errors", () => {
     expect(
       evaluateDailyIngestion(

@@ -194,7 +194,7 @@ specific domain or infrastructure responsibility.
 
 The `daily-update` Python coordinator owns refresh ordering and can be invoked
 by any scheduler. An opt-in GitHub Actions workflow currently provides manual
-dispatches and a disabled-by-default `15:00 UTC` schedule. Production
+dispatches and a disabled-by-default `15:17` and `21:17 UTC` schedules. Production
 activation waits for a hosted database, secrets, backups, and recovery
 validation; scheduler configuration does not contain ingestion domain logic.
 
@@ -284,3 +284,20 @@ shared UI, ordered styling, Python model/command modules, analytical ownership,
 and the point-in-time dataset foundation. CI now exercises web queries against
 a fresh migrated synthetic database and checks browser navigation in both themes
 on desktop and mobile. Full-archive checks remain a separate local audit.
+
+### Season operation reliability
+
+The daily coordinator now persists schedule gap/sweep cursors and retryable
+per-game, player, and season work in PostgreSQL. Parent/child audit IDs link
+source operations to the daily run. A dedicated advisory lock spans the
+coordinator's individual transactions, covering manual and scheduled invocations.
+Current-season NHL Stats summaries keep career and draft outcomes current;
+prerequisite failures block derived aggregate publication. Advanced-source
+availability and game coverage remain independent of core NHL success.
+
+GitHub Actions is the selected scheduler, with a second daily recovery run and
+an independent health workflow. Both remain disabled until deployment activation.
+Releases apply migrations; daily workflows only verify schema compatibility.
+An authenticated cache-expiry endpoint invalidates shared website reads after
+core publication. See [Daily ingestion](daily-ingestion.md) for implementation
+boundaries, cooldowns, capacity checks, and the activation runbook.

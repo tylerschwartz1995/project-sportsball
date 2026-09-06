@@ -147,6 +147,11 @@ Named saved-comparison collections remain backlog. See
   readiness checks.
 - [x] Add safe abandoned-run reconciliation and complete a verified local
   logical backup/restore rehearsal.
+- [x] Add durable daily retries, missed-day schedule discovery, season-wide game
+  gap detection, parent/child audits, and a shared coordinator lock.
+- [x] Refresh current-season all-time summaries and gate dependent aggregates.
+- [x] Add separate advanced coverage health, optional authenticated website cache
+  expiry, and an independent GitHub Actions health monitor.
 - Activate the schedule after the hosted database, secrets, and recovery
   process are ready.
 - Select a hosted PostgreSQL plan with sufficient storage and recovery.

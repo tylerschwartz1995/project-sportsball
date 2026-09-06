@@ -11,6 +11,7 @@ from sportsball.ingestion.orchestration.daily_update import (
     DailyUpdateOptions,
     run_daily_update,
 )
+from sportsball.operations.deployment_checks import revalidate_website, verify_database_schema
 from sportsball.operations.ingestion_recovery import reconcile_abandoned_runs
 from sportsball.validation.completeness import (
     audit_completeness,
@@ -25,6 +26,20 @@ from sportsball.validation.data_health import (
 app = typer.Typer()
 
 
+@app.command("verify-database-schema")
+def verify_database_schema_command() -> None:
+    """Check the deployed schema without applying migrations."""
+    verify_database_schema()
+    typer.echo("database schema matches this release")
+
+
+@app.command("revalidate-website")
+def revalidate_website_command() -> None:
+    """Expire deployed website caches after core publication."""
+    revalidate_website()
+    typer.echo("website statistics caches expired")
+
+
 @app.command("daily-update")
 def daily_update_command(
     run_date: str | None = None,
@@ -34,6 +49,8 @@ def daily_update_command(
     correction_days: int = 3,
     max_new_profiles: int = 100,
     skip_moneypuck: bool = False,
+    max_games: int = 100,
+    max_schedule_pages: int = 64,
 ) -> None:
     """Refresh recent NHL facts and current-season derived datasets."""
     if run_date is None:
@@ -52,6 +69,8 @@ def daily_update_command(
         correction_days=correction_days,
         max_new_profiles=max_new_profiles,
         include_moneypuck=not skip_moneypuck,
+        max_games=max_games,
+        max_schedule_pages=max_schedule_pages,
     )
     try:
         with NhlClient() as nhl_client, MoneyPuckClient() as moneypuck_client:
@@ -69,6 +88,8 @@ def daily_update_command(
     )
     for step in result.steps:
         typer.echo(f"  step={step.name} records_processed={step.records_processed}")
+    for warning in result.warnings:
+        typer.echo(f"  warning={warning}")
 
 
 @app.command("check-data-health")
