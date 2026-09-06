@@ -24,6 +24,7 @@ describe.skipIf(process.env.SPORTSBALL_RUN_WEB_DATABASE_TESTS !== "1")("performa
       const source = category === "skaters" ? all.skaters : all.goalies;
       const ids = source.slice(0, 4).map(row => row.nhlPlayerId);
       const options = await listPlayerComparisonOptions(20252026, 2, category);
+      expect(options.slice(0, 8).map(row => row.nhlPlayerId)).toEqual(source.slice(0, 8).map(row => row.nhlPlayerId));
       expect(new Set(options.map(row => row.nhlPlayerId))).toEqual(new Set(source.map(row => row.nhlPlayerId)));
       const selected = await getPlayerComparisonRows(20252026, 2, category, ids);
       expect(selected).toHaveLength(ids.length);

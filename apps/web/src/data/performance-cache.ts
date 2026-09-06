@@ -39,6 +39,6 @@ export const getPlayoffSeriesPlayerStats = sharedRead("getPlayoffSeriesPlayerSta
 
 import { listPlayerComparisonOptions as comparisonOptions, getPlayerComparisonRows as comparisonRows } from "./players";
 import { getMoneyPuckPlayerSeasons as advancedPlayers } from "./advanced";
-export const listPlayerComparisonOptions = sharedRead("comparison-options-v1", comparisonOptions);
+export const listPlayerComparisonOptions = sharedRead("comparison-options-v2", comparisonOptions);
 export const getPlayerComparisonRows = sharedRead("comparison-rows-v1", comparisonRows);
 export const getMoneyPuckPlayerSeasons = sharedRead("comparison-advanced-v1", advancedPlayers);

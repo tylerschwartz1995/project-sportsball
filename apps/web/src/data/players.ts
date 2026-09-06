@@ -682,7 +682,7 @@ export async function listPlayerComparisonOptions(seasonId: number, gameType: nu
     LEFT JOIN team_seasons identity ON identity.team_id = team.id AND identity.season_id = stats.season_id
     WHERE stats.season_id = $1 AND stats.game_type = $2
     GROUP BY player.nhl_id, player.display_name, player.position
-    ORDER BY player.display_name, player.nhl_id
+    ORDER BY ${category === "skaters" ? "MAX(stats.points) DESC, MAX(stats.goals) DESC" : "MAX(stats.games_played) DESC, MAX(stats.wins) DESC"}, player.display_name, player.nhl_id
   `, [seasonId, gameType]);
   return rows;
 }
