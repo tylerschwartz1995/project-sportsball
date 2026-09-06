@@ -81,11 +81,14 @@ source fetch -> raw payload -> validation -> normalization -> database upsert
              -> audit record -> derived aggregates
 ```
 
-### Feature engineering (planned)
+### Feature engineering foundation
 
-Predictive feature/training pipelines are not implemented. The requirements
-below govern that future stage; current descriptive transformations already
-use Python/Polars.
+Point-in-time revision selection and versioned observation snapshots are
+implemented and tested in `features/` and `datasets/`. Target-specific feature
+pipelines, training, evaluation, and prediction are not implemented. The
+[repository ownership guide](repository-structure.md) documents their explicit
+availability policy and remaining boundaries. Current descriptive
+transformations use Python/Polars in `analytics/`.
 
 Feature pipelines will be ordinary versioned Python modules with unit tests.
 They will read timestamped observations from PostgreSQL, calculate features
@@ -145,7 +148,7 @@ pipeline/
 │   │   └── moneypuck_*.py
 │   ├── persistence/
 │   │   ├── database.py
-│   │   ├── models.py
+│   │   ├── models/
 │   │   └── repositories/
 │   ├── reference/
 │   │   └── team_identities.py
@@ -154,6 +157,10 @@ pipeline/
 │   │   └── data_health.py
 │   ├── operations/
 │   │   └── ingestion_recovery.py
+│   ├── analytics/
+│   ├── features/
+│   ├── datasets/
+│   ├── commands/
 │   └── cli.py
 └── tests/
     ├── fixtures/
@@ -178,7 +185,7 @@ Responsibilities are intentionally narrow:
 - `normalization` maps provider records to the canonical domain model.
 - `persistence` centralizes database transactions and repository operations.
 - checkpoint tables make jobs observable, resumable, and safe to rerun.
-- `cli.py` contains thin command-line entry points for people and schedulers.
+- `cli.py` registers stable commands; `commands/` contains the thin adapters.
 
 Generic `utils` and `helpers` packages will be avoided. Shared code must have a
 specific domain or infrastructure responsibility.
@@ -269,3 +276,11 @@ under `pipeline/tests/fixtures`.
 with Polars from `moneypuck_line_game_stats`. It canonicalizes each player set,
 sums game-level numerators, and recomputes season shares rather than averaging
 published game percentages.
+
+## Internal ownership and regression checks
+
+See [Repository structure](repository-structure.md) for web feature boundaries,
+shared UI, ordered styling, Python model/command modules, analytical ownership,
+and the point-in-time dataset foundation. CI now exercises web queries against
+a fresh migrated synthetic database and checks browser navigation in both themes
+on desktop and mobile. Full-archive checks remain a separate local audit.

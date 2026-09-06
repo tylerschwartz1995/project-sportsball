@@ -2,9 +2,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Manrope, Geist_Mono } from "next/font/google";
 import Script from "next/script";
-import { WebVitals } from "@/app/_components/web-vitals";
-import "./globals.css";
-import "./modern.css";
+import { WebVitals } from "@/components/shell/web-vitals";
+import "@/styles/index.css";
 
 const interfaceFont = Manrope({
   variable: "--font-geist-sans",

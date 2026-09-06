@@ -1,6 +1,6 @@
-import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
-import { SiteHeader } from "@/app/_components/site-header";
-import { WorkspacePageHeader } from "@/app/_components/workspace-primitives";
+import { AnalyticsSectionTabs } from "@/features/analytics/analytics-section-tabs";
+import { SiteHeader } from "@/components/shell/site-header";
+import { WorkspacePageHeader } from "@/components/ui/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
 import { listCachedSeasons } from "@/data/page-cache";
 import { firstQueryValue } from "@/lib/directory";

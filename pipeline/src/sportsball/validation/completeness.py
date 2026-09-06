@@ -6,9 +6,7 @@ from enum import StrEnum
 from sqlalchemy import Select, func, select, union
 from sqlalchemy.orm import Session
 
-from sportsball.ingestion.orchestration.moneypuck_seasons import MONEYPUCK_FIRST_SEASON
 from sportsball.ingestion.orchestration.moneypuck_shots import MONEYPUCK_FIRST_SHOT_SEASON
-from sportsball.ingestion.orchestration.multi_season_backfill import season_ids_in_range
 from sportsball.persistence.database import session_scope
 from sportsball.persistence.models import (
     Game,
@@ -40,6 +38,8 @@ from sportsball.persistence.models import (
     TeamGameStats,
     TeamSeasonStats,
 )
+from sportsball.reference.coverage import MONEYPUCK_FIRST_SEASON
+from sportsball.reference.seasons import season_ids_in_range
 
 NHL_GAME_TYPES = (2, 3)
 FINAL_GAME_STATES = ("OFF", "FINAL")

@@ -1,16 +1,16 @@
-import Link from "@/app/_components/exploration-link";
+import Link from "@/components/ui/exploration-link";
 
-import { PlayoffBracket } from "@/app/_components/playoff-bracket";
-import { SeasonPicker } from "@/app/_components/season-picker";
-import { SiteHeader } from "@/app/_components/site-header";
-import { SortableHeader } from "@/app/_components/sortable-header";
-import { SortableTable } from "@/app/_components/sortable-table";
-import { TeamLogoStack } from "@/app/_components/team-logo";
-import { ViewTabs } from "@/app/_components/view-tabs";
+import { PlayoffBracket } from "@/features/playoffs/playoff-bracket";
+import { SeasonPicker } from "@/features/league/season-picker";
+import { SiteHeader } from "@/components/shell/site-header";
+import { SortableHeader } from "@/components/ui/sortable-header";
+import { SortableTable } from "@/components/ui/sortable-table";
+import { TeamLogoStack } from "@/features/teams/team-logo";
+import { ViewTabs } from "@/components/ui/view-tabs";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
-} from "@/app/_components/workspace-primitives";
+} from "@/components/ui/workspace-primitives";
 import type { GoalieSeasonSummary } from "@/contracts/player";
 import { parseSeasonId } from "@/contracts/season";
 import { getGamesForSeasonByType } from "@/data/games";

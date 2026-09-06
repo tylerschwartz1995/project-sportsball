@@ -1,13 +1,13 @@
-import Link from "@/app/_components/exploration-link";
+import Link from "@/components/ui/exploration-link";
 import { unstable_cache } from "next/cache";
 
-import { SeasonPicker } from "@/app/_components/season-picker";
-import { SiteHeader } from "@/app/_components/site-header";
-import { TeamLogo } from "@/app/_components/team-logo";
+import { SeasonPicker } from "@/features/league/season-picker";
+import { SiteHeader } from "@/components/shell/site-header";
+import { TeamLogo } from "@/features/teams/team-logo";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
-} from "@/app/_components/workspace-primitives";
+} from "@/components/ui/workspace-primitives";
 import type { GameSummary } from "@/contracts/game";
 import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
@@ -19,7 +19,7 @@ import { listSkaterLeadersBySeason } from "@/data/players";
 import { listCachedSeasons } from "@/data/page-cache";
 import { getStandings } from "@/data/standings";
 import { firstQueryValue } from "@/lib/directory";
-import { HomePlayerLeaders } from "@/app/_components/home-player-leaders";
+import { HomePlayerLeaders } from "@/features/players/home-player-leaders";
 import { listAdvancedSkaterLeaders, listAdvancedGoalieLeaders } from "@/data/advanced-leaderboard";
 
 export const dynamic = "force-dynamic";

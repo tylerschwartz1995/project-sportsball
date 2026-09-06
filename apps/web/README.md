@@ -116,8 +116,10 @@ SPORTSBALL_E2E_BASE_URL=http://localhost:3000 \
 
 One worker matches the latest full browser verification. Use the same host as
 the running app; local development verification used `localhost` to avoid the
-hydration issue recorded in the content audit. Browser and web database suites
-are opt-in locally; CI runs web unit checks/build and Python database tests.
+hydration issue recorded in the content audit. Full-archive browser and database suites remain opt-in locally. CI also runs
+web queries against synthetic migrated fixtures and a desktop/mobile browser
+smoke suite in both themes. See [Repository structure and fixtures](../../docs/repository-structure.md)
+for reproducible setup and the feature/shared-component organization.
 
 See [Web query layer](../../docs/web-query-layer.md) for the request flow,
 contracts, caching, and security boundary.

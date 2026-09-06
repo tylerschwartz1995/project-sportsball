@@ -1,13 +1,13 @@
-import Link from "@/app/_components/exploration-link";
+import Link from "@/components/ui/exploration-link";
 import { notFound } from "next/navigation";
 
-import { SeasonPicker } from "@/app/_components/season-picker";
-import { ResultNavigation } from "@/app/_components/result-navigation";
-import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
-import { SiteHeader } from "@/app/_components/site-header";
-import { SortableHeader } from "@/app/_components/sortable-header";
-import { SortableTable } from "@/app/_components/sortable-table";
-import { TeamLogo } from "@/app/_components/team-logo";
+import { SeasonPicker } from "@/features/league/season-picker";
+import { ResultNavigation } from "@/components/ui/result-navigation";
+import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
+import { SiteHeader } from "@/components/shell/site-header";
+import { SortableHeader } from "@/components/ui/sortable-header";
+import { SortableTable } from "@/components/ui/sortable-table";
+import { TeamLogo } from "@/features/teams/team-logo";
 import { parseNhlId } from "@/contracts/entity";
 import type { TeamGameLogEntry } from "@/contracts/game-log";
 import { parseSeasonId } from "@/contracts/season";

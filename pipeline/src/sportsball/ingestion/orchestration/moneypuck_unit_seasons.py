@@ -7,11 +7,11 @@ from datetime import UTC, datetime
 import polars as pl
 from sqlalchemy import select, update
 
+from sportsball.analytics.moneypuck_unit_seasons import (
+    moneypuck_unit_season_frame,
+)
 from sportsball.ingestion.orchestration.multi_season_backfill import (
     season_ids_in_range,
-)
-from sportsball.normalization.moneypuck_unit_seasons import (
-    moneypuck_unit_season_frame,
 )
 from sportsball.persistence.database import engine, session_scope
 from sportsball.persistence.models import (

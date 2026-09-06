@@ -1,18 +1,18 @@
-import { FilterForm } from "@/app/_components/filter-form";
-import Link from "@/app/_components/exploration-link";
+import { FilterForm } from "@/components/ui/filter-form";
+import Link from "@/components/ui/exploration-link";
 
-import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
+import { AnalyticsSectionTabs } from "@/features/analytics/analytics-section-tabs";
 import {
   FilterActions,
   FilterHeader,
-} from "@/app/_components/filter-primitives";
-import { SeasonPicker } from "@/app/_components/season-picker";
-import { ResultNavigation } from "@/app/_components/result-navigation";
-import { SeasonUnitTables } from "@/app/_components/season-unit-tables";
-import { SiteHeader } from "@/app/_components/site-header";
+} from "@/components/ui/filter-primitives";
+import { SeasonPicker } from "@/features/league/season-picker";
+import { ResultNavigation } from "@/components/ui/result-navigation";
+import { SeasonUnitTables } from "@/features/lines/season-unit-tables";
+import { SiteHeader } from "@/components/shell/site-header";
 import {
   WorkspacePageHeader,
-} from "@/app/_components/workspace-primitives";
+} from "@/components/ui/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
 import { listCachedSeasons, listCachedTeamsBySeason } from "@/data/page-cache";
 import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";

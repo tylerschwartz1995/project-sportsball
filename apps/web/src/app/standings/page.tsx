@@ -1,16 +1,16 @@
-import Link from "@/app/_components/exploration-link";
+import Link from "@/components/ui/exploration-link";
 
-import { SeasonPicker } from "@/app/_components/season-picker";
-import { SiteHeader } from "@/app/_components/site-header";
-import { SortableHeader } from "@/app/_components/sortable-header";
-import { SortableTable } from "@/app/_components/sortable-table";
-import { StandingsPointsChart } from "@/app/_components/lazy-charts";
-import { TeamLogo } from "@/app/_components/team-logo";
-import { ViewTabs } from "@/app/_components/view-tabs";
+import { SeasonPicker } from "@/features/league/season-picker";
+import { SiteHeader } from "@/components/shell/site-header";
+import { SortableHeader } from "@/components/ui/sortable-header";
+import { SortableTable } from "@/components/ui/sortable-table";
+import { StandingsPointsChart } from "@/features/charts/lazy-charts";
+import { TeamLogo } from "@/features/teams/team-logo";
+import { ViewTabs } from "@/components/ui/view-tabs";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
-} from "@/app/_components/workspace-primitives";
+} from "@/components/ui/workspace-primitives";
 import { parseSeasonId } from "@/contracts/season";
 import type { StandingsEntry } from "@/contracts/standings";
 import {

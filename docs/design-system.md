@@ -38,11 +38,11 @@ competing with it.
 - **Shape and spacing:** shared panel radius is 0.625rem (10px at the default
   root). Compact, consistent spacing keeps results close to their controls.
 
-`apps/web/src/app/globals.css` defines base tokens and component geometry;
-`apps/web/src/app/modern.css`, imported after it, supplies the current theme,
-typography, and interaction refinements. Both files matter when checking the
-rendered style. Shared primitives live in `ui-primitives.tsx` and
-`workspace-primitives.tsx` under `apps/web/src/app/_components/`.
+`apps/web/src/styles/tokens.css` owns the active dark/light tokens. The root
+layout imports `styles/index.css`, which orders shared foundations, feature
+styles, responsive rules, and cross-cutting presentation rules. Shared UI
+primitives live under `apps/web/src/components/ui/`; hockey-specific components
+live under `features/`. See [Repository structure](repository-structure.md).
 
 ## Information hierarchy
 

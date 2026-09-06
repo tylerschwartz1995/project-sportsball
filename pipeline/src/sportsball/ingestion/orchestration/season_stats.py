@@ -7,8 +7,7 @@ from datetime import UTC, datetime
 import polars as pl
 from sqlalchemy import select, update
 
-from sportsball.ingestion.orchestration.multi_season_backfill import season_ids_in_range
-from sportsball.normalization.season_stats import (
+from sportsball.analytics.season_stats import (
     goalie_season_stats_frame,
     skater_season_stats_frame,
     team_season_stats_frame,
@@ -22,6 +21,7 @@ from sportsball.persistence.models import (
     TeamGameStats,
 )
 from sportsball.persistence.repositories.season_stats import SeasonStatsRepository
+from sportsball.reference.seasons import season_ids_in_range
 
 NHL_SEASON_GAME_TYPES = (2, 3)
 

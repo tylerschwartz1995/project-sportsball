@@ -8,11 +8,11 @@ from sqlalchemy import func, or_, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from sportsball.clients.nhl.client import NhlClient
-from sportsball.ingestion.orchestration.multi_season_backfill import season_ids_in_range
 from sportsball.ingestion.orchestration.play_by_play import ingest_play_by_play
 from sportsball.ingestion.orchestration.season_backfill import NHL_SEASON_GAME_TYPES
 from sportsball.persistence.database import session_scope
 from sportsball.persistence.models import Game, GameEvent, PlayByPlayBackfillGame
+from sportsball.reference.seasons import season_ids_in_range
 
 FINAL_GAME_STATES = frozenset({"FINAL", "OFF"})
 

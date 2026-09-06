@@ -1,22 +1,22 @@
-import Link, { ReturnLink } from "@/app/_components/exploration-link";
+import Link, { ReturnLink } from "@/components/ui/exploration-link";
 import { notFound } from "next/navigation";
 
 import {
   GameAdvancedAnalytics,
   type GameAdvancedView,
-} from "@/app/_components/game-advanced-analytics";
-import { LocalGameTime } from "@/app/_components/local-game-time";
-import { GamePlayByPlayView } from "@/app/_components/play-by-play";
-import { SiteHeader } from "@/app/_components/site-header";
-import { SortableHeader } from "@/app/_components/sortable-header";
-import { SortableTable } from "@/app/_components/sortable-table";
-import { TeamGameRecord } from "@/app/_components/team-game-record";
-import { TeamLogo } from "@/app/_components/team-logo";
-import { ViewTabs } from "@/app/_components/view-tabs";
+} from "@/features/games/game-advanced-analytics";
+import { LocalGameTime } from "@/features/games/local-game-time";
+import { GamePlayByPlayView } from "@/features/games/play-by-play";
+import { SiteHeader } from "@/components/shell/site-header";
+import { SortableHeader } from "@/components/ui/sortable-header";
+import { SortableTable } from "@/components/ui/sortable-table";
+import { TeamGameRecord } from "@/features/teams/team-game-record";
+import { TeamLogo } from "@/features/teams/team-logo";
+import { ViewTabs } from "@/components/ui/view-tabs";
 import {
   DataTableShell,
   SectionHeader,
-} from "@/app/_components/ui-primitives";
+} from "@/components/ui/ui-primitives";
 import { parseNhlId } from "@/contracts/entity";
 import {
   formatGameState,

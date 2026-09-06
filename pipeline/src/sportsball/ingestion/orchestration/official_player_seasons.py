@@ -8,7 +8,6 @@ from typing import Any
 from sqlalchemy import select, update
 
 from sportsball.clients.nhl.schemas import PlayerProfileResponse
-from sportsball.ingestion.orchestration.multi_season_backfill import season_ids_in_range
 from sportsball.normalization.official_player_seasons import (
     official_player_season_frames,
 )
@@ -17,6 +16,7 @@ from sportsball.persistence.models import IngestionRun, SourcePayload
 from sportsball.persistence.repositories.official_player_seasons import (
     OfficialPlayerSeasonRepository,
 )
+from sportsball.reference.seasons import season_ids_in_range
 
 
 @dataclass(frozen=True)

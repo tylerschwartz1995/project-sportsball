@@ -46,7 +46,7 @@ db-verify-backup:
 	./scripts/verify-local-database-backup.sh "$(BACKUP_PATH)"
 
 web-install:
-	npm install --prefix apps/web
+	npm ci --prefix apps/web
 
 web-dev:
 	npm run dev --prefix apps/web
@@ -56,3 +56,10 @@ web-check:
 	npm run typecheck --prefix apps/web
 	npm run test --prefix apps/web
 	npm run build --prefix apps/web
+
+.PHONY: web-fixture web-test-fixture
+web-fixture:
+	node scripts/seed-web-test-database.mjs
+
+web-test-fixture:
+	npm run test:database:fixture --prefix apps/web

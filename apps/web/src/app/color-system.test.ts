@@ -4,26 +4,26 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-const appDirectory = path.dirname(fileURLToPath(import.meta.url));
-const globalsPath = path.join(appDirectory, "globals.css");
-const globalsSource = readFileSync(globalsPath, "utf8");
+const sourceDirectory = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const tokensPath = path.join(sourceDirectory, "styles/tokens.css");
+const tokensSource = readFileSync(tokensPath, "utf8");
 
 const legacyThemeUtility =
   /(?:text-(?:white|slate-(?:200|300|400|500|600|700)|cyan-(?:100|200|300)|violet-(?:200|300)|emerald-(?:200|300)|rose-(?:200|300)|amber-(?:100|200|300))|bg-slate-950(?:\/[^\s"'`]+)?|(?:bg|border)-white\/[^\s"'`]+|(?:bg|border)-(?:emerald|rose|amber)-300\/[^\s"'`]+)/;
 
 describe("color system", () => {
   it("keeps application components on semantic theme tokens", () => {
-    const offenders = sourceFiles(appDirectory)
+    const offenders = sourceFiles(sourceDirectory)
       .filter((file) => file.endsWith(".tsx"))
       .flatMap((file) => {
         const source = readFileSync(file, "utf8");
         return legacyThemeUtility.test(source)
-          ? [path.relative(appDirectory, file)]
+          ? [path.relative(sourceDirectory, file)]
           : [];
       });
 
     expect(offenders).toEqual([]);
-    expect(globalsSource).not.toContain("Temporary compatibility");
+    expect(tokensSource).not.toContain("Temporary compatibility");
   });
 
   it("keeps categorical chart colors distinguishable from their surfaces", () => {
@@ -58,7 +58,7 @@ function sourceFiles(directory: string): string[] {
 
 function tokenBlock(selector: string): string {
   const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = globalsSource.match(
+  const match = tokensSource.match(
     new RegExp(`${escapedSelector}\\s*\\{([\\s\\S]*?)\\n\\}`),
   );
   if (!match) throw new Error(`Missing token block for ${selector}`);
@@ -67,7 +67,11 @@ function tokenBlock(selector: string): string {
 
 function token(block: string, name: string): string {
   const match = block.match(new RegExp(`${name}:\\s*(#[0-9a-fA-F]{3,6})`));
-  if (!match) throw new Error(`Missing hexadecimal token ${name}`);
+  if (!match) {
+    const alias = block.match(new RegExp(`${name}:\\s*var\\((--[a-z0-9-]+)\\)`));
+    if (alias) return token(block, alias[1]);
+    throw new Error(`Missing hexadecimal token ${name}`);
+  }
   return match[1];
 }
 

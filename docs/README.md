@@ -11,6 +11,7 @@ with a clone or a guarantee of current source freshness.
 - [Web development and validation](../apps/web/README.md)
 - [Agent working agreement](../AGENTS.md)
 - [Architecture and system boundaries](architecture.md)
+- [Repository structure, ownership, and reproducible fixtures](repository-structure.md)
 - [Implementation roadmap](roadmap.md)
 - [Product backlog and implemented boundaries](product-ideas.md)
 - [Current visual design system](design-system.md)

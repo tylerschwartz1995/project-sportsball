@@ -1,14 +1,14 @@
-import Link from "@/app/_components/exploration-link";
+import Link from "@/components/ui/exploration-link";
 import { notFound } from "next/navigation";
 
-import { SiteHeader } from "@/app/_components/site-header";
-import { SortableHeader } from "@/app/_components/sortable-header";
-import { SortableTable } from "@/app/_components/sortable-table";
-import { TeamLogo } from "@/app/_components/team-logo";
+import { SiteHeader } from "@/components/shell/site-header";
+import { SortableHeader } from "@/components/ui/sortable-header";
+import { SortableTable } from "@/components/ui/sortable-table";
+import { TeamLogo } from "@/features/teams/team-logo";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
-} from "@/app/_components/workspace-primitives";
+} from "@/components/ui/workspace-primitives";
 import type {
   MoneyPuckSeasonUnitType,
   MoneyPuckUnitGameStats,

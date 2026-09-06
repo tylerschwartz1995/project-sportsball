@@ -8,9 +8,9 @@ import polars as pl
 from sqlalchemy import String, bindparam, cast, func, select, update
 from sqlalchemy.orm import Session
 
-from sportsball.ingestion.orchestration.multi_season_backfill import season_ids_in_range
 from sportsball.persistence.database import engine, session_scope
 from sportsball.persistence.models import Game, IngestionRun, SourcePayload
+from sportsball.reference.seasons import season_ids_in_range
 
 NHL_SEASON_GAME_TYPES = (2, 3)
 OUTCOME_TYPES = ("REG", "OT", "SO")

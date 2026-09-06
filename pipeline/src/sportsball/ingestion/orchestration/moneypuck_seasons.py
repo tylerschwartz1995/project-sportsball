@@ -5,18 +5,17 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 
 from sqlalchemy import update
-from sqlalchemy.dialects.postgresql import insert
-from sqlalchemy.orm import Session
 
-from sportsball.clients.moneypuck.client import MoneyPuckClient, MoneyPuckCsvFetch
+from sportsball.clients.moneypuck.client import MoneyPuckClient
 from sportsball.normalization.moneypuck_seasons import moneypuck_season_frames
 from sportsball.persistence.database import session_scope
-from sportsball.persistence.models import IngestionRun, SourceArtifact
+from sportsball.persistence.models import IngestionRun
 from sportsball.persistence.repositories.moneypuck_seasons import (
     MoneyPuckSeasonRepository,
 )
+from sportsball.persistence.repositories.source_artifacts import store_source_artifact
+from sportsball.reference.coverage import MONEYPUCK_FIRST_SEASON as MONEYPUCK_FIRST_SEASON
 
-MONEYPUCK_FIRST_SEASON = 20082009
 RESOURCE_TYPES = ("skaters", "goalies", "teams")
 
 
@@ -101,27 +100,6 @@ def ingest_moneypuck_season(
         skaters_processed=result.skaters,
         goalies_processed=result.goalies,
         teams_processed=result.teams,
-    )
-
-
-def store_source_artifact(
-    session: Session,
-    run_id: uuid.UUID,
-    artifact: MoneyPuckCsvFetch,
-) -> None:
-    artifact_insert = insert(SourceArtifact)
-    session.execute(
-        artifact_insert.values(
-            ingestion_run_id=run_id,
-            provider="moneypuck",
-            resource_type=f"season_{artifact.resource_type}",
-            source_key=artifact.source_key,
-            source_url=artifact.source_url,
-            checksum=artifact.checksum,
-            content_type=artifact.content_type,
-            content_length=len(artifact.content),
-            content=artifact.content,
-        ).on_conflict_do_nothing(constraint="uq_source_artifact_identity")
     )
 
 

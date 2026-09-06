@@ -12,13 +12,13 @@ from sportsball.ingestion.orchestration.moneypuck_seasons import (
     MONEYPUCK_FIRST_SEASON,
     ingest_moneypuck_season,
 )
-from sportsball.ingestion.orchestration.multi_season_backfill import season_ids_in_range
 from sportsball.persistence.database import session_scope
 from sportsball.persistence.models import (
     MoneyPuckSeasonBackfill,
     MoneyPuckTeamSeasonStats,
     Season,
 )
+from sportsball.reference.seasons import season_ids_in_range
 
 
 @dataclass(frozen=True)
