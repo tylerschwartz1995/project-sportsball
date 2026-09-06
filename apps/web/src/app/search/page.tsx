@@ -40,7 +40,7 @@ export default async function SearchPage({
             <h2>
               {players.length === 50
                 ? "First 50 Matches"
-                : `${players.length} Matches`}
+                : `${players.length} ${players.length === 1 ? "Match" : "Matches"}`}
             </h2>
             {players.length ? (
               <ul className="ux-search-results">

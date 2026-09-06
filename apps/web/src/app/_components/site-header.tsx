@@ -1,6 +1,7 @@
 "use client";
 import { usePathname, useSearchParams } from "next/navigation";
-import { Suspense, useRef } from "react";import Link from "next/link";
+import { Suspense, useRef } from "react";
+import Link from "next/link";
 
 import { ActiveNavigationScroller } from "@/app/_components/active-navigation-scroller";
 import { ThemeToggle } from "@/app/_components/theme-toggle";
@@ -55,27 +56,22 @@ const links = [
 
 export function SiteHeader(props: SiteHeaderProps) {
   return (
-    <Suspense
-      fallback={
-        <header className="site-header">
-          <Link href="/">Sportsball</Link>
-          <nav aria-label="Primary navigation" className="site-navigation">
-            {links.map((link) => (
-              <Link key={link.id} href={link.href}>
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-        </header>
-      }
-    >
+    <Suspense fallback={<HeaderContent {...props} />}>
       <SiteNavigation {...props} />
     </Suspense>
   );
 }
-function SiteNavigation({ active }: SiteHeaderProps) {
+function SiteNavigation(props: SiteHeaderProps) {
   const search = useSearchParams();
   const pathname = usePathname();
+  return <HeaderContent {...props} searchQuery={search.toString()} pathname={pathname} />;
+}
+
+function HeaderContent({ active, searchQuery = "", pathname = "" }: SiteHeaderProps & {
+  searchQuery?: string;
+  pathname?: string;
+}) {
+  const search = new URLSearchParams(searchQuery);
   const menu = useRef<HTMLDetailsElement>(null);
   function destination(href: string) {
     const params = new URLSearchParams();

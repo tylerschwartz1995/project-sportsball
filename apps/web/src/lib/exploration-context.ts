@@ -2,7 +2,7 @@
 export function safeReturnPath(value: string | null): string | null {
   if (
     !value ||
-    !/^\/(?:players|teams|games|standings|playoffs|analytics|history|drafts|lines|search)(?:[/?#]|$)/.test(
+    !/^\/(?:(?:players|teams|games|standings|playoffs|analytics|history|drafts|lines|search)(?:[/?#]|$)|[?#]|$)/.test(
       value,
     ) ||
     /[\\\r\n]/.test(value)

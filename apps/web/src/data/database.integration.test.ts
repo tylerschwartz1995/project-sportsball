@@ -1,4 +1,5 @@
-import { findPlayers } from "@/data/player-search";import { getPlayerCareer } from "@/data/player-career";
+import { findPlayers } from "@/data/player-search";
+import { getPlayerCareer } from "@/data/player-career";
 import { afterAll, describe, expect, it } from "vitest";
 
 import { getMoneyPuckGameAnalytics } from "@/data/advanced-game";

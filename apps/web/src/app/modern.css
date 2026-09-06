@@ -643,15 +643,17 @@ main > section.py-10 { padding-block: 1.25rem; }
   .workspace-player-filters > .workspace-player-advanced-filters[open] { grid-column: 1 / -1; }
 }
 @media (max-width: 767px) {
+  .ux-player-results { --table-essential-min-width: 46rem; }
+  .ux-player-results td.workspace-entity-name { white-space: normal; overflow-wrap: anywhere; }
+  .ux-player-results td.workspace-entity-name > div > div { min-width: 0; }
   .ux-mobile-data-switch { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
   .ux-mobile-data-switch button { min-height: 44px; padding: 0.4rem 0.6rem; border: 1px solid var(--control-border); border-radius: 0.5rem; }
   .ux-mobile-data-switch button[aria-pressed=true] { background: var(--accent); color: var(--on-accent); }
   .ux-player-results[data-mobile-view=table] .md\:hidden { display: none; }
   .ux-player-results[data-mobile-view=table] .workspace-data-table-shell { display: block; }
   .ux-player-results[data-mobile-view=table] .workspace-data-table-shell::before { content: "Scroll for more columns →"; display: block; padding: 0.5rem; color: var(--muted); font-size: 0.875rem; }
-  .ux-player-results table tr > :first-child { position: sticky; left: 0; background: var(--surface); z-index: 1; }
+  .ux-player-results table tr > :first-child { width: 13rem; min-width: 13rem; position: sticky; left: 0; background: var(--surface); z-index: 1; }
 }
-.ux-column-heading > :is(a,button) { width: auto; }
 .ux-metric-groups th { text-align: center; padding: 0.4rem; border-right: 1px solid var(--border); font-size: 0.8rem; }
 .workspace-table td[data-column-group="shot-quality"], .workspace-table td[data-column-group="results"] { font-variant-numeric: tabular-nums; }
 .ux-player-results > #player-results > div > p { max-width: 45rem; }

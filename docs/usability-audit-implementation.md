@@ -32,3 +32,22 @@ asks for a more specific name when the limit is reached. Return links retain one
 origin rather than building an unbounded breadcrumb history. Advanced player
 metrics keep their existing reference lines rather than introducing a new
 season-aggregation definition.
+
+## Final review corrections
+
+- Switching skaters to goalies remounts the wins field, preventing a typed goals
+  minimum from becoming a wins minimum.
+- Compact phone tables retain a minimum scrollable width and a bounded, wrapping
+  player-name column; names and values remain separate at 320px and 390px.
+- Header controls fill their columns so left/right alignment and click targets
+  remain correct after removing the question-mark controls.
+- Homepage exploration retains its return destination and selected season.
+- Mobile navigation performance checks follow the explicit menu and current
+  Lines & Pairings label.
+- The header loading fallback uses the same layout as the interactive header,
+  preventing navigation from shifting vertically during hydration.
+
+Final verification: 252 unit/database tests, lint, TypeScript, production build,
+and all 64 Playwright scenarios passed. The full production browser suite ran
+with one worker; parallel runs had intermittent navigation-completion failures
+that passed in isolation. Assertions and performance thresholds were retained.

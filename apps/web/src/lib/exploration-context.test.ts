@@ -48,3 +48,8 @@ describe("exploration context", () => {
     );
   });
 });
+
+ it("returns to the homepage with its selected season", () => {
+  const url = new URL(explorationHref("/players/8478402?season=20242025", "/", "season=20242025"), "http://local");
+  expect(url.searchParams.get("returnTo")).toBe("/?season=20242025");
+});

@@ -1,4 +1,5 @@
-import { ReturnLink } from "@/app/_components/exploration-link";import { getPlayerCareer } from "@/data/player-career";
+import { ReturnLink } from "@/app/_components/exploration-link";
+import { getPlayerCareer } from "@/data/player-career";
 import { PlayerCareer } from "@/app/_components/player-career";
 import Link from "@/app/_components/exploration-link";
 import { notFound } from "next/navigation";

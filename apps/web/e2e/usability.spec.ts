@@ -147,3 +147,28 @@ test("standings highlight remains shareable", async ({ page }) => {
   await page.reload();
   await expect(highlight).not.toHaveValue("");
 });
+
+test("switching player type does not reuse an incompatible minimum", async ({ page }) => {
+  await page.goto("/players?minGoals=25");
+  await expect(page.getByRole("button", { name: "Switch between light and dark mode" })).toBeEnabled();
+  await page.getByRole("spinbutton", { name: "Goals", exact: true }).fill("30");
+  await page.getByRole("combobox", { name: "Player Type", exact: true }).selectOption("goalies");
+  await expect(page.getByRole("spinbutton", { name: "Wins", exact: true })).toHaveValue("0");
+  await page.getByRole("button", { name: "Apply Filters", exact: true }).click();
+  await expect(page).toHaveURL(/minWins=0/);
+});
+
+for (const width of [320, 390]) {
+  test(`compact player columns do not overlap at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/players");
+    const table = page.locator(".ux-player-results table").first();
+    await table.scrollIntoViewIfNeeded();
+    const firstRow = table.locator("tbody tr").first();
+    const player = await firstRow.getByRole("link").boundingBox();
+    const nextCell = await firstRow.locator("td").nth(1).boundingBox();
+    expect(player!.x + player!.width).toBeLessThanOrEqual(nextCell!.x);
+    expect(await table.evaluate(element => element.getBoundingClientRect().width)).toBeGreaterThan(width);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  });
+}

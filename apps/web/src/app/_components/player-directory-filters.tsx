@@ -222,6 +222,7 @@ export function PlayerDirectoryFilters({
               ) : (
                 <>
                   <NumberFilter
+                    key="goalie-wins"
                     label="Wins"
                     name="minWins"
                     value={filters.minWins}
