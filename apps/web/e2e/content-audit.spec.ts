@@ -6,6 +6,13 @@ for (const width of [390, 1280]) {
     await page.goto("/");
     await expect(page.getByRole("heading", { name: "NHL Overview" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Scoring Leaders" })).toBeVisible();
+    const scoring = page.getByRole("table", { name: "Scoring Leaders · Regular season · Top five", exact: true });
+    await expect(scoring.locator("tbody tr")).toHaveCount(5);
+    await expect(page.getByRole("heading", { name: "Goaltending", exact: true })).toBeVisible();
+    await expect(page.locator(".home-player-leader-link")).toHaveCount(3);
+    await scoring.getByRole("button", { name: "G", exact: true }).click();
+    const goals = await scoring.locator("tbody tr td:nth-child(3)").allTextContents();
+    expect(goals.map(Number)).toEqual(goals.map(Number).sort((a, b) => b - a));
     await expect(page.getByRole("heading", { name: "Recent Form" })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "Explore More" })).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

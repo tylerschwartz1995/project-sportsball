@@ -8547,3 +8547,31 @@ html[data-theme="light"] textarea {
 .workspace-standings-table .workspace-rank-cell {
   width: 4rem;
 }
+
+.home-player-leaders { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.home-player-leader-section { min-width: 0; padding: 1.25rem 1rem 1rem; }
+.home-player-leader-section + .home-player-leader-section { border-left: 1px solid var(--border); }
+.home-player-leader-section header { margin-bottom: 1rem; }
+.home-player-leader-section h3 { font-size: 1rem; font-weight: 650; }
+.home-player-leader-section header p, .home-player-leaders-note { color: var(--muted); font-size: .875rem; line-height: 1.5; }
+.home-player-leader-section header p { margin-top: .3rem; }
+.home-player-leader-table { table-layout: auto; width: 100%; }
+.home-player-leader-table th:first-child { text-align: left; padding-left: .25rem; }
+.home-player-leader-table td { height: 4rem; padding: .6rem .25rem; text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.home-player-leader-table td:first-child { text-align: left; white-space: normal; min-width: 8rem; }
+.home-player-leader-table thead button { padding-inline: .25rem; font-size: .875rem; }
+.home-player-leader-identity { display: flex; align-items: center; gap: .5rem; }
+.home-player-leader-name { font-weight: 550; line-height: 1.35; }
+.home-player-leader-team { display: flex; flex-direction: column; flex-shrink: 0; gap: .15rem; }
+.home-player-leader-value { color: var(--accent); font-weight: 700; }
+.home-player-leader-link { display: inline-block; margin-top: 1rem; color: var(--accent); font-size: .875rem; }
+.home-player-leaders-note { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; border-top: 1px solid var(--border); padding: .85rem 1rem; }
+.home-player-leaders-note details { max-width: 54rem; }
+.home-player-leaders-note details p { margin-top: .65rem; }
+.home-player-leaders-note a { color: var(--accent); white-space: nowrap; }
+.home-player-table-scroll { overflow-x: auto; }
+@media (max-width: 1100px) {
+  .home-player-leaders { grid-template-columns: minmax(0, 1fr); }
+  .home-player-leader-section + .home-player-leader-section { border-left: 0; border-top: 1px solid var(--border); }
+  .home-player-leaders-note { flex-wrap: wrap; }
+}

@@ -3,7 +3,7 @@ import { unstable_cache } from "next/cache";
 
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SiteHeader } from "@/app/_components/site-header";
-import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
+import { TeamLogo } from "@/app/_components/team-logo";
 import {
   WorkspacePageHeader,
   WorkspacePanel,
@@ -19,7 +19,8 @@ import { listSkaterLeadersBySeason } from "@/data/players";
 import { listCachedSeasons } from "@/data/page-cache";
 import { getStandings } from "@/data/standings";
 import { firstQueryValue } from "@/lib/directory";
-import { formatPlayerPosition } from "@/lib/player-position";
+import { HomePlayerLeaders } from "@/app/_components/home-player-leaders";
+import { listAdvancedSkaterLeaders, listAdvancedGoalieLeaders } from "@/data/advanced-leaderboard";
 
 export const dynamic = "force-dynamic";
 
@@ -33,8 +34,10 @@ const loadHomeSeasonData = unstable_cache(
       getStandings(seasonId),
       listSkaterLeadersBySeason(seasonId, 5),
       getLatestGamesForSeason(seasonId),
+      listAdvancedSkaterLeaders(seasonId, "all", 0),
+      listAdvancedGoalieLeaders(seasonId, "all", 0),
     ]),
-  ["home-season-data"],
+  ["home-season-data-player-overview"],
   { revalidate: 300 },
 );
 
@@ -55,11 +58,13 @@ export default async function Home({ searchParams }: HomeProps) {
         loadHomeSeasonData(selectedSeason.id),
         loadHomeUpcomingGames(),
       ])
-    : [[[], [], []], await loadHomeUpcomingGames()];
+    : [[[], [], [], [], []], await loadHomeUpcomingGames()];
   const [
     standings,
     scoringLeaders,
     latestGames,
+    advancedSkaters,
+    advancedGoalies,
   ] = seasonData;
 
   const latestDate = latestGames[0]?.gameDate;
@@ -165,39 +170,8 @@ export default async function Home({ searchParams }: HomeProps) {
               </WorkspacePanel>
             </div>
 
-            <div className="mt-5">
-              <WorkspacePanel
-                className="modern-scoring"
-                title="Scoring Leaders"
-                description="Regular season"
-                action={
-                  <Link href={`/players?season=${selectedSeason.id}`}>
-                    All Players →
-                  </Link>
-                }
-              >
-                <div className="workspace-leader-grid">
-                  {scoringLeaders.map((player, index) => (
-                    <Link
-                      key={player.nhlPlayerId}
-                      href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                    >
-                      <span>#{index + 1}</span>
-                      <b className="flex items-center gap-2">
-                        <TeamLogoStack teams={player.teams} />
-                        {player.name}
-                      </b>
-                      <small>
-                        {formatPlayerPosition(player.position, "Skater")} ·{" "}
-                        {player.gamesPlayed} GP
-                      </small>
-                      <strong>{player.points} PTS</strong>
-                    </Link>
-                  ))}
-                </div>
-              </WorkspacePanel>
+            <HomePlayerLeaders seasonId={selectedSeason.id} scoring={scoringLeaders} skaters={advancedSkaters} goalies={advancedGoalies} />
 
-            </div>
           </>
         ) : (
           <>
