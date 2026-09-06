@@ -175,15 +175,7 @@ async function HistoryOverviewContent({ phase }: { phase: SeasonPhase }) {
         <p>Career and single-season leaders for skaters, goalies, and teams.</p>
       </section>
       <HistoryRecordBook overview={overview} phase={phase} />
-      <div className="workspace-history-chart-grid">
-        <HistoryRecordProgression points={overview.recordProgression} />
-        <HistoryScoringEnvironment points={overview.leagueTrend} />
-      </div>
-      <section className="workspace-history-discovery">
-        <Link href={`/history?section=peaks&phase=${phase}`}><span>3- and 5-season windows</span><strong>Peak Rankings →</strong></Link>
-        <Link href={`/history?section=eras&phase=${phase}`}><span>League-adjusted scoring rates</span><strong>Era-Adjusted Scoring →</strong></Link>
-        <Link href={`/history?section=seasons&entity=skaters&metric=points&phase=${phase}`}><span>Qualified historical rankings</span><strong>Single-Season Rankings →</strong></Link>
-      </section>
+      <details className="mt-5"><summary>Record Progression</summary><HistoryRecordProgression points={overview.recordProgression} /></details>
     </div>
   );
 }
@@ -315,7 +307,7 @@ async function HistoryPeaksContent({
         isOpen={hasCustomFilters(params, defaultMinimum)}
         minimumIsCustom={firstValue(params.minimumGames) !== undefined}
       />
-      <HistoryResultsSection title={`${metricLabel(metric)} Peaks`} description={`Showing ${pageStart(page, rows.length)}–${pageEnd(page, rows.length)} of ${totalRows.toLocaleString("en-CA")} eligible consecutive-season stretches.`}>
+      <HistoryResultsSection title={`${metricLabel(metric)} Peaks`} description={`Showing ${pageStart(page, rows.length)}–${pageEnd(page, rows.length)} of ${totalRows.toLocaleString("en-CA")} eligible consecutive-season stretches. A player may appear in multiple overlapping stretches.`}>
         <HistoryPeaksTable rows={rows} metricLabel={metricLabel(metric)} window={window} />
       </HistoryResultsSection>
       <Pagination path="/history" currentPage={page} totalPages={totalPages} params={{ ...historyQueryParams("peaks", phase, view, metric, filters), window }} scrollTarget="history-results" />
@@ -368,8 +360,7 @@ async function HistoryErasContent({
             </dl>
           </div>
         </section>
-        <HistoryScoringEnvironment key="goalies" points={leagueTrend} view="goalies" />
-        <HistoryGoalieDecadeLeaders rows={decades} minimumGames={decadeMinimumGames} />
+
         <HistoryFilters
           section="eras"
           view={view}
@@ -383,6 +374,8 @@ async function HistoryErasContent({
         <HistoryResultsSection title="Career Save Index" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games with recorded shot data. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible goalies.`}>
           <HistoryGoalieEraTable rows={scores} />
         </HistoryResultsSection>
+<details className="mt-5"><summary>League Environment and Decade Leaders</summary><p>League-wide context; ranking filters do not apply.</p><HistoryScoringEnvironment key="goalies" points={leagueTrend} view="goalies" />
+        <HistoryGoalieDecadeLeaders rows={decades} minimumGames={decadeMinimumGames} /></details>
         <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, view, metric, filters)} scrollTarget="history-results" />
       </div>
     );
@@ -410,8 +403,7 @@ async function HistoryErasContent({
           </dl>
         </div>
       </section>
-      <HistoryScoringEnvironment points={leagueTrend} />
-      <HistoryDecadeLeaders rows={decades} />
+
       <HistoryFilters
         section="eras"
         view={view}
@@ -425,6 +417,8 @@ async function HistoryErasContent({
       <HistoryResultsSection title="Career Era Scores" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible skaters.`}>
         <HistoryEraTable rows={scores} />
       </HistoryResultsSection>
+<details className="mt-5"><summary>League Environment and Decade Leaders</summary><p>League-wide context; ranking filters do not apply.</p><HistoryScoringEnvironment points={leagueTrend} />
+      <HistoryDecadeLeaders rows={decades} /></details>
       <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, view, metric, filters)} scrollTarget="history-results" />
     </div>
   );

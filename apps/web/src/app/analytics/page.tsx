@@ -1,10 +1,8 @@
+import { DataViews } from "@/app/_components/data-views";
 import Link from "next/link";
 
 import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
-import {
-  ColumnPresetTable,
-  type ColumnPreset,
-} from "@/app/_components/column-preset-table";
+import { SortableTable } from "@/app/_components/sortable-table";
 import {
   FilterActions,
   FilterHeader,
@@ -50,34 +48,6 @@ export const dynamic = "force-dynamic";
 const LEADERBOARD_TYPES = ["teams", "skaters", "goalies"] as const;
 const SITUATIONS = ["all", "5on5", "5on4", "4on5"] as const;
 const MINIMUM_MINUTES = [0, 100, 300, 500, 1000] as const;
-const ANALYTICS_COLUMN_PRESETS: ColumnPreset[] = [
-  {
-    value: "core",
-    label: "Core",
-    description: "Identity, workload, and the primary comparison metric.",
-  },
-  {
-    value: "possession",
-    label: "Possession",
-    description: "Shot-attempt and expected-goal share metrics.",
-  },
-  {
-    value: "shot-quality",
-    label: "Shot Quality",
-    description: "Expected-goal and expected-shot totals.",
-  },
-  {
-    value: "results",
-    label: "Results",
-    description: "Actual scoring and outcome metrics.",
-  },
-  {
-    value: "all",
-    label: "All Columns",
-    description: "Every available metric for expert analysis.",
-  },
-];
-
 type LeaderboardType = (typeof LEADERBOARD_TYPES)[number];
 type Situation = (typeof SITUATIONS)[number];
 
@@ -88,6 +58,7 @@ type AnalyticsPageProps = {
     situation?: string | string[];
     minimum?: string | string[];
     phase?: string | string[];
+    display?: string | string[];
     plotMetric?: string | string[];
     plotGroup?: string | string[];
     xMetric?: string | string[];
@@ -103,7 +74,7 @@ export default async function AnalyticsPage({
   searchParams,
 }: AnalyticsPageProps) {
   const params = await searchParams;
-  const chartParams = pickQueryParams(params, ["plotMetric", "plotGroup", "xMetric", "yMetric", "teamA", "teamB", "playerA", "playerB"]);
+  const chartParams = pickQueryParams(params, ["display","plotMetric", "plotGroup", "xMetric", "yMetric", "teamA", "teamB", "playerA", "playerB"]);
   const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const selectedSeason =
@@ -178,7 +149,7 @@ export default async function AnalyticsPage({
         <WorkspacePageHeader
           eyebrow="MoneyPuck leaderboards"
           title={`${selectedSeason?.label ?? "No Season"} Advanced Analytics`}
-          description={`Compare ${type === "teams" ? seasonPhaseLabel(phase).toLowerCase() : "regular-season"} shot quality, possession, individual creation, and goalie performance across the league. Player results remain split by team so traded-player context is preserved.`}
+          description={type === "teams" ? `${seasonPhaseLabel(phase)} shot quality and possession.` : type === "goalies" ? "Regular-season goaltending, split by team." : "Regular-season shot creation and on-ice results, split by team."}
           action={
             <SeasonPicker
               seasons={seasons}
@@ -227,13 +198,13 @@ export default async function AnalyticsPage({
                   phase={phase}
                   chartParams={chartParams}
                 />
-                <LeaderboardTable
+                <DataViews table={<>                 <LeaderboardTable
                   type={type}
                   rows={rows}
                   seasonId={selectedSeason.id}
                   phase={phase}
                 />
-                {type === "teams" ? (
+ </>} charts={<> <p className="mt-4 text-sm text-[var(--muted)]">{type === "teams" ? "Five-on-five process compared with team results; independent of the table situation." : `Up to 200 qualifying player-team rows, selected by ${type === "skaters" ? "Game Score" : "GSAx"}. Filters and comparisons operate within this sample.`}</p>                {type === "teams" ? (
                   <TeamComparisonScatterplot
                     points={comparisonPoints}
                     phase={phase}
@@ -251,6 +222,7 @@ export default async function AnalyticsPage({
                     points={goalieComparisonPoints}
                   />
                 ) : null}
+ </>} />
                 <AnalyticsGuide seasonId={selectedSeason.id} />
               </>
             ) : (
@@ -420,13 +392,13 @@ function TeamLeaderboard({
     >
       <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[920px]">
         <colgroup>
-          <col className="workspace-col-entity" data-column-group="core possession shot-quality results" />
-          <col className="workspace-col-number" data-column-group="core possession shot-quality results" />
-          <col className="workspace-col-time" data-column-group="core possession shot-quality results" />
-          <col className="workspace-col-percentage" data-column-group="core possession" />
-          <col className="workspace-col-percentage" span={2} data-column-group="possession" />
-          <col className="workspace-col-number" span={2} data-column-group="shot-quality" />
-          <col className="workspace-col-number" span={2} data-column-group="results" />
+          <col className="workspace-col-entity" />
+          <col className="workspace-col-number" />
+          <col className="workspace-col-time" />
+          <col className="workspace-col-percentage" />
+          <col className="workspace-col-percentage" span={2} />
+          <col className="workspace-col-number" span={2} />
+          <col className="workspace-col-number" span={2} />
         </colgroup>
         <thead>
           <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
@@ -487,13 +459,13 @@ function SkaterLeaderboard({
     >
       <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[980px]">
         <colgroup>
-          <col className="workspace-col-entity" data-column-group="core possession shot-quality results" />
-          <col className="workspace-col-number" data-column-group="core possession shot-quality results" />
-          <col className="workspace-col-time" data-column-group="core possession shot-quality results" />
-          <col className="workspace-col-split" data-column-group="core results" />
-          <col className="workspace-col-percentage" span={2} data-column-group="possession" />
-          <col className="workspace-col-number" data-column-group="shot-quality" />
-          <col className="workspace-col-number" span={2} data-column-group="results" />
+          <col className="workspace-col-entity" />
+          <col className="workspace-col-number" />
+          <col className="workspace-col-time" />
+          <col className="workspace-col-split" />
+          <col className="workspace-col-percentage" span={2} />
+          <col className="workspace-col-number" />
+          <col className="workspace-col-number" span={2} />
         </colgroup>
         <thead>
           <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
@@ -503,7 +475,7 @@ function SkaterLeaderboard({
             <SortableHeader label="Game score" sortKey="gameScore" metricGroup="core results" />
             <SortableHeader label="xG%" sortKey="xgPercentage" metricGroup="possession" />
             <SortableHeader label="CF%" sortKey="corsiPercentage" metricGroup="possession" />
-            <SortableHeader label="ixG" sortKey="individualXGoals" metricGroup="shot-quality" />
+            <SortableHeader label="ixG" sortKey="individualXGoals" metricGroup="core shot-quality" />
             <SortableHeader label="Goals" sortKey="goals" metricGroup="results" />
             <SortableHeader label="Points" sortKey="points" metricGroup="results" />
           </tr>
@@ -526,7 +498,7 @@ function SkaterLeaderboard({
               <ValueCell value={formatDecimal(row.gameScore)} highlight metricGroup="core results" />
               <ValueCell value={formatPercentage(row.onIceExpectedGoalsPercentage)} metricGroup="possession" />
               <ValueCell value={formatPercentage(row.onIceCorsiPercentage)} metricGroup="possession" />
-              <ValueCell value={formatDecimal(row.individualExpectedGoals)} metricGroup="shot-quality" />
+              <ValueCell value={formatDecimal(row.individualExpectedGoals)} metricGroup="core shot-quality" />
               <ValueCell value={formatDecimal(row.individualGoals, 0)} metricGroup="results" />
               <ValueCell value={formatDecimal(row.individualPoints, 0)} metricGroup="results" />
             </tr>
@@ -552,14 +524,14 @@ function GoalieLeaderboard({
     >
       <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[860px]">
         <colgroup>
-          <col className="workspace-col-entity" data-column-group="core shot-quality results" />
-          <col className="workspace-col-number" data-column-group="core shot-quality results" />
-          <col className="workspace-col-time" data-column-group="core shot-quality results" />
-          <col className="workspace-col-differential" data-column-group="core shot-quality results" />
-          <col className="workspace-col-number" data-column-group="shot-quality" />
-          <col className="workspace-col-number" data-column-group="results" />
-          <col className="workspace-col-split" data-column-group="shot-quality" />
-          <col className="workspace-col-number" data-column-group="results" />
+          <col className="workspace-col-entity" />
+          <col className="workspace-col-number" />
+          <col className="workspace-col-time" />
+          <col className="workspace-col-differential" />
+          <col className="workspace-col-number" />
+          <col className="workspace-col-number" />
+          <col className="workspace-col-split" />
+          <col className="workspace-col-number" />
         </colgroup>
         <thead>
           <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
@@ -616,16 +588,15 @@ function LeaderboardFrame({
     <section className="mt-8">
       <div className="mb-4 flex items-center justify-between gap-3 text-sm text-[var(--muted)]">
         <p>{description}</p>
-        <p>{count === 200 ? "Top 200 qualifying rows" : `${count} qualifying rows`}</p>
+        <p>{count === 200 ? `Top 200 by ${description === "Goalie results" ? "GSAx" : "Game Score"}; sorting applies to this sample` : `${count} qualifying rows`}</p>
       </div>
-      <ColumnPresetTable
-        presets={ANALYTICS_COLUMN_PRESETS}
+      <SortableTable
         defaultSortKey={defaultSortKey}
       >
         <DataTableShell>
           <div className="workspace-table-scroll">{children}</div>
         </DataTableShell>
-      </ColumnPresetTable>
+      </SortableTable>
     </section>
   );
 }
@@ -693,16 +664,6 @@ function AnalyticsGuide({ seasonId }: { seasonId: number }) {
   return (
     <section className="mt-8 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-start">
       <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-5 text-sm leading-6 text-[var(--muted)]">
-        <p>
-          <strong className="text-[var(--foreground-soft)]">xG%</strong> is the share of
-          expected goals. <strong className="text-[var(--foreground-soft)]">CF%</strong> is the
-          share of all shot attempts, while{" "}
-          <strong className="text-[var(--foreground-soft)]">FF%</strong> excludes blocked
-          attempts. <strong className="text-[var(--foreground-soft)]">ixG</strong>{" "}
-          estimates the goals created by an individual player&apos;s shots.{" "}
-          <strong className="text-[var(--foreground-soft)]">GSAx</strong> is expected goals
-          against minus actual goals against; positive is better.
-        </p>
         <Link
           href={`/analytics/guide?season=${seasonId}`}
           className="mt-3 inline-block font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"

@@ -238,7 +238,6 @@ function RecentFormSection({
             Last {gameCount} Games
           </h3>
         </div>
-        <p className="text-sm text-[var(--muted)]">Newest game appears first</p>
       </div>
       {children}
     </section>
@@ -269,7 +268,7 @@ function SkaterGameTable({
       detail={`${gamePage.firstItem}–${gamePage.lastItem} of ${gamePage.totalItems} games`}
       note="Game score, individual xG, and on-ice xG% are MoneyPuck all-situations metrics. Advanced player data covers regular-season games from 2008–09 onward."
     >
-      <SortableTable defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
+      <SortableTable secondaryColumns={[2, 10, 12, 13, 15, 16, 17]} initialExpanded={["type", "plusMinus", "hits", "blockedShots", "gameScore", "individualXGoals", "onIceXGoalsPercentage"].includes(sort)} defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
         <div className="workspace-table-scroll-viewport">
           <table className="workspace-table-dense workspace-sticky-table-header w-full min-w-[1380px] text-sm">
             <thead>
@@ -345,7 +344,7 @@ function GoalieGameTable({
       detail={`${gamePage.firstItem}–${gamePage.lastItem} of ${gamePage.totalItems} games`}
       note="Expected goals against and GSAx are MoneyPuck all-situations metrics. Advanced player data covers regular-season games from 2008–09 onward."
     >
-      <SortableTable defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
+      <SortableTable secondaryColumns={[2, 7, 11, 14, 15]} initialExpanded={["type", "starter", "saves", "expectedGoalsAgainst", "goalsSavedAboveExpected"].includes(sort)} defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
         <div className="workspace-table-scroll-viewport">
           <table className="workspace-table-dense workspace-sticky-table-header w-full min-w-[1220px] text-sm">
             <thead>

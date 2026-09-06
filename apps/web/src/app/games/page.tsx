@@ -1,3 +1,5 @@
+import { SeasonPicker } from "@/app/_components/season-picker";
+import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -103,7 +105,7 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
               ? `${selectedSeason.label} NHL Schedule`
               : "No Schedule Available"
           }
-          description="Every NHL matchup, final score, and shot total from the selected date, using the team name active in that season."
+          description=""
         />
 
         {selectedSeason && selectedDate && gameDates.length > 0 ? (
@@ -155,10 +157,14 @@ export default async function GamesPage({ searchParams }: GamesPageProps) {
             )}
           </>
         ) : (
+          <>
+          <SeasonPicker seasons={seasons} selectedSeasonId={selectedSeason?.id} params={{ phase }} />
+          <SeasonPhaseFilter active={phase} path="/games" params={{ season: selectedSeason?.id }} />
           <div className="workspace-empty-state mt-10">
             <strong>No schedule is available.</strong>
             <span>The selected season and phase do not have any available game dates.</span>
           </div>
+          </>
         )}
       </section>
     </main>
@@ -171,9 +177,6 @@ function GameCard({ game }: { game: GameSummary }) {
   return (
     <article className="workspace-game-card">
       <div className="workspace-game-card-header">
-        <span>
-          {game.gameType === 3 ? "Playoffs" : "Regular season"}
-        </span>
         <strong data-complete={completed}>
           {completed ? finalLabel(game.lastPeriodType) : formatGameState(game.state)}
         </strong>
@@ -222,16 +225,16 @@ function TeamLine({
           <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
             {team.name}
           </Link>
-          <TeamGameRecord record={team.record} />
+          {team.score !== null ? <TeamGameRecord record={team.record} /> : null}
         </div>
         <p>
           {team.shotsOnGoal === null
-            ? "Shots unavailable"
+            ? team.score !== null ? "Shots unavailable" : null
             : `${team.shotsOnGoal} shots`}
         </p>
       </div>
       <strong>
-        {team.score ?? "—"}
+        {team.score ?? ""}
       </strong>
     </div>
   );

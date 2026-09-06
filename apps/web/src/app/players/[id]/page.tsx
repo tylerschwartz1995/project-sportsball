@@ -1,3 +1,5 @@
+import { getPlayerCareer } from "@/data/player-career";
+import { PlayerCareer } from "@/app/_components/player-career";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -6,8 +8,6 @@ import { PlayerRollingPerformanceChart } from "@/app/_components/lazy-charts";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { SiteHeader } from "@/app/_components/site-header";
-import { SortableHeader } from "@/app/_components/sortable-header";
-import { SortableTable } from "@/app/_components/sortable-table";
 import { TeamLogoStack } from "@/app/_components/team-logo";
 import { ViewTabs } from "@/app/_components/view-tabs";
 import { parseNhlId } from "@/contracts/entity";
@@ -26,10 +26,6 @@ import { getPlayerGameLog } from "@/data/game-logs";
 import { getPlayerDetail } from "@/data/players";
 import { listCachedSeasons } from "@/data/page-cache";
 import { countryName } from "@/lib/country-name";
-import {
-  goalieCareerTotals,
-  skaterCareerTotals,
-} from "@/lib/player-career-totals";
 import { formatPlayerPositionLong } from "@/lib/player-position";
 
 export const dynamic = "force-dynamic";
@@ -69,21 +65,38 @@ export default async function PlayerPage({
     chartMetric: firstValue(pageParams.chartMetric),
   };
 
-  const [detail, seasons] = await Promise.all([
+  const [detail, seasons, careerArchive] = await Promise.all([
     getPlayerDetail(nhlPlayerId),
     listCachedSeasons(),
+    getPlayerCareer(nhlPlayerId),
   ]);
   if (!detail) {
     notFound();
   }
 
+  const careerKeys = new Set(careerArchive.map(row => `${row.kind}-${row.seasonId}-${row.gameType}`));
+  const career = [
+    ...careerArchive,
+    ...detail.skaterSeasons.filter(row => !careerKeys.has(`skater-${row.seasonId}-${row.gameType}`)).map(row => ({
+      kind: "skater" as const, seasonId: row.seasonId, gameType: row.gameType,
+      teams: row.teams.map(team => team.abbreviation).join(","), games: row.gamesPlayed,
+      goals: row.goals, assists: row.assists, points: row.points, wins: null, saves: null, shotsAgainst: null,
+    })),
+    ...detail.goalieSeasons.filter(row => !careerKeys.has(`goalie-${row.seasonId}-${row.gameType}`)).map(row => ({
+      kind: "goalie" as const, seasonId: row.seasonId, gameType: row.gameType,
+      teams: row.teams.map(team => team.abbreviation).join(","), games: row.gamesPlayed,
+      goals: null, assists: null, points: null, wins: row.wins, saves: row.saves, shotsAgainst: row.shotsAgainst,
+    })),
+  ].sort((left, right) => right.seasonId - left.seasonId);
   const careerSeasonIds = new Set([
+    ...career.map(row => row.seasonId),
     ...detail.skaterSeasons.map((row) => row.seasonId),
     ...detail.goalieSeasons.map((row) => row.seasonId),
   ]);
-  const careerSeasons = seasons.filter((season) =>
-    careerSeasonIds.has(season.id),
-  );
+  const careerSeasons = [...careerSeasonIds].sort((a, b) => b - a).map(id => ({
+    id, startYear: Math.floor(id / 10000), endYear: id % 10000,
+    label: `${Math.floor(id / 10000)}–${String(id % 10000).slice(-2)}`,
+  }));
   const requestedSeason = parseSeasonId(firstValue(pageParams.season));
   const phase = parseSeasonPhase(firstValue(pageParams.phase));
   const selectedSeason =
@@ -182,13 +195,13 @@ export default async function PlayerPage({
             </div>
             <p className="mt-4 text-base text-[var(--muted)]">
               {selectedSeason
-                ? `${selectedSeason.label} and career statistics`
+                ? view === "seasons" ? "Career statistics" : `${selectedSeason.label} statistics`
                 : "Player profile"}
             </p>
           </div>
           {careerSeasons.length > 0 ? (
             <div className="workspace-page-actions">
-              {selectedSeason ? (
+              {selectedSeason && seasons.some(season => season.id === selectedSeason.id) ? (
                 <Link
                   href={`/players/compare?season=${selectedSeason.id}&phase=${phase}&type=${profile.position === "G" ? "goalies" : "skaters"}&players=${profile.nhlPlayerId}`}
                   className="workspace-secondary-action"
@@ -196,11 +209,11 @@ export default async function PlayerPage({
                   Compare Player
                 </Link>
               ) : null}
-              <SeasonPicker
+              {view !== "seasons" ? <SeasonPicker
                 seasons={careerSeasons}
                 selectedSeasonId={selectedSeason?.id}
                 params={{ phase, view, ...chartParams }}
-              />
+              /> : null}
             </div>
           ) : null}
         </div>
@@ -215,7 +228,7 @@ export default async function PlayerPage({
               seasonId: selectedSeason.id,
               phase,
               chartParams,
-            })}
+            }).filter(tab => (tab.id !== "advanced" || (phase === "regular" && selectedSeason.id >= 20082009)) && (tab.id !== "trends" || seasons.some(season => season.id === selectedSeason.id)))}
           />
         ) : null}
 
@@ -229,6 +242,38 @@ export default async function PlayerPage({
 
         {view === "overview" ? (
         <>
+
+        {!regularSkater && !playoffSkater && !regularGoalie && !playoffGoalie && career.length > 0 ? <PlayerCareer rows={career} playerId={nhlPlayerId} phase={phase} selectedSeason={selectedSeason?.id} /> : null}
+        {regularSkater || playoffSkater ? (
+          <section className="workspace-player-overview-block mt-8">
+            <SectionTitle
+              eyebrow="Selected season"
+              title="Skater Totals"
+            />
+            <div className="mt-4">
+              <SkaterPanel
+                title={seasonPhaseLabel(phase)}
+                stats={phase === "playoffs" ? playoffSkater : regularSkater}
+              />
+            </div>
+          </section>
+        ) : null}
+
+        {regularGoalie || playoffGoalie ? (
+          <section className="workspace-player-overview-block mt-8">
+            <SectionTitle
+              eyebrow="Selected season"
+              title="Goalie Totals"
+            />
+            <div className="mt-4">
+              <GoaliePanel
+                title={seasonPhaseLabel(phase)}
+                stats={phase === "playoffs" ? playoffGoalie : regularGoalie}
+              />
+            </div>
+          </section>
+        ) : null}
+
         <dl className="workspace-player-overview-block workspace-player-profile-facts mt-8">
           <ProfileStat
             label="Born"
@@ -261,52 +306,12 @@ export default async function PlayerPage({
             }
           />
         </dl>
-
-        {regularSkater || playoffSkater ? (
-          <section className="workspace-player-overview-block mt-8">
-            <SectionTitle
-              eyebrow="Selected season"
-              title="Skater Totals"
-            />
-            <div className="mt-4">
-              <SkaterPanel
-                title={seasonPhaseLabel(phase)}
-                stats={phase === "playoffs" ? playoffSkater : regularSkater}
-              />
-            </div>
-          </section>
-        ) : null}
-
-        {regularGoalie || playoffGoalie ? (
-          <section className="workspace-player-overview-block mt-8">
-            <SectionTitle
-              eyebrow="Selected season"
-              title="Goalie Totals"
-            />
-            <div className="mt-4">
-              <GoaliePanel
-                title={seasonPhaseLabel(phase)}
-                stats={phase === "playoffs" ? playoffGoalie : regularGoalie}
-              />
-            </div>
-          </section>
-        ) : null}
-
-        {selectedSeason ? (
+        {selectedSeason && seasons.some(season => season.id === selectedSeason.id) ? (
           <Link
             href={`/players/${profile.nhlPlayerId}/games?season=${selectedSeason.id}&phase=${phase}`}
-            className="workspace-player-overview-block mt-5 flex items-center justify-between gap-4 rounded-2xl border border-[color-mix(in_srgb,var(--accent)_42%,var(--border))] bg-[var(--accent-soft)] px-5 py-4 transition hover:border-[color-mix(in_srgb,var(--accent)_64%,var(--border))] hover:bg-[color-mix(in_srgb,var(--accent)_18%,var(--surface))]"
+            className="workspace-secondary-action mt-5"
           >
-            <span>
-              <span className="block font-medium text-[var(--foreground)]">
-                Explore the {selectedSeason.label} game log
-              </span>
-              <span className="mt-1 block text-sm text-[var(--muted)]">
-                Game-by-game performance, recent form, and available advanced
-                metrics.
-              </span>
-            </span>
-            <span className="shrink-0 text-[var(--accent)]">View games →</span>
+            Detailed Game Log →
           </Link>
         ) : null}
         </>
@@ -371,72 +376,7 @@ export default async function PlayerPage({
         </>
         ) : null}
 
-        {view === "seasons" ? (
-        <>
-        {detail.skaterSeasons.length > 0 ? (
-          <section className="workspace-width-standard mt-8">
-            <SectionTitle
-              eyebrow="Career history"
-              title="Skater Seasons"
-              detail={`${careerSeasonIds.size} NHL seasons`}
-            />
-            <div className="mt-5 grid gap-6">
-              <HistoryGroup title="Regular Season">
-                <SkaterHistory
-                  rows={detail.skaterSeasons.filter(
-                    (row) => row.gameType === 2,
-                  )}
-                  seasonLabels={new Map(
-                    seasons.map((season) => [season.id, season.label]),
-                  )}
-                />
-              </HistoryGroup>
-              <HistoryGroup title="Playoffs">
-                <SkaterHistory
-                  rows={detail.skaterSeasons.filter(
-                    (row) => row.gameType === 3,
-                  )}
-                  seasonLabels={new Map(
-                    seasons.map((season) => [season.id, season.label]),
-                  )}
-                />
-              </HistoryGroup>
-            </div>
-          </section>
-        ) : null}
-        {detail.goalieSeasons.length > 0 ? (
-          <section className="workspace-width-standard mt-8">
-            <SectionTitle
-              eyebrow="Career history"
-              title="Goalie Seasons"
-              detail={`${careerSeasonIds.size} NHL seasons`}
-            />
-            <div className="mt-5 grid gap-6">
-              <HistoryGroup title="Regular Season">
-                <GoalieHistory
-                  rows={detail.goalieSeasons.filter(
-                    (row) => row.gameType === 2,
-                  )}
-                  seasonLabels={new Map(
-                    seasons.map((season) => [season.id, season.label]),
-                  )}
-                />
-              </HistoryGroup>
-              <HistoryGroup title="Playoffs">
-                <GoalieHistory
-                  rows={detail.goalieSeasons.filter(
-                    (row) => row.gameType === 3,
-                  )}
-                  seasonLabels={new Map(
-                    seasons.map((season) => [season.id, season.label]),
-                  )}
-                />
-              </HistoryGroup>
-            </div>
-          </section>
-        ) : null}
-        </>
-        ) : null}
+        {view === "seasons" ? <PlayerCareer rows={career} playerId={nhlPlayerId} phase={phase} /> : null}
       </section>
     </main>
   );
@@ -449,6 +389,7 @@ function ProfileStat({
   label: string;
   value: React.ReactNode;
 }) {
+  if (value === "Unavailable") return null;
   return (
     <div className="workspace-player-profile-fact">
       <dt>{label}</dt>
@@ -501,12 +442,10 @@ function SkaterPanel({
         <Metric label="GP" value={stats.gamesPlayed} />
         <Metric label="G" value={stats.goals} />
         <Metric label="A" value={stats.assists} />
-        <Metric label="+/-" value={formatSigned(stats.plusMinus)} />
-        <Metric label="PIM" value={stats.penaltyMinutes} />
         <Metric label="PPG" value={stats.powerPlayGoals} />
         <Metric label="Shots" value={stats.shotsOnGoal} />
-        <Metric label="Teams" value={stats.teamsPlayedFor} />
       </dl>
+      <details className="mt-3"><summary>More Season Stats</summary><dl className="workspace-player-season-totals-grid"><Metric label="+/-" value={formatSigned(stats.plusMinus)} /><Metric label="PIM" value={stats.penaltyMinutes} /></dl></details>
     </article>
   );
 }
@@ -531,14 +470,9 @@ function GoaliePanel({
       </div>
       <dl className="workspace-player-season-totals-grid">
         <Metric label="GP" value={stats.gamesPlayed} />
-        <Metric label="GS" value={stats.gamesStarted} />
         <Metric label="W" value={stats.wins} />
-        <Metric label="L" value={stats.losses} />
-        <Metric label="OTL" value={stats.overtimeLosses} />
-        <Metric label="GA" value={stats.goalsAgainst} />
-        <Metric label="Saves" value={stats.saves} />
-        <Metric label="Teams" value={stats.teamsPlayedFor} />
       </dl>
+      <details className="mt-3"><summary>More Season Stats</summary><dl className="workspace-player-season-totals-grid"><Metric label="GS" value={stats.gamesStarted} /><Metric label="L" value={stats.losses} /><Metric label="OTL" value={stats.overtimeLosses} /><Metric label="GA" value={stats.goalsAgainst} /><Metric label="Saves" value={stats.saves} /></dl></details>
     </article>
   );
 }
@@ -561,188 +495,6 @@ function Metric({ label, value }: { label: string; value: number | string }) {
   );
 }
 
-function SkaterHistory({
-  rows,
-  seasonLabels,
-}: {
-  rows: SkaterSeasonSummary[];
-  seasonLabels: Map<number, string>;
-}) {
-  const totals = skaterCareerTotals(rows);
-
-  return (
-    <HistoryTable
-      headers={["Season", "Team(s)", "GP", "G", "A", "PTS", "+/-", "PIM"]}
-      rows={rows.map((row) => [
-        seasonLabels.get(row.seasonId) ?? String(row.seasonId),
-        <TeamLogoStack
-          key={`teams-${row.seasonId}-${row.gameType}`}
-          teams={row.teams}
-          size="tiny"
-        />,
-        row.gamesPlayed,
-        row.goals,
-        row.assists,
-        row.points,
-        formatSigned(row.plusMinus),
-        row.penaltyMinutes,
-      ])}
-      totalValues={[
-        totals.gamesPlayed,
-        totals.goals,
-        totals.assists,
-        totals.points,
-        formatSigned(totals.plusMinus),
-        totals.penaltyMinutes,
-      ]}
-    />
-  );
-}
-
-function GoalieHistory({
-  rows,
-  seasonLabels,
-}: {
-  rows: GoalieSeasonSummary[];
-  seasonLabels: Map<number, string>;
-}) {
-  const totals = goalieCareerTotals(rows);
-
-  return (
-    <HistoryTable
-      headers={["Season", "Team(s)", "GP", "GS", "W", "L", "OTL", "SV%"]}
-      rows={rows.map((row) => [
-        seasonLabels.get(row.seasonId) ?? String(row.seasonId),
-        <TeamLogoStack
-          key={`teams-${row.seasonId}-${row.gameType}`}
-          teams={row.teams}
-          size="tiny"
-        />,
-        row.gamesPlayed,
-        row.gamesStarted,
-        row.wins,
-        row.losses,
-        row.overtimeLosses,
-        formatSavePercentage(row.savePercentage),
-      ])}
-      totalValues={[
-        totals.gamesPlayed,
-        totals.gamesStarted,
-        totals.wins,
-        totals.losses,
-        totals.overtimeLosses,
-        formatSavePercentage(totals.savePercentage),
-      ]}
-    />
-  );
-}
-
-function HistoryTable({
-  headers,
-  rows,
-  totalValues,
-}: {
-  headers: string[];
-  rows: React.ReactNode[][];
-  totalValues: React.ReactNode[];
-}) {
-  if (rows.length === 0) {
-    return (
-      <p className="rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-5 text-sm text-[var(--muted)]">
-        No appearances.
-      </p>
-    );
-  }
-
-  return (
-    <div className="min-w-0 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
-      <SortableTable defaultSortKey={headers[0]} defaultDirection="desc">
-        <div className="min-w-0 max-w-full overflow-x-auto">
-          <table className="modern-player-history workspace-table workspace-table-dense workspace-table-semantic min-w-[700px]">
-            <colgroup>
-              <col className="workspace-col-season" />
-              <col className="workspace-col-team" />
-              <col className="workspace-col-number" span={Math.max(headers.length - 2, 0)} />
-            </colgroup>
-            <thead>
-              <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
-                {headers.map((header, index) => (
-                  <SortableHeader
-                    key={header}
-                    label={header}
-                    sortKey={header}
-                    align={index === 0 ? "left" : "right"}
-                    defaultDirection={index === 0 ? "asc" : "desc"}
-                  />
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row, rowIndex) => (
-                <tr
-                  key={`${String(row[0])}-${rowIndex}`}
-                  className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0"
-                >
-                  {row.map((value, index) => (
-                    <td
-                      key={`${headers[index]}-${index}`}
-                      className={`px-4 py-3 tabular-nums ${
-                        index >= 2 ? "workspace-semantic-number " : ""
-                      }${
-                        index === 0 ? "text-left" : "text-right"
-                      } ${index === 4 ? "font-semibold text-[var(--accent)]" : ""}`}
-                    >
-                      {value}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-            <tfoot>
-              <tr className="workspace-player-history-total">
-                <th
-                  scope="row"
-                  colSpan={2}
-                  className="px-4 py-3 text-left"
-                >
-                  Career Total
-                </th>
-                {totalValues.map((value, index) => (
-                  <td
-                    key={`${headers[index + 2]}-total`}
-                    className={`workspace-semantic-number px-4 py-3 text-right tabular-nums ${
-                      index === 2
-                        ? "workspace-player-history-total-highlight"
-                        : ""
-                    }`}
-                  >
-                    {value}
-                  </td>
-                ))}
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      </SortableTable>
-    </div>
-  );
-}
-
-function HistoryGroup({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="min-w-0">
-      <h4 className="mb-3 text-sm font-semibold text-[var(--foreground)]">{title}</h4>
-      {children}
-    </div>
-  );
-}
-
 function formatDraft(profile: {
   draftYear: number | null;
   draftTeamAbbreviation: string | null;
@@ -750,7 +502,7 @@ function formatDraft(profile: {
   draftOverallPick: number | null;
 }): string {
   if (!profile.draftYear) {
-    return "Undrafted";
+    return "Unavailable";
   }
   const parts = [
     String(profile.draftYear),

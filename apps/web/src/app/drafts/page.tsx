@@ -1,3 +1,4 @@
+import { DeferredSection } from "@/app/_components/deferred-section";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 
@@ -376,7 +377,7 @@ function DraftBoardView({
   const outcomePage = paginate(
     sortDraftOutcomes(filteredOutcomes, sort, direction),
     parsePage(firstQueryValue(params.page)),
-    75,
+    25,
   );
   const selectedYear = analytics.allYears
     ? "all"
@@ -531,7 +532,7 @@ function PlayerOutcomesView({ analytics }: { analytics: DraftAnalytics }) {
             <DraftOutcomePlot outcomes={plotOutcomes} />
           </div>
 
-          <WorkspacePanel
+          <details className="mt-5"><summary>Class Leaders by Career GP</summary><WorkspacePanel
             className="mt-7"
             title="Class Leaders"
             description="Players with the most stored regular-season NHL games from this draft class."
@@ -553,7 +554,7 @@ function PlayerOutcomesView({ analytics }: { analytics: DraftAnalytics }) {
                 No player from this class has a stored NHL appearance yet.
               </div>
             )}
-          </WorkspacePanel>
+          </WorkspacePanel></details>
         </>
       ) : (
         <div className="workspace-empty-state mt-7">
@@ -613,11 +614,11 @@ function TeamDraftingView({
               toYear={analytics.selectedToYear}
             />
           ) : null}
-          <TeamDraftingVisuals
+          <DeferredSection title="Team Comparison Charts"><TeamDraftingVisuals
             rows={analytics.teamPerformance}
             fromYear={analytics.selectedFromYear}
             toYear={analytics.selectedToYear}
-          />
+          /></DeferredSection>
         </>
       ) : (
         <div className="workspace-empty-state mt-7">
@@ -690,7 +691,7 @@ function ClassRankingsView({
           scrollTarget="class-rankings"
         />
       </WorkspacePanel>
-      <ClassRankingVisuals rows={matureRows} />
+      <DeferredSection title="Class Distributions"><ClassRankingVisuals rows={matureRows} /></DeferredSection>
     </>
   ) : (
     <div className="workspace-empty-state mt-7">
@@ -738,7 +739,7 @@ function DraftBoardFilters({
       <input type="hidden" name="from" value={fromYear ?? ""} />
       <input type="hidden" name="to" value={toYear ?? ""} />
       <FilterHeader
-        description="Selections refresh as soon as you choose an option."
+        description=""
         activeCount={activeFilterCount}
         autoApply
       />
@@ -1094,7 +1095,7 @@ function TeamPerformanceTable({
   toYear: number | null;
 }) {
   return (
-    <SortableTable defaultSortKey="hundred-rate">
+    <SortableTable secondaryColumns={[6, 7, 8, 9]} defaultSortKey="hundred-rate">
       <div className="workspace-table-scroll">
         <table className="workspace-table workspace-table-dense min-w-[1320px]">
           <thead>
@@ -1187,33 +1188,6 @@ function TeamPickOutcomesPanel({
       description={`${windowLabel} · Career outcomes for the ${picks.length} selections used in the team ranking.`}
       closeHref={`/drafts?view=teams&from=${fromYear ?? ""}&to=${toYear ?? ""}#team-rankings`}
     >
-      <dl className="workspace-team-pick-summary">
-        <TeamPickSummaryItem label="Picks" value={team.selections} />
-        <TeamPickSummaryItem
-          label="NHL Rate"
-          value={formatPercentage(team.appearanceRate)}
-        />
-        <TeamPickSummaryItem
-          label="100+ Rate"
-          value={formatPercentage(team.hundredGameRate)}
-        />
-        <TeamPickSummaryItem
-          label="GP / Pick"
-          value={Math.round(team.averageGames)}
-        />
-        <TeamPickSummaryItem
-          label="Value +/-"
-          value={formatSignedNumber(team.valueAboveExpected)}
-        />
-        <TeamPickSummaryItem
-          label="GS / Skater"
-          value={
-            team.gameScorePerSkaterPick === null
-              ? "—"
-              : Math.round(team.gameScorePerSkaterPick)
-          }
-        />
-      </dl>
       <TeamPickOutcomesTable rows={picks} />
       <div className="workspace-table-note">
         GP, points, and wins are career regular-season totals. Game Score is
@@ -1222,21 +1196,6 @@ function TeamPickOutcomesPanel({
         as unavailable, not zero.
       </div>
     </WorkspaceModal>
-  );
-}
-
-function TeamPickSummaryItem({
-  label,
-  value,
-}: {
-  label: string;
-  value: number | string;
-}) {
-  return (
-    <div>
-      <dt>{label}</dt>
-      <dd>{value}</dd>
-    </div>
   );
 }
 
@@ -1381,7 +1340,7 @@ function ClassPerformanceTable({
 
   return (
     <>
-      <aside
+<details><summary>Ranking Definitions and Heatmap</summary>      <aside
         className="workspace-class-ranking-guide"
         aria-label="How to read the class ranking metrics"
       >
@@ -1427,8 +1386,8 @@ function ClassPerformanceTable({
             </dd>
           </div>
         </dl>
-      </aside>
-      <SortableTable
+      </aside></details>
+      <SortableTable secondaryColumns={[8]} initialExpanded={sort === "game-score"}
         defaultSortKey={sort}
         defaultDirection={direction}
         urlBacked
@@ -1448,7 +1407,7 @@ function ClassPerformanceTable({
               <col className="workspace-class-rankings-score-col" />
             </colgroup>
             <thead>
-              <tr className="workspace-class-ranking-groups" aria-hidden="true">
+              <tr className="workspace-class-ranking-groups" aria-hidden="true" data-column-groups>
                 <th colSpan={2}>Class</th>
                 <th colSpan={3}>Milestone Rates</th>
                 <th colSpan={2}>Career Return</th>
@@ -1546,10 +1505,6 @@ function buildOutcomeInsights(
   const appearances = outcomes.filter((player) => player.careerGames > 0).length;
   const hundredGamePlayers = outcomes.filter((player) => player.careerGames >= 100).length;
   const totalGames = outcomes.reduce((total, player) => total + player.careerGames, 0);
-  const leader = [...outcomes]
-    .filter((outcome) => outcome.careerGames > 0)
-    .sort((left, right) => right.careerGames - left.careerGames)[0];
-
   if (isDeveloping) {
     return [
       {
@@ -1567,11 +1522,7 @@ function buildOutcomeInsights(
         value: totalGames.toLocaleString("en-CA"),
         detail: "Combined regular-season games",
       },
-      {
-        label: "Games Leader",
-        value: leader?.name ?? "—",
-        detail: leader ? `${leader.careerGames.toLocaleString("en-CA")} GP` : "No appearances yet",
-      },
+
     ];
   }
 

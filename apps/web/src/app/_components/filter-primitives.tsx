@@ -5,7 +5,6 @@ export function FilterHeader({
   title = "Filters",
   description,
   activeCount = 0,
-  autoApply = false,
 }: {
   title?: string;
   description?: string;
@@ -18,13 +17,7 @@ export function FilterHeader({
         <strong>{title}</strong>
         {description ? <span>{description}</span> : null}
       </div>
-      <small>
-        {activeCount > 0
-          ? `${activeCount} active ${activeCount === 1 ? "filter" : "filters"}`
-          : autoApply
-            ? "Updates automatically"
-            : "No extra filters"}
-      </small>
+      {activeCount > 0 ? <small>{activeCount} active {activeCount === 1 ? "filter" : "filters"}</small> : null}
     </header>
   );
 }
@@ -49,11 +42,7 @@ export function FilterActions({
       </button>
       {canClear ? (
         <Link href={clearHref}>{clearLabel}</Link>
-      ) : (
-        <span className="workspace-disabled-action" aria-disabled="true">
-          {clearLabel}
-        </span>
-      )}
+      ) : null}
       {children}
     </div>
   );

@@ -47,7 +47,7 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
         <WorkspacePageHeader
           eyebrow="Team directory"
           title={`${selectedSeason?.label ?? "No Season"} Teams`}
-          description="Select any club to open its season profile, roster, games, and analytics."
+          description=""
           descriptionClassName="workspace-description-single-line"
           action={
             <SeasonPicker
@@ -69,7 +69,6 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
                   >
                     <div>
                       <h3>{division.name}</h3>
-                      <span>{division.teams.length} teams</span>
                     </div>
                     <div className="workspace-team-directory">
                       {division.teams.map(({ team }) => (
@@ -86,7 +85,6 @@ export default async function TeamsPage({ searchParams }: TeamsPageProps) {
                           />
                           <span>
                             <strong>{team.name}</strong>
-                            <small>{team.abbreviation}</small>
                           </span>
                           <span aria-hidden="true">→</span>
                         </Link>

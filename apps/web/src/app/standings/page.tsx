@@ -81,7 +81,7 @@ export default async function StandingsPage({
           eyebrow="League / Standings"
           title={
             selectedSeason
-              ? `${selectedSeason.label} Final Standings`
+              ? `${selectedSeason.label} Standings`
               : "No Standings Available"
           }
           description="Official NHL regular-season rankings with overall, conference, and division views."
@@ -96,7 +96,7 @@ export default async function StandingsPage({
 
         {leader && selectedSeason ? (
           <>
-            <div className="workspace-width-standard">
+            {display === "standings" ? <div className="workspace-width-standard">
               <nav
                 className="workspace-standings-scope"
                 aria-label="Standings grouping"
@@ -114,7 +114,7 @@ export default async function StandingsPage({
                   ),
                 )}
               </nav>
-            </div>
+            </div> : null}
 
             <ViewTabs
               active={display}
@@ -124,7 +124,7 @@ export default async function StandingsPage({
               tabs={[
                 {
                   id: "standings",
-                  label: "Standings Tables",
+                  label: "Standings",
                   href: `/standings?season=${selectedSeason.id}&view=${view}&display=standings&sort=${activeSort}&dir=${direction}`,
                 },
                 {
@@ -151,9 +151,12 @@ export default async function StandingsPage({
                   defaultDirection={direction}
                   view={view}
                   seasonId={selectedSeason.id}
-                  snapshotDate={leader.snapshotDate}
                 />
               ))}
+        <div className="workspace-table-note">
+          Snapshot: {formatSnapshotDate(leader.snapshotDate)} · Source: NHL · p Presidents’ Trophy · z
+          conference · y division · x playoff berth · e eliminated
+        </div>
             </div>
             ) : null}
 
@@ -183,7 +186,6 @@ function StandingsTable({
   defaultDirection,
   view,
   seasonId,
-  snapshotDate,
 }: {
   label: string;
   standings: StandingsEntry[];
@@ -191,15 +193,13 @@ function StandingsTable({
   defaultDirection: "asc" | "desc";
   view: StandingsView;
   seasonId: number;
-  snapshotDate: string;
 }) {
   return (
     <WorkspacePanel
       title={label}
-      description="Select any column heading to sort the current table."
       width="standard"
     >
-      <SortableTable
+      <SortableTable secondaryColumns={[7, 8, 9, 10]}
         defaultSortKey={defaultSortKey}
         defaultDirection={defaultDirection}
       >
@@ -273,10 +273,7 @@ function StandingsTable({
             </tbody>
           </table>
         </div>
-        <div className="workspace-table-note">
-          Snapshot: {formatSnapshotDate(snapshotDate)} · Source: NHL · p Presidents’ Trophy · z
-          conference · y division · x playoff berth · e eliminated
-        </div>
+
       </SortableTable>
     </WorkspacePanel>
   );

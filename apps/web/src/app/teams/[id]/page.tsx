@@ -5,7 +5,7 @@ import { TeamAdvancedAnalytics } from "@/app/_components/advanced-analytics";
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
 import { ScheduleStrength } from "@/app/_components/schedule-strength";
-import { SeasonUnitTables } from "@/app/_components/season-unit-tables";
+import { TeamUnitViews } from "@/app/_components/team-unit-views";
 import { SiteHeader } from "@/app/_components/site-header";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";
@@ -223,19 +223,10 @@ export default async function TeamPage({
                 nhlTeamId={profileDetail.team.nhlTeamId}
               />
               <div>
-                <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
-                  Team profile
-                </p>
                 <h1 className="mt-2 text-4xl font-semibold tracking-[-0.045em] text-[var(--foreground)] sm:text-5xl">
                   {profileDetail.team.name}
                 </h1>
                 <div className="mt-4 flex flex-wrap gap-2 text-sm text-[var(--muted)]">
-                  <span className="rounded-full border border-[var(--border)] bg-[var(--surface-subtle)] px-3 py-1">
-                    {selectedSeason.label}
-                  </span>
-                  <span className="rounded-full border border-[var(--border)] bg-[var(--surface-subtle)] px-3 py-1">
-                    {seasonPhaseLabel(phase)}
-                  </span>
                   <Link
                     href={`/drafts?view=board&year=all&team=${profileDetail.team.abbreviation}`}
                     className="rounded-full border border-[color-mix(in_srgb,var(--accent)_42%,var(--border))] bg-[var(--accent-soft)] px-3 py-1 font-medium text-[var(--accent)] transition hover:border-[color-mix(in_srgb,var(--accent)_64%,var(--border))] hover:text-[var(--foreground)]"
@@ -261,10 +252,10 @@ export default async function TeamPage({
         </div>
 
         <ViewTabs
-          active={view}
+          active={view === "strength" ? "schedule" : view === "goalies" ? "skaters" : view}
           ariaLabel={`${profileDetail.team.name} views`}
           label="Profile view"
-          tabs={viewTabs}
+          tabs={viewTabs.filter(tab => tab.id !== "strength" && tab.id !== "goalies").map(tab => tab.id === "skaters" ? { ...tab, label: "Players" } : tab)}
         />
 
         <SeasonPhaseFilter
@@ -279,14 +270,19 @@ export default async function TeamPage({
           }}
         />
 
+        {view === "schedule" || view === "strength" ? <ViewTabs active={view} ariaLabel="Schedule views" tabs={viewTabs.filter(tab => tab.id === "schedule" || tab.id === "strength").map(tab => tab.id === "strength" ? { ...tab, label: "Schedule Difficulty" } : tab)} secondary /> : null}
+        {view === "skaters" || view === "goalies" ? <ViewTabs active={view} ariaLabel="Player type" tabs={viewTabs.filter(tab => tab.id === "skaters" || tab.id === "goalies")} secondary /> : null}
         {view === "overview" ? (
           overviewIdentity && overviewStats ? (
+            <>
+            <p className="mt-6 text-lg tabular-nums">{phase === "regular" ? `${overviewStats.wins}–${overviewStats.regulationLosses}–${overviewStats.overtimeLosses + overviewStats.shootoutLosses} · ${overviewStats.standingsPoints} PTS` : `${overviewStats.wins}–${overviewStats.losses}`}</p>
             <TeamSeasonIdentity
               identity={overviewIdentity}
               seasonId={selectedSeason.id}
               phase={phase}
               phaseLabel={seasonPhaseLabel(phase)}
             />
+            </>
           ) : (
             <div className="workspace-empty-state mt-8">
               This team did not participate in the selected phase.
@@ -307,20 +303,9 @@ export default async function TeamPage({
             />
             <Link
               href={`/teams/${profileDetail.team.nhlTeamId}/games?season=${selectedSeason.id}&phase=${phase}`}
-              className="workspace-width-compact group mt-5 flex items-center justify-between gap-4 rounded-2xl border border-[color-mix(in_srgb,var(--accent)_42%,var(--border))] bg-[var(--accent-soft)] px-5 py-4 transition hover:border-[color-mix(in_srgb,var(--accent)_64%,var(--border))] hover:bg-[color-mix(in_srgb,var(--accent)_18%,var(--surface))]"
+              className="workspace-secondary-action mt-5"
             >
-              <span>
-                <span className="block font-medium text-[var(--foreground)]">
-                  Explore the {selectedSeason.label} game log
-                </span>
-                <span className="mt-1 block text-sm text-[var(--muted)]">
-                  Results, recent form, shot totals, and five-on-five expected
-                  goals.
-                </span>
-              </span>
-              <span className="shrink-0 text-[var(--accent)] transition group-hover:translate-x-0.5">
-                View games →
-              </span>
+              Detailed Game Log →
             </Link>
           </>
         ) : null}
@@ -378,7 +363,7 @@ export default async function TeamPage({
             description={`Traditional ${seasonPhaseLabel(phase).toLowerCase()} production for every player who appeared with this team.`}
             action={
               <p className="text-sm tabular-nums text-[var(--muted)]">
-                {profileDetail.skaters.length} player-team rows
+                {profileDetail.skaters.length} skaters
               </p>
             }
           />
@@ -449,7 +434,7 @@ export default async function TeamPage({
             description={`Traditional ${seasonPhaseLabel(phase).toLowerCase()} appearances, decisions, and save results.`}
             action={
               <p className="text-sm tabular-nums text-[var(--muted)]">
-                {profileDetail.goalies.length} player-team rows
+                {profileDetail.goalies.length} goalies
               </p>
             }
           />
@@ -550,7 +535,7 @@ export default async function TeamPage({
               }
             />
             <div className="mt-6">
-              <SeasonUnitTables
+              <TeamUnitViews
                 data={units ?? { forwardLines: [], defensivePairings: [] }}
                 seasonId={selectedSeason.id}
                 showTeam={false}

@@ -47,7 +47,7 @@ export function TeamFullSchedule({
         description={`${seasonLabel} ${phaseLabel.toLowerCase()} schedule. Completed results and remaining games appear together in chronological order.`}
         action={
           <p className="text-sm text-[var(--muted)] tabular-nums">
-            {games.length} games · {completedCount} completed · {upcomingCount} upcoming
+            {games.length} games · {completedCount} completed{upcomingCount > 0 ? ` · ${upcomingCount} upcoming` : ""}
           </p>
         }
       />

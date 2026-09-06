@@ -56,14 +56,7 @@ export function PlayerComparisonPicker({
 
   return (
     <section className="workspace-player-picker">
-      <div className="workspace-player-picker-heading">
-        <div>
-          <p>Comparison Lineup</p>
-          <h3>Choose Two to Four Players</h3>
-        </div>
-        <span>{selectedIds.length} / 4 selected</span>
-      </div>
-
+      <details open={selectedIds.length < 2}><summary>Edit Players</summary>
       <div className="workspace-player-picker-search">
         <label>
           Find a {category === "skaters" ? "skater" : "goalie"}
@@ -106,6 +99,7 @@ export function PlayerComparisonPicker({
         ) : null}
       </div>
 
+      </details>
       <ol
         className="workspace-player-picker-selected"
         aria-label="Selected players"
@@ -136,13 +130,7 @@ export function PlayerComparisonPicker({
               </li>
             );
           }
-          if (index >= 2) return null;
-          return (
-            <li key={`empty-${index}`} className="is-empty">
-              <span>{index + 1}</span>
-              <p>{index < 2 ? "Choose a player" : "Optional player"}</p>
-            </li>
-          );
+          return null;
         })}
       </ol>
 
@@ -152,10 +140,9 @@ export function PlayerComparisonPicker({
             {isPending
               ? "Updating comparison…"
               : selectedIds.length >= 2
-                ? "Comparison shown below"
+                ? ""
                 : `Choose ${2 - selectedIds.length} more player${selectedIds.length === 0 ? "s" : ""}`}
           </strong>
-          <span>Additions and removals update automatically.</span>
         </div>
         <button
           type="button"

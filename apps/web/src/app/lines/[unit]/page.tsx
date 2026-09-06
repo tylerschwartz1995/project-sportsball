@@ -62,7 +62,7 @@ export default async function UnitPage({
         <div className="mt-5">
           <WorkspacePageHeader
             eyebrow={`MoneyPuck five-on-five ${detail.unitType}`}
-            title={title}
+            title={`${Math.floor(seasonId / 10000)}–${String(seasonId % 10000).slice(-2)} ${title}`}
             description={`${detail.team.name} game-by-game results for every available regular-season appearance by this combination.`}
             action={
               <Link
@@ -81,10 +81,10 @@ export default async function UnitPage({
 
         <WorkspacePanel
           className="mt-8"
-          title="Supporting Games"
+          title="Full-Season Supporting Games"
           description={`${detail.games.length} games, newest first. Percentages are MoneyPuck's game-level five-on-five values.`}
         >
-          <SortableTable defaultSortKey="date" defaultDirection="desc">
+          <SortableTable secondaryColumns={[6, 7, 8, 9]} defaultSortKey="date" defaultDirection="desc">
             <div className="workspace-table-scroll">
             <table className="workspace-table workspace-table-dense workspace-unit-games-table min-w-[900px]">
               <caption className="sr-only">Supporting combination games</caption>

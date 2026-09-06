@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 export type WorkspaceWidth = "compact" | "standard" | "wide";
 
 export function WorkspacePageHeader({
-  eyebrow,
   title,
   description,
   descriptionClassName = "",
@@ -18,11 +17,8 @@ export function WorkspacePageHeader({
   return (
     <header className="workspace-page-header">
       <div>
-        <p className="workspace-eyebrow">{eyebrow}</p>
         <h1>{title}</h1>
-        <p className={`workspace-description ${descriptionClassName}`}>
-          {description}
-        </p>
+        {description ? <p className={`workspace-description ${descriptionClassName}`}>{description}</p> : null}
       </div>
       {action}
     </header>

@@ -299,14 +299,16 @@ export function HistoryRankingSummary({
     <div className="workspace-history-ranking-summary">
       <div>
         <p>{leaderboard.display === "career" ? "Career record book" : "Single-season record book"}</p>
-        <h2>{metricLabel} Leaders</h2>
+        <p>{metricLabel}</p>
       </div>
       <dl>
         <div><dt>Phase</dt><dd>{seasonPhaseLabel(phase)}</dd></div>
         <div><dt>Window</dt><dd>{filters.startYear}–{filters.endYear + 1}</dd></div>
         <div><dt>Eligible</dt><dd>{leaderboard.totalRows.toLocaleString("en-CA")} {noun}</dd></div>
-        <div><dt>Minimum</dt><dd>{filters.minimumGames.toLocaleString("en-CA")} GP</dd></div>
+        {filters.minimumGames > 0 ? <div><dt>Minimum</dt><dd>{filters.minimumGames.toLocaleString("en-CA")} GP</dd></div> : null}
       </dl>
+      {filters.team ? <p>Played For selects whole associated seasons, including combined multi-team totals.</p> : null}
+      {leaderboard.view === "teams" ? <p>Totals follow NHL source team identities; relocations and renames are not combined into franchise histories.</p> : null}
     </div>
   );
 }

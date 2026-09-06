@@ -38,7 +38,7 @@ export function ScheduleStrength({
 
       <div className="mt-5 grid gap-4 lg:grid-cols-2">
         <ScheduleSummary title="Completed schedule" games={completed} />
-        <ScheduleSummary title="Remaining schedule" games={upcoming} />
+        {upcoming.length > 0 ? <ScheduleSummary title="Remaining schedule" games={upcoming} /> : null}
       </div>
 
       {upcoming.length > 0 ? (
@@ -58,7 +58,7 @@ export function ScheduleStrength({
         />
       ) : null}
 
-      <p className="mt-4 text-xs leading-5 text-[var(--muted)]">
+      <details className="mt-4 text-xs leading-5 text-[var(--muted)]"><summary>Rating, Rest, and Travel Methodology</summary><p>
         Ratings use only an opponent&apos;s earlier regular-season games. Rest is
         the number of full off-days since this team&apos;s previous game; a
         back-to-back has no full off-day. Until an opponent has a result in the
@@ -67,7 +67,7 @@ export function ScheduleStrength({
         beginning at the selected team&apos;s home market. Because the schedule
         source does not retain venue coordinates, neutral-site games and arena
         changes are estimates rather than exact itineraries.
-      </p>
+      </p></details>
     </section>
   );
 }
@@ -140,7 +140,9 @@ function ScheduleSummary({
             </div>
           );
         })}
-        <MetricTile
+
+      </dl>
+      <details className="mt-3"><summary>Schedule Details</summary><dl className="mt-3 grid gap-3 sm:grid-cols-2">        <MetricTile
           label="Home share"
           value={games.length > 0 ? formatPercentage(homeGames / games.length) : "—"}
           detail={`${homeGames} home · ${games.length - homeGames} away`}
@@ -167,8 +169,7 @@ function ScheduleSummary({
               detail={`${games.length - summaries[metric].count} without prior sample`}
             />
           </div>
-        ))}
-      </dl>
+        ))}</dl></details>
     </article>
   );
 }

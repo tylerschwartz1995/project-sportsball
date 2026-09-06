@@ -256,3 +256,5 @@ The website runs at `http://localhost:3000` and its initial health endpoint is
 - [Operational data health](docs/data-health.md)
 - [Database backup and recovery](docs/database-recovery.md)
 - [Product ideas](docs/product-ideas.md)
+
+The [content audit and implementation decisions](docs/content-audit-implementation.md) document the application’s essential-content policy and coverage corrections.

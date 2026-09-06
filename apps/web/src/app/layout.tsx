@@ -69,7 +69,7 @@ export default function RootLayout({
         <footer className="site-footer">
           <Link href="/" className="site-footer-brand">Sportsball</Link>
           <p>NHL statistics · MoneyPuck advanced data</p>
-          <Link href="/analytics/guide">Metrics Guide ↗</Link>
+          <Link href="/analytics/guide">Metrics Guide →</Link>
         </footer>
       </body>
     </html>

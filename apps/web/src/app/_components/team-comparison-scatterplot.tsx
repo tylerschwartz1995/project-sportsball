@@ -124,8 +124,7 @@ export function TeamComparisonScatterplot({
         </div>
         <p>
           Compare each team&apos;s selected five-on-five process metric with
-          its {resultLabel.toLowerCase()}. The 50% reference lines separate
-          sustainable strength from over- and underperformance.
+          its {resultLabel.toLowerCase()}. The 50% reference lines describe observed results and process; they are not a forecast.
         </p>
       </header>
 
@@ -294,7 +293,7 @@ export function TeamComparisonScatterplot({
       </div>
       </section>
 
-      <DirectTeamComparison points={points} />
+      <details className="mt-5"><summary>Compare Teams</summary><DirectTeamComparison points={points} /></details>
     </>
   );
 }
@@ -336,10 +335,6 @@ function TeamComparisonTooltip({
         <div>
           <dt>{point.resultLabel}</dt>
           <dd>{formatDetailedPercentage(point.resultPercentage)}</dd>
-        </div>
-        <div>
-          <dt>Results minus process</dt>
-          <dd>{formatSignedPercentagePoints(point.gapPercentagePoints)}</dd>
         </div>
         <div>
           <dt>Games</dt>
@@ -495,10 +490,6 @@ function formatDetailedPercentage(value: number) {
   return `${value.toFixed(1)}%`;
 }
 
-function formatSignedPercentagePoints(value: number) {
-  const sign = value > 0 ? "+" : "";
-  return `${sign}${value.toFixed(1)} pp`;
-}
 
 function formatOptionalPercentage(value: number | undefined) {
   return value === undefined ? "—" : formatDetailedPercentage(value);

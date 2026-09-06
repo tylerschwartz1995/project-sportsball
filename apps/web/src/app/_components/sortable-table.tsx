@@ -1,4 +1,5 @@
 "use client";
+import { useClientReady } from "@/app/_components/use-client-ready";
 
 import {
   createContext,
@@ -8,6 +9,7 @@ import {
   useContext,
   useMemo,
   useState,
+  useId,
 } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
@@ -41,6 +43,8 @@ export function SortableTable({
   defaultDirection = "desc",
   urlBacked = false,
   scrollTarget,
+  secondaryColumns,
+  initialExpanded = false,
 }: {
   children: ReactNode;
   className?: string;
@@ -48,7 +52,12 @@ export function SortableTable({
   defaultDirection?: SortDirection;
   urlBacked?: boolean;
   scrollTarget?: string;
+  secondaryColumns?: number[];
+  initialExpanded?: boolean;
 }) {
+  const ready = useClientReady();
+  const tableId = `content-table-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const [showAllColumns, setShowAllColumns] = useState(initialExpanded);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [sortState, setSortState] = useState<SortState>({
@@ -140,7 +149,15 @@ export function SortableTable({
 
   return (
     <SortableTableContext.Provider value={contextValue}>
-      <div className={className} data-sort-key={activeKey}>
+      <div id={tableId} className={className} data-sort-key={activeKey}>
+        {secondaryColumns?.length ? <div className="workspace-column-preset-toolbar">
+          <button type="button" disabled={!ready} aria-pressed={showAllColumns} onClick={() => setShowAllColumns(!showAllColumns)}>{showAllColumns ? "Core Columns" : "More Columns"}</button>
+        </div> : null}
+        {secondaryColumns?.length && !showAllColumns ? <style>{`
+          ${secondaryColumns.flatMap(index => [`#${tableId} table > thead > tr > :nth-child(${index})`, `#${tableId} table > tbody > tr > :nth-child(${index})`]).join(",")} { display: none; }
+          #${tableId} table > colgroup, #${tableId} table > thead > tr[data-column-groups] { display: none; }
+          #${tableId} table { min-width: 0; width: 100%; }
+        `}</style> : null}
         {children}
       </div>
     </SortableTableContext.Provider>

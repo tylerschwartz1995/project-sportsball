@@ -39,7 +39,7 @@ describe("team season identity", () => {
     expect(result.fingerprint).toEqual([
       expect.objectContaining({
         key: "results",
-        label: "Standings points earned",
+        label: "Points Percentage",
         rank: 1,
         teamCount: 3,
       }),

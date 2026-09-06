@@ -29,28 +29,28 @@ import {
 const GROUPS = [
   {
     value: "controlled-win",
-    label: "Process+ wins",
+    label: "Wins with 50%+ share",
     description: "50%+ share",
     color: "var(--positive)",
     shape: "circle",
   },
   {
     value: "outplayed-win",
-    label: "Process− wins",
+    label: "Wins below 50% share",
     description: "Under 50% share",
     color: "var(--chart-secondary)",
     shape: "diamond",
   },
   {
     value: "controlled-loss",
-    label: "Process+ losses",
+    label: "Losses with 50%+ share",
     description: "50%+ share",
     color: "var(--chart-underperforming)",
     shape: "triangle",
   },
   {
     value: "outplayed-loss",
-    label: "Process− losses",
+    label: "Losses below 50% share",
     description: "Under 50% share",
     color: "var(--negative)",
     shape: "square",

@@ -24,7 +24,7 @@ export function PlayerDirectComparisonChart({
   players: PlayerComparisonEntry[];
   metrics: PlayerComparisonMetric[];
 }) {
-  const [metricKey, setMetricKey] = useUrlChoice("comparisonMetric", metrics.map((metric) => metric.key), metrics[0]?.key ?? "");
+  const [metricKey, setMetricKey] = useUrlChoice("comparisonMetric", metrics.map((metric) => metric.key), metrics.find(metric => metric.key === "points" || metric.key === "savePercentage")?.key ?? metrics[0]?.key ?? "");
   const metric =
     metrics.find((candidate) => candidate.key === metricKey) ?? metrics[0];
   if (!metric || players.length < 2) return null;

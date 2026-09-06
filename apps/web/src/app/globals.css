@@ -6253,21 +6253,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   color: var(--on-accent);
 }
 
-.workspace-column-preset-table[data-column-preset="core"]
-  [data-column-group]:not([data-column-group~="core"]) {
-  display: none;
-}
-
-.workspace-column-preset-table[data-column-preset="possession"]
-  [data-column-group]:not([data-column-group~="possession"]),
-.workspace-column-preset-table[data-column-preset="shot-quality"]
-  [data-column-group]:not([data-column-group~="shot-quality"]),
-.workspace-column-preset-table[data-column-preset="results"]
-  [data-column-group]:not([data-column-group~="results"]) {
-  display: none;
-}
-
-.workspace-column-preset-table .workspace-sticky-entity {
+.workspace-table .workspace-sticky-entity {
   position: sticky;
   left: 0;
   z-index: 2;
@@ -6275,12 +6261,12 @@ html[data-theme="light"] .theme-toggle-label::after {
   box-shadow: 1px 0 0 var(--border);
 }
 
-.workspace-column-preset-table thead .workspace-sticky-entity {
+.workspace-table thead .workspace-sticky-entity {
   z-index: 4;
   background: var(--surface-raised);
 }
 
-.workspace-column-preset-table tbody tr:hover .workspace-sticky-entity {
+.workspace-table tbody tr:hover .workspace-sticky-entity {
   background: var(--surface-raised);
 }
 
@@ -8511,3 +8497,42 @@ html[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]),
 html[data-theme="light"] textarea {
   border-color: var(--control-border);
 }
+
+/* Secondary content is available without competing with the primary answer. */
+.workspace-disclosure-toggle {
+  min-height: 40px;
+  padding: 0.5rem 0;
+  color: var(--foreground-soft);
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+}
+.workspace-disclosure-toggle:hover { color: var(--accent); }
+.workspace-disclosure-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.workspace-presentation-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 1rem;
+  padding: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: var(--surface);
+}
+.workspace-presentation-tabs > button {
+  min-height: 40px;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.5rem;
+  color: var(--muted);
+  font-weight: 600;
+  cursor: pointer;
+}
+.workspace-presentation-tabs > button[aria-pressed="true"] {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.workspace-presentation-tabs > button:hover { color: var(--foreground); }
+.workspace-presentation-tabs > button[aria-pressed="true"]:hover { color: var(--on-accent); }
+.workspace-presentation-tabs > button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
