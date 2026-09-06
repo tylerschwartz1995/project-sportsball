@@ -957,3 +957,6 @@
     background: var(--surface-raised);
   }
 }
+
+/* A multi-season range needs its own track, rather than a numeric-stat width. */
+.workspace-history-table .workspace-history-stretch-col { width: 12rem; }

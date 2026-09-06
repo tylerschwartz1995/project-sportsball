@@ -280,7 +280,7 @@
   opacity: 0.4;
 }
 
-.workspace-schedule-week span {
+.workspace-schedule-week > :is(a, span) > span {
   font-family: var(--font-geist-mono);
   font-size: var(--text-meta);
   font-weight: 750;

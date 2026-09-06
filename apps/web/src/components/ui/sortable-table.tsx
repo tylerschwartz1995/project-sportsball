@@ -171,7 +171,7 @@ export function SortableTable({
           <style>{`
           ${secondaryColumns.flatMap((index) => [`#${tableId} table > thead > tr > :nth-child(${index})`, `#${tableId} table > tbody > tr > :nth-child(${index})`]).join(",")} { display: none; }
           #${tableId} table > colgroup, #${tableId} table > thead > tr[data-column-groups] { display: none; }
-          #${tableId} table:not(.workspace-standings-table) { min-width: var(--table-essential-min-width, 0); width: 100%; }
+          #${tableId} table:not(.workspace-standings-table) { min-width: var(--table-essential-min-width, 0); width: 100%; table-layout: auto; }
         `}</style>
         ) : null}
         {children}

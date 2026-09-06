@@ -1,7 +1,15 @@
 "use client";
 
 import { IntentLink as Link } from "@/components/ui/intent-link";
-import { useId, type ReactNode } from "react";
+import {
+  useEffect,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { createPortal } from "react-dom";
 
 import { SortIndicator } from "@/components/ui/sizing-icons";
 import { useSortableTable } from "@/components/ui/sortable-table";
@@ -36,6 +44,36 @@ export function SortableHeader({
     description ??
     (typeof label === "string" ? metricDefinition(label) : undefined);
   const helpId = useId();
+  const [tooltipAnchor, setTooltipAnchor] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    if (!tooltipAnchor) return;
+    const dismiss = () => setTooltipAnchor(null);
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        event.stopPropagation();
+        dismiss();
+      }
+    };
+    window.addEventListener("scroll", dismiss, true);
+    window.addEventListener("resize", dismiss);
+    window.addEventListener("keydown", onKeyDown, true);
+    return () => {
+      window.removeEventListener("scroll", dismiss, true);
+      window.removeEventListener("resize", dismiss);
+      window.removeEventListener("keydown", onKeyDown, true);
+    };
+  }, [tooltipAnchor]);
+  const tooltipEvents = {
+    onMouseEnter: (event: React.MouseEvent<HTMLElement>) => {
+      if (effectiveDescription) setTooltipAnchor(event.currentTarget);
+    },
+    onMouseLeave: () => setTooltipAnchor(null),
+    onFocus: (event: React.FocusEvent<HTMLElement>) => {
+      if (effectiveDescription) setTooltipAnchor(event.currentTarget);
+    },
+    onBlur: () => setTooltipAnchor(null),
+  };
   const href = sortHref(sortKey, defaultDirection);
   const controlClassName = `relative flex min-h-11 w-full items-center gap-1 rounded-sm px-3 py-3 transition hover:text-[var(--accent)] focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-[var(--accent)] ${
     nowrap ? "whitespace-nowrap" : ""
@@ -58,9 +96,15 @@ export function SortableHeader({
         <SortIndicator direction={isActive ? direction : undefined} />
       </span>
       {effectiveDescription ? (
-        <span id={helpId} role="tooltip" className="workspace-metric-tooltip">
-          {effectiveDescription}
-        </span>
+        tooltipAnchor ? (
+          <MetricTooltip id={helpId} anchor={tooltipAnchor}>
+            {effectiveDescription}
+          </MetricTooltip>
+        ) : (
+          <span id={helpId} hidden>
+            {effectiveDescription}
+          </span>
+        )
       ) : null}
     </>
   );
@@ -87,7 +131,7 @@ export function SortableHeader({
         {href ? (
           <Link
             href={href}
-            title={effectiveDescription}
+            {...tooltipEvents}
             aria-describedby={effectiveDescription ? helpId : undefined}
             className={controlClassName}
           >
@@ -97,7 +141,7 @@ export function SortableHeader({
           <button
             type="button"
             onClick={(event) => sort(event, sortKey, defaultDirection)}
-            title={effectiveDescription}
+            {...tooltipEvents}
             aria-describedby={effectiveDescription ? helpId : undefined}
             className={controlClassName}
           >
@@ -106,5 +150,52 @@ export function SortableHeader({
         )}
       </div>
     </th>
+  );
+}
+
+/** Render outside the table scroll boundary, and keep the bubble in the viewport. */
+function MetricTooltip({
+  id,
+  anchor,
+  children,
+}: {
+  id: string;
+  anchor: HTMLElement;
+  children: ReactNode;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const tooltip = ref.current;
+    if (!tooltip) return;
+    const target = anchor.getBoundingClientRect();
+    const bubble = tooltip.getBoundingClientRect();
+    const inset = 8;
+    const left = Math.max(
+      inset,
+      Math.min(
+        target.left + (target.width - bubble.width) / 2,
+        window.innerWidth - bubble.width - inset,
+      ),
+    );
+    const below = target.bottom + inset;
+    const top =
+      below + bubble.height <= window.innerHeight - inset
+        ? below
+        : Math.max(inset, target.top - bubble.height - inset);
+    tooltip.style.left = `${left}px`;
+    tooltip.style.top = `${top}px`;
+    tooltip.style.visibility = "visible";
+  }, [anchor, children]);
+  return createPortal(
+    <span
+      ref={ref}
+      id={id}
+      role="tooltip"
+      className="workspace-metric-tooltip"
+      style={{ visibility: "hidden" }}
+    >
+      {children}
+    </span>,
+    anchor.closest("dialog") ?? document.body,
   );
 }

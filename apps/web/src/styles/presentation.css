@@ -562,3 +562,35 @@ main > section.py-10 { padding-block: 1.25rem; }
   .workspace-player-filters .workspace-directory-sort > div { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .site-mobile-menu nav div { align-content: start; }
 }
+
+/* Calendar cells retain readable labels without overlapping adjacent dates. */
+.workspace-calendar-count-compact,
+.workspace-calendar-date-compact,
+.workspace-calendar-mobile-key { display: none; }
+.workspace-schedule-calendar-action button { flex-shrink: 0; white-space: nowrap; }
+@media (max-width: 520px) {
+  .workspace-calendar-count-full,
+  .workspace-calendar-date-full { display: none; }
+  .workspace-calendar-count-compact,
+  .workspace-calendar-date-compact { display: inline; }
+  .workspace-calendar-mobile-key { display: block; padding: 0.35rem 0.5rem; color: var(--muted); font-size: var(--text-meta); }
+  .workspace-schedule-week > :is(a, span) { padding-inline: 0.15rem; }
+  .workspace-schedule-month { padding-inline: 0.5rem; }
+  .workspace-schedule-month-grid > :is(a, span) { padding-inline: 0.1rem; }
+  .workspace-schedule-calendar-action { flex-wrap: wrap; gap: 0.5rem; }
+  .workspace-schedule-week-actions, .workspace-schedule-day-actions { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0.25rem 0.75rem; }
+  .workspace-schedule-week-actions > p, .workspace-schedule-day-actions > :nth-child(2) { grid-column: 1 / -1; grid-row: 1; justify-content: center; text-align: center; }
+  .workspace-schedule-results-heading { flex-direction: column; align-items: flex-start; gap: 0.35rem; }
+}
+
+.workspace-pagination :is(a, [aria-disabled="true"]) { display: inline-flex; align-items: center; justify-content: center; min-height: 2.5rem; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) {
+  .workspace-pagination { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .workspace-pagination > div { grid-column: 1 / -1; grid-row: 1; }
+  .workspace-pagination > :first-child { justify-self: start; }
+  .workspace-pagination > :last-child { justify-self: end; }
+}
+
+@media (max-width: 520px) {
+  .workspace-standings-scope .workspace-navigation-label { display: none; }
+}

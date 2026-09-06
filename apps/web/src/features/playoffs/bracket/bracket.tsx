@@ -58,25 +58,35 @@ export function PlayoffBracket({
 
   return (
     <>
-      <div className="workspace-bracket-scroll">
-        <div className="workspace-bracket">
-          {stages.map((stage) => (
-            <section key={stage.id} className="workspace-bracket-round">
-              <h3>{stage.name}</h3>
-              <div>
-                {stage.series.map((series) => (
-                  <SeriesButton
-                    key={series.id}
-                    series={series}
-                    isProjection={isProjection}
-                    onSelect={() =>
-                      setSelected({ roundName: stage.name, series })
-                    }
-                  />
-                ))}
-              </div>
-            </section>
-          ))}
+      <div className="workspace-bracket-container">
+        <p className="workspace-bracket-scroll-hint">
+          Scroll sideways to see every round →
+        </p>
+        <div
+          className="workspace-bracket-scroll"
+          role="region"
+          aria-label="Playoff bracket rounds"
+          tabIndex={0}
+        >
+          <div className="workspace-bracket">
+            {stages.map((stage) => (
+              <section key={stage.id} className="workspace-bracket-round">
+                <h3>{stage.name}</h3>
+                <div>
+                  {stage.series.map((series) => (
+                    <SeriesButton
+                      key={series.id}
+                      series={series}
+                      isProjection={isProjection}
+                      onSelect={() =>
+                        setSelected({ roundName: stage.name, series })
+                      }
+                    />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
         </div>
       </div>
 

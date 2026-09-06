@@ -24,7 +24,7 @@ export function Pagination({
   return (
     <nav
       aria-label="Pagination"
-      className="mt-6 flex flex-wrap items-center justify-between gap-3"
+      className="workspace-pagination mt-6 flex flex-wrap items-center justify-between gap-3"
     >
       <PageLink
         href={buildPageHref(path, params, currentPage - 1, scrollTarget)}
