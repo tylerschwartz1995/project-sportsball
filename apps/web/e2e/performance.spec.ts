@@ -69,18 +69,21 @@ test.describe("production navigation performance", () => {
     await page.goto(teamUrl("combinations"));
 
     const activeView = page.getByRole("link", {
-      name: "Combinations",
+      name: "Lines & Pairings",
       exact: true,
     });
     await expect(activeView).toHaveAttribute("aria-current", "page");
     await expectLinkInsideNavigation(activeView);
     expect(await page.evaluate(() => window.scrollY)).toBe(0);
 
-    const activePrimary = page
-      .getByRole("navigation", { name: "Primary navigation" })
+    const menu = page.locator("#main-content .site-mobile-menu > summary");
+    await expect(menu).toBeVisible();
+    await expect(menu).toContainText("Teams");
+    await menu.click();
+    const activePrimary = page.getByRole("navigation", { name: "All sections" })
       .getByRole("link", { name: "Teams", exact: true });
     await expect(activePrimary).toHaveAttribute("aria-current", "page");
-    await expectLinkInsideNavigation(activePrimary);
+    await expect(activePrimary).toBeVisible();
 
     await page.goto("/drafts?view=classes");
     const activeDraftView = page.getByRole("link", {
@@ -90,11 +93,12 @@ test.describe("production navigation performance", () => {
     await expect(activeDraftView).toHaveAttribute("aria-current", "page");
     await expectLinkInsideNavigation(activeDraftView);
 
-    const activeDraftPrimary = page
-      .getByRole("navigation", { name: "Primary navigation" })
+    await expect(menu).toContainText("Drafts");
+    await menu.click();
+    const activeDraftPrimary = page.getByRole("navigation", { name: "All sections" })
       .getByRole("link", { name: "Drafts", exact: true });
     await expect(activeDraftPrimary).toHaveAttribute("aria-current", "page");
-    await expectLinkInsideNavigation(activeDraftPrimary);
+    await expect(activeDraftPrimary).toBeVisible();
   });
 
   test("Draft class rankings keep the initial table and DOM bounded", async ({

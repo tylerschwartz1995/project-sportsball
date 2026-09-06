@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 import type { CareerSeason } from "@/data/player-career";
 import { SortableHeader } from "@/app/_components/sortable-header";
 import { SortableTable } from "@/app/_components/sortable-table";

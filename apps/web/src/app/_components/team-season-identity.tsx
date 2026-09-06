@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 
 import { TeamPerformanceResultMap } from "@/app/_components/lazy-charts";
 import { TeamLogo } from "@/app/_components/team-logo";
@@ -21,7 +21,6 @@ export function TeamSeasonIdentity({
   phase,
   phaseLabel,
 }: TeamSeasonIdentityProps) {
-
   return (
     <section className="modern-team-performance workspace-width-data mt-8 space-y-6">
       <article className="surface-panel relative overflow-hidden p-5 sm:p-6">
@@ -74,7 +73,6 @@ export function TeamSeasonIdentity({
                       {ordinal(metric.rank)} of {metric.teamCount}
                     </span>
                   </dd>
-
                 </div>
               );
             })}
@@ -83,16 +81,18 @@ export function TeamSeasonIdentity({
       </article>
 
       {identity.performanceResultMap ? (
-      <details><summary>Results and Performance</summary>
-        <TeamPerformanceResultMap
-          data={identity.performanceResultMap}
-          phaseLabel={phaseLabel}
-        />
-      </details>
+        <details open>
+          <summary>Game Results vs. Shot Quality</summary>
+          <TeamPerformanceResultMap
+            data={identity.performanceResultMap}
+            phaseLabel={phaseLabel}
+          />
+        </details>
       ) : null}
       {identity.gamesAnalyzed > 0 ? (
         <div className="space-y-6">
-          <details className="surface-panel p-6"><summary>Situational Records</summary>
+          <details className="surface-panel p-6">
+            <summary>Home, Away & Recent Form</summary>
             <SectionIntroduction
               eyebrow="Situational breakdown"
               title="Where the record came from"
@@ -113,7 +113,8 @@ export function TeamSeasonIdentity({
             </p>
           </details>
 
-          <details className="surface-panel p-6"><summary>Results by Opponent</summary>
+          <details className="surface-panel p-6">
+            <summary>Results Against Each Opponent</summary>
             <div className="flex flex-wrap items-end justify-between gap-4">
               <SectionIntroduction
                 eyebrow="Opponent ledger"
@@ -124,7 +125,6 @@ export function TeamSeasonIdentity({
                     : "Series outcomes compare wins. Every score links to its supporting game."
                 }
               />
-
             </div>
             <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {identity.opponents.map((entry) => (
@@ -144,7 +144,6 @@ export function TeamSeasonIdentity({
           fingerprint above remains available from the season totals.
         </div>
       )}
-
     </section>
   );
 }

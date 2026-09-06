@@ -1,6 +1,6 @@
 import { SeasonPicker } from "@/app/_components/season-picker";
 import { SeasonPhaseFilter } from "@/app/_components/season-phase-filter";
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 import { redirect } from "next/navigation";
 
 import { GamePicker } from "@/app/_components/game-picker";

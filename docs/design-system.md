@@ -63,8 +63,8 @@ and retain provider attribution and definition links.
 ## Application shell
 
 All routes use the horizontal primary navigation selected by Modern Stats
-Exploration. Small screens retain horizontally scrollable navigation and the
-full content width. The shell owns sport context, primary navigation and the
+Exploration. Small screens expose a labelled Menu with all sections grouped by task,
+while retaining the full content width. The shell owns sport context, primary navigation and the
 theme control; pages own their season and dataset controls.
 
 Light and dark modes use semantic tokens rather than separate component markup.
@@ -241,7 +241,7 @@ validated together.
 
 Follow [the content audit decisions](content-audit-implementation.md). Show
 identity, result, workload, sample, and the measures central to the selected
-task first. Secondary columns remain available through More Columns; specialist
+task first. Secondary columns remain available through Columns: Essential / Columns: All; specialist
 charts and explanations use disclosures or explicit views. Avoid duplicate
 summary cards and navigation promotions. Source, coverage, phase, qualification,
 and accessible chart values remain part of the interpretation.

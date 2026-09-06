@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 
 import { TeamLogo } from "@/app/_components/team-logo";
 import type {

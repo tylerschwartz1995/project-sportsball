@@ -157,11 +157,23 @@ export function PlayerRollingPerformanceChart(
   const { kind, games, playerName } = props;
   const metrics = kind === "skater" ? SKATER_METRICS : GOALIE_METRICS;
   const windowChoices = ROLLING_WINDOWS.map(String);
-  const [windowValue, setWindowValue] = useUrlChoice("chartWindow", windowChoices, "10");
+  const [windowValue, setWindowValue] = useUrlChoice(
+    "chartWindow",
+    windowChoices,
+    "10",
+  );
   const windowSize = Number(windowValue) as RollingWindow;
   const setWindowSize = (value: RollingWindow) => setWindowValue(String(value));
-  const [venue, setVenue] = useUrlChoice<PerformanceVenue>("chartVenue", ["all", "home", "away"], "all");
-  const [metricKey, setMetricKey] = useUrlChoice("chartMetric", metrics.map((metric) => metric.key), metrics[0].key);
+  const [venue, setVenue] = useUrlChoice<PerformanceVenue>(
+    "chartVenue",
+    ["all", "home", "away"],
+    "all",
+  );
+  const [metricKey, setMetricKey] = useUrlChoice(
+    "chartMetric",
+    metrics.map((metric) => metric.key),
+    metrics[0].key,
+  );
   const metric =
     metrics.find((candidate) => candidate.key === metricKey) ?? metrics[0];
   const data = useMemo<PlayerPerformanceChartPoint[]>(
@@ -178,9 +190,7 @@ export function PlayerRollingPerformanceChart(
             metric,
             scaleVenue,
             scaleWindow,
-          ).flatMap((point) =>
-            point.value === null ? [] : [point.value],
-          ),
+          ).flatMap((point) => (point.value === null ? [] : [point.value])),
         ),
       ),
     [games, kind, metric],
@@ -189,6 +199,12 @@ export function PlayerRollingPerformanceChart(
     () => stableMetricDomain(scaleValues, metric),
     [metric, scaleValues],
   );
+  const baselineGames = games.filter(
+    (game) =>
+      venue === "all" || (venue === "home" ? game.isHome : !game.isHome),
+  );
+  const seasonBaseline = traditionalBaseline(kind, baselineGames, metric.key);
+  const latest = data.at(-1);
   const hasMetricData = data.some((point) => point.value !== null);
 
   if (games.length === 0) {
@@ -199,7 +215,6 @@ export function PlayerRollingPerformanceChart(
     <div className="workspace-chart-panel">
       <header className="workspace-player-chart-header">
         <div>
-          <p>{kind === "skater" ? "Skater trend" : "Goalie trend"}</p>
           <h4>Rolling {metric.label}</h4>
         </div>
       </header>
@@ -257,6 +272,24 @@ export function PlayerRollingPerformanceChart(
         </div>
       </div>
 
+      <p className="ux-chart-reading">
+        Each point uses up to {windowSize}{" "}
+        {venue === "all" ? "appearances" : `${venue} appearances`}; early points
+        use fewer games.{" "}
+        {latest ? (
+          <>
+            Latest: <strong>{formatMetricValue(latest.value, metric)}</strong> (
+            {latest.metricSampleSize}-game metric sample).
+          </>
+        ) : null}{" "}
+        {seasonBaseline !== null ? (
+          <>
+            Season{venue !== "all" ? ` ${venue}` : ""} average:{" "}
+            <strong>{formatMetricValue(seasonBaseline, metric)}</strong> (dashed
+            line).
+          </>
+        ) : null}
+      </p>
       {data.length > 0 && hasMetricData ? (
         <div
           className="workspace-chart"
@@ -309,12 +342,15 @@ export function PlayerRollingPerformanceChart(
                   strokeDasharray="5 5"
                 />
               ) : null}
+              {seasonBaseline !== null ? (
+                <ReferenceLine
+                  y={seasonBaseline}
+                  stroke="var(--chart-reference)"
+                  strokeDasharray="6 4"
+                />
+              ) : null}
               <Tooltip
-                content={
-                  <PlayerPerformanceTooltip
-                    metric={metric}
-                  />
-                }
+                content={<PlayerPerformanceTooltip metric={metric} />}
                 cursor={{
                   stroke: "var(--chart-reference)",
                   strokeWidth: 1,
@@ -560,4 +596,37 @@ function formatMetricValue(
   const sign = metric.signed && value > 0 ? "+" : "";
   const suffix = metric.percentage ? "%" : "";
   return `${sign}${value.toFixed(2)}${suffix}`;
+}
+
+function traditionalBaseline(
+  kind: "skater" | "goalie",
+  games: Array<SkaterPerformanceGame | GoaliePerformanceGame>,
+  metric: string,
+): number | null {
+  if (!games.length) return null;
+  if (kind === "skater") {
+    const fields: Record<string, "points" | "goals" | "assists" | "shotsOnGoal"> = {
+        pointsPerGame: "points",
+        goalsPerGame: "goals",
+        assistsPerGame: "assists",
+        shotsPerGame: "shotsOnGoal",
+    };
+    const key = fields[metric];
+    return key
+      ? (games as SkaterPerformanceGame[]).reduce(
+          (sum, game) => sum + game[key],
+          0,
+        ) / games.length
+      : null;
+  }
+  const goalies = games as GoaliePerformanceGame[];
+  const saves = goalies.reduce((sum, game) => sum + game.saves, 0);
+  const shots = goalies.reduce((sum, game) => sum + game.shotsAgainst, 0);
+  if (metric === "savePercentage") return shots ? (saves / shots) * 100 : null;
+  if (metric === "savesPerGame") return saves / games.length;
+  if (metric === "goalsAgainstPerGame")
+    return (
+      goalies.reduce((sum, game) => sum + game.goalsAgainst, 0) / games.length
+    );
+  return null;
 }

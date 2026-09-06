@@ -56,19 +56,32 @@ test("player phase and season preserve applied refinements", async ({ page }) =>
   await expect(page.locator('select[name="sort"]')).toHaveValue("goals");
 });
 
-test("player type updates relevant fields immediately and reports pending edits", async ({ page }) => {
+test("player type updates fields and submits together with pending edits", async ({
+  page,
+}) => {
   await page.goto("/players?season=20252026");
-  await page.locator('select[name="type"][data-navigation-ready]').waitFor();
+  await expect(
+    page.getByRole("button", { name: "Switch between light and dark mode" }),
+  ).toBeEnabled();
   await page.locator('select[name="type"]').selectOption("goalies");
-  await expect(page).toHaveURL(/type=goalies/);
-  await expect(page.locator('input[type="number"][name="minGoals"]')).toHaveCount(0);
+  await expect(page).not.toHaveURL(/type=goalies/);
+  await expect(
+    page.locator('input[type="number"][name="minGoals"]'),
+  ).toHaveCount(0);
   await page.getByText("Advanced Filters", { exact: true }).click();
-  await expect(page.locator('input[type="number"][name="minSavePercentage"]')).toBeVisible();
+  await expect(
+    page.locator('input[type="number"][name="minSavePercentage"]'),
+  ).toBeVisible();
   await page.locator('input[type="number"][name="minWins"]').fill("5");
   await expect(page.getByRole("status")).toContainText("Changes not applied");
-  await page.getByRole("button", { name: "Apply Filters", exact: true }).click();
+  await page
+    .getByRole("button", { name: "Apply Filters", exact: true })
+    .click();
   await expect(page).toHaveURL(/minWins=5/);
-  await expect(page.getByText("Changes not applied", { exact: false })).toHaveCount(0);
+  await expect(page).toHaveURL(/type=goalies/);
+  await expect(
+    page.getByText("Changes not applied", { exact: false }),
+  ).toHaveCount(0);
 });
 
 test("current chart choices survive phase changes and filter resets", async ({ page }) => {

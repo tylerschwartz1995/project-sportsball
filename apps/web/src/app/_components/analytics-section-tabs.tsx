@@ -34,12 +34,12 @@ export function AnalyticsSectionTabs({
     },
     {
       id: "lines",
-      label: "Lines & pairings",
+      label: "Lines & Pairings",
       href: `/lines?season=${seasonId}&minimum=100`,
     },
     {
       id: "guide",
-      label: "Metric guide",
+      label: "Metric Guide",
       href: `/analytics/guide?season=${seasonId}`,
     },
   ];

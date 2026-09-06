@@ -1,5 +1,5 @@
 import { FilterForm } from "@/app/_components/filter-form";
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 
 import { AnalyticsSectionTabs } from "@/app/_components/analytics-section-tabs";
 import {

@@ -21,8 +21,8 @@ coverage boundaries.
 ## Interaction and styling rules
 
 - Season, phase, chart, and selection-only draft controls apply immediately.
-  Changing Player Type applies the current form, resets incompatible statistical
-  fields, and displays the appropriate skater or goalie controls.
+  Player Type previews the appropriate skater or goalie fields and sort options;
+  the results update with Apply Filters, together with the other form fields.
 - Multi-field forms use Apply Filters and announce unapplied changes and loading.
   Clear Filters is available only for active refinements and preserves context.
   Draft board resets preserve sorting; draft range resets preserve the team.
@@ -53,7 +53,7 @@ SPORTSBALL_E2E_BASE_URL=http://localhost:3000 \
 ```
 
 The filter suite checks reset/reapply, browser history, incompatible and
-compatible draft rounds, five-season peaks, context preservation, immediate
+compatible draft rounds, five-season peaks, context preservation, staged
 player-type changes, pending form edits, statistical selector refresh, historical
 team names, draft sorting/range reset, keyboard focus, and desktop/mobile fit in
 both themes. Existing suites additionally cover chart history, schedule sizing,

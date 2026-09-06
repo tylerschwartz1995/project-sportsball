@@ -1,3 +1,4 @@
+import { findPlayers } from "@/data/player-search";
 import { getPlayerCareer } from "@/data/player-career";
 import { afterAll, describe, expect, it } from "vitest";
 
@@ -33,6 +34,15 @@ const databaseTestsEnabled =
   process.env.SPORTSBALL_RUN_WEB_DATABASE_TESTS === "1";
 
 describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
+  it("finds historical players independently of season and treats wildcard input literally", async () => {
+    expect(await findPlayers("wayne gretzky")).toContainEqual({
+      id: 8447400,
+      name: "Wayne Gretzky",
+      position: "C",
+    });
+    expect(await findPlayers("%_")).toEqual([]);
+    expect(await findPlayers("w")).toEqual([]);
+  });
   afterAll(async () => {
     await closeDatabasePool();
   });
@@ -47,15 +57,32 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
 
   it("preserves full historical careers and excludes goalie non-appearances", async () => {
     const career = await getPlayerCareer(8447400);
-    const regular = career.filter(row => row.gameType === 2);
+    const regular = career.filter((row) => row.gameType === 2);
     expect(regular).toHaveLength(20);
     expect(regular.reduce((sum, row) => sum + (row.points ?? 0), 0)).toBe(2857);
-    expect(career.filter(row => row.gameType === 3).reduce((sum, row) => sum + (row.points ?? 0), 0)).toBe(382);
-    expect(new Set(career.map(row => `${row.kind}-${row.seasonId}-${row.gameType}`)).size).toBe(career.length);
+    expect(
+      career
+        .filter((row) => row.gameType === 3)
+        .reduce((sum, row) => sum + (row.points ?? 0), 0),
+    ).toBe(382);
+    expect(
+      new Set(
+        career.map((row) => `${row.kind}-${row.seasonId}-${row.gameType}`),
+      ).size,
+    ).toBe(career.length);
     const log = await getPlayerGameLog(8475883, 20252026);
     expect(log?.goalieGames.length).toBeGreaterThan(0);
-    expect(log?.goalieGames.every(game => (game.timeOnIceSeconds ?? 0) > 0 || (game.shotsAgainst ?? 0) > 0 || Boolean(game.decision))).toBe(true);
-    expect(log?.goalieGames.some(game => game.gameDate === "2026-04-13")).toBe(false);
+    expect(
+      log?.goalieGames.every(
+        (game) =>
+          (game.timeOnIceSeconds ?? 0) > 0 ||
+          (game.shotsAgainst ?? 0) > 0 ||
+          Boolean(game.decision),
+      ),
+    ).toBe(true);
+    expect(
+      log?.goalieGames.some((game) => game.gameDate === "2026-04-13"),
+    ).toBe(false);
   });
 
   it("loads the complete season index, standings, and latest results", async () => {
@@ -128,9 +155,7 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
       playByPlay.events.find((event) => event.typeDescription === "goal")
         ?.players,
     ).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ role: "scorer" }),
-      ]),
+      expect.arrayContaining([expect.objectContaining({ role: "scorer" })]),
     );
 
     const teams = await listTeamsBySeason(seasons[0].id);
@@ -186,7 +211,9 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     expect(player?.skaterSeasons.length).toBeGreaterThan(10);
 
     const gretzkyHistory = await getHistoricalPlayerSeasons(8447400);
-    expect(gretzkyHistory.skaters.find((row) => row.seasonId === 19851986)).toMatchObject({
+    expect(
+      gretzkyHistory.skaters.find((row) => row.seasonId === 19851986),
+    ).toMatchObject({
       points: 215,
       gameType: 2,
     });
@@ -298,7 +325,9 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     expect(new Set(goalieDecadeLeaders.map((row) => row.metric))).toEqual(
       new Set(["wins", "savePercentage", "goalsAgainstAverage"]),
     );
-    expect(goalieDecadeLeaders.every((row) => row.gamesPlayed >= 200)).toBe(true);
+    expect(goalieDecadeLeaders.every((row) => row.gamesPlayed >= 200)).toBe(
+      true,
+    );
 
     const decadeLeaders = await getHistoricalDecadeLeaders(2);
     expect(new Set(decadeLeaders.map((row) => row.metric))).toEqual(

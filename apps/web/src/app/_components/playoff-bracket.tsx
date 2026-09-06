@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 import type { ReactNode } from "react";
 import { useEffect, useId, useRef, useState } from "react";
 

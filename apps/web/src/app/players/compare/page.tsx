@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { ComparisonScrollRegion } from "@/app/_components/comparison-scroll-region";
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 
 import { PlayerDirectComparisonChart } from "@/app/_components/lazy-charts";
 import { PlayerComparisonPicker } from "@/app/_components/player-comparison-picker";
@@ -59,10 +59,7 @@ export default async function PlayerComparePage({
   const category: PlayerCategory =
     firstQueryValue(params.type) === "goalies" ? "goalies" : "skaters";
   const index = selectedSeason
-    ? await listPlayersBySeason(
-        selectedSeason.id,
-        gameTypeForPhase(phase),
-      )
+    ? await listPlayersBySeason(selectedSeason.id, gameTypeForPhase(phase))
     : { seasonId: 0, skaters: [], goalies: [] };
   const availablePlayers =
     category === "skaters" ? index.skaters : index.goalies;
@@ -72,44 +69,32 @@ export default async function PlayerComparePage({
   );
   const selectedIds = requestedIds.filter((id) => availableIds.has(id));
   const selectedRows = selectedIds
-    .map((id) =>
-      availablePlayers.find((player) => player.nhlPlayerId === id),
-    )
+    .map((id) => availablePlayers.find((player) => player.nhlPlayerId === id))
     .filter(
-      (
-        player,
-      ): player is SkaterSeasonSummary | GoalieSeasonSummary =>
+      (player): player is SkaterSeasonSummary | GoalieSeasonSummary =>
         player !== undefined,
     );
   const advanced =
     selectedSeason && phase === "regular"
       ? await Promise.all(
           selectedRows.map((player) =>
-            getMoneyPuckPlayerSeason(
-              player.nhlPlayerId,
-              selectedSeason.id,
-            ),
+            getMoneyPuckPlayerSeason(player.nhlPlayerId, selectedSeason.id),
           ),
         )
       : [];
-  const metrics =
-    category === "skaters" ? SKATER_METRICS : GOALIE_METRICS;
+  const metrics = category === "skaters" ? SKATER_METRICS : GOALIE_METRICS;
   const comparisonEntries =
     category === "skaters"
       ? (selectedRows as SkaterSeasonSummary[]).map((player) =>
           buildSkaterEntry(
             player,
-            advanced.find(
-              (data) => data.nhlPlayerId === player.nhlPlayerId,
-            ),
+            advanced.find((data) => data.nhlPlayerId === player.nhlPlayerId),
           ),
         )
       : (selectedRows as GoalieSeasonSummary[]).map((player) =>
           buildGoalieEntry(
             player,
-            advanced.find(
-              (data) => data.nhlPlayerId === player.nhlPlayerId,
-            ),
+            advanced.find((data) => data.nhlPlayerId === player.nhlPlayerId),
           ),
         );
 
@@ -201,13 +186,15 @@ export default async function PlayerComparePage({
                     phase={phase}
                   />
                 </WorkspacePanel>
-<details className="mt-5"><summary>Comparison Chart</summary>                <div className="mt-7">
-                  <PlayerDirectComparisonChart
-                    players={comparisonEntries}
-                    metrics={metrics}
-                  />
-                </div>
-</details>
+                <details open className="mt-5">
+                  <summary>Compare a Metric Visually</summary>{" "}
+                  <div className="mt-7">
+                    <PlayerDirectComparisonChart
+                      players={comparisonEntries}
+                      metrics={metrics}
+                    />
+                  </div>
+                </details>
               </>
             ) : null}
           </>

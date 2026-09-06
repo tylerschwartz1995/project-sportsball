@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 import { useUrlChoice } from "@/app/_components/use-shareable-state";
 
 import type {

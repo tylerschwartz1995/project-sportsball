@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 
 import { ShotMaps } from "@/app/_components/shot-map";
 import { SortableHeader } from "@/app/_components/sortable-header";

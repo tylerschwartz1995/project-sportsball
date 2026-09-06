@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/app/_components/exploration-link";
 import type { ChangeEvent } from "react";
 import { useState } from "react";
 

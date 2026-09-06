@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { ReturnLink } from "@/app/_components/exploration-link";
+import Link from "@/app/_components/exploration-link";
 import { notFound } from "next/navigation";
 
 import { TeamAdvancedAnalytics } from "@/app/_components/advanced-analytics";
@@ -140,35 +141,35 @@ export default async function TeamPage({
     scheduleStrength,
     overviewPeers,
   ] = await Promise.all([
-      view === "skaters" || view === "goalies"
-        ? getCachedTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType)
-        : getCachedTeamSeasonProfile(nhlTeamId, selectedSeason.id),
-      view === "advanced"
-        ? getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id, gameType)
-        : Promise.resolve(null),
-      view === "combinations"
-        ? getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
-            teamNhlId: nhlTeamId,
-            minimumIceTimeSeconds: 3_000,
-            limit: 100,
-          })
-        : Promise.resolve(null),
-      view === "schedule"
-        ? getTeamSchedule(nhlTeamId, selectedSeason.id, gameType)
-        : Promise.resolve([]),
-      view === "schedule"
-        ? getCachedTeamIdentityForSeason(nhlTeamId, selectedSeason.id)
-        : Promise.resolve(null),
-      view === "trends" || view === "overview"
-        ? getCachedTeamGameLog(nhlTeamId, selectedSeason.id)
-        : Promise.resolve(null),
-      view === "strength" && phase === "regular"
-        ? getCachedTeamScheduleStrength(nhlTeamId, selectedSeason.id)
-        : Promise.resolve(null),
-      view === "overview"
-        ? listCachedTeamsBySeason(selectedSeason.id, gameType)
-        : Promise.resolve([]),
-    ]);
+    view === "skaters" || view === "goalies"
+      ? getCachedTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType)
+      : getCachedTeamSeasonProfile(nhlTeamId, selectedSeason.id),
+    view === "advanced"
+      ? getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id, gameType)
+      : Promise.resolve(null),
+    view === "combinations"
+      ? getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
+          teamNhlId: nhlTeamId,
+          minimumIceTimeSeconds: 3_000,
+          limit: 100,
+        })
+      : Promise.resolve(null),
+    view === "schedule"
+      ? getTeamSchedule(nhlTeamId, selectedSeason.id, gameType)
+      : Promise.resolve([]),
+    view === "schedule"
+      ? getCachedTeamIdentityForSeason(nhlTeamId, selectedSeason.id)
+      : Promise.resolve(null),
+    view === "trends" || view === "overview"
+      ? getCachedTeamGameLog(nhlTeamId, selectedSeason.id)
+      : Promise.resolve(null),
+    view === "strength" && phase === "regular"
+      ? getCachedTeamScheduleStrength(nhlTeamId, selectedSeason.id)
+      : Promise.resolve(null),
+    view === "overview"
+      ? listCachedTeamsBySeason(selectedSeason.id, gameType)
+      : Promise.resolve([]),
+  ]);
   const profileDetail =
     detail ??
     (scheduleTeam
@@ -207,12 +208,11 @@ export default async function TeamPage({
       <SiteHeader active="teams" />
 
       <section className="py-8 sm:py-10">
-        <Link
-          href={`/teams?season=${selectedSeason.id}&phase=${phase}`}
-          className="inline-flex items-center gap-2 text-sm font-medium text-[var(--muted)] transition hover:text-[var(--accent)]"
+        <ReturnLink
+          fallback={`/teams?season=${selectedSeason.id}&phase=${phase}`}
         >
           <span aria-hidden="true">←</span> All teams
-        </Link>
+        </ReturnLink>
 
         <div className="modern-profile-identity modern-team-identity relative mt-6">
           <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_12rem] lg:items-end">
@@ -252,10 +252,20 @@ export default async function TeamPage({
         </div>
 
         <ViewTabs
-          active={view === "strength" ? "schedule" : view === "goalies" ? "skaters" : view}
+          active={
+            view === "strength"
+              ? "schedule"
+              : view === "goalies"
+                ? "skaters"
+                : view
+          }
           ariaLabel={`${profileDetail.team.name} views`}
           label="Profile view"
-          tabs={viewTabs.filter(tab => tab.id !== "strength" && tab.id !== "goalies").map(tab => tab.id === "skaters" ? { ...tab, label: "Players" } : tab)}
+          tabs={viewTabs
+            .filter((tab) => tab.id !== "strength" && tab.id !== "goalies")
+            .map((tab) =>
+              tab.id === "skaters" ? { ...tab, label: "Players" } : tab,
+            )}
         />
 
         <SeasonPhaseFilter
@@ -270,18 +280,44 @@ export default async function TeamPage({
           }}
         />
 
-        {view === "schedule" || view === "strength" ? <ViewTabs active={view} ariaLabel="Schedule views" tabs={viewTabs.filter(tab => tab.id === "schedule" || tab.id === "strength").map(tab => tab.id === "strength" ? { ...tab, label: "Schedule Difficulty" } : tab)} secondary /> : null}
-        {view === "skaters" || view === "goalies" ? <ViewTabs active={view} ariaLabel="Player type" tabs={viewTabs.filter(tab => tab.id === "skaters" || tab.id === "goalies")} secondary /> : null}
+        {view === "schedule" || view === "strength" ? (
+          <ViewTabs
+            active={view}
+            ariaLabel="Schedule views"
+            tabs={viewTabs
+              .filter((tab) => tab.id === "schedule" || tab.id === "strength")
+              .map((tab) =>
+                tab.id === "strength"
+                  ? { ...tab, label: "Schedule Difficulty" }
+                  : tab,
+              )}
+            secondary
+          />
+        ) : null}
+        {view === "skaters" || view === "goalies" ? (
+          <ViewTabs
+            active={view}
+            ariaLabel="Player type"
+            tabs={viewTabs.filter(
+              (tab) => tab.id === "skaters" || tab.id === "goalies",
+            )}
+            secondary
+          />
+        ) : null}
         {view === "overview" ? (
           overviewIdentity && overviewStats ? (
             <>
-            <p className="mt-6 text-lg tabular-nums">{phase === "regular" ? `${overviewStats.wins}–${overviewStats.regulationLosses}–${overviewStats.overtimeLosses + overviewStats.shootoutLosses} · ${overviewStats.standingsPoints} PTS` : `${overviewStats.wins}–${overviewStats.losses}`}</p>
-            <TeamSeasonIdentity
-              identity={overviewIdentity}
-              seasonId={selectedSeason.id}
-              phase={phase}
-              phaseLabel={seasonPhaseLabel(phase)}
-            />
+              <p className="mt-6 text-lg tabular-nums">
+                {phase === "regular"
+                  ? `${overviewStats.wins}–${overviewStats.regulationLosses}–${overviewStats.overtimeLosses + overviewStats.shootoutLosses} · ${overviewStats.standingsPoints} PTS`
+                  : `${overviewStats.wins}–${overviewStats.losses}`}
+              </p>
+              <TeamSeasonIdentity
+                identity={overviewIdentity}
+                seasonId={selectedSeason.id}
+                phase={phase}
+                phaseLabel={seasonPhaseLabel(phase)}
+              />
             </>
           ) : (
             <div className="workspace-empty-state mt-8">
@@ -324,198 +360,197 @@ export default async function TeamPage({
         ) : null}
 
         {view === "trends" ? (
-        <section className="workspace-width-data mt-8">
-          <SectionHeader
-            eyebrow="Rolling performance"
-            title="Team Form"
-            description="Actual goal share shows the scoreboard result. Five-on-five expected-goal share estimates which team created the stronger shot quality; above 50% means this team held the edge."
-            tone="violet"
-          />
-          <div className="workspace-chart-panel mt-6">
-            <TeamRollingPerformanceChart
-              games={
-                gameLog?.games
-                  .filter((game) => game.gameType === gameType)
-                  .map((game) => ({
-                    nhlGameId: game.nhlGameId,
-                    gameDate: game.gameDate,
-                    isHome: game.isHome,
-                    opponent: game.opponent,
-                    score: game.score,
-                    opponentScore: game.opponentScore,
-                    result: game.result,
-                    fiveOnFiveXGoalsFor: game.fiveOnFiveXGoalsFor,
-                    fiveOnFiveXGoalsAgainst:
-                      game.fiveOnFiveXGoalsAgainst,
-                  })) ?? []
-              }
-              teamName={profileDetail.team.name}
+          <section className="workspace-width-data mt-8">
+            <SectionHeader
+              eyebrow="Rolling performance"
+              title="Team Form"
+              description="Actual goal share shows the scoreboard result. Five-on-five expected-goal share estimates which team created the stronger shot quality; above 50% means this team held the edge."
+              tone="violet"
             />
-          </div>
-        </section>
+            <div className="workspace-chart-panel mt-6">
+              <TeamRollingPerformanceChart
+                games={
+                  gameLog?.games
+                    .filter((game) => game.gameType === gameType)
+                    .map((game) => ({
+                      nhlGameId: game.nhlGameId,
+                      gameDate: game.gameDate,
+                      isHome: game.isHome,
+                      opponent: game.opponent,
+                      score: game.score,
+                      opponentScore: game.opponentScore,
+                      result: game.result,
+                      fiveOnFiveXGoalsFor: game.fiveOnFiveXGoalsFor,
+                      fiveOnFiveXGoalsAgainst: game.fiveOnFiveXGoalsAgainst,
+                    })) ?? []
+                }
+                teamName={profileDetail.team.name}
+              />
+            </div>
+          </section>
         ) : null}
 
         {view === "skaters" ? (
-        <section className="workspace-width-standard mt-8">
-          <SectionHeader
-            eyebrow="Official NHL splits"
-            title="Skaters"
-            description={`Traditional ${seasonPhaseLabel(phase).toLowerCase()} production for every player who appeared with this team.`}
-            action={
-              <p className="text-sm tabular-nums text-[var(--muted)]">
-                {profileDetail.skaters.length} skaters
-              </p>
-            }
-          />
-          <DataTableShell>
-            <SortableTable defaultSortKey="points">
-              <div className="overflow-x-auto">
-                <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[720px]">
-                  <colgroup>
-                    <col className="workspace-col-entity" />
-                    <col className="workspace-col-number" span={6} />
-                  </colgroup>
-                  <thead>
-                    <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-left text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
-                      <SortableHeader
-                        label="Player"
-                        sortKey="player"
-                        align="left"
-                        defaultDirection="asc"
-                      />
-                      <SortableHeader label="GP" sortKey="games" />
-                      <SortableHeader label="G" sortKey="goals" />
-                      <SortableHeader label="A" sortKey="assists" />
-                      <SortableHeader label="PTS" sortKey="points" />
-                      <SortableHeader label="+/-" sortKey="plusMinus" />
-                      <SortableHeader label="PIM" sortKey="penaltyMinutes" />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {profileDetail.skaters.map((player) => (
-                      <tr
-                        key={`${player.nhlPlayerId}-${player.gamesPlayed}`}
-                        className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
-                      >
-                        <td className="px-4 py-3">
-                          <div>
-                            <Link
-                              href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                              className="workspace-entity-name font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
-                            >
-                              {player.name}
-                            </Link>
-                            <span className="ml-2 text-xs text-[var(--muted)]">
-                              {formatPlayerPosition(player.position)}
-                            </span>
-                          </div>
-                        </td>
-                        <NumericCell value={player.gamesPlayed} />
-                        <NumericCell value={player.goals} />
-                        <NumericCell value={player.assists} />
-                        <NumericCell value={player.points} highlight />
-                        <NumericCell value={formatSigned(player.plusMinus)} />
-                        <NumericCell value={player.penaltyMinutes} />
+          <section className="workspace-width-standard mt-8">
+            <SectionHeader
+              eyebrow="Official NHL splits"
+              title="Skaters"
+              description={`Traditional ${seasonPhaseLabel(phase).toLowerCase()} production for every player who appeared with this team.`}
+              action={
+                <p className="text-sm tabular-nums text-[var(--muted)]">
+                  {profileDetail.skaters.length} skaters
+                </p>
+              }
+            />
+            <DataTableShell>
+              <SortableTable defaultSortKey="points">
+                <div className="overflow-x-auto">
+                  <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[720px]">
+                    <colgroup>
+                      <col className="workspace-col-entity" />
+                      <col className="workspace-col-number" span={6} />
+                    </colgroup>
+                    <thead>
+                      <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-left text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
+                        <SortableHeader
+                          label="Player"
+                          sortKey="player"
+                          align="left"
+                          defaultDirection="asc"
+                        />
+                        <SortableHeader label="GP" sortKey="games" />
+                        <SortableHeader label="G" sortKey="goals" />
+                        <SortableHeader label="A" sortKey="assists" />
+                        <SortableHeader label="PTS" sortKey="points" />
+                        <SortableHeader label="+/-" sortKey="plusMinus" />
+                        <SortableHeader label="PIM" sortKey="penaltyMinutes" />
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </SortableTable>
-          </DataTableShell>
-        </section>
+                    </thead>
+                    <tbody>
+                      {profileDetail.skaters.map((player) => (
+                        <tr
+                          key={`${player.nhlPlayerId}-${player.gamesPlayed}`}
+                          className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
+                        >
+                          <td className="px-4 py-3">
+                            <div>
+                              <Link
+                                href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
+                                className="workspace-entity-name font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
+                              >
+                                {player.name}
+                              </Link>
+                              <span className="ml-2 text-xs text-[var(--muted)]">
+                                {formatPlayerPosition(player.position)}
+                              </span>
+                            </div>
+                          </td>
+                          <NumericCell value={player.gamesPlayed} />
+                          <NumericCell value={player.goals} />
+                          <NumericCell value={player.assists} />
+                          <NumericCell value={player.points} highlight />
+                          <NumericCell value={formatSigned(player.plusMinus)} />
+                          <NumericCell value={player.penaltyMinutes} />
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </SortableTable>
+            </DataTableShell>
+          </section>
         ) : null}
 
         {view === "goalies" ? (
-        <section className="workspace-width-standard mt-8">
-          <SectionHeader
-            eyebrow="Official NHL splits"
-            title="Goalies"
-            description={`Traditional ${seasonPhaseLabel(phase).toLowerCase()} appearances, decisions, and save results.`}
-            action={
-              <p className="text-sm tabular-nums text-[var(--muted)]">
-                {profileDetail.goalies.length} goalies
-              </p>
-            }
-          />
-          <DataTableShell>
-            <SortableTable defaultSortKey="savePercentage">
-              <div className="overflow-x-auto">
-                <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
-                  <colgroup>
-                    <col className="workspace-col-entity" />
-                    <col className="workspace-col-number" span={6} />
-                    <col className="workspace-col-percentage" />
-                    <col className="workspace-col-number" />
-                  </colgroup>
-                  <thead>
-                    <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-left text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
-                      <SortableHeader
-                        label="Goalie"
-                        sortKey="goalie"
-                        align="left"
-                        defaultDirection="asc"
-                      />
-                      <SortableHeader label="GP" sortKey="games" />
-                      <SortableHeader label="GS" sortKey="starts" />
-                      <SortableHeader label="W" sortKey="wins" />
-                      <SortableHeader label="L" sortKey="losses" />
-                      <SortableHeader label="OTL" sortKey="overtimeLosses" />
-                      <SortableHeader
-                        label="GAA"
-                        sortKey="goalsAgainstAverage"
-                        defaultDirection="asc"
-                      />
-                      <SortableHeader label="SV%" sortKey="savePercentage" />
-                      <SortableHeader label="SO" sortKey="shutouts" />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {profileDetail.goalies.map((player) => (
-                      <tr
-                        key={`${player.nhlPlayerId}-${player.gamesPlayed}`}
-                        className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
-                      >
-                        <td className="px-4 py-3">
-                          <div>
-                            <Link
-                              href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
-                              className="workspace-entity-name font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
-                            >
-                              {player.name}
-                            </Link>
-                          </div>
-                        </td>
-                        <NumericCell value={player.gamesPlayed} />
-                        <NumericCell value={player.gamesStarted} />
-                        <NumericCell value={player.wins} />
-                        <NumericCell value={player.losses} />
-                        <NumericCell value={player.overtimeLosses} />
-                        <NumericCell
-                          value={formatDecimal(player.goalsAgainstAverage, 2)}
+          <section className="workspace-width-standard mt-8">
+            <SectionHeader
+              eyebrow="Official NHL splits"
+              title="Goalies"
+              description={`Traditional ${seasonPhaseLabel(phase).toLowerCase()} appearances, decisions, and save results.`}
+              action={
+                <p className="text-sm tabular-nums text-[var(--muted)]">
+                  {profileDetail.goalies.length} goalies
+                </p>
+              }
+            />
+            <DataTableShell>
+              <SortableTable defaultSortKey="savePercentage">
+                <div className="overflow-x-auto">
+                  <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
+                    <colgroup>
+                      <col className="workspace-col-entity" />
+                      <col className="workspace-col-number" span={6} />
+                      <col className="workspace-col-percentage" />
+                      <col className="workspace-col-number" />
+                    </colgroup>
+                    <thead>
+                      <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-left text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
+                        <SortableHeader
+                          label="Goalie"
+                          sortKey="goalie"
+                          align="left"
+                          defaultDirection="asc"
                         />
-                        <NumericCell
-                          value={formatSavePercentage(player.savePercentage)}
-                          highlight
+                        <SortableHeader label="GP" sortKey="games" />
+                        <SortableHeader label="GS" sortKey="starts" />
+                        <SortableHeader label="W" sortKey="wins" />
+                        <SortableHeader label="L" sortKey="losses" />
+                        <SortableHeader label="OTL" sortKey="overtimeLosses" />
+                        <SortableHeader
+                          label="GAA"
+                          sortKey="goalsAgainstAverage"
+                          defaultDirection="asc"
                         />
-                        <NumericCell value={player.shutouts} />
+                        <SortableHeader label="SV%" sortKey="savePercentage" />
+                        <SortableHeader label="SO" sortKey="shutouts" />
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </SortableTable>
-          </DataTableShell>
-        </section>
+                    </thead>
+                    <tbody>
+                      {profileDetail.goalies.map((player) => (
+                        <tr
+                          key={`${player.nhlPlayerId}-${player.gamesPlayed}`}
+                          className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
+                        >
+                          <td className="px-4 py-3">
+                            <div>
+                              <Link
+                                href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}`}
+                                className="workspace-entity-name font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
+                              >
+                                {player.name}
+                              </Link>
+                            </div>
+                          </td>
+                          <NumericCell value={player.gamesPlayed} />
+                          <NumericCell value={player.gamesStarted} />
+                          <NumericCell value={player.wins} />
+                          <NumericCell value={player.losses} />
+                          <NumericCell value={player.overtimeLosses} />
+                          <NumericCell
+                            value={formatDecimal(player.goalsAgainstAverage, 2)}
+                          />
+                          <NumericCell
+                            value={formatSavePercentage(player.savePercentage)}
+                            highlight
+                          />
+                          <NumericCell value={player.shutouts} />
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </SortableTable>
+            </DataTableShell>
+          </section>
         ) : null}
 
         {view === "advanced" ? (
-        <div>
-          <TeamAdvancedAnalytics
-            data={advanced}
-            seasonId={selectedSeason.id}
-          />
-        </div>
+          <div>
+            <TeamAdvancedAnalytics
+              data={advanced}
+              seasonId={selectedSeason.id}
+            />
+          </div>
         ) : null}
 
         {view === "combinations" ? (
@@ -565,11 +600,11 @@ function teamViewTabs({
     { id: "overview", label: "Overview" },
     { id: "schedule", label: "Schedule" },
     { id: "strength", label: "Strength" },
-    { id: "trends", label: "Trends" },
+    { id: "trends", label: "Recent Form" },
     { id: "skaters", label: "Skaters" },
     { id: "goalies", label: "Goalies" },
-    { id: "advanced", label: "Advanced" },
-    { id: "combinations", label: "Combinations" },
+    { id: "advanced", label: "Shot Quality" },
+    { id: "combinations", label: "Lines & Pairings" },
   ];
 
   return tabs
