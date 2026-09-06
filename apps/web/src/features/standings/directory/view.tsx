@@ -1,3 +1,4 @@
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import Link from "@/components/ui/exploration-link";
 import { ViewTabs } from "@/components/ui/view-tabs";
@@ -125,6 +126,7 @@ export function StandingsPageView({
           </div>
         )}
       </section>
+    <NavigationComplete />
     </main>
   );
 }

@@ -1,0 +1,72 @@
+/* Keep late shared overrides after the route stylesheet, matching the original cascade. */
+main h1, .workspace-page-header h1, .workspace-history-header h1 {
+  font-family: var(--font-geist-sans), sans-serif;
+  font-size: var(--text-page);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+.surface-panel h3, .workspace-history-intro h2, .workspace-schedule-results-heading h2, .workspace-team-conferences h2 { font-size: 1.25rem; font-weight: 700; }
+:is(.workspace-directory-controls, .workspace-player-filters, .workspace-draft-filters,
+.workspace-history-filters, .workspace-unit-filter, .workspace-player-picker,
+.workspace-history-header, .workspace-history-chart, .workspace-history-ranking-summary,
+.workspace-history-filter-drawer, .workspace-history-peaks-heading, .workspace-history-decades,
+.workspace-history-record-card, .workspace-team-directory-card, .workspace-player-direct-chart,
+.workspace-player-season-totals, .workspace-player-profile-fact, .workspace-analytics-filters) {
+  border-radius: var(--radius-panel); box-shadow: none; background-image: none;
+}
+.workspace-table thead .workspace-sortable-header,
+.workspace-table thead .workspace-sticky-entity,
+.workspace-history-table thead .workspace-history-rank-col,
+.workspace-history-table thead .workspace-history-entity-col { background: var(--surface-raised); }
+.workspace-panel-header h3, .workspace-player-picker-heading h3,
+.workspace-history-record-list header h2 { font-size: var(--text-section); }
+@media (max-width: 700px) {
+  .workspace-player-filter-group.is-primary.has-position > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .workspace-player-filter-group.is-primary.has-position .is-wide { grid-column: 1 / -1; }
+  .workspace-player-filters > .workspace-filter-actions { flex-direction: row; }
+  .workspace-player-filters > .workspace-filter-actions > * { flex: 1 1 40%; }
+  .workspace-player-filters > .workspace-filter-actions > .workspace-player-compare-link { flex-basis: 100%; }
+  .workspace-unit-filter { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .workspace-unit-filter > label:first-of-type, .workspace-unit-filter > .workspace-filter-actions { grid-column: 1 / -1; }
+  .workspace-unit-filter label { min-width: 0; }
+  .workspace-history-chart-canvas { height: 17rem; }
+  .workspace-table-scroll:not(.modern-comparison-scroll)::before { content: "Scroll for more columns →"; display: block; position: sticky; left: 0; padding: 0.5rem 0.8rem; color: var(--muted); font-size: var(--text-meta); }
+  .workspace-table-scroll:not(.modern-comparison-scroll) .workspace-table tr > :first-child { position: sticky; left: 0; z-index: 1; background: var(--surface); }
+  .workspace-table-scroll:not(.modern-comparison-scroll) .workspace-table thead tr > :first-child { background: var(--surface-raised); }
+}
+.workspace-scroll-nav a, .workspace-phase-filter a, .workspace-schedule-phase a,
+.workspace-standings-scope :is(a, button), .workspace-history-explorer-nav a,
+.workspace-history-peaks-heading nav a { font-size: 0.9375rem; }
+main :is(form label, .workspace-chart-toolbar label, .workspace-season-picker label,
+.workspace-advanced-situation-filter, .workspace-history-filter-drawer label) { font-size: 0.9375rem; }
+.workspace-filter-actions > :is(button, a, span), .workspace-draft-filter-actions > *,
+.workspace-history-filter-actions > *, .workspace-history-actions > *,
+.workspace-draft-table-search button { font-size: 1rem; min-height: 2.75rem; }
+.workspace-empty-state, .workspace-empty-state a, .workspace-history-empty p { font-size: 1rem; line-height: 1.5; }
+.workspace-empty-state strong, .workspace-history-empty strong { font-size: 1.125rem; }
+.workspace-history-ranking-summary h2, .workspace-history-peaks-heading h2,
+.workspace-history-decades h2, .workspace-history-results > header h3 { font-size: 1.5rem; font-weight: 650; }
+.workspace-history-record-list header h2 { font-size: 1.25rem; font-weight: 650; }
+.workspace-history-record-list li strong, .workspace-history-entity strong { font-size: 1rem; font-weight: 550; }
+.workspace-history-record-list li > b { font-size: 1.125rem; }
+.workspace-history-record-list li small { font-size: 0.875rem; }
+.workspace-history-record-list header > a { font-size: 0.9375rem; }
+.workspace-history-ranking-summary dd { font-size: 0.9375rem; }
+.workspace-history-table thead th { height: 2.75rem; font-size: 0.875rem; }
+.workspace-history-table thead th > a { display: flex; align-items: center; justify-content: flex-end; gap: 0.25rem; min-height: 2.75rem; }
+.workspace-history-table tbody td { padding-block: 0.6875rem; }
+.workspace-history-filter-drawer legend { font-size: 1rem; }
+.workspace-history-filter-drawer label { font-size: 0.9375rem; }
+.workspace-history-era-definition dl { flex-wrap: wrap; gap: 0.75rem 1.5rem; }
+.workspace-history-era-definition dl > div { flex-wrap: wrap; }
+.workspace-history-era-definition dt { font-size: 1rem; white-space: nowrap; }
+.workspace-history-era-definition dd { font-size: 0.875rem; }
+.workspace-history-decades-table tbody th { font-size: 1rem; }
+.workspace-history-decades-table tbody td { font-size: 0.9375rem; }
+.workspace-history-intro > p, .workspace-history-era-definition > p { font-size: 1rem; line-height: 1.6; max-width: 75ch; }
+.workspace-chart-toolbar :is(h3, h4), .workspace-history-chart header h3,
+.workspace-player-direct-chart h3 { font-size: 1.25rem; font-weight: 650; }
+.workspace-player-chart-header > p, .workspace-player-chart-header > div > p:last-child:not(:first-child),
+.workspace-history-header-copy > p { font-size: 1rem; line-height: 1.6; }
+.workspace-history-chart-heading-copy > span { font-size: 0.875rem; }

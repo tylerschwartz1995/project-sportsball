@@ -64,10 +64,6 @@
   gap: 0.55rem;
   margin-top: 1rem;
 }
-.workspace-history-primary-navs .workspace-phase-filter,
-.workspace-history-primary-navs .workspace-scroll-nav {
-  margin-top: 0;
-}
 .workspace-history-overview,
 .workspace-history-explorer,
 .workspace-history-eras {

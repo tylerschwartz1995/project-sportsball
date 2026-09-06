@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { buildGameFlow } from "@/lib/game-flow";
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import { ReturnLink } from "@/components/ui/exploration-link";
 import { ViewTabs } from "@/components/ui/view-tabs";
@@ -12,20 +15,9 @@ import { GamePlayByPlayView } from "@/features/games/play-by-play";
 import type { loadGamePage } from './loader';
 import { finalLabel, formatDate } from './logic';
 import { ScoreTeam, TeamBoxScore } from './sections';
-export function GamePageView({
-  playByPlay,
-  availability,
-  advanced,
-  game,
-  completed,
-  tabs,
-  view,
-  advancedView,
-  gameFlow,
-  timelinePeriod,
-  hasBoxScore,
-  boxScore,
-}: Awaited<ReturnType<typeof loadGamePage>>) {
+type PageData = Awaited<ReturnType<typeof loadGamePage>>;
+export function GamePageView(data: PageData) {
+  const { game, completed, tabs, view, advancedView } = data;
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="games" />
@@ -84,6 +76,19 @@ export function GamePageView({
           />
         ) : null}
 
+        <Suspense fallback={<p role="status" className="workspace-empty-state">Loading game details…</p>}>
+          <GameContent {...data} />
+        </Suspense>
+      </section>
+    </main>
+  );
+}
+
+async function GameContent({ content, game, view, advancedView, timelinePeriod, hasBoxScore, boxScore, availability }: PageData) {
+  const [advanced, playByPlay] = await content;
+  const gameFlow = buildGameFlow({ shots: advanced?.shots ?? [], events: playByPlay.events,
+    awayTeam: game.awayTeam, homeTeam: game.homeTeam });
+  return <>
         {view === "scoring" ? (
           <GamePlayByPlayView
             data={playByPlay}
@@ -114,7 +119,6 @@ export function GamePageView({
             <GameAdvancedAnalytics data={advanced} view={advancedView} />
           </div>
         ) : null}
-      </section>
-    </main>
-  );
+    <NavigationComplete />
+  </>;
 }

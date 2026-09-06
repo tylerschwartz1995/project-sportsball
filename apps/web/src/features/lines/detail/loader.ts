@@ -1,10 +1,11 @@
+import { withReadContext } from "@/data/read-context";
 import { parseSeasonId } from "@/contracts/season";
-import { getMoneyPuckUnitDetail } from "@/data/season-units";
+import { getMoneyPuckUnitDetail } from "@/data/performance-cache";
 import { firstQueryValue } from "@/lib/directory";
 import { notFound } from "next/navigation";
 import "server-only";
 import { UnitPageProps, parsePositiveInteger, parseUnitRoute } from './logic';
-export async function loadUnitPage({
+async function loadUnitPageData({
   params,
   searchParams,
 }: UnitPageProps) {
@@ -31,4 +32,8 @@ export async function loadUnitPage({
     detail,
     title,
   } as const;
+}
+
+export function loadUnitPage(...args: Parameters<typeof loadUnitPageData>) {
+  return withReadContext("lines/detail", () => loadUnitPageData(...args));
 }

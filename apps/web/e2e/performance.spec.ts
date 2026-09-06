@@ -287,3 +287,88 @@ async function setDocumentMarker(page: Page) {
     element.setAttribute("data-browser-document", "preserved");
   });
 }
+
+ test.describe("whole-app loading budgets", () => {
+  test("advanced results paginate the full sample without another document load", async ({ page }) => {
+    const response = await page.goto(`/analytics?type=skaters&season=${seasonId}`);
+    await expect(page.locator("tbody tr")).toHaveCount(50);
+    expect((await response!.body()).length).toBeLessThan(500_000);
+    expect(await page.locator("*").count()).toBeLessThan(2_000);
+    const first = await page.locator("tbody tr").first().innerText();
+    await page.getByRole("button", { name: "Next →", exact: true }).click();
+    await expect(page.getByRole("status")).toContainText("Page 2 of 4");
+    expect(await page.locator("tbody tr").first().innerText()).not.toBe(first);
+    await page.getByRole("button", { name: /^Points/ }).click();
+    await expect(page.getByRole("status")).toContainText("Page 1 of 4");
+    await expect(page).toHaveURL(/tableSort=points/);
+  });
+
+  test("player cards reuse the table data on mobile", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const response = await page.goto(`/players?season=${seasonId}`);
+    await expect(page.locator("tbody tr")).toHaveCount(50);
+    expect((await response!.body()).length).toBeLessThan(450_000);
+    await page.getByRole("button", { name: "Player Cards", exact: true }).click();
+    await expect(page.locator(".ux-player-results")).toHaveAttribute("data-mobile-view", "cards");
+    await expect(page.locator("tbody tr")).toHaveCount(50);
+    const row = page.locator("tbody tr").first();
+    await expect(row).toBeVisible();
+    expect((await row.boundingBox())!.width).toBeLessThan(390);
+    expect(await row.locator("td").nth(1).getAttribute("data-label")).toBe("GP");
+  });
+
+  test("closed history makes no supplemental request and opens on demand", async ({ page }) => {
+    const requests: string[] = [];
+    page.on("request", request => requests.push(request.url()));
+    await page.goto("/history");
+    const summary = page.locator("summary").filter({ hasText: "Record Progression" });
+    await expect(summary).toBeVisible();
+    expect(requests.some(url => url.includes("/api/history/supplement"))).toBe(false);
+    await summary.click();
+    await expect.poll(() => requests.some(url => url.includes("/api/history/supplement"))).toBe(true);
+    await expect(summary.locator("..").getByRole("alert")).toHaveCount(0);
+    await expect(page.locator(".recharts-surface").first()).toBeVisible();
+  });
+
+  test("dense lines do not prefetch every visible entity", async ({ page }) => {
+    const requests: string[] = [];
+    page.on("request", request => { if (request.url().includes("_rsc=")) requests.push(request.url()); });
+    await page.goto(`/lines?season=${seasonId}`);
+    await expect(page.locator("tbody tr").first()).toBeVisible();
+    await page.waitForTimeout(500);
+    expect(requests.length).toBeLessThan(25);
+  });
+
+  test("representative reads remain bounded under concurrent navigation", async ({ request }) => {
+    const paths = [`/players?season=${seasonId}`, `/drafts?view=classes`, `/lines?season=${seasonId}`, `/players/8478402/games?season=${seasonId}`];
+    await Promise.all(paths.map(path => request.get(path)));
+    const started = performance.now();
+    const results = await Promise.all([...paths, ...paths].map(path => request.get(path)));
+    for (const result of results) expect(result.ok()).toBe(true);
+    expect(performance.now() - started).toBeLessThan(3_000);
+  });
+
+  test("mobile advanced results meet a throttled content budget", async ({ page, context }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    const session = await context.newCDPSession(page);
+    await session.send("Emulation.setCPUThrottlingRate", { rate: 4 });
+    await session.send("Network.enable");
+    await session.send("Network.emulateNetworkConditions", { offline: false, latency: 150, downloadThroughput: 200_000, uploadThroughput: 100_000 });
+    const started = performance.now();
+    await page.goto(`/analytics?type=skaters&season=${seasonId}`);
+    await expect(page.locator("tbody tr").first()).toBeVisible();
+    expect(performance.now() - started).toBeLessThan(6_000);
+  });
+ });
+
+test("draft content commits when changing filters immediately after hydration", async ({ page }) => {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    await page.goto("/drafts?year=2025&round=1&sort=player&dir=desc");
+    const year = page.locator('select[name="year"][data-navigation-ready="true"]');
+    await year.waitFor();
+    await year.selectOption("2026");
+    await expect(page).toHaveURL(/year=2026/);
+    await expect(page.locator('select[name="year"]')).toBeEnabled();
+    await expect(page.locator('select[name="year"]')).toHaveValue("2026");
+  }
+});

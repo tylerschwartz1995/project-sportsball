@@ -11,7 +11,7 @@ test("clearing birthplace removes it from both results and the next submission",
 
 test("season selection agrees with browser back and forward", async ({ page }) => {
   await page.goto("/teams?season=20252026");
-  await page.locator('[data-navigation-ready="true"]').first().waitFor();
+  await page.locator('form.workspace-season-picker[data-navigation-ready="true"]').waitFor();
   await page.locator('select[name="season"]').selectOption("20242025");
   await expect(page).toHaveURL(/season=20242025/);
   await page.goBack();
@@ -23,7 +23,7 @@ test("season selection agrees with browser back and forward", async ({ page }) =
 
 test("changing draft year cannot leave an invisible round", async ({ page }) => {
   await page.goto("/drafts?year=1974&round=20");
-  await page.locator('select[name="year"][data-navigation-ready]').waitFor();
+  await page.locator('select[name="year"][data-navigation-ready="true"]').waitFor();
   await page.locator('select[name="year"]').selectOption("2026");
   await expect(page).toHaveURL(/year=2026/);
   await expect(page).not.toHaveURL(/round=20/);
@@ -107,12 +107,20 @@ for (const [route, selector, value] of [
 ] as const) {
   test(`statistical choice survives refresh: ${route} ${value}`, async ({ page }) => {
     await page.goto(route);
-    await page.locator("details").evaluateAll(elements => elements.forEach(element => { (element as HTMLDetailsElement).open = true; }));
+    if (route.startsWith("/history")) {
+      await page.locator("summary").filter({ hasText: /Record Progression|League Environment and Decade Leaders/ }).click();
+    } else {
+      await page.locator("details").evaluateAll(elements => elements.forEach(element => { (element as HTMLDetailsElement).open = true; }));
+    }
     const select = page.locator(selector).first();
     await select.selectOption(value);
     await expect(page).toHaveURL(new RegExp(`=${value}`));
     await page.reload();
-    await page.locator("details").evaluateAll(elements => elements.forEach(element => { (element as HTMLDetailsElement).open = true; }));
+    if (route.startsWith("/history")) {
+      await page.locator("summary").filter({ hasText: /Record Progression|League Environment and Decade Leaders/ }).click();
+    } else {
+      await page.locator("details").evaluateAll(elements => elements.forEach(element => { (element as HTMLDetailsElement).open = true; }));
+    }
     await expect(page.locator(selector).first()).toHaveValue(value);
   });
 }
@@ -151,7 +159,7 @@ for (const width of [390, 1280]) {
 
 test("draft refinements and clear preserve sorting and compatible rounds", async ({ page }) => {
   await page.goto("/drafts?year=2025&round=1&sort=player&dir=desc");
-  await page.locator('select[name="year"][data-navigation-ready]').waitFor();
+  await page.locator('select[name="year"][data-navigation-ready="true"]').waitFor();
   await page.locator('select[name="year"]').selectOption("2026");
   await expect(page).toHaveURL(/year=2026/);
   await expect(page.locator('select[name="round"]')).toHaveValue("1");

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { unstable_cache } from "next/cache";
+import { trackedCache } from "@/data/shared-cache";
 
 import { listScheduleSeasons, listSeasons } from "@/data/seasons";
 import { getTeamScheduleStrength } from "@/data/schedule-strength";
@@ -19,73 +19,73 @@ const REFERENCE_DATA_SECONDS = 3_600;
 const ACTIVE_DATA_SECONDS = 300;
 
 /** Shared page reads with lifetimes aligned to the documented API policy. */
-export const listCachedSeasons = unstable_cache(
+export const listCachedSeasons = trackedCache(
   listSeasons,
   ["page-seasons-v1"],
   { revalidate: REFERENCE_DATA_SECONDS, tags: ["seasons"] },
 );
 
-export const listCachedScheduleSeasons = unstable_cache(
+export const listCachedScheduleSeasons = trackedCache(
   listScheduleSeasons,
   ["page-schedule-seasons-v1"],
   { revalidate: REFERENCE_DATA_SECONDS, tags: ["seasons"] },
 );
 
-export const getCachedStandings = unstable_cache(
+export const getCachedStandings = trackedCache(
   getStandings,
   ["page-standings-v1"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["standings"] },
 );
 
-export const getCachedStandingsPointsHistory = unstable_cache(
+export const getCachedStandingsPointsHistory = trackedCache(
   getStandingsPointsHistory,
   ["page-standings-points-history-v1"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["standings"] },
 );
 
-export const listCachedTeamsBySeason = unstable_cache(
+export const listCachedTeamsBySeason = trackedCache(
   listTeamsBySeason,
   ["page-teams-by-season-v1"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams"] },
 );
 
-export const getCachedTeamScheduleStrength = unstable_cache(
+export const getCachedTeamScheduleStrength = trackedCache(
   getTeamScheduleStrength,
   ["page-team-schedule-strength-v1"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams", "games"] },
 );
 
-export const listCachedTeamSeasonIds = unstable_cache(
+export const listCachedTeamSeasonIds = trackedCache(
   listTeamSeasonIds,
   ["page-team-season-ids-v1"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams", "seasons"] },
 );
 
-export const listCachedTeamScheduleSeasonIds = unstable_cache(
+export const listCachedTeamScheduleSeasonIds = trackedCache(
   listTeamScheduleSeasonIds,
   ["page-team-schedule-season-ids-v1"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams", "games", "seasons"] },
 );
 
-export const getCachedTeamSeasonProfile = unstable_cache(
+export const getCachedTeamSeasonProfile = trackedCache(
   getTeamSeasonProfile,
   ["page-team-season-profile-v1"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams", "games"] },
 );
 
-export const getCachedTeamSeasonDetail = unstable_cache(
+export const getCachedTeamSeasonDetail = trackedCache(
   getTeamSeasonDetail,
   ["page-team-season-detail-v1"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams", "players", "games"] },
 );
 
-export const getCachedTeamIdentityForSeason = unstable_cache(
+export const getCachedTeamIdentityForSeason = trackedCache(
   getTeamIdentityForSeason,
   ["page-team-identity-v1"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams", "seasons"] },
 );
 
-export const getCachedTeamGameLog = unstable_cache(
+export const getCachedTeamGameLog = trackedCache(
   getTeamGameLog,
   ["page-team-game-log-v1"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams", "games"] },

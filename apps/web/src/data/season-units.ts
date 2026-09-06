@@ -199,34 +199,32 @@ async function listRollingMoneyPuckSeasonUnits(
 ): Promise<MoneyPuckSeasonUnitStats[]> {
   const rows = await query<SeasonUnitRow>(
     `
-      WITH canonical_game_units AS (
-        SELECT
-          game.season_id,
-          stats.*,
-          ARRAY(
-            SELECT player_id
-            FROM unnest(ARRAY[
-              stats.player_1_id,
-              stats.player_2_id,
-              stats.player_3_id
-            ]) AS player_id
-            WHERE player_id IS NOT NULL
-            ORDER BY player_id
-          ) AS player_ids,
-          DENSE_RANK() OVER (
-            PARTITION BY stats.team_id
-            ORDER BY stats.game_date DESC, stats.game_id DESC
-          ) AS team_game_rank
-        FROM moneypuck_line_game_stats AS stats
-        JOIN games AS game
-          ON game.id = stats.game_id
-        JOIN teams AS filter_team
-          ON filter_team.id = stats.team_id
-        WHERE game.season_id = $1
-          AND game.game_type = 2
-          AND stats.unit_type = $2
-          AND stats.situation = '5on5'
+      WITH eligible_games AS (
+        SELECT side.team_id, game.id AS game_id, game.game_date
+        FROM games AS game
+        CROSS JOIN LATERAL (VALUES (game.away_team_id), (game.home_team_id)) AS side(team_id)
+        JOIN teams AS filter_team ON filter_team.id = side.team_id
+        WHERE game.season_id = $1 AND game.game_type = 2
           AND ($4::integer IS NULL OR filter_team.nhl_id = $4)
+          AND EXISTS (
+            SELECT 1 FROM moneypuck_line_game_stats AS stats
+            WHERE stats.game_id = game.id AND stats.team_id = side.team_id
+              AND stats.unit_type = $2 AND stats.situation = '5on5'
+          )
+      ), ranked_games AS (
+        SELECT *, ROW_NUMBER() OVER (
+          PARTITION BY team_id ORDER BY game_date DESC, game_id DESC
+        ) AS team_game_rank FROM eligible_games
+      ), canonical_game_units AS (
+        SELECT $1::integer AS season_id, stats.*, ranked.team_game_rank,
+          ARRAY(SELECT player_id FROM unnest(ARRAY[
+            stats.player_1_id, stats.player_2_id, stats.player_3_id
+          ]) AS player_id WHERE player_id IS NOT NULL ORDER BY player_id) AS player_ids
+        FROM ranked_games AS ranked
+        JOIN moneypuck_line_game_stats AS stats
+          ON stats.game_id = ranked.game_id AND stats.team_id = ranked.team_id
+        WHERE ranked.team_game_rank <= $6
+          AND stats.unit_type = $2 AND stats.situation = '5on5'
       ),
       aggregate AS (
         SELECT
@@ -360,6 +358,8 @@ export async function getMoneyPuckUnitDetail(
           AND filter_team.nhl_id = $2
           AND stats.unit_type = $3
           AND stats.situation = '5on5'
+          AND ARRAY_REMOVE(ARRAY[stats.player_1_id, stats.player_2_id, stats.player_3_id], NULL)
+            @> ARRAY(SELECT id FROM players WHERE nhl_id = ANY($4::bigint[]))
       )
       SELECT
         matching.season_id,

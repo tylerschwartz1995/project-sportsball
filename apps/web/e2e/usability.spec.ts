@@ -56,7 +56,7 @@ test("mobile menu, visible sorting, and compact player results", async ({
   await expect(page.locator(".ux-player-results table").first()).toBeVisible();
   await page.getByRole("button", { name: "Player Cards", exact: true }).click();
   await expect(
-    page.locator(".ux-player-results article").first(),
+    page.locator('.ux-player-results[data-mobile-view="cards"] tbody tr').first(),
   ).toBeVisible();
   expect(
     await page.evaluate(

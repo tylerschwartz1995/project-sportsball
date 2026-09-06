@@ -1,3 +1,4 @@
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import { WorkspacePageHeader } from "@/components/ui/workspace-primitives";
 import { GamePicker } from "@/features/games/game-picker";
@@ -90,6 +91,7 @@ export function GamesPageView({
           </>
         )}
       </section>
+    <NavigationComplete />
     </main>
   );
 }

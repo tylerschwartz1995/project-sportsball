@@ -3,11 +3,6 @@ import type {
   AdvancedSkaterLeaderboardRow,
   AdvancedTeamLeaderboardRow,
 } from "@/contracts/advanced-leaderboard";
-import {
-  listAdvancedGoalieLeaders,
-  listAdvancedSkaterLeaders,
-  listAdvancedTeamLeaders,
-} from "@/data/advanced-leaderboard";
 import { firstQueryValue } from "@/lib/directory";
 
 export const LEADERBOARD_TYPES = ["teams", "skaters", "goalies"] as const;
@@ -51,29 +46,6 @@ export type LeaderboardRows =
   | AdvancedSkaterLeaderboardRow[]
   | AdvancedGoalieLeaderboardRow[];
 
-export async function loadLeaderboard(
-  type: LeaderboardType,
-  seasonId: number,
-  situation: Situation,
-  minimumIceTimeSeconds: number,
-  gameType: number,
-): Promise<LeaderboardRows> {
-  if (type === "teams") {
-    return listAdvancedTeamLeaders(seasonId, situation, gameType);
-  }
-  if (type === "goalies") {
-    return listAdvancedGoalieLeaders(
-      seasonId,
-      situation,
-      minimumIceTimeSeconds,
-    );
-  }
-  return listAdvancedSkaterLeaders(
-    seasonId,
-    situation,
-    minimumIceTimeSeconds,
-  );
-}
 
 export function parseLeaderboardType(value: string | undefined): LeaderboardType {
   return LEADERBOARD_TYPES.includes(value as LeaderboardType)

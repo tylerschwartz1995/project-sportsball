@@ -32,6 +32,7 @@ type TeamSituationRow = {
 };
 
 type PlayerTeamRow = {
+  nhl_player_id?: number;
   nhl_team_id: number;
   abbreviation: string;
   team_name: string;
@@ -178,14 +179,20 @@ export async function getMoneyPuckTeamSeason(
   };
 }
 
-export async function getMoneyPuckPlayerSeason(
-  nhlPlayerId: number,
+export async function getMoneyPuckPlayerSeason(nhlPlayerId: number, seasonId: number): Promise<MoneyPuckPlayerSeason> {
+  return (await getMoneyPuckPlayerSeasons([nhlPlayerId], seasonId))[0];
+}
+
+export async function getMoneyPuckPlayerSeasons(
+  nhlPlayerIds: number[],
   seasonId: number,
-): Promise<MoneyPuckPlayerSeason> {
+): Promise<MoneyPuckPlayerSeason[]> {
+  if (!nhlPlayerIds.length) return [];
   const [skaterRows, goalieRows] = await Promise.all([
     query<SkaterSituationRow>(
       `
         SELECT
+          player.nhl_id::integer AS nhl_player_id,
           team.nhl_id AS nhl_team_id,
           COALESCE(team_season.abbreviation, team.abbreviation) AS abbreviation,
           COALESCE(team_season.full_name, team.name) AS team_name,
@@ -208,15 +215,16 @@ export async function getMoneyPuckPlayerSeason(
         LEFT JOIN team_seasons AS team_season
           ON team_season.team_id = team.id
          AND team_season.season_id = stats.season_id
-        WHERE player.nhl_id = $1
+        WHERE player.nhl_id = ANY($1::bigint[])
           AND stats.season_id = $2
         ORDER BY team_name, ${situationOrder}
       `,
-      [nhlPlayerId, seasonId],
+      [nhlPlayerIds, seasonId],
     ),
     query<GoalieSituationRow>(
       `
         SELECT
+          player.nhl_id::integer AS nhl_player_id,
           team.nhl_id AS nhl_team_id,
           COALESCE(team_season.abbreviation, team.abbreviation) AS abbreviation,
           COALESCE(team_season.full_name, team.name) AS team_name,
@@ -237,20 +245,20 @@ export async function getMoneyPuckPlayerSeason(
         LEFT JOIN team_seasons AS team_season
           ON team_season.team_id = team.id
          AND team_season.season_id = stats.season_id
-        WHERE player.nhl_id = $1
+        WHERE player.nhl_id = ANY($1::bigint[])
           AND stats.season_id = $2
         ORDER BY team_name, ${situationOrder}
       `,
-      [nhlPlayerId, seasonId],
+      [nhlPlayerIds, seasonId],
     ),
   ]);
 
-  return {
+  return nhlPlayerIds.map(nhlPlayerId => ({
     seasonId,
     nhlPlayerId,
-    skaterSituations: skaterRows.map(mapSkaterSituation),
-    goalieSituations: goalieRows.map(mapGoalieSituation),
-  };
+    skaterSituations: skaterRows.filter(row => nhlPlayerIds.length === 1 || row.nhl_player_id === nhlPlayerId).map(mapSkaterSituation),
+    goalieSituations: goalieRows.filter(row => nhlPlayerIds.length === 1 || row.nhl_player_id === nhlPlayerId).map(mapGoalieSituation),
+  }));
 }
 
 function mapTeam(row: TeamSituationRow): TeamIdentity {

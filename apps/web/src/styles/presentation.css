@@ -548,7 +548,7 @@ main > section.py-10 { padding-block: 1.25rem; }
   .ux-player-results[data-mobile-view=table] .md\:hidden { display: none; }
   .ux-player-results[data-mobile-view=table] .workspace-data-table-shell { display: block; }
   .ux-player-results[data-mobile-view=table] .workspace-data-table-shell::before { content: "Scroll for more columns →"; display: block; padding: 0.5rem; color: var(--muted); font-size: 0.875rem; }
-  .ux-player-results table tr > :first-child { width: 13rem; min-width: 13rem; position: sticky; left: 0; background: var(--surface); z-index: 1; }
+  .ux-player-results[data-mobile-view=table] table tr > :first-child { width: 13rem; min-width: 13rem; position: sticky; left: 0; background: var(--surface); z-index: 1; }
 }
 .ux-metric-groups th { text-align: center; padding: 0.4rem; border-right: 1px solid var(--border); font-size: 0.8rem; }
 .workspace-table td[data-column-group="shot-quality"], .workspace-table td[data-column-group="results"] { font-variant-numeric: tabular-nums; }

@@ -24,6 +24,7 @@ type TeamFields = {
 };
 
 type GameContextRow = {
+  has_teams?: boolean; has_players?: boolean; has_shots?: boolean; has_units?: boolean;
   nhl_game_id: number;
   season_id: number;
   game_type: number;
@@ -198,6 +199,7 @@ const teamIdentityJoins = `
 
 export async function getMoneyPuckGameAnalytics(
   nhlGameId: number,
+  view: "all" | "scoring" | "teams" | "shots" | "players" | "combinations" = "all",
 ): Promise<MoneyPuckGameAnalytics | null> {
   const [
     gameRows,
@@ -221,7 +223,11 @@ export async function getMoneyPuckGameAnalytics(
           home_team.nhl_id::integer AS home_nhl_team_id,
           COALESCE(home_season.abbreviation, home_team.abbreviation)
             AS home_abbreviation,
-          COALESCE(home_season.full_name, home_team.name) AS home_name
+          COALESCE(home_season.full_name, home_team.name) AS home_name,
+          EXISTS (SELECT 1 FROM moneypuck_team_game_stats WHERE game_id = game.id) AS has_teams,
+          (EXISTS (SELECT 1 FROM moneypuck_skater_game_stats WHERE game_id = game.id) OR EXISTS (SELECT 1 FROM moneypuck_goalie_game_stats WHERE game_id = game.id)) AS has_players,
+          EXISTS (SELECT 1 FROM moneypuck_shots WHERE game_id = game.id) AS has_shots,
+          EXISTS (SELECT 1 FROM moneypuck_line_game_stats WHERE game_id = game.id) AS has_units
         FROM games AS game
         JOIN teams AS away_team
           ON away_team.id = game.away_team_id
@@ -237,7 +243,7 @@ export async function getMoneyPuckGameAnalytics(
       `,
       [nhlGameId],
     ),
-    query<TeamSituationRow>(
+    (view === "all" || view === "teams") ? query<TeamSituationRow>(
       `
         SELECT
           ${teamIdentitySelect},
@@ -266,8 +272,8 @@ export async function getMoneyPuckGameAnalytics(
         ORDER BY stats.is_home, ${situationOrder}
       `,
       [nhlGameId],
-    ),
-    query<SkaterSituationRow>(
+    ) : Promise.resolve([]),
+    (view === "all" || view === "players") ? query<SkaterSituationRow>(
       `
         SELECT
           ${teamIdentitySelect},
@@ -304,8 +310,8 @@ export async function getMoneyPuckGameAnalytics(
         ORDER BY stats.is_home, player.display_name, ${situationOrder}
       `,
       [nhlGameId],
-    ),
-    query<GoalieSituationRow>(
+    ) : Promise.resolve([]),
+    (view === "all" || view === "players") ? query<GoalieSituationRow>(
       `
         SELECT
           ${teamIdentitySelect},
@@ -335,8 +341,8 @@ export async function getMoneyPuckGameAnalytics(
         ORDER BY stats.is_home, player.display_name, ${situationOrder}
       `,
       [nhlGameId],
-    ),
-    query<ShotRow>(
+    ) : Promise.resolve([]),
+    (view === "all" || view === "shots" || view === "scoring") ? query<ShotRow>(
       `
         SELECT
           shooting_team.nhl_id::integer AS team_nhl_id,
@@ -403,8 +409,8 @@ export async function getMoneyPuckGameAnalytics(
         ORDER BY stats.period, stats.source_event_index
       `,
       [nhlGameId],
-    ),
-    query<UnitRow>(
+    ) : Promise.resolve([]),
+    (view === "all" || view === "combinations") ? query<UnitRow>(
       `
         SELECT
           ${teamIdentitySelect},
@@ -446,7 +452,7 @@ export async function getMoneyPuckGameAnalytics(
         ORDER BY stats.is_home, stats.unit_type, stats.ice_time_seconds DESC
       `,
       [nhlGameId],
-    ),
+    ) : Promise.resolve([]),
   ]);
 
   const gameRow = gameRows[0];
@@ -454,9 +460,22 @@ export async function getMoneyPuckGameAnalytics(
     return null;
   }
 
+  const available = { teams: gameRow.has_teams, players: gameRow.has_players,
+    shots: gameRow.has_shots, combinations: gameRow.has_units };
+  if (view !== "all" && view !== "scoring" && available[view] === false) {
+    const fallback = (["teams", "shots", "players", "combinations"] as const).find(key => available[key]);
+    if (fallback) return getMoneyPuckGameAnalytics(nhlGameId, fallback);
+  }
+
   const units = unitRows.map(mapUnit);
   return {
     game: mapGameContext(gameRow),
+    ...(view === "all" ? {} : { availableViews: {
+      teams: gameRow.has_teams ?? teamRows.length > 0,
+      players: gameRow.has_players ?? skaterRows.length + goalieRows.length > 0,
+      shots: gameRow.has_shots ?? shotRows.length > 0,
+      combinations: gameRow.has_units ?? unitRows.length > 0,
+    } }),
     teamSituations: teamRows.map(mapTeamSituation),
     skaterSituations: skaterRows.map(mapSkaterSituation),
     goalieSituations: goalieRows.map(mapGoalieSituation),

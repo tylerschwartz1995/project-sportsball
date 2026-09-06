@@ -26,12 +26,12 @@ export function GameAdvancedAnalytics({
   data: MoneyPuckGameAnalytics;
   view: GameAdvancedView;
 }) {
-  const hasTeamData = data.teamSituations.length > 0;
+  const hasTeamData = data.availableViews?.teams ?? data.teamSituations.length > 0;
   const hasPlayerData =
-    data.skaterSituations.length > 0 || data.goalieSituations.length > 0;
-  const hasShotData = data.shots.length > 0;
+    data.availableViews?.players ?? (data.skaterSituations.length > 0 || data.goalieSituations.length > 0);
+  const hasShotData = data.availableViews?.shots ?? data.shots.length > 0;
   const hasUnitData =
-    data.forwardLines.length > 0 || data.defensivePairings.length > 0;
+    data.availableViews?.combinations ?? (data.forwardLines.length > 0 || data.defensivePairings.length > 0);
 
   if (!hasTeamData && !hasPlayerData && !hasShotData && !hasUnitData) {
     return <GameAdvancedUnavailable seasonId={data.game.seasonId} />;

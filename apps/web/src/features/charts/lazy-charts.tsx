@@ -135,3 +135,5 @@ export const TeamDraftingVisuals = dynamic<
     ),
   { ssr: false, loading: ChartLoading },
 );
+
+export const ClassRankingVisuals = dynamic<import("react").ComponentProps<typeof import("@/features/drafts/class-ranking-visuals").ClassRankingVisuals>>(() => import("@/features/drafts/class-ranking-visuals").then(module => module.ClassRankingVisuals), { ssr: false, loading: ChartLoading });

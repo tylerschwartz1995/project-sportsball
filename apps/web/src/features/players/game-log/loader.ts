@@ -1,19 +1,17 @@
+import { withReadContext } from "@/data/read-context";
 import { parseNhlId } from "@/contracts/entity";
 import { parseSeasonId } from "@/contracts/season";
 import {
   gameTypeForPhase,
   parseSeasonPhase
 } from "@/contracts/season-phase";
-import {
-  getPlayerGameLog,
-  listPlayerGameSeasonIds,
-} from "@/data/game-logs";
+import { getPlayerGameLog, listPlayerGameSeasonIds } from "@/data/performance-cache";
 import { listCachedSeasons } from "@/data/page-cache";
 import { paginate, parsePage, parsePageSize, parseSortDirection } from "@/lib/directory";
 import { notFound } from "next/navigation";
 import "server-only";
 import { firstValue, parseGoalieSort, parseSkaterSort, PlayerGamesPageProps, sortGoalieGames, sortSkaterGames } from './logic';
-export async function loadPlayerGamesPage({
+async function loadPlayerGamesPageData({
   params,
   searchParams,
 }: PlayerGamesPageProps) {
@@ -74,4 +72,8 @@ export async function loadPlayerGamesPage({
     goaliePage,
     goalieSort,
   } as const;
+}
+
+export function loadPlayerGamesPage(...args: Parameters<typeof loadPlayerGamesPageData>) {
+  return withReadContext("players/game-log", () => loadPlayerGamesPageData(...args));
 }

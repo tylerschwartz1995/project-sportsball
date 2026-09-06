@@ -9,13 +9,8 @@ import {
   historyDefaultMinimumGames,
   parseHistoryView
 } from "@/data/history";
-import {
-  HistoryScoringEnvironment
-} from "@/features/charts/lazy-charts";
-import {
-  HistoryDecadeLeaders,
-  HistoryGoalieDecadeLeaders,
-} from "@/features/history/history-decade-leaders";
+import { HistorySupplement } from "@/features/history/history-supplement";
+
 import {
   HistoryEraTable,
   HistoryExplorerNav,
@@ -24,7 +19,7 @@ import {
 } from "@/features/history/history-record-book";
 import { parsePage } from "@/lib/directory";
 import { HistoryPageProps, PAGE_SIZE, firstValue, hasCustomFilters, historyFiltersFromParams, historyHref, historyQueryParams, pageEnd, pageStart } from '../logic';
-import { loadHistoricalDecadeLeaders, loadHistoricalGoalieDecadeLeaders, loadHistoryFilterOptions, loadHistoryLeagueTrend } from '../queries';
+import { loadHistoryFilterOptions } from '../queries';
 import { HistoryResultsSection } from './overview';
 export async function HistoryErasContent({
   params,
@@ -48,12 +43,9 @@ export async function HistoryErasContent({
   };
 
   if (view === "goalies") {
-    const decadeMinimumGames = gameType === 3 ? 25 : 200;
-    const [scores, options, leagueTrend, decades] = await Promise.all([
+    const [scores, options] = await Promise.all([
       getHistoricalGoalieEraScores(gameType, filters, page, PAGE_SIZE),
       loadHistoryFilterOptions(gameType),
-      loadHistoryLeagueTrend(gameType),
-      loadHistoricalGoalieDecadeLeaders(gameType, decadeMinimumGames),
     ]);
     const totalRows = scores[0]?.totalRows ?? 0;
     const totalPages = Math.max(1, Math.ceil(totalRows / PAGE_SIZE));
@@ -85,17 +77,14 @@ export async function HistoryErasContent({
         <HistoryResultsSection title="Career Save Index" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games with recorded shot data. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible goalies.`}>
           <HistoryGoalieEraTable rows={scores} />
         </HistoryResultsSection>
-        <details className="mt-5"><summary>League Environment and Decade Leaders</summary><p>League-wide context; ranking filters do not apply.</p><HistoryScoringEnvironment key="goalies" points={leagueTrend} view="goalies" />
-          <HistoryGoalieDecadeLeaders rows={decades} minimumGames={decadeMinimumGames} /></details>
+        <HistorySupplement phase={phase} view={view} />
         <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, view, metric, filters)} scrollTarget="history-results" />
       </div>
     );
   }
 
-  const [scores, decades, leagueTrend, options] = await Promise.all([
+  const [scores, options] = await Promise.all([
     getHistoricalEraScores(gameType, filters, page, PAGE_SIZE),
-    loadHistoricalDecadeLeaders(gameType),
-    loadHistoryLeagueTrend(gameType),
     loadHistoryFilterOptions(gameType),
   ]);
   const totalRows = scores[0]?.totalRows ?? 0;
@@ -128,8 +117,7 @@ export async function HistoryErasContent({
       <HistoryResultsSection title="Career Era Scores" description={`Qualified at ${filters.minimumGames.toLocaleString("en-CA")} games. Showing ${pageStart(page, scores.length)}–${pageEnd(page, scores.length)} of ${totalRows.toLocaleString("en-CA")} eligible skaters.`}>
         <HistoryEraTable rows={scores} />
       </HistoryResultsSection>
-      <details className="mt-5"><summary>League Environment and Decade Leaders</summary><p>League-wide context; ranking filters do not apply.</p><HistoryScoringEnvironment points={leagueTrend} />
-        <HistoryDecadeLeaders rows={decades} /></details>
+      <HistorySupplement phase={phase} view={view} />
       <Pagination path="/history" currentPage={page} totalPages={totalPages} params={historyQueryParams("eras", phase, view, metric, filters)} scrollTarget="history-results" />
     </div>
   );

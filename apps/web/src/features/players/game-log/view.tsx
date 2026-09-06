@@ -1,3 +1,4 @@
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import Link from "@/components/ui/exploration-link";
 import {
@@ -92,6 +93,7 @@ export function PlayerGamesPageView({
           />
         ) : null}
       </section>
+    <NavigationComplete />
     </main>
   );
 }

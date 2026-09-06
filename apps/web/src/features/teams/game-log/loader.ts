@@ -1,17 +1,18 @@
+import { withReadContext } from "@/data/read-context";
 import { parseNhlId } from "@/contracts/entity";
 import { parseSeasonId } from "@/contracts/season";
 import {
   gameTypeForPhase,
   parseSeasonPhase
 } from "@/contracts/season-phase";
-import { getTeamGameLog } from "@/data/game-logs";
-import { listCachedSeasons } from "@/data/page-cache";
-import { listTeamSeasonIds } from "@/data/teams";
+
+import { listCachedSeasons, getCachedTeamGameLog, listCachedTeamSeasonIds } from "@/data/page-cache";
+
 import { paginate, parsePage, parsePageSize, parseSortDirection } from "@/lib/directory";
 import { notFound } from "next/navigation";
 import "server-only";
 import { TeamGamesPageProps, firstValue, parseTeamGameSort, sortTeamGames } from './logic';
-export async function loadTeamGamesPage({
+async function loadTeamGamesPageData({
   params,
   searchParams,
 }: TeamGamesPageProps) {
@@ -21,7 +22,7 @@ export async function loadTeamGamesPage({
   }
   const [seasons, teamSeasonIds] = await Promise.all([
     listCachedSeasons(),
-    listTeamSeasonIds(nhlTeamId),
+    listCachedTeamSeasonIds(nhlTeamId),
   ]);
   const availableSeasonIds = new Set(teamSeasonIds);
   const availableSeasons = seasons.filter((season) =>
@@ -36,7 +37,7 @@ export async function loadTeamGamesPage({
   if (!selectedSeason) {
     notFound();
   }
-  const log = await getTeamGameLog(nhlTeamId, selectedSeason.id);
+  const log = await getCachedTeamGameLog(nhlTeamId, selectedSeason.id);
   if (!log) {
     notFound();
   }
@@ -70,4 +71,8 @@ export async function loadTeamGamesPage({
     direction,
     navigationParams,
   } as const;
+}
+
+export function loadTeamGamesPage(...args: Parameters<typeof loadTeamGamesPageData>) {
+  return withReadContext("teams/game-log", () => loadTeamGamesPageData(...args));
 }

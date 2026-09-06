@@ -492,7 +492,27 @@ export async function getTeamSchedule(
 ): Promise<GameSummary[]> {
   const rows = await query<GameRow>(
     `
-      ${gameSelect}
+      WITH records AS (
+        SELECT game.id AS game_id, side.team_id,
+          COUNT(*) FILTER (WHERE game.state IN ('FINAL', 'OFF') AND own.score > opponent.score)
+            OVER running AS wins,
+          COUNT(*) FILTER (WHERE game.state IN ('FINAL', 'OFF') AND own.score < opponent.score
+            AND NOT (game.game_type = 2 AND COALESCE(game.last_period_type, 'REG') IN ('OT', 'SO')))
+            OVER running AS losses,
+          COUNT(*) FILTER (WHERE game.state IN ('FINAL', 'OFF') AND own.score < opponent.score
+            AND game.game_type = 2 AND COALESCE(game.last_period_type, 'REG') IN ('OT', 'SO'))
+            OVER running AS overtime_losses
+        FROM games AS game
+        CROSS JOIN LATERAL (VALUES (game.away_team_id), (game.home_team_id)) AS side(team_id)
+        LEFT JOIN team_game_stats AS own ON own.game_id = game.id AND own.team_id = side.team_id
+        LEFT JOIN team_game_stats AS opponent ON opponent.game_id = game.id AND opponent.team_id <> side.team_id
+        WHERE game.season_id = $2 AND game.game_type = $3
+        WINDOW running AS (PARTITION BY side.team_id ORDER BY game.start_time_utc, game.nhl_id
+          ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)
+      )
+      ${gameSelect
+        .replace(gameRecordJoin("away"), "LEFT JOIN records AS away_record ON away_record.game_id = game.id AND away_record.team_id = game.away_team_id")
+        .replace(gameRecordJoin("home"), "LEFT JOIN records AS home_record ON home_record.game_id = game.id AND home_record.team_id = game.home_team_id")}
       WHERE game.season_id = $2
         AND game.game_type = $3
         AND (

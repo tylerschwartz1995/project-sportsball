@@ -1,3 +1,4 @@
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import Link from "@/components/ui/exploration-link";
 import { ResultNavigation } from "@/components/ui/result-navigation";
@@ -180,6 +181,7 @@ export function TeamGamesPageView({
           </p>
         </section>
       </section>
+    <NavigationComplete />
     </main>
   );
 }

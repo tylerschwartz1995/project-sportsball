@@ -1,3 +1,4 @@
+import { withReadContext } from "@/data/read-context";
 import {
   parseGameDate
 } from "@/contracts/game";
@@ -6,17 +7,13 @@ import {
   gameTypeForPhase,
   parseSeasonPhase,
 } from "@/contracts/season-phase";
-import {
-  getGamesByDate,
-  listGameDates,
-  listScheduleTeams,
-} from "@/data/games";
+import { getGamesByDate, listGameDates, listScheduleTeams } from "@/data/performance-cache";
 import { listCachedScheduleSeasons } from "@/data/page-cache";
 import { resolveScheduleDate } from "@/lib/schedule-navigation";
 import { redirect } from "next/navigation";
 import "server-only";
 import { firstValue, GamesPageProps } from './logic';
-export async function loadGamesPage({ searchParams }: GamesPageProps) {
+async function loadGamesPageData({ searchParams }: GamesPageProps) {
   const seasons = await listCachedScheduleSeasons();
   const requested = await searchParams;
   const requestedSeason = firstValue(requested.season);
@@ -79,4 +76,8 @@ export async function loadGamesPage({ searchParams }: GamesPageProps) {
     visibleGames,
     scheduleTeams,
   } as const;
+}
+
+export function loadGamesPage(...args: Parameters<typeof loadGamesPageData>) {
+  return withReadContext("games/directory", () => loadGamesPageData(...args));
 }

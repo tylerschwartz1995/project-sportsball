@@ -87,7 +87,9 @@ JSON endpoints include:
 
 `POST /api/web-vitals` accepts bounded performance telemetry and emits server
 logs; it does not write statistics to PostgreSQL. Configuration and contracts
-are documented in [Web query layer](../../docs/web-query-layer.md).
+are documented in [Web query layer](../../docs/web-query-layer.md). The
+[performance improvement report](../../docs/app-performance-improvements.md)
+tracks the full latency audit, implementation, and regression budgets.
 
 Set `SPORTSBALL_RUN_WEB_DATABASE_TESTS=1` alongside the database URL to include
 the opt-in PostgreSQL query integration test:

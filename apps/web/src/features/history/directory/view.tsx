@@ -1,3 +1,6 @@
+import { Suspense } from "react";
+import { withReadContext } from "@/data/read-context";
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import { ViewTabs } from "@/components/ui/view-tabs";
 import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
@@ -28,16 +31,20 @@ export function HistoryPageView({
             params={historyPhaseParams(section, params)}
           />
         </div>
-        {section === "overview" ? (
-          <HistoryOverviewContent phase={phase} />
-        ) : section === "careers" || section === "seasons" ? (
-          <HistoryLeaderboardContent params={params} section={section} phase={phase} />
-        ) : section === "peaks" ? (
-          <HistoryPeaksContent params={params} phase={phase} />
-        ) : (
-          <HistoryErasContent params={params} phase={phase} />
-        )}
+        <Suspense fallback={<p role="status" className="workspace-empty-state">Loading history results…</p>}>
+          <HistoryContent phase={phase} section={section} params={params} />
+        </Suspense>
       </section>
     </main>
   );
+}
+
+function HistoryContent({ phase, section, params }: Pick<Awaited<ReturnType<typeof loadHistoryPage>>, "phase" | "section" | "params">) {
+  return withReadContext("history/directory", async () => {
+    const content = await (section === "overview" ? HistoryOverviewContent({ phase })
+      : section === "careers" || section === "seasons" ? HistoryLeaderboardContent({ params, section, phase })
+      : section === "peaks" ? HistoryPeaksContent({ params, phase })
+      : HistoryErasContent({ params, phase }));
+    return <>{content}<NavigationComplete /></>;
+  });
 }

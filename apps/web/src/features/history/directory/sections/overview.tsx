@@ -2,9 +2,7 @@ import {
   gameTypeForPhase,
   type SeasonPhase
 } from "@/contracts/season-phase";
-import {
-  HistoryRecordProgression
-} from "@/features/charts/lazy-charts";
+import { HistorySupplement } from "@/features/history/history-supplement";
 import {
   HistoryRecordBook
 } from "@/features/history/history-record-book";
@@ -42,7 +40,7 @@ export async function HistoryOverviewContent({ phase }: { phase: SeasonPhase }) 
         <p>Career and single-season leaders for skaters, goalies, and teams.</p>
       </section>
       <HistoryRecordBook overview={overview} phase={phase} />
-      <details className="mt-5"><summary>Record Progression</summary><HistoryRecordProgression points={overview.recordProgression} /></details>
+      <HistorySupplement phase={phase} view="records" />
     </div>
   );
 }

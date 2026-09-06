@@ -1,3 +1,4 @@
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import { WorkspacePageHeader } from "@/components/ui/workspace-primitives";
 import { AnalyticsSectionTabs } from "@/features/analytics/analytics-section-tabs";
@@ -88,6 +89,7 @@ export function MetricGuidePageView({
           </div>
         </aside>
       </section>
+    <NavigationComplete />
     </main>
   );
 }

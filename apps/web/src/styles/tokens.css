@@ -132,3 +132,5 @@ html[data-theme="light"] {
   --heat-text-4: #ffffff;
   --heat-text-5: #ffffff
 }
+
+:root { --crest-surface: rgb(248 250 252 / 0.95); --crest-foreground: rgb(30 41 59); }

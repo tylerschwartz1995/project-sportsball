@@ -5,14 +5,12 @@
 @import "../features/players/styles.css";
 @import "../features/drafts/styles.css";
 @import "./navigation-and-charts.css";
-@import "../features/history/controls.css";
 @import "../features/games/styles.css";
 @import "../features/analytics/styles.css";
 @import "../features/league/styles.css";
 @import "../components/ui/tables.css";
-@import "../features/playoffs/styles.css";
 @import "./responsive.css";
-@import "../features/history/styles.css";
 @import "./interactions.css";
 @import "../components/ui/filters.css";
+@import "./feature-shared.css";
 @import "./presentation.css";

@@ -1,3 +1,4 @@
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import Link, { ReturnLink } from "@/components/ui/exploration-link";
 import { ViewTabs } from "@/components/ui/view-tabs";
@@ -261,6 +262,7 @@ export function PlayerPageView({
           <PlayerCareer rows={career} playerId={nhlPlayerId} phase={phase} />
         ) : null}
       </section>
+    <NavigationComplete />
     </main>
   );
 }

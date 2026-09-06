@@ -1,3 +1,4 @@
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import Link from "@/components/ui/exploration-link";
 import { ResultNavigation } from "@/components/ui/result-navigation";
@@ -74,10 +75,10 @@ export function LinesPageView({
             <div className="mt-5">
               <nav className="workspace-subview-tabs" aria-label="Combination type">
                 <Link href={unitViewHref(navigationParams, "lines")} aria-current={view === "lines" ? "page" : undefined}>
-                  Forward Lines <span>{units.forwardLines.length}</span>
+                  Forward Lines {view === "lines" ? <span>{units.length}</span> : null}
                 </Link>
                 <Link href={unitViewHref(navigationParams, "pairings")} aria-current={view === "pairings" ? "page" : undefined}>
-                  Defensive Pairings <span>{units.defensivePairings.length}</span>
+                  Defensive Pairings {view === "pairings" ? <span>{units.length}</span> : null}
                 </Link>
               </nav>
               <div id="combination-results"><p className="mt-4 text-sm text-[var(--muted)]">Up to 100 qualifying units per type, selected by xG%. Sorting applies within that sample.</p>
@@ -122,6 +123,7 @@ export function LinesPageView({
           </div>
         )}
       </section>
+    <NavigationComplete />
     </main>
   );
 }

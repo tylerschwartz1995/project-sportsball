@@ -88,12 +88,10 @@ game reads select their candidate game identifiers before deriving those
 records, so the record calculation only runs for rows that will be returned.
 
 The homepage keeps its season list in the shared Next.js data cache for one
-hour, its five-query season package for five minutes, and upcoming games in a
-separate five-minute entry. The season package contains standings, official
-scoring leaders, latest results, advanced skater leaders, and advanced goalie
-leaders. Removed form/trend panels no longer add queries. The page remains
-dynamically rendered while repeat visits reuse those cached records. A cold cache
-still reads PostgreSQL directly and never depends on an internal HTTP request.
+hour. Five-minute entries separate standings/latest results, upcoming games,
+and player leaders. The leader section streams independently; advanced queries
+select only the five rows it displays. Pages remain dynamically rendered, and
+cold reads go directly to PostgreSQL without an internal HTTP request.
 
 `history.ts` reads the dedicated all-time summary tables for career totals and
 best seasons. Metric names are selected from strict allowlists before they are
@@ -220,10 +218,31 @@ expensive to calculate. Cache keys include function arguments, so teams,
 seasons, game types, and other query variants remain isolated. These lifetimes
 match the daily ingestion model while bounding active-data staleness.
 
+Player profiles, careers, game logs, game subviews, comparison selections,
+advanced leaderboards, combinations, playoffs, and draft projections now share
+five-minute server-side entries as well. The dedicated team game-log route uses
+the same cache as its team profile. History reference data and on-demand history
+supplements use one hour. API HTTP cache headers are separate from these server
+caches: a cached page read does not change an endpoint's HTTP policy. Entries
+are keyed by complete query arguments, including season, phase, selected view,
+and filters. Revalidation uses Next's stale-while-revalidate behavior; these
+are freshness targets rather than hard maximum ages during upstream failures.
+
+Draft projections omit unused class/team summaries. Class rankings never retain
+the 13,000-plus player outcomes in their cache value. Large board/team archives
+are compressed on the server before entering the data cache to stay below its
+per-entry size limit; only the filtered, paginated results reach the browser.
+Sorting and pagination reuse the same projection. History supplements have a
+validated `GET /api/history/supplement` endpoint and load only when the relevant
+disclosure opens. They preserve league-wide context and phase qualification.
+
+See [App performance improvements](app-performance-improvements.md) for the
+complete audit-to-implementation checklist, measured results, and budgets.
+
 ## Performance telemetry
 
 The root layout samples 10% of browser sessions by default and sends TTFB, FCP, LCP,
-CLS, INP, and FID measurements to `POST /api/web-vitals`. The route emits one
+CLS, INP, FID, and soft-navigation `NAV_CONTENT` measurements to `POST /api/web-vitals`. The route emits one
 structured `web-vital` JSON log entry per accepted metric. Paths exclude query
 parameters, while bounded `routeView`, `routeSubView`, and `routePhase`
 dimensions distinguish known application views without logging searches,
@@ -254,11 +273,26 @@ The team, season, game, and latency limits can be overridden with the
 
 Database reads emit structured `slow-database-query` warnings when they take at
 least 250 milliseconds and `database-query-error` warnings when they fail. Logs
-include duration, row count, operation, and a stable SQL fingerprint, never SQL
+include duration, pool-wait time, execution time, route context, row count,
+operation, and a stable SQL fingerprint, never SQL
 parameters or connection details. Set `SPORTSBALL_SLOW_QUERY_MS` to tune the
 threshold. A log drain or hosting log query can aggregate these events into
 p50/p95 latency and Core Web Vitals dashboards without changing application
 code.
+
+Set `SPORTSBALL_READ_TELEMETRY=1` to log every query and cache read for an
+investigation. Cache logs distinguish a fill from a hit, and include route,
+cache name, and elapsed time. This verbose mode defaults off. Queries have a
+10-second PostgreSQL statement deadline; `SPORTSBALL_QUERY_TIMEOUT_MS` accepts
+100–60,000 ms. Connection acquisition retains its separate five-second timeout.
+Connections are released on both successful and failed queries.
+
+`NAV_CONTENT` measures an in-app link click or back/forward navigation through
+the resolved primary content's hydration and two animation frames. It excludes
+closed/on-demand charts and separately streamed optional sections. It is a
+content-readiness metric, not a substitute for browser LCP or INP. Measurements
+are also available as `sportsball-navigation-content` Performance entries for
+local inspection. Reloads continue to use document Web Vitals.
 
 Idle pool failures emit a generic `database-pool-error` warning. The pool removes
 the failed connection and can establish a replacement for later requests;

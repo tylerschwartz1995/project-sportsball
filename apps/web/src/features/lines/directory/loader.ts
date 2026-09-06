@@ -1,10 +1,11 @@
+import { withReadContext } from "@/data/read-context";
 import { parseSeasonId } from "@/contracts/season";
 import { listCachedSeasons, listCachedTeamsBySeason } from "@/data/page-cache";
-import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
+import { listMoneyPuckSeasonUnits } from "@/data/performance-cache";
 import { paginate, parsePage, parsePageSize, parseSortDirection } from "@/lib/directory";
 import "server-only";
 import { DEFAULT_MINIMUM_MINUTES, firstValue, ICE_TIME_OPTIONS, LinesPageProps, sortUnits, UNIT_SORTS, UNIT_VIEWS, WINDOW_OPTIONS } from './logic';
-export async function loadLinesPage({ searchParams }: LinesPageProps) {
+async function loadLinesPageData({ searchParams }: LinesPageProps) {
   const params = await searchParams;
   const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstValue(params.season));
@@ -40,18 +41,18 @@ export async function loadLinesPage({ searchParams }: LinesPageProps) {
   const [teams, units] = selectedSeason
     ? await Promise.all([
       listCachedTeamsBySeason(selectedSeason.id),
-      getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
+      listMoneyPuckSeasonUnits(selectedSeason.id, view === "lines" ? "line" : "pairing", {
         minimumIceTimeSeconds: minimumMinutes * 60,
         teamNhlId: requestedTeamId,
         rollingGames,
         limit: 100,
       }),
     ])
-    : [[], { forwardLines: [], defensivePairings: [] }];
+    : [[], []];
   const selectedTeam = teams.find(
     ({ team }) => team.nhlTeamId === requestedTeamId,
   )?.team;
-  const selectedRows = view === "lines" ? units.forwardLines : units.defensivePairings;
+  const selectedRows = units;
   const sortedRows = sortUnits(selectedRows, sort, direction);
   const unitPage = paginate(sortedRows, parsePage(firstValue(params.page)), pageSize);
   const navigationParams = {
@@ -78,4 +79,8 @@ export async function loadLinesPage({ searchParams }: LinesPageProps) {
     teams,
     units,
   } as const;
+}
+
+export function loadLinesPage(...args: Parameters<typeof loadLinesPageData>) {
+  return withReadContext("lines/directory", () => loadLinesPageData(...args));
 }

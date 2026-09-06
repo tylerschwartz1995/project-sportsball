@@ -1,6 +1,6 @@
 import { isPerformanceRouteContextValue } from "@/lib/performance-route-context";
 
-const METRIC_NAMES = new Set(["TTFB", "FCP", "LCP", "FID", "CLS", "INP"]);
+const METRIC_NAMES = new Set(["TTFB", "FCP", "LCP", "FID", "CLS", "INP", "NAV_CONTENT"]);
 const RATINGS = new Set(["good", "needs-improvement", "poor"]);
 const MAX_BODY_BYTES = 2_048;
 

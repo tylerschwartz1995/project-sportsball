@@ -1,3 +1,4 @@
+import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import {
   WorkspacePageHeader,
@@ -10,8 +11,9 @@ import { PlayerComparisonPlots, TeamComparisonScatterplot } from "@/features/cha
 import { DataViews } from "@/features/league/data-views";
 import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
 import { SeasonPicker } from "@/features/league/season-picker";
+import { PagedLeaderboard as LeaderboardTable } from "./paged-leaderboard";
 import type { loadAnalyticsPage } from './loader';
-import { AnalyticsFilters, AnalyticsGuide, CoverageNotice, LeaderboardTable } from './sections';
+import { AnalyticsFilters, AnalyticsGuide, CoverageNotice } from './sections';
 export function AnalyticsPageView({
   rows,
   selectedSeason,
@@ -148,6 +150,7 @@ export function AnalyticsPageView({
           <CoverageNotice />
         )}
       </section>
+    <NavigationComplete />
     </main>
   );
 }

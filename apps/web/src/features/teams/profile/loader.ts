@@ -1,3 +1,4 @@
+import { withReadContext } from "@/data/read-context";
 import { parseNhlId } from "@/contracts/entity";
 import { parseScheduleStrengthMetric } from "@/contracts/schedule-strength";
 import { parseSeasonId } from "@/contracts/season";
@@ -5,8 +6,8 @@ import {
   gameTypeForPhase,
   parseSeasonPhase
 } from "@/contracts/season-phase";
-import { getMoneyPuckTeamSeason } from "@/data/advanced";
-import { getTeamSchedule } from "@/data/games";
+import { getMoneyPuckTeamSeason } from "@/data/performance-cache";
+import { getTeamSchedule } from "@/data/performance-cache";
 import {
   getCachedTeamGameLog,
   getCachedTeamIdentityForSeason,
@@ -19,12 +20,12 @@ import {
   listCachedTeamSeasonIds,
   listCachedTeamsBySeason,
 } from "@/data/page-cache";
-import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
+import { getMoneyPuckSeasonUnitLeaders } from "@/data/performance-cache";
 import { buildTeamSeasonIdentity } from "@/lib/team-season-identity";
 import { notFound } from "next/navigation";
 import "server-only";
 import { TeamPageProps, firstValue, normalizeTeamView, parseTeamScheduleFilter, parseTeamView, teamViewTabs } from './logic';
-export async function loadTeamPage({
+async function loadTeamPageData({
   params,
   searchParams,
 }: TeamPageProps) {
@@ -163,4 +164,8 @@ export async function loadTeamPage({
     advanced,
     units,
   } as const;
+}
+
+export function loadTeamPage(...args: Parameters<typeof loadTeamPageData>) {
+  return withReadContext("teams/profile", () => loadTeamPageData(...args));
 }
