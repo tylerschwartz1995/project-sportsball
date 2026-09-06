@@ -76,8 +76,8 @@ export function PlayerComparisonPicker({
           />
         </label>
         {matches.length > 0 ? (
-          <div className="workspace-player-picker-suggestions">
-            <p>{normalizedQuery ? "Search Results" : "Suggested Players"}</p>
+          <details className="workspace-player-picker-suggestions" open={Boolean(normalizedQuery) || selectedIds.length < 2}>
+            <summary>{normalizedQuery ? "Search Results" : "Suggested Players"}</summary>
             <div className="workspace-player-picker-results">
               {matches.map((option) => (
                 <button
@@ -98,7 +98,7 @@ export function PlayerComparisonPicker({
                 </button>
               ))}
             </div>
-          </div>
+          </details>
         ) : normalizedQuery ? (
           <p className="workspace-player-picker-no-results">
             No unselected players match this search.
@@ -131,11 +131,12 @@ export function PlayerComparisonPicker({
                     updateSelection(selectedIds.filter((id) => id !== playerId))
                   }
                 >
-                  ×
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" /></svg>
                 </button>
               </li>
             );
           }
+          if (index >= 2) return null;
           return (
             <li key={`empty-${index}`} className="is-empty">
               <span>{index + 1}</span>

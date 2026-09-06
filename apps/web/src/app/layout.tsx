@@ -1,10 +1,12 @@
+import Link from "next/link";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Manrope, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { WebVitals } from "@/app/_components/web-vitals";
 import "./globals.css";
+import "./modern.css";
 
-const geistSans = Geist({
+const interfaceFont = Manrope({
   variable: "--font-geist-sans",
   subsets: ["latin"],
 });
@@ -48,7 +50,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${interfaceFont.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <WebVitals />
@@ -64,6 +66,11 @@ export default function RootLayout({
         <div id="main-content" tabIndex={-1}>
           {children}
         </div>
+        <footer className="site-footer">
+          <Link href="/" className="site-footer-brand">Sportsball</Link>
+          <p>NHL statistics · MoneyPuck advanced data</p>
+          <Link href="/analytics/guide">Metrics Guide ↗</Link>
+        </footer>
       </body>
     </html>
   );

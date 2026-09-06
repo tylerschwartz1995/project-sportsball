@@ -212,13 +212,13 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         />
                       ))}
                     </div>
-                    <div className="workspace-data-table-shell hidden md:block">
+                    <div className="workspace-data-table-shell min-w-0 hidden md:block">
                       <SortableTable
                         defaultSortKey={sort}
                         defaultDirection={direction}
                       >
                       <div className="overflow-x-auto">
-                        <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
+                        <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
                           <colgroup>
                             <col className="workspace-col-entity" />
                             <col className="workspace-col-stat" span={7} />
@@ -332,13 +332,13 @@ export default async function PlayersPage({ searchParams }: PlayersPageProps) {
                         />
                       ))}
                     </div>
-                    <div className="workspace-data-table-shell hidden md:block">
+                    <div className="workspace-data-table-shell min-w-0 hidden md:block">
                       <SortableTable
                         defaultSortKey={sort}
                         defaultDirection={direction}
                       >
                       <div className="overflow-x-auto">
-                        <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
+                        <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
                           <colgroup>
                             <col className="workspace-col-entity" />
                             <col className="workspace-col-stat" span={7} />
@@ -587,7 +587,7 @@ function MobilePlayerStat({
 }) {
   return (
     <div>
-      <dt className="text-[0.65rem] uppercase tracking-[0.1em] text-[var(--muted)]">
+      <dt className="text-[0.8125rem] uppercase tracking-[0.1em] text-[var(--muted)]">
         {label}
       </dt>
       <dd className="mt-1 text-sm font-medium tabular-nums text-[var(--foreground-soft)]">

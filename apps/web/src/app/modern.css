@@ -1,0 +1,562 @@
+/* Modern stats exploration: quiet surfaces, one type family, predictable hierarchy. */
+:root {
+  --text-meta: 0.8125rem;
+  --text-control: 1rem;
+  --text-body: 1rem;
+  --text-section: 1.25rem;
+  --text-page: 2rem;
+  --background: #111416;
+  --foreground: #edf1f3;
+  --foreground-soft: #c9d0d5;
+  --surface: #191d20;
+  --surface-raised: #202629;
+  --surface-subtle: #1d2226;
+  --border: #30373b;
+  --border-strong: #4b575e;
+  --muted: #a0adb5;
+  --accent: #9ae6bd;
+  --accent-secondary: #a8bfff;
+  --positive: #9ae6bd;
+  --negative: #ffa7a7;
+  --warning: #edcf8a;
+  --on-accent: #10251a;
+  --control-border: #63717a;
+  --radius-panel: 0.625rem;
+  --table-background: var(--surface);
+  --sidebar-background: var(--background);
+  --shadow: transparent;
+  --chart-grid: #30373b;
+  --chart-axis: #63717a;
+  --chart-label: #a0adb5;
+  --chart-reference: #83949e;
+  --chart-primary: var(--accent);
+  --chart-secondary: var(--accent-secondary);
+  --chart-series-1: #9ae6bd;
+  --chart-series-2: #edcf8a;
+  --chart-series-3: #c9b5f3;
+  --chart-series-4: #81d5db;
+  --chart-series-5: #ffa7a7;
+  --chart-series-6: #a8bfff;
+  --chart-series-7: #eaba95;
+  --chart-series-8: #e5a9d2;
+  --chart-underperforming: #edcf8a;
+  --chart-quadrant-opacity: 0.08;
+  --chart-track: #63717a;
+  --heat-level-1: #243044;
+  --heat-level-2: #334663;
+  --heat-level-3: #455e85;
+  --heat-level-4: #7896c3;
+  --heat-level-5: #a8bfff;
+  --heat-text-1: #edf1f3;
+  --heat-text-2: #edf1f3;
+  --heat-text-3: #edf1f3;
+  --heat-text-4: #182127;
+  --heat-text-5: #182127;
+  --chart-goal: var(--positive);
+}
+html[data-theme="light"] {
+  --background: #e6ecef;
+  --foreground: #182127;
+  --foreground-soft: #3e4c55;
+  --surface: #ffffff;
+  --surface-raised: #dce5ea;
+  --surface-subtle: #edf2f5;
+  --border: #b8c7d0;
+  --border-strong: #788e9c;
+  --muted: #4f626e;
+  --accent: #14734b;
+  --accent-secondary: #375dc0;
+  --positive: #14734b;
+  --negative: #b53e4b;
+  --warning: #855d0a;
+  --on-accent: #ffffff;
+  --control-border: #657d8c;
+  --table-background: var(--surface);
+  --sidebar-background: var(--background);
+  --shadow: transparent;
+  --chart-grid: #bccbd4;
+  --chart-axis: #657d8c;
+  --chart-label: #586a75;
+  --chart-reference: #526d7e;
+  --chart-primary: var(--accent);
+  --chart-secondary: var(--accent-secondary);
+  --chart-series-1: #14734b;
+  --chart-series-2: #855d0a;
+  --chart-series-3: #7854b1;
+  --chart-series-4: #157780;
+  --chart-series-5: #b53e4b;
+  --chart-series-6: #375dc0;
+  --chart-series-7: #975728;
+  --chart-series-8: #9a4f83;
+  --chart-underperforming: #855d0a;
+  --chart-quadrant-opacity: 0.09;
+  --chart-track: #7e919c;
+  --heat-level-1: #e3ebf8;
+  --heat-level-2: #c1d2ee;
+  --heat-level-3: #94b0dc;
+  --heat-level-4: #4969aa;
+  --heat-level-5: #284a8a;
+  --heat-text-1: #182127;
+  --heat-text-2: #182127;
+  --heat-text-3: #182127;
+  --heat-text-4: #ffffff;
+  --heat-text-5: #ffffff;
+  --chart-goal: var(--positive);
+}
+body { padding-left: 0; background-image: none; font-size: var(--text-body); line-height: 1.55; }
+main { padding-top: 0; }
+main > section:first-of-type { padding-top: 1.75rem; }
+main h1, .workspace-page-header h1, .workspace-history-header h1 {
+  font-family: var(--font-geist-sans), sans-serif;
+  font-size: var(--text-page);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+main :is(h2, h3) { letter-spacing: -0.015em; }
+main .text-xs { font-size: var(--text-meta); }
+main :is(input, select, button) { font-family: inherit; }
+.site-header { width: 100%; }
+.site-topbar { display: flex; align-items: center; gap: 1.25rem; min-height: 4.5rem; }
+.site-brand { display: inline-flex; gap: 0.6rem; align-items: center; color: var(--foreground); font-size: 1.375rem; font-weight: 800; letter-spacing: -0.055em; }
+.site-brand svg { color: var(--accent); }
+.site-sport { padding-left: 1.25rem; border-left: 1px solid var(--border-strong); color: var(--muted); font-size: var(--text-meta); font-weight: 650; }
+.site-utilities { margin-left: auto; }
+.site-utilities .theme-toggle { min-height: 2.5rem; padding: 0.45rem 0.7rem; font-size: var(--text-meta); background: transparent; border-color: var(--border); border-radius: 0.5rem; }
+.site-navigation { display: flex; gap: 1.75rem; overflow-x: auto; border-bottom: 1px solid var(--border); scrollbar-width: thin; scrollbar-color: var(--border-strong) transparent; }
+.site-navigation a { position: relative; display: flex; align-items: center; flex-shrink: 0; min-height: 2.875rem; padding: 0 0.15rem; color: var(--muted); font-size: var(--text-control); font-weight: 600; }
+.site-navigation a:hover { color: var(--foreground); }
+.site-navigation a[aria-current="page"] { color: var(--foreground); }
+.site-navigation a[aria-current="page"]::after { content: ""; position: absolute; inset: auto 0 0; height: 2px; background: var(--accent); border-radius: 2px; }
+.site-navigation a:focus-visible { outline-offset: -3px; }
+.workspace-page-header { gap: 1rem 2rem; padding-bottom: 0.5rem; }
+.workspace-eyebrow { color: var(--muted); font-family: inherit; font-size: var(--text-meta); font-weight: 550; letter-spacing: 0; text-transform: none; }
+.workspace-description { max-width: 55rem; font-size: var(--text-body); line-height: 1.65; }
+.workspace-description-single-line { white-space: normal; }
+.workspace-season-picker { max-width: 12rem; padding: 0; border: 0; background: none; }
+.workspace-season-picker select { font-size: var(--text-control); }
+.workspace-panel, .surface-panel, .data-table-shell { border: 1px solid var(--border); border-radius: var(--radius-panel); background: var(--surface); box-shadow: none; }
+.workspace-panel-header { align-items: center; padding: 1rem 1.125rem; }
+.workspace-panel-header h3 { font-size: var(--text-section); font-weight: 700; }
+.workspace-panel-header p { font-size: 0.9375rem; line-height: 1.6; max-width: 48rem; }
+.workspace-panel-header a { font-size: 0.9375rem; }
+.surface-panel h3, .workspace-history-intro h2, .workspace-schedule-results-heading h2, .workspace-team-conferences h2 { font-size: 1.25rem; font-weight: 700; }
+main :is(.rounded-xl, .rounded-2xl, .rounded-lg) { border-radius: var(--radius-panel); }
+:is(.workspace-directory-controls, .workspace-player-filters, .workspace-draft-filters,
+.workspace-history-filters, .workspace-unit-filter, .workspace-player-picker,
+.workspace-history-header, .workspace-history-chart, .workspace-history-ranking-summary,
+.workspace-history-filter-drawer, .workspace-history-peaks-heading, .workspace-history-decades,
+.workspace-history-record-card, .workspace-team-directory-card, .workspace-player-direct-chart,
+.workspace-player-season-totals, .workspace-player-profile-fact, .workspace-analytics-filters) {
+  border-radius: var(--radius-panel); box-shadow: none; background-image: none;
+}
+.workspace-scroll-nav a { font-size: var(--text-control); }
+.workspace-scroll-nav.is-secondary { background: transparent; }
+.workspace-filter-header strong { font-size: var(--text-body); }
+.workspace-filter-header small { font-size: var(--text-meta); }
+main table { font-variant-numeric: tabular-nums; }
+main table thead th { background: var(--surface-raised); color: var(--muted); font-size: 0.875rem; font-weight: 600; letter-spacing: 0; }
+main table tbody td { font-size: 0.9375rem; font-weight: 500; }
+.workspace-table thead .workspace-sortable-header,
+.workspace-column-preset-table thead .workspace-sticky-entity,
+.workspace-history-table thead .workspace-history-rank-col,
+.workspace-history-table thead .workspace-history-entity-col { background: var(--surface-raised); }
+.workspace-table thead .workspace-sortable-header :is(button, a) { font-size: 0.875rem; }
+main table tbody tr:hover { background: var(--surface-subtle); }
+.modern-profile-identity { padding: 0.5rem 0 1.5rem; border-bottom: 1px solid var(--border); }
+.modern-profile-identity > div, .modern-profile-identity > div > div { min-width: 0; }
+.modern-profile-identity h1 { font-size: var(--text-page); max-width: none; }
+.modern-home .workspace-home-primary { margin-top: 1.25rem; gap: 1.25rem; align-items: start; }
+.modern-insights { display: grid; gap: 1.25rem; margin-top: 1.25rem; }
+.modern-scoring .workspace-leader-grid { display: block; }
+.modern-scoring .workspace-leader-grid a { display: grid; grid-template-columns: 1.25rem minmax(0, 1fr) auto; grid-template-areas: "rank name points" ". detail points"; gap: 0.2rem 0.75rem; padding: 0.8rem 1.125rem; border: 0; border-bottom: 1px solid var(--border); }
+.modern-scoring .workspace-leader-grid a:last-child { border-bottom: 0; }
+.modern-scoring .workspace-leader-grid a > span { grid-area: rank; align-self: center; color: var(--muted); font-size: var(--text-meta); }
+.modern-scoring .workspace-leader-grid b { grid-area: name; margin: 0; font-size: var(--text-body); font-weight: 650; white-space: normal; }
+.modern-scoring .workspace-leader-grid small { grid-area: detail; font-size: var(--text-meta); }
+.modern-scoring .workspace-leader-grid strong { grid-area: points; align-self: center; margin: 0; font-size: var(--text-body); font-weight: 650; white-space: nowrap; }
+.modern-trends .workspace-home-trend-rows { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.modern-trends .workspace-home-trend-rows > a { display: flex; flex-direction: column; align-items: start; gap: 0.45rem; border-bottom: 0; border-right: 1px solid var(--border); padding: 1rem 1.125rem; }
+.modern-trends .workspace-home-trend-rows > a:last-child { border-right: 0; }
+.modern-trends .workspace-home-trend-rows strong { color: var(--foreground); font-family: inherit; font-size: 1.5rem; }
+.modern-trends .workspace-home-trend-rows :is(small, em), .workspace-home-trends > p { font-size: var(--text-meta); }
+.workspace-home-movement > a { padding: 0.75rem 1.125rem; }
+.workspace-home-movement-team b { font-size: var(--text-control); }
+.workspace-home-movement-team small, .workspace-home-movement-change small { font-size: var(--text-meta); }
+.workspace-standing-list small, .workspace-upcoming-list small { font-size: var(--text-meta); }
+.workspace-upcoming-list a > span { flex-wrap: wrap; }
+.workspace-analytics-link { border-color: var(--border); background: var(--surface); border-radius: var(--radius-panel); }
+.workspace-analytics-link b { font-size: var(--text-section); }
+.workspace-home-explore { gap: 0; }
+.workspace-home-explore a { border: 0; border-radius: 0; border-bottom: 1px solid var(--border); padding: 1rem 1.125rem; }
+.workspace-home-explore b { font-size: var(--text-body); }
+.workspace-home-explore small, .workspace-home-explore strong { font-size: var(--text-meta); }
+.site-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.5rem; width: calc(100% - 3.5rem); max-width: 76.5rem; margin: 2rem auto 0; border-top: 1px solid var(--border); padding: 1.5rem 0 2rem; color: var(--muted); font-size: var(--text-meta); }
+.site-footer-brand { color: var(--foreground-soft); font-weight: 700; }
+.site-footer > a:last-child { margin-left: auto; color: var(--muted); }
+@media (min-width: 1024px) {
+  .modern-insights { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); }
+  .modern-trends { grid-column: 1 / -1; }
+  .workspace-analytics-filters[data-type] { width: 100%; max-width: none; }
+  .workspace-analytics-filters > .workspace-filter-header { margin: 0; }
+}
+@media (max-width: 700px) {
+  :root { --text-page: 1.75rem; }
+  .site-topbar { min-height: 4rem; gap: 0.8rem; }
+  .site-sport { padding-left: 0.8rem; }
+  .site-utilities .theme-toggle-label { display: none; }
+  .site-navigation { gap: 1.35rem; }
+  .site-navigation a { min-height: 2.75rem; }
+  main > section:first-of-type { padding-top: 1.5rem; }
+  .workspace-page-header { gap: 1rem; }
+  .workspace-panel-header { flex-wrap: wrap; gap: 0.4rem; padding: 0.875rem 1rem; }
+  .modern-trends .workspace-home-trend-rows { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .modern-trends .workspace-home-trend-rows > a { border-bottom: 1px solid var(--border); }
+  .modern-trends .workspace-home-trend-rows > a:nth-child(even) { border-right: 0; }
+  .workspace-home-movement > a { gap: 0.4rem; padding-inline: 0.8rem; }
+  .site-footer { width: calc(100% - 2rem); }
+  .site-footer p { flex-basis: 100%; order: 1; }
+}
+
+/* Entity identity stays compact; crests retain their neutral branding surface. */
+.team-crest { box-shadow: none; }
+.modern-profile-identity .team-crest-profile { width: 3.5rem; height: 3.5rem; }
+.modern-profile-identity .font-mono { font-family: inherit; text-transform: none; letter-spacing: 0; }
+.modern-profile-identity .rounded-full { background: transparent; border: 0; padding: 0; }
+.modern-team-name > div { min-width: 0; }
+.modern-team-name h1 { margin-top: 0.25rem; }
+.modern-team-name h1 + div { margin-top: 0.6rem; gap: 0.4rem 0.9rem; }
+.workspace-draft-insights > div, .workspace-game-hero, .workspace-xg-comparison,
+.workspace-series-masthead { background-image: none; }
+@media (min-width: 1024px) {
+  .workspace-analytics-filters[data-type] { display: flex; flex-wrap: wrap; align-items: end; gap: 1rem; }
+  .workspace-analytics-filters > .workspace-filter-header { flex: 1 1 20rem; align-self: center; border: 0; padding: 0; }
+  .workspace-analytics-filters > label { flex: 0 1 12rem; }
+  .workspace-analytics-filters > .workspace-filter-actions { flex: 0 0 auto; }
+}
+
+/* Shared sizing contract, including the older detail-page components. */
+main h2, main h3 { font-size: 1.25rem; line-height: 1.35; }
+.workspace-panel-header h3, .workspace-player-picker-heading h3,
+.workspace-history-record-list header h2 { font-size: var(--text-section); }
+.workspace-guide-group > header h2 { font-size: var(--text-section); }
+.workspace-bracket-round h3 { font-size: 0.875rem; white-space: normal; line-height: 1.5; }
+.theme-toggle-icon { display: grid; place-items: center; width: 1.125rem; height: 1.125rem; }
+.theme-toggle-icon svg { width: 1.125rem; height: 1.125rem; }
+.site-utilities .theme-toggle { min-width: 2.75rem; min-height: 2.75rem; }
+.team-crest-compact { width: 2rem; height: 2rem; }
+.workspace-result-matchup strong { font-size: 1.25rem; }
+.workspace-player-picker-selected { grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); }
+.workspace-player-picker-selected strong { white-space: normal; overflow-wrap: anywhere; font-size: var(--text-body); }
+.workspace-player-picker-selected button { display: grid; place-items: center; min-width: 2.75rem; min-height: 2.75rem; }
+.workspace-player-picker-selected > li { padding: 0.5rem 0.65rem; }
+.workspace-player-picker-suggestions summary { min-height: 2.75rem; padding-block: 0.65rem; cursor: pointer; color: var(--muted); font-size: var(--text-control); }
+.workspace-player-picker-heading { margin-bottom: 0.75rem; }
+.workspace-player-picker-search { margin-top: 0.75rem; }
+.workspace-player-picker-selected { margin-top: 0.75rem; padding-top: 0.75rem; }
+.workspace-comparison-matrix { --comparison-metric-width: 15rem; table-layout: fixed; min-width: calc(var(--comparison-metric-width) + var(--comparison-players) * 8rem); }
+.workspace-comparison-matrix .workspace-comparison-metric-column { width: var(--comparison-metric-width); }
+.workspace-comparison-matrix :is(thead th:first-child, tbody th) { position: sticky; left: 0; z-index: 2; background: var(--surface); border-right: 1px solid var(--border); }
+.workspace-comparison-matrix thead th:first-child { background: var(--surface-raised); z-index: 3; }
+.workspace-comparison-matrix thead a { white-space: normal; overflow-wrap: anywhere; font-size: var(--text-control); line-height: 1.4; }
+.workspace-comparison-player-heading { flex-direction: column; gap: 0.4rem; }
+.workspace-comparison-matrix tbody th { font-size: var(--text-control); }
+.workspace-table-scroll { overscroll-behavior-x: contain; }
+.modern-comparison-scroll { position: relative; }
+.modern-comparison-scroll[data-overflow="true"]::before { content: "Scroll horizontally to compare players →"; display: block; position: sticky; left: 0; padding: 0.6rem 0.8rem; color: var(--muted); font-size: var(--text-meta); }
+.workspace-bracket { grid-template-columns: repeat(7, minmax(10rem, 1fr)); min-width: 73rem; }
+.workspace-bracket-series > span { grid-template-columns: 1.5rem minmax(4ch, 1fr) 1.25rem; gap: 0.5rem; padding: 0.5rem 0.75rem; min-height: 3rem; }
+.workspace-bracket-series > span[data-seeded="true"] { grid-template-columns: 1.75rem 1.5rem minmax(4ch, 1fr) 1.25rem; }
+.workspace-bracket-series small { font-size: var(--text-meta); letter-spacing: 0; }
+.workspace-bracket-team-name { font-size: var(--text-control); overflow: visible; text-overflow: clip; }
+.modern-result-filters { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr)); gap: 0.5rem; }
+.modern-result-filters > button { grid-column: auto; min-width: 0; flex-wrap: wrap; overflow-wrap: anywhere; }
+.modern-unit-players { display: flex; flex-wrap: wrap; gap: 0.6rem 1.25rem; margin-top: 1rem; }
+.modern-unit-players a { display: inline-flex; align-items: center; min-height: 2.75rem; color: var(--accent); font-size: 1rem; }
+.workspace-game-score-team > strong { font-size: 3.25rem; }
+.workspace-game-hero-score { padding-block: 1.5rem; }
+.workspace-game-score-name { width: auto; flex-wrap: wrap; }
+.workspace-game-hero .team-crest-profile { width: 3.5rem; height: 3.5rem; }
+.workspace-filter-header { padding: 0.7rem 0.9rem; }
+.workspace-player-filter-group.is-primary { padding: 0.75rem 0.9rem; }
+.workspace-player-filter-group.is-primary > legend.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; }
+.workspace-player-advanced-filters > summary { padding: 0.5rem 0.9rem; min-height: 2.75rem; }
+.workspace-player-filters > .workspace-filter-actions { padding: 0.75rem 0.9rem; }
+.workspace-filter-actions > :is(button, a, span) { min-height: 2.5rem; }
+.workspace-data-table-shell, .workspace-player-filter-group, .workspace-player-filter-group > div { min-width: 0; }
+.modern-combination-controls { border: 1px solid var(--border); border-radius: var(--radius-panel); background: var(--surface); overflow: hidden; }
+.modern-combination-controls .workspace-unit-filter { margin: 0; border: 0; }
+.modern-scope-help { padding: 0.6rem 1rem; border-top: 1px solid var(--border); color: var(--muted); font-size: var(--text-meta); }
+.modern-scope-help summary { cursor: pointer; min-height: 1.5rem; }
+.modern-scope-help p { margin-top: 0.5rem; max-width: 65ch; }
+@media (max-width: 899px) {
+  .workspace-game-hero-score { grid-template-columns: minmax(0, 1fr); gap: 1rem; padding: 1rem; }
+  .workspace-game-hero-at { display: none; }
+  .workspace-game-score-team, .workspace-game-score-team[data-align="right"] { flex-direction: row; text-align: left; gap: 0.75rem; }
+  .workspace-game-score-team[data-align="right"] .workspace-game-score-identity { flex-direction: row; }
+  .workspace-game-score-identity { gap: 0.75rem; }
+  .workspace-game-score-team a { font-size: 1rem; line-height: 1.35; }
+  .workspace-game-score-team > strong { font-size: 2.25rem; flex-shrink: 0; min-width: 2ch; text-align: right; }
+  .workspace-game-hero .team-crest-profile { width: 2.75rem; height: 2.75rem; }
+  .workspace-game-score-team p { margin-top: 0.2rem; font-size: var(--text-meta); }
+  .workspace-game-score-team small { font-size: var(--text-meta); }
+  .workspace-game-hero-meta, .workspace-game-hero-footer { padding: 0.6rem 1rem; font-size: var(--text-meta); }
+}
+@media (max-width: 700px) {
+  .workspace-page-header .workspace-description { line-height: 1.5; }
+  .workspace-player-filter-group.is-primary > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
+  .workspace-player-filter-group.is-primary .is-wide { grid-column: 1 / -1; }
+  .workspace-player-filters > .workspace-filter-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .workspace-player-filters > .workspace-filter-actions > * { flex: 1 1 auto; width: auto; }
+  .workspace-player-filters .workspace-filter-header > div > span { display: none; }
+  .workspace-analytics-filters { gap: 0.65rem; max-width: none; }
+  .workspace-analytics-filters > .workspace-filter-header { padding: 0.65rem 0.85rem; }
+  .workspace-analytics-filters > .workspace-filter-header > div > span { display: none; }
+  .workspace-analytics-filters .workspace-filter-actions { display: flex; flex-wrap: wrap; }
+  .workspace-unit-filter { gap: 0.65rem; }
+  .workspace-unit-filter > .workspace-filter-header > div > span { display: none; }
+  .workspace-unit-filter .workspace-filter-actions { display: flex; flex-wrap: wrap; }
+  .workspace-comparison-matrix th, .workspace-comparison-matrix td { padding: 0.6rem; }
+  .workspace-player-picker-selected { grid-template-columns: minmax(0, 1fr); }
+  .workspace-guide-group > header h2 { font-size: var(--text-section); }
+}
+.workspace-series-masthead-bar > button { min-width: 2.75rem; min-height: 2.75rem; }
+.workspace-player-filter-group.is-primary.has-position > div { grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); }
+.workspace-player-filter-group.is-primary.has-position .is-wide { grid-column: auto; }
+.modern-result-filters .whitespace-nowrap { white-space: normal; }
+.modern-result-filters > button > span > span { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.3rem 0.6rem; }
+.workspace-table-scroll:focus-visible { outline-offset: -3px; }
+@media (max-width: 899px) {
+  .workspace-game-score-team[data-align="right"] .workspace-game-score-name { justify-content: flex-start; flex-direction: row; }
+  .workspace-game-score-team[data-align="right"] .workspace-game-score-name a { order: 0; }
+  .workspace-game-score-team .workspace-game-score-name { display: block; }
+}
+@media (max-width: 700px) {
+  .workspace-player-filter-group.is-primary.has-position > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .workspace-player-filter-group.is-primary.has-position .is-wide { grid-column: 1 / -1; }
+  .workspace-player-filters > .workspace-filter-actions { flex-direction: row; }
+  .workspace-player-filters > .workspace-filter-actions > * { flex: 1 1 40%; }
+  .workspace-player-filters > .workspace-filter-actions > .workspace-player-compare-link { flex-basis: 100%; }
+  .workspace-unit-filter { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .workspace-unit-filter > label:first-of-type, .workspace-unit-filter > .workspace-filter-actions { grid-column: 1 / -1; }
+  .workspace-unit-filter label { min-width: 0; }
+  .workspace-history-chart-canvas { height: 17rem; }
+  .workspace-table-scroll:not(.modern-comparison-scroll)::before { content: "Scroll for more columns →"; display: block; position: sticky; left: 0; padding: 0.5rem 0.8rem; color: var(--muted); font-size: var(--text-meta); }
+  .workspace-table-scroll:not(.modern-comparison-scroll) .workspace-table tr > :first-child { position: sticky; left: 0; z-index: 1; background: var(--surface); }
+  .workspace-table-scroll:not(.modern-comparison-scroll) .workspace-table thead tr > :first-child { background: var(--surface-raised); }
+}
+.modern-game-support { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.6rem; }
+.workspace-game-score-team[data-align="right"] .modern-game-support { justify-content: flex-end; }
+@media (max-width: 899px) {
+  .workspace-game-score-team[data-align="right"] .modern-game-support { justify-content: flex-start; }
+  .workspace-game-hero-score { gap: 0.75rem; }
+}
+/* Keep native selects inside narrow chart panels, including long metric names. */
+.workspace-chart-toolbar label, .workspace-chart-toolbar select { min-width: 0; max-width: 100%; }
+@container (min-width: 20rem) and (max-width: 28rem) {
+  .workspace-schedule-toolbar { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; }
+  .workspace-schedule-toolbar > form:first-child { grid-column: 1; grid-row: 1; }
+  .workspace-schedule-toolbar > .workspace-schedule-calendar { grid-column: 2; grid-row: 1; }
+  .workspace-schedule-toolbar > .workspace-schedule-phase { grid-column: 1 / -1; grid-row: 2; }
+  .workspace-schedule-toolbar > form:nth-of-type(2) { grid-column: 1 / -1; grid-row: 3; }
+}
+
+/* Desktop audit: reading roles, rather than a page-wide zoom. */
+.site-utilities .theme-toggle, .site-footer > a:last-child { font-size: 0.875rem; }
+.workspace-scroll-nav a, .workspace-phase-filter a, .workspace-schedule-phase a,
+.workspace-standings-scope :is(a, button), .workspace-history-explorer-nav a,
+.workspace-history-peaks-heading nav a { font-size: 0.9375rem; }
+main :is(input:not([type="checkbox"]):not([type="radio"]), select) { font-size: 1rem; min-height: 2.75rem; }
+main :is(form label, .workspace-chart-toolbar label, .workspace-season-picker label,
+.workspace-advanced-situation-filter, .workspace-history-filter-drawer label) { font-size: 0.9375rem; }
+.workspace-filter-actions > :is(button, a, span), .workspace-draft-filter-actions > *,
+.workspace-history-filter-actions > *, .workspace-history-actions > *,
+.workspace-draft-table-search button { font-size: 1rem; min-height: 2.75rem; }
+.workspace-filter-header small, .workspace-player-advanced-filters summary,
+.modern-scope-help, .workspace-table-note, .workspace-column-preset-toolbar span { font-size: 0.875rem; line-height: 1.5; }
+.workspace-column-preset-toolbar button { min-height: 2.5rem; font-size: 0.875rem; }
+main nav[aria-label*="agination"] :is(a, span) { font-size: 0.9375rem; min-height: 2.5rem; }
+.workspace-sort-icon { display: inline-block; flex-shrink: 0; vertical-align: middle; width: 1rem; height: 1rem; }
+.workspace-draft-sort-link { font-size: 0.875rem; }
+.workspace-schedule-calendar-action button { font-size: 0.9375rem; min-height: 2.75rem; gap: 0.5rem; }
+.workspace-schedule-calendar-action svg { flex-shrink: 0; }
+
+/* Home: names and central values lead, records remain subordinate. */
+.modern-scoring .workspace-leader-grid strong { font-size: 1.125rem; }
+.modern-scoring .workspace-leader-grid :is(small, a > span),
+.modern-trends .workspace-home-trend-rows :is(small, em),
+.workspace-home-movement-team small, .workspace-home-movement-change small,
+.workspace-standing-list small, .workspace-upcoming-list small { font-size: 0.875rem; }
+.workspace-standing-list :is(b, strong), .workspace-home-movement-change strong,
+.workspace-upcoming-list a > span, .workspace-home-trend-rows b { font-size: 1rem; }
+.workspace-upcoming-list time { font-size: 0.9375rem; }
+.workspace-upcoming-list .team-crest-tiny { width: 1.75rem; height: 1.75rem; }
+.workspace-team-directory-card strong { font-size: 1.0625rem; }
+.workspace-team-division h3 { font-size: 1.125rem; }
+
+/* Dense tables retain internal scrolling; sparse tables use the body scale. */
+main .workspace-table tbody td { line-height: 1.5; }
+main .workspace-table-dense tbody td { padding-top: 0.6875rem; padding-bottom: 0.6875rem; }
+main .workspace-table tbody :is(a, .workspace-entity-name),
+main .workspace-table tbody td.text-left.font-medium { font-size: 1rem; font-weight: 550; }
+main .workspace-table tbody :is(small, .text-xs) { font-size: 0.875rem; font-weight: 400; }
+main .workspace-table tbody td.font-semibold,
+main .workspace-table tbody .workspace-points-cell,
+main .workspace-table tbody .is-active { font-weight: 650; }
+main .modern-table-readable tbody td,
+main.modern-analytics .workspace-column-preset-table[data-column-preset="core"] tbody td { font-size: 1rem; }
+main .workspace-standings-table tbody td { padding-block: 0.875rem; }
+main .workspace-comparison-matrix tbody td { font-size: 1rem; font-weight: 500; white-space: nowrap; }
+.workspace-comparison-matrix tbody th { font-size: 0.9375rem; line-height: 1.5; }
+.workspace-comparison-matrix thead a { font-size: 1rem; }
+.workspace-player-picker-heading h3 { font-weight: 600; }
+.workspace-player-picker-selected small, .workspace-player-picker-results small { font-size: 0.875rem; }
+.workspace-player-picker-results strong { font-size: 1rem; }
+.modern-unit-players a { font-weight: 550; }
+.workspace-empty-state, .workspace-empty-state a, .workspace-history-empty p { font-size: 1rem; line-height: 1.5; }
+.workspace-empty-state strong, .workspace-history-empty strong { font-size: 1.125rem; }
+
+/* Profile summaries and explanatory content. */
+.workspace-player-profile-fact dd { font-size: 1rem; }
+.workspace-player-season-metric dt { font-size: 0.875rem; letter-spacing: 0.04em; }
+.workspace-player-season-metric dd { font-size: 1.25rem; white-space: nowrap; }
+.workspace-player-season-totals-header span { font-size: 1.4375rem; white-space: nowrap; }
+.workspace-player-season-totals-header h4 { font-size: 1rem; }
+.modern-advanced-card > p:first-child { font-size: 0.875rem; letter-spacing: 0.04em; }
+.workspace-advanced-situation-filter { margin-bottom: 1rem; }
+.modern-advanced-section > div:first-child p:last-child { font-size: 1rem; line-height: 1.5; }
+.workspace-schedule-strength { margin-top: 2rem; }
+.workspace-schedule-strength h4 { font-size: 1.125rem; }
+.workspace-schedule-strength dt { font-size: 0.875rem; }
+.workspace-schedule-strength > div:first-child p:last-child { font-size: 1rem; line-height: 1.5; }
+.workspace-team-game-record { font-size: 0.8125rem; margin-inline-start: 0.25rem; }
+.workspace-schedule-week strong, .workspace-schedule-month-grid strong { font-size: 1rem; }
+.workspace-schedule-week small, .workspace-schedule-month-grid small { font-size: 0.875rem; }
+.workspace-game-team-name { font-size: 1rem; }
+.workspace-xg-comparison small { font-size: 0.9375rem; }
+
+/* Guide copy has a reading measure rather than a metadata scale. */
+.workspace-guide-card h3, .workspace-guide-card strong { font-size: 1rem; font-weight: 600; }
+.workspace-guide-card > p, .workspace-guide-card .workspace-guide-reading,
+.workspace-guide-note > p, .workspace-guide-group > header p { font-size: 1rem; line-height: 1.6; max-width: 75ch; }
+.workspace-guide-note h2 { font-size: 1.25rem; }
+.workspace-guide-note a { font-size: 1rem; }
+
+/* History keeps substantial section titles distinct from the page heading. */
+.workspace-history-ranking-summary h2, .workspace-history-peaks-heading h2,
+.workspace-history-decades h2, .workspace-history-results > header h3 { font-size: 1.5rem; font-weight: 650; }
+.workspace-history-record-list header h2 { font-size: 1.25rem; font-weight: 650; }
+.workspace-history-record-list li strong, .workspace-history-entity strong { font-size: 1rem; font-weight: 550; }
+.workspace-history-record-list li > b { font-size: 1.125rem; }
+.workspace-history-record-list li small { font-size: 0.875rem; }
+.workspace-history-record-list header > a { font-size: 0.9375rem; }
+.workspace-history-ranking-summary dd { font-size: 0.9375rem; }
+.workspace-history-table thead th { height: 2.75rem; font-size: 0.875rem; }
+.workspace-history-table thead th > a { display: flex; align-items: center; justify-content: flex-end; gap: 0.25rem; min-height: 2.75rem; }
+.workspace-history-table tbody td { padding-block: 0.6875rem; }
+.workspace-history-filter-drawer legend { font-size: 1rem; }
+.workspace-history-filter-drawer label { font-size: 0.9375rem; }
+.workspace-history-era-definition dl { flex-wrap: wrap; gap: 0.75rem 1.5rem; }
+.workspace-history-era-definition dl > div { flex-wrap: wrap; }
+.workspace-history-era-definition dt { font-size: 1rem; white-space: nowrap; }
+.workspace-history-era-definition dd { font-size: 0.875rem; }
+.workspace-history-decades-table tbody th { font-size: 1rem; }
+.workspace-history-decades-table tbody td { font-size: 0.9375rem; }
+.workspace-history-intro > p, .workspace-history-era-definition > p { font-size: 1rem; line-height: 1.6; max-width: 75ch; }
+
+/* Charts: labels use actual CSS sizes, never the rink's scaled drawing units. */
+.recharts-cartesian-axis-tick text { font-size: 0.875rem; }
+.recharts-label { font-size: 0.9375rem; }
+.workspace-chart-toolbar :is(h3, h4), .workspace-history-chart header h3,
+.workspace-player-direct-chart h3 { font-size: 1.25rem; font-weight: 650; }
+.workspace-player-comparison-plots h5 { font-size: 1rem; font-weight: 600; }
+.workspace-chart-legend, .workspace-chart-legend-label, .workspace-team-drafting-legend,
+.workspace-team-drafting-x-ticks, .workspace-team-drafting-y-tick { font-size: 0.875rem; }
+.workspace-team-drafting-x-title, .workspace-team-drafting-y-title { font-size: 0.9375rem; }
+.workspace-team-drafting-chart-note, .workspace-draft-range-note,
+.workspace-class-definitions { font-size: 0.875rem; line-height: 1.5; }
+.workspace-chart-tooltip { width: min(21rem, calc(100vw - 2rem)); max-width: calc(100vw - 2rem); }
+.workspace-chart-tooltip :is(b, strong) { font-size: 1rem; }
+.workspace-chart-tooltip :is(dt, small) { font-size: 0.875rem; }
+.modern-shot-orientation { display: flex; justify-content: space-between; gap: 1rem; font-size: 0.875rem; color: var(--muted); margin-bottom: 0.5rem; }
+.modern-shot-map figcaption p:nth-child(2) { font-size: 1.125rem; white-space: normal; }
+.modern-shot-map figcaption p:nth-child(3) { font-size: 0.9375rem; white-space: normal; }
+.modern-shot-map .text-xs { font-size: 0.875rem; line-height: 1.5; }
+.modern-shot-map [aria-live] dl { font-size: 0.9375rem; }
+.modern-shot-map [aria-live] dt { font-size: 0.875rem; }
+.modern-shot-map [aria-live] p.font-semibold { font-size: 1rem; }
+
+/* Playoff overview, short game lists and dense dialog tables have different needs. */
+.workspace-bracket-team-name { font-size: 0.9375rem; }
+.workspace-bracket-series b { font-size: 1rem; }
+.workspace-series-dialog { max-height: calc(100dvh - 4rem); }
+.workspace-series-dialog[data-view="games"] { height: fit-content; }
+.workspace-series-dialog[data-view="games"] .workspace-series-dialog-card { height: auto; max-height: calc(100dvh - 4rem); }
+.workspace-series-team strong { font-size: 1.125rem; }
+.workspace-series-tabs button { font-size: 0.9375rem; min-height: 2.75rem; }
+.workspace-series-stat-row span { font-size: 0.875rem; }
+.workspace-series-stats-toggle button { font-size: 0.9375rem; min-height: 2.5rem; }
+.workspace-series-game-meta strong, .workspace-series-game-team strong { font-size: 1rem; }
+.workspace-series-game-meta :is(time, span) { font-size: 0.875rem; }
+.workspace-series-game-team b { font-size: 1.25rem; }
+.workspace-series-game-link { font-size: 0.9375rem; }
+.workspace-series-table thead th { font-size: 0.875rem; }
+.workspace-series-table td { font-size: 0.9375rem; }
+.workspace-series-player-identity strong { font-size: 1rem; }
+.workspace-series-player-identity small { font-size: 0.875rem; }
+.workspace-series-loading, .workspace-series-empty { font-size: 1rem; }
+@media (max-width: 700px) {
+  .workspace-comparison-matrix { --comparison-metric-width: 9.5rem; }
+}
+.modern-section-heading > div > p:last-child:not(:first-child) { font-size: 1rem; line-height: 1.5; }
+.modern-team-performance dt, .modern-team-performance dd > span.font-semibold { font-size: 1rem; }
+.modern-team-performance dt + p { font-size: 0.875rem; line-height: 1.5; }
+.modern-team-performance .text-xs { font-size: 0.875rem; }
+.modern-unit-names { display: flex; flex-wrap: wrap; min-width: 16rem; gap: 0.15rem 0.25rem; }
+.modern-unit-names > span { white-space: nowrap; }
+.workspace-comparison-plot-heading h5 { font-size: 1rem; font-weight: 600; }
+.workspace-chart-tooltip-value { font-size: 1rem; }
+.workspace-phase-filter + section { margin-top: 2rem; }
+.workspace-player-filters + section { margin-top: 1.25rem; }
+.workspace-player-chart-header :is(h3, h4), .workspace-direct-comparison h4 { font-size: 1.25rem; font-weight: 650; }
+.workspace-player-chart-header > p, .workspace-player-chart-header > div > p:last-child:not(:first-child),
+.workspace-history-header-copy > p { font-size: 1rem; line-height: 1.6; }
+.workspace-chart-tooltip dd { font-size: 1rem; }
+.workspace-game-team a { font-size: 1rem; }
+.workspace-game-card time, .workspace-game-card > a { font-size: 0.9375rem; }
+main :is(.workspace-player-picker-search, .workspace-player-plot-controls, .workspace-team-plot-controls) label { font-size: 0.9375rem; }
+.workspace-player-picker-actions > button { min-height: 2.75rem; font-size: 1rem; }
+.workspace-player-picker-actions > div span { font-size: 0.875rem; }
+.workspace-class-ranking-guide :is(dd, p > span) { font-size: 0.875rem; line-height: 1.5; }
+.workspace-class-ranking-guide dt { font-size: 0.9375rem; }
+.workspace-chart-filter-group :is(legend, button), .workspace-player-plot-controls button { font-size: 0.9375rem; }
+.workspace-chart-filter-group button { min-height: 2.5rem; }
+.workspace-filter-actions .workspace-disabled-action { font-size: 1rem; }
+.workspace-history-chart-heading-copy > span { font-size: 0.875rem; }
+.workspace-direct-comparison > header h4 { font-size: 1.25rem; font-weight: 650; }
+.workspace-direct-comparison > header > p, .workspace-direct-comparison-empty { font-size: 1rem; }
+.workspace-direct-comparison-selectors label { font-size: 0.9375rem; }
+.workspace-filter-header > div > span { font-size: 0.875rem; }
+.workspace-filter-header small { font-size: 0.8125rem; }
+.workspace-draft-range-note.is-footer { font-size: 0.875rem; line-height: 1.5; }
+.workspace-game-flow-header h3 { font-size: 1.25rem; }
+.workspace-game-flow-header p { font-size: 1rem; line-height: 1.5; }
+.workspace-game-flow-source, .workspace-game-flow-key { font-size: 0.875rem; line-height: 1.5; }
+.workspace-game-flow-periods :is(td, th, caption) { font-size: 0.9375rem; }
+.workspace-xg-comparison-share span { font-size: 0.9375rem; }
+main.modern-analytics .workspace-table-dense tbody td { padding-block: 0.4375rem; }
+main .modern-draft-board tbody td { padding-block: 0.5rem; }
+.workspace-player-picker-selected > li.is-empty p { font-size: 0.875rem; }
+.workspace-player-history-total :is(th, td) { font-size: 1rem; }
+.workspace-column-preset-toolbar strong { font-size: 0.875rem; }
+.workspace-loading-status { font-size: 1rem; }
+main .modern-player-history tbody td:first-child { font-size: 1rem; }
+main .workspace-table .workspace-team-cell > div > strong { font-size: 1rem; font-weight: 550; }
+.workspace-player-picker-results span { font-size: 0.875rem; }
+main .workspace-table tbody .workspace-points-cell { font-size: 1rem; }
+.workspace-series-table td { font-weight: 500; }
+.workspace-series-table td.is-highlight { font-weight: 650; }
+/* Category shape accompanies colour in plots and their corresponding keys. */
+.workspace-comparison-key [data-chart-shape="square"], [data-chart-shape="square"] { border-radius: 0.1rem; }
+[data-chart-shape="diamond"] { border-radius: 0; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+[data-chart-shape="triangle"] { border-radius: 0; clip-path: polygon(50% 0, 100% 100%, 0 100%); }

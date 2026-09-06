@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SortIndicator } from "@/app/_components/sizing-icons";
 import { FilterActions } from "@/app/_components/filter-primitives";
 import { TeamLogo, TeamLogoStack } from "@/app/_components/team-logo";
 import type {
@@ -485,7 +486,7 @@ function TableShell({ minWidth, children }: { minWidth: string; children: React.
 }
 
 function MetricHeading({ label, metric, active, href }: { label: string; metric: HistoryMetric; active: boolean; href?: string }) {
-  return <th aria-sort={active ? "descending" : undefined} className={active ? "is-active-metric" : undefined}>{href ? <Link href={href} aria-label={`Rank by ${fullMetricLabel(metric)}`}>{label}<span aria-hidden="true">{active ? " ↓" : " ↕"}</span></Link> : label}</th>;
+  return <th aria-sort={active ? "descending" : undefined} className={active ? "is-active-metric" : undefined}>{href ? <Link href={href} aria-label={`Rank by ${fullMetricLabel(metric)}`}>{label}<SortIndicator direction={active ? "desc" : undefined} /></Link> : label}</th>;
 }
 
 function RankCell({ rank }: { rank?: number }) { return <td className="workspace-semantic-number workspace-history-rank">{rank ?? "—"}</td>; }

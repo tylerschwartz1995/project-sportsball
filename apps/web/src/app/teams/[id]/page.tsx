@@ -214,15 +214,9 @@ export default async function TeamPage({
           <span aria-hidden="true">←</span> All teams
         </Link>
 
-        <div className="surface-panel relative mt-6 overflow-hidden p-6 sm:p-8">
-          <span
-            aria-hidden="true"
-            className="pointer-events-none absolute -bottom-10 -right-3 font-mono text-[9rem] font-semibold leading-none tracking-[-0.09em] text-[color-mix(in_srgb,var(--foreground)_2.5%,transparent)] sm:text-[13rem]"
-          >
-            {profileDetail.team.abbreviation}
-          </span>
-          <div className="relative grid gap-8 lg:grid-cols-[1fr_22rem] lg:items-end">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+        <div className="modern-profile-identity modern-team-identity relative mt-6">
+          <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_12rem] lg:items-end">
+            <div className="modern-team-name flex items-center gap-4">
               <TeamLogo
                 name={profileDetail.team.name}
                 abbreviation={profileDetail.team.abbreviation}
@@ -462,7 +456,7 @@ export default async function TeamPage({
           <DataTableShell>
             <SortableTable defaultSortKey="savePercentage">
               <div className="overflow-x-auto">
-                <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
+                <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
                   <colgroup>
                     <col className="workspace-col-entity" />
                     <col className="workspace-col-number" span={6} />

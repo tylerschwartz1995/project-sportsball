@@ -504,7 +504,7 @@ function UnitTable({
                 >
                   <TeamCell team={row.team} />
                   <td className="px-4 py-3 text-left">
-                    <div className="flex whitespace-nowrap">
+                    <div className="modern-unit-names">
                       {row.players.map((player, index) => (
                         <span key={player.nhlPlayerId}>
                           {index > 0 ? <span className="text-[var(--muted)]"> / </span> : null}

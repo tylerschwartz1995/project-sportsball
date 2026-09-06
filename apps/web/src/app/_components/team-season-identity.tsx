@@ -24,12 +24,8 @@ export function TeamSeasonIdentity({
   const seriesSummary = countOpponentOutcomes(identity.opponents);
 
   return (
-    <section className="workspace-width-data mt-8 space-y-6">
+    <section className="modern-team-performance workspace-width-data mt-8 space-y-6">
       <article className="surface-panel relative overflow-hidden p-5 sm:p-6">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-16 -top-28 h-80 w-80 rounded-full bg-[var(--accent)] opacity-[0.07] blur-3xl"
-        />
         <div className="relative">
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.16em] text-[var(--accent)]">
@@ -46,7 +42,7 @@ export function TeamSeasonIdentity({
           <dl className="mt-4 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--surface)]">
             <div
               aria-hidden="true"
-              className="hidden grid-cols-[minmax(0,1.35fr)_minmax(9rem,0.5fr)_minmax(8rem,0.38fr)_minmax(12rem,0.8fr)] gap-4 border-b border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-2 font-mono text-[0.65rem] uppercase tracking-[0.13em] text-[var(--muted)] md:grid"
+              className="hidden grid-cols-[minmax(0,1.35fr)_minmax(9rem,0.5fr)_minmax(8rem,0.38fr)_minmax(12rem,0.8fr)] gap-4 border-b border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-2 font-mono text-[0.8125rem] uppercase tracking-[0.13em] text-[var(--muted)] md:grid"
             >
               <span>Metric</span>
               <span>Team result</span>
@@ -68,12 +64,12 @@ export function TeamSeasonIdentity({
                     <dt className="font-medium text-[var(--foreground)]">
                       {metric.label}
                     </dt>
-                    <p className="mt-0.5 text-[0.7rem] leading-4 text-[var(--muted)]">
+                    <p className="mt-0.5 text-[0.8125rem] leading-4 text-[var(--muted)]">
                       {metric.description}
                     </p>
                   </div>
                   <dd>
-                    <span className="block font-mono text-[0.65rem] uppercase tracking-[0.12em] text-[var(--muted)] md:hidden">
+                    <span className="block font-mono text-[0.8125rem] uppercase tracking-[0.12em] text-[var(--muted)] md:hidden">
                       Team result
                     </span>
                     <span className="mt-1 block whitespace-nowrap font-semibold text-[var(--foreground)] tabular-nums md:mt-0">
@@ -81,7 +77,7 @@ export function TeamSeasonIdentity({
                     </span>
                   </dd>
                   <dd>
-                    <span className="block font-mono text-[0.65rem] uppercase tracking-[0.12em] text-[var(--muted)] md:hidden">
+                    <span className="block font-mono text-[0.8125rem] uppercase tracking-[0.12em] text-[var(--muted)] md:hidden">
                       NHL rank
                     </span>
                     <span className="mt-1 block whitespace-nowrap font-semibold text-[var(--foreground)] tabular-nums md:mt-0">
@@ -89,10 +85,10 @@ export function TeamSeasonIdentity({
                     </span>
                   </dd>
                   <dd className="col-span-full md:col-span-1">
-                    <div className="flex items-center gap-2 font-mono text-[0.62rem] text-[var(--muted)] tabular-nums">
+                    <div className="flex items-center gap-2 font-mono text-[0.8125rem] text-[var(--muted)] tabular-nums">
                       <span>1st</span>
                       <div
-                        className="relative h-1.5 flex-1 rounded-full bg-[var(--border)]"
+                        className="relative h-1.5 flex-1 rounded-full bg-[var(--chart-track)]"
                         role="img"
                         aria-label={`${metric.label}: ${metric.formattedValue}; ranked ${metric.rank} of ${metric.teamCount}`}
                       >
@@ -270,7 +266,7 @@ function OpponentLedgerCard({
         </span>
       </Link>
       <div className="mt-2 flex items-center justify-between gap-2">
-        <p className={`text-[0.68rem] capitalize ${outcomeClass}`}>
+        <p className={`text-[0.8125rem] capitalize ${outcomeClass}`}>
           <span className="sr-only">Series </span>
           {entry.outcome}
         </p>
@@ -285,7 +281,7 @@ function OpponentLedgerCard({
             href={`/games/${game.nhlGameId}`}
             title={formatLongDate(game.gameDate)}
             aria-label={`${game.result} ${game.score} to ${game.opponentScore} against ${entry.opponent.name} on ${formatLongDate(game.gameDate)}`}
-            className={`inline-flex min-h-10 items-center rounded-md border border-[var(--border)] px-2 py-1 font-mono text-[0.62rem] transition hover:border-[var(--accent)] hover:text-[var(--accent)] ${resultClass(game.result)}`}
+            className={`inline-flex min-h-10 items-center rounded-md border border-[var(--border)] px-2 py-1 font-mono text-[0.8125rem] transition hover:border-[var(--accent)] hover:text-[var(--accent)] ${resultClass(game.result)}`}
           >
             {game.result} {game.score}–{game.opponentScore}
           </Link>

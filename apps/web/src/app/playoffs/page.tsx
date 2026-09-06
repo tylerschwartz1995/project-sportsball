@@ -167,7 +167,7 @@ export default async function PlayoffsPage({
               {leaders.length > 0 ? (
                 <SortableTable defaultSortKey="points">
                   <div className="workspace-table-scroll">
-                    <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[680px]">
+                    <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[680px]">
                       <colgroup>
                         <col className="workspace-col-entity" />
                         <col className="workspace-col-team" />

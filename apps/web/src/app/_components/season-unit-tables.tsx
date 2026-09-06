@@ -192,7 +192,7 @@ function SeasonUnitTable({
                             {!showTeam ? (
                               <TeamLogo {...row.team} size="tiny" decorative />
                             ) : null}
-                            <div className="flex whitespace-nowrap">
+                            <div className="modern-unit-names">
                               {row.players.map((player, index) => (
                                 <span key={player.nhlPlayerId}>
                                   {index > 0 ? (

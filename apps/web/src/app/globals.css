@@ -57,13 +57,7 @@
 }
 
 html {
-  /*
-   * Keep normal desktops at the established readable baseline, then scale the
-   * whole interface modestly on larger screens. Because component geometry is
-   * rem-based, type, controls, logos, and their spacing grow together instead
-   * of leaving small content inside an increasingly wide canvas.
-   */
-  font-size: clamp(18px, calc(16px + 0.2vw), 20px);
+  font-size: 100%;
 }
 
 html[data-theme="light"] {
@@ -373,7 +367,7 @@ main.max-w-7xl > section {
 .workspace-brand small {
   margin-top: 0.12rem;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-primary-nav {
@@ -391,7 +385,7 @@ main.max-w-7xl > section {
   padding: 0 0.65rem 0.25rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.64rem;
+  font-size: var(--text-meta);
   font-weight: 750;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -635,7 +629,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-player-season-metric dt {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   font-weight: 650;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -818,7 +812,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-filter-header span,
 .workspace-filter-header small {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   line-height: 1.45;
 }
 
@@ -1027,7 +1021,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-player-advanced-filters > summary small,
 .workspace-player-advanced-filters > summary b {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-player-advanced-filters > summary b {
@@ -1328,7 +1322,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   margin-bottom: 0.35rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1407,7 +1401,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   background: var(--surface-subtle);
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
   font-weight: 750;
 }
 
@@ -1598,7 +1592,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   border-top: 1px solid var(--border);
   padding-top: 0.7rem;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   line-height: 1.5;
 }
 
@@ -1973,7 +1967,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   display: block;
   color: var(--insight-accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.66rem;
+  font-size: var(--text-meta);
   font-weight: 750;
   letter-spacing: 0.07em;
   line-height: 1.3;
@@ -1997,7 +1991,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-draft-insights small {
   display: block;
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: var(--text-meta);
   line-height: 1.4;
 }
 
@@ -2092,7 +2086,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   background: var(--surface-raised);
   color: var(--muted);
   font: inherit;
-  font-size: 0.74rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   cursor: pointer;
 }
@@ -2122,7 +2116,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-team-pick-summary dt {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.64rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -2152,7 +2146,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-team-picks-table {
   min-width: 820px;
   table-layout: fixed;
-  font-size: 0.8rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-team-pick-year-col {
@@ -2192,7 +2186,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-table.workspace-team-picks-table thead th {
   padding: 0.62rem 0.7rem;
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-table.workspace-team-picks-table tbody td {
@@ -2218,14 +2212,14 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-team-picks-modal .workspace-table-note {
   flex: 0 0 auto;
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-team-pick-round {
   display: block;
   margin-top: 0.08rem;
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-team-drafting-visuals {
@@ -2277,7 +2271,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   padding: 0.18rem 0.42rem;
   background: color-mix(in srgb, var(--surface) 90%, transparent);
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: var(--text-meta);
   font-weight: 720;
   letter-spacing: 0.04em;
   line-height: 1.2;
@@ -2356,13 +2350,13 @@ html[data-theme="light"] .theme-toggle-label::after {
 }
 
 .workspace-team-drafting-point-label strong {
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-team-drafting-point-label small {
   margin-top: 0.12rem;
   color: var(--muted);
-  font-size: 0.62rem;
+  font-size: var(--text-meta);
   font-variant-numeric: tabular-nums;
 }
 
@@ -2370,7 +2364,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-team-drafting-y-title {
   position: absolute;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
   font-weight: 680;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -2397,7 +2391,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   margin-top: 0.35rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.64rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-team-drafting-x-ticks span:nth-child(2) {
@@ -2410,7 +2404,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   right: calc(100% + 0.45rem);
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.64rem;
+  font-size: var(--text-meta);
   transform: translateY(-50%);
 }
 
@@ -2472,7 +2466,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   align-items: center;
   gap: 0.4rem;
   color: var(--muted);
-  font-size: 0.66rem;
+  font-size: var(--text-meta);
   font-weight: 700;
 }
 
@@ -2481,18 +2475,18 @@ html[data-theme="light"] .theme-toggle-label::after {
   border-radius: 999px;
   background: linear-gradient(
     to right,
-    color-mix(in srgb, var(--chart-secondary) 12%, var(--surface)) 0 20%,
-    color-mix(in srgb, var(--chart-secondary) 28%, var(--surface)) 20% 40%,
-    color-mix(in srgb, var(--chart-secondary) 44%, var(--surface)) 40% 60%,
-    color-mix(in srgb, var(--chart-secondary) 60%, var(--surface)) 60% 80%,
-    color-mix(in srgb, var(--chart-secondary) 76%, var(--surface)) 80% 100%
+    var(--heat-level-1) 0 20%,
+    var(--heat-level-2) 20% 40%,
+    var(--heat-level-3) 40% 60%,
+    var(--heat-level-4) 60% 80%,
+    var(--heat-level-5) 80% 100%
   );
 }
 
 .workspace-class-heat-guide p,
 .workspace-class-heat-guide small {
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--text-meta);
   line-height: 1.4;
 }
 
@@ -2513,14 +2507,14 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-class-ranking-guide dt {
   color: var(--foreground);
-  font-size: 0.76rem;
+  font-size: var(--text-meta);
   font-weight: 720;
 }
 
 .workspace-class-ranking-guide dd {
   margin-top: 0.25rem;
   color: var(--muted);
-  font-size: 0.74rem;
+  font-size: var(--text-meta);
   line-height: 1.45;
 }
 
@@ -2531,7 +2525,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 }
 
 .workspace-table.workspace-class-rankings-table thead {
-  font-size: 0.66rem;
+  font-size: var(--text-meta);
   letter-spacing: 0.015em;
 }
 
@@ -2544,7 +2538,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   border-bottom: 1px solid var(--border);
   padding: 0.32rem 0.3rem;
   color: color-mix(in srgb, var(--muted) 82%, transparent);
-  font-size: 0.57rem;
+  font-size: var(--text-meta);
   font-weight: 750;
   letter-spacing: 0.07em;
   text-align: center;
@@ -2579,11 +2573,8 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-class-rankings-sort[data-sort-key="average-games"] [data-metric="average-games"],
 .workspace-class-rankings-sort[data-sort-key="points"] [data-metric="points"],
 .workspace-class-rankings-sort[data-sort-key="game-score"] [data-metric="game-score"] {
-  background: color-mix(
-    in srgb,
-    var(--chart-secondary) var(--heat-strength),
-    var(--surface)
-  );
+  background: var(--heat-background);
+  color: var(--heat-foreground);
   font-weight: 750;
 }
 
@@ -2683,14 +2674,14 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-class-outcome-decade h4 {
   color: var(--foreground);
   font-family: var(--font-geist-mono);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
 .workspace-class-outcome-decade header span {
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-class-outcome-decade > div {
@@ -2714,7 +2705,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-class-outcome-row a {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.7rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   text-decoration: none;
 }
@@ -2773,7 +2764,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   background: var(--surface-raised);
   color: color-mix(in srgb, var(--foreground) 72%, var(--muted));
   font-family: var(--font-geist-mono);
-  font-size: 0.68rem;
+  font-size: var(--text-meta);
   font-weight: 750;
   letter-spacing: 0.025em;
   line-height: 1.2;
@@ -2796,13 +2787,13 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-class-outcome-rate-heading strong {
   color: var(--foreground);
-  font-size: 0.68rem;
+  font-size: var(--text-meta);
   line-height: 1.1;
 }
 
 .workspace-class-outcome-rate-heading small {
   color: var(--muted);
-  font-size: 0.56rem;
+  font-size: var(--text-meta);
   line-height: 1.1;
 }
 
@@ -2813,7 +2804,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-class-outcome-established strong {
   color: var(--foreground);
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-class-outcome-tooltip {
@@ -2859,7 +2850,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   padding: 0.45rem 0.5rem;
   background: color-mix(in srgb, var(--surface) 72%, transparent);
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-class-outcome-tooltip i {
@@ -2873,7 +2864,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   padding-left: 0.95rem;
   color: var(--foreground);
   font-family: var(--font-geist-mono);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   font-variant-numeric: tabular-nums;
 }
 
@@ -3192,7 +3183,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   padding: 0 0.55rem 0 0.2rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.66rem;
+  font-size: var(--text-meta);
   font-weight: 750;
   letter-spacing: 0.09em;
   text-transform: uppercase;
@@ -4021,7 +4012,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-schedule-phase > span {
   display: block;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -4058,7 +4049,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   place-items: center;
   border-radius: 0.38rem;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   text-decoration: none;
   white-space: nowrap;
@@ -4106,7 +4097,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-schedule-calendar-action p {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-schedule-month {
@@ -4127,7 +4118,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-schedule-month-heading span {
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.68rem;
+  font-size: var(--text-meta);
   font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -4186,7 +4177,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   padding: 0.45rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.68rem;
+  font-size: var(--text-meta);
   font-weight: 750;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -4211,7 +4202,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-schedule-month-grid small {
   color: var(--accent);
-  font-size: 0.68rem;
+  font-size: var(--text-meta);
   font-weight: 700;
 }
 
@@ -4232,7 +4223,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-schedule-week-actions p {
   color: var(--foreground);
   font-family: var(--font-geist-mono);
-  font-size: 0.8rem;
+  font-size: var(--text-meta);
   font-weight: 700;
 }
 
@@ -4241,7 +4232,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-schedule-day-actions a,
 .workspace-schedule-day-actions span {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   text-decoration: none;
 }
@@ -4297,7 +4288,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-schedule-week span {
   font-family: var(--font-geist-mono);
-  font-size: 0.7rem;
+  font-size: var(--text-meta);
   font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -4309,7 +4300,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 }
 
 .workspace-schedule-week small {
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-schedule-week [data-has-games="false"] small {
@@ -4336,7 +4327,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-schedule-results-heading p {
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
   font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -4476,7 +4467,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   background: color-mix(in srgb, var(--accent) 9%, var(--surface-raised));
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.66rem;
+  font-size: var(--text-meta);
   font-weight: 750;
   letter-spacing: 0.06em;
   line-height: 1.2;
@@ -4497,7 +4488,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   background: var(--surface-raised);
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
   font-weight: 650;
   font-variant-numeric: tabular-nums;
   line-height: 1;
@@ -4853,7 +4844,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-game-flow-header > div:first-child > p:first-child {
   color: var(--accent-secondary);
   font-family: var(--font-geist-mono);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   font-weight: 650;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -4879,7 +4870,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   align-items: center;
   gap: 0.38rem;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-game-flow-key i {
@@ -5002,7 +4993,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   transform: translateY(-50%);
   color: var(--chart-label);
   font-family: var(--font-geist-mono);
-  font-size: 0.61rem;
+  font-size: var(--text-meta);
   font-weight: 680;
   letter-spacing: 0.05em;
   line-height: 1;
@@ -5059,7 +5050,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 }
 
 .workspace-game-flow-tooltip .workspace-chart-tooltip-date {
-  font-size: 0.69rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-game-flow-tooltip .workspace-chart-tooltip-game {
@@ -5073,23 +5064,23 @@ html[data-theme="light"] .theme-toggle-label::after {
 }
 
 .workspace-game-flow-tooltip dt {
-  font-size: 0.7rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-game-flow-tooltip dd {
-  font-size: 0.76rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-game-flow-tooltip .workspace-game-flow-tooltip-event {
   gap: 0.12rem;
   margin-top: 0.42rem;
   padding-top: 0.4rem;
-  font-size: 0.69rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-game-flow-tooltip .workspace-chart-tooltip-sample {
   margin-top: 0.48rem;
-  font-size: 0.74rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-game-flow-tooltip-event strong {
@@ -5129,7 +5120,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-game-flow-periods thead th {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.75rem;
+  font-size: var(--text-meta);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -5169,7 +5160,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-game-flow-source,
 .workspace-game-flow-unavailable {
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: var(--text-meta);
   line-height: 1.5;
 }
 
@@ -5221,11 +5212,11 @@ html[data-theme="light"] .theme-toggle-label::after {
   }
 
   .workspace-game-flow-pressure-axis > span {
-    font-size: 0.72rem;
+    font-size: var(--text-meta);
   }
 
   .workspace-game-flow-pressure-axis small {
-    font-size: 0.54rem;
+    font-size: var(--text-meta);
   }
 
   .workspace-game-flow-chart text[font-size="0.7rem"] {
@@ -5911,7 +5902,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   justify-content: space-between;
   gap: 0.75rem;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-result-summary > span {
@@ -5970,7 +5961,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   border-radius: 999px;
   padding: 0.1rem 0.4rem;
   background: var(--surface-raised);
-  font-size: 0.7rem;
+  font-size: var(--text-meta);
   font-variant-numeric: tabular-nums;
 }
 
@@ -6196,7 +6187,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   box-shadow: 0 12px 28px var(--shadow);
   color: var(--foreground);
   font-family: var(--font-geist-sans);
-  font-size: 0.76rem;
+  font-size: var(--text-meta);
   font-weight: 500;
   letter-spacing: normal;
   line-height: 1.35;
@@ -6231,7 +6222,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-column-preset-toolbar span {
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-column-preset-toolbar > div:last-child {
@@ -6253,7 +6244,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   color: var(--muted);
   cursor: pointer;
   font: inherit;
-  font-size: 0.76rem;
+  font-size: var(--text-meta);
   font-weight: 700;
 }
 
@@ -6420,7 +6411,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   border-radius: 999px;
   padding: 0 0.25rem;
   color: var(--accent);
-  font-size: 0.7rem;
+  font-size: var(--text-meta);
   font-weight: 750;
   line-height: 1;
   text-transform: uppercase;
@@ -6674,11 +6665,11 @@ html[data-theme="light"] .theme-toggle-label::after {
   }
 
   .workspace-bracket-series small {
-    font-size: 0.7rem;
+    font-size: var(--text-meta);
   }
 
   .workspace-bracket-team-name {
-    font-size: 0.78rem;
+    font-size: var(--text-meta);
   }
 }
 
@@ -6729,7 +6720,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   margin: 0;
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -6811,7 +6802,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-series-team small {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -6850,7 +6841,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   margin-top: 0.3rem;
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.7rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -6920,7 +6911,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-series-comparison > span {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-align: center;
@@ -6967,7 +6958,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-series-stat-row span {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   font-weight: 650;
   text-align: center;
 }
@@ -6983,7 +6974,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-series-comparison-divider span {
   color: var(--accent-secondary);
   font-family: var(--font-geist-mono);
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -6991,7 +6982,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-series-data-source {
   color: var(--accent);
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
   font-weight: 650;
   text-decoration: none;
 }
@@ -7003,7 +6994,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-series-overview-note {
   margin-top: 0.65rem;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-series-games {
@@ -7104,7 +7095,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-series-table th {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.76rem;
+  font-size: var(--text-meta);
   letter-spacing: 0.04em;
 }
 
@@ -7165,7 +7156,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-series-player-identity small {
   margin-top: 0.05rem;
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-series-data-source {
@@ -7228,7 +7219,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   background: var(--surface-subtle);
   color: var(--muted) !important;
   font-family: var(--font-geist-mono);
-  font-size: 0.68rem !important;
+  font-size: var(--text-meta) !important;
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -7243,7 +7234,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-series-game-result small {
   color: var(--muted);
-  font-size: 0.69rem;
+  font-size: var(--text-meta);
   font-weight: 650;
   white-space: nowrap;
 }
@@ -7263,7 +7254,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-series-game-meta span {
   margin-top: 0.08rem;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-series-game-score {
@@ -7288,7 +7279,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-series-game-team small {
   color: var(--muted);
-  font-size: 0.65rem;
+  font-size: var(--text-meta);
   text-transform: uppercase;
 }
 
@@ -7315,13 +7306,13 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-series-game-at {
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
   text-transform: uppercase;
 }
 
 .workspace-series-game-link {
   color: var(--accent);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   white-space: nowrap;
 }
@@ -7433,7 +7424,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-history-ranking-summary dt {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.7rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -7444,7 +7435,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   grid-row: 1;
   align-self: center;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-history-header > details summary {
@@ -7496,7 +7487,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-history-ranking-summary > div > p {
   color: var(--accent);
   font-family: var(--font-geist-mono);
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
   font-weight: 750;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -7551,7 +7542,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 }
 
 .workspace-history-era-definition dd {
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-history-record-grid {
@@ -7583,7 +7574,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-history-record-list header > a {
   flex: 0 0 auto;
   color: var(--accent);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   text-decoration: none;
 }
@@ -7609,7 +7600,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-history-record-list li > span {
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-history-record-main {
@@ -7643,7 +7634,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-history-record-list li small {
   margin-top: 0.15rem;
   color: var(--muted);
-  font-size: 0.73rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-history-record-list li > b {
@@ -7709,7 +7700,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   justify-self: end;
   gap: 0.3rem;
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: var(--text-meta);
   font-weight: 750;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -7728,7 +7719,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   background: var(--surface-raised);
   color: var(--foreground);
   font: inherit;
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   font-weight: 700;
   letter-spacing: normal;
   text-transform: none;
@@ -7756,7 +7747,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   background: var(--surface-raised);
   color: var(--foreground);
   box-shadow: 0 12px 30px var(--shadow);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-history-tooltip span {
@@ -7796,7 +7787,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-history-discovery span {
   color: var(--muted);
-  font-size: 0.76rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-history-discovery strong {
@@ -7879,7 +7870,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   padding: 0.65rem 0.8rem;
   background: var(--surface-subtle);
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: var(--text-meta);
   line-height: 1.5;
 }
 
@@ -7921,7 +7912,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-history-filter-drawer > summary small {
   margin-top: 0.12rem;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-history-filter-drawer > summary b {
@@ -7966,7 +7957,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-history-filter-drawer label {
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
   font-weight: 650;
 }
 
@@ -8088,7 +8079,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 
 .workspace-history-table th > a span {
   margin-left: 0.18rem;
-  font-size: 0.72rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-history-rank,
@@ -8142,7 +8133,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-history-entity small {
   margin-left: 0.45rem;
   color: var(--muted);
-  font-size: 0.75rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-history-empty {
@@ -8201,7 +8192,7 @@ html[data-theme="light"] .theme-toggle-label::after {
 .workspace-history-decades > header > div > p {
   margin-top: 0.3rem;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: var(--text-meta);
 }
 
 .workspace-history-decades-table-scroll {
@@ -8223,7 +8214,7 @@ html[data-theme="light"] .theme-toggle-label::after {
   background: var(--surface-raised);
   color: var(--muted);
   font-family: var(--font-geist-mono);
-  font-size: 0.76rem;
+  font-size: var(--text-meta);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -8436,13 +8427,13 @@ html[data-theme="light"] .theme-toggle-label::after {
 
   .workspace-history-decades-table tbody td:nth-child(3)::after {
     content: " " attr(data-label);
-    font-size: 0.68rem;
+    font-size: var(--text-meta);
   }
 
   .workspace-history-decades-table tbody td:last-child {
     grid-area: games;
     margin-top: 0.12rem;
-    font-size: 0.72rem;
+    font-size: var(--text-meta);
     text-align: left;
   }
 

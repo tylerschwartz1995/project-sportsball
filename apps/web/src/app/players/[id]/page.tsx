@@ -163,7 +163,7 @@ export default async function PlayerPage({
           ← All players
         </Link>
 
-        <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="modern-profile-identity modern-player-identity mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="flex items-center gap-4 sm:gap-5">
               <TeamLogoStack
@@ -316,7 +316,7 @@ export default async function PlayerPage({
         <>
         {skaterPerformanceGames.length > 0 ||
         goaliePerformanceGames.length > 0 ? (
-          <section className="workspace-width-standard mt-12">
+          <section className="workspace-width-standard mt-8">
             <SectionTitle
               eyebrow="Rolling performance"
               title="Player Form"
@@ -374,7 +374,7 @@ export default async function PlayerPage({
         {view === "seasons" ? (
         <>
         {detail.skaterSeasons.length > 0 ? (
-          <section className="workspace-width-standard mt-12">
+          <section className="workspace-width-standard mt-8">
             <SectionTitle
               eyebrow="Career history"
               title="Skater Seasons"
@@ -405,7 +405,7 @@ export default async function PlayerPage({
           </section>
         ) : null}
         {detail.goalieSeasons.length > 0 ? (
-          <section className="workspace-width-standard mt-12">
+          <section className="workspace-width-standard mt-8">
             <SectionTitle
               eyebrow="Career history"
               title="Goalie Seasons"
@@ -658,7 +658,7 @@ function HistoryTable({
     <div className="min-w-0 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
       <SortableTable defaultSortKey={headers[0]} defaultDirection="desc">
         <div className="min-w-0 max-w-full overflow-x-auto">
-          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[700px]">
+          <table className="modern-player-history workspace-table workspace-table-dense workspace-table-semantic min-w-[700px]">
             <colgroup>
               <col className="workspace-col-season" />
               <col className="workspace-col-team" />

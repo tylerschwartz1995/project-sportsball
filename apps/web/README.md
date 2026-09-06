@@ -1,5 +1,9 @@
 # Sportsball web
 
+> **Current visual system:** this application uses [Modern Stats Exploration](../../docs/editorial-style-exploration.md),
+> a clean, modern statistical interface with audited sizing and readable dark/light themes.
+> The linked document records the current visual direction and overrides earlier styling guidance.
+
 The server-rendered Next.js application for NHL statistics and analytics.
 
 The web server uses a Node-compatible PostgreSQL URL. From the repository root:

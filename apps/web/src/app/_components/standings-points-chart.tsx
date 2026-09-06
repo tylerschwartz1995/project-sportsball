@@ -100,14 +100,14 @@ export function StandingsPointsChart({
               dataKey="date"
               tickFormatter={formatDate}
               minTickGap={42}
-              tick={{ fill: "var(--chart-label)", fontSize: "0.84rem" }}
+              tick={{ fill: "var(--chart-label)", fontSize: "0.875rem" }}
               axisLine={{ stroke: "var(--chart-axis)" }}
               tickLine={false}
             />
             <YAxis
               allowDecimals={false}
               width={42}
-              tick={{ fill: "var(--chart-label)", fontSize: "0.84rem" }}
+              tick={{ fill: "var(--chart-label)", fontSize: "0.875rem" }}
               axisLine={false}
               tickLine={false}
             />
@@ -118,7 +118,7 @@ export function StandingsPointsChart({
                 border: "1px solid var(--border-strong)",
                 borderRadius: 12,
                 color: "var(--foreground)",
-                fontSize: "0.84rem",
+                fontSize: "0.875rem",
               }}
               itemStyle={{ color: "var(--foreground)" }}
               labelStyle={{ color: "var(--foreground)" }}
