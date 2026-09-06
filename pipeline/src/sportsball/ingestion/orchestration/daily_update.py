@@ -10,6 +10,7 @@ from sqlalchemy import select, update
 from sportsball.clients.moneypuck.client import MoneyPuckClient
 from sportsball.clients.nhl.client import NhlClient
 from sportsball.ingestion.orchestration.boxscores import ingest_boxscore
+from sportsball.ingestion.orchestration.descriptive import build_descriptive_analytics
 from sportsball.ingestion.orchestration.moneypuck_lines import ingest_moneypuck_lines
 from sportsball.ingestion.orchestration.moneypuck_player_games import (
     ingest_moneypuck_player_games,
@@ -156,6 +157,12 @@ def run_daily_update(
             _refresh_moneypuck(season_id, moneypuck_client, steps, failures)
         elif options.include_moneypuck:
             steps.append(DailyUpdateStep("moneypuck_waiting_for_final_game", 0))
+        _attempt_step(
+            "descriptive_schedule_context",
+            lambda: build_descriptive_analytics(history=False),
+            steps,
+            failures,
+        )
     except Exception as error:
         _finish_daily_run(run_id, steps, failures=[*failures, str(error)])
         raise

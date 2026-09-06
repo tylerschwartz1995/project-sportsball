@@ -18,6 +18,7 @@ from sportsball.clients.nhl.stats_schemas import (
 from sportsball.normalization.historical_seasons import historical_season_frames
 from sportsball.persistence.database import session_scope
 from sportsball.persistence.models import IngestionRun, SourcePayload
+from sportsball.persistence.repositories.descriptive import refresh_history
 from sportsball.persistence.repositories.historical_seasons import HistoricalSeasonRepository
 from sportsball.reference.seasons import season_ids_in_range
 
@@ -95,6 +96,7 @@ def ingest_historical_seasons(
                 goalies=frames.goalies,
                 teams=frames.teams,
             )
+            refresh_history(session, run_id)
             session.execute(
                 update(IngestionRun)
                 .where(IngestionRun.id == run_id)

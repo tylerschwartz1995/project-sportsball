@@ -41,7 +41,7 @@ describe("getTeamScheduleStrength", () => {
     const result = await getTeamScheduleStrength(23, 20252026);
 
     expect(queryMock).toHaveBeenCalledWith(
-      expect.stringContaining("< (schedule.start_time_utc, schedule.id)"),
+      expect.stringContaining("context.definition_version = 'schedule-context-v1'"),
       [23, 20252026],
     );
     expect(result).toEqual({

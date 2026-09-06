@@ -126,6 +126,10 @@ Post-MVP improvements now shipped:
 - [x] Add page caching, bounded queries, deferred charts, and performance telemetry.
 - [x] Separate shared UI and feature presentation, decompose Drafts, consolidate
   theme tokens, and split Python models/commands while preserving interfaces.
+- [x] Complete loader/view/section boundaries across the remaining data-bearing
+  routes and split the playoff bracket and historical query modules.
+- [x] Materialize reusable historical peaks, era baselines, and opponent schedule
+  context in audited Python builds, preserving the published definitions.
 - [x] Add migrated synthetic database and browser smoke checks to web CI.
 - [x] Complete the application, sizing, theme, content, filter, and usability
   audit fixes, including all-season player discovery and complete career totals.
@@ -150,7 +154,7 @@ Named saved-comparison collections remain backlog. See
 - Deploy the application and database.
 - Complete the production recovery and source-change runbooks.
 
-## Milestone 7: predictive modelling
+## Milestone 7: predictive modelling — deferred
 
 - [x] Add conservative point-in-time observation selection and versioned dataset
   manifests, with tests for revised results and late historical backfills.

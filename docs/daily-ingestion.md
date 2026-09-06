@@ -24,6 +24,8 @@ domain logic into scheduler configuration.
 6. Rebuild traditional and NHL-published player season aggregates.
 7. Replace the active season's MoneyPuck season, team-game, player-game, shot,
    line, pairing, and derived season-unit data.
+8. Rebuild descriptive schedule context from stored facts, including next-season
+   fallbacks affected by corrected results. This runs with or without MoneyPuck.
 
 Every source import and derived-table replacement uses its existing
 transaction. The parent `daily_update` ingestion run records the boundaries,
@@ -74,6 +76,13 @@ archive or draft selections. Run `ingest-historical-seasons` and
 career or draft outcome page therefore also depends on those stored summaries,
 not only on a successful daily run. The coordinator refreshes a bounded schedule
 window; it is not a replacement for complete future-season schedule ingestion.
+
+After standalone schedule, box-score, or MoneyPuck team-game ingestion/backfills,
+run `make analytics-build` before checking schedule difficulty. Historical summary
+ingestion automatically rebuilds historical peaks and era baselines. An existing
+database also needs `make analytics-build` once after migration 0026. Failed
+builds retain the previous complete derived output and record an unsuccessful
+ingestion run; retry the build after resolving the error.
 
 ## GitHub Actions scheduler
 

@@ -73,3 +73,20 @@ GET /api/games/2025030416
 
 See [Game box scores](game-box-scores.md) for the player-level grain and
 display behavior.
+
+## Materialized opponent context
+
+The Python `analytics/schedule.py` definition `schedule-context-v1` builds
+`schedule_game_context`. Opponent results use strictly earlier current-season
+`(start_time_utc, internal game ID)` observations, falling back to the preceding
+stored season only when there are no eligible current-season results. Expected
+5-on-5 goal share selects its own covered population and season independently;
+missing values are not zero, and a covered zero denominator has no share.
+
+Rest follows all regular-season schedule rows ordered by start time and NHL ID.
+The web still filters completed/future games at request time and computes travel
+for that displayed sequence. Team names remain season-aware database joins.
+Daily updates refresh the stored context after imports. After standalone source
+backfills or migration 0026, run `make analytics-build`. Source observations are
+preserved; failed materializations keep the last completed output and a failed
+audit run. No predictions or model fitting are included.

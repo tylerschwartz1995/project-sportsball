@@ -136,13 +136,15 @@ def test_daily_update_refreshes_recent_game_and_records_parent_run(
             None,
         )
 
+        assert result.steps[-1].name == "descriptive_schedule_context"
+        assert result.steps[-1].records_processed == 2
         assert result.games_refreshed == 1
-        assert result.records_processed == 100
+        assert result.records_processed == 102
         with session_scope() as session:
             parent = session.get(IngestionRun, result.run_id)
             assert parent is not None
             assert parent.status == "succeeded"
-            assert parent.records_processed == 100
+            assert parent.records_processed == 102
             assert parent.finished_at is not None
     finally:
         _clean_up()
