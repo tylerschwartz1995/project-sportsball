@@ -141,7 +141,9 @@ jobs:
       - name: Check formatting and shell syntax
         run: |
           terraform fmt -check -recursive infra/aws
-          bash -n infra/runtime/cloud-init.sh scripts/aws/*.sh
+          for script in infra/runtime/cloud-init.sh scripts/aws/*.sh; do
+            bash -n "$script"
+          done
       - name: Validate infrastructure without AWS credentials
         run: |
           for root in bootstrap environment; do
