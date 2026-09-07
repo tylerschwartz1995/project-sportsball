@@ -18,7 +18,8 @@ official scoring summaries and play-by-play timelines, a team directory,
 player profiles, league-wide advanced leaderboards, team and player game logs
 with recent-form summaries, historical navigation, and sortable statistical
 comparisons. Server Components call the internal query functions directly
-instead of making an HTTP round trip to the same application. AWS Lightsail hosting is selected; infrastructure preparation is documented in
+instead of making an HTTP round trip to the same application. AWS Lightsail
+hosting is selected; infrastructure preparation is documented in
 [AWS preparation](aws-preparation.md). Provisioning and activation remain deferred.
 
 ### Application API
@@ -296,8 +297,9 @@ Current-season NHL Stats summaries keep career and draft outcomes current;
 prerequisite failures block derived aggregate publication. Advanced-source
 availability and game coverage remain independent of core NHL success.
 
-GitHub Actions is the selected scheduler, with a second daily recovery run and
-an independent health workflow. Both remain disabled until deployment activation.
+EventBridge Scheduler and CodeBuild are the selected AWS scheduler and worker,
+with a second daily recovery run and independent health jobs. All schedules
+remain disabled; GitHub Actions remains an optional fallback.
 Releases apply migrations; daily workflows only verify schema compatibility.
 An authenticated cache-expiry endpoint invalidates shared website reads after
 core publication. See [Daily ingestion](daily-ingestion.md) for implementation
