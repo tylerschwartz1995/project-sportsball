@@ -141,7 +141,7 @@ jobs:
       - name: Check formatting and shell syntax
         run: |
           terraform fmt -check -recursive infra/aws
-          bash -n infra/runtime/cloud-init.sh scripts/aws/install-job-tools.sh scripts/aws/prepare-release.sh
+          bash -n infra/runtime/cloud-init.sh scripts/aws/*.sh
       - name: Validate infrastructure without AWS credentials
         run: |
           for root in bootstrap environment; do
@@ -151,3 +151,6 @@ jobs:
           done
       - name: Build standalone web image
         run: docker build -f infra/runtime/Dockerfile.web -t sportsball-web:test .
+      - name: Verify runtime login boundary
+        timeout-minutes: 5
+        run: scripts/aws/test-runtime.sh sportsball-web:test
