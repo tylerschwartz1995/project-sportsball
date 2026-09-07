@@ -1,0 +1,9 @@
+{$SPORTSBALL_DOMAIN} {
+    encode zstd gzip
+    # All pages and APIs require authentication; no publicly readable stats routes.
+    basic_auth {
+        {$SPORTSBALL_USER_ONE} {$SPORTSBALL_PASSWORD_HASH_ONE}
+        {$SPORTSBALL_USER_TWO} {$SPORTSBALL_PASSWORD_HASH_TWO}
+    }
+    reverse_proxy web:3000
+}

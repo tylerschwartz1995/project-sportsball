@@ -163,3 +163,12 @@ The initial backfill through 2025–26 is complete:
 
 Run the [data-completeness audit](data-completeness-audit.md) to verify these
 facts and their durable backfill states alongside the canonical NHL data.
+
+## Optional S3 artifact storage
+
+Migration 0028 allows `source_artifacts` to retain an immutable S3 version
+reference instead of inline bytes. Existing artifacts are unchanged and local
+ingestion defaults to PostgreSQL storage. Enable only after approved AWS setup
+using `SPORTSBALL_ARTIFACT_BACKEND=s3` and `SPORTSBALL_ARTIFACT_S3_BUCKET`.
+`export-source-artifact` reads either backend and verifies the original checksum.
+See [AWS preparation](aws-preparation.md) for retention and recovery requirements.

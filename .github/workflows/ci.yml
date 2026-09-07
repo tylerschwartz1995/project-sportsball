@@ -127,3 +127,32 @@ jobs:
 
       - name: Browser smoke tests
         run: npm run test:browser:smoke --prefix apps/web
+
+  aws-preparation:
+    name: AWS preparation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
+        with:
+          terraform_version: "1.14.7"
+      - name: Check formatting and shell syntax
+        run: |
+          terraform fmt -check -recursive infra/aws
+          for script in infra/runtime/cloud-init.sh scripts/aws/*.sh; do
+            bash -n "$script"
+          done
+      - name: Validate infrastructure without AWS credentials
+        run: |
+          for root in bootstrap environment; do
+            terraform -chdir=infra/aws/$root init -backend=false -lockfile=readonly
+            terraform -chdir=infra/aws/$root validate
+            terraform -chdir=infra/aws/$root test
+          done
+      - name: Build standalone web image
+        run: docker build -f infra/runtime/Dockerfile.web -t sportsball-web:test .
+      - name: Verify runtime login boundary
+        timeout-minutes: 5
+        run: scripts/aws/test-runtime.sh sportsball-web:test

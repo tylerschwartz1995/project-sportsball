@@ -154,10 +154,22 @@ Named saved-comparison collections remain backlog. See
   expiry, and an independent GitHub Actions health monitor.
 - Activate the schedule after the hosted database, secrets, and recovery
   process are ready.
-- Select a hosted PostgreSQL plan with sufficient storage and recovery.
-- Configure provider-managed backups, alerts, and a data-quality dashboard.
+- [x] Select self-managed PostgreSQL on Lightsail with a separate CodeBuild worker.
+- Activate and restore-test the prepared logical backups, snapshots, and alerts;
+  complete a data-quality dashboard.
 - Deploy the application and database.
 - Complete the production recovery and source-change runbooks.
+
+### AWS preparation — provisioning deferred
+
+- [x] Prepare Lightsail/CodeBuild/EventBridge infrastructure, private versioned S3,
+  restricted job roles, SSM database tunnel, alarms, and budget notifications.
+- [x] Prepare opt-in S3 source artifacts without migrating or deleting existing bytes.
+- [x] Prepare authenticated runtime and local immutable-release packaging.
+- [ ] Provision only after approval, rehearse cloud restore/connectivity and costs.
+- [ ] Activate production jobs only after a successful rehearsal and approval.
+
+See [AWS preparation](aws-preparation.md); managed PITR is not included.
 
 ## Milestone 7: predictive modelling — deferred
 

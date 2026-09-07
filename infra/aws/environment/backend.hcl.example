@@ -1,0 +1,5 @@
+bucket = "REPLACE_WITH_BOOTSTRAPPED_STATE_BUCKET"
+key = "sportsball/production.tfstate"
+region = "us-east-1"
+encrypt = true
+use_lockfile = true

@@ -1,5 +1,11 @@
 # Database backup and recovery
 
+The selected AWS self-managed hosting plan is documented in
+[AWS preparation](aws-preparation.md). Its daily logical backups and snapshots
+are prepared but not activated. It does **not** implement managed seven-day
+point-in-time recovery; the provider requirements below describe the earlier
+managed-database option, not capabilities of the selected Lightsail plan.
+
 The database is reproducible from retained sources and upstream downloads, but
 a complete rebuild takes substantial time and network traffic. Backups are
 therefore required before production activation.

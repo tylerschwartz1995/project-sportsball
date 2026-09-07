@@ -70,7 +70,7 @@ pages. Completed game pages include official scoring summaries and expandable
 period-by-period timelines from the normalized NHL play-by-play archive. Team
 and player profiles also link to complete selected-season game logs with
 last-ten form summaries and available MoneyPuck game metrics. An audited
-daily-update coordinator and opt-in GitHub Actions scheduler are implemented,
+daily-update coordinator and opt-in GitHub Actions fallback are implemented,
 including persistent retries, missed-day schedule recovery, current-season
 career-summary refreshes, and independent health monitoring;
 scheduled writes remain disabled until the deployment milestone provides a
@@ -289,3 +289,10 @@ operational procedures, and historical audit/decision records.
 - [Product ideas](docs/product-ideas.md)
 
 The [content audit and implementation decisions](docs/content-audit-implementation.md) document the application’s essential-content policy and coverage corrections.
+
+## AWS preparation
+
+AWS Lightsail, CodeBuild, EventBridge, S3, and monitoring are the selected
+hosting architecture. Infrastructure definitions, gated jobs, and optional
+version-pinned S3 artifact storage are prepared. No AWS resources or production
+schedules have been activated. See [AWS preparation and deployment gates](docs/aws-preparation.md).

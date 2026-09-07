@@ -1,6 +1,7 @@
 """Operations command adapters."""
 
 from datetime import UTC, date, datetime, timedelta
+from pathlib import Path
 
 import typer
 
@@ -13,6 +14,9 @@ from sportsball.ingestion.orchestration.daily_update import (
 )
 from sportsball.operations.deployment_checks import revalidate_website, verify_database_schema
 from sportsball.operations.ingestion_recovery import reconcile_abandoned_runs
+from sportsball.persistence.artifact_storage import read_artifact
+from sportsball.persistence.database import session_scope
+from sportsball.persistence.models import SourceArtifact
 from sportsball.validation.completeness import (
     audit_completeness,
     format_season_audit,
@@ -24,6 +28,20 @@ from sportsball.validation.data_health import (
 )
 
 app = typer.Typer()
+
+
+@app.command("export-source-artifact")
+def export_source_artifact(artifact_id: int, output: Path) -> None:
+    """Export verified original bytes from PostgreSQL or the pinned S3 version."""
+    with session_scope() as session:
+        artifact = session.get(SourceArtifact, artifact_id)
+        if artifact is None:
+            raise typer.BadParameter("source artifact does not exist")
+        content = read_artifact(artifact)
+    # Never overwrite an operator's existing file.
+    with output.open("xb") as destination:
+        destination.write(content)
+    typer.echo(f"exported {len(content)} verified bytes")
 
 
 @app.command("verify-database-schema")
