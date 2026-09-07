@@ -2,8 +2,10 @@
 
 ## Operating contract
 
-GitHub Actions is the selected scheduler. **Production activation remains
-explicitly deferred.** The committed schedules do not write until
+AWS EventBridge and CodeBuild are the selected production scheduler/worker.
+See [AWS preparation](aws-preparation.md) for the prepared, disabled infrastructure.
+The committed GitHub Actions workflows remain a disabled fallback. **Production activation remains
+explicitly deferred.** The fallback GitHub schedules do not write until
 `DAILY_INGESTION_ENABLED=true`; manual dispatch requires the database secret.
 No hosted database, secrets, or enable flags were provisioned by this change.
 
@@ -141,12 +143,13 @@ seasons; explicitly select a missed older season if it was never enrolled.
 - Both check the deployed Alembic revision. **Daily jobs do not apply migrations.**
   Releases must apply migrations before the new ingestion version runs.
 
-When Tyler returns to production activation, complete these items:
+For the selected AWS deployment, follow [the AWS activation gates](aws-preparation.md).
+The checklist below applies only if the GitHub Actions fallback is deliberately selected:
 
 1. Select and restore-test a hosted PostgreSQL database. Use separate website
    read credentials and ingestion write credentials. Do not expose the laptop DB.
-2. Apply migration 0027 and verify schema/backup recovery. Use a fresh logical
-   backup before migration and provider-managed recovery for routine operation.
+2. Apply all release migrations and verify schema/backup recovery. Use a fresh
+   logical backup before migration and test the selected hosting recovery process.
 3. Configure the Actions `SPORTSBALL_DATABASE_URL` secret.
 4. After website deployment, optionally configure the Actions
    `SPORTSBALL_WEB_URL` variable and `SPORTSBALL_REVALIDATION_TOKEN` secret;
@@ -167,7 +170,9 @@ When Tyler returns to production activation, complete these items:
 NHL requests remain incremental; MoneyPuck still downloads source archives and
 replaces changed/current season tables using the existing importers. Identical
 raw artifacts are deduplicated by checksum; each genuinely revised archive is
-retained. There is no automatic deletion/retention policy or new object store.
+retained. There is no automatic source-archive deletion policy. Migration 0028 adds an
+opt-in version-pinned S3 backend for new file artifacts; PostgreSQL remains the
+local default and existing bytes are not moved. See [AWS preparation](aws-preparation.md).
 There is also no new unchanged-normalization shortcut: preserving correction
 and repair behavior takes priority until measurements justify that optimization.
 

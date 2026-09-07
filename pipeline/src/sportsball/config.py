@@ -1,6 +1,7 @@
 """Environment-backed pipeline configuration."""
 
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -19,6 +20,8 @@ class Settings(BaseSettings):
         default="postgresql+psycopg://sportsball:sportsball@localhost:5432/sportsball"
     )
     raw_data_path: Path = Path("data/raw")
+    artifact_backend: Literal["database", "s3"] = "database"
+    artifact_s3_bucket: str = ""
 
 
 settings = Settings()

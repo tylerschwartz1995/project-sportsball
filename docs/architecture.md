@@ -18,8 +18,8 @@ official scoring summaries and play-by-play timelines, a team directory,
 player profiles, league-wide advanced leaderboards, team and player game logs
 with recent-form summaries, historical navigation, and sortable statistical
 comparisons. Server Components call the internal query functions directly
-instead of making an HTTP round trip to the same application. Hosting will be
-selected during the deployment milestone.
+instead of making an HTTP round trip to the same application. AWS Lightsail hosting is selected; infrastructure preparation is documented in
+[AWS preparation](aws-preparation.md). Provisioning and activation remain deferred.
 
 ### Application API
 
@@ -208,7 +208,8 @@ route exposes only database readiness and daily-parent freshness. See
 [Operational data health](data-health.md).
 
 Portable PostgreSQL custom-format backups and scratch-database restore tests
-complement the future provider's managed backups and point-in-time recovery.
+support recovery of the selected self-managed database. Managed point-in-time
+recovery is not part of the prepared Lightsail configuration.
 Interrupted audit records are only reconciled automatically when a later
 successful run with identical parameters proves recovery. See
 [Database backup and recovery](database-recovery.md).

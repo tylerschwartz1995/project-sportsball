@@ -6,6 +6,7 @@ from typing import Any
 
 from sqlalchemy import (
     BigInteger,
+    CheckConstraint,
     Date,
     DateTime,
     ForeignKey,
@@ -81,6 +82,12 @@ class SourceArtifact(Base):
 
     __tablename__ = "source_artifacts"
     __table_args__ = (
+        CheckConstraint(
+            "(content IS NOT NULL AND s3_bucket IS NULL AND s3_key IS NULL "
+            "AND s3_version_id IS NULL) OR (content IS NULL AND s3_bucket IS NOT NULL "
+            "AND s3_key IS NOT NULL AND s3_version_id IS NOT NULL)",
+            name="ck_source_artifact_storage",
+        ),
         UniqueConstraint(
             "provider",
             "resource_type",
@@ -102,7 +109,10 @@ class SourceArtifact(Base):
     checksum: Mapped[str] = mapped_column(String(64))
     content_type: Mapped[str | None] = mapped_column(String(100))
     content_length: Mapped[int] = mapped_column(BigInteger)
-    content: Mapped[bytes] = mapped_column(LargeBinary)
+    content: Mapped[bytes | None] = mapped_column(LargeBinary)
+    s3_bucket: Mapped[str | None] = mapped_column(String(63))
+    s3_key: Mapped[str | None] = mapped_column(String(1024))
+    s3_version_id: Mapped[str | None] = mapped_column(String(1024))
     fetched_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 

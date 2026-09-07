@@ -171,3 +171,14 @@ Named saved-comparison collections remain backlog. See
 - Establish simple baseline models.
 - Add team, game, and player models only after baseline validation.
 - Track prediction timestamps, model versions, and realized outcomes.
+
+### AWS preparation — provisioning deferred
+
+- [x] Prepare Lightsail/CodeBuild/EventBridge infrastructure, private versioned S3,
+  restricted job roles, SSM database tunnel, alarms, and budget notifications.
+- [x] Prepare opt-in S3 source artifacts without migrating or deleting existing bytes.
+- [x] Prepare authenticated runtime and local immutable-release packaging.
+- [ ] Provision only after approval, rehearse cloud restore/connectivity and costs.
+- [ ] Activate production jobs only after a successful rehearsal and approval.
+
+See [AWS preparation](aws-preparation.md); managed PITR is not included.

@@ -1,0 +1,46 @@
+name: sportsball-production
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: sportsball
+      POSTGRES_USER: sportsball_owner
+      POSTGRES_PASSWORD_FILE: /run/secrets/database_password
+    secrets: [database_password]
+    ports: ["127.0.0.1:5432:5432"]
+    volumes: ["postgres-data:/var/lib/postgresql"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sportsball_owner -d sportsball"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+    logging: &logging
+      driver: json-file
+      options: {max-size: "10m", max-file: "3"}
+  web:
+    # Load a reviewed image built off-server; no registry or deployment is provisioned here.
+    image: ${WEB_IMAGE:?Set a reviewed immutable web image tag}
+    restart: unless-stopped
+    env_file: /opt/sportsball/web.env
+    depends_on:
+      postgres: {condition: service_healthy}
+    logging: *logging
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    env_file: /opt/sportsball/proxy.env
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on: [web]
+    logging: *logging
+secrets:
+  database_password:
+    file: /opt/sportsball/secrets/database-owner-password
+volumes:
+  postgres-data:
+  caddy-data:
+  caddy-config:

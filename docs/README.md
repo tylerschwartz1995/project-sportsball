@@ -82,3 +82,5 @@ workflows, and relevant tests. Current guides were corrected where they had
 drifted; original audit evidence and ingestion definitions that still matched
 the code were retained. This was a documentation review, not a new data refresh,
 full historical audit, backup rehearsal, or browser usability study.
+
+- [AWS preparation](aws-preparation.md): selected hosting, local validation, secrets, deployment gates, and recovery limits.

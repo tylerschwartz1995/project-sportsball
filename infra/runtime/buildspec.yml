@@ -1,0 +1,12 @@
+version: 0.2
+phases:
+  install:
+    runtime-versions:
+      python: 3.13
+    commands:
+      - python -m pip install --disable-pip-version-check uv==0.12.0
+      - uv sync --project pipeline --frozen --no-dev
+      - bash scripts/aws/install-job-tools.sh
+  build:
+    commands:
+      - uv run --project pipeline --frozen --no-dev python scripts/aws/run-job.py

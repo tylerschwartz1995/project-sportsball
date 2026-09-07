@@ -34,3 +34,13 @@ backups/
 # Browser verification output
 test-results/
 playwright-report/
+
+# Terraform state, provider downloads, and operator configuration
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.auto.tfvars
+*.auto.tfvars.json
+backend.hcl
+crash.log
