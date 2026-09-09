@@ -3,8 +3,7 @@
 ## Selected setup and status
 
 This replaces the Lightsail/CodeBuild/EventBridge proposal. The approved Neon
-restore and database checks have completed; owner credential rotation remains
-pending. Vercel deployment, S3 resources, new IAM trust, hosted job secrets and
+restore, database checks and owner credential rotation have completed. Vercel deployment, S3 resources, new IAM trust, hosted job secrets and
 scheduled writes remain deferred. See [Neon setup](neon-setup.md) for verified
 deployment status. The previously approved personal AWS provisioning policies
 exist, but do not authorize creating this revised
