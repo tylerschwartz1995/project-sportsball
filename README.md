@@ -294,6 +294,7 @@ The [content audit and implementation decisions](docs/content-audit-implementati
 
 The selected personal-site setup is Neon PostgreSQL, Vercel Hobby, GitHub Actions
 for ingestion/backups, and private S3 files. Connection guards, two-user private
-access, disabled workflows and storage-only Terraform are prepared. Hosting and
+access through managed Neon Auth email codes, disabled workflows and storage-only
+Terraform are prepared. Passkeys are deferred. Hosting and
 scheduled writes remain unactivated. See [hosted preparation](docs/hosted-preparation.md).
 The earlier [AWS server deployment](docs/aws-preparation.md) is retained but superseded.

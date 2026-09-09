@@ -119,3 +119,12 @@ credentials were created after the error and were not printed.
 - Test a hosted point-in-time restore. Configuring seven-day history does not
   certify recovery objectives or create seven days of past history immediately.
 - Review observed cost and freshness before enabling once-daily ingestion.
+
+## Prepared application login
+
+The website now has a managed Neon Auth email-code integration, with a server-only
+two-address allowlist and verified-email checks. Passkeys are deferred. Hosted
+Auth configuration, real email delivery tests and Vercel deployment remain pending;
+see [hosted preparation](hosted-preparation.md#website-credentials-and-connections).
+The web SQL role stays read-only and has no access to `neon_auth`; the SDK contacts
+Neon's managed Auth service separately.

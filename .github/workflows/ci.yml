@@ -125,6 +125,8 @@ jobs:
         run: npm run test --prefix apps/web
 
       - name: Build
+        env:
+          SPORTSBALL_PRIVATE_ACCESS: "true"
         run: npm run build --prefix apps/web
 
       - name: Install browser

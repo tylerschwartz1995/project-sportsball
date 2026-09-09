@@ -6,6 +6,8 @@ import { NavigationMetrics } from "@/components/shell/navigation-metrics";
 import { ScrollNavigation } from "@/components/shell/scroll-navigation";
 import { WebVitals } from "@/components/shell/web-vitals";
 import "@/styles/index.css";
+import { privateAccessRequired } from "@/auth/access";
+import { SignOut } from "@/auth/sign-out";
 
 const interfaceFont = Manrope({
   variable: "--font-geist-sans",
@@ -72,6 +74,7 @@ export default function RootLayout({
         <footer className="site-footer">
           <Link href="/" className="site-footer-brand">Sportsball</Link>
           <p>NHL statistics · MoneyPuck advanced data</p>
+          {privateAccessRequired() && <SignOut />}
           <Link href="/analytics/guide">Metrics Guide →</Link>
         </footer>
       </body>
