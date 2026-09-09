@@ -3,8 +3,9 @@
 ## Selected setup and status
 
 This replaces the Lightsail/CodeBuild/EventBridge proposal. The approved Neon
-restore, database checks and owner credential rotation have completed. Vercel deployment, S3 resources, new IAM trust, hosted job secrets and
-scheduled writes remain deferred. See [Neon setup](neon-setup.md) for verified
+restore, database checks, owner credential rotation and Vercel website deployment
+have completed. S3 resources, new IAM trust, hosted job secrets and scheduled
+writes remain deferred. See [Neon setup](neon-setup.md) for verified
 deployment status. The previously approved personal AWS provisioning policies
 exist, but do not authorize creating this revised
 stack. Review replacement provisioning permissions and remove obsolete ones
@@ -49,12 +50,12 @@ is included. Use the Vercel-provided hostname initially.
 
 Managed Neon Auth with email codes is the selected login method; passkeys are
 deferred. The app now integrates Neon's server SDK and independently requires a
-verified email from the two-address allowlist. This is prepared code, not an
-activated hosted login. Neon console passkeys authenticate the developer console,
+verified email from the two-address allowlist. Hosted login is now active on
+the production website. Neon console passkeys authenticate the developer console,
 not this app.
 
 Set Vercel's Root Directory to `apps/web`; use the Next.js preset. Configure only
-Production, after deployment approval:
+Production (configured under Tyler’s deployment approval):
 
 - `SPORTSBALL_WEB_DATABASE_URL`: Neon pooled URL for the read-only `sportsball_web`
   role, database `sportsball`. Keep the existing verified TLS and pool limits.
@@ -66,6 +67,7 @@ Production, after deployment approval:
 - `SPORTSBALL_AUTH_ORIGIN`: exact website origin, e.g. `https://your-site.vercel.app`.
   Register that same origin in Neon's trusted domains before live testing.
 - `SPORTSBALL_REVALIDATION_TOKEN`: separate machine bearer secret shared with Actions.
+  Still unset until the hosted ingestion stage; revalidation remains unavailable.
 
 Vercel production and previews always require authentication (`VERCEL=1`), even
 when `SPORTSBALL_PRIVATE_ACCESS` is false. Missing configuration fails closed with
@@ -102,9 +104,9 @@ explicitly deferred until she is available; no code was sent to her.
 Neon's existing Allow Localhost setting supports this rehearsal. Verify at Sign-up
 is now enabled, using verification codes and Neon's shared email sender. The local
 app binds only to loopback; its Auth settings and secret are stored outside Git.
-No production website origin has been registered because the site is not deployed.
-Before deployment, register the exact chosen HTTPS origin, review localhost access,
-verify provider limits, complete Jamie's test, and rehearse the hosted browser flow.
+The exact production origin is now registered, and the hosted browser flow passed
+as recorded below. Localhost remains enabled for local development. Remaining
+checks include provider limits, Jamie’s login and real iPhone Home Screen behavior.
 Synthetic browser tests cover desktop/mobile login and logout but do not substitute
 for those real-user and hosted checks. The dependency update to Next.js 16.3.4,
 sharp 0.35.4 and Vitest 4.1.11 reports zero npm audit vulnerabilities on 2026-09-09;
@@ -114,6 +116,62 @@ Do not give untrusted preview code production database credentials or login
 configuration. Initially leave preview credentials unset (previews fail closed).
 For trusted previews, use a separate scratch Neon branch and distinct credentials,
 then verify its permissions. Production secrets belong only to Production.
+
+## Hosted website verification — 2026-09-09
+
+Production: [Sportsball](https://sportsball-iota.vercel.app).
+No custom domain was purchased or configured.
+
+| Setting | Verified configuration |
+| --- | --- |
+| Vercel project | `sportsball` / `prj_7xy6femy0EzMiWXNxhwnCBjyFMCe` |
+| Account scope | `tylerschwartz1995s-projects`, Hobby |
+| Git source | `tylerschwartz1995/project-sportsball`, production branch `main` |
+| Web root and framework | `apps/web`, Next.js |
+| Runtime | Node.js 24, functions in `pdx1` (Oregon) |
+| First successful release | `4efecf8`, deployment `dpl_6C5ASuHJgbribD5KuygDhmqHEB1T` |
+| Website database identity | `sportsball_web`, pooled connection, read-only |
+| Secrets | Six application/Auth settings scoped only to Production |
+| Login origin | `https://sportsball-iota.vercel.app`, registered in Neon Auth |
+
+GitHub access was expanded only for Sportsball under Tyler’s approval. The existing
+hockey repository selection was preserved. Vercel now builds previews for branches
+and Production from `main`; normal repository changes still follow PR review and CI.
+Previews have no production credentials. An authenticated operator request through
+`vercel curl` confirmed the preview API returns 503 with `Sign-in is not configured`,
+`private, no-store` and CDN no-store headers.
+
+The first production build failed at Vercel packaging due to the Next.js 16.3
+standalone/adapter conflict ([upstream issue](https://github.com/vercel/next.js/issues/96646)).
+`next.config.ts` now uses Vercel’s adapter output on Vercel and keeps standalone
+output for Docker. PRs #159 and #160 passed Python pipeline, Web application and
+AWS preparation CI before merge; #160 also passed a real Vercel preview build.
+The successful production deployment reports Oregon functions. Build machines
+can run in a different region from the deployed functions.
+
+Hosted checks passed:
+
+- Anonymous statistics API: 401 with private/no-store headers.
+- Anonymous page/RSC request: redirected to the login page.
+- Cross-site send-code POST: 403.
+- Tyler’s real email code delivered and accepted through the browser form.
+- Authenticated overview and player detail rendered restored Neon statistics;
+  desktop appearance was visually inspected.
+- Browser logout returned to login; revisiting the protected homepage required login.
+
+The earlier local rehearsal additionally verified revoked-session rejection.
+A direct post-logout API navigation in the hosted browser was blocked by the browser
+client, so it is not counted as a hosted API revocation test. Jamie’s live login,
+provider rate-limit/expiry measurements, and a real iPhone Home Screen test remain
+unverified. No code was sent to Jamie. Automated desktop/mobile browser checks passed
+in CI, but are not a real-device test.
+
+GitHub job variables remain unset, hosted ingestion/backup credentials are not
+uploaded, and all scheduled production writes remain disabled. The site serves
+the restored snapshot: earlier freshness warnings remain until a separately
+approved ingestion rehearsal. Next operational stage: review/provision private S3
+storage and temporary AWS roles, then rehearse ingestion and backup/restore before
+any schedule activation. The older server stack remains unapplied.
 
 ## Database restore and SQL roles
 

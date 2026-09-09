@@ -4,8 +4,9 @@
 
 Tyler approved the database transfer, migrations, restricted database credentials,
 and database verification on September 8, 2026 (Vancouver time). This approval
-covers the database stage only. Website deployment, S3 provisioning, hosted job
-secrets, manual ingestion rehearsal and scheduled ingestion remain deferred.
+covered the database stage. Tyler subsequently approved Vercel website deployment
+and repository access on September 9. S3 provisioning, hosted job secrets, manual
+ingestion rehearsal and scheduled ingestion remain deferred.
 
 | Setting | Configured value |
 | --- | --- |
@@ -17,7 +18,7 @@ secrets, manual ingestion rehearsal and scheduled ingestion remain deferred.
 | Automatic sleep | After five idle minutes |
 | Restore history | Seven days; retained change history is billed separately |
 | Application database | `sportsball`, owned by `neondb_owner` |
-| Authentication | Neon Auth enabled in the existing `neondb`; application integration pending |
+| Authentication | Neon Auth enabled in the existing `neondb`; email-code application integration enabled |
 
 These compute limits constrain instantaneous capacity, not monthly spending.
 The US$7–12/month Neon estimate still depends on actual active compute time,
@@ -80,8 +81,9 @@ or an ingestion benchmark. Every query returned the expected website role and
 
 ## Credentials and connection handling
 
-Owner and service credentials are stored only in Tyler's private local
-configuration directory, outside Git. No GitHub or Vercel secrets have been set.
+Local copies of owner and service credentials stay in Tyler's private
+configuration directory, outside Git. The read-only pooled website URL and Auth
+configuration are now set only in Vercel Production. GitHub job secrets remain unset.
 Use the existing owner only for reviewed migrations and administration. Use:
 
 - `sportsball_web`: pooled website reads, direct manual health reads;
@@ -110,10 +112,8 @@ credentials were created after the error and were not printed.
 
 ## Remaining rollout work
 
-- Integrate Neon Auth and restrict application access to the two intended users;
-  the prepared Basic Auth implementation has not yet been replaced.
-- Prepare Vercel, then separately approve deployment and verify private access,
-  preview isolation, pooled queries and iPhone Home Screen behavior.
+- Complete Jamie’s live login test when available and verify iPhone Home Screen
+  behavior on a real device; managed Neon Auth has replaced Basic Auth.
 - Review/provision S3 and temporary AWS roles; configure hosted job secrets only
   at that stage. Test a manual daily update and independent backup/restore.
 - Test a hosted point-in-time restore. Configuring seven-day history does not
@@ -133,7 +133,8 @@ and replaying the revoked session failed. The app rejected an untrusted Origin.
 The email states ten-minute expiry; expiry timing/provider rate limits are not yet
 independently tested. Jamie's live verification is deferred at Tyler's request;
 no code was sent to her. No hosted website origin, deployment or scheduled writes
-were activated. Local session material was removed after logout.
+were activated during that local rehearsal. Local session material was removed
+after logout. The subsequent hosted deployment is recorded in the linked runbook.
 
 The web SQL role stays read-only and has no access to `neon_auth`; the SDK contacts
 Neon's managed Auth service separately. See [hosted preparation](hosted-preparation.md#website-credentials-and-connections)

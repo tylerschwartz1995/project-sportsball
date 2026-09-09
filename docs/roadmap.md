@@ -137,7 +137,7 @@ Post-MVP improvements now shipped:
 Named saved-comparison collections remain backlog. See
 [Product ideas](product-ideas.md) for implemented boundaries and future extensions.
 
-## Milestone 6: daily operation — local foundation complete; deployment deferred
+## Milestone 6: daily operation — website deployed; scheduled operation deferred
 
 - [x] Add an audited daily coordinator for bounded incremental imports and
   recent-game corrections.
@@ -157,7 +157,7 @@ Named saved-comparison collections remain backlog. See
 - [x] Select Neon, Vercel Hobby and GitHub Actions for the personal deployment.
 - Activate and restore-test the prepared S3 logical backups and Neon restore history;
   complete a data-quality dashboard.
-- Deploy the application and database.
+- [x] Deploy the application and database; verify Tyler’s hosted email-code login.
 - Complete the production recovery and source-change runbooks.
 
 ### AWS server preparation — superseded
@@ -171,12 +171,14 @@ Named saved-comparison collections remain backlog. See
 
 See [AWS preparation](aws-preparation.md) for the superseded server proposal.
 
-### Neon/Vercel preparation — provisioning deferred
+### Neon/Vercel rollout — website deployed, jobs deferred
 
 - [x] Prepare verified TLS, direct job connections and pooled website connections.
 - [x] Prepare two-user private access and guarded Actions ingestion/backups.
 - [x] Prepare S3-only infrastructure with separate GitHub OIDC roles.
-- [ ] Provision, restore and verify hosted operation and actual costs.
+- [x] Restore and verify Neon; deploy Vercel with production-only credentials.
+- [ ] Complete Jamie’s login and real iPhone Home Screen checks.
+- [ ] Provision S3, rehearse hosted jobs/recovery, and review actual costs.
 - [ ] Enable schedules only after rehearsal and explicit approval.
 
 See [hosted preparation](hosted-preparation.md).
