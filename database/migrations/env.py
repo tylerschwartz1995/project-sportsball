@@ -8,7 +8,9 @@ from sportsball.persistence.models import Base
 from sqlalchemy import engine_from_config, pool
 
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.database_url)
+# ConfigParser treats percent signs as interpolation; URLs may contain percent-encoded
+# passwords or connection options. Escape only for storage in the Alembic config.
+config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

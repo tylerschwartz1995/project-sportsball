@@ -2,9 +2,9 @@
 
 ## Selected setup and status
 
-This replaces the Lightsail/CodeBuild/EventBridge proposal. Preparation is code
-only: no Neon project, Vercel deployment, S3 bucket, new IAM trust, secrets or
-scheduled writes have been created or enabled. The previously approved personal
+This replaces the Lightsail/CodeBuild/EventBridge proposal. Neon database setup is now in progress following explicit approval. Vercel
+deployment, S3 resources, new IAM trust, hosted job secrets and scheduled writes
+remain deferred. See [Neon setup](neon-setup.md) for verified deployment status. The previously approved personal
 AWS provisioning policies exist, but do not authorize creating this revised
 stack. Review replacement provisioning permissions and remove obsolete ones
 with Tyler before the S3 stage. Keep the old AWS stack unapplied.
@@ -13,7 +13,7 @@ with Tyler before the S3 stage. Keep the old AWS stack unapplied.
 | --- | --- |
 | Neon Launch, PostgreSQL 18 | Managed database; compute can sleep between requests |
 | Vercel Hobby | Personal Next.js website, including preview deployments |
-| GitHub Actions | Twice-daily Python ingestion with health checks; daily backup |
+| GitHub Actions | Once-daily Python ingestion with health checks; daily backup |
 | S3 archives/backups | Private versioned original files and independent logical backups |
 | S3 Terraform state | Small record of which AWS resources Terraform owns; reuse bootstrap module |
 | GitHub OIDC roles | Temporary credentials scoped separately to archive and backup uploads |
@@ -37,14 +37,19 @@ transfer. Allow $1–3 for modest S3 usage; retained archives grow without autom
 deletion. Recheck live prices and quotas at provisioning.
 
 Vercel Hobby must remain within its personal/noncommercial limits. GitHub's
-private-repository allowance is shared with CI: 60 ingestion runs at 10–15
-minutes use 600–900 minutes/month, plus backups, retries and development checks.
+private-repository allowance is shared with CI: 30 ingestion runs at 10–15
+minutes use 300–450 minutes/month, plus backups, retries and development checks.
 Do not promise free Actions without checking remaining allowance. Set billing
 alerts and an explicit Actions spending budget; hitting a hard usage limit can
 stop ingestion. No domain, tax, unusual data transfer, or extra learning projects
 is included. Use the Vercel-provided hostname initially.
 
 ## Website credentials and connections
+
+Neon Auth has been selected for the final two-account login experience. The
+Basic Auth configuration below describes the currently prepared implementation;
+replace it with verified Neon Auth integration before website deployment.
+Enabling Neon Auth in the console alone does not change application login.
 
 Set Vercel's Root Directory to `apps/web`; use the Next.js preset and default
 npm build. Production environment variables:
