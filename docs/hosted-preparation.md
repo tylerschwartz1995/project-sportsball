@@ -91,12 +91,24 @@ access. Enforce verified email and the allowlist on every protected request.
 Neon's delivery/OTP attempt limits must be verified in the live rehearsal; this
 code does not claim to provide its own distributed rate limiter.
 
-Before deployment, verify email OTP availability, code length (six digits),
-expiry, delivery and rate limits in this branch. Test both approved users,
-rejected users, logout/revocation and trusted-domain rejection against live Neon.
-Local browser tests use synthetic accounts and a loopback upstream with the real
-SDK; they do not prove production email delivery. No real emails were sent by
-preparation. Resolve outstanding dependency security advisories before deployment.
+The 2026-09-09 local rehearsal used the real Neon Auth endpoint and the restored
+Neon statistics database. Email-code delivery to Tyler, six-digit code verification,
+authenticated statistics access (200), anonymous rejection (401), logout (200),
+revoked-session rejection (401), and the app's cross-site POST rejection (403)
+passed. The delivered email states a ten-minute code expiry; expiry timing and
+provider rate limits have not been independently exercised. Jamie's real test is
+explicitly deferred until she is available; no code was sent to her.
+
+Neon's existing Allow Localhost setting supports this rehearsal. Verify at Sign-up
+is now enabled, using verification codes and Neon's shared email sender. The local
+app binds only to loopback; its Auth settings and secret are stored outside Git.
+No production website origin has been registered because the site is not deployed.
+Before deployment, register the exact chosen HTTPS origin, review localhost access,
+verify provider limits, complete Jamie's test, and rehearse the hosted browser flow.
+Synthetic browser tests cover desktop/mobile login and logout but do not substitute
+for those real-user and hosted checks. The dependency update to Next.js 16.3.4,
+sharp 0.35.4 and Vitest 4.1.11 reports zero npm audit vulnerabilities on 2026-09-09;
+recheck before deployment.
 
 Do not give untrusted preview code production database credentials or login
 configuration. Initially leave preview credentials unset (previews fail closed).

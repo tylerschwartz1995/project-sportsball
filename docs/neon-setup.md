@@ -120,11 +120,21 @@ credentials were created after the error and were not printed.
   certify recovery objectives or create seven days of past history immediately.
 - Review observed cost and freshness before enabling once-daily ingestion.
 
-## Prepared application login
+## Application login rehearsal — 2026-09-09
 
-The website now has a managed Neon Auth email-code integration, with a server-only
-two-address allowlist and verified-email checks. Passkeys are deferred. Hosted
-Auth configuration, real email delivery tests and Vercel deployment remain pending;
-see [hosted preparation](hosted-preparation.md#website-credentials-and-connections).
+Managed Neon Auth email-code integration is prepared with a server-only two-address
+allowlist and verified-email checks. Passkeys are deferred. Verify at Sign-up is
+now enabled with verification codes. Existing localhost access and the shared email
+sender were retained for the authorized local rehearsal.
+
+Tyler's real code arrived and was accepted. The resulting session read statistics
+through the read-only web role; anonymous requests were rejected. Logout succeeded,
+and replaying the revoked session failed. The app rejected an untrusted Origin.
+The email states ten-minute expiry; expiry timing/provider rate limits are not yet
+independently tested. Jamie's live verification is deferred at Tyler's request;
+no code was sent to her. No hosted website origin, deployment or scheduled writes
+were activated. Local session material was removed after logout.
+
 The web SQL role stays read-only and has no access to `neon_auth`; the SDK contacts
-Neon's managed Auth service separately.
+Neon's managed Auth service separately. See [hosted preparation](hosted-preparation.md#website-credentials-and-connections)
+for the remaining hosted checks and configuration.
