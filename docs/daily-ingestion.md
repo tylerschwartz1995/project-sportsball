@@ -2,12 +2,11 @@
 
 ## Operating contract
 
-AWS EventBridge and CodeBuild are the selected production scheduler/worker.
-See [AWS preparation](aws-preparation.md) for the prepared, disabled infrastructure.
-The committed GitHub Actions workflows remain a disabled fallback. **Production activation remains
-explicitly deferred.** The fallback GitHub schedules do not write until
-`DAILY_INGESTION_ENABLED=true`; manual dispatch requires the database secret.
-No hosted database, secrets, or enable flags were provisioned by this change.
+Neon/Vercel/GitHub Actions is the selected deployment. See
+[hosted preparation](hosted-preparation.md). **Production activation remains deferred.**
+All Actions jobs require `HOSTED_JOBS_ENABLED=true`, including manual dispatch.
+Scheduled ingestion also requires `DAILY_INGESTION_ENABLED=true`; daily backup
+uses `DATABASE_BACKUP_ENABLED=true`. No secrets or flags were configured by preparation.
 
 The initial product is next-morning completed-game statistics. Live scores and
 post-game polling remain separate future features. The morning run starts at
@@ -132,38 +131,19 @@ seasons; explicitly select a missed older season if it was never enrolled.
 
 ## GitHub Actions and future activation
 
-- `.github/workflows/daily-ingestion.yml`: 15:17 and 21:17 UTC, manual overrides,
-  90-minute timeout, non-overlapping workflow runs, outcome/health summary.
-- `.github/workflows/ingestion-health.yml`: independent read-only checks at
-  00:47 and 18:47 UTC, plus manual dispatch. A dropped ingestion invocation can
-  therefore be detected without the failed job reaching its own health step.
-- Both schedules are gated by `DAILY_INGESTION_ENABLED`. Health warnings are
-  visible but only health errors fail the monitor. GitHub workflow failures use
-  the operator's GitHub notification settings; no external messaging is configured.
-- Both check the deployed Alembic revision. **Daily jobs do not apply migrations.**
-  Releases must apply migrations before the new ingestion version runs.
+- `.github/workflows/daily-ingestion.yml`: 15:17/21:17 UTC, manual overrides,
+  schema verification, coordinator, health checks and optional cache invalidation.
+- `.github/workflows/ingestion-health.yml`: manual-only, dedicated read credentials.
+- `.github/workflows/database-backup.yml`: 07:17 UTC, direct PG18 dump to private S3.
+- Jobs run only on main and require explicit hosted/schedule enable flags.
+- Daily jobs never apply migrations; release migrations run separately as owner.
+- Health still runs after a normal unsuccessful ingestion exit. Hard termination
+  or runner loss can prevent it; failure notifications cannot detect dropped schedules.
+- GitHub OIDC supplies temporary, prefix-scoped S3 credentials. Ingestion and
+  backups use different roles and direct Neon URLs; the website uses pooling.
 
-For the selected AWS deployment, follow [the AWS activation gates](aws-preparation.md).
-The checklist below applies only if the GitHub Actions fallback is deliberately selected:
-
-1. Select and restore-test a hosted PostgreSQL database. Use separate website
-   read credentials and ingestion write credentials. Do not expose the laptop DB.
-2. Apply all release migrations and verify schema/backup recovery. Use a fresh
-   logical backup before migration and test the selected hosting recovery process.
-3. Configure the Actions `SPORTSBALL_DATABASE_URL` secret.
-4. After website deployment, optionally configure the Actions
-   `SPORTSBALL_WEB_URL` variable and `SPORTSBALL_REVALIDATION_TOKEN` secret;
-   configure the same token in the website. The authenticated
-   `POST /api/ingestion/revalidate` expires all shared statistics caches.
-   Without this integration, existing timed caches refresh on subsequent reads;
-   reference/history data can remain cached longer than active-game reads.
-   Multiple website instances require a shared cache/invalidation mechanism.
-5. Rehearse a manual run, inspect `/api/health` and Actions health output,
-   verify actual rendered data, and measure a busy night and late-season archive.
-6. Verify failure notifications, backup restoration, and an external uptime
-   monitor. The independent Actions health job still shares GitHub's failure
-   domain and cannot detect a complete GitHub outage on its own.
-7. Enable scheduled ingestion only after explicit activation authorization.
+Follow [the hosted rollout gates](hosted-preparation.md) for restore testing,
+secrets, private access, notifications, cost measurements and final activation.
 
 ## Capacity and retained data
 
@@ -172,7 +152,7 @@ replaces changed/current season tables using the existing importers. Identical
 raw artifacts are deduplicated by checksum; each genuinely revised archive is
 retained. There is no automatic source-archive deletion policy. Migration 0028 adds an
 opt-in version-pinned S3 backend for new file artifacts; PostgreSQL remains the
-local default and existing bytes are not moved. See [AWS preparation](aws-preparation.md).
+local default and existing bytes are not moved. See [hosted preparation](hosted-preparation.md).
 There is also no new unchanged-normalization shortcut: preserving correction
 and repair behavior takes priority until measurements justify that optimization.
 
