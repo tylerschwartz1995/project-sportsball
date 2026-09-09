@@ -96,7 +96,7 @@ expiry, delivery and rate limits in this branch. Test both approved users,
 rejected users, logout/revocation and trusted-domain rejection against live Neon.
 Local browser tests use synthetic accounts and a loopback upstream with the real
 SDK; they do not prove production email delivery. No real emails were sent by
-preparation. Resolve outstanding dependency security advisories before deployment.
+preparation. The 2026-09-09 dependency update has a clean npm audit; recheck before deployment.
 
 Do not give untrusted preview code production database credentials or login
 configuration. Initially leave preview credentials unset (previews fail closed).

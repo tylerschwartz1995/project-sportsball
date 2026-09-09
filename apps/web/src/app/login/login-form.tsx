@@ -14,7 +14,11 @@ export function LoginForm() {
       });
       const result = await response.json();
       if (!response.ok) { setMessage(result.message ?? "Unable to sign in. Please retry."); return; }
-      if (sent) { window.location.assign("/"); return; }
+      if (sent) {
+        // A full navigation clears authenticated data from the client router cache.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+        window.location.assign("/"); return;
+      }
       setSent(true); setMessage("If your address is approved, a code is on its way. Check your inbox and junk folder.");
     } catch { setMessage("Unable to connect. Please try again."); }
     finally { setBusy(false); }
