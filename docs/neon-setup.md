@@ -102,13 +102,14 @@ Offline migration tests cover encoded passwords and certificate paths without
 using a real credential or making a database connection.
 
 The failed configuration attempt included the owner URL in local tool output.
-Owner password rotation is required before credential handoff. Do not copy that
-old URL into any service. Restricted service credentials were created afterward
-and were not printed.
+Tyler subsequently reset the owner password. Verification confirmed that the old
+password is rejected and the new owner connection succeeds. Both private local
+owner connection files were refreshed, the transfer clipboard was cleared, and
+all three service accounts were rechecked successfully. Restricted service
+credentials were created after the error and were not printed.
 
 ## Remaining rollout work
 
-- Complete owner credential rotation before handing off credentials.
 - Integrate Neon Auth and restrict application access to the two intended users;
   the prepared Basic Auth implementation has not yet been replaced.
 - Prepare Vercel, then separately approve deployment and verify private access,
