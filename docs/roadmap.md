@@ -154,13 +154,13 @@ Named saved-comparison collections remain backlog. See
   expiry, and an independent GitHub Actions health monitor.
 - Activate the schedule after the hosted database, secrets, and recovery
   process are ready.
-- [x] Select self-managed PostgreSQL on Lightsail with a separate CodeBuild worker.
-- Activate and restore-test the prepared logical backups, snapshots, and alerts;
+- [x] Select Neon, Vercel Hobby and GitHub Actions for the personal deployment.
+- Activate and restore-test the prepared S3 logical backups and Neon restore history;
   complete a data-quality dashboard.
 - Deploy the application and database.
 - Complete the production recovery and source-change runbooks.
 
-### AWS preparation — provisioning deferred
+### AWS server preparation — superseded
 
 - [x] Prepare Lightsail/CodeBuild/EventBridge infrastructure, private versioned S3,
   restricted job roles, SSM database tunnel, alarms, and budget notifications.
@@ -169,7 +169,17 @@ Named saved-comparison collections remain backlog. See
 - [ ] Provision only after approval, rehearse cloud restore/connectivity and costs.
 - [ ] Activate production jobs only after a successful rehearsal and approval.
 
-See [AWS preparation](aws-preparation.md); managed PITR is not included.
+See [AWS preparation](aws-preparation.md) for the superseded server proposal.
+
+### Neon/Vercel preparation — provisioning deferred
+
+- [x] Prepare verified TLS, direct job connections and pooled website connections.
+- [x] Prepare two-user private access and guarded Actions ingestion/backups.
+- [x] Prepare S3-only infrastructure with separate GitHub OIDC roles.
+- [ ] Provision, restore and verify hosted operation and actual costs.
+- [ ] Enable schedules only after rehearsal and explicit approval.
+
+See [hosted preparation](hosted-preparation.md).
 
 ## Milestone 7: predictive modelling — deferred
 

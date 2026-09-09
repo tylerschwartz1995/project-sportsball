@@ -22,6 +22,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 defaults:
   run:
@@ -34,89 +35,40 @@ concurrency:
 jobs:
   update:
     name: Refresh current data
-    if: github.event_name == 'workflow_dispatch' || vars.DAILY_INGESTION_ENABLED == 'true'
+    if: github.ref == 'refs/heads/main' && vars.HOSTED_JOBS_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || vars.DAILY_INGESTION_ENABLED == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
+      HOSTED_JOBS_ENABLED: ${{ vars.HOSTED_JOBS_ENABLED }}
+      JOB_MODE: ingestion
       SPORTSBALL_DATABASE_URL: ${{ secrets.SPORTSBALL_DATABASE_URL }}
+      SPORTSBALL_ARTIFACT_S3_BUCKET: ${{ vars.SPORTSBALL_ARCHIVE_BUCKET }}
+      AWS_ROLE_CONFIGURED: ${{ vars.SPORTSBALL_INGESTION_AWS_ROLE_ARN }}
       SPORTSBALL_WEB_URL: ${{ vars.SPORTSBALL_WEB_URL }}
       SPORTSBALL_REVALIDATION_TOKEN: ${{ secrets.SPORTSBALL_REVALIDATION_TOKEN }}
+      INPUT_RUN_DATE: ${{ inputs.run_date }}
+      INPUT_SEASON_ID: ${{ inputs.season_id }}
+      INPUT_SKIP_MONEYPUCK: ${{ inputs.skip_moneypuck }}
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v6
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           version: "0.12.0"
           working-directory: pipeline
           enable-cache: true
-
-      - name: Sync pipeline
-        run: uv sync --project pipeline --locked
-
-      - name: Require ingestion database secret
-        run: |
-          if [[ -z "$SPORTSBALL_DATABASE_URL" ]]; then
-            echo "SPORTSBALL_DATABASE_URL must be configured as a repository secret."
-            exit 1
-          fi
-
-      - name: Verify deployed schema without migrations
-        id: schema
-        run: uv run --project pipeline --frozen sportsball verify-database-schema
-
-      - name: Run daily update
-        id: refresh
-        continue-on-error: true
-        env:
-          INPUT_RUN_DATE: ${{ inputs.run_date }}
-          INPUT_SEASON_ID: ${{ inputs.season_id }}
-          INPUT_SKIP_MONEYPUCK: ${{ inputs.skip_moneypuck }}
-        run: |
-          arguments=(daily-update)
-          if [[ -n "$INPUT_RUN_DATE" ]]; then
-            arguments+=(--run-date "$INPUT_RUN_DATE")
-          fi
-          if [[ -n "$INPUT_SEASON_ID" ]]; then
-            arguments+=(--season-id "$INPUT_SEASON_ID")
-          fi
-          if [[ "$INPUT_SKIP_MONEYPUCK" == "true" ]]; then
-            arguments+=(--skip-moneypuck)
-          fi
-          uv run --project pipeline --frozen sportsball "${arguments[@]}"
-
-      - name: Verify data health even after an import failure
-        id: health
-        if: ${{ !cancelled() && steps.schema.outcome == 'success' }}
-        continue-on-error: true
-        run: |
-          uv run --project pipeline --frozen sportsball check-data-health | tee health-report.txt
-
-      - name: Refresh configured website caches
-        id: website
-        if: ${{ !cancelled() && steps.schema.outcome == 'success' && env.SPORTSBALL_WEB_URL != '' }}
-        continue-on-error: true
-        run: uv run --project pipeline --frozen sportsball revalidate-website
-
-      - name: Publish operational summary
+      - name: Install pipeline
+        run: uv sync --project pipeline --locked --no-dev
+      - name: Obtain temporary S3 credentials
+        uses: aws-actions/configure-aws-credentials@ff717079ee2060e4bcee96c4779b553acc87447c # v4
+        with:
+          role-to-assume: ${{ vars.SPORTSBALL_INGESTION_AWS_ROLE_ARN }}
+          role-duration-seconds: 7200
+          aws-region: us-west-2
+          allowed-account-ids: "989240880464"
+      - name: Verify schema, ingest and check health
+        run: uv run --project pipeline --frozen --no-dev python scripts/hosted/run-job.py
+      - name: Summarize run
         if: ${{ !cancelled() }}
         env:
-          REFRESH_OUTCOME: ${{ steps.refresh.outcome }}
-          HEALTH_OUTCOME: ${{ steps.health.outcome }}
-          WEBSITE_OUTCOME: ${{ steps.website.outcome }}
-        run: |
-          {
-            echo "## Daily ingestion"
-            echo "Refresh: $REFRESH_OUTCOME"
-            echo "Health: $HEALTH_OUTCOME"
-            echo "Website cache refresh: $WEBSITE_OUTCOME"
-            if [[ -f health-report.txt ]]; then
-              echo '```text'
-              cat health-report.txt
-              echo '```'
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
-          if [[ "$REFRESH_OUTCOME" != "success" || "$HEALTH_OUTCOME" != "success" || "$WEBSITE_OUTCOME" == "failure" ]]; then
-            exit 1
-          fi
+          JOB_STATUS: ${{ job.status }}
+        run: echo "Ingestion and health status = $JOB_STATUS. See step logs and database audits." >> "$GITHUB_STEP_SUMMARY"

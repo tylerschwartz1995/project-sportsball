@@ -1,0 +1,43 @@
+name: Hosted database backup
+on:
+  schedule:
+    - cron: "17 7 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: hosted-database-backup
+  cancel-in-progress: false
+jobs:
+  backup:
+    if: github.ref == 'refs/heads/main' && vars.HOSTED_JOBS_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || vars.DATABASE_BACKUP_ENABLED == 'true')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      HOSTED_JOBS_ENABLED: ${{ vars.HOSTED_JOBS_ENABLED }}
+      JOB_MODE: backup
+      SPORTSBALL_DATABASE_URL: ${{ secrets.SPORTSBALL_BACKUP_DATABASE_URL }}
+      BACKUP_BUCKET: ${{ vars.SPORTSBALL_BACKUP_BUCKET }}
+      AWS_ROLE_CONFIGURED: ${{ vars.SPORTSBALL_BACKUP_AWS_ROLE_ARN }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          version: "0.12.0"
+      - run: uv sync --project pipeline --locked --no-dev
+      - name: Install PostgreSQL 18 client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y postgresql-client-18
+      - name: Obtain temporary backup credentials
+        uses: aws-actions/configure-aws-credentials@ff717079ee2060e4bcee96c4779b553acc87447c # v4
+        with:
+          role-to-assume: ${{ vars.SPORTSBALL_BACKUP_AWS_ROLE_ARN }}
+          role-duration-seconds: 7200
+          aws-region: us-west-2
+          allowed-account-ids: "989240880464"
+      - name: Dump, checksum and upload backup
+        run: uv run --project pipeline --frozen --no-dev python scripts/hosted/run-job.py

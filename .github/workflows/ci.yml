@@ -110,6 +110,11 @@ jobs:
           node scripts/seed-web-test-database.mjs
           uv run --project pipeline --frozen sportsball build-descriptive-analytics
 
+      - name: Verify hosted SQL role isolation
+        run: |
+          psql "$SPORTSBALL_WEB_DATABASE_URL" -f infra/neon/database-roles.sql
+          psql "$SPORTSBALL_WEB_DATABASE_URL" -f scripts/hosted/test-database-roles.sql
+
       - name: Lint
         run: npm run lint --prefix apps/web
 
@@ -141,6 +146,7 @@ jobs:
       - name: Check formatting and shell syntax
         run: |
           terraform fmt -check -recursive infra/aws
+          terraform fmt -check infra/hosted
           for script in infra/runtime/cloud-init.sh scripts/aws/*.sh; do
             bash -n "$script"
           done
@@ -151,6 +157,11 @@ jobs:
             terraform -chdir=infra/aws/$root validate
             terraform -chdir=infra/aws/$root test
           done
+      - name: Validate hosted storage without AWS credentials
+        run: |
+          terraform -chdir=infra/hosted init -backend=false -lockfile=readonly
+          terraform -chdir=infra/hosted validate
+          terraform -chdir=infra/hosted test
       - name: Build standalone web image
         run: docker build -f infra/runtime/Dockerfile.web -t sportsball-web:test .
       - name: Verify runtime login boundary

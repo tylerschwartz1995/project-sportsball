@@ -1,5 +1,7 @@
 import "server-only";
 
+import { connectionOptions } from "./connection-options";
+
 import { readContext } from "./read-context";
 import { createHash } from "node:crypto";
 import { Pool, type QueryResultRow } from "pg";
@@ -21,12 +23,9 @@ function databaseUrl(): string {
 function getPool(): Pool {
   if (!globalDatabase.sportsballPool) {
     globalDatabase.sportsballPool = new Pool({
-      connectionString: databaseUrl(),
-      application_name: "sportsball-web",
-      max: 10,
-      connectionTimeoutMillis: 5_000,
-      idleTimeoutMillis: 30_000,
       statement_timeout: queryTimeout(),
+      ...connectionOptions(databaseUrl()),
+      application_name: "sportsball-web",
     });
     // Idle connections can fail outside a query's promise (for example on restart).
     globalDatabase.sportsballPool.on("error", () => {

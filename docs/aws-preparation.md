@@ -1,6 +1,10 @@
 # AWS hosting preparation
 
-## Decision and scope
+> Superseded by [Neon/Vercel/GitHub Actions preparation](hosted-preparation.md).
+> Do not provision this stack. The costs and selected-platform statements below
+> describe the earlier proposal; existing IAM setup does not mean it was deployed.
+
+## Historical decision and scope
 
 The selected personal-site architecture is AWS Lightsail (Linux, 2 GB RAM,
 60 GB disk) for Next.js and self-managed PostgreSQL; CodeBuild Linux medium

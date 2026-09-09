@@ -290,9 +290,10 @@ operational procedures, and historical audit/decision records.
 
 The [content audit and implementation decisions](docs/content-audit-implementation.md) document the application’s essential-content policy and coverage corrections.
 
-## AWS preparation
+## Hosted deployment preparation
 
-AWS Lightsail, CodeBuild, EventBridge, S3, and monitoring are the selected
-hosting architecture. Infrastructure definitions, gated jobs, and optional
-version-pinned S3 artifact storage are prepared. No AWS resources or production
-schedules have been activated. See [AWS preparation and deployment gates](docs/aws-preparation.md).
+The selected personal-site setup is Neon PostgreSQL, Vercel Hobby, GitHub Actions
+for ingestion/backups, and private S3 files. Connection guards, two-user private
+access, disabled workflows and storage-only Terraform are prepared. Hosting and
+scheduled writes remain unactivated. See [hosted preparation](docs/hosted-preparation.md).
+The earlier [AWS server deployment](docs/aws-preparation.md) is retained but superseded.
