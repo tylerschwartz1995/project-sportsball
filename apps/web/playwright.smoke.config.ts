@@ -1,10 +1,4 @@
-import { scryptSync } from "node:crypto";
 import { defineConfig, devices } from "@playwright/test";
-
-const password = "fixture-only-password";
-const salt = "ab".repeat(16);
-const users = ["fixture", "partner"].map(username => ({ username, salt,
-  hash: scryptSync(password, Buffer.from(salt, "hex"), 64).toString("hex") }));
 
 export default defineConfig({
   testDir: "./e2e",
@@ -14,7 +8,7 @@ export default defineConfig({
   workers: 1,
   reporter: "line",
   use: {
-    httpCredentials: { username: "fixture", password },
+    storageState: { cookies: [{ name: "__Secure-neon-auth.session_token", value: "fixture", domain: "localhost", path: "/", secure: true, httpOnly: true, sameSite: "Lax", expires: -1 }], origins: [] },
     baseURL: "http://localhost:3100",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
@@ -23,10 +17,10 @@ export default defineConfig({
     { name: "desktop", use: { ...devices["Desktop Chrome"] } },
     { name: "mobile", use: { ...devices["iPhone 13"], defaultBrowserType: "chromium" } },
   ],
-  webServer: {
-    env: { SPORTSBALL_PRIVATE_ACCESS: "true", SPORTSBALL_LOGIN_USERS: JSON.stringify(users) },
+  webServer: [{ command: "node e2e/auth-provider.mjs", url: "http://localhost:3200", reuseExistingServer: false }, {
+    env: { SPORTSBALL_PRIVATE_ACCESS: "true", SPORTSBALL_ALLOWED_EMAILS: "one@example.com,two@example.com", NEON_AUTH_BASE_URL: "http://localhost:3200", NEON_AUTH_COOKIE_SECRET: "fixture-only-secret-at-least-32-characters", SPORTSBALL_AUTH_ORIGIN: "http://localhost:3100" },
     command: "npm run start -- --port 3100",
-    url: "http://localhost:3100/api/seasons",
+    url: "http://localhost:3100/login",
     reuseExistingServer: false,
-  },
+  }],
 });

@@ -1,25 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import { checkLogin, privateAccessRequired } from "./auth/access";
+import { authConfiguration, privateAccessRequired } from "./auth/access";
+import { checkSession, privateResponse } from "./auth/server";
 
 export async function proxy(request: NextRequest) {
   if (!privateAccessRequired()) return NextResponse.next();
-
-  // This one machine endpoint authenticates its own bearer token and returns no data.
-  const machineRequest = request.nextUrl.pathname === "/api/ingestion/revalidate"
-    && request.method === "POST";
-  const result = machineRequest ? "allowed" : await checkLogin(request.headers.get("authorization"));
-  const response = result === "allowed" ? NextResponse.next() : new NextResponse(
-    result === "unconfigured" ? "Private access is not configured." : "Sign in to Sportsball.",
-    { status: result === "unconfigured" ? 503 : 401 },
-  );
-  if (result === "denied") response.headers.set("WWW-Authenticate", 'Basic realm="Sportsball", charset="UTF-8"');
-  // Authenticated pages must never enter shared browser/CDN response caches.
-  response.headers.set("Cache-Control", "private, no-store, max-age=0");
-  response.headers.set("CDN-Cache-Control", "no-store");
-  response.headers.set("Vercel-CDN-Cache-Control", "no-store");
-  response.headers.set("X-Robots-Tag", "noindex, nofollow");
-  return response;
+  const path = request.nextUrl.pathname;
+  if (path === "/api/ingestion/revalidate" && request.method === "POST") return privateResponse(NextResponse.next());
+  // Only public login assets: never exempt _next/data, image optimization or arbitrary APIs.
+  if (path.startsWith("/_next/static/") || path === "/favicon.ico") return NextResponse.next();
+  try { authConfiguration(); } catch {
+    return privateResponse(new NextResponse("Sign-in is not configured.", { status: 503 }));
+  }
+  if (path === "/login" || ["/api/auth/send-code", "/api/auth/verify-code", "/api/auth/sign-out"].includes(path)) {
+    return privateResponse(NextResponse.next());
+  }
+  const response = NextResponse.next();
+  const result = await checkSession(request, response);
+  if (result === "allowed") return privateResponse(response);
+  if (result === "unavailable") return privateResponse(new NextResponse("Sign-in is temporarily unavailable.", { status: 503 }));
+  const denied = path.startsWith("/api/") || request.method !== "GET"
+    ? new NextResponse("Sign in to Sportsball.", { status: 401 })
+    : NextResponse.redirect(new URL("/login", request.url));
+  return privateResponse(denied);
 }
 
-// Protect pages, APIs, React Server Component requests, and static paths alike.
 export const config = { matcher: "/:path*" };

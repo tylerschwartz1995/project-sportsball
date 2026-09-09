@@ -47,44 +47,56 @@ is included. Use the Vercel-provided hostname initially.
 
 ## Website credentials and connections
 
-Neon Auth has been selected for the final two-account login experience. The
-Basic Auth configuration below describes the currently prepared implementation;
-replace it with verified Neon Auth integration before website deployment.
-Enabling Neon Auth in the console alone does not change application login.
+Managed Neon Auth with email codes is the selected login method; passkeys are
+deferred. The app now integrates Neon's server SDK and independently requires a
+verified email from the two-address allowlist. This is prepared code, not an
+activated hosted login. Neon console passkeys authenticate the developer console,
+not this app.
 
-Set Vercel's Root Directory to `apps/web`; use the Next.js preset and default
-npm build. Production environment variables:
+Set Vercel's Root Directory to `apps/web`; use the Next.js preset. Configure only
+Production, after deployment approval:
 
-- `SPORTSBALL_WEB_DATABASE_URL`: Neon **pooled** PostgreSQL URL using the SQL-created
-  `sportsball_web` role, database `sportsball`. The application enforces verified
-  TLS for Neon, limits each local pool to two connections and allows 15 seconds
-  for connection establishment. The SQL role has a 10-second statement timeout;
-  the pooled client does not send that setting as a startup parameter. Many
-  Vercel instances can still multiply pools.
-- `SPORTSBALL_LOGIN_USERS`: private JSON containing exactly two distinct users
-  with scrypt hashes. Create it interactively with
-  `python3 scripts/hosted/create-login.py /absolute/private/new-login.json`.
-  Passwords are entered without terminal echo and are not printed. Save them in
-  a password manager; paste the file contents into Vercel's sensitive environment
-  variable UI. Never use a `NEXT_PUBLIC_` variable for any credentials.
-- `SPORTSBALL_REVALIDATION_TOKEN`: a long random secret also configured in Actions.
-  This is separate from the two website passwords.
+- `SPORTSBALL_WEB_DATABASE_URL`: Neon pooled URL for the read-only `sportsball_web`
+  role, database `sportsball`. Keep the existing verified TLS and pool limits.
+- `SPORTSBALL_ALLOWED_EMAILS`: exactly two distinct, comma-separated email addresses.
+  Keep personal addresses out of Git and never use `NEXT_PUBLIC_` configuration.
+- `NEON_AUTH_BASE_URL`: the branch's Auth endpoint copied from Neon, not a PostgreSQL
+  connection URL. Auth currently lives in `neondb`; statistics stay in `sportsball`.
+- `NEON_AUTH_COOKIE_SECRET`: a separately generated secret of at least 32 characters.
+- `SPORTSBALL_AUTH_ORIGIN`: exact website origin, e.g. `https://your-site.vercel.app`.
+  Register that same origin in Neon's trusted domains before live testing.
+- `SPORTSBALL_REVALIDATION_TOKEN`: separate machine bearer secret shared with Actions.
 
-Vercel production and previews always require login (`VERCEL=1`), regardless of
-`SPORTSBALL_PRIVATE_ACCESS`. Missing/malformed login configuration returns 503;
-missing/incorrect credentials return a browser Basic Auth challenge. Pages,
-APIs, React Server Component requests and static paths are protected; responses
-are private/no-store. The exact POST `/api/ingestion/revalidate` instead uses its
-existing bearer-token authentication and returns no statistics. Do not exempt
-health or other APIs from login. Set `SPORTSBALL_PRIVATE_ACCESS=true` to test
-this boundary locally. Local development otherwise remains unchanged.
+Vercel production and previews always require authentication (`VERCEL=1`), even
+when `SPORTSBALL_PRIVATE_ACCESS` is false. Missing configuration fails closed with
+503. Local testing uses `SPORTSBALL_PRIVATE_ACCESS=true` at **build and run time**;
+normal local development remains open. HTTP auth endpoints are allowed only on
+localhost outside Vercel for the isolated test provider.
 
-This preserves the simple browser login prompt, not a user-registration system.
-Browsers retain Basic Auth credentials; there is no app logout button. Close the
-browser session or clear site credentials to switch users. Never use this over
-unencrypted public HTTP. Use long unique passwords. Verify Vercel firewall and
-rate limiting behavior during deployment; app password hashing is not a global
-brute-force rate limiter. No database connection is needed to reject visitors.
+The login page, bundled static assets and favicon are public. Statistics pages,
+APIs and RSC requests require a verified, approved account. Protected responses
+are private/no-store. Only the exact ingestion revalidation POST bypasses session
+login; that handler still checks its own bearer token. Anonymous requests are
+rejected without contacting Neon. Authenticated requests revalidate sessions
+with Neon (bypassing its signed session cache), so revocation is prompt, at the
+cost of an additional Auth request per protected request. This can add cold-start
+latency and compute; no background session polling is used.
+
+Only send-code, verify-code and sign-out POST endpoints are exposed. They require
+the configured same-site Origin; arbitrary Neon admin/account APIs are not proxied.
+The app requests email delivery only for allowed addresses, but returns a generic
+success for other addresses. Neon's upstream signup policy still applies: an
+outsider might create a Neon Auth account directly, but receives no Sportsball
+access. Enforce verified email and the allowlist on every protected request.
+Neon's delivery/OTP attempt limits must be verified in the live rehearsal; this
+code does not claim to provide its own distributed rate limiter.
+
+Before deployment, verify email OTP availability, code length (six digits),
+expiry, delivery and rate limits in this branch. Test both approved users,
+rejected users, logout/revocation and trusted-domain rejection against live Neon.
+Local browser tests use synthetic accounts and a loopback upstream with the real
+SDK; they do not prove production email delivery. No real emails were sent by
+preparation. Resolve outstanding dependency security advisories before deployment.
 
 Do not give untrusted preview code production database credentials or login
 configuration. Initially leave preview credentials unset (previews fail closed).
