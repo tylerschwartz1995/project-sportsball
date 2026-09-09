@@ -10,8 +10,9 @@ uses `DATABASE_BACKUP_ENABLED=true`. No secrets or flags were configured by prep
 
 The initial product is next-morning completed-game statistics. Live scores and
 post-game polling remain separate future features. The morning run starts at
-15:17 UTC; a second run at 21:17 UTC provides another recovery opportunity.
-These are intended start times, not publication guarantees. GitHub schedules
+15:17 UTC once daily. Delayed source updates are picked up on the next daily
+run, or through a manual rerun when needed. This is an intended start time, not
+a publication guarantee. GitHub schedules
 can be delayed or dropped. See [GitHub scheduling documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
 
 The coordinator owns data policy; Actions only invokes it. The same command
@@ -131,7 +132,7 @@ seasons; explicitly select a missed older season if it was never enrolled.
 
 ## GitHub Actions and future activation
 
-- `.github/workflows/daily-ingestion.yml`: 15:17/21:17 UTC, manual overrides,
+- `.github/workflows/daily-ingestion.yml`: 15:17 UTC once daily, manual overrides,
   schema verification, coordinator, health checks and optional cache invalidation.
 - `.github/workflows/ingestion-health.yml`: manual-only, dedicated read credentials.
 - `.github/workflows/database-backup.yml`: 07:17 UTC, direct PG18 dump to private S3.

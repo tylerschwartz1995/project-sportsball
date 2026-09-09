@@ -2,8 +2,8 @@ name: Daily ingestion
 
 on:
   schedule:
-    # Morning publication and an afternoon recovery opportunity. UTC is explicit.
-    - cron: "17 15,21 * * *"
+    # One morning publication per day. UTC is explicit.
+    - cron: "17 15 * * *"
   workflow_dispatch:
     inputs:
       run_date:
