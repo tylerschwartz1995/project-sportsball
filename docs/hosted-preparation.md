@@ -2,10 +2,12 @@
 
 ## Selected setup and status
 
-This replaces the Lightsail/CodeBuild/EventBridge proposal. Neon database setup is now in progress following explicit approval. Vercel
-deployment, S3 resources, new IAM trust, hosted job secrets and scheduled writes
-remain deferred. See [Neon setup](neon-setup.md) for verified deployment status. The previously approved personal
-AWS provisioning policies exist, but do not authorize creating this revised
+This replaces the Lightsail/CodeBuild/EventBridge proposal. The approved Neon
+restore and database checks have completed; owner credential rotation remains
+pending. Vercel deployment, S3 resources, new IAM trust, hosted job secrets and
+scheduled writes remain deferred. See [Neon setup](neon-setup.md) for verified
+deployment status. The previously approved personal AWS provisioning policies
+exist, but do not authorize creating this revised
 stack. Review replacement provisioning permissions and remove obsolete ones
 with Tyler before the S3 stage. Keep the old AWS stack unapplied.
 

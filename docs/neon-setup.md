@@ -61,6 +61,23 @@ standings and MoneyPuck source runs. There are no stuck runs, recent final-game
 coverage failures or unfinished core tasks in the copied snapshot. Freshness
 must be resolved and rechecked during the separately approved ingestion rehearsal.
 
+## Sleep and reconnection verification
+
+The existing application pool configuration was tested against Neon through the
+restricted pooled website URL. After more than five idle minutes, the console
+reported `SUSPENDED`. The same application pool then reconnected successfully:
+
+| Query sample | Observed time |
+| --- | --- |
+| Initial connection while awake | 121 ms |
+| Warm query before idle | 14 ms |
+| First query after confirmed suspension | 893 ms |
+| Following warm query | 14 ms |
+
+These are single samples of a count query over `games`, not page-load guarantees
+or an ingestion benchmark. Every query returned the expected website role and
+28,510 games. No periodic database polling was used during the idle period.
+
 ## Credentials and connection handling
 
 Owner and service credentials are stored only in Tyler's private local
@@ -91,8 +108,7 @@ and were not printed.
 
 ## Remaining rollout work
 
-- Complete and record the automatic-sleep/reconnection check and owner credential
-  rotation.
+- Complete owner credential rotation before handing off credentials.
 - Integrate Neon Auth and restrict application access to the two intended users;
   the prepared Basic Auth implementation has not yet been replaced.
 - Prepare Vercel, then separately approve deployment and verify private access,
