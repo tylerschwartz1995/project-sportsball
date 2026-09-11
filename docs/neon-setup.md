@@ -121,12 +121,9 @@ credentials were created after the error and were not printed.
 
 - Complete Jamie’s live login test when available and verify iPhone Home Screen
   behavior on a real device; managed Neon Auth has replaced Basic Auth.
-- Configure hosted job secrets for an approved manual rehearsal using the
-  provisioned S3 buckets and temporary AWS roles. Test a manual daily update and
-  independent backup/restore.
-- Test a hosted point-in-time restore. Configuring seven-day history does not
-  certify recovery objectives or create seven days of past history immediately.
-- Review observed cost and freshness before enabling once-daily ingestion.
+- Manual ingestion, S3 restore, historical Neon recovery, failure-email delivery,
+  cost review and spending-alert setup are complete; see [activation readiness](hosted-readiness.md).
+- Obtain Tyler's final approval before enabling daily ingestion and monthly backups.
 
 ## Application login rehearsal — 2026-09-09
 

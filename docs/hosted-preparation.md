@@ -9,6 +9,8 @@ on September 10, 2026. Hosted job secrets are configured for the approved manual
 rehearsal. The GitHub trust correction is applied, and the first S3 backup and
 local recovery test passed. The ingestion recovery run also passed with zero
 health errors or warnings. Scheduled writes remain disabled.
+See [activation readiness](hosted-readiness.md) for the completed historical
+recovery, notification-delivery test, cost controls and final approval checklist.
 See [Neon setup](neon-setup.md) for database and website verification and the
 storage record below for AWS verification. The three obsolete personal AWS
 provisioning policies were detached and replaced with the two reviewed hosted
@@ -33,21 +35,18 @@ instead of recreating or deleting them. The approved storage-only apply is recor
 
 ## Cost assumptions
 
-Plan for roughly USD10–15/month initially, not a cap or cloud measurement.
-Approximately 9 GB local database size implies about $3.15/month at Neon's
-$0.35/GB-month; its billed size after restore can differ. An illustrative
-20–60 CU-hours at $0.106 costs $2.12–6.36. Restore history depends on changed
-bytes and the configured window, and backups add active compute and outbound
-transfer. Allow $1–3 for modest S3 usage; retained archives grow without automatic
-deletion. Recheck live prices and quotas at provisioning.
+The latest planning estimate is USD6–12/month, not a cap or measured full month.
+See [activation readiness](hosted-readiness.md#cost-review) for observed provider
+charges, storage inventory, current rates and compute assumptions. Neon usage
+and retained history depend on activity; source archives grow over time.
 
-Vercel Hobby must remain within its personal/noncommercial limits. GitHub's
-private-repository allowance is shared with CI: 30 ingestion runs at 10–15
-minutes use 300–450 minutes/month, plus backups, retries and development checks.
-Do not promise free Actions without checking remaining allowance. Set billing
-alerts and an explicit Actions spending budget; hitting a hard usage limit can
-stop ingestion. No domain, tax, unusual data transfer, or extra learning projects
-is included. Use the Vercel-provided hostname initially.
+Vercel Hobby remains within its personal/noncommercial limits. This repository
+is public and uses standard GitHub runners, which currently have no runner charge.
+The existing Actions budget stops paid usage above USD0 and included-usage alerts
+are on. Revisit allowances if repository visibility or runner type changes.
+Neon has a USD10 spending alert; AWS has a USD5 monthly budget alert. These two
+alerts do not stop services or cap charges. Domain purchases, taxes, exchange
+rates and unrelated account usage are excluded.
 
 ## Website credentials and connections
 
@@ -323,8 +322,9 @@ Tyler selected one monthly logical backup with one retained successful copy,
 rather than daily or weekly history. This fits a personal app whose sports data
 can be rebuilt by ingestion. If Neon recovery history is unavailable, recovering
 from that independent copy may require re-ingesting up to a month of data.
-Neon's seven-day restore history remains configured but its hosted restore path
-still needs a rehearsal. The application dump does not include separate Neon Auth.
+Neon's seven-day restore history remains configured, and historical application
+recovery has now passed; see [the recovery verification](hosted-readiness.md#recovery-verification).
+The application dump does not include separate Neon Auth.
 
 The workflow runs on the first of each month at 07:17 UTC once enabled. A unique
 candidate is uploaded and its full S3 contents are streamed back for SHA-256
@@ -411,8 +411,8 @@ manually. Verify notifications and choose a separate low-cost freshness/uptime
 monitor if unattended missed-run detection becomes a requirement. GitHub failure
 notifications alone do not detect a workflow that never started.
 
-Backups run at 07:17 UTC after separate activation, using a dedicated SELECT-only
-role and PG18 custom-format dump. The shared backup function uploads a checksum
+Backups run on the first of each month at 07:17 UTC after separate activation,
+using a dedicated SELECT-only role and PG18 custom-format dump. The shared backup function uploads a checksum
 and S3 object metadata; no backup bytes are uploaded as GitHub artifacts. S3
 retains one successful backup after verified replacement; raw archives have no expiration. Migration
 0028 moves only new whole-file artifacts to S3; it does not move or remove old
@@ -436,8 +436,9 @@ After separate provisioning/deployment approval:
    cache invalidation and backup size/duration/egress. Verify failure notifications.
 4. Restore a downloaded backup into a separate scratch target, verify checksum,
    row counts, schema and coverage; test a Neon point-in-time restore separately.
-   Initial targets are at most 24 hours lost data and four hours to restore access;
-   neither is certified until the hosted rehearsal passes.
+   Monthly S3 fallback can require replaying up to a month of data (longer if a
+   backup was missed). Four-hour recovery remains a target; the full website/Auth
+   cutover has not been rehearsed. See [the recovery procedure](hosted-readiness.md#recovery-procedure).
 5. Review the measured monthly estimate with Tyler, then request final activation
    approval. Confirm the old AWS schedules and job gate are not enabled.
 
