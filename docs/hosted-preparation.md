@@ -5,7 +5,8 @@
 This replaces the Lightsail/CodeBuild/EventBridge proposal. The approved Neon
 restore, database checks, owner credential rotation and Vercel website deployment
 have completed. Approved private S3 storage and GitHub IAM roles were provisioned
-on September 10, 2026. Hosted job secrets and scheduled writes remain deferred.
+on September 10, 2026. Hosted job secrets are configured for the approved manual
+rehearsal. Scheduled writes remain disabled, and a GitHub trust correction is pending.
 See [Neon setup](neon-setup.md) for database and website verification and the
 storage record below for AWS verification. The three obsolete personal AWS
 provisioning policies were detached and replaced with the two reviewed hosted
@@ -166,8 +167,9 @@ provider rate-limit/expiry measurements, and a real iPhone Home Screen test rema
 unverified. No code was sent to Jamie. Automated desktop/mobile browser checks passed
 in CI, but are not a real-device test.
 
-GitHub job variables remain unset, hosted ingestion/backup credentials are not
-uploaded, and all scheduled production writes remain disabled. The site serves
+At website deployment, GitHub job variables were unset and hosted job credentials
+were not uploaded. They are now configured for the manual rehearsal below;
+all scheduled production writes remain disabled. The site serves
 the restored snapshot: earlier freshness warnings remain until a separately
 approved ingestion rehearsal. Private S3 storage and temporary AWS roles are now
 provisioned. The next operational stage is an approved manual ingestion and backup/restore rehearsal
@@ -192,7 +194,7 @@ expiration. Backups expire current objects after 30 days and noncurrent versions
 after another 30 days; versioning can therefore retain bytes for roughly 60 days.
 Incomplete backup multipart uploads expire after one day.
 
-Both roles trust only `repo:tylerschwartz1995/project-sportsball:ref:refs/heads/main`
+The initial roles trusted `repo:tylerschwartz1995/project-sportsball:ref:refs/heads/main`
 with audience `sts.amazonaws.com`, with a maximum two-hour session. Ingestion can
 read/write only archive `raw/*`; backup can upload/abort multipart uploads only
 under backup `daily/*`. Neither role can delete objects. No permanent AWS keys
@@ -221,8 +223,48 @@ backend copy and must never be applied. Use the tracked module sources for futur
 changes; review a fresh plan against the actual backend before applying.
 
 No servers, scheduled jobs, production ingestion or backup uploads were started.
-Repository job variables remain unset. Cost alerts and measured job/recovery
+At storage provisioning, repository job variables were unset. Cost alerts and measured job/recovery
 checks remain rollout gates before enabling schedules.
+
+## Manual rehearsal — 2026-09-10
+
+Tyler approved configuring job credentials, taking a backup before ingestion,
+running ingestion manually and restoring into an isolated local database. The
+three restricted database URLs are installed as GitHub secrets. The job adapter
+sets the operating system certificate bundle itself, so stored URLs omit
+`sslrootcert` while retaining verified TLS. A manual GitHub health run found that
+bundled libpq could not locate the runner's trust store using `sslrootcert=system`.
+The adapter now explicitly selects the Linux or macOS CA bundle and fails closed
+if neither exists. Unit tests cover both paths and missing-bundle rejection;
+the corrected hosted connection still requires a rerun.
+
+Both schedule flags remain explicitly `false`. The manual job gate was enabled
+for rehearsal. A shared cache-revalidation secret was installed in GitHub and
+Vercel production; the existing website was redeployed to load it. The hosted
+endpoint rejected an anonymous request with 401 and accepted the configured
+bearer token with 200. No secret values are recorded here.
+
+The first backup attempt was cancelled while AWS credential acquisition retried;
+it did not reach the database dump step. GitHub's repository OIDC API reports
+`use_immutable_subject=true` and this exact `sub_claim_prefix`:
+`repo:tylerschwartz1995@70235053/project-sportsball@1315721592`.
+The original name-only IAM trust cannot match that subject. Terraform now takes
+this verified prefix explicitly and still appends `:ref:refs/heads/main`; it does
+not allow wildcard repositories or other branches. Tests cover the immutable
+subject, STS audience and wildcard rejection. The reviewed live plan updates only
+the two role trust documents (zero creates/deletes). Applying it requires
+`iam:UpdateAssumeRolePolicy` on those two roles, which the initial provisioning
+user does not currently have. The live trust correction and backup/ingestion
+rehearsal remain pending that permission.
+
+Both job commands now use GNU `time -v` to record elapsed time, CPU and maximum
+resident memory without changing job exit status. Peak memory is a process/child
+high-water mark, not the sum of simultaneously running processes or measured
+Neon compute. The initial backup attempt predated this instrumentation.
+Baseline row counts for all 48 public tables were saved privately for the recovery
+comparison. Restore verification will use a new local PostgreSQL 18 database;
+it adds no hosted database instance and preserves the existing local database.
+No successful backup or ingestion run is claimed yet.
 
 ## Database restore and SQL roles
 
@@ -247,11 +289,11 @@ checks remain rollout gates before enabling schedules.
 5. All hosted job URLs use **direct** Neon hostnames (no `-pooler`). Session
    advisory locks do not survive transaction pooling. The adapter rejects pooled
    hosts and the wrong database role, and enforces `sslmode=verify-full` with
-   system certificate roots. Use clients with libpq 17+; backup installs PG18.
+   the operating system certificate bundle. Use clients with libpq 17+; backup installs PG18.
 
 ## GitHub variables, secrets and activation
 
-Repository variables (unset/false during preparation):
+Repository variables (schedules remain false during manual rehearsal):
 
 | Variable | Value / purpose |
 | --- | --- |

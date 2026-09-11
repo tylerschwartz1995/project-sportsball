@@ -11,9 +11,14 @@ provider "aws" {
   default_tags { tags = { Project = "sportsball", ManagedBy = "terraform" } }
 }
 variable "account_id" { type = string }
-variable "github_repository" {
-  type    = string
-  default = "tylerschwartz1995/project-sportsball"
+variable "github_oidc_subject_prefix" {
+  description = "Exact sub_claim_prefix returned by GitHub's repository OIDC customization API."
+  type        = string
+  default     = "repo:tylerschwartz1995@70235053/project-sportsball@1315721592"
+  validation {
+    condition     = can(regex("^repo:[^:*]+/[^:*]+$", var.github_oidc_subject_prefix))
+    error_message = "Use an exact repository subject prefix without wildcards or ref/environment suffixes."
+  }
 }
 variable "provisioning_approved" {
   type    = bool
@@ -90,7 +95,7 @@ resource "aws_iam_role" "job" {
     Principal = { Federated = aws_iam_openid_connect_provider.github.arn },
     Condition = { StringEquals = {
       "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com",
-      "token.actions.githubusercontent.com:sub" = "repo:${var.github_repository}:ref:refs/heads/main"
+      "token.actions.githubusercontent.com:sub" = "${var.github_oidc_subject_prefix}:ref:refs/heads/main"
     } }
   }] })
 }

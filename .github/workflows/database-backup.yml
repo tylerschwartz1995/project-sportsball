@@ -40,4 +40,4 @@ jobs:
           aws-region: us-west-2
           allowed-account-ids: "989240880464"
       - name: Dump, checksum and upload backup
-        run: uv run --project pipeline --frozen --no-dev python scripts/hosted/run-job.py
+        run: /usr/bin/time -v uv run --project pipeline --frozen --no-dev python scripts/hosted/run-job.py

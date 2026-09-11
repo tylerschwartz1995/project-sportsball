@@ -1,6 +1,9 @@
 """Hosted execution gates and direct TLS connections, without cloud services."""
 
+from pathlib import Path
+
 import pytest
+from sqlalchemy.engine import make_url
 
 from sportsball.operations import hosted_jobs
 
@@ -33,7 +36,8 @@ def test_direct_tls_preserves_encoded_password_and_enforces_trust() -> None:
     env = hosted_jobs.database_environment(URL.replace("require", "disable"), "ingestion")
     assert env["PGPASSWORD"] == "p@ss"
     assert "p%40ss" in env["SPORTSBALL_DATABASE_URL"]
-    assert env["PGSSLROOTCERT"] == "system"
+    assert Path(env["PGSSLROOTCERT"]).is_file()
+    assert make_url(env["SPORTSBALL_DATABASE_URL"]).query["sslrootcert"] == env["PGSSLROOTCERT"]
     assert env["PGSSLMODE"] == "verify-full"
     assert "sslmode=verify-full" in env["SPORTSBALL_DATABASE_URL"]
 
@@ -85,3 +89,18 @@ def test_schema_failure_prevents_ingestion(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.setattr(hosted_jobs, "pipeline", run)
     assert hosted_jobs.run_job() == 1
     assert calls == [["verify-database-schema"]]
+
+
+@pytest.mark.parametrize("bundle", ["/etc/ssl/certs/ca-certificates.crt", "/etc/ssl/cert.pem"])
+def test_uses_host_certificate_bundle(monkeypatch: pytest.MonkeyPatch, bundle: str) -> None:
+    monkeypatch.setattr(Path, "is_file", lambda path: str(path) == bundle)
+    env = hosted_jobs.database_environment(URL, "ingestion")
+    assert env["PGSSLROOTCERT"] == bundle
+    assert make_url(env["SPORTSBALL_DATABASE_URL"]).query["sslrootcert"] == bundle
+    assert env["PGSSLMODE"] == "verify-full"
+
+
+def test_missing_trust_store_fails_closed(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(Path, "is_file", lambda path: False)
+    with pytest.raises(RuntimeError, match="CA certificate bundle"):
+        hosted_jobs.database_environment(URL, "ingestion")
