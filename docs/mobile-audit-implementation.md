@@ -46,4 +46,4 @@ regressions cover both returning from a player and refreshing the list.
 These are browser-emulation checks, including Safari's WebKit engine, rather
 than tests on physical phones with an on-screen keyboard or dynamic browser
 chrome. Dense multi-column data still requires horizontal scrolling by design.
-The application was not deployed.
+No manual deployment was performed.
