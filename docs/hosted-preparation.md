@@ -4,12 +4,12 @@
 
 This replaces the Lightsail/CodeBuild/EventBridge proposal. The approved Neon
 restore, database checks, owner credential rotation and Vercel website deployment
-have completed. S3 resources, new IAM trust, hosted job secrets and scheduled
-writes remain deferred. See [Neon setup](neon-setup.md) for verified
-deployment status. The previously approved personal AWS provisioning policies
-exist, but do not authorize creating this revised
-stack. Review replacement provisioning permissions and remove obsolete ones
-with Tyler before the S3 stage. Keep the old AWS stack unapplied.
+have completed. Approved private S3 storage and GitHub IAM roles were provisioned
+on September 10, 2026. Hosted job secrets and scheduled writes remain deferred.
+See [Neon setup](neon-setup.md) for database and website verification and the
+storage record below for AWS verification. The three obsolete personal AWS
+provisioning policies were detached and replaced with the two reviewed hosted
+storage/role policies. Keep the old AWS stack unapplied.
 
 | Component | Purpose |
 | --- | --- |
@@ -24,9 +24,9 @@ Terraform `plan` previews changes; `apply` creates/changes resources and can
 start charges. Use `infra/hosted`, not `infra/aws/environment`. Never apply both
 stacks to the same buckets. `infra/aws/bootstrap` remains reusable for the state
 bucket. The new backend key is `sportsball/hosted-storage.tfstate`; its lock and
-state permissions must be reviewed before use. If buckets or the GitHub OIDC
+state permissions were reviewed before use. If buckets or the GitHub OIDC
 provider already exist, inspect ownership and import them into this stack
-instead of recreating or deleting them. No real plan/apply is part of preparation.
+instead of recreating or deleting them. The approved storage-only apply is recorded below.
 
 ## Cost assumptions
 
@@ -169,9 +169,60 @@ in CI, but are not a real-device test.
 GitHub job variables remain unset, hosted ingestion/backup credentials are not
 uploaded, and all scheduled production writes remain disabled. The site serves
 the restored snapshot: earlier freshness warnings remain until a separately
-approved ingestion rehearsal. Next operational stage: review/provision private S3
-storage and temporary AWS roles, then rehearse ingestion and backup/restore before
-any schedule activation. The older server stack remains unapplied.
+approved ingestion rehearsal. Private S3 storage and temporary AWS roles are now
+provisioned. The next operational stage is an approved manual ingestion and backup/restore rehearsal
+before any schedule activation. The older server stack remains unapplied.
+
+## Private AWS storage — 2026-09-10
+
+Provisioned with Terraform 1.14.7 in account `989240880464`, Oregon (`us-west-2`):
+
+| Resource | Purpose |
+| --- | --- |
+| `sportsball-989240880464-us-west-2-tfstate` | Terraform resource inventory and state locking |
+| `sportsball-989240880464-us-west-2-archives` | Original source files under `raw/` |
+| `sportsball-989240880464-us-west-2-backups` | Independent database dumps under `daily/` |
+| `sportsball-github-ingestion` | Temporary archive read/write credentials |
+| `sportsball-github-backup` | Temporary backup upload credentials |
+| GitHub OIDC provider | Lets approved workflow runs obtain temporary AWS credentials |
+
+All three buckets have public access blocked, ACLs disabled, versioning enabled,
+AES256 encryption and a policy denying unencrypted HTTP access. Archives have no
+expiration. Backups expire current objects after 30 days and noncurrent versions
+after another 30 days; versioning can therefore retain bytes for roughly 60 days.
+Incomplete backup multipart uploads expire after one day.
+
+Both roles trust only `repo:tylerschwartz1995/project-sportsball:ref:refs/heads/main`
+with audience `sts.amazonaws.com`, with a maximum two-hour session. Ingestion can
+read/write only archive `raw/*`; backup can upload/abort multipart uploads only
+under backup `daily/*`. Neither role can delete objects. No permanent AWS keys
+were created for jobs. Actual GitHub role assumption and uploads remain to be
+verified during the manual rehearsal.
+
+The approved `SportsballHostedStorage` and `SportsballHostedRoles` policies were
+installed on `tyler-personal`; the three older provisioning policies were detached.
+The installed documents matched the approved files exactly. Existing read-only and
+local sign-in permissions were preserved. These grants cover initial provisioning;
+future IAM changes may need a separately reviewed permissions update.
+
+Bootstrap applied five resources; the hosted stack applied seventeen, including
+Terraform approval metadata. AWS read-back checks verified bucket security, role
+trust and prefix permissions. Both data buckets are empty. Terraform state is
+stored encrypted and versioned at `sportsball/hosted-storage.tfstate` in the state
+bucket. Post-apply plans for both stacks report no changes. Terraform mock tests
+passed for both modules; policy validation had no findings and eight permission
+simulation scenarios passed before provisioning.
+
+Local operational files are outside Git under `~/.config/sportsball/aws/`:
+`hosted-production/` contains the actual hosted backend configuration, while
+`hosted-plan-review/bootstrap/terraform.tfstate` remains the bootstrap's local
+state and must be preserved. `hosted-plan-review/hosted/` is a review-only local
+backend copy and must never be applied. Use the tracked module sources for future
+changes; review a fresh plan against the actual backend before applying.
+
+No servers, scheduled jobs, production ingestion or backup uploads were started.
+Repository job variables remain unset. Cost alerts and measured job/recovery
+checks remain rollout gates before enabling schedules.
 
 ## Database restore and SQL roles
 

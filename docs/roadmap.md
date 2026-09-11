@@ -178,7 +178,8 @@ See [AWS preparation](aws-preparation.md) for the superseded server proposal.
 - [x] Prepare S3-only infrastructure with separate GitHub OIDC roles.
 - [x] Restore and verify Neon; deploy Vercel with production-only credentials.
 - [ ] Complete Jamie’s login and real iPhone Home Screen checks.
-- [ ] Provision S3, rehearse hosted jobs/recovery, and review actual costs.
+- [x] Provision and verify private S3 buckets and temporary GitHub AWS roles.
+- [ ] Rehearse hosted jobs/recovery and review actual costs.
 - [ ] Enable schedules only after rehearsal and explicit approval.
 
 See [hosted preparation](hosted-preparation.md).
