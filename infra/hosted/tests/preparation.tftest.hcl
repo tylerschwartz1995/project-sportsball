@@ -19,3 +19,19 @@ run "approval_required" {
   variables { provisioning_approved = false }
   expect_failures = [terraform_data.approval]
 }
+
+run "immutable_repository_trust" {
+  command = apply
+  assert {
+    condition = alltrue([for role in aws_iam_role.job :
+      jsondecode(role.assume_role_policy).Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == "repo:tylerschwartz1995@70235053/project-sportsball@1315721592:ref:refs/heads/main"
+      && jsondecode(role.assume_role_policy).Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:aud"] == "sts.amazonaws.com"
+    ])
+    error_message = "Trust must match GitHub's immutable repository identity and main ref exactly."
+  }
+}
+run "reject_wildcard_subject" {
+  command = plan
+  variables { github_oidc_subject_prefix = "repo:tylerschwartz1995/*" }
+  expect_failures = [var.github_oidc_subject_prefix]
+}

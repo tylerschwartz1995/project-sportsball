@@ -192,7 +192,7 @@ expiration. Backups expire current objects after 30 days and noncurrent versions
 after another 30 days; versioning can therefore retain bytes for roughly 60 days.
 Incomplete backup multipart uploads expire after one day.
 
-Both roles trust only `repo:tylerschwartz1995/project-sportsball:ref:refs/heads/main`
+The initial roles trusted `repo:tylerschwartz1995/project-sportsball:ref:refs/heads/main`
 with audience `sts.amazonaws.com`, with a maximum two-hour session. Ingestion can
 read/write only archive `raw/*`; backup can upload/abort multipart uploads only
 under backup `daily/*`. Neither role can delete objects. No permanent AWS keys
@@ -224,6 +224,43 @@ No servers, scheduled jobs, production ingestion or backup uploads were started.
 Repository job variables remain unset. Cost alerts and measured job/recovery
 checks remain rollout gates before enabling schedules.
 
+## Manual rehearsal — 2026-09-10
+
+Tyler approved configuring job credentials, taking a backup before ingestion,
+running ingestion manually and restoring into an isolated local database. The
+three restricted database URLs are installed as GitHub secrets. The job adapter
+sets system certificate roots itself, so the stored URLs omit `sslrootcert` while
+retaining verified TLS. Local validation used the macOS certificate bundle; the
+GitHub runner's TLS behavior remains part of the actual job test.
+
+Both schedule flags remain explicitly `false`. The manual job gate was enabled
+for rehearsal. A shared cache-revalidation secret was installed in GitHub and
+Vercel production; the existing website was redeployed to load it. The hosted
+endpoint rejected an anonymous request with 401 and accepted the configured
+bearer token with 200. No secret values are recorded here.
+
+The first backup attempt was cancelled while AWS credential acquisition retried;
+it did not reach the database dump step. GitHub's repository OIDC API reports
+`use_immutable_subject=true` and this exact `sub_claim_prefix`:
+`repo:tylerschwartz1995@70235053/project-sportsball@1315721592`.
+The original name-only IAM trust cannot match that subject. Terraform now takes
+this verified prefix explicitly and still appends `:ref:refs/heads/main`; it does
+not allow wildcard repositories or other branches. Tests cover the immutable
+subject, STS audience and wildcard rejection. The reviewed live plan updates only
+the two role trust documents (zero creates/deletes). Applying it requires
+`iam:UpdateAssumeRolePolicy` on those two roles, which the initial provisioning
+user does not currently have. The live trust correction and backup/ingestion
+rehearsal remain pending that permission.
+
+Both job commands now use GNU `time -v` to record elapsed time, CPU and maximum
+resident memory without changing job exit status. Peak memory is a process/child
+high-water mark, not the sum of simultaneously running processes or measured
+Neon compute. The initial backup attempt predated this instrumentation.
+Baseline row counts for all 48 public tables were saved privately for the recovery
+comparison. Restore verification will use a new local PostgreSQL 18 database;
+it adds no hosted database instance and preserves the existing local database.
+No successful backup or ingestion run is claimed yet.
+
 ## Database restore and SQL roles
 
 1. Create a Neon PostgreSQL 18 project in the chosen US West region and a database
@@ -251,7 +288,7 @@ checks remain rollout gates before enabling schedules.
 
 ## GitHub variables, secrets and activation
 
-Repository variables (unset/false during preparation):
+Repository variables (schedules remain false during manual rehearsal):
 
 | Variable | Value / purpose |
 | --- | --- |
