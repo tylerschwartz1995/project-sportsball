@@ -5,8 +5,9 @@
 Tyler approved the database transfer, migrations, restricted database credentials,
 and database verification on September 8, 2026 (Vancouver time). This approval
 covered the database stage. Tyler subsequently approved Vercel website deployment
-and repository access on September 9. S3 provisioning, hosted job secrets, manual
-ingestion rehearsal and scheduled ingestion remain deferred.
+and repository access on September 9. Private S3 storage and temporary GitHub AWS
+roles were provisioned on September 10; see [the storage verification record](hosted-preparation.md#private-aws-storage--2026-09-10).
+Hosted job secrets, manual ingestion rehearsal and scheduled ingestion remain deferred.
 
 | Setting | Configured value |
 | --- | --- |
@@ -114,8 +115,9 @@ credentials were created after the error and were not printed.
 
 - Complete Jamie’s live login test when available and verify iPhone Home Screen
   behavior on a real device; managed Neon Auth has replaced Basic Auth.
-- Review/provision S3 and temporary AWS roles; configure hosted job secrets only
-  at that stage. Test a manual daily update and independent backup/restore.
+- Configure hosted job secrets for an approved manual rehearsal using the
+  provisioned S3 buckets and temporary AWS roles. Test a manual daily update and
+  independent backup/restore.
 - Test a hosted point-in-time restore. Configuring seven-day history does not
   certify recovery objectives or create seven days of past history immediately.
 - Review observed cost and freshness before enabling once-daily ingestion.
