@@ -9,7 +9,10 @@ and repository access on September 9. Private S3 storage and temporary GitHub AW
 roles were provisioned on September 10; see [the storage verification record](hosted-preparation.md#private-aws-storage--2026-09-10).
 Hosted job secrets and corrected GitHub AWS trust are configured for the approved
 manual rehearsal. The first S3 backup and local restore verification passed;
-schedules remain disabled.
+the ingestion recovery run also passed with zero health errors or warnings.
+Schedules remain disabled. The selected monthly, single-copy backup policy is
+recorded in [hosted preparation](hosted-preparation.md#selected-backup-policy--pending-configuration)
+and still needs configuration before activation.
 
 | Setting | Configured value |
 | --- | --- |

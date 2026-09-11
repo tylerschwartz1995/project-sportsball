@@ -7,7 +7,8 @@ restore, database checks, owner credential rotation and Vercel website deploymen
 have completed. Approved private S3 storage and GitHub IAM roles were provisioned
 on September 10, 2026. Hosted job secrets are configured for the approved manual
 rehearsal. The GitHub trust correction is applied, and the first S3 backup and
-local recovery test passed. Scheduled writes remain disabled.
+local recovery test passed. The ingestion recovery run also passed with zero
+health errors or warnings. Scheduled writes remain disabled.
 See [Neon setup](neon-setup.md) for database and website verification and the
 storage record below for AWS verification. The three obsolete personal AWS
 provisioning policies were detached and replaced with the two reviewed hosted
@@ -17,7 +18,7 @@ storage/role policies. Keep the old AWS stack unapplied.
 | --- | --- |
 | Neon Launch, PostgreSQL 18 | Managed database; compute can sleep between requests |
 | Vercel Hobby | Personal Next.js website, including preview deployments |
-| GitHub Actions | Once-daily Python ingestion with health checks; daily backup |
+| GitHub Actions | Once-daily Python ingestion; selected monthly backup policy (pending configuration) |
 | S3 archives/backups | Private versioned original files and independent logical backups |
 | S3 Terraform state | Small record of which AWS resources Terraform owns; reuse bootstrap module |
 | GitHub OIDC roles | Temporary credentials scoped separately to archive and backup uploads |
@@ -301,7 +302,42 @@ requested/resolved dates and the raw calendar are audited; explicit single-date
 standings imports retain their strict original behavior. Invalid calendars or
 empty responses for a supported date still fail. Tests verify boundaries,
 invalid/future-only ranges and idempotent persistence with provenance. A manual
-recovery run will reuse the already refreshed MoneyPuck data.
+recovery run reused the already refreshed MoneyPuck data.
+
+Recovery run [34550475285](https://github.com/tylerschwartz1995/project-sportsball/actions/runs/34550475285)
+succeeded: health reported zero errors, zero warnings and zero unfinished core
+tasks. Its command took 277.75 seconds and peaked at 849,424 KiB (829.5 MiB).
+This skipped MoneyPuck and is not a full daily-run benchmark. An earlier recovery
+was blocked by the original failure's two-hour retry delay; only that standings
+work item's next-attempt time was released for the successful manual retry.
+Three versioned source artifacts totaling 30,961,672 bytes were downloaded and
+verified against their recorded checksums and lengths. Exact per-run Neon
+compute and transfer costs remain unmeasured; runner metrics do not establish
+the provider bill.
+
+### Selected backup policy — pending configuration
+
+Tyler selected one monthly logical backup with one retained successful copy,
+rather than daily or weekly history. This fits a personal app whose sports data
+can be rebuilt by ingestion. If Neon recovery history is unavailable, recovering
+from that independent copy may require re-ingesting up to a month of data.
+Neon's seven-day restore history remains configured but its hosted restore path
+still needs a rehearsal. The application dump does not include separate Neon Auth.
+
+Before activation, change the workflow to monthly and replace the deployed
+30-day current/30-day noncurrent retention policy. Upload a unique candidate,
+verify its contents, then retire the prior successful dump and checksum. Keep
+the previous copy if upload or verification fails; briefly retaining both during
+verification is intentional. Do not expire the only good copy merely because
+a monthly job was missed. Account for S3 versions when removing old dumps, so
+hidden versions do not silently accumulate. This requires narrowly scoped
+verification and cleanup permissions beyond the current upload-only role.
+Raw source archives and Terraform state have separate retention requirements.
+
+This is the selected policy, not an applied storage change: the existing daily
+workflow definition and versioned buckets remain as provisioned, both production
+schedule flags remain false, and no existing backup was deleted. Implement and
+review the retention change before enabling the monthly schedule.
 
 ## Database restore and SQL roles
 
