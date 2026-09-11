@@ -153,7 +153,7 @@ export function SortableTable({
 
   return (
     <SortableTableContext.Provider value={contextValue}>
-      <div id={tableId} className={className} data-sort-key={activeKey}>
+      <div id={tableId} data-scroll-generated-id className={className} data-sort-key={activeKey}>
         {secondaryColumns?.length ? (
           <div className="workspace-column-preset-toolbar">
             <button
@@ -171,7 +171,7 @@ export function SortableTable({
           <style>{`
           ${secondaryColumns.flatMap((index) => [`#${tableId} table > thead > tr > :nth-child(${index})`, `#${tableId} table > tbody > tr > :nth-child(${index})`]).join(",")} { display: none; }
           #${tableId} table > colgroup, #${tableId} table > thead > tr[data-column-groups] { display: none; }
-          #${tableId} table:not(.workspace-standings-table) { min-width: var(--table-essential-min-width, 0); width: 100%; table-layout: auto; }
+          #${tableId} table:not(.workspace-standings-table) { min-width: var(--table-essential-min-width, 0); width: var(--table-essential-width, 100%); table-layout: auto; }
         `}</style>
         ) : null}
         {children}

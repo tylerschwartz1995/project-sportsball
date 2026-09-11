@@ -43,6 +43,7 @@ test("mobile menu, visible sorting, and compact player results", async ({
   await page
     .locator("#main-content .site-mobile-menu > summary")
     .press("Escape");
+  await page.getByRole("button", { name: /Filters & Sort/ }).click();
   await expect(
     page.getByRole("combobox", { name: "Sort By", exact: true }),
   ).toBeVisible();
@@ -168,7 +169,7 @@ for (const width of [320, 390]) {
     const player = await firstRow.getByRole("link").boundingBox();
     const nextCell = await firstRow.locator("td").nth(1).boundingBox();
     expect(player!.x + player!.width).toBeLessThanOrEqual(nextCell!.x);
-    expect(await table.evaluate(element => element.getBoundingClientRect().width)).toBeGreaterThan(width);
+    expect(await table.evaluate(element => element.getBoundingClientRect().width)).toBeGreaterThanOrEqual(width - 34);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   });
 }

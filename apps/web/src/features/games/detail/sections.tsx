@@ -1,3 +1,4 @@
+import { TableScroll } from "@/components/ui/table-scroll";
 import Link from "@/components/ui/exploration-link";
 import { SortableHeader } from "@/components/ui/sortable-header";
 import { SortableTable } from "@/components/ui/sortable-table";
@@ -117,7 +118,7 @@ export function SkaterTable({
   return (
     <DataTableShell>
       <SortableTable secondaryColumns={[5, 7, 8, 9]} defaultSortKey="points">
-        <div className="workspace-table-scroll">
+        <TableScroll className="workspace-table-scroll">
           <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[940px]">
             <colgroup>
               <col className="workspace-col-entity" />
@@ -174,7 +175,7 @@ export function SkaterTable({
               ))}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
       </SortableTable>
     </DataTableShell>
   );
@@ -192,7 +193,7 @@ export function GoalieTable({
   return (
     <DataTableShell>
       <SortableTable secondaryColumns={[7, 8]} defaultSortKey="shotsAgainst">
-        <div className="workspace-table-scroll">
+        <TableScroll className="workspace-table-scroll">
           <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
             <colgroup>
               <col className="workspace-col-entity" />
@@ -259,7 +260,7 @@ export function GoalieTable({
               ))}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
       </SortableTable>
     </DataTableShell>
   );

@@ -53,6 +53,7 @@ for (const width of [390, 1280]) {
       page,
     }) => {
       await ready(page, "/players?season=20252026");
+      if (width < 768) await page.getByRole("button", { name: /Filters & Sort/ }).click();
       await page.getByText("Advanced Filters", { exact: true }).click();
       await page.locator('input[type="number"][name="minGames"]').fill("20");
       const apply = page.getByRole("button", {

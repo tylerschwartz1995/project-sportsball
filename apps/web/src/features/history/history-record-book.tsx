@@ -1,3 +1,5 @@
+import { Children, isValidElement, type ReactNode } from "react";
+import { TableScroll } from "@/components/ui/table-scroll";
 import { FilterForm } from "@/components/ui/filter-form";
 import { ContextLink as Link } from "@/components/ui/context-link";
 
@@ -345,7 +347,7 @@ function SkaterTable({ rows, display, metric, metricHrefs }: {
   return (
     <TableShell minWidth="780px">
       <table className="workspace-table workspace-table-dense workspace-table-semantic workspace-history-table">
-        <thead><tr className="workspace-data-table-header-row">
+        <thead><RankedRow className="workspace-data-table-header-row">
           <th className="workspace-history-rank-col">Rank</th>
           <th className="workspace-history-entity-col">Player</th>
           {display === "seasons" ? <th>Season</th> : <th>Seasons</th>}
@@ -354,11 +356,11 @@ function SkaterTable({ rows, display, metric, metricHrefs }: {
           <MetricHeading label="A" metric="assists" active={metric === "assists"} href={metricHrefs.assists} />
           <MetricHeading label="PTS" metric="points" active={metric === "points"} href={metricHrefs.points} />
           <MetricHeading label="P/GP" metric="pointsPerGame" active={metric === "pointsPerGame"} href={metricHrefs.pointsPerGame} />
-        </tr></thead>
+        </RankedRow></thead>
         <tbody>{rows.map((row) => {
           const season = "seasonId" in row ? row : null;
           return (
-            <tr className="workspace-data-table-row" key={season ? `${row.nhlPlayerId}-${season.seasonId}` : row.nhlPlayerId}>
+            <RankedRow className="workspace-data-table-row" key={season ? `${row.nhlPlayerId}-${season.seasonId}` : row.nhlPlayerId}>
               <RankCell rank={row.rank} />
               <td className="workspace-entity-name workspace-history-sticky-entity"><div className="workspace-history-entity">
                 {season ? <TeamLogoStack abbreviations={season.teamAbbreviations} size="tiny" /> : null}
@@ -370,7 +372,7 @@ function SkaterTable({ rows, display, metric, metricHrefs }: {
               <MetricCell value={row.assists} active={metric === "assists"} />
               <MetricCell value={row.points} active={metric === "points"} />
               <MetricCell value={row.pointsPerGame.toFixed(2)} active={metric === "pointsPerGame"} />
-            </tr>
+            </RankedRow>
           );
         })}</tbody>
       </table>
@@ -386,7 +388,7 @@ function GoalieTable({ rows, display, metric, metricHrefs }: {
 }) {
   return (
     <TableShell minWidth="760px"><table className="workspace-table workspace-table-dense workspace-table-semantic workspace-history-table">
-      <thead><tr className="workspace-data-table-header-row">
+      <thead><RankedRow className="workspace-data-table-header-row">
         <th className="workspace-history-rank-col">Rank</th><th className="workspace-history-entity-col">Goalie</th>
         {display === "seasons" ? <th>Season</th> : <th>Seasons</th>}
         <MetricHeading label="GP" metric="games" active={metric === "games"} href={metricHrefs.games} />
@@ -394,10 +396,10 @@ function GoalieTable({ rows, display, metric, metricHrefs }: {
         <th>L</th><MetricHeading label="SO" metric="shutouts" active={metric === "shutouts"} href={metricHrefs.shutouts} />
         {display === "seasons" ? <th>GAA</th> : null}
         <MetricHeading label="SV%" metric="savePercentage" active={metric === "savePercentage"} href={metricHrefs.savePercentage} />
-      </tr></thead>
+      </RankedRow></thead>
       <tbody>{rows.map((row) => {
         const season = "seasonId" in row ? row : null;
-        return <tr className="workspace-data-table-row" key={season ? `${row.nhlPlayerId}-${season.seasonId}` : row.nhlPlayerId}>
+        return <RankedRow className="workspace-data-table-row" key={season ? `${row.nhlPlayerId}-${season.seasonId}` : row.nhlPlayerId}>
           <RankCell rank={row.rank} />
           <td className="workspace-entity-name workspace-history-sticky-entity"><div className="workspace-history-entity">
             {season ? <TeamLogoStack abbreviations={season.teamAbbreviations} size="tiny" /> : null}
@@ -410,7 +412,7 @@ function GoalieTable({ rows, display, metric, metricHrefs }: {
           <MetricCell value={row.shutouts} active={metric === "shutouts"} />
           {season ? <MetricCell value={formatDecimal(season.goalsAgainstAverage, 2)} /> : null}
           <MetricCell value={formatSavePercentage(row.savePercentage)} active={metric === "savePercentage"} />
-        </tr>;
+        </RankedRow>;
       })}</tbody>
     </table></TableShell>
   );
@@ -424,7 +426,7 @@ function TeamTable({ rows, display, metric, metricHrefs }: {
 }) {
   return (
     <TableShell minWidth="860px"><table className="workspace-table workspace-table-dense workspace-table-semantic workspace-history-table">
-      <thead><tr className="workspace-data-table-header-row">
+      <thead><RankedRow className="workspace-data-table-header-row">
         <th className="workspace-history-rank-col">Rank</th><th className="workspace-history-entity-col">Team</th>
         {display === "seasons" ? <th>Season</th> : <th>Seasons</th>}
         <th>GP</th><MetricHeading label="W" metric="wins" active={metric === "wins"} href={metricHrefs.wins} />
@@ -432,10 +434,10 @@ function TeamTable({ rows, display, metric, metricHrefs }: {
         <MetricHeading label="PTS" metric="points" active={metric === "points"} href={metricHrefs.points} />
         <MetricHeading label="PTS%" metric="pointPercentage" active={metric === "pointPercentage"} href={metricHrefs.pointPercentage} />
         {display === "seasons" ? <th>GD</th> : null}
-      </tr></thead>
+      </RankedRow></thead>
       <tbody>{rows.map((row) => {
         const season = "seasonId" in row ? row : null;
-        return <tr className="workspace-data-table-row" key={season ? `${row.nhlTeamId}-${season.seasonId}` : row.nhlTeamId}>
+        return <RankedRow className="workspace-data-table-row" key={season ? `${row.nhlTeamId}-${season.seasonId}` : row.nhlTeamId}>
           <RankCell rank={row.rank} />
           <td className="workspace-entity-name workspace-history-sticky-entity"><div className="workspace-history-entity"><TeamLogo nhlTeamId={row.nhlTeamId} name={row.name} size="tiny" decorative /><strong>{row.name}</strong></div></td>
           <td className="workspace-semantic-number workspace-history-metric">{season ? formatSeason(season.seasonId) : "seasonsPlayed" in row ? formatTableValue(row.seasonsPlayed) : "—"}</td>
@@ -444,7 +446,7 @@ function TeamTable({ rows, display, metric, metricHrefs }: {
           <MetricCell value={row.points} active={metric === "points"} />
           <MetricCell value={formatPercentage(row.pointPercentage)} active={metric === "pointPercentage"} />
           {season ? <MetricCell value={formatSigned(season.goalsFor - season.goalsAgainst)} /> : null}
-        </tr>;
+        </RankedRow>;
       })}</tbody>
     </table></TableShell>
   );
@@ -488,7 +490,7 @@ export function HistoryGoalieEraTable({ rows }: { rows: HistoricalGoalieEraScore
 }
 
 function TableShell({ minWidth, children }: { minWidth: string; children: React.ReactNode }) {
-  return <div className="workspace-data-table-shell workspace-history-table-shell"><div className="workspace-table-scroll" style={{ minWidth: 0 }}><div style={{ minWidth }}>{children}</div></div></div>;
+  return <div className="workspace-data-table-shell workspace-history-table-shell"><TableScroll className="workspace-table-scroll" style={{ minWidth: 0 }}><div className="workspace-history-table-width" style={{ "--history-min-width": minWidth } as React.CSSProperties}>{children}</div></TableScroll></div>;
 }
 
 function MetricHeading({ label, metric, active, href }: { label: string; metric: HistoryMetric; active: boolean; href?: string }) {
@@ -517,3 +519,11 @@ function formatTeamRecord(row: HistoricalTeamSeason): string { return `${row.win
 function positionLabel(position: string): string { return ({ C: "Centre", L: "Left Wing", R: "Right Wing", D: "Defence" } as Record<string, string>)[position] ?? position; }
 function countryLabel(country: string): string { return countryName(country); }
 function fullMetricLabel(metric: HistoryMetric): string { return ({ points: "points", goals: "goals", assists: "assists", games: "games played", pointsPerGame: "points per game", wins: "wins", shutouts: "shutouts", savePercentage: "save percentage", pointPercentage: "points percentage" } as Record<HistoryMetric, string>)[metric]; }
+
+/** Keep the selected ranking beside the identity, including when it changes in the URL. */
+function RankedRow({ children, className }: { children: ReactNode; className: string }) {
+  const cells = Children.toArray(children);
+  const index = cells.findIndex(cell => isValidElement<{ active?: boolean }>(cell) && cell.props.active);
+  if (index > 2) cells.splice(2, 0, ...cells.splice(index, 1));
+  return <tr className={className}>{cells}</tr>;
+}

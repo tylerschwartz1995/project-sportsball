@@ -1,3 +1,4 @@
+import { TableScroll } from "@/components/ui/table-scroll";
 import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import Link, { ReturnLink } from "@/components/ui/exploration-link";
@@ -248,7 +249,7 @@ export function TeamPageView({
             />
             <DataTableShell>
               <SortableTable defaultSortKey="points">
-                <div className="overflow-x-auto">
+                <TableScroll className="overflow-x-auto">
                   <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[720px]">
                     <colgroup>
                       <col className="workspace-col-entity" />
@@ -299,7 +300,7 @@ export function TeamPageView({
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </TableScroll>
               </SortableTable>
             </DataTableShell>
           </section>
@@ -319,7 +320,7 @@ export function TeamPageView({
             />
             <DataTableShell>
               <SortableTable defaultSortKey="savePercentage">
-                <div className="overflow-x-auto">
+                <TableScroll className="overflow-x-auto">
                   <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
                     <colgroup>
                       <col className="workspace-col-entity" />
@@ -382,7 +383,7 @@ export function TeamPageView({
                       ))}
                     </tbody>
                   </table>
-                </div>
+                </TableScroll>
               </SortableTable>
             </DataTableShell>
           </section>

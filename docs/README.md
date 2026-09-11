@@ -75,6 +75,7 @@ records supersede earlier interface descriptions.
 - [Pre-change content audit baseline](content-audit-2026-09-06.md)
 - [Merged content decisions, PR #143](content-audit-implementation.md)
 - [Merged usability decisions and verification, PR #145](usability-audit-implementation.md)
+- [Mobile audit fixes and verification, September 10](mobile-audit-implementation.md)
 
 The repository-wide documentation review checked all Markdown files against
 routes, components, queries, pipeline commands, migrations, configuration,

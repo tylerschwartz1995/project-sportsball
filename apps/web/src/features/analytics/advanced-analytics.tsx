@@ -1,4 +1,6 @@
 "use client";
+import { TableScroll } from "@/components/ui/table-scroll";
+
 
 import Link from "@/components/ui/exploration-link";
 import { useMemo } from "react";
@@ -34,7 +36,7 @@ export function TeamAdvancedAnalytics({
     >
       <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         <SortableTable>
-        <div className="overflow-x-auto">
+        <TableScroll className="overflow-x-auto">
           <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
             <colgroup>
               <col className="workspace-col-entity" />
@@ -59,7 +61,7 @@ export function TeamAdvancedAnalytics({
               ))}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
         </SortableTable>
       </div>
       <MetricDefinitions seasonId={data.seasonId} />
@@ -177,7 +179,7 @@ function SkaterAdvancedTable({
     <>
       <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         <SortableTable>
-        <div className="overflow-x-auto">
+        <TableScroll className="overflow-x-auto">
           <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[840px]">
             <colgroup>
               <col className="workspace-col-team" />
@@ -225,7 +227,7 @@ function SkaterAdvancedTable({
               ))}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
         </SortableTable>
       </div>
     </>
@@ -241,7 +243,7 @@ function GoalieAdvancedTable({
     <>
       <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         <SortableTable>
-        <div className="overflow-x-auto">
+        <TableScroll className="overflow-x-auto">
           <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[760px]">
             <colgroup>
               <col className="workspace-col-team" />
@@ -285,7 +287,7 @@ function GoalieAdvancedTable({
               ))}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
         </SortableTable>
       </div>
     </>

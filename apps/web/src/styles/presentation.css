@@ -237,9 +237,6 @@ main h2, main h3 { font-size: 1.25rem; line-height: 1.35; }
   .workspace-unit-filter > label:first-of-type, .workspace-unit-filter > .workspace-filter-actions { grid-column: 1 / -1; }
   .workspace-unit-filter label { min-width: 0; }
   .workspace-history-chart-canvas { height: 17rem; }
-  .workspace-table-scroll:not(.modern-comparison-scroll)::before { content: "Scroll for more columns →"; display: block; position: sticky; left: 0; padding: 0.5rem 0.8rem; color: var(--muted); font-size: var(--text-meta); }
-  .workspace-table-scroll:not(.modern-comparison-scroll) .workspace-table tr > :first-child { position: sticky; left: 0; z-index: 1; background: var(--surface); }
-  .workspace-table-scroll:not(.modern-comparison-scroll) .workspace-table thead tr > :first-child { background: var(--surface-raised); }
 }
 .modern-game-support { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem 0.6rem; }
 .workspace-game-score-team[data-align="right"] .modern-game-support { justify-content: flex-end; }
@@ -539,7 +536,6 @@ main > section.py-10 { padding-block: 1.25rem; }
   .workspace-player-filters > .workspace-player-advanced-filters[open] { grid-column: 1 / -1; }
 }
 @media (max-width: 767px) {
-  .ux-player-results { --table-essential-min-width: 46rem; }
   .ux-player-results td.workspace-entity-name { white-space: normal; overflow-wrap: anywhere; }
   .ux-player-results td.workspace-entity-name > div > div { min-width: 0; }
   .ux-mobile-data-switch { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
@@ -547,8 +543,6 @@ main > section.py-10 { padding-block: 1.25rem; }
   .ux-mobile-data-switch button[aria-pressed=true] { background: var(--accent); color: var(--on-accent); }
   .ux-player-results[data-mobile-view=table] .md\:hidden { display: none; }
   .ux-player-results[data-mobile-view=table] .workspace-data-table-shell { display: block; }
-  .ux-player-results[data-mobile-view=table] .workspace-data-table-shell::before { content: "Scroll for more columns →"; display: block; padding: 0.5rem; color: var(--muted); font-size: 0.875rem; }
-  .ux-player-results[data-mobile-view=table] table tr > :first-child { width: 13rem; min-width: 13rem; position: sticky; left: 0; background: var(--surface); z-index: 1; }
 }
 .ux-metric-groups th { text-align: center; padding: 0.4rem; border-right: 1px solid var(--border); font-size: 0.8rem; }
 .workspace-table td[data-column-group="shot-quality"], .workspace-table td[data-column-group="results"] { font-variant-numeric: tabular-nums; }

@@ -1,3 +1,4 @@
+import { TableScroll } from "@/components/ui/table-scroll";
 import { ContextLink as Link } from "@/components/ui/context-link";
 import { WorkspacePanel } from "@/components/ui/workspace-primitives";
 import type { DraftAnalytics, DraftPlayerOutcome } from "@/contracts/draft";
@@ -133,7 +134,7 @@ export function PlayerOutcomesView({ analytics }: { analytics: DraftAnalytics })
 
 export function OutcomeLeadersTable({ rows }: { rows: DraftPlayerOutcome[] }) {
   return (
-    <div className="workspace-table-scroll">
+    <TableScroll className="workspace-table-scroll">
       <table className="workspace-table workspace-table-dense workspace-draft-leaders-table min-w-[720px]">
         <colgroup>
           <col />
@@ -180,6 +181,6 @@ export function OutcomeLeadersTable({ rows }: { rows: DraftPlayerOutcome[] }) {
           ))}
         </tbody>
       </table>
-    </div>
+    </TableScroll>
   );
 }

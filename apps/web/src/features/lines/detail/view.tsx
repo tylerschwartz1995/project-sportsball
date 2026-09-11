@@ -1,3 +1,4 @@
+import { TableScroll } from "@/components/ui/table-scroll";
 import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import Link from "@/components/ui/exploration-link";
@@ -52,7 +53,7 @@ export function UnitPageView({
           description={`${detail.games.length} games, newest first. Percentages are MoneyPuck's game-level five-on-five values.`}
         >
           <SortableTable secondaryColumns={[6, 7, 8, 9]} defaultSortKey="date" defaultDirection="desc">
-            <div className="workspace-table-scroll">
+            <TableScroll className="workspace-table-scroll">
               <table className="workspace-table workspace-table-dense workspace-unit-games-table min-w-[900px]">
                 <caption className="sr-only">Supporting combination games</caption>
                 <thead>
@@ -78,7 +79,7 @@ export function UnitPageView({
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TableScroll>
           </SortableTable>
         </WorkspacePanel>
       </section>
