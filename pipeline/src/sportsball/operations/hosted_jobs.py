@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+from pathlib import Path
 
 from sqlalchemy.engine import make_url
 
@@ -24,9 +25,20 @@ def database_environment(value: str, mode: str) -> dict[str, str]:
         raise ValueError("use the dedicated database role for this job")
     if url.port not in (None, 5432) or set(url.query) - {"sslmode", "channel_binding"}:
         raise ValueError("unsupported database connection options")
+    # Bundled libpq/OpenSSL may not locate the host trust store with "system".
+    roots = next(
+        (
+            str(path)
+            for path in (Path("/etc/ssl/certs/ca-certificates.crt"), Path("/etc/ssl/cert.pem"))
+            if path.is_file()
+        ),
+        None,
+    )
+    if roots is None:
+        raise RuntimeError("operating system CA certificate bundle is unavailable")
     # Never accept a URL option that disables certificate verification.
     url = url.set(
-        drivername="postgresql+psycopg", query={"sslmode": "verify-full", "sslrootcert": "system"}
+        drivername="postgresql+psycopg", query={"sslmode": "verify-full", "sslrootcert": roots}
     )
     return {
         **os.environ,
@@ -37,7 +49,7 @@ def database_environment(value: str, mode: str) -> dict[str, str]:
         "PGUSER": url.username or "",
         "PGPASSWORD": url.password or "",
         "PGSSLMODE": "verify-full",
-        "PGSSLROOTCERT": "system",
+        "PGSSLROOTCERT": roots,
         "PGCONNECT_TIMEOUT": "15",
     }
 

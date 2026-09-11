@@ -231,9 +231,12 @@ checks remain rollout gates before enabling schedules.
 Tyler approved configuring job credentials, taking a backup before ingestion,
 running ingestion manually and restoring into an isolated local database. The
 three restricted database URLs are installed as GitHub secrets. The job adapter
-sets system certificate roots itself, so the stored URLs omit `sslrootcert` while
-retaining verified TLS. Local validation used the macOS certificate bundle; the
-GitHub runner's TLS behavior remains part of the actual job test.
+sets the operating system certificate bundle itself, so stored URLs omit
+`sslrootcert` while retaining verified TLS. A manual GitHub health run found that
+bundled libpq could not locate the runner's trust store using `sslrootcert=system`.
+The adapter now explicitly selects the Linux or macOS CA bundle and fails closed
+if neither exists. Unit tests cover both paths and missing-bundle rejection;
+the corrected hosted connection still requires a rerun.
 
 Both schedule flags remain explicitly `false`. The manual job gate was enabled
 for rehearsal. A shared cache-revalidation secret was installed in GitHub and
@@ -286,7 +289,7 @@ No successful backup or ingestion run is claimed yet.
 5. All hosted job URLs use **direct** Neon hostnames (no `-pooler`). Session
    advisory locks do not survive transaction pooling. The adapter rejects pooled
    hosts and the wrong database role, and enforces `sslmode=verify-full` with
-   system certificate roots. Use clients with libpq 17+; backup installs PG18.
+   the operating system certificate bundle. Use clients with libpq 17+; backup installs PG18.
 
 ## GitHub variables, secrets and activation
 
