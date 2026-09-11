@@ -2,7 +2,7 @@
 
 from datetime import date, datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class NhlModel(BaseModel):
@@ -354,3 +354,33 @@ class PlayerProfileResponse(NhlModel):
         default_factory=list,
         alias="seasonTotals",
     )
+
+
+class StandingsSeason(NhlModel):
+    """Provider-declared dates when regular-season standings are available."""
+
+    id: int
+    standings_start: date = Field(alias="standingsStart")
+    standings_end: date = Field(alias="standingsEnd")
+
+    @model_validator(mode="after")
+    def ordered_dates(self) -> "StandingsSeason":
+        if self.standings_end < self.standings_start:
+            raise ValueError("standings date range is reversed")
+        return self
+
+
+class StandingsCalendarResponse(NhlModel):
+    """Select an available snapshot without relabeling an older snapshot as today."""
+
+    seasons: list[StandingsSeason] = Field(min_length=1)
+
+    def latest_date(self, as_of: date) -> date:
+        candidates = [
+            min(as_of, season.standings_end)
+            for season in self.seasons
+            if season.standings_start <= as_of
+        ]
+        if not candidates:
+            raise ValueError("no published standings period on or before requested date")
+        return max(candidates)

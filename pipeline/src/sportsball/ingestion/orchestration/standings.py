@@ -27,6 +27,8 @@ class StandingsIngestionResult:
 def ingest_standings(
     snapshot_date: date,
     client: NhlClient,
+    *,
+    latest_available: bool = False,
 ) -> StandingsIngestionResult:
     """Fetch, audit, normalize, and replace one official standings date."""
     with session_scope() as session:
@@ -39,7 +41,11 @@ def ingest_standings(
         session.flush()
         run_id = run.id
 
+    requested_date = snapshot_date
     try:
+        calendar = client.fetch_standings_calendar() if latest_available else None
+        if calendar is not None:
+            snapshot_date = calendar.calendar.latest_date(requested_date)
         fetched = client.fetch_standings(snapshot_date)
         normalized = standings_frame(fetched.standings)
         if normalized.snapshot_date != snapshot_date:
@@ -60,12 +66,30 @@ def ingest_standings(
                     constraint="uq_source_payload_identity",
                 )
             )
+            if calendar is not None:
+                session.execute(
+                    insert(SourcePayload)
+                    .values(
+                        ingestion_run_id=run_id,
+                        provider="nhl",
+                        resource_type="standings_calendar",
+                        source_key=requested_date.isoformat(),
+                        checksum=calendar.checksum,
+                        payload=calendar.payload,
+                    )
+                    .on_conflict_do_nothing(constraint="uq_source_payload_identity")
+                )
             teams_processed = OfficialStandingsRepository(session).replace(normalized)
             session.execute(
                 update(IngestionRun)
                 .where(IngestionRun.id == run_id)
                 .values(
                     status="succeeded",
+                    parameters={
+                        "snapshot_date": snapshot_date.isoformat(),
+                        "requested_date": requested_date.isoformat(),
+                        "latest_available": latest_available,
+                    },
                     records_processed=teams_processed,
                     finished_at=datetime.now(UTC),
                 )
