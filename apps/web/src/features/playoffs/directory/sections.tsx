@@ -1,3 +1,4 @@
+import { TableScroll } from "@/components/ui/table-scroll";
 import Link from "@/components/ui/exploration-link";
 import { SortableHeader } from "@/components/ui/sortable-header";
 import { SortableTable } from "@/components/ui/sortable-table";
@@ -24,7 +25,7 @@ export function PlayoffGoalieLeaders({
     >
       {goalies.length > 0 ? (
         <SortableTable defaultSortKey="wins">
-          <div className="workspace-table-scroll">
+          <TableScroll className="workspace-table-scroll">
             <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[820px]">
               <colgroup>
                 <col className="workspace-col-entity" />
@@ -96,7 +97,7 @@ export function PlayoffGoalieLeaders({
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableScroll>
         </SortableTable>
       ) : (
         <div className="workspace-empty-state compact">

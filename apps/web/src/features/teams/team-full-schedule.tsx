@@ -1,3 +1,4 @@
+import { TableScroll } from "@/components/ui/table-scroll";
 import Link from "@/components/ui/exploration-link";
 
 import { LocalGameTime } from "@/features/games/local-game-time";
@@ -77,7 +78,7 @@ export function TeamFullSchedule({
       </nav>
 
       {monthGroups.length > 0 ? (
-        <div className="data-table-shell workspace-table-scroll mt-6 overflow-hidden">
+        <TableScroll className="data-table-shell workspace-table-scroll mt-6 overflow-hidden">
           <table className="workspace-table workspace-table-dense w-full min-w-[960px] table-fixed">
             <colgroup>
               <col className="w-[16%]" />
@@ -108,7 +109,7 @@ export function TeamFullSchedule({
               ))}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
       ) : (
         <div className="workspace-empty-state mt-6">
           No {filter === "all" ? "" : `${filter} `}games are stored for this selection.

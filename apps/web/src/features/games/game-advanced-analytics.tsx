@@ -1,3 +1,4 @@
+import { TableScroll } from "@/components/ui/table-scroll";
 import Link from "@/components/ui/exploration-link";
 
 import { ShotMaps } from "@/features/games/shot-map";
@@ -171,7 +172,7 @@ function TeamGameAnalytics({
 
       <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         <SortableTable>
-          <div className="overflow-x-auto">
+          <TableScroll className="overflow-x-auto">
             <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
               <colgroup>
                 <col className="workspace-col-team" />
@@ -225,7 +226,7 @@ function TeamGameAnalytics({
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableScroll>
         </SortableTable>
       </div>
     </div>
@@ -263,7 +264,7 @@ function PlayerGameAnalytics({
       {allSituationSkaters.length > 0 ? (
         <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
           <SortableTable secondaryColumns={[3, 7, 8, 9, 11]} defaultSortKey="Game score">
-            <div className="overflow-x-auto">
+            <TableScroll className="overflow-x-auto">
               <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1040px]">
                 <colgroup>
                   <col className="workspace-col-entity" />
@@ -337,7 +338,7 @@ function PlayerGameAnalytics({
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TableScroll>
           </SortableTable>
         </div>
       ) : null}
@@ -345,7 +346,7 @@ function PlayerGameAnalytics({
       {allSituationGoalies.length > 0 ? (
         <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
           <SortableTable secondaryColumns={[7]} defaultSortKey="GSAx">
-            <div className="overflow-x-auto">
+            <TableScroll className="overflow-x-auto">
               <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[800px]">
                 <colgroup>
                   <col className="workspace-col-entity" />
@@ -410,7 +411,7 @@ function PlayerGameAnalytics({
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TableScroll>
           </SortableTable>
         </div>
       ) : null}
@@ -464,7 +465,7 @@ function UnitTable({
   return (
     <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
       <SortableTable secondaryColumns={[5, 6, 7, 8, 9, 10, 11, 12]} defaultSortKey="TOI">
-        <div className="overflow-x-auto">
+        <TableScroll className="overflow-x-auto">
           <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1320px]">
             <colgroup>
               <col className="workspace-col-team" />
@@ -529,7 +530,7 @@ function UnitTable({
               ))}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
       </SortableTable>
     </div>
   );

@@ -1,3 +1,4 @@
+import { TableScroll } from "@/components/ui/table-scroll";
 import Link from "@/components/ui/exploration-link";
 
 import { GameFlowChart } from "@/features/charts/lazy-charts";
@@ -113,19 +114,26 @@ function ScoringSummary({
       ) : (
         <div className="data-table-shell mt-4">
           <SortableTable defaultSortKey="gameTime" defaultDirection="asc">
-            <div className="workspace-table-scroll">
-              <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1150px]">
+            <TableScroll className="workspace-table-scroll">
+              <table className="workspace-scoring-table workspace-table workspace-table-dense workspace-table-semantic min-w-[1150px]">
                 <colgroup>
+                  <col className="workspace-col-entity" />
+                  <col className="workspace-col-score" />
                   <col className="workspace-col-period" />
                   <col className="workspace-col-time" />
                   <col className="workspace-col-team" />
-                  <col className="workspace-col-entity" />
                   <col className="workspace-col-assists" />
                   <col className="workspace-col-event" />
-                  <col className="workspace-col-score" />
                 </colgroup>
                 <thead>
                   <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
+                    <SortableHeader
+                      label="Scorer"
+                      sortKey="scorer"
+                      align="left"
+                      defaultDirection="asc"
+                    />
+                    <SortableHeader label="Score" sortKey="score" />
                     <SortableHeader
                       label="Period"
                       sortKey="period"
@@ -145,12 +153,6 @@ function ScoringSummary({
                       defaultDirection="asc"
                     />
                     <SortableHeader
-                      label="Scorer"
-                      sortKey="scorer"
-                      align="left"
-                      defaultDirection="asc"
-                    />
-                    <SortableHeader
                       label="Assists"
                       sortKey="assists"
                       align="left"
@@ -162,7 +164,6 @@ function ScoringSummary({
                       align="left"
                       defaultDirection="asc"
                     />
-                    <SortableHeader label="Score" sortKey="score" />
                   </tr>
                 </thead>
                 <tbody>
@@ -183,6 +184,20 @@ function ScoringSummary({
                         key={goal.sourceEventId}
                         className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                       >
+                        <td className="px-4 py-3">
+                          <span className="workspace-entity-name">
+                            <PlayerLink player={scorer} seasonId={seasonId} />
+                          </span>
+                          <small className="workspace-mobile-goal-time">{periodLabel(goal.periodNumber, goal.periodType)} · {goal.timeInPeriod}</small>
+                        </td>
+                        <td
+                          className="whitespace-nowrap px-4 py-3 text-center font-semibold tabular-nums text-[var(--foreground)]"
+                          data-sort-value={
+                            (goal.awayScore ?? 0) + (goal.homeScore ?? 0)
+                          }
+                        >
+                          {scoreLabel(goal, awayTeam, homeTeam)}
+                        </td>
                         <td
                           className="px-4 py-3"
                           data-sort-value={goal.periodNumber}
@@ -210,11 +225,6 @@ function ScoringSummary({
                             "—"
                           )}
                         </td>
-                        <td className="px-4 py-3">
-                          <span className="workspace-entity-name">
-                            <PlayerLink player={scorer} seasonId={seasonId} />
-                          </span>
-                        </td>
                         <td className="px-4 py-3 leading-6">
                           {assists.length > 0 ? (
                             <span className="flex flex-wrap gap-x-2 gap-y-1">
@@ -233,20 +243,12 @@ function ScoringSummary({
                         <td className="px-4 py-3">
                           {goalTypeLabel(goal, awayTeam, homeTeam)}
                         </td>
-                        <td
-                          className="whitespace-nowrap px-4 py-3 text-center font-semibold tabular-nums text-[var(--foreground)]"
-                          data-sort-value={
-                            (goal.awayScore ?? 0) + (goal.homeScore ?? 0)
-                          }
-                        >
-                          {scoreLabel(goal, awayTeam, homeTeam)}
-                        </td>
                       </tr>
                     );
                   })}
                 </tbody>
               </table>
-            </div>
+            </TableScroll>
           </SortableTable>
         </div>
       )}

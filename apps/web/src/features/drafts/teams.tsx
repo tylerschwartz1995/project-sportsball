@@ -1,3 +1,4 @@
+import { TableScroll } from "@/components/ui/table-scroll";
 import { ContextLink as Link } from "@/components/ui/context-link";
 import { DeferredSection } from "@/components/ui/deferred-section";
 import { SortableHeader } from "@/components/ui/sortable-header";
@@ -204,7 +205,7 @@ export function TeamPerformanceTable({
 }) {
   return (
     <SortableTable secondaryColumns={[6, 7, 8, 9]} defaultSortKey="hundred-rate">
-      <div className="workspace-table-scroll">
+      <TableScroll className="workspace-table-scroll">
         <table className="workspace-table workspace-table-dense min-w-[1320px]">
           <thead>
             <tr>
@@ -260,7 +261,7 @@ export function TeamPerformanceTable({
             ))}
           </tbody>
         </table>
-      </div>
+      </TableScroll>
       <div className="workspace-table-note">
         Rates use every official selection in the chosen window as the denominator.
         Late hits are round-four-or-later selections with at least 100 games;
@@ -313,7 +314,7 @@ export function TeamPickOutcomesTable({ rows }: { rows: DraftPlayerOutcome[] }) 
       defaultSortKey="games"
       className="workspace-team-picks-table-shell"
     >
-      <div className="workspace-table-scroll workspace-team-picks-scroll">
+      <TableScroll className="workspace-table-scroll workspace-team-picks-scroll">
         <table className="workspace-table workspace-table-dense workspace-team-picks-table">
           <colgroup>
             <col className="workspace-team-pick-year-col" />
@@ -390,7 +391,7 @@ export function TeamPickOutcomesTable({ rows }: { rows: DraftPlayerOutcome[] }) 
             })}
           </tbody>
         </table>
-      </div>
+      </TableScroll>
     </SortableTable>
   );
 }

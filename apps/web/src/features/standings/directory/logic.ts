@@ -26,6 +26,7 @@ export const standingsColumns: Array<{
 }> = [
     { key: "rank", label: "Rank", align: "center", defaultDirection: "asc" },
     { key: "team", label: "Team", align: "left", defaultDirection: "asc" },
+    { key: "points", label: "PTS" },
     { key: "games", label: "GP" },
     { key: "wins", label: "W" },
     { key: "losses", label: "L" },
@@ -34,7 +35,6 @@ export const standingsColumns: Array<{
     { key: "goalsFor", label: "GF" },
     { key: "goalsAgainst", label: "GA" },
     { key: "goalDifferential", label: "DIFF" },
-    { key: "points", label: "PTS" },
   ];
 
 export function parseView(value: string | undefined): StandingsView {

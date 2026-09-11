@@ -20,7 +20,7 @@ test("selected player names and remove controls stay usable on phones", async ({
 });
 
 test("comparison metric labels remain visible while values scroll", async ({ page }) => {
-  await page.goto("/players/compare?season=20252026&players=8478402,8479318");
+  await page.goto("/players/compare?season=20252026&players=8478402,8479318,8477934");
   const region = page.getByRole("region", { name: "Player comparison table" });
   const label = region.locator("tbody th").first();
   await label.scrollIntoViewIfNeeded();

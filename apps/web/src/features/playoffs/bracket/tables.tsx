@@ -1,4 +1,6 @@
 "use client";
+import { TableScroll } from "@/components/ui/table-scroll";
+
 import { SortableHeader } from "@/components/ui/sortable-header";
 import { SortableTable } from "@/components/ui/sortable-table";
 import type {
@@ -23,7 +25,7 @@ export function SeriesSkaterTable({
       defaultSortKey="points"
       className="workspace-series-table-region"
     >
-      <div className="workspace-series-table-scroll">
+      <TableScroll className="workspace-series-table-scroll">
         <table className="workspace-series-table min-w-[920px]">
           <thead>
             <tr>
@@ -64,7 +66,7 @@ export function SeriesSkaterTable({
             ))}
           </tbody>
         </table>
-      </div>
+      </TableScroll>
     </SortableTable>
   );
 }
@@ -82,7 +84,7 @@ export function SeriesGoalieTable({
       defaultSortKey="wins"
       className="workspace-series-table-region"
     >
-      <div className="workspace-series-table-scroll">
+      <TableScroll className="workspace-series-table-scroll">
         <table className="workspace-series-table min-w-[760px]">
           <thead>
             <tr>
@@ -119,7 +121,7 @@ export function SeriesGoalieTable({
             ))}
           </tbody>
         </table>
-      </div>
+      </TableScroll>
     </SortableTable>
   );
 }
@@ -137,7 +139,7 @@ export function SeriesAdvancedSkaterTable({
       defaultSortKey="expectedGoals"
       className="workspace-series-table-region"
     >
-      <div className="workspace-series-table-scroll">
+      <TableScroll className="workspace-series-table-scroll">
         <table className="workspace-series-table min-w-[850px]">
           <thead>
             <tr>
@@ -178,7 +180,7 @@ export function SeriesAdvancedSkaterTable({
             ))}
           </tbody>
         </table>
-      </div>
+      </TableScroll>
     </SortableTable>
   );
 }
@@ -196,7 +198,7 @@ export function SeriesAdvancedGoalieTable({
       defaultSortKey="goalsSavedAboveExpected"
       className="workspace-series-table-region"
     >
-      <div className="workspace-series-table-scroll">
+      <TableScroll className="workspace-series-table-scroll">
         <table className="workspace-series-table min-w-[720px]">
           <thead>
             <tr>
@@ -233,7 +235,7 @@ export function SeriesAdvancedGoalieTable({
             ))}
           </tbody>
         </table>
-      </div>
+      </TableScroll>
     </SortableTable>
   );
 }

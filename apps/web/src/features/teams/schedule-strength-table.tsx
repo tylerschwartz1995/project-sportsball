@@ -1,4 +1,6 @@
 "use client";
+import { TableScroll } from "@/components/ui/table-scroll";
+
 
 import Link from "@/components/ui/exploration-link";
 import { useState } from "react";
@@ -55,7 +57,7 @@ export function ScheduleStrengthTable({
           defaultSortKey="date"
           defaultDirection={open ? "asc" : "desc"}
         >
-          <div className="workspace-table-scroll border-t border-[var(--border)]">
+          <TableScroll className="workspace-table-scroll border-t border-[var(--border)]">
             <table className="workspace-table workspace-table-dense workspace-table-semantic workspace-schedule-strength-table min-w-[1040px]">
               <colgroup>
                 <col className="workspace-col-date" />
@@ -112,7 +114,7 @@ export function ScheduleStrengthTable({
                 ))}
               </tbody>
             </table>
-          </div>
+          </TableScroll>
         </SortableTable>
       ) : null}
     </details>

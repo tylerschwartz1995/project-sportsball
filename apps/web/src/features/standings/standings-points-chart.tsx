@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   CartesianGrid,
   Line,
@@ -40,6 +40,8 @@ export function StandingsPointsChart({
   history,
   standings,
 }: StandingsPointsChartProps) {
+  const [chartWidth, setChartWidth] = useState(0);
+  const compact = chartWidth > 0 && chartWidth < 480;
   const divisions = useMemo(() => divisionOptions(standings), [standings]);
   const [division, setDivision] = useUrlChoice(
     "chartDivision",
@@ -117,10 +119,10 @@ export function StandingsPointsChart({
         games.
       </p>
       <div className="workspace-chart">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" onResize={width => setChartWidth(width)}>
           <LineChart
             data={chartData}
-            margin={{ top: 14, right: 85, bottom: 8, left: 4 }}
+            margin={{ top: 14, right: highlight && !compact ? 85 : 8, bottom: 8, left: 4 }}
           >
             <CartesianGrid stroke="var(--chart-grid)" vertical={false} />
             <XAxis
@@ -165,7 +167,7 @@ export function StandingsPointsChart({
                 connectNulls
                 isAnimationActive={false}
               >
-                {highlight === String(team.nhlTeamId) ? (
+                {!compact && highlight === String(team.nhlTeamId) ? (
                   <LabelList
                     dataKey={String(team.nhlTeamId)}
                     position="right"

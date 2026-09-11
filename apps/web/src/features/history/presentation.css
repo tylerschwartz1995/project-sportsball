@@ -31,9 +31,6 @@ main h1, .workspace-page-header h1, .workspace-history-header h1 {
   .workspace-unit-filter > label:first-of-type, .workspace-unit-filter > .workspace-filter-actions { grid-column: 1 / -1; }
   .workspace-unit-filter label { min-width: 0; }
   .workspace-history-chart-canvas { height: 17rem; }
-  .workspace-table-scroll:not(.modern-comparison-scroll)::before { content: "Scroll for more columns →"; display: block; position: sticky; left: 0; padding: 0.5rem 0.8rem; color: var(--muted); font-size: var(--text-meta); }
-  .workspace-table-scroll:not(.modern-comparison-scroll) .workspace-table tr > :first-child { position: sticky; left: 0; z-index: 1; background: var(--surface); }
-  .workspace-table-scroll:not(.modern-comparison-scroll) .workspace-table thead tr > :first-child { background: var(--surface-raised); }
 }
 .workspace-scroll-nav a, .workspace-phase-filter a, .workspace-schedule-phase a,
 .workspace-standings-scope :is(a, button), .workspace-history-explorer-nav a,

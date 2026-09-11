@@ -22,7 +22,7 @@ export function ComparisonTable({
 }) {
   return (
     <ComparisonScrollRegion>
-      <table className="workspace-table workspace-comparison-matrix" style={{ "--comparison-players": players.length } as CSSProperties}>
+      <table data-player-count={players.length} className="workspace-table workspace-comparison-matrix" style={{ "--comparison-players": players.length } as CSSProperties}>
         <colgroup>
           <col className="workspace-comparison-metric-column" />
           {players.map((player) => (

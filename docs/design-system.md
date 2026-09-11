@@ -190,7 +190,9 @@ and a pre-render bootstrap applies it before the interface is painted.
   divisions show eight clubs; historical seasons preserve the division size
   that existed in that season. A team selector and clickable legend highlight
   one line without changing the division population; the highlighted line has
-  endpoint labels.
+  endpoint labels when the chart is at least 480px wide. Narrower plots retain
+  highlighting, the named legend, and tooltip values without reserving an
+  empty endpoint-label gutter.
 - League comparison scatterplots use fixed axes while filtering so a subject
   never appears to move when its comparison group changes. Meaningful
   horizontal and vertical baselines define plain-language quadrants, and the
@@ -254,3 +256,32 @@ explanations use disclosures or explicit views; the team result map and direct
 player comparison chart open by default after the usability follow-up. Avoid duplicate
 summary cards and navigation promotions. Source, coverage, phase, qualification,
 and accessible chart values remain part of the interpretation.
+
+## Phone layouts
+
+Below 768px, data tables use the shared `TableScroll` region. It measures real
+horizontal and vertical overflow, supplies keyboard access and scroll guidance,
+and keeps table headers visible inside a region bounded to 75% of the viewport
+height. Vertical scrolling chains onto the page at the region boundaries.
+
+Pin the identity needed to interpret values, not an arbitrary first column.
+Keep player/team identity tracks around 8–9rem and wrap names. Rank, dates,
+and numeric tracks remain compact. Directory points/save percentage, standings
+points, the selected historical ranking metric, draft pick, and scoring result
+sit near their identity. Line combinations stack their player links and keep the
+supporting Games link with the combination. Essential and All presets must both
+leave room for at least one complete statistic on a 320px viewport.
+
+Two-player comparison matrices fit the phone width; larger comparisons can
+scroll. Page-view tabs wrap so every view is discoverable. Player filters and
+sorting share a mobile disclosure with an applied-filter count; desktop forms
+remain expanded. Phone schedule controls use a compact grid. Preserve URL state
+through submissions and navigation.
+
+Series dialogs fill small or short viewports. Their tabs and close control remain
+available while the content panel scrolls, and statistics retain a usable inner
+scroll area. Use 44px primary controls and at least 40px compact table links and
+row-count controls without shrinking the text.
+
+`apps/web/e2e/mobile-layout.spec.ts` checks these behaviors at 320, 390, and
+430px, plus short portrait and landscape dialog sizes.

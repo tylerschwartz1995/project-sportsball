@@ -1,4 +1,6 @@
 "use client";
+import { TableScroll } from "@/components/ui/table-scroll";
+
 
 import { Fragment, useMemo } from "react";
 import {
@@ -400,7 +402,7 @@ function PeriodChanceTable({
   totalHomeExpectedGoals: number;
 }) {
   return (
-    <div className="workspace-game-flow-periods">
+    <TableScroll className="workspace-game-flow-periods">
       <table>
         <caption>Chance quality by period</caption>
         <thead>
@@ -431,7 +433,7 @@ function PeriodChanceTable({
           </tr>
         </tfoot>
       </table>
-    </div>
+    </TableScroll>
   );
 }
 

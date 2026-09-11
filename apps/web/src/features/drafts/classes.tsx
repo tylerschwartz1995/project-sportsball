@@ -1,3 +1,4 @@
+import { TableScroll } from "@/components/ui/table-scroll";
 import { ContextLink as Link } from "@/components/ui/context-link";
 import { DeferredSection } from "@/components/ui/deferred-section";
 import { Pagination } from "@/components/ui/pagination";
@@ -209,7 +210,7 @@ export function ClassPerformanceTable({
         scrollTarget="class-rankings"
         className="workspace-class-rankings-sort"
       >
-        <div className="workspace-table-scroll">
+        <TableScroll className="workspace-table-scroll">
           <table className="workspace-table workspace-table-dense workspace-class-rankings-table">
             <colgroup>
               <col className="workspace-class-rankings-class-col" />
@@ -295,7 +296,7 @@ export function ClassPerformanceTable({
               ))}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
         <div className="workspace-table-note">
           Five heat bands show where a class falls within the full mature-class range
           for the sorted metric; they are not a combined grade. Rates use every

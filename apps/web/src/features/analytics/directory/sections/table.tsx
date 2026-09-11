@@ -1,4 +1,6 @@
 "use client";
+import { TableScroll } from "@/components/ui/table-scroll";
+
 import { useContext } from "react";
 import { LeaderboardState } from "../table-state";
 import { SortableTable } from "@/components/ui/sortable-table";
@@ -80,7 +82,7 @@ export function LeaderboardFrame({
         onSortChange={controls?.onSortChange}
       >
         <DataTableShell>
-          <div className="workspace-table-scroll">{children}</div>
+          <TableScroll className="workspace-table-scroll">{children}</TableScroll>
         </DataTableShell>
       </SortableTable>
     </section>

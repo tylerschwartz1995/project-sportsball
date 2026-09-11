@@ -28,10 +28,10 @@ export type PlayersPageProps = {
 };
 
 export const skaterTableColumns = [
+  { key: "points", label: "PTS" },
   { key: "games", label: "GP" },
   { key: "goals", label: "G" },
   { key: "assists", label: "A" },
-  { key: "points", label: "PTS" },
   { key: "plusMinus", label: "+/-" },
   { key: "penaltyMinutes", label: "PIM" },
   { key: "shotsOnGoal", label: "S" },
@@ -39,6 +39,7 @@ export const skaterTableColumns = [
 ];
 
 export const goalieTableColumns = [
+  { key: "savePercentage", label: "SV%" },
   { key: "games", label: "GP" },
   { key: "gamesStarted", label: "GS" },
   { key: "wins", label: "W" },
@@ -46,7 +47,6 @@ export const goalieTableColumns = [
   { key: "overtimeLosses", label: "OTL" },
   { key: "goalsAgainst", label: "GA" },
   { key: "saves", label: "SV" },
-  { key: "savePercentage", label: "SV%" },
 ];
 
 export function formatSigned(value: number): string {

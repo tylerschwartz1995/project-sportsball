@@ -52,7 +52,8 @@ function selectorFor(element: Element): string {
   const parts: string[] = [];
   let node: Element | null = element;
   while (node && node !== document.body) {
-    if (node.id) {
+    // React-generated IDs can change when a route is mounted again.
+    if (node.id && !node.hasAttribute("data-scroll-generated-id")) {
       parts.unshift(`#${CSS.escape(node.id)}`);
       break;
     }
@@ -83,8 +84,11 @@ function capture(): Position {
         left: element.scrollLeft,
         top: element.scrollTop,
       })),
-    disclosures: Array.from(main?.querySelectorAll("details") ?? []).map(
-      (element) => ({ selector: selectorFor(element), open: element.open }),
+    disclosures: Array.from(main?.querySelectorAll<HTMLElement>("details, [data-scroll-disclosure]") ?? []).map(
+      (element) => ({
+        selector: selectorFor(element),
+        open: element instanceof HTMLDetailsElement ? element.open : element.dataset.expanded === "true",
+      }),
     ),
   };
 }
@@ -195,6 +199,8 @@ export function ScrollNavigation() {
           const element = find(disclosure.selector);
           if (element instanceof HTMLDetailsElement)
             element.open = disclosure.open;
+          else if (element?.hasAttribute("data-scroll-disclosure"))
+            element.dispatchEvent(new CustomEvent("restore-scroll-disclosure", { detail: disclosure.open }));
         }
         for (const region of position.regions)
           find(region.selector)?.scrollTo(region.left, region.top);

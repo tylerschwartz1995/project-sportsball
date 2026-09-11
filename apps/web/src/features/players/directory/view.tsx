@@ -1,3 +1,5 @@
+import { MobileFilterPanel } from "@/components/ui/mobile-filter-panel";
+import { TableScroll } from "@/components/ui/table-scroll";
 import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
 import { MobileDataView } from "@/components/ui/mobile-data-view";
@@ -37,6 +39,7 @@ export function PlayersPageView({
   goaliePage,
   minGames,
 }: Awaited<ReturnType<typeof loadPlayersPage>>) {
+  const appliedFilters = Number(Boolean(query)) + Number(Boolean(position)) + Object.values(filters).filter(value => value !== "" && value !== "0").length;
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="players" />
@@ -62,6 +65,7 @@ export function PlayersPageView({
               path="/players"
               params={{ ...contextParams, season: selectedSeason.id }}
             />
+            <MobileFilterPanel label={`Filters & Sort · ${category === "goalies" ? "Goalies" : "Skaters"}${appliedFilters ? ` · ${appliedFilters} Applied` : ""}`}>
             <PlayerDirectoryFilters
               key={JSON.stringify([selectedSeason.id, contextParams])}
               seasonId={selectedSeason.id}
@@ -74,6 +78,8 @@ export function PlayersPageView({
               locations={locations}
               filters={filters}
             />
+
+            </MobileFilterPanel>
 
             <MobileDataView>
               {category === "skaters" ? (
@@ -96,7 +102,7 @@ export function PlayersPageView({
                           defaultSortKey={sort}
                           defaultDirection={direction}
                         >
-                          <div className="overflow-x-auto">
+                          <TableScroll className="overflow-x-auto">
                             <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
                               <colgroup>
                                 <col className="workspace-col-entity" />
@@ -147,13 +153,13 @@ export function PlayersPageView({
                                         </div>
                                       </div>
                                     </td>
-                                    <NumericCell value={player.gamesPlayed} />
-                                    <NumericCell value={player.goals} />
-                                    <NumericCell value={player.assists} />
                                     <NumericCell
                                       value={player.points}
                                       highlight
                                     />
+                                    <NumericCell value={player.gamesPlayed} />
+                                    <NumericCell value={player.goals} />
+                                    <NumericCell value={player.assists} />
                                     <NumericCell
                                       value={formatSigned(player.plusMinus)}
                                     />
@@ -168,7 +174,7 @@ export function PlayersPageView({
                                 ))}
                               </tbody>
                             </table>
-                          </div>
+                          </TableScroll>
                         </SortableTable>
                       </div>
                       <Pagination
@@ -216,7 +222,7 @@ export function PlayersPageView({
                   {goaliePage.items.length > 0 ? (
                     <><div className="workspace-data-table-shell min-w-0">
                         <SortableTable
-                          secondaryColumns={[3, 5, 6, 7, 8]}
+                          secondaryColumns={[4, 6, 7, 8, 9]}
                           initialExpanded={[
                             "gamesStarted",
                             "losses",
@@ -227,12 +233,12 @@ export function PlayersPageView({
                           defaultSortKey={sort}
                           defaultDirection={direction}
                         >
-                          <div className="overflow-x-auto">
+                          <TableScroll className="overflow-x-auto">
                             <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
                               <colgroup>
                                 <col className="workspace-col-entity" />
-                                <col className="workspace-col-stat" span={7} />
                                 <col className="workspace-col-percentage" />
+                                <col className="workspace-col-stat" span={7} />
                               </colgroup>
                               <thead>
                                 <tr className="workspace-data-table-header-row">
@@ -271,6 +277,12 @@ export function PlayersPageView({
                                         />
                                       </div>
                                     </td>
+                                    <NumericCell
+                                      value={formatSavePercentage(
+                                        player.savePercentage,
+                                      )}
+                                      highlight
+                                    />
                                     <NumericCell value={player.gamesPlayed} />
                                     <NumericCell value={player.gamesStarted} />
                                     <NumericCell value={player.wins} />
@@ -280,17 +292,11 @@ export function PlayersPageView({
                                     />
                                     <NumericCell value={player.goalsAgainst} />
                                     <NumericCell value={player.saves} />
-                                    <NumericCell
-                                      value={formatSavePercentage(
-                                        player.savePercentage,
-                                      )}
-                                      highlight
-                                    />
                                   </tr>
                                 ))}
                               </tbody>
                             </table>
-                          </div>
+                          </TableScroll>
                         </SortableTable>
                       </div>
                       <Pagination

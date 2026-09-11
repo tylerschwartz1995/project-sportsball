@@ -1,3 +1,4 @@
+import { TableScroll } from "@/components/ui/table-scroll";
 import Link from "@/components/ui/exploration-link";
 
 import { SortableTable } from "@/components/ui/sortable-table";
@@ -88,14 +89,14 @@ function SeasonUnitTable({
             urlBacked={Boolean(urlSort)}
             scrollTarget={urlSort?.scrollTarget}
           >
-            <div className="workspace-table-scroll-viewport">
-              <table className="workspace-table workspace-table-dense workspace-table-semantic workspace-sticky-table-header min-w-[1500px]">
+            <TableScroll className="workspace-table-scroll-viewport">
+              <table data-show-team={showTeam} className="workspace-unit-table workspace-table workspace-table-dense workspace-table-semantic workspace-sticky-table-header min-w-[1500px]">
                 <colgroup>
                   {showTeam ? <col className="workspace-col-team" /> : null}
                   <col className="workspace-col-season-unit" />
+                  <col className="workspace-col-percentage" />
                   <col className="workspace-col-number" />
                   <col className="workspace-col-time" />
-                  <col className="workspace-col-percentage" />
                   <col className="workspace-col-percentage" />
                   <col className="workspace-col-number" span={2} />
                   <col className="workspace-col-number" span={4} />
@@ -123,9 +124,9 @@ function SeasonUnitTable({
                       sticky={!showTeam}
                       metricGroup="core possession shot-quality results"
                     />
+                    <SortableHeader label="xG%" sortKey="xgPercentage" metricGroup="core possession" />
                     <SortableHeader label="GP" sortKey="games" metricGroup="core possession shot-quality results" />
                     <SortableHeader label="TOI" sortKey="iceTime" metricGroup="core possession shot-quality results" />
-                    <SortableHeader label="xG%" sortKey="xgPercentage" metricGroup="core possession" />
                     <SortableHeader label="CF%" sortKey="corsiPercentage" metricGroup="possession" />
                     <SortableHeader label="xGF" sortKey="xGoalsFor" metricGroup="shot-quality" />
                     <SortableHeader label="xGA" sortKey="xGoalsAgainst" metricGroup="shot-quality" />
@@ -154,7 +155,7 @@ function SeasonUnitTable({
                           </div>
                         </td>
                       ) : null}
-                      <td className={`${showTeam ? "" : "workspace-sticky-entity"} px-4 py-3 text-left`}>
+                      <td className={`workspace-unit-identity ${showTeam ? "" : "workspace-sticky-entity"} px-4 py-3 text-left`}>
                         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
                           <div className="flex min-w-0 items-center gap-2">
                             {!showTeam ? (
@@ -164,7 +165,7 @@ function SeasonUnitTable({
                               {row.players.map((player, index) => (
                                 <span key={player.nhlPlayerId}>
                                   {index > 0 ? (
-                                    <span className="text-[var(--muted)]"> / </span>
+                                    <span className="workspace-unit-separator text-[var(--muted)]"> / </span>
                                   ) : null}
                                   <Link
                                     href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
@@ -185,13 +186,13 @@ function SeasonUnitTable({
                           </Link>
                         </div>
                       </td>
-                      <ValueCell value={String(row.gamesPlayed)} metricGroup="core possession shot-quality results" />
-                      <ValueCell value={formatTimeOnIce(row.iceTimeSeconds)} metricGroup="core possession shot-quality results" />
                       <ValueCell
                         value={formatPercentage(row.expectedGoalsPercentage)}
                         highlight
                         metricGroup="core possession"
                       />
+                      <ValueCell value={String(row.gamesPlayed)} metricGroup="core possession shot-quality results" />
+                      <ValueCell value={formatTimeOnIce(row.iceTimeSeconds)} metricGroup="core possession shot-quality results" />
                       <ValueCell value={formatPercentage(row.corsiPercentage)} metricGroup="possession" />
                       <ValueCell value={formatDecimal(row.expectedGoalsFor)} metricGroup="shot-quality" />
                       <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} metricGroup="shot-quality" />
@@ -206,7 +207,7 @@ function SeasonUnitTable({
                   ))}
                 </tbody>
               </table>
-            </div>
+            </TableScroll>
           </SortableTable>
         </div>
       ) : (

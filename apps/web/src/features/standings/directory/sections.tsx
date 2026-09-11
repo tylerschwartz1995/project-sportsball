@@ -1,3 +1,4 @@
+import { TableScroll } from "@/components/ui/table-scroll";
 import Link from "@/components/ui/exploration-link";
 import { SortableHeader } from "@/components/ui/sortable-header";
 import { SortableTable } from "@/components/ui/sortable-table";
@@ -28,18 +29,18 @@ export function StandingsTable({
       title={label}
       width="standard"
     >
-      <SortableTable secondaryColumns={[7, 8, 9, 10]}
+      <SortableTable secondaryColumns={[8, 9, 10, 11]}
         defaultSortKey={defaultSortKey}
         defaultDirection={defaultDirection}
       >
-        <div className="workspace-table-scroll">
+        <TableScroll className="workspace-table-scroll">
           <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic workspace-standings-table min-w-[900px]">
             <colgroup>
               <col className="workspace-col-rank" />
               <col className="workspace-col-entity" />
+              <col className="workspace-col-number" />
               <col className="workspace-col-stat" span={7} />
               <col className="workspace-col-differential" />
-              <col className="workspace-col-number" />
             </colgroup>
             <thead>
               <tr>
@@ -86,6 +87,7 @@ export function StandingsTable({
                       </div>
                     </div>
                   </td>
+                  <td className="workspace-points-cell">{team.points}</td>
                   <NumericCell value={team.gamesPlayed} />
                   <NumericCell value={team.wins} />
                   <NumericCell value={team.losses} />
@@ -96,12 +98,11 @@ export function StandingsTable({
                   <NumericCell
                     value={formatDifferential(team.goalDifferential)}
                   />
-                  <td className="workspace-points-cell">{team.points}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
+        </TableScroll>
 
       </SortableTable>
     </WorkspacePanel>

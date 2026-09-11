@@ -1,3 +1,4 @@
+import { TableScroll } from "@/components/ui/table-scroll";
 import { ContextLink as Link } from "@/components/ui/context-link";
 import { FilterForm } from "@/components/ui/filter-form";
 import { Pagination } from "@/components/ui/pagination";
@@ -207,17 +208,17 @@ export function DraftBoardTable({
   params: Record<string, string | number | undefined>;
 }) {
   return (
-    <div className="workspace-table-scroll">
+    <TableScroll className="workspace-table-scroll">
       <table className="modern-draft-board workspace-table workspace-table-dense min-w-[930px]">
         <thead>
           <tr>
+            <DraftSortHeader label="Pick" sortKey="overall" {...{ sort, direction, params }} />
             <DraftSortHeader label="Player" sortKey="player" align="left" {...{ sort, direction, params }} />
             {showYear ? (
               <DraftSortHeader label="Year" sortKey="year" {...{ sort, direction, params }} />
             ) : null}
             <DraftSortHeader label="Team" sortKey="team" align="left" {...{ sort, direction, params }} />
             <DraftSortHeader label="Round" sortKey="round" {...{ sort, direction, params }} />
-            <DraftSortHeader label="Overall" sortKey="overall" {...{ sort, direction, params }} />
             <DraftSortHeader label="Pos" sortKey="position" {...{ sort, direction, params }} />
             <DraftSortHeader label="Country" sortKey="country" {...{ sort, direction, params }} />
           </tr>
@@ -225,6 +226,7 @@ export function DraftBoardTable({
         <tbody>
           {rows.map((player) => (
             <tr key={`${player.draftYear}-${player.draftOverallPick}`}>
+              <NumberCell value={player.draftOverallPick} />
               <td className="workspace-team-cell">
                 <div>
                   {player.nhlPlayerId === null ? (
@@ -260,14 +262,13 @@ export function DraftBoardTable({
                 </div>
               </td>
               <NumberCell value={player.draftRound} />
-              <NumberCell value={player.draftOverallPick} />
               <NumberCell value={formatPlayerPosition(player.position)} />
               <NumberCell value={player.birthCountry ?? "—"} />
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
+    </TableScroll>
   );
 }
 
