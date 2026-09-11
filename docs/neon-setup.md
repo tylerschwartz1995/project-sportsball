@@ -7,7 +7,8 @@ and database verification on September 8, 2026 (Vancouver time). This approval
 covered the database stage. Tyler subsequently approved Vercel website deployment
 and repository access on September 9. Private S3 storage and temporary GitHub AWS
 roles were provisioned on September 10; see [the storage verification record](hosted-preparation.md#private-aws-storage--2026-09-10).
-Hosted job secrets, manual ingestion rehearsal and scheduled ingestion remain deferred.
+Hosted job secrets are now configured for an approved manual rehearsal; a GitHub
+AWS trust correction is pending before the jobs can run. Schedules remain disabled.
 
 | Setting | Configured value |
 | --- | --- |

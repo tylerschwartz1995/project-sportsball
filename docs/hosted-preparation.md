@@ -5,7 +5,8 @@
 This replaces the Lightsail/CodeBuild/EventBridge proposal. The approved Neon
 restore, database checks, owner credential rotation and Vercel website deployment
 have completed. Approved private S3 storage and GitHub IAM roles were provisioned
-on September 10, 2026. Hosted job secrets and scheduled writes remain deferred.
+on September 10, 2026. Hosted job secrets are configured for the approved manual
+rehearsal. Scheduled writes remain disabled, and a GitHub trust correction is pending.
 See [Neon setup](neon-setup.md) for database and website verification and the
 storage record below for AWS verification. The three obsolete personal AWS
 provisioning policies were detached and replaced with the two reviewed hosted
@@ -166,8 +167,9 @@ provider rate-limit/expiry measurements, and a real iPhone Home Screen test rema
 unverified. No code was sent to Jamie. Automated desktop/mobile browser checks passed
 in CI, but are not a real-device test.
 
-GitHub job variables remain unset, hosted ingestion/backup credentials are not
-uploaded, and all scheduled production writes remain disabled. The site serves
+At website deployment, GitHub job variables were unset and hosted job credentials
+were not uploaded. They are now configured for the manual rehearsal below;
+all scheduled production writes remain disabled. The site serves
 the restored snapshot: earlier freshness warnings remain until a separately
 approved ingestion rehearsal. Private S3 storage and temporary AWS roles are now
 provisioned. The next operational stage is an approved manual ingestion and backup/restore rehearsal
@@ -221,7 +223,7 @@ backend copy and must never be applied. Use the tracked module sources for futur
 changes; review a fresh plan against the actual backend before applying.
 
 No servers, scheduled jobs, production ingestion or backup uploads were started.
-Repository job variables remain unset. Cost alerts and measured job/recovery
+At storage provisioning, repository job variables were unset. Cost alerts and measured job/recovery
 checks remain rollout gates before enabling schedules.
 
 ## Manual rehearsal — 2026-09-10
