@@ -80,7 +80,7 @@ def run_job() -> int:
     if pipeline(["verify-database-schema"], env):
         return 1
     if mode == "backup":
-        backup(env)
+        backup(env, retain_one=True)
         return 0
     if mode == "health":
         return pipeline(["check-data-health"], env)

@@ -10,9 +10,9 @@ roles were provisioned on September 10; see [the storage verification record](ho
 Hosted job secrets and corrected GitHub AWS trust are configured for the approved
 manual rehearsal. The first S3 backup and local restore verification passed;
 the ingestion recovery run also passed with zero health errors or warnings.
-Schedules remain disabled. The selected monthly, single-copy backup policy is
-recorded in [hosted preparation](hosted-preparation.md#selected-backup-policy--pending-configuration)
-and still needs configuration before activation.
+Schedules remain disabled. The monthly, single-copy backup policy is
+recorded in [hosted preparation](hosted-preparation.md#monthly-backup-retention)
+with schedule activation still pending.
 
 | Setting | Configured value |
 | --- | --- |

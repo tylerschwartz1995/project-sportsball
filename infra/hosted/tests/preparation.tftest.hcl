@@ -35,3 +35,21 @@ run "reject_wildcard_subject" {
   variables { github_oidc_subject_prefix = "repo:tylerschwartz1995/*" }
   expect_failures = [var.github_oidc_subject_prefix]
 }
+
+run "single_backup_retention" {
+  command = apply
+  assert {
+    condition = alltrue([for rule in aws_s3_bucket_lifecycle_configuration.backups.rule :
+      length(rule.expiration) == 0 && length(rule.noncurrent_version_expiration) == 0
+    ])
+    error_message = "The only successful backup must not expire when a job is missed."
+  }
+  assert {
+    condition = contains(jsondecode(aws_iam_role_policy.job["backup"].policy).Statement[0].Action, "s3:DeleteObjectVersion") && jsondecode(aws_iam_role_policy.job["backup"].policy).Statement[1].Condition.StringEquals["s3:prefix"] == "daily/"
+    error_message = "Backup cleanup must delete versions and restrict inventory to the backup prefix."
+  }
+  assert {
+    condition = !contains(jsondecode(aws_iam_role_policy.job["ingestion"].policy).Statement[0].Action, "s3:DeleteObjectVersion")
+    error_message = "Ingestion must not gain deletion permission."
+  }
+}

@@ -182,7 +182,7 @@ See [AWS preparation](aws-preparation.md) for the superseded server proposal.
 - [x] Verify GitHub AWS access and restore an S3 backup into an isolated local database.
 - [x] Complete manual ingestion rehearsal with healthy source checks.
 - [ ] Review actual provider costs (runner duration and memory are measured).
-- [ ] Configure monthly logical backup with one retained successful copy.
+- [x] Configure monthly logical backup with one retained successful copy.
 - [ ] Enable schedules only after rehearsal and explicit approval.
 
 See [hosted preparation](hosted-preparation.md).

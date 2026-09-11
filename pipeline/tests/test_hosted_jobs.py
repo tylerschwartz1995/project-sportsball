@@ -104,3 +104,23 @@ def test_missing_trust_store_fails_closed(monkeypatch: pytest.MonkeyPatch) -> No
     monkeypatch.setattr(Path, "is_file", lambda path: False)
     with pytest.raises(RuntimeError, match="CA certificate bundle"):
         hosted_jobs.database_environment(URL, "ingestion")
+
+
+def test_hosted_backup_selects_single_copy_retention(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("HOSTED_JOBS_ENABLED", "true")
+    monkeypatch.setenv("JOB_MODE", "backup")
+    monkeypatch.setenv(
+        "SPORTSBALL_DATABASE_URL", URL.replace("sportsball_ingestion", "sportsball_backup")
+    )
+    monkeypatch.setenv("AWS_ROLE_CONFIGURED", "test")
+    monkeypatch.setenv("BACKUP_BUCKET", "test")
+    monkeypatch.setattr(hosted_jobs, "pipeline", lambda args, env: 0)
+    called: list[bool] = []
+
+    def backup(env: dict[str, str], *, retain_one: bool) -> None:
+        assert env["BACKUP_BUCKET"] == "test"
+        called.append(retain_one)
+
+    monkeypatch.setattr(hosted_jobs, "backup", backup)
+    assert hosted_jobs.run_job() == 0
+    assert called == [True]
