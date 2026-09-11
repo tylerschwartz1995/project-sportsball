@@ -6,6 +6,32 @@ The background-job rollout is ready for Tyler's activation decision. Daily
 production ingestion and monthly backup flags are still **false**. No domain
 was purchased. This record supplements [hosted preparation](hosted-preparation.md).
 
+## Security hardening
+
+- `main` requires a PR, up-to-date Python/Web/AWS checks, resolved conversations
+  and linear history. Administrators are included; force pushes and deletion are
+  blocked. No second-person review is required for this solo-maintained project.
+- All three hosted jobs use `sportsball-production`, restricted to the `main`
+  branch. Database/revalidation secrets are scoped to that environment. The two
+  AWS roles trust its exact immutable repository subject and STS audience.
+- Every external GitHub Action is pinned to a reviewed commit SHA. Repository
+  settings require SHA pinning for future changes.
+- Temporary `SportsballHostedRoles` and `SportsballHostedTrustMaintenance`
+  permissions were removed from the local IAM user after updating role trust.
+  Read-only, local sign-in and existing scoped storage permissions remain.
+- Browser responses deny framing and MIME sniffing and restrict referrer and
+  device access. CSP authorizes scripts with a fresh server-generated nonce,
+  blocks plugins and foreign form targets, and restricts image/network sources.
+  Inline styles remain allowed for charts/theme controls; production scripts do
+  not allow arbitrary inline code or `eval`. Request headers force dynamic page
+  rendering; existing server-side query caching remains available.
+- The manual health workflow verifies both AWS role assumptions without writing
+  S3 or database data. Both schedule flags remain disabled.
+
+GitHub administrators can still change repository settings; these controls reduce
+accidental/unreviewed changes and branch credential exposure, not account-owner
+compromise. The deliberate single-backup deletion tradeoff remains unchanged.
+
 ## Recovery verification
 
 Neon's historical branching recovery was exercised against production without

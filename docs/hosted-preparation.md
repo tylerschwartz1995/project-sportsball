@@ -197,7 +197,7 @@ after a verified replacement, including old versions and delete markers.
 Incomplete backup multipart uploads expire after one day.
 
 The roles now trust only
-`repo:tylerschwartz1995@70235053/project-sportsball@1315721592:ref:refs/heads/main`
+`repo:tylerschwartz1995@70235053/project-sportsball@1315721592:environment:sportsball-production`
 with audience `sts.amazonaws.com`, with a maximum two-hour session. Ingestion can
 read/write only archive `raw/*`; backup can upload, verify and remove specific
 versions only under backup `daily/*`, with version inventory restricted to that
@@ -208,8 +208,9 @@ the manual rehearsal.
 The approved `SportsballHostedStorage` and `SportsballHostedRoles` policies were
 installed on `tyler-personal`; the three older provisioning policies were detached.
 The installed documents matched the approved files exactly. Existing read-only and
-local sign-in permissions were preserved. These grants cover initial provisioning;
-future IAM changes may need a separately reviewed permissions update.
+local sign-in permissions were preserved. The temporary `SportsballHostedRoles` and inline
+`SportsballHostedTrustMaintenance` grants were removed after security hardening.
+Future IAM edits require a separately approved elevated session.
 
 Bootstrap applied five resources; the hosted stack applied seventeen, including
 Terraform approval metadata. AWS read-back checks verified bucket security, role
@@ -383,7 +384,7 @@ Repository variables (schedules remain false during manual rehearsal):
 | `SPORTSBALL_BACKUP_AWS_ROLE_ARN` | GitHub backup role from Terraform output |
 | `SPORTSBALL_WEB_URL` | HTTPS production website origin |
 
-Repository secrets:
+Secrets in the `sportsball-production` GitHub environment:
 
 - `SPORTSBALL_DATABASE_URL`: direct URL for `sportsball_ingestion`.
 - `SPORTSBALL_READONLY_DATABASE_URL`: direct URL for `sportsball_web`, manual health only.
@@ -393,8 +394,10 @@ Repository secrets:
 The two-hour temporary AWS session outlasts the 90-minute ingestion timeout.
 Jobs only execute on `main`. Every manual and scheduled job requires
 `HOSTED_JOBS_ENABLED=true`, and scheduled jobs require their separate schedule
-flag. GitHub's OIDC trust permits only this repository's `main` branch with the
-AWS STS audience. Pull requests and other branches cannot assume these roles.
+flag. GitHub's OIDC trust permits only this immutable repository's
+`sportsball-production` environment with the AWS STS audience. The environment
+allows only the `main` branch (not tags). Production secrets live in that
+environment, not repository-wide. Pull requests and other branches cannot use it.
 Any trusted workflow on main could request that identity, so protect review of
 workflow changes. No permanent AWS keys are stored in GitHub. These roles have
 object-prefix permissions only, no bucket deletion or infrastructure creation.

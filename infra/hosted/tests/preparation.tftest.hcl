@@ -24,10 +24,10 @@ run "immutable_repository_trust" {
   command = apply
   assert {
     condition = alltrue([for role in aws_iam_role.job :
-      jsondecode(role.assume_role_policy).Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == "repo:tylerschwartz1995@70235053/project-sportsball@1315721592:ref:refs/heads/main"
+      jsondecode(role.assume_role_policy).Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:sub"] == "repo:tylerschwartz1995@70235053/project-sportsball@1315721592:environment:sportsball-production"
       && jsondecode(role.assume_role_policy).Statement[0].Condition.StringEquals["token.actions.githubusercontent.com:aud"] == "sts.amazonaws.com"
     ])
-    error_message = "Trust must match GitHub's immutable repository identity and main ref exactly."
+    error_message = "Trust must match GitHub's immutable repository identity and protected production environment exactly."
   }
 }
 run "reject_wildcard_subject" {

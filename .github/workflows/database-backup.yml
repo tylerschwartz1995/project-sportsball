@@ -12,6 +12,7 @@ concurrency:
 jobs:
   backup:
     if: github.ref == 'refs/heads/main' && vars.HOSTED_JOBS_ENABLED == 'true' && (github.event_name == 'workflow_dispatch' || vars.DATABASE_BACKUP_ENABLED == 'true')
+    environment: sportsball-production
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
@@ -21,7 +22,7 @@ jobs:
       BACKUP_BUCKET: ${{ vars.SPORTSBALL_BACKUP_BUCKET }}
       AWS_ROLE_CONFIGURED: ${{ vars.SPORTSBALL_BACKUP_AWS_ROLE_ARN }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
         with:
           version: "0.12.0"
