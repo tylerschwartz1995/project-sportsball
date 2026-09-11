@@ -180,7 +180,9 @@ See [AWS preparation](aws-preparation.md) for the superseded server proposal.
 - [ ] Complete Jamie’s login and real iPhone Home Screen checks.
 - [x] Provision and verify private S3 buckets and temporary GitHub AWS roles.
 - [x] Verify GitHub AWS access and restore an S3 backup into an isolated local database.
-- [ ] Complete ingestion rehearsal and review actual costs.
+- [x] Complete manual ingestion rehearsal with healthy source checks.
+- [ ] Review actual provider costs (runner duration and memory are measured).
+- [ ] Configure monthly logical backup with one retained successful copy.
 - [ ] Enable schedules only after rehearsal and explicit approval.
 
 See [hosted preparation](hosted-preparation.md).
