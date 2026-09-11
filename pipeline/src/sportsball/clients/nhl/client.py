@@ -14,6 +14,7 @@ from sportsball.clients.nhl.schemas import (
     PlayByPlayResponse,
     PlayerProfileResponse,
     ScheduleResponse,
+    StandingsCalendarResponse,
     StandingsResponse,
 )
 
@@ -63,6 +64,15 @@ class StandingsFetch:
     """Validated official standings together with the source payload."""
 
     standings: StandingsResponse
+    payload: dict[str, Any]
+    checksum: str
+
+
+@dataclass(frozen=True)
+class StandingsCalendarFetch:
+    """Validated availability calendar and original provider payload."""
+
+    calendar: StandingsCalendarResponse
     payload: dict[str, Any]
     checksum: str
 
@@ -133,6 +143,16 @@ class NhlClient:
         payload: dict[str, Any] = response.json()
         return PlayerProfileFetch(
             profile=PlayerProfileResponse.model_validate(payload),
+            payload=payload,
+            checksum=hashlib.sha256(response.content).hexdigest(),
+        )
+
+    def fetch_standings_calendar(self) -> StandingsCalendarFetch:
+        """Read the provider's available standings periods, including season gaps."""
+        response = self._get("/standings-season")
+        payload: dict[str, Any] = response.json()
+        return StandingsCalendarFetch(
+            calendar=StandingsCalendarResponse.model_validate(payload),
             payload=payload,
             checksum=hashlib.sha256(response.content).hexdigest(),
         )

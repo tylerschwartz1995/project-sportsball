@@ -7,8 +7,9 @@ and database verification on September 8, 2026 (Vancouver time). This approval
 covered the database stage. Tyler subsequently approved Vercel website deployment
 and repository access on September 9. Private S3 storage and temporary GitHub AWS
 roles were provisioned on September 10; see [the storage verification record](hosted-preparation.md#private-aws-storage--2026-09-10).
-Hosted job secrets are now configured for an approved manual rehearsal; a GitHub
-AWS trust correction is pending before the jobs can run. Schedules remain disabled.
+Hosted job secrets and corrected GitHub AWS trust are configured for the approved
+manual rehearsal. The first S3 backup and local restore verification passed;
+schedules remain disabled.
 
 | Setting | Configured value |
 | --- | --- |
@@ -85,7 +86,7 @@ or an ingestion benchmark. Every query returned the expected website role and
 
 Local copies of owner and service credentials stay in Tyler's private
 configuration directory, outside Git. The read-only pooled website URL and Auth
-configuration are now set only in Vercel Production. GitHub job secrets remain unset.
+configuration are now set only in Vercel Production. Restricted GitHub job secrets are configured for manual rehearsal.
 Use the existing owner only for reviewed migrations and administration. Use:
 
 - `sportsball_web`: pooled website reads, direct manual health reads;
@@ -96,8 +97,9 @@ Local psycopg's bundled libpq could not validate Neon using `sslrootcert=system`
 on this Mac. Explicit `/etc/ssl/cert.pem` succeeded with `sslmode=verify-full`
 and required channel binding. This is a local certificate-path adjustment;
 certificate verification was not disabled. The Node application connection
-also verified TLS successfully using its existing configuration. Verify the
-GitHub runner's certificate store during its future manual rehearsal.
+also verified TLS successfully using its existing configuration. The GitHub rehearsal exposed the same bundled-libpq issue. The adapter now
+selects the operating system CA bundle explicitly; a GitHub health run verified
+the connection and schema successfully.
 
 Encoded certificate paths exposed an Alembic ConfigParser interpolation bug.
 The migration environment now escapes percent characters only when storing the

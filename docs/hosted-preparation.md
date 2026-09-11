@@ -6,7 +6,8 @@ This replaces the Lightsail/CodeBuild/EventBridge proposal. The approved Neon
 restore, database checks, owner credential rotation and Vercel website deployment
 have completed. Approved private S3 storage and GitHub IAM roles were provisioned
 on September 10, 2026. Hosted job secrets are configured for the approved manual
-rehearsal. Scheduled writes remain disabled, and a GitHub trust correction is pending.
+rehearsal. The GitHub trust correction is applied, and the first S3 backup and
+local recovery test passed. Scheduled writes remain disabled.
 See [Neon setup](neon-setup.md) for database and website verification and the
 storage record below for AWS verification. The three obsolete personal AWS
 provisioning policies were detached and replaced with the two reviewed hosted
@@ -194,12 +195,13 @@ expiration. Backups expire current objects after 30 days and noncurrent versions
 after another 30 days; versioning can therefore retain bytes for roughly 60 days.
 Incomplete backup multipart uploads expire after one day.
 
-The initial roles trusted `repo:tylerschwartz1995/project-sportsball:ref:refs/heads/main`
+The roles now trust only
+`repo:tylerschwartz1995@70235053/project-sportsball@1315721592:ref:refs/heads/main`
 with audience `sts.amazonaws.com`, with a maximum two-hour session. Ingestion can
 read/write only archive `raw/*`; backup can upload/abort multipart uploads only
 under backup `daily/*`. Neither role can delete objects. No permanent AWS keys
-were created for jobs. Actual GitHub role assumption and uploads remain to be
-verified during the manual rehearsal.
+were created for jobs. Actual GitHub role assumption and backup/archive uploads were verified during
+the manual rehearsal.
 
 The approved `SportsballHostedStorage` and `SportsballHostedRoles` policies were
 installed on `tyler-personal`; the three older provisioning policies were detached.
@@ -236,7 +238,8 @@ sets the operating system certificate bundle itself, so stored URLs omit
 bundled libpq could not locate the runner's trust store using `sslrootcert=system`.
 The adapter now explicitly selects the Linux or macOS CA bundle and fails closed
 if neither exists. Unit tests cover both paths and missing-bundle rejection;
-the corrected hosted connection still requires a rerun.
+the corrected GitHub health run verified TLS and schema successfully. It reported
+the four known freshness errors before ingestion, not a clean health result.
 
 Both schedule flags remain explicitly `false`. The manual job gate was enabled
 for rehearsal. A shared cache-revalidation secret was installed in GitHub and
@@ -254,8 +257,10 @@ not allow wildcard repositories or other branches. Tests cover the immutable
 subject, STS audience and wildcard rejection. The reviewed live plan updates only
 the two role trust documents (zero creates/deletes). Applying it requires
 `iam:UpdateAssumeRolePolicy` on those two roles, which the initial provisioning
-user does not currently have. The live trust correction and backup/ingestion
-rehearsal remain pending that permission.
+user initially lacked. Tyler approved the exact two-role permission, installed
+as the inline `SportsballHostedTrustMaintenance` policy. Its document matched the
+reviewed JSON. Terraform then updated both roles; a post-apply plan reported no
+changes. No resources were created or deleted by the correction.
 
 Both job commands now use GNU `time -v` to record elapsed time, CPU and maximum
 resident memory without changing job exit status. Peak memory is a process/child
@@ -264,7 +269,39 @@ Neon compute. The initial backup attempt predated this instrumentation.
 Baseline row counts for all 48 public tables were saved privately for the recovery
 comparison. Restore verification will use a new local PostgreSQL 18 database;
 it adds no hosted database instance and preserves the existing local database.
-No successful backup or ingestion run is claimed yet.
+The backup retry succeeded in GitHub run
+[34548285461](https://github.com/tylerschwartz1995/project-sportsball/actions/runs/34548285461).
+It produced 2,043,362,654 bytes (2.04 GB / 1.90 GiB). The dump/checksum/upload
+command took 316.44 seconds, with maximum resident memory of 518,432 KiB
+(506.3 MiB). This command duration excludes runner setup and package installation.
+
+The S3 download matched both the checksum sidecar and object metadata. A fresh
+local PostgreSQL 18 database restored the archive in 176.25 seconds; download,
+restore and validation together took 223.12 seconds. All 48 table counts matched,
+along with 43 season/phase count and date-range groups. Schema revision was
+`20260907_0028`, and no public constraints were unvalidated. The temporary restore
+database was removed; existing local and hosted databases were preserved. This
+verifies logical recovery of the pre-ingestion application database, not Neon
+Auth recovery or a hosted point-in-time restore.
+
+Manual ingestion run
+[34548805288](https://github.com/tylerschwartz1995/project-sportsball/actions/runs/34548805288)
+started only after the backup upload and downloaded checksum verification passed.
+The first full attempt took 654.62 seconds and peaked at 1,062,040 KiB
+(1.01 GiB) resident memory. It refreshed schedules and MoneyPuck data, but failed
+core publication because NHL returned empty standings for September 11. Cache
+refresh was correctly withheld. NHL's `standings-season` calendar places that date
+between published periods; April 17, 2026 is the most recent available snapshot,
+and its endpoint returns all 32 teams.
+
+Daily ingestion now resolves standings availability from that provider calendar.
+In-season runs still fetch the requested date; playoff/offseason gaps use the last
+published period's end. Stored standings retain their actual snapshot date. Both
+requested/resolved dates and the raw calendar are audited; explicit single-date
+standings imports retain their strict original behavior. Invalid calendars or
+empty responses for a supported date still fail. Tests verify boundaries,
+invalid/future-only ranges and idempotent persistence with provenance. A manual
+recovery run will reuse the already refreshed MoneyPuck data.
 
 ## Database restore and SQL roles
 

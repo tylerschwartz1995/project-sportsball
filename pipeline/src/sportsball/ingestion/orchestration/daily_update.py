@@ -257,7 +257,11 @@ def _run_locked(
 
         _attempt_step(
             "official_standings",
-            lambda: ingest_standings(options.run_date, nhl_client).teams_processed,
+            lambda: (
+                ingest_standings(
+                    options.run_date, nhl_client, latest_available=True
+                ).teams_processed
+            ),
             steps,
             failures,
             season_id=season_id,

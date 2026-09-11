@@ -113,7 +113,10 @@ def test_daily_update_refreshes_recent_game_and_records_parent_run(
     def fake_standings(
         snapshot_date: date,
         _client: NhlClient,
+        *,
+        latest_available: bool = False,
     ) -> StandingsIngestionResult:
+        assert latest_available
         return StandingsIngestionResult(run_id, snapshot_date, TEST_SEASON_ID, 32)
 
     def fake_season_stats(
