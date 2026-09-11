@@ -18,7 +18,7 @@ storage/role policies. Keep the old AWS stack unapplied.
 | --- | --- |
 | Neon Launch, PostgreSQL 18 | Managed database; compute can sleep between requests |
 | Vercel Hobby | Personal Next.js website, including preview deployments |
-| GitHub Actions | Once-daily Python ingestion; selected monthly backup policy (pending configuration) |
+| GitHub Actions | Once-daily Python ingestion; monthly backup retaining one successful copy |
 | S3 archives/backups | Private versioned original files and independent logical backups |
 | S3 Terraform state | Small record of which AWS resources Terraform owns; reuse bootstrap module |
 | GitHub OIDC roles | Temporary credentials scoped separately to archive and backup uploads |
@@ -192,15 +192,17 @@ Provisioned with Terraform 1.14.7 in account `989240880464`, Oregon (`us-west-2`
 
 All three buckets have public access blocked, ACLs disabled, versioning enabled,
 AES256 encryption and a policy denying unencrypted HTTP access. Archives have no
-expiration. Backups expire current objects after 30 days and noncurrent versions
-after another 30 days; versioning can therefore retain bytes for roughly 60 days.
+expiration. Backups retain one verified successful dump and its checksum. The original
+30-day current/30-day noncurrent expiry policy is replaced by explicit cleanup
+after a verified replacement, including old versions and delete markers.
 Incomplete backup multipart uploads expire after one day.
 
 The roles now trust only
 `repo:tylerschwartz1995@70235053/project-sportsball@1315721592:ref:refs/heads/main`
 with audience `sts.amazonaws.com`, with a maximum two-hour session. Ingestion can
-read/write only archive `raw/*`; backup can upload/abort multipart uploads only
-under backup `daily/*`. Neither role can delete objects. No permanent AWS keys
+read/write only archive `raw/*`; backup can upload, verify and remove specific
+versions only under backup `daily/*`, with version inventory restricted to that
+prefix. The historical prefix name does not control the monthly frequency. No permanent AWS keys
 were created for jobs. Actual GitHub role assumption and backup/archive uploads were verified during
 the manual rehearsal.
 
@@ -315,7 +317,7 @@ verified against their recorded checksums and lengths. Exact per-run Neon
 compute and transfer costs remain unmeasured; runner metrics do not establish
 the provider bill.
 
-### Selected backup policy — pending configuration
+### Monthly backup retention
 
 Tyler selected one monthly logical backup with one retained successful copy,
 rather than daily or weekly history. This fits a personal app whose sports data
@@ -324,20 +326,22 @@ from that independent copy may require re-ingesting up to a month of data.
 Neon's seven-day restore history remains configured but its hosted restore path
 still needs a rehearsal. The application dump does not include separate Neon Auth.
 
-Before activation, change the workflow to monthly and replace the deployed
-30-day current/30-day noncurrent retention policy. Upload a unique candidate,
-verify its contents, then retire the prior successful dump and checksum. Keep
-the previous copy if upload or verification fails; briefly retaining both during
-verification is intentional. Do not expire the only good copy merely because
-a monthly job was missed. Account for S3 versions when removing old dumps, so
-hidden versions do not silently accumulate. This requires narrowly scoped
-verification and cleanup permissions beyond the current upload-only role.
-Raw source archives and Terraform state have separate retention requirements.
+The workflow runs on the first of each month at 07:17 UTC once enabled. A unique
+candidate is uploaded and its full S3 contents are streamed back for SHA-256
+verification, along with byte length, metadata and checksum sidecar checks.
+Only then are prior dumps, checksum sidecars, hidden versions and delete markers
+removed by explicit version ID. The GitHub concurrency group serializes writers.
+A failed upload or verification preserves the prior copy; failed candidates are
+cleaned on the next successful run. Cleanup errors fail the job and can leave
+extra copies until a retry succeeds. Do not run an independent concurrent writer.
 
-This is the selected policy, not an applied storage change: the existing daily
-workflow definition and versioned buckets remain as provisioned, both production
-schedule flags remain false, and no existing backup was deleted. Implement and
-review the retention change before enabling the monthly schedule.
+The only successful copy has no age-based expiry, so a missed monthly job cannot
+remove it. Incomplete multipart uploads expire after one day. S3 versioning stays
+enabled, but the job explicitly removes old backup versions rather than retaining
+history. Raw source archives and Terraform state retain their separate policies.
+The two production schedule flags remain false; monthly frequency is configured
+without starting automatic writes. A logical backup still needs separate restore
+validation; checksum verification establishes uploaded-byte integrity.
 
 ## Database restore and SQL roles
 
@@ -410,7 +414,7 @@ notifications alone do not detect a workflow that never started.
 Backups run at 07:17 UTC after separate activation, using a dedicated SELECT-only
 role and PG18 custom-format dump. The shared backup function uploads a checksum
 and S3 object metadata; no backup bytes are uploaded as GitHub artifacts. S3
-expires `daily/` backups after 30 days; raw archives have no expiration. Migration
+retains one successful backup after verified replacement; raw archives have no expiration. Migration
 0028 moves only new whole-file artifacts to S3; it does not move or remove old
 PostgreSQL bytes. Database and retained source objects must be recovered together.
 

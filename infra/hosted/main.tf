@@ -72,11 +72,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "backups" {
   bucket     = aws_s3_bucket.storage["backups"].id
   depends_on = [aws_s3_bucket_versioning.storage]
   rule {
-    id     = "daily-backups"
+    id     = "abort-incomplete-backups"
     status = "Enabled"
     filter { prefix = "daily/" }
-    expiration { days = 30 }
-    noncurrent_version_expiration { noncurrent_days = 30 }
     abort_incomplete_multipart_upload { days_after_initiation = 1 }
   }
 }
@@ -102,11 +100,15 @@ resource "aws_iam_role" "job" {
 resource "aws_iam_role_policy" "job" {
   for_each = aws_iam_role.job
   role     = each.value.id
-  policy = jsonencode({ Version = "2012-10-17", Statement = [{
+  policy = jsonencode({ Version = "2012-10-17", Statement = concat([{
     Effect   = "Allow",
-    Action   = each.key == "ingestion" ? ["s3:GetObject", "s3:GetObjectVersion", "s3:PutObject"] : ["s3:PutObject", "s3:AbortMultipartUpload"],
+    Action   = each.key == "ingestion" ? ["s3:GetObject", "s3:GetObjectVersion", "s3:PutObject"] : ["s3:PutObject", "s3:AbortMultipartUpload", "s3:GetObject", "s3:GetObjectVersion", "s3:DeleteObjectVersion"],
     Resource = each.key == "ingestion" ? "${aws_s3_bucket.storage["archives"].arn}/raw/*" : "${aws_s3_bucket.storage["backups"].arn}/daily/*"
-  }] })
+    }], each.key == "backup" ? [{
+    Effect    = "Allow", Action = ["s3:ListBucketVersions"],
+    Resource  = aws_s3_bucket.storage["backups"].arn,
+    Condition = { StringEquals = { "s3:prefix" = "daily/" } }
+  }] : []) })
 }
 output "buckets" { value = { for name, bucket in aws_s3_bucket.storage : name => bucket.id } }
 output "github_roles" { value = { for name, role in aws_iam_role.job : name => role.arn } }

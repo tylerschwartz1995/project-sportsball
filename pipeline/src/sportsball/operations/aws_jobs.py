@@ -109,7 +109,7 @@ def pipeline(command: str, env: dict[str, str]) -> int:
     ).returncode
 
 
-def backup(env: dict[str, str]) -> None:
+def backup(env: dict[str, str], *, retain_one: bool = False) -> None:
     """Produce a portable PG18 archive. Restoration is a separate release gate."""
     with tempfile.TemporaryDirectory(prefix="sportsball-backup-") as directory:
         path = Path(directory) / "sportsball.dump"
@@ -137,6 +137,11 @@ def backup(env: dict[str, str]) -> None:
         )
         with path.open("rb") as stream:
             digest = hashlib.file_digest(stream, "sha256").hexdigest()
+        if retain_one:
+            from sportsball.operations.backup_retention import replace_backup
+
+            replace_backup(boto3.client("s3"), env["BACKUP_BUCKET"], path, digest)
+            return
         # Timestamp + digest avoids overwriting a previous run or a retried backup.
         key = f"daily/{datetime.now(UTC):%Y/%m/%d/%H%M%S}-{digest}.dump"
         client = boto3.client("s3")
