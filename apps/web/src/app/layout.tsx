@@ -2,6 +2,7 @@ import { IntentLink as Link } from "@/components/ui/intent-link";
 import type { Metadata } from "next";
 import { Manrope, Geist_Mono } from "next/font/google";
 import Script from "next/script";
+import { headers } from "next/headers";
 import { NavigationMetrics } from "@/components/shell/navigation-metrics";
 import { ScrollNavigation } from "@/components/shell/scroll-navigation";
 import { WebVitals } from "@/components/shell/web-vitals";
@@ -44,11 +45,12 @@ export const metadata: Metadata = {
     "Current and historical NHL statistics, results, and advanced analytics.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html
       lang="en"
@@ -64,6 +66,7 @@ export default function RootLayout({
         </a>
         <Script
           id="sportsball-theme-bootstrap"
+          nonce={nonce}
           strategy="beforeInteractive"
         >
           {themeBootstrap}

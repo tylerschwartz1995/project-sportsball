@@ -34,3 +34,33 @@ test("email code login and logout work through the actual SDK", async ({ page })
   await expect(page).toHaveURL("http://localhost:3100/login");
   expect((await page.request.get("/api/seasons")).status()).toBe(401);
 });
+
+test("security headers authorize app scripts and block injected scripts", async ({ page }) => {
+  const violations: string[] = [];
+  page.on("console", message => {
+    if (message.type() === "error" && /content security policy/i.test(message.text())) violations.push(message.text());
+  });
+  const response = await page.goto("/login");
+  const policy = response!.headers()["content-security-policy"];
+  expect(policy).toContain("frame-ancestors 'none'");
+  expect(policy).not.toContain("unsafe-eval");
+  expect(response!.headers()["x-frame-options"]).toBe("DENY");
+  expect(response!.headers()["x-content-type-options"]).toBe("nosniff");
+  const nonce = /'nonce-([^']+)'/.exec(policy)![1];
+  expect(await page.locator("#sportsball-theme-bootstrap").evaluate(element => (element as HTMLScriptElement).nonce)).toBe(nonce);
+  await page.getByLabel("Email Address").fill("one@example.com");
+  await page.getByRole("button", { name: "Send Code", exact: true }).click();
+  await expect(page.getByLabel("Email Code")).toBeVisible();
+  expect(violations).toEqual([]);
+  // Insert into the HTML parser stream; DevTools evaluation is privileged.
+  await page.route("**/login", async route => {
+    const upstream = await route.fetch();
+    const body = (await upstream.text()).replace("</head>", "<script>document.documentElement.dataset.injected = 'yes'</script></head>");
+    await route.fulfill({ response: upstream, body });
+  });
+  await page.goto("/login");
+  expect(await page.locator("html").getAttribute("data-injected")).toBeNull();
+  const second = await page.request.get("/login", { headers: { "x-nonce": "attacker", "content-security-policy": "script-src 'unsafe-inline'" } });
+  expect(second.headers()["content-security-policy"]).not.toContain(nonce);
+  expect(second.headers()["content-security-policy"]).not.toContain("attacker");
+});

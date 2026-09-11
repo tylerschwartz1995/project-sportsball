@@ -93,7 +93,7 @@ resource "aws_iam_role" "job" {
     Principal = { Federated = aws_iam_openid_connect_provider.github.arn },
     Condition = { StringEquals = {
       "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com",
-      "token.actions.githubusercontent.com:sub" = "${var.github_oidc_subject_prefix}:ref:refs/heads/main"
+      "token.actions.githubusercontent.com:sub" = "${var.github_oidc_subject_prefix}:environment:sportsball-production"
     } }
   }] })
 }
