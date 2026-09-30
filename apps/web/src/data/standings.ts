@@ -25,7 +25,7 @@ type StandingsRow = {
   goals_for: number;
   goals_against: number;
   goal_differential: number;
-  point_percentage: number;
+  point_percentage: number | null;
   league_rank: number;
   conference_rank: number | null;
   division_rank: number | null;

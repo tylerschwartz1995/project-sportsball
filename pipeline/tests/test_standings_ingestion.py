@@ -35,11 +35,12 @@ pytestmark = pytest.mark.skipif(
 )
 
 
-def test_official_standings_ingestion_is_idempotent_and_audited() -> None:
+@pytest.mark.parametrize("unplayed", [False, True])
+def test_official_standings_ingestion_is_idempotent_and_audited(unplayed: bool) -> None:
     _create_dimensions()
     try:
-        first = ingest_standings(TEST_DATE, _client())
-        second = ingest_standings(TEST_DATE, _client())
+        first = ingest_standings(TEST_DATE, _client(unplayed=unplayed))
+        second = ingest_standings(TEST_DATE, _client(unplayed=unplayed))
 
         assert first.teams_processed == 2
         assert second.teams_processed == 2
@@ -61,6 +62,16 @@ def test_official_standings_ingestion_is_idempotent_and_audited() -> None:
             assert leader is not None
             assert leader.points == 124
             assert leader.regulation_plus_overtime_wins == 54
+            if unplayed:
+                other = session.scalar(
+                    select(OfficialStandingsSnapshot).where(
+                        OfficialStandingsSnapshot.snapshot_date == TEST_DATE,
+                        OfficialStandingsSnapshot.league_rank == 2,
+                    )
+                )
+                assert other is not None and other.games_played == 0
+                assert other.point_percentage is None
+                assert other.win_percentage is None
             assert (
                 session.scalar(
                     select(func.count())
@@ -98,13 +109,17 @@ def test_final_standings_backfill_resumes_from_stored_snapshot() -> None:
         _clean_up()
 
 
-def _client() -> NhlClient:
+def _client(*, unplayed: bool = False) -> NhlClient:
+    payload = _standings_payload()
+    if unplayed:
+        row = payload["standings"][1]
+        row.update(gamesPlayed=0, wins=0, losses=0, otLosses=0, points=0)
+        row.pop("pointPctg")
+        row.pop("winPctg")
     return NhlClient(
         client=httpx.Client(
             base_url="https://example.test/v1",
-            transport=httpx.MockTransport(
-                lambda _request: httpx.Response(200, json=_standings_payload())
-            ),
+            transport=httpx.MockTransport(lambda _request: httpx.Response(200, json=payload)),
         ),
         request_interval_seconds=0,
         max_retries=0,

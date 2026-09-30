@@ -25,6 +25,32 @@ def test_official_standings_normalize_historical_rule_fields() -> None:
     assert leader["league_rank"] == 1
 
 
+@pytest.mark.parametrize("explicit_null", [False, True])
+def test_unplayed_standings_preserve_undefined_percentages(explicit_null: bool) -> None:
+    payload = _standings_payload()
+    row = payload["standings"][1]
+    row.update(gamesPlayed=0, wins=0, losses=0, otLosses=0, points=0)
+    for field in ("pointPctg", "winPctg"):
+        if explicit_null:
+            row[field] = None
+        else:
+            row.pop(field)
+    normalized = standings_frame(StandingsResponse.model_validate(payload))
+    unplayed = normalized.rows.row(1, named=True)
+    assert unplayed["games_played"] == 0
+    assert unplayed["point_percentage"] is None
+    assert unplayed["win_percentage"] is None
+    assert normalized.rows.row(0, named=True)["point_percentage"] == 124 / 164
+
+
+@pytest.mark.parametrize("field", ["pointPctg", "winPctg"])
+def test_played_standings_still_require_percentages(field: str) -> None:
+    payload = _standings_payload()
+    payload["standings"][0].pop(field)
+    with pytest.raises(ValueError, match="played teams require standings percentages"):
+        StandingsResponse.model_validate(payload)
+
+
 def test_client_requests_expected_standings_date() -> None:
     payload = _standings_payload()
 

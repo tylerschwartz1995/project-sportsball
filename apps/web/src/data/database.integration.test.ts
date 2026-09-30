@@ -85,31 +85,35 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     ).toBe(false);
   });
 
-  it("loads the complete season index, standings, and latest results", async () => {
+  it("loads the historical season index, standings, and stored results as new seasons arrive", async () => {
     const seasons = await listSeasons();
 
-    expect(seasons).toHaveLength(21);
-    expect(seasons[0]).toEqual({
+    const historicalSeasons = seasons.filter((season) => season.id <= 20252026);
+    expect(historicalSeasons).toHaveLength(21);
+    expect(seasons.map((season) => season.id)).toEqual(
+      seasons.map((season) => season.id).sort((a, b) => b - a),
+    );
+    expect(historicalSeasons[0]).toEqual({
       id: 20252026,
       startYear: 2025,
       endYear: 2026,
       label: "2025–26",
     });
 
-    const standings = await getStandings(seasons[0].id);
+    const standings = await getStandings(historicalSeasons[0].id);
     expect(standings).toHaveLength(32);
     expect(standings[0].leagueRank).toBe(1);
-    expect(standings.every((team) => team.seasonId === seasons[0].id)).toBe(
+    expect(standings.every((team) => team.seasonId === historicalSeasons[0].id)).toBe(
       true,
     );
 
-    const gameDates = await listGameDates(seasons[0].id);
+    const gameDates = await listGameDates(historicalSeasons[0].id);
     expect(gameDates[0]).toEqual({
       date: "2026-06-14",
       gameCount: 1,
     });
 
-    const games = await getGamesByDate(seasons[0].id, gameDates[0].date);
+    const games = await getGamesByDate(historicalSeasons[0].id, gameDates[0].date);
     expect(games).toHaveLength(1);
     expect(games[0]).toMatchObject({
       nhlGameId: 2025030416,
@@ -158,11 +162,11 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
       expect.arrayContaining([expect.objectContaining({ role: "scorer" })]),
     );
 
-    const teams = await listTeamsBySeason(seasons[0].id);
+    const teams = await listTeamsBySeason(historicalSeasons[0].id);
     expect(teams).toHaveLength(32);
     expect(teams[0].team.name).toBe("Colorado Avalanche");
 
-    const team = await getTeamSeasonDetail(12, seasons[0].id);
+    const team = await getTeamSeasonDetail(12, historicalSeasons[0].id);
     expect(team).toMatchObject({
       team: {
         abbreviation: "CAR",
@@ -176,7 +180,7 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     expect(team?.skaters.length).toBeGreaterThan(20);
     expect(team?.goalies.length).toBeGreaterThan(1);
 
-    const scheduleStrength = await getTeamScheduleStrength(12, seasons[0].id);
+    const scheduleStrength = await getTeamScheduleStrength(12, historicalSeasons[0].id);
     expect(scheduleStrength.games).toHaveLength(82);
     expect(scheduleStrength.games.every((game) => game.completed)).toBe(true);
     expect(
@@ -190,7 +194,7 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
       ),
     ).toBe(true);
 
-    const players = await listPlayersBySeason(seasons[0].id);
+    const players = await listPlayersBySeason(historicalSeasons[0].id);
     expect(players.skaters).toHaveLength(940);
     expect(players.goalies).toHaveLength(98);
     expect(players.skaters[0]).toMatchObject({
@@ -339,7 +343,7 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
       ),
     ).toMatchObject({ name: "Wayne Gretzky" });
 
-    const teamGameLog = await getTeamGameLog(12, seasons[0].id);
+    const teamGameLog = await getTeamGameLog(12, historicalSeasons[0].id);
     expect(teamGameLog?.games.length).toBeGreaterThan(82);
     expect(teamGameLog?.games[0]?.opponent.name).toBeTruthy();
     expect(
@@ -348,7 +352,7 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
       ),
     ).toBe(true);
 
-    const playerGameLog = await getPlayerGameLog(8478402, seasons[0].id);
+    const playerGameLog = await getPlayerGameLog(8478402, historicalSeasons[0].id);
     expect(playerGameLog?.profile.name).toBe("Connor McDavid");
     expect(playerGameLog?.skaterGames.length).toBeGreaterThan(70);
     expect(

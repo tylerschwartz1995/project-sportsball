@@ -13,7 +13,7 @@ describe("getStandings", () => {
     queryMock.mockReset();
   });
 
-  it("uses a parameterized query and maps a standings row", async () => {
+  it.each([0.659, null])("maps a standings row with points percentage %s", async (percentage) => {
     queryMock.mockResolvedValue([
       {
         snapshot_date: "2025-04-17",
@@ -34,7 +34,7 @@ describe("getStandings", () => {
         goals_for: 268,
         goals_against: 231,
         goal_differential: 37,
-        point_percentage: 0.659,
+        point_percentage: percentage,
         league_rank: 4,
         conference_rank: 2,
         division_rank: 1,
@@ -69,7 +69,7 @@ describe("getStandings", () => {
         goalsFor: 268,
         goalsAgainst: 231,
         goalDifferential: 37,
-        pointPercentage: 0.659,
+        pointPercentage: percentage,
         leagueRank: 4,
         conferenceRank: 2,
         divisionRank: 1,

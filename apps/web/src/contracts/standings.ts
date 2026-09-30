@@ -17,7 +17,7 @@ export type StandingsEntry = {
   goalsFor: number;
   goalsAgainst: number;
   goalDifferential: number;
-  pointPercentage: number;
+  pointPercentage: number | null;
   leagueRank: number;
   conferenceRank: number | null;
   divisionRank: number | null;
