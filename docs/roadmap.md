@@ -137,7 +137,7 @@ Post-MVP improvements now shipped:
 Named saved-comparison collections remain backlog. See
 [Product ideas](product-ideas.md) for implemented boundaries and future extensions.
 
-## Milestone 6: daily operation — website deployed; scheduled operation deferred
+## Milestone 6: daily operation — website deployed; daily ingestion active
 
 - [x] Add an audited daily coordinator for bounded incremental imports and
   recent-game corrections.
@@ -152,8 +152,8 @@ Named saved-comparison collections remain backlog. See
 - [x] Refresh current-season all-time summaries and gate dependent aggregates.
 - [x] Add separate advanced coverage health, optional authenticated website cache
   expiry, and an independent GitHub Actions health monitor.
-- Activate the schedule after the hosted database, secrets, and recovery
-  process are ready.
+- [x] Activate daily production ingestion after hosted rehearsal, recovery checks,
+  and explicit approval (September 30, 2026).
 - [x] Select Neon, Vercel Hobby and GitHub Actions for the personal deployment.
 - Activate and restore-test the prepared S3 logical backups and Neon restore history;
   complete a data-quality dashboard.
@@ -171,7 +171,7 @@ Named saved-comparison collections remain backlog. See
 
 See [AWS preparation](aws-preparation.md) for the superseded server proposal.
 
-### Neon/Vercel rollout — website deployed, jobs deferred
+### Neon/Vercel rollout — website deployed, daily ingestion active
 
 - [x] Prepare verified TLS, direct job connections and pooled website connections.
 - [x] Prepare two-user private access and guarded Actions ingestion/backups.
@@ -184,7 +184,8 @@ See [AWS preparation](aws-preparation.md) for the superseded server proposal.
 - [x] Review reported provider costs and configure spending alerts.
 - [x] Verify historical Neon recovery and receipt of workflow failure email.
 - [x] Configure monthly logical backup with one retained successful copy.
-- [ ] Enable schedules only after rehearsal and explicit approval.
+- [x] Enable daily ingestion after rehearsal and explicit approval.
+- [ ] Enable the monthly backup schedule after its separate activation approval.
 
 See [hosted preparation](hosted-preparation.md) and [activation readiness](hosted-readiness.md).
 

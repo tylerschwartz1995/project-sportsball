@@ -25,8 +25,9 @@ the initial foundation; prediction targets, training, and evaluation remain futu
 
 **Local MVP complete as of July 31, 2026.** The website, ingestion pipeline,
 historical archive, advanced analytics, local database workflow, tests, and
-operational checks are implemented. Hosting, scheduled production writes, and
-predictive modelling are deliberately deferred. See the
+operational checks are implemented. The private website is deployed, and daily
+production ingestion was enabled on September 30, 2026. Predictive modelling
+remains deferred. See the
 [MVP release record](docs/mvp-release.md) for the shipped scope, verification,
 and known limitations.
 
@@ -70,11 +71,12 @@ pages. Completed game pages include official scoring summaries and expandable
 period-by-period timelines from the normalized NHL play-by-play archive. Team
 and player profiles also link to complete selected-season game logs with
 last-ten form summaries and available MoneyPuck game metrics. An audited
-daily-update coordinator and opt-in GitHub Actions fallback are implemented,
+daily-update coordinator and GitHub Actions worker are implemented,
 including persistent retries, missed-day schedule recovery, current-season
-career-summary refreshes, and independent health monitoring;
-scheduled writes remain disabled until the deployment milestone provides a
-hosted database, secrets, and tested recovery. Operational health checks now
+career-summary refreshes, and manual health checks. Production ingestion runs
+daily at 15:17 UTC (08:17 PDT / 07:17 PST in Vancouver), following the verified
+hosted rehearsal and recovery checks. Monthly backup scheduling remains disabled.
+Operational health checks now
 cover source freshness, stuck jobs, recent-game completeness, and HTTP
 deployment readiness. The Modern Stats Exploration interface provides responsive
 global navigation, persistent light/dark themes with a dark first-visit

@@ -8,7 +8,8 @@ have completed. Approved private S3 storage and GitHub IAM roles were provisione
 on September 10, 2026. Hosted job secrets are configured for the approved manual
 rehearsal. The GitHub trust correction is applied, and the first S3 backup and
 local recovery test passed. The ingestion recovery run also passed with zero
-health errors or warnings. Scheduled writes remain disabled.
+health errors or warnings. Daily ingestion scheduling was activated with explicit
+approval on September 30, 2026; monthly backup scheduling remains disabled.
 See [activation readiness](hosted-readiness.md) for the completed historical
 recovery, notification-delivery test, cost controls and final approval checklist.
 See [Neon setup](neon-setup.md) for database and website verification and the

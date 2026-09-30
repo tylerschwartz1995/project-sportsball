@@ -10,7 +10,9 @@ roles were provisioned on September 10; see [the storage verification record](ho
 Hosted job secrets and corrected GitHub AWS trust are configured for the approved
 manual rehearsal. The first S3 backup and local restore verification passed;
 the ingestion recovery run also passed with zero health errors or warnings.
-Schedules remain disabled. The monthly, single-copy backup policy is
+Daily ingestion scheduling was activated on September 30, 2026, following the
+opening-game test and standings migration `20260930_0029`. Monthly backup
+scheduling remains disabled. The monthly, single-copy backup policy is
 recorded in [hosted preparation](hosted-preparation.md#monthly-backup-retention)
 with schedule activation still pending.
 

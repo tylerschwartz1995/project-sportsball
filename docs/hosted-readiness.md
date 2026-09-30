@@ -1,10 +1,39 @@
 # Hosted activation readiness
 
-## Status — September 10, 2026 (Vancouver)
+## Status — September 30, 2026 (Vancouver)
 
-The background-job rollout is ready for Tyler's activation decision. Daily
-production ingestion and monthly backup flags are still **false**. No domain
-was purchased. This record supplements [hosted preparation](hosted-preparation.md).
+Daily production ingestion is enabled following Tyler’s explicit approval and
+a production test of the September 29 season-opening games. Monthly backup
+scheduling remains disabled. No domain was purchased. This record supplements
+[hosted preparation](hosted-preparation.md).
+
+## Daily ingestion activation — September 30, 2026
+
+Tyler authorized enabling daily ingestion and testing yesterday’s games. The
+[production test](https://github.com/tylerschwartz1995/project-sportsball/actions/runs/36758740243)
+used the September 30 UTC run date, whose correction window includes all five
+completed September 29 regular-season games. It used the normal hosted worker
+and included MoneyPuck refreshes.
+
+The first attempt imported all five box scores and play-by-play feeds, but the
+standings source omitted percentages for 22 teams with no games played.
+[PR #170](https://github.com/tylerschwartz1995/project-sportsball/pull/170) fixed
+that opening-season contract while preserving undefined values as null.
+Migration `20260930_0029` was tested in an isolated PostgreSQL 18 database and
+applied separately as owner. The audited standings repair published all 32
+teams before the complete hosted rerun. Original failure audits were retained.
+
+Read-only production verification matched all five scores against the NHL
+source, with 36 skaters and four goalie roster rows per game, plus 307–337
+play-by-play events per game. All 177 pipeline tests passed with database tests
+enabled; the web checks and 291 tests with production read-only queries passed.
+Required Python, Web, and AWS CI checks passed before merging the fix.
+
+`HOSTED_JOBS_ENABLED=true` and `DAILY_INGESTION_ENABLED=true` enable the existing
+daily 15:17 UTC schedule (08:17 PDT / 07:17 PST in Vancouver).
+`DATABASE_BACKUP_ENABLED=false` remains unchanged; this request authorized
+ingestion activation only. The earlier rehearsal records below describe the
+configuration before this activation.
 
 ## Security hardening
 
@@ -150,9 +179,10 @@ end-to-end website/Auth cutover duration.
 
 ## Final activation decision
 
-Only after Tyler approves, set `DAILY_INGESTION_ENABLED=true` and
-`DATABASE_BACKUP_ENABLED=true`. `HOSTED_JOBS_ENABLED=true` already permits the
-approved manual operations. No workflow file edit is needed for activation.
+Daily ingestion was approved and activated on September 30, 2026. Set
+`DATABASE_BACKUP_ENABLED=true` only after separate backup activation approval.
+`HOSTED_JOBS_ENABLED=true` permits manual operations and the enabled ingestion
+schedule. No workflow file edit is needed for activation.
 
 | Job | Configured cadence | Vancouver interpretation |
 | --- | --- | --- |

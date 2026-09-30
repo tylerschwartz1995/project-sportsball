@@ -193,10 +193,10 @@ specific domain or infrastructure responsibility.
 ### Scheduling and monitoring
 
 The `daily-update` Python coordinator owns refresh ordering and can be invoked
-by any scheduler. An opt-in GitHub Actions workflow currently provides manual
-dispatches and a disabled-by-default once-daily `15:17 UTC` schedule. Production
-activation waits for a hosted database, secrets, backups, and recovery
-validation; scheduler configuration does not contain ingestion domain logic.
+by any scheduler. GitHub Actions provides manual dispatches and the active
+once-daily `15:17 UTC` production schedule, enabled September 30, 2026 after
+hosted rehearsal, recovery validation, and explicit approval. Scheduler
+configuration does not contain ingestion domain logic.
 
 Every parent and child run records its status, input range, row counts, errors,
 and duration. Recent final games are deliberately re-fetched to capture NHL
@@ -297,9 +297,9 @@ prerequisite failures block derived aggregate publication. Advanced-source
 availability and game coverage remain independent of core NHL success.
 
 GitHub Actions is the selected scheduler and worker, with one daily ingestion
-run, health checks in that run and separate daily backups. Independent health
-checks remain manual-only to avoid extra database wakeups. All hosted jobs and
-schedules remain disabled pending rehearsal and approval.
+run and health checks in that run. Separate monthly backup scheduling remains
+disabled pending its own activation approval. Independent health checks remain
+manual-only to avoid extra database wakeups.
 Releases apply migrations; daily workflows only verify schema compatibility.
 An authenticated cache-expiry endpoint invalidates shared website reads after
 core publication. See [Daily ingestion](daily-ingestion.md) for implementation

@@ -204,5 +204,5 @@ official statistics itself. No LLM dependency is needed for this structural work
 
 Shared UI remains sport-neutral where practical. Introduce sport/league identity
 and URL context before ingesting a second sport, using its concrete requirements
-rather than widening the NHL schema speculatively. Deployment configuration and
-scheduled production writes remain deferred.
+rather than widening the NHL schema speculatively. The private website is deployed and daily production ingestion is active.
+Monthly backup scheduling remains deferred pending separate approval.
