@@ -41,7 +41,7 @@ the completeness audit for the intended detailed seasons.
 - [All-time historical summaries and record definitions](historical-statistics.md)
 - [Draft archive and outcome definitions](draft-history.md)
 - [Historical completeness audit](data-completeness-audit.md)
-- [Daily refresh and disabled-by-default scheduler](daily-ingestion.md)
+- [Daily refresh and active production scheduler](daily-ingestion.md)
 - [Operational data health and HTTP readiness](data-health.md)
 - [Backup creation, restore verification, and interrupted-run recovery](database-recovery.md)
 

@@ -3,10 +3,13 @@
 ## Operating contract
 
 Neon/Vercel/GitHub Actions is the selected deployment. See
-[hosted preparation](hosted-preparation.md). **Production activation remains deferred.**
+[hosted preparation](hosted-preparation.md). **Daily production ingestion was activated
+on September 30, 2026, with Tyler’s explicit approval.**
 All Actions jobs require `HOSTED_JOBS_ENABLED=true`, including manual dispatch.
 Scheduled ingestion also requires `DAILY_INGESTION_ENABLED=true`; daily backup
-uses `DATABASE_BACKUP_ENABLED=true`. No secrets or flags were configured by preparation.
+uses `DATABASE_BACKUP_ENABLED=true`. The hosted job and daily ingestion flags are
+true; the backup schedule flag remains false. See the
+[activation record](hosted-readiness.md#daily-ingestion-activation--september-30-2026).
 
 The initial product is next-morning completed-game statistics. Live scores and
 post-game polling remain separate future features. The morning run starts at
@@ -130,7 +133,7 @@ The first run after migration enrolls the resolved season. This is not a full
 archive bootstrap. Existing historical backfill commands still prepare earlier
 seasons; explicitly select a missed older season if it was never enrolled.
 
-## GitHub Actions and future activation
+## GitHub Actions operation
 
 - `.github/workflows/daily-ingestion.yml`: 15:17 UTC once daily, manual overrides,
   schema verification, coordinator, health checks and optional cache invalidation.

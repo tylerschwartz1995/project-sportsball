@@ -94,11 +94,11 @@ CLI and audited `ingestion_runs` records for diagnosis.
 The daily GitHub Actions workflow invokes `check-data-health` even after a
 refresh failure when schema verification passed. It publishes the report in
 its Actions summary and preserves unsuccessful workflow outcomes.
-A separate read-only `ingestion-health.yml` checks at 00:47 and 18:47 UTC,
-independently of whether ingestion ran. Both schedules remain disabled until
-`DAILY_INGESTION_ENABLED=true`. GitHub workflow notification preferences and
-an external uptime monitor must be verified during deployment; no external
-alerting service has been configured.
+The daily ingestion schedule is enabled with `DAILY_INGESTION_ENABLED=true`
+as of September 30, 2026. Separate read-only `ingestion-health.yml` checks
+remain manual-only. Failure email delivery was verified during hosted rehearsal;
+no external freshness monitor has been configured, so a dropped GitHub schedule
+can still leave stale data without a failed-run alert.
 
 Recommended incident order:
 
