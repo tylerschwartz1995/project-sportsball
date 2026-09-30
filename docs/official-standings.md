@@ -51,3 +51,11 @@ controls. GP, W, L, OT, and PTS form the essential table; regulation wins, goals
 and differential are available through expanded columns. Snapshot date, source,
 and clinch markers are explained once per page. Team names link to the
 supporting historical team profile.
+
+## Opening-season percentages
+
+The NHL may omit points and win percentages for teams with zero games played.
+These values remain null through validation, normalization, storage, and the web
+query contract; missing percentages are not converted to zero. Teams with games
+played must still provide both percentages. Migration `20260930_0029` permits
+these undefined values without changing existing snapshots.

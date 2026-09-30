@@ -86,13 +86,19 @@ class StandingsTeam(NhlModel):
     goals_for: int = Field(alias="goalFor")
     goals_against: int = Field(alias="goalAgainst")
     goal_differential: int = Field(alias="goalDifferential")
-    point_percentage: float = Field(alias="pointPctg")
-    win_percentage: float = Field(alias="winPctg")
+    point_percentage: float | None = Field(default=None, alias="pointPctg")
+    win_percentage: float | None = Field(default=None, alias="winPctg")
     league_sequence: int = Field(alias="leagueSequence")
     conference_sequence: int | None = Field(default=None, alias="conferenceSequence")
     division_sequence: int | None = Field(default=None, alias="divisionSequence")
     wildcard_sequence: int | None = Field(default=None, alias="wildcardSequence")
     clinch_indicator: str | None = Field(default=None, alias="clinchIndicator")
+
+    @model_validator(mode="after")
+    def require_played_team_percentages(self) -> "StandingsTeam":
+        if self.games_played > 0 and (self.point_percentage is None or self.win_percentage is None):
+            raise ValueError("played teams require standings percentages")
+        return self
 
 
 class StandingsResponse(NhlModel):
