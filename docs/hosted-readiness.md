@@ -30,7 +30,8 @@ enabled; the web checks and 291 tests with production read-only queries passed.
 Required Python, Web, and AWS CI checks passed before merging the fix.
 
 `HOSTED_JOBS_ENABLED=true` and `DAILY_INGESTION_ENABLED=true` enable the existing
-daily 15:17 UTC schedule (08:17 PDT / 07:17 PST in Vancouver).
+daily schedule, originally 15:17 UTC at activation. On October 2, 2026,
+the target was changed to 1 a.m. Vancouver time using `America/Vancouver`.
 `DATABASE_BACKUP_ENABLED=false` remains unchanged; this request authorized
 ingestion activation only. The earlier rehearsal records below describe the
 configuration before this activation.
@@ -186,7 +187,7 @@ schedule. No workflow file edit is needed for activation.
 
 | Job | Configured cadence | Vancouver interpretation |
 | --- | --- | --- |
-| Ingestion | Daily at 15:17 UTC | 08:17 PDT / 07:17 PST |
+| Ingestion | Daily at 01:00 in `America/Vancouver` | 01:00 Vancouver local time |
 | Backup | First day of each month at 07:17 UTC | 00:17 PDT on the first, or 23:17 PST on the preceding date |
 
 Backups retain one successful dump and checksum. A replacement is uploaded and

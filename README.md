@@ -74,7 +74,7 @@ last-ten form summaries and available MoneyPuck game metrics. An audited
 daily-update coordinator and GitHub Actions worker are implemented,
 including persistent retries, missed-day schedule recovery, current-season
 career-summary refreshes, and manual health checks. Production ingestion runs
-daily at 15:17 UTC (08:17 PDT / 07:17 PST in Vancouver), following the verified
+daily at 1 a.m. Vancouver time (`America/Vancouver`), following the verified
 hosted rehearsal and recovery checks. Monthly backup scheduling remains disabled.
 Operational health checks now
 cover source freshness, stuck jobs, recent-game completeness, and HTTP

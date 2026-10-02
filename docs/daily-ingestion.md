@@ -12,9 +12,9 @@ true; the backup schedule flag remains false. See the
 [activation record](hosted-readiness.md#daily-ingestion-activation--september-30-2026).
 
 The initial product is next-morning completed-game statistics. Live scores and
-post-game polling remain separate future features. The morning run starts at
-15:17 UTC once daily. Delayed source updates are picked up on the next daily
-run, or through a manual rerun when needed. This is an intended start time, not
+post-game polling remain separate future features. The overnight run targets
+1 a.m. Vancouver time once daily using the `America/Vancouver` timezone.
+Delayed source updates are picked up on the next daily run, or through a manual rerun when needed. This is an intended start time, not
 a publication guarantee. GitHub schedules
 can be delayed or dropped. See [GitHub scheduling documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule).
 
@@ -135,7 +135,7 @@ seasons; explicitly select a missed older season if it was never enrolled.
 
 ## GitHub Actions operation
 
-- `.github/workflows/daily-ingestion.yml`: 15:17 UTC once daily, manual overrides,
+- `.github/workflows/daily-ingestion.yml`: 1 a.m. Vancouver time once daily, manual overrides,
   schema verification, coordinator, health checks and optional cache invalidation.
 - `.github/workflows/ingestion-health.yml`: manual-only, dedicated read credentials.
 - `.github/workflows/database-backup.yml`: 07:17 UTC, direct PG18 dump to private S3.
