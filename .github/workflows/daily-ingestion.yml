@@ -2,8 +2,9 @@ name: Daily ingestion
 
 on:
   schedule:
-    # One morning publication per day. UTC is explicit.
-    - cron: "17 15 * * *"
+    # One overnight publication per day at 1 a.m. Vancouver local time.
+    - cron: "0 1 * * *"
+      timezone: "America/Vancouver"
   workflow_dispatch:
     inputs:
       run_date:

@@ -194,8 +194,8 @@ specific domain or infrastructure responsibility.
 
 The `daily-update` Python coordinator owns refresh ordering and can be invoked
 by any scheduler. GitHub Actions provides manual dispatches and the active
-once-daily `15:17 UTC` production schedule, enabled September 30, 2026 after
-hosted rehearsal, recovery validation, and explicit approval. Scheduler
+once-daily 1 a.m. Vancouver time (`America/Vancouver`) production schedule,
+enabled September 30, 2026 after hosted rehearsal, recovery validation, and explicit approval. Scheduler
 configuration does not contain ingestion domain logic.
 
 Every parent and child run records its status, input range, row counts, errors,

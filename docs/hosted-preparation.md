@@ -403,8 +403,8 @@ Any trusted workflow on main could request that identity, so protect review of
 workflow changes. No permanent AWS keys are stored in GitHub. These roles have
 object-prefix permissions only, no bucket deletion or infrastructure creation.
 
-Ingestion runs once daily at 15:17 UTC with a 90-minute timeout. Manual reruns
-remain available for recovery or delayed source updates. The adapter
+Ingestion targets 1 a.m. Vancouver time (`America/Vancouver`) once daily with a
+90-minute timeout. Manual reruns remain available for recovery or delayed source updates. The adapter
 verifies schema, runs the existing daily coordinator, checks health even after
 an ingestion exit failure, and optionally revalidates website caches. The core
 coordinator retains database locks, retries, coverage and audit history.
