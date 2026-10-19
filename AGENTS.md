@@ -34,13 +34,14 @@ step, that request authorizes the normal end-to-end repository workflow:
 - open or update a pull request;
 - review the complete diff and address issues found;
 - wait for required CI checks;
-- merge the PR when the review has no blockers and CI passes;
+- prepare the PR for review when the review has no blockers and CI passes;
+- merge only after Tyler explicitly approves that PR;
 - delete the remote and local feature branch; and
 - update local `main` with a fast-forward pull.
 
-Do not ask Tyler to grant Git permissions again for those routine actions. Do
-not leave a completed, green PR waiting for Tyler to merge unless he explicitly
-asks to review or merge it himself.
+Do not ask Tyler to grant Git permissions again for those routine actions.
+Leave completed, green PRs unmerged until Tyler explicitly approves merging.
+Approval to implement, commit, push, or open a PR does not authorize a merge.
 
 This standing authorization does not include force-pushing, rewriting shared
 history, deleting releases or tags, changing repository settings or access,
@@ -54,13 +55,13 @@ actions unless Tyler explicitly requested the exact action.
    current branch has an open PR.
 2. Preserve unrelated user changes. Never stage, overwrite, or discard them.
 3. If an existing agent PR is complete, review it, fix any blockers, wait for
-   CI, merge it, delete its branch, and update `main` before starting dependent
-   work.
+   CI, and obtain Tyler’s explicit merge approval before merging it, deleting
+   its branch, and updating `main` for dependent work.
 4. Branch from current `main`. Use `agent/<short-description>` for features and
    documentation or `fix/<short-description>` for focused fixes.
 5. Keep each PR focused on one logical change. When Tyler explicitly requests
-   separate PRs, merge them sequentially so each later branch starts from the
-   newly updated `main`.
+   separate PRs, obtain approval and merge them sequentially so each later
+   branch starts from the newly updated `main`.
 6. Stage files explicitly and write a concise commit message describing the
    outcome.
 7. Open a ready-for-review PR once implementation and local validation are
@@ -69,7 +70,7 @@ actions unless Tyler explicitly requested the exact action.
    edge cases, data semantics, user experience, theme consistency,
    accessibility, tests, and documentation.
 9. If CI fails, diagnose and fix it on the same branch. If CI passes and the
-   review has no blockers, merge without asking for another routine approval.
+   review has no blockers, leave it ready for Tyler’s explicit merge approval.
 10. Prefer a squash merge for a focused PR unless the existing PR series or
     Tyler requires another method. Always delete the feature branch after
     merging and verify that local `main` is clean and current.
@@ -86,8 +87,9 @@ Unless Tyler asks for local-only work, completion means:
 - relevant tests, lint, type checks, and builds pass;
 - the diff has been reviewed and obvious product regressions are addressed;
 - affected documentation is current;
-- the PR is merged into `main`;
-- the feature branch is deleted locally and remotely; and
+- the PR is ready for review and left unmerged pending Tyler’s approval;
+- after explicit merge approval, the PR is merged into `main` and its feature
+  branch is deleted locally and remotely; and
 - the result, PR link, validation, and any real limitation are reported.
 
 If a required check cannot run, explain the exact reason and use the strongest
@@ -183,5 +185,6 @@ other people, or cause difficult-to-recover state changes. Examples include:
 - choosing between genuinely different product directions Tyler has not
   already resolved.
 
-Routine Git, GitHub, testing, formatting, local development, and PR completion
-are not reasons to stop and ask again.
+Routine Git, GitHub, testing, formatting, local development, and PR preparation
+are not reasons to stop and ask again. Merging a PR always requires Tyler’s
+explicit approval for that PR.
