@@ -1,5 +1,9 @@
 # Team and player pages
 
+> Current product scope is defined by [App simplification](app-simplification.md).
+> The feature inventory below records the broader pre-simplification app; retired
+> features are not commitments to restore them.
+
 The core team/player website exposes these server-rendered routes:
 
 - `/teams?season=20252026` provides a clickable directory grouped vertically

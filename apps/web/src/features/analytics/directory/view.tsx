@@ -6,9 +6,8 @@ import {
 import {
   seasonPhaseLabel
 } from "@/contracts/season-phase";
-import { AnalyticsSectionTabs } from "@/features/analytics/analytics-section-tabs";
-import { PlayerComparisonPlots, TeamComparisonScatterplot } from "@/features/charts/lazy-charts";
-import { DataViews } from "@/features/league/data-views";
+import { StatsTabs } from "@/components/ui/stats-tabs";
+import { ViewTabs } from "@/components/ui/view-tabs";
 import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
 import { SeasonPicker } from "@/features/league/season-picker";
 import { PagedLeaderboard as LeaderboardTable } from "./paged-leaderboard";
@@ -24,18 +23,15 @@ export function AnalyticsPageView({
   chartParams,
   hasCoverage,
   situation,
-  comparisonPoints,
-  skaterComparisonPoints,
-  goalieComparisonPoints,
 }: Awaited<ReturnType<typeof loadAnalyticsPage>>) {
   return (
     <main className="modern-analytics mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
-      <SiteHeader active="analytics" />
+      <SiteHeader active={type === "teams" ? "teams" : "players"} />
 
       <section className="py-10">
         <WorkspacePageHeader
-          eyebrow="MoneyPuck leaderboards"
-          title={`${selectedSeason?.label ?? "No Season"} Advanced Analytics`}
+          eyebrow=""
+          title={type === "teams" ? "Team Stats" : "Player Stats"}
           description={
             type === "teams"
               ? `${seasonPhaseLabel(phase)} shot quality and possession.`
@@ -61,10 +57,11 @@ export function AnalyticsPageView({
         {selectedSeason ? (
           <>
             <div className="workspace-context-navs">
-              <AnalyticsSectionTabs
-                seasonId={selectedSeason.id}
-                active={type}
-              />
+              <StatsTabs subject={type === "teams" ? "teams" : "players"} advanced seasonId={selectedSeason.id} phase={phase} type={type === "goalies" ? "goalies" : "skaters"} />
+              {type !== "teams" ? <ViewTabs active={type} ariaLabel="Player type" secondary tabs={[
+                { id: "skaters", label: "Skaters", href: `/analytics?season=${selectedSeason.id}&type=skaters` },
+                { id: "goalies", label: "Goalies", href: `/analytics?season=${selectedSeason.id}&type=goalies` },
+              ]} /> : null}
 
               {type === "teams" ? (
                 <SeasonPhaseFilter
@@ -82,64 +79,8 @@ export function AnalyticsPageView({
 
             {hasCoverage ? (
               <>
-                <DataViews
-                  table={
-                    <>
-                      {" "}
-                      <AnalyticsFilters
-                        seasonId={selectedSeason.id}
-                        type={type}
-                        situation={situation}
-                        minimumMinutes={minimumMinutes}
-                        phase={phase}
-                        chartParams={chartParams}
-                      />
-                      <LeaderboardTable
-                        type={type}
-                        rows={rows}
-                        seasonId={selectedSeason.id}
-                        phase={phase}
-                      />
-                    </>
-                  }
-                  charts={
-                    <>
-                      {type !== "teams" ? (
-                        <AnalyticsFilters
-                          seasonId={selectedSeason.id}
-                          type={type}
-                          situation={situation}
-                          minimumMinutes={minimumMinutes}
-                          phase={phase}
-                          chartParams={chartParams}
-                        />
-                      ) : null}{" "}
-                      <p className="mt-4 text-sm text-[var(--muted)]">
-                        {type === "teams"
-                          ? "Five-on-Five Team Comparison · All teams stay visible. Choose a process metric below."
-                          : `Up to 200 qualifying player-team rows, selected by ${type === "skaters" ? "Game Score" : "GSAx"}. Filters and comparisons operate within this sample.`}
-                      </p>{" "}
-                      {type === "teams" ? (
-                        <TeamComparisonScatterplot
-                          points={comparisonPoints}
-                          phase={phase}
-                        />
-                      ) : null}
-                      {type === "skaters" ? (
-                        <PlayerComparisonPlots
-                          kind="skater"
-                          points={skaterComparisonPoints}
-                        />
-                      ) : null}
-                      {type === "goalies" ? (
-                        <PlayerComparisonPlots
-                          kind="goalie"
-                          points={goalieComparisonPoints}
-                        />
-                      ) : null}
-                    </>
-                  }
-                />
+                <AnalyticsFilters seasonId={selectedSeason.id} type={type} situation={situation} minimumMinutes={minimumMinutes} phase={phase} chartParams={{}} />
+                <LeaderboardTable type={type} rows={rows} seasonId={selectedSeason.id} phase={phase} />
                 <AnalyticsGuide seasonId={selectedSeason.id} />
               </>
             ) : (

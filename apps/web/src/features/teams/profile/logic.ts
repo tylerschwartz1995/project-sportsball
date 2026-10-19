@@ -8,12 +8,9 @@ import {
 export type TeamView =
   | "overview"
   | "schedule"
-  | "strength"
-  | "trends"
   | "skaters"
   | "goalies"
-  | "advanced"
-  | "combinations";
+  | "advanced";
 
 export type TeamPageProps = {
   params: Promise<{ id: string }>;
@@ -34,87 +31,35 @@ export function teamViewTabs({
   nhlTeamId,
   seasonId,
   phase,
-  scheduleStrengthMetric,
-  chartParams,
 }: {
   nhlTeamId: number;
   seasonId: number;
   phase: "regular" | "playoffs";
-  scheduleStrengthMetric: string;
-  chartParams: Record<string, string | undefined>;
 }): ViewTab<TeamView>[] {
   const tabs: Array<{ id: TeamView; label: string }> = [
-    { id: "overview", label: "Overview" },
-    { id: "schedule", label: "Schedule" },
-    { id: "strength", label: "Strength" },
-    { id: "trends", label: "Recent Form" },
+    { id: "overview", label: "Basic Stats" },
+    { id: "schedule", label: "Games" },
     { id: "skaters", label: "Skaters" },
     { id: "goalies", label: "Goalies" },
-    { id: "advanced", label: "Shot Quality" },
-    { id: "combinations", label: "Lines & Pairings" },
+    { id: "advanced", label: "Advanced Stats" },
   ];
 
-  return tabs
-    .filter(
-      (tab) =>
-        (tab.id !== "strength" || phase === "regular") &&
-        (tab.id !== "combinations" ||
-          (seasonId >= 20082009 && phase === "regular")),
-    )
-    .map((tab) => {
-      const params = new URLSearchParams({
-        season: String(seasonId),
-        phase,
-        view: tab.id,
-      });
-      if (tab.id === "strength") {
-        params.set("sos", scheduleStrengthMetric);
-      }
-      if (tab.id === "trends") {
-        Object.entries(chartParams).forEach(([key, value]) => {
-          if (value) params.set(key, value);
-        });
-      }
-      return {
-        ...tab,
-        href: `/teams/${nhlTeamId}?${params.toString()}`,
-        prefetch: tab.id === "strength" ? true : undefined,
-        preservedSearchParameters: tab.id === "strength" ? ["sos"] : undefined,
-      };
-    });
+  return tabs.map(tab => ({ ...tab, href: `/teams/${nhlTeamId}?${new URLSearchParams({ season: String(seasonId), phase, view: tab.id })}` }));
 }
 
 export function parseTeamView(value: string | undefined): TeamView {
   const views: TeamView[] = [
     "overview",
     "schedule",
-    "strength",
-    "trends",
     "skaters",
     "goalies",
     "advanced",
-    "combinations",
   ];
   return views.includes(value as TeamView) ? (value as TeamView) : "overview";
 }
 
 export function parseTeamScheduleFilter(value: string | undefined): TeamScheduleFilter {
   return value === "completed" || value === "upcoming" ? value : "all";
-}
-
-export function normalizeTeamView(
-  view: TeamView,
-  seasonId: number,
-  phase: "regular" | "playoffs",
-): TeamView {
-  if (view === "strength" && phase !== "regular") return "overview";
-  if (
-    view === "combinations" &&
-    (phase !== "regular" || seasonId < 20082009)
-  ) {
-    return "overview";
-  }
-  return view;
 }
 
 export function formatSigned(value: number | null): string | null {

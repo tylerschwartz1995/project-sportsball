@@ -1,5 +1,9 @@
 # Implementation roadmap
 
+> Current product scope is defined by [App simplification](app-simplification.md).
+> The feature inventory below records the broader pre-simplification app; retired
+> features are not commitments to restore them.
+
 Status reviewed against `main` on September 6, 2026. Milestones 1–5 retain the
 July 31 local MVP checkpoint and include subsequent shipped improvements. The
 [MVP release record](mvp-release.md) separates original sign-off evidence from

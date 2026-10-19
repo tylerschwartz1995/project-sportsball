@@ -1,5 +1,9 @@
 # Product ideas
 
+> Current product scope is defined by [App simplification](app-simplification.md).
+> The feature inventory below records the broader pre-simplification app; retired
+> features are not commitments to restore them.
+
 This is a living backlog for features that are valuable but not necessarily part
 of the current delivery slice. Each idea should capture the user value, data
 requirements, and a likely path to implementation before it becomes scheduled

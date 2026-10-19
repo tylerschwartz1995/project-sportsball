@@ -1,8 +1,8 @@
+import { StatsTabs } from "@/components/ui/stats-tabs";
 import { MobileFilterPanel } from "@/components/ui/mobile-filter-panel";
 import { TableScroll } from "@/components/ui/table-scroll";
 import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
-import { MobileDataView } from "@/components/ui/mobile-data-view";
 import { Pagination } from "@/components/ui/pagination";
 import { SortableHeader } from "@/components/ui/sortable-header";
 import { SortableTable } from "@/components/ui/sortable-table";
@@ -33,7 +33,6 @@ export function PlayersPageView({
   position,
   sort,
   direction,
-  locations,
   filters,
   skaterPage,
   goaliePage,
@@ -47,7 +46,7 @@ export function PlayersPageView({
       <section className="py-10">
         <WorkspacePageHeader
           eyebrow="Player statistics"
-          title={`${selectedSeason?.label ?? "No Season"} Players`}
+          title="Player Stats"
           description={`Official ${seasonPhaseLabel(phase).toLowerCase()} statistics, combined across teams.`}
           action={
             <SeasonPicker
@@ -60,6 +59,7 @@ export function PlayersPageView({
 
         {selectedSeason ? (
           <>
+            <StatsTabs subject="players" seasonId={selectedSeason.id} phase={phase} type={category} />
             <SeasonPhaseFilter
               active={phase}
               path="/players"
@@ -75,13 +75,12 @@ export function PlayersPageView({
               position={position}
               sort={sort}
               direction={direction}
-              locations={locations}
               filters={filters}
             />
 
             </MobileFilterPanel>
 
-            <MobileDataView>
+            <div>
               {category === "skaters" ? (
                 <>
                   <PlayerSectionHeader
@@ -93,12 +92,6 @@ export function PlayersPageView({
                   {skaterPage.items.length > 0 ? (
                     <><div className="workspace-data-table-shell min-w-0">
                         <SortableTable
-                          secondaryColumns={[6, 7, 9]}
-                          initialExpanded={[
-                            "plusMinus",
-                            "penaltyMinutes",
-                            "teamsPlayedFor",
-                          ].includes(sort)}
                           defaultSortKey={sort}
                           defaultDirection={direction}
                         >
@@ -222,14 +215,6 @@ export function PlayersPageView({
                   {goaliePage.items.length > 0 ? (
                     <><div className="workspace-data-table-shell min-w-0">
                         <SortableTable
-                          secondaryColumns={[4, 6, 7, 8, 9]}
-                          initialExpanded={[
-                            "gamesStarted",
-                            "losses",
-                            "overtimeLosses",
-                            "goalsAgainst",
-                            "saves",
-                          ].includes(sort)}
                           defaultSortKey={sort}
                           defaultDirection={direction}
                         >
@@ -329,7 +314,7 @@ export function PlayersPageView({
                   )}
                 </>
               )}
-            </MobileDataView>
+            </div>
           </>
         ) : (
           <div className="mt-10 rounded-2xl border border-[color-mix(in_srgb,var(--warning)_42%,var(--border))] bg-[var(--warning-soft)] p-6 text-[var(--warning)]">

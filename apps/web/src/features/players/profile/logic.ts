@@ -98,7 +98,6 @@ export function playerViewTabs({
   nhlPlayerId,
   seasonId,
   phase,
-  chartParams,
 }: {
   nhlPlayerId: number;
   seasonId: number;
@@ -106,9 +105,8 @@ export function playerViewTabs({
   chartParams: Record<string, string | undefined>;
 }) {
   return [
-    { id: "overview" as const, label: "Overview" },
-    { id: "trends" as const, label: "Recent Form" },
-    { id: "advanced" as const, label: "Shot Quality" },
+    { id: "overview" as const, label: "Basic Stats" },
+    { id: "advanced" as const, label: "Advanced Stats" },
     { id: "seasons" as const, label: "Season History" },
   ].map((tab) => {
     const params = new URLSearchParams({
@@ -116,10 +114,6 @@ export function playerViewTabs({
       phase,
       view: tab.id,
     });
-    if (tab.id === "trends")
-      Object.entries(chartParams).forEach(([key, value]) => {
-        if (value) params.set(key, value);
-      });
     return { ...tab, href: `/players/${nhlPlayerId}?${params.toString()}` };
   });
 }
@@ -129,8 +123,7 @@ export function parsePlayerView(value: string | undefined): PlayerView {
     return "seasons";
   }
 
-  return value === "trends" ||
-    value === "advanced" ||
+  return value === "advanced" ||
     value === "seasons"
     ? value
     : "overview";

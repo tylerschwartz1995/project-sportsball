@@ -1,5 +1,9 @@
 # Advanced analytics presentation
 
+> Current product scope is defined by [App simplification](app-simplification.md).
+> The feature inventory below records the broader pre-simplification app; retired
+> features are not commitments to restore them.
+
 The MoneyPuck website layer exposes season-level team, skater, and goalie
 metrics plus game-level team, player, shot, line, and pairing records through
 server-only TypeScript queries.

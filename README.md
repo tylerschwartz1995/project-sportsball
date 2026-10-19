@@ -8,18 +8,14 @@ A personal NHL statistics website with all-time traditional season records from
 
 ## Project scope
 
-The local NHL MVP provides:
+The app focuses on team stats, player stats, and completed games. Team and
+player pages offer Basic Stats and Advanced Stats, with season and phase
+selection. Completed-game pages retain box scores, scoring, and game analytics.
+The daily ingestion and historical data foundation remain in place.
 
-- Daily NHL data updates
-- Team and player statistics
-- Standings, schedules, and game results
-- Game box scores
-- Historical season navigation
-- Advanced analytics
-
-The second stage will add predictive modelling for team and player performance.
-Tested point-in-time observation selection and versioned dataset manifests provide
-the initial foundation; prediction targets, training, and evaluation remain future work.
+The broader research interface has been scaled back. See
+[App simplification](docs/app-simplification.md) for the current scope.
+Predictive modelling and additional research workflows are deferred.
 
 ## Status
 
@@ -38,52 +34,13 @@ through 2025–26, including
 schedules, results, box scores, play-by-play, player profiles, traditional
 season statistics, standings, and the published MoneyPuck datasets described
 in [Data sources and coverage](docs/data-sources.md).
-The complete published 2026–27 regular-season schedule is stored as 1,344
-future games. The schedule supports week, calendar, phase, and team navigation
-with local start times. Team profiles include complete selected-season
-schedules and future schedule-only seasons. History provides career and
-single-season rankings, multi-season peaks, and era-relative comparisons.
-
 The September 5, 2026 completeness audit passed all 21 detailed seasons with
 no errors. These are recorded audit results, not a live health guarantee or data
-installed by cloning the repository.
-Three early seasons contain warnings for a total of 41 play-by-play participant
-references that the NHL source identifies but that cannot be mapped to a
-canonical player. Those source identifiers remain preserved. The core website
-is implemented with read-only standings, schedules, box scores, team pages,
-player profiles, historical navigation, directory search and sorting,
-responsive layouts, sortable statistics tables, and JSON endpoints.
-The standings workspace adds overall, conference, and division views plus
-cumulative points history. Player discovery includes minimum-stat and birth
-region filters, and a dedicated playoffs workspace presents the historical
-bracket, scoring leaders, or projected first-round matchups before play begins.
-Player comparisons now combine official and available advanced season metrics,
-while the draft-history workspace covers all 13,152 official selections from
-1963 through 2026 and evaluates team outcomes with true selection denominators.
-MoneyPuck presentation is implemented on team, player, and game pages,
-including game-level expected-goal and possession tables, shot maps, forward
-lines, and defensive pairings. Shot-map events can be selected to inspect
-shooter, result, timing, goalie, and shot-quality context, and a shared metric
-guide explains advanced-stat definitions across the website. Season-level
-top-line and defensive-pairing
-rankings are calculated in Polars and available across the league and on team
-pages. Completed game pages include official scoring summaries and expandable
-period-by-period timelines from the normalized NHL play-by-play archive. Team
-and player profiles also link to complete selected-season game logs with
-last-ten form summaries and available MoneyPuck game metrics. An audited
-daily-update coordinator and GitHub Actions worker are implemented,
-including persistent retries, missed-day schedule recovery, current-season
-career-summary refreshes, and manual health checks. Production ingestion runs
-daily at 1 a.m. Vancouver time (`America/Vancouver`), following the verified
-hosted rehearsal and recovery checks. Monthly backup scheduling remains disabled.
-Operational health checks now
-cover source freshness, stuck jobs, recent-game completeness, and HTTP
-deployment readiness. The Modern Stats Exploration interface provides responsive
-global navigation, persistent light/dark themes with a dark first-visit
-default, and native workspace presentations for the league overview, standings,
-team and player directories, primary team and player profiles, and the complete
-game directory-to-box-score workflow. Advanced leaderboards and their shared
-metric guide use the same native workspace system.
+installed by cloning the repository. Coverage limitations are documented in
+[Data sources](docs/data-sources.md).
+
+Daily production ingestion remains active. This interface simplification does
+not change data collection, stored history, deployment, or operational schedules.
 
 ## Local development
 

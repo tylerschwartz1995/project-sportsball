@@ -22,37 +22,12 @@ type SiteHeaderProps = {
   active?: SiteSection;
 };
 
-const navigationGroups = [
-  {
-    label: "Follow",
-    links: [
-      { id: "home", href: "/", label: "Home" },
-      { id: "games", href: "/games", label: "Games" },
-      { id: "standings", href: "/standings", label: "Standings" },
-      { id: "playoffs", href: "/playoffs", label: "Playoffs" },
-    ],
-  },
-  {
-    label: "Explore",
-    links: [
-      { id: "teams", href: "/teams", label: "Teams" },
-      { id: "players", href: "/players", label: "Players" },
-    ],
-  },
-  {
-    label: "Research",
-    links: [
-      { id: "analytics", href: "/analytics", label: "Analytics" },
-      { id: "drafts", href: "/drafts", label: "Drafts" },
-      { id: "history", href: "/history", label: "History" },
-    ],
-  },
-] as const;
-const links = [
-  ...navigationGroups[0].links,
-  ...navigationGroups[1].links,
-  ...navigationGroups[2].links,
-];
+const navigationGroups = [{ label: "Stats", links: [
+  { id: "teams", href: "/teams", label: "Teams" },
+  { id: "players", href: "/players", label: "Players" },
+  { id: "games", href: "/games", label: "Games" },
+] }] as const;
+const links = navigationGroups[0].links;
 
 export function SiteHeader(props: SiteHeaderProps) {
   return (
@@ -149,7 +124,7 @@ function HeaderContent({ active, searchQuery = "", pathname = "" }: SiteHeaderPr
             </div>
           ))}
           <Link href="/search">Find a Player · All Seasons</Link>
-          <Link href={destination("/lines")}>Lines & Pairings</Link>
+
         </nav>
       </details>
       <nav aria-label="Primary navigation" className="site-navigation">

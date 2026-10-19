@@ -2,11 +2,9 @@ import { withReadContext } from "@/data/read-context";
 import { parseNhlId } from "@/contracts/entity";
 import { parseSeasonId } from "@/contracts/season";
 import {
-  gameTypeForPhase,
   parseSeasonPhase
 } from "@/contracts/season-phase";
 import { getMoneyPuckPlayerSeason } from "@/data/performance-cache";
-import { getPlayerGameLog } from "@/data/performance-cache";
 import { listCachedSeasons } from "@/data/page-cache";
 import { getPlayerCareer } from "@/data/performance-cache";
 import { getPlayerDetail } from "@/data/performance-cache";
@@ -109,53 +107,7 @@ async function loadPlayerPageData({
     (phase === "playoffs" ? playoffGoalie?.teams : regularGoalie?.teams) ??
     [];
   const profile = detail.profile;
-  const [advanced, gameLog] = selectedSeason
-    ? await Promise.all([
-      view === "advanced" && phase === "regular"
-        ? getMoneyPuckPlayerSeason(nhlPlayerId, selectedSeason.id)
-        : Promise.resolve(null),
-      view === "trends"
-        ? getPlayerGameLog(nhlPlayerId, selectedSeason.id)
-        : Promise.resolve(null),
-    ])
-    : [null, null];
-  const gameType = gameTypeForPhase(phase);
-  const skaterPerformanceGames =
-    gameLog?.skaterGames
-      .filter((game) => game.gameType === gameType)
-      .map((game) => ({
-        nhlGameId: game.nhlGameId,
-        gameDate: game.gameDate,
-        isHome: game.isHome,
-        team: game.team,
-        opponent: game.opponent,
-        teamScore: game.teamScore,
-        opponentScore: game.opponentScore,
-        points: game.points,
-        goals: game.goals,
-        assists: game.assists,
-        shotsOnGoal: game.shotsOnGoal,
-        gameScore: game.gameScore,
-        individualXGoals: game.individualXGoals,
-        onIceXGoalsPercentage: game.onIceXGoalsPercentage,
-      })) ?? [];
-  const goaliePerformanceGames =
-    gameLog?.goalieGames
-      .filter((game) => game.gameType === gameType)
-      .map((game) => ({
-        nhlGameId: game.nhlGameId,
-        gameDate: game.gameDate,
-        isHome: game.isHome,
-        team: game.team,
-        opponent: game.opponent,
-        teamScore: game.teamScore,
-        opponentScore: game.opponentScore,
-        saves: game.saves,
-        shotsAgainst: game.shotsAgainst,
-        goalsAgainst: game.goalsAgainst,
-        expectedGoalsAgainst: game.expectedGoalsAgainst,
-        goalsSavedAboveExpected: game.goalsSavedAboveExpected,
-      })) ?? [];
+  const advanced = selectedSeason && view === "advanced" && phase === "regular" ? await getMoneyPuckPlayerSeason(nhlPlayerId, selectedSeason.id) : null;
   return {
     selectedSeason,
     phase,
@@ -170,8 +122,6 @@ async function loadPlayerPageData({
     playoffGoalie,
     career,
     nhlPlayerId,
-    skaterPerformanceGames,
-    goaliePerformanceGames,
     seasons,
     advanced,
   } as const;

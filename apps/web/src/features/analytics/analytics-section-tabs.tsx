@@ -19,23 +19,13 @@ export function AnalyticsSectionTabs({
   }> = [
     {
       id: "teams",
-      label: "Teams",
+      label: "Team Stats",
       href: `/analytics?season=${seasonId}&type=teams&situation=5on5`,
     },
     {
       id: "skaters",
-      label: "Skaters",
+      label: "Player Stats",
       href: `/analytics?season=${seasonId}&type=skaters&situation=5on5&minimum=300`,
-    },
-    {
-      id: "goalies",
-      label: "Goalies",
-      href: `/analytics?season=${seasonId}&type=goalies&situation=all&minimum=500`,
-    },
-    {
-      id: "lines",
-      label: "Lines & Pairings",
-      href: `/lines?season=${seasonId}&minimum=100`,
     },
     {
       id: "guide",

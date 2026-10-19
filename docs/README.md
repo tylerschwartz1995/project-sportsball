@@ -7,6 +7,8 @@ with a clone or a guarantee of current source freshness.
 
 ## Start here
 
+- [Current simplified app scope](app-simplification.md)
+
 - [Project overview and local setup](../README.md)
 - [Web development and validation](../apps/web/README.md)
 - [Agent working agreement](../AGENTS.md)

@@ -22,57 +22,21 @@ make web-check
 The application reads prepared records from Sportsball storage. It must not
 call NHL or MoneyPuck endpoints while rendering user requests.
 
-The current read-only slice provides:
+The active app has three destinations:
 
-- a server-rendered league homepage with results, upcoming games, standings,
-  and top-five scoring, season Game Score, and GSAx leaderboards;
-- dedicated sortable NHL standings with overall, conference, and division
-  views plus a filterable cumulative-points plot;
-- a server-rendered schedule and results page with season/date navigation;
-- a curated NHL record book from 1917–18 onward with qualified career and
-  single-season skater, goalie, and team rankings, multi-season peaks, record
-  progression, decade leaders, scoring context, and era-relative comparisons;
-- individual game pages with traditional box scores, scoring summaries,
-  expandable play-by-play timelines, advanced team/player results, shot maps,
-  forward lines, and defensive pairings;
-- a conference-and-division team directory and team detail pages with official
-  player splits, MoneyPuck season metrics, complete selected-season schedules, and
-  time-aware completed and remaining strength-of-schedule analysis with rest,
-  back-to-back, and estimated travel context;
-- complete player leaderboards with minimum-stat and birth-region filters,
-  plus player profiles with separate regular-season/playoff history and
-  situation-filtered MoneyPuck season metrics;
-- a searchable two-to-four-player comparison page combining official totals
-  with available advanced metrics;
-- a complete 1963–2026 draft archive with every official selection,
-  traded-pick history, pick-value plots, and true team appearance and 100-game
-  rates;
-- a historical playoff bracket and postseason skater-and-goalie leader page
-  that falls back to standings-based projected matchups before playoff games
-  begin;
-- team and player game logs with last-ten form summaries, traditional
-  box-score metrics, and available MoneyPuck game analytics;
-- league-wide MoneyPuck team, skater, and goalie leaderboards with situation
-  and minimum-ice-time controls plus persistent section navigation and a
-  centralized advanced-metric guide;
-- season and rolling 10-, 20-, and 40-team-game forward-line and
-  defensive-pairing rankings with league/team and minimum-ice-time filters,
-  plus drill-down to every supporting game;
-- selectable, keyboard-accessible shot-map events with shooter, result, time,
-  goalie, and shot-quality details;
-- sortable statistics tables, with server sorting before pagination for the
-  player directory and historical rankings; bounded advanced populations are
-  labeled so alternate sorts are not mistaken for complete-league rankings;
-- Find a Player search across stored profiles from all seasons, with links to
-  career history and context-preserving Back to Results navigation;
-- URL-backed single-view tabs for long team, player, game, standings,
-  postseason, draft, and historical-leader pages;
+- **Teams:** sortable basic season stats and an Advanced Stats tab; team
+  profiles provide stats, roster splits, and games.
+- **Players:** basic season stats with name, type, position, and minimum-games
+  filters; an Advanced Stats tab; individual profiles and season history.
+- **Games:** schedule/results navigation and completed-game box scores,
+  scoring summaries, and advanced game information.
 
-Team, player, and game summaries link to their supporting detail pages. Team
-profile season selectors include stored statistical participation and scheduled
-seasons, so future schedules remain available before season totals exist.
-The [design system](../../docs/design-system.md) documents the horizontal desktop
-navigation, grouped mobile Menu, theme tokens, and shared data components.
+Home opens Team Stats. Season and regular-season/playoff context remain
+shareable in URLs. Advanced data retains MoneyPuck attribution and honest
+coverage notices. Retired research destinations redirect into the core app.
+See [App simplification](../../docs/app-simplification.md) for scope and cleanup
+boundaries. Older browser suites that target retired workflows are historical;
+CI's fixture smoke suite covers the simplified core in both themes and sizes.
 
 JSON endpoints include:
 

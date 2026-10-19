@@ -6,7 +6,6 @@ import {
   seasonPhaseLabel
 } from "@/contracts/season-phase";
 import { PlayerAdvancedAnalytics } from "@/features/analytics/advanced-analytics";
-import { PlayerRollingPerformanceChart } from "@/features/charts/lazy-charts";
 import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
 import { SeasonPicker } from "@/features/league/season-picker";
 import { PlayerCareer } from "@/features/players/player-career";
@@ -31,8 +30,6 @@ export function PlayerPageView({
   playoffGoalie,
   career,
   nhlPlayerId,
-  skaterPerformanceGames,
-  goaliePerformanceGames,
 }: Awaited<ReturnType<typeof loadPlayerPage>>) {
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
@@ -68,15 +65,6 @@ export function PlayerPageView({
           </div>
           {careerSeasons.length > 0 ? (
             <div className="workspace-page-actions">
-              {selectedSeason &&
-                seasons.some((season) => season.id === selectedSeason.id) ? (
-                <Link
-                  href={`/players/compare?season=${selectedSeason.id}&phase=${phase}&type=${profile.position === "G" ? "goalies" : "skaters"}&players=${profile.nhlPlayerId}`}
-                  className="workspace-secondary-action"
-                >
-                  Compare Player
-                </Link>
-              ) : null}
               {view !== "seasons" ? (
                 <SeasonPicker
                   seasons={careerSeasons}
@@ -101,9 +89,7 @@ export function PlayerPageView({
             }).filter(
               (tab) =>
                 (tab.id !== "advanced" ||
-                  (phase === "regular" && selectedSeason.id >= 20082009)) &&
-                (tab.id !== "trends" ||
-                  seasons.some((season) => season.id === selectedSeason.id)),
+                  (phase === "regular" && selectedSeason.id >= 20082009)),
             )}
           />
         ) : null}
@@ -177,13 +163,7 @@ export function PlayerPageView({
               <ProfileStat
                 label="Draft"
                 value={
-                  profile.draftYear ? (
-                    <Link href={`/drafts?view=board&year=${profile.draftYear}`}>
-                      {formatDraft(profile)} →
-                    </Link>
-                  ) : (
-                    formatDraft(profile)
-                  )
+                  formatDraft(profile)
                 }
               />
             </dl>
@@ -195,43 +175,6 @@ export function PlayerPageView({
               >
                 Detailed Game Log →
               </Link>
-            ) : null}
-          </>
-        ) : null}
-
-        {view === "trends" ? (
-          <>
-            {skaterPerformanceGames.length > 0 ||
-              goaliePerformanceGames.length > 0 ? (
-              <section className="workspace-width-standard mt-8">
-                <SectionTitle
-                  eyebrow="Rolling performance"
-                  title="Player Form"
-                  detail={`${seasonPhaseLabel(phase)} · rates update after every appearance`}
-                />
-                <div className="mt-5 grid gap-6">
-                  {skaterPerformanceGames.length > 0 ? (
-                    <PlayerRollingPerformanceChart
-                      kind="skater"
-                      games={skaterPerformanceGames}
-                      playerName={profile.name}
-                    />
-                  ) : null}
-                  {goaliePerformanceGames.length > 0 ? (
-                    <PlayerRollingPerformanceChart
-                      kind="goalie"
-                      games={goaliePerformanceGames}
-                      playerName={profile.name}
-                    />
-                  ) : null}
-                </div>
-              </section>
-            ) : null}
-            {skaterPerformanceGames.length === 0 &&
-              goaliePerformanceGames.length === 0 ? (
-              <div className="workspace-empty-state mt-8">
-                No game-by-game performance is available for this selection.
-              </div>
             ) : null}
           </>
         ) : null}

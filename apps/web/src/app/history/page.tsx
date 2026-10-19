@@ -1,9 +1,10 @@
-import { loadHistoryPage } from '@/features/history/directory/loader';
-import type { HistoryPageProps } from '@/features/history/directory/logic';
-import { HistoryPageView } from '@/features/history/directory/view';
-
-export const dynamic = "force-dynamic";
-
-export default async function HistoryPage(props: HistoryPageProps) {
-  return <HistoryPageView {...await loadHistoryPage(props)} />;
+import { redirect } from "next/navigation";
+export default async function RetiredPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const incoming = await searchParams;
+  const params = new URLSearchParams();
+  for (const key of ["season", "phase"]) {
+    const value = incoming[key];
+    if (typeof value === "string") params.set(key, value);
+  }
+  redirect(`/players${params.size ? `?${params}` : ""}`);
 }

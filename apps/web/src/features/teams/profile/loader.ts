@@ -1,6 +1,5 @@
 import { withReadContext } from "@/data/read-context";
 import { parseNhlId } from "@/contracts/entity";
-import { parseScheduleStrengthMetric } from "@/contracts/schedule-strength";
 import { parseSeasonId } from "@/contracts/season";
 import {
   gameTypeForPhase,
@@ -9,22 +8,17 @@ import {
 import { getMoneyPuckTeamSeason } from "@/data/performance-cache";
 import { getTeamSchedule } from "@/data/performance-cache";
 import {
-  getCachedTeamGameLog,
   getCachedTeamIdentityForSeason,
-  getCachedTeamScheduleStrength,
   getCachedTeamSeasonDetail,
   getCachedTeamSeasonProfile,
   listCachedScheduleSeasons,
   listCachedSeasons,
   listCachedTeamScheduleSeasonIds,
   listCachedTeamSeasonIds,
-  listCachedTeamsBySeason,
 } from "@/data/page-cache";
-import { getMoneyPuckSeasonUnitLeaders } from "@/data/performance-cache";
-import { buildTeamSeasonIdentity } from "@/lib/team-season-identity";
 import { notFound } from "next/navigation";
 import "server-only";
-import { TeamPageProps, firstValue, normalizeTeamView, parseTeamScheduleFilter, parseTeamView, teamViewTabs } from './logic';
+import { TeamPageProps, firstValue, parseTeamScheduleFilter, parseTeamView, teamViewTabs } from './logic';
 async function loadTeamPageData({
   params,
   searchParams,
@@ -51,19 +45,10 @@ async function loadTeamPageData({
   const availableSeasons = seasons.filter((season) =>
     teamSeasonIdSet.has(season.id),
   );
-  const chartParams = {
-    chartWindow: firstValue(pageParams.chartWindow),
-    chartVenue: firstValue(pageParams.chartVenue),
-    showGoals: firstValue(pageParams.showGoals),
-    showExpectedGoals: firstValue(pageParams.showExpectedGoals),
-  };
   const requestedSeason = firstValue(pageParams.season);
   const phase = parseSeasonPhase(firstValue(pageParams.phase));
   const scheduleFilter = parseTeamScheduleFilter(
     firstValue(pageParams.scheduleState),
-  );
-  const scheduleStrengthMetric = parseScheduleStrengthMetric(
-    firstValue(pageParams.sos),
   );
   const gameType = gameTypeForPhase(phase);
   const parsedSeason = parseSeasonId(requestedSeason);
@@ -73,16 +58,12 @@ async function loadTeamPageData({
   if (!selectedSeason) {
     notFound();
   }
-  const view = normalizeTeamView(requestedView, selectedSeason.id, phase);
+  const view = requestedView;
   const [
     detail,
     advanced,
-    units,
     scheduleGames,
     scheduleTeam,
-    gameLog,
-    scheduleStrength,
-    overviewPeers,
   ] = await Promise.all([
     view === "skaters" || view === "goalies"
       ? getCachedTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType)
@@ -90,28 +71,12 @@ async function loadTeamPageData({
     view === "advanced"
       ? getMoneyPuckTeamSeason(nhlTeamId, selectedSeason.id, gameType)
       : Promise.resolve(null),
-    view === "combinations"
-      ? getMoneyPuckSeasonUnitLeaders(selectedSeason.id, {
-        teamNhlId: nhlTeamId,
-        minimumIceTimeSeconds: 3_000,
-        limit: 100,
-      })
-      : Promise.resolve(null),
     view === "schedule"
       ? getTeamSchedule(nhlTeamId, selectedSeason.id, gameType)
       : Promise.resolve([]),
     view === "schedule"
       ? getCachedTeamIdentityForSeason(nhlTeamId, selectedSeason.id)
       : Promise.resolve(null),
-    view === "trends" || view === "overview"
-      ? getCachedTeamGameLog(nhlTeamId, selectedSeason.id)
-      : Promise.resolve(null),
-    view === "strength" && phase === "regular"
-      ? getCachedTeamScheduleStrength(nhlTeamId, selectedSeason.id)
-      : Promise.resolve(null),
-    view === "overview"
-      ? listCachedTeamsBySeason(selectedSeason.id, gameType)
-      : Promise.resolve([]),
   ]);
   const profileDetail =
     detail ??
@@ -132,37 +97,21 @@ async function loadTeamPageData({
     nhlTeamId: profileDetail.team.nhlTeamId,
     seasonId: selectedSeason.id,
     phase,
-    scheduleStrengthMetric,
-    chartParams,
   });
   const overviewStats =
     phase === "playoffs" ? profileDetail.playoffs : profileDetail.regularSeason;
-  const overviewIdentity =
-    view === "overview" && overviewStats
-      ? buildTeamSeasonIdentity({
-        stats: overviewStats,
-        peers: overviewPeers,
-        games: gameLog?.games ?? [],
-      })
-      : null;
   return {
     selectedSeason,
     phase,
     profileDetail,
     availableSeasons,
-    scheduleStrengthMetric,
     view,
     scheduleFilter,
-    chartParams,
     viewTabs,
-    overviewIdentity,
     overviewStats,
     gameType,
     scheduleGames,
-    scheduleStrength,
-    gameLog,
     advanced,
-    units,
   } as const;
 }
 
