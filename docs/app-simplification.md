@@ -8,6 +8,8 @@ stats use a sortable results table with season and phase selection; player
 stats retain name, type, position, and minimum-games filters. Advanced tables
 retain situation and minimum-workload controls, coverage notes, and metric help.
 Completed-game detail pages, box scores, scoring, and game analytics remain.
+Shot Maps is available inside Shot Quality; the duplicate top-level game tab
+has been removed.
 
 Team profiles retain basic stats, advanced stats, roster splits, and games.
 Player profiles retain basic stats, advanced stats, and season history. Rolling

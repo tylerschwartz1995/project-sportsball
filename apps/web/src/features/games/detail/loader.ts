@@ -84,13 +84,6 @@ async function loadGamePageData({
         href: `/games/${game.nhlGameId}?view=advanced&advancedView=teams`,
       }
       : null,
-    availability.advanced
-      ? {
-        id: "shots" as const,
-        label: "Shot Maps",
-        href: `/games/${game.nhlGameId}?view=advanced&advancedView=shots`,
-      }
-      : null,
   ].filter((tab): tab is NonNullable<typeof tab> => tab !== null);
   return {
     game,

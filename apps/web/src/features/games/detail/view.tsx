@@ -17,7 +17,7 @@ import { finalLabel, formatDate } from './logic';
 import { ScoreTeam, TeamBoxScore } from './sections';
 type PageData = Awaited<ReturnType<typeof loadGamePage>>;
 export function GamePageView(data: PageData) {
-  const { game, completed, tabs, view, advancedView } = data;
+  const { game, completed, tabs, view } = data;
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="games" />
@@ -67,9 +67,7 @@ export function GamePageView(data: PageData) {
         ) : null}
         {tabs.length > 0 ? (
           <ViewTabs
-            active={
-              view === "advanced" && advancedView === "shots" ? "shots" : view
-            }
+            active={view}
             ariaLabel="Game views"
             label="Game view"
             tabs={tabs}
