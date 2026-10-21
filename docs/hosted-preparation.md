@@ -150,8 +150,11 @@ Previews have no production credentials. An authenticated operator request throu
 
 The first production build failed at Vercel packaging due to the Next.js 16.3
 standalone/adapter conflict ([upstream issue](https://github.com/vercel/next.js/issues/96646)).
-`next.config.ts` now uses Vercel’s adapter output on Vercel and keeps standalone
-output for Docker. PRs #159 and #160 passed Python pipeline, Web application and
+The initial fix used Vercel’s adapter output on Vercel and standalone output
+for Docker. The October 21 cleanup removed the unused Docker output setting
+and `.dockerignore`; builds now use the default Next.js output locally and
+Vercel’s adapter when hosted. Local PostgreSQL still uses Compose with a
+prebuilt image. PRs #159 and #160 passed Python pipeline, Web application and
 AWS preparation CI before merge; #160 also passed a real Vercel preview build.
 The successful production deployment reports Oregon functions. Build machines
 can run in a different region from the deployed functions.
