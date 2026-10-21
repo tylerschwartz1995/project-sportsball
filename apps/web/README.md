@@ -48,7 +48,7 @@ and the [regression checklist](../../docs/desktop-ux-regression.md) cover visual
 
 ## Passkey login
 
-The new login flow is opt-in and disabled by default. See
-[Passkey rollout and testing](../../docs/passkey-login.md) before activation.
+Passkey login is active in production; other environments default to disabled.
+See [Passkey rollout and testing](../../docs/passkey-login.md) for setup and rollback.
 Use `npm run test:browser:passkeys` with the same isolated fixture database
 settings as the smoke suite to exercise a virtual authenticator and sessions.

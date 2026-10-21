@@ -19,7 +19,32 @@ endpoint is exposed.
 - Logout ends the current session. Browser data clearing/private browsing still
   requires signing in again.
 
-## Activation — not performed by this PR
+## Production activation — October 21, 2026
+
+Tyler approved production activation after PR #174 merged. Production uses
+`sportsball_auth` in the existing Neon production branch, with a separate
+`sportsball_auth` role restricted to the six authentication tables. The database
+URL, fresh authentication secret, and enabled flag are scoped only to Vercel
+Production. Existing email recovery, the two-address allowlist, and hockey
+data credentials are unchanged.
+
+Release: `9b90c64`, deployment `dpl_FHBBoPJV9pd6TU7m86YYxLgmJq9C`, at
+[Sportsball](https://sportsball-iota.vercel.app). Preview credentials are not reused.
+Tyler verified Apple iCloud Keychain enrollment/sign-in and browser-reopen
+persistence on the isolated preview. A 1Password sign-in failed during rehearsal;
+its cause remains unconfirmed. Production requires fresh enrollment because
+passkeys are hostname-specific; live enrollment and the second approved account
+still require user verification.
+
+Post-deployment checks: the live login page shows the passkey option, the
+authentication-options endpoint returns 200 for `sportsball-iota.vercel.app`,
+anonymous statistics access returns 401, and cross-site authentication POSTs
+return 403. No error/fatal runtime logs were found during this initial check.
+
+To roll back, set `SPORTSBALL_PASSKEYS_ENABLED=false` for Production and redeploy.
+This restores email-only login without deleting authentication records.
+
+## Setup for another environment
 
 Keep `SPORTSBALL_PASSKEYS_ENABLED=false` until the following are complete. The
 existing Neon email-code login remains the default during preparation.
