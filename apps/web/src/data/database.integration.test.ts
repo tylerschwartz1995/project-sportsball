@@ -11,22 +11,8 @@ import {
   listGameDates,
 } from "@/data/games";
 import { getPlayerDetail, listPlayersBySeason } from "@/data/players";
-import {
-  getHistoricalDecadeLeaders,
-  getHistoricalEraScores,
-  getHistoricalGoalieEraScores,
-  getHistoricalGoalieDecadeLeaders,
-  getHistoryLeagueTrend,
-  getHistoryFilterOptions,
-  getHistoricalLeaderboard,
-  getHistoricalLeaders,
-  getHistoricalPeaks,
-  getHistoricalPlayerSeasons,
-} from "@/data/history";
 import { getGamePlayByPlay } from "@/data/play-by-play";
-import { getTeamScheduleStrength } from "@/data/schedule-strength";
 import { listSeasons } from "@/data/seasons";
-import { getMoneyPuckSeasonUnitLeaders } from "@/data/season-units";
 import { getStandings } from "@/data/standings";
 import { getTeamSeasonDetail, listTeamsBySeason } from "@/data/teams";
 
@@ -45,14 +31,6 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
   });
   afterAll(async () => {
     await closeDatabasePool();
-  });
-
-  it("labels historical filter clubs without changing their source abbreviations", async () => {
-    const options = await getHistoryFilterOptions(2);
-    expect(options.teams).toContain("AFM");
-    expect(options.teamNames.AFM).toBe("Atlanta Flames");
-    expect(options.teamNames.EDM).toBe("Edmonton Oilers");
-    expect(new Set(options.teams).size).toBe(options.teams.length);
   });
 
   it("preserves full historical careers and excludes goalie non-appearances", async () => {
@@ -180,20 +158,6 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     expect(team?.skaters.length).toBeGreaterThan(20);
     expect(team?.goalies.length).toBeGreaterThan(1);
 
-    const scheduleStrength = await getTeamScheduleStrength(12, historicalSeasons[0].id);
-    expect(scheduleStrength.games).toHaveLength(82);
-    expect(scheduleStrength.games.every((game) => game.completed)).toBe(true);
-    expect(
-      scheduleStrength.games.some(
-        (game) => game.opponentPointsPercentage !== null,
-      ),
-    ).toBe(true);
-    expect(
-      scheduleStrength.games.some(
-        (game) => game.opponentExpectedGoalsPercentage !== null,
-      ),
-    ).toBe(true);
-
     const players = await listPlayersBySeason(historicalSeasons[0].id);
     expect(players.skaters).toHaveLength(940);
     expect(players.goalies).toHaveLength(98);
@@ -214,135 +178,6 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
     expect(player?.profile.name).toBe("Connor McDavid");
     expect(player?.skaterSeasons.length).toBeGreaterThan(10);
 
-    const gretzkyHistory = await getHistoricalPlayerSeasons(8447400);
-    expect(
-      gretzkyHistory.skaters.find((row) => row.seasonId === 19851986),
-    ).toMatchObject({
-      points: 215,
-      gameType: 2,
-    });
-    const rateLeaders = await getHistoricalLeaders(
-      "skaters",
-      "pointsPerGame",
-      2,
-      {
-        startYear: 1980,
-        endYear: 2025,
-        minimumGames: 500,
-        position: "C",
-        team: null,
-        country: null,
-      },
-      10,
-    );
-    expect(rateLeaders.view).toBe("skaters");
-    if (rateLeaders.view !== "skaters") {
-      throw new Error("expected skater rate leaders");
-    }
-    expect(rateLeaders.careers[0]?.pointsPerGame).toBeGreaterThan(1);
-
-    const qualifiedSeasons = await getHistoricalLeaderboard(
-      "skaters",
-      "seasons",
-      "pointsPerGame",
-      2,
-      {
-        startYear: 1917,
-        endYear: 2025,
-        minimumGames: 40,
-        position: null,
-        team: null,
-        country: null,
-      },
-      1,
-      25,
-    );
-    expect(qualifiedSeasons.view).toBe("skaters");
-    expect(qualifiedSeasons.rows[0]).toMatchObject({
-      name: "Wayne Gretzky",
-      rank: 1,
-    });
-    expect(qualifiedSeasons.totalRows).toBeGreaterThan(1_000);
-
-    const peaks = await getHistoricalPeaks(
-      "skaters",
-      "points",
-      3,
-      2,
-      {
-        startYear: 1917,
-        endYear: 2025,
-        minimumGames: 120,
-        position: null,
-        team: null,
-        country: null,
-      },
-      1,
-      10,
-    );
-    expect(peaks[0]).toMatchObject({ name: "Wayne Gretzky", rank: 1 });
-    expect(peaks[0]?.value).toBeGreaterThan(600);
-
-    const eraScores = await getHistoricalEraScores(
-      2,
-      {
-        startYear: 1917,
-        endYear: 2025,
-        minimumGames: 500,
-        position: null,
-        team: null,
-        country: null,
-      },
-      1,
-      10,
-    );
-    expect(eraScores).toHaveLength(10);
-    expect(eraScores[0]?.eraScore).toBeGreaterThan(200);
-
-    const goalieEraScores = await getHistoricalGoalieEraScores(
-      2,
-      {
-        startYear: 1917,
-        endYear: 2025,
-        minimumGames: 250,
-        position: null,
-        team: null,
-        country: null,
-      },
-      1,
-      10,
-    );
-    expect(goalieEraScores).toHaveLength(10);
-    expect(goalieEraScores[0]?.saveIndex).toBeGreaterThan(100);
-    expect(goalieEraScores[0]?.savePercentage).toBeGreaterThan(0.9);
-
-    const goalieTrend = await getHistoryLeagueTrend(2);
-    expect(
-      goalieTrend.some(
-        (row) =>
-          row.goalieSavePercentage !== null &&
-          row.goalieGoalsAgainstAverage !== null,
-      ),
-    ).toBe(true);
-
-    const goalieDecadeLeaders = await getHistoricalGoalieDecadeLeaders(2, 200);
-    expect(new Set(goalieDecadeLeaders.map((row) => row.metric))).toEqual(
-      new Set(["wins", "savePercentage", "goalsAgainstAverage"]),
-    );
-    expect(goalieDecadeLeaders.every((row) => row.gamesPlayed >= 200)).toBe(
-      true,
-    );
-
-    const decadeLeaders = await getHistoricalDecadeLeaders(2);
-    expect(new Set(decadeLeaders.map((row) => row.metric))).toEqual(
-      new Set(["points", "goals", "assists"]),
-    );
-    expect(
-      decadeLeaders.find(
-        (row) => row.decade === 1980 && row.metric === "points",
-      ),
-    ).toMatchObject({ name: "Wayne Gretzky" });
-
     const teamGameLog = await getTeamGameLog(12, historicalSeasons[0].id);
     expect(teamGameLog?.games.length).toBeGreaterThan(82);
     expect(teamGameLog?.games[0]?.opponent.name).toBeTruthy();
@@ -359,22 +194,6 @@ describe.skipIf(!databaseTestsEnabled)("web database queries", () => {
       playerGameLog?.skaterGames.some((game) => game.gameScore !== null),
     ).toBe(true);
 
-    const units = await getMoneyPuckSeasonUnitLeaders(20252026, {
-      minimumIceTimeSeconds: 6_000,
-      limit: 100,
-    });
-    expect(units.forwardLines).toHaveLength(100);
-    expect(units.defensivePairings).toHaveLength(100);
-    expect(units.forwardLines[0]).toMatchObject({
-      unitType: "line",
-      team: { abbreviation: "COL" },
-      players: [
-        { name: "Brock Nelson" },
-        { name: "Valeri Nichushkin" },
-        { name: "Artturi Lehkonen" },
-      ],
-    });
-    expect(() => JSON.stringify(units)).not.toThrow();
   });
 
   it("loads a complete regular-season MoneyPuck game package", async () => {

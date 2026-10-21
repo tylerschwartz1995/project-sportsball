@@ -114,8 +114,8 @@ safe alternative. Do not describe work as fully verified when it was not.
   identifiers, coverage boundaries, raw artifacts, and audit history.
 - Keep secrets, local databases, caches, downloaded bulk data, backups, and
   trained artifacts out of Git.
-- Do not deploy, select paid infrastructure, or enable the scheduled daily
-  workflow unless Tyler explicitly returns to the deployment stage.
+- Do not deploy, select paid infrastructure, or activate additional production
+  schedules without explicit approval. Existing approved daily ingestion remains active.
 
 Read the relevant files in `docs/` before changing ingestion, schemas,
 analytics definitions, historical coverage, daily operations, or product
@@ -124,7 +124,7 @@ when a change makes them inaccurate.
 
 ## Product and interface rules
 
-- Preserve the selected analytical visual system, dark-mode default, light-mode
+- Preserve the selected analytical visual system, light-mode default, dark-mode
   support, readable typography, and responsive layouts.
 - Use semantic theme tokens instead of hard-coded colors when touching a
   component.

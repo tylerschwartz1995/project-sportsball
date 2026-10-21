@@ -1,27 +1,12 @@
 import "server-only";
 
-import type {
-  GameBoxScore,
-  GameDateSummary,
-  GameGoalieStats,
-  GameSkaterStats,
-  GameSummary,
-  LeagueTrendGame,
-} from "@/contracts/game";
-import type { TeamIdentity } from "@/contracts/team";
+import type { GameBoxScore, GameDateSummary, GameGoalieStats, GameSkaterStats, GameSummary } from "@/contracts/game";
+
 import { query } from "@/data/database";
 
 type GameDateRow = {
   game_date: string;
   game_count: number;
-};
-
-type ScheduleTeamRow = {
-  team_id: number;
-  nhl_team_id: number;
-  franchise_id: number | null;
-  abbreviation: string;
-  team_name: string;
 };
 
 type GameRow = {
@@ -51,17 +36,6 @@ type GameRow = {
   home_overtime_losses: number;
   home_score: number | null;
   home_shots_on_goal: number | null;
-};
-
-type LeagueTrendGameRow = {
-  nhl_game_id: number;
-  game_date: string;
-  start_time_utc: string;
-  last_period_type: string | null;
-  away_abbreviation: string;
-  away_score: number;
-  home_abbreviation: string;
-  home_score: number;
 };
 
 type GameSkaterRow = {
@@ -237,49 +211,6 @@ export async function listGameDates(
   }));
 }
 
-export async function listScheduleTeams(
-  seasonId: number,
-  gameType?: number,
-): Promise<TeamIdentity[]> {
-  const rows = await query<ScheduleTeamRow>(
-    `
-      WITH schedule_teams AS (
-        SELECT away_team_id AS team_id
-        FROM games
-        WHERE season_id = $1
-          AND ($2::smallint IS NULL OR game_type = $2)
-        UNION
-        SELECT home_team_id AS team_id
-        FROM games
-        WHERE season_id = $1
-          AND ($2::smallint IS NULL OR game_type = $2)
-      )
-      SELECT
-        team.id::integer AS team_id,
-        team.nhl_id::integer AS nhl_team_id,
-        team.franchise_id,
-        COALESCE(team_season.abbreviation, team.abbreviation) AS abbreviation,
-        COALESCE(team_season.full_name, team.name) AS team_name
-      FROM schedule_teams
-      JOIN teams AS team
-        ON team.id = schedule_teams.team_id
-      LEFT JOIN team_seasons AS team_season
-        ON team_season.team_id = team.id
-       AND team_season.season_id = $1
-      ORDER BY team_name
-    `,
-    [seasonId, gameType ?? null],
-  );
-
-  return rows.map((row) => ({
-    id: row.team_id,
-    nhlTeamId: row.nhl_team_id,
-    franchiseId: row.franchise_id,
-    abbreviation: row.abbreviation,
-    name: row.team_name,
-  }));
-}
-
 export async function getGamesByDate(
   seasonId: number,
   gameDate: string,
@@ -352,139 +283,6 @@ export async function getGameViewAvailability(
   };
 }
 
-export async function getLatestGamesForSeason(
-  seasonId: number,
-): Promise<GameSummary[]> {
-  const rows = await query<GameRow>(
-    `
-      ${gameSelect}
-      WHERE game.season_id = $1
-        AND game.game_date = (
-          SELECT MAX(latest.game_date)
-          FROM games AS latest
-          WHERE latest.season_id = $1
-        )
-      ORDER BY game.start_time_utc, game.nhl_id
-    `,
-    [seasonId],
-  );
-
-  return rows.map(mapGame);
-}
-
-export async function getRecentCompletedGames(
-  seasonId: number,
-  gameType = 2,
-  limit = 60,
-): Promise<GameSummary[]> {
-  const boundedLimit = Math.min(120, Math.max(1, Math.trunc(limit)));
-  const rows = await query<GameRow>(
-    `
-      WITH recent_games AS MATERIALIZED (
-        SELECT recent.id
-        FROM games AS recent
-        JOIN team_game_stats AS recent_away_stats
-          ON recent_away_stats.game_id = recent.id
-         AND recent_away_stats.team_id = recent.away_team_id
-        JOIN team_game_stats AS recent_home_stats
-          ON recent_home_stats.game_id = recent.id
-         AND recent_home_stats.team_id = recent.home_team_id
-        WHERE recent.season_id = $1
-          AND recent.game_type = $2
-          AND recent.state IN ('FINAL', 'OFF')
-          AND recent_away_stats.score IS NOT NULL
-          AND recent_home_stats.score IS NOT NULL
-        ORDER BY recent.start_time_utc DESC, recent.nhl_id DESC
-        LIMIT $3
-      )
-      ${gameSelect}
-      JOIN recent_games
-        ON recent_games.id = game.id
-      ORDER BY game.start_time_utc DESC, game.nhl_id DESC
-    `,
-    [seasonId, gameType, boundedLimit],
-  );
-  return rows.map(mapGame);
-}
-
-export async function getRecentLeagueTrendGames(
-  seasonId: number,
-  gameType = 2,
-  limit = 60,
-): Promise<LeagueTrendGame[]> {
-  const boundedLimit = Math.min(120, Math.max(1, Math.trunc(limit)));
-  const rows = await query<LeagueTrendGameRow>(
-    `
-      SELECT
-        game.nhl_id::integer AS nhl_game_id,
-        game.game_date::text AS game_date,
-        game.start_time_utc::text AS start_time_utc,
-        game.last_period_type,
-        COALESCE(away_team_season.abbreviation, away_team.abbreviation) AS away_abbreviation,
-        away_stats.score::integer AS away_score,
-        COALESCE(home_team_season.abbreviation, home_team.abbreviation) AS home_abbreviation,
-        home_stats.score::integer AS home_score
-      FROM games AS game
-      JOIN teams AS away_team
-        ON away_team.id = game.away_team_id
-      JOIN teams AS home_team
-        ON home_team.id = game.home_team_id
-      LEFT JOIN team_seasons AS away_team_season
-        ON away_team_season.team_id = away_team.id
-       AND away_team_season.season_id = game.season_id
-      LEFT JOIN team_seasons AS home_team_season
-        ON home_team_season.team_id = home_team.id
-       AND home_team_season.season_id = game.season_id
-      JOIN team_game_stats AS away_stats
-        ON away_stats.game_id = game.id
-       AND away_stats.team_id = game.away_team_id
-      JOIN team_game_stats AS home_stats
-        ON home_stats.game_id = game.id
-       AND home_stats.team_id = game.home_team_id
-      WHERE game.season_id = $1
-        AND game.game_type = $2
-        AND game.state IN ('FINAL', 'OFF')
-        AND away_stats.score IS NOT NULL
-        AND home_stats.score IS NOT NULL
-      ORDER BY game.start_time_utc DESC, game.nhl_id DESC
-      LIMIT $3
-    `,
-    [seasonId, gameType, boundedLimit],
-  );
-
-  return rows.map((row) => ({
-    nhlGameId: row.nhl_game_id,
-    gameDate: row.game_date,
-    startTimeUtc: row.start_time_utc,
-    lastPeriodType: row.last_period_type,
-    awayTeam: {
-      abbreviation: row.away_abbreviation,
-      score: row.away_score,
-    },
-    homeTeam: {
-      abbreviation: row.home_abbreviation,
-      score: row.home_score,
-    },
-  }));
-}
-
-export async function getGamesForSeasonByType(
-  seasonId: number,
-  gameType: number,
-): Promise<GameSummary[]> {
-  const rows = await query<GameRow>(
-    `
-      ${gameSelect}
-      WHERE game.season_id = $1
-        AND game.game_type = $2
-      ORDER BY game.start_time_utc, game.nhl_id
-    `,
-    [seasonId, gameType],
-  );
-
-  return rows.map(mapGame);
-}
-
 export async function getTeamSchedule(
   nhlTeamId: number,
   seasonId: number,
@@ -546,45 +344,6 @@ export async function listTeamScheduleSeasonIds(
   );
 
   return rows.map((row) => row.season_id);
-}
-
-export async function getUpcomingGamesForTeam(
-  nhlTeamId: number,
-  seasonId: number,
-  gameType: number,
-  limit = 5,
-): Promise<GameSummary[]> {
-  const rows = await query<GameRow>(
-    `
-      ${gameSelect}
-      WHERE game.season_id = $2
-        AND game.game_type = $3
-        AND (
-          away_team.nhl_id = $1
-          OR home_team.nhl_id = $1
-        )
-        AND game.start_time_utc > NOW()
-      ORDER BY game.start_time_utc, game.nhl_id
-      LIMIT $4
-    `,
-    [nhlTeamId, seasonId, gameType, limit],
-  );
-
-  return rows.map(mapGame);
-}
-
-export async function getUpcomingGames(limit = 8): Promise<GameSummary[]> {
-  const rows = await query<GameRow>(
-    `
-      ${gameSelect}
-      WHERE game.game_type IN (2, 3)
-        AND game.start_time_utc > NOW()
-      ORDER BY game.start_time_utc, game.nhl_id
-      LIMIT $1
-    `,
-    [limit],
-  );
-  return rows.map(mapGame);
 }
 
 export async function getGameBoxScore(

@@ -1,9 +1,6 @@
 import {
   type ViewTab
 } from "@/components/ui/view-tabs";
-import {
-  type TeamScheduleFilter
-} from "@/features/teams/team-full-schedule";
 
 export type TeamView =
   | "lines"
@@ -56,10 +53,6 @@ export function parseTeamView(value: string | undefined): TeamView {
     "advanced",
   ];
   return views.includes(value as TeamView) ? (value as TeamView) : "schedule";
-}
-
-export function parseTeamScheduleFilter(value: string | undefined): TeamScheduleFilter {
-  return value === "completed" || value === "upcoming" ? value : "all";
 }
 
 export function formatSigned(value: number | null): string | null {

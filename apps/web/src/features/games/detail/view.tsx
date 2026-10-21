@@ -80,7 +80,7 @@ export function GamePageView(data: PageData) {
   );
 }
 
-async function GameContent({ content, game, view, timelinePeriod, hasBoxScore, boxScore }: PageData) {
+async function GameContent({ content, game, view, hasBoxScore, boxScore }: PageData) {
   const [advanced, playByPlay] = await content;
   const gameFlow = view === "game-flow" ? buildGameFlow({ shots: advanced?.shots ?? [], events: playByPlay.events,
     awayTeam: game.awayTeam, homeTeam: game.homeTeam }) : null;
@@ -91,7 +91,6 @@ async function GameContent({ content, game, view, timelinePeriod, hasBoxScore, b
             awayTeam={game.awayTeam}
             homeTeam={game.homeTeam}
             seasonId={game.seasonId}
-            timelinePeriod={timelinePeriod}
           />
         ) : null}
 

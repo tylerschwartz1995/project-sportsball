@@ -28,13 +28,3 @@ export type StandingsEntry = {
   awayRecord?: StandingsRecord | null;
   clinchIndicator: string | null;
 };
-
-export type StandingsPointsHistoryPoint = {
-  gameDate: string;
-  nhlGameId: number;
-  nhlTeamId: number;
-  teamAbbreviation: string;
-  teamName: string;
-  gamesPlayed: number;
-  points: number;
-};

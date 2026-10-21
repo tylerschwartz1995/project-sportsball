@@ -93,7 +93,6 @@ export function PlayerDirectoryFilters({
         </div>
       </fieldset>
 
-
       <fieldset className="workspace-player-filter-group workspace-directory-sort md:hidden">
         <legend>Sort Results</legend>
         <div>

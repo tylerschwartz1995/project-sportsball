@@ -1,34 +1,8 @@
-# App simplification
+# Current app scope
 
-## Simplified app scope — October 19, 2026
-
-The active interface is now Teams, Players, and Games. Teams and Players each
-provide Basic Stats and Advanced Stats. Home opens Games directly. Team
-stats use a sortable results table with season and phase selection; player
-stats retain name, type, and position filters. Advanced tables
-retain situation and minimum-workload controls, coverage notes, and metric help.
-Completed-game detail pages, box scores, scoring, and game analytics remain.
-Shot Maps is available inside Shot Quality; the duplicate top-level game tab
-has been removed.
-
-Team profiles open Games by default, with Players, Lines, and Advanced Stats
-tabs. A compact record, points, goal differential, PP%, and PK% summary replaces
-the single-row Basic Stats tab. Lines shows recorded regular-season 5-on-5
-forward combinations and defensive pairings, ordered by ice time; it does not
-represent projected lineups. Tables include GP, TOI, xG%, CF%, xGF/xGA,
-GF/GA, SF/SA, CF/CA, and high-danger xGF/xGA, with sortable columns and
-horizontal scrolling. Playoff line coverage is unavailable.
-Player profiles retain basic stats, advanced stats, and season history. Rolling
-profile charts, schedule difficulty, standalone line rankings, chart builders,
-comparisons, drafts, historical research, and the playoff workspace are retired
-from the active interface. Old destination links redirect into the core app.
-Standings is a dedicated navigation destination with League, Conference, and
-Division grouping and a season selector. Points progression charts remain retired.
-
-Stored data, migrations, ingestion, operational jobs, and statistical definitions
-are unchanged. Some retired feature modules and historical regression scripts
-remain in the repository; this change reduces the active product and its query
-work, but does not claim to complete all unused-code or pipeline cleanup.
+Reviewed October 21, 2026. Primary navigation is Games, Standings, Teams, and
+Players. Home redirects to Games. Light is the first-visit theme; saved dark
+preferences remain supported.
 
 The basic goalie directory orders columns as Goalie, GP, W, L, OTL,
 SV%, GAA, and SO. GAA uses goals against × 3600 / actual ice-time seconds;
@@ -123,3 +97,18 @@ in production. Shared reads coalesce simultaneous requests with identical argume
 entries are removed on completion or failure, preserving existing cache freshness
 and invalidation. Development-mode first-visit compilation remains separate from
 production navigation performance.
+
+## Cleanup boundary
+
+Retired homepage dashboards, comparison builders, draft/history/playoff research
+workspaces, standalone line rankings, their private APIs, charts, query wrappers,
+and tests have been removed. Retired page URLs retain lightweight redirects. The all-time player search and
+metric guide remain linked supporting pages. Team
+and player game-log URLs remain supported. Database tables, migrations, raw
+artifacts, ingestion commands, and descriptive builds remain intact pending a
+separate database dependency review. Removal from navigation alone is not proof
+that stored data is disposable.
+
+The deployed stack is Vercel, Neon, GitHub Actions, and private S3. The unapplied
+Lightsail/CodeBuild server proposal has been removed. AWS bootstrap state storage
+and hosted archive/backup infrastructure remain supported.

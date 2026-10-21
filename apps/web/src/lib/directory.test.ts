@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   firstQueryValue,
   applySortDirection,
-  matchesSearch,
   normalizeSearch,
   paginate,
   parsePage,
@@ -46,11 +45,5 @@ describe("directory query helpers", () => {
       firstItem: 5,
       lastItem: 5,
     });
-  });
-
-  it("matches search without case sensitivity", () => {
-    expect(matchesSearch("oilers", "Edmonton Oilers", "EDM")).toBe(true);
-    expect(matchesSearch("edm", "Edmonton Oilers", "EDM")).toBe(true);
-    expect(matchesSearch("canucks", "Edmonton Oilers", "EDM")).toBe(false);
   });
 });

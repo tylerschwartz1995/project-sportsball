@@ -1,5 +1,9 @@
 # Scroll and navigation audit — September 6, 2026
 
+> Historical record. This describes the app at the recorded audit/release date.
+> Retired routes, source paths, and test commands below are not current instructions.
+> Use [current app scope](app-simplification.md) and [web development](../apps/web/README.md).
+
 This follow-up to the visual audit addresses all six navigation findings in PR
 #150. It preserves URL filters and the existing analytical definitions.
 

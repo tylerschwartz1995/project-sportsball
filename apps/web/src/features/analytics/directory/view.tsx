@@ -53,7 +53,6 @@ export function AnalyticsPageView({
             <div className="workspace-context-navs">
               <StatsTabs subject={type === "teams" ? "teams" : "players"} advanced seasonId={selectedSeason.id} phase={phase} type={type === "goalies" ? "goalies" : "skaters"} />
 
-
               {type === "teams" ? (
                 <SeasonPhaseFilter
                   active={phase}

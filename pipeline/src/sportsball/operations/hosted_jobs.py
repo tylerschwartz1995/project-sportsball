@@ -6,7 +6,7 @@ from pathlib import Path
 
 from sqlalchemy.engine import make_url
 
-from sportsball.operations.aws_jobs import backup
+from sportsball.operations.database_backup import backup
 
 ROLES = {
     "ingestion": "sportsball_ingestion",
@@ -80,7 +80,7 @@ def run_job() -> int:
     if pipeline(["verify-database-schema"], env):
         return 1
     if mode == "backup":
-        backup(env, retain_one=True)
+        backup(env)
         return 0
     if mode == "health":
         return pipeline(["check-data-health"], env)

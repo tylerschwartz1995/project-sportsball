@@ -4,11 +4,10 @@ import type { GameBoxScore, GameSkaterStats } from "@/contracts/game";
 import type { PlayByPlayEvent } from "@/contracts/play-by-play";
 import type { MoneyPuckGameAnalytics, MoneyPuckTeamGameSituation } from "@/contracts/advanced-game";
 import { useUrlChoice } from "@/components/ui/use-shareable-state";
-import { UnitTable } from "./game-advanced-analytics";
+import { UnitTable } from "./game-lines-table";
 import { TeamLogo } from "@/features/teams/team-logo";
 import Link from "@/components/ui/exploration-link";
 import { ShotMaps } from "./shot-map";
-
 
 export function GameAnalysisPanel({ data, view, boxScore = null, events = [] }: { boxScore?: GameBoxScore | null; events?: PlayByPlayEvent[]; data: MoneyPuckGameAnalytics; view: "team-stats" | "lines" | "shot-map" }) {
 

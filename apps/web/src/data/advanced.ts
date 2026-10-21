@@ -185,10 +185,6 @@ export async function getMoneyPuckTeamSeason(
   };
 }
 
-export async function getMoneyPuckPlayerSeason(nhlPlayerId: number, seasonId: number): Promise<MoneyPuckPlayerSeason> {
-  return (await getMoneyPuckPlayerSeasons([nhlPlayerId], seasonId))[0];
-}
-
 export async function getMoneyPuckPlayerSeasons(
   nhlPlayerIds: number[],
   seasonId: number,

@@ -1,11 +1,5 @@
 import { countryName } from "@/lib/country-name";
 
-export type PlayerView =
-  | "overview"
-  | "trends"
-  | "advanced"
-  | "seasons";
-
 export type PlayerPageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{
@@ -84,49 +78,6 @@ export function formatOrdinal(value: number): string {
 
 export function formatHeight(inches: number): string {
   return `${Math.floor(inches / 12)}′${inches % 12}″`;
-}
-
-export function formatSigned(value: number): string {
-  return value > 0 ? `+${value}` : String(value);
-}
-
-export function formatSavePercentage(value: number | null): string {
-  return value === null ? "—" : value.toFixed(3).replace(/^0/, "");
-}
-
-export function playerViewTabs({
-  nhlPlayerId,
-  seasonId,
-  phase,
-}: {
-  nhlPlayerId: number;
-  seasonId: number;
-  phase: "regular" | "playoffs";
-  chartParams: Record<string, string | undefined>;
-}) {
-  return [
-    { id: "overview" as const, label: "Basic Stats" },
-    { id: "advanced" as const, label: "Advanced Stats" },
-    { id: "seasons" as const, label: "Season History" },
-  ].map((tab) => {
-    const params = new URLSearchParams({
-      season: String(seasonId),
-      phase,
-      view: tab.id,
-    });
-    return { ...tab, href: `/players/${nhlPlayerId}?${params.toString()}` };
-  });
-}
-
-export function parsePlayerView(value: string | undefined): PlayerView {
-  if (value === "records") {
-    return "seasons";
-  }
-
-  return value === "advanced" ||
-    value === "seasons"
-    ? value
-    : "overview";
 }
 
 export function firstValue(value: string | string[] | undefined): string | undefined {

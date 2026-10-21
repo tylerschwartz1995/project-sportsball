@@ -10,7 +10,6 @@ import {
   listGoalieDirectoryPage,
   listPlayersBySeason,
   listSkaterDirectoryPage,
-  listSkaterLeadersBySeason,
 } from "@/data/players";
 
 describe("listPlayersBySeason", () => {
@@ -134,56 +133,6 @@ describe("listPlayersBySeason", () => {
       expect.stringContaining("stats.game_type = $2"),
       [20252026, 3],
     );
-  });
-
-  it("loads only the requested number of skater leaders", async () => {
-    queryMock.mockResolvedValueOnce([
-      {
-        nhl_player_id: 8478402,
-        player_name: "Connor McDavid",
-        position: "C",
-        season_id: 20252026,
-        game_type: 2,
-        games_played: 82,
-        teams_played_for: 1,
-        teams: [
-          {
-            id: 22,
-            nhlTeamId: 22,
-            franchiseId: 25,
-            abbreviation: "EDM",
-            name: "Edmonton Oilers",
-          },
-        ],
-        goals: 48,
-        assists: 90,
-        points: 138,
-        plus_minus: 20,
-        penalty_minutes: 30,
-        power_play_goals: 12,
-        shots_on_goal: 300,
-        hits: 40,
-        blocked_shots: 25,
-        time_on_ice_seconds: 100000,
-      },
-    ]);
-
-    const leaders = await listSkaterLeadersBySeason(20252026, 5);
-
-    expect(leaders).toHaveLength(1);
-    expect(leaders[0]?.points).toBe(138);
-    expect(queryMock).toHaveBeenCalledWith(
-      expect.stringContaining("LIMIT $3"),
-      [20252026, 2, 5],
-    );
-  });
-
-  it("bounds an excessive leader limit", async () => {
-    queryMock.mockResolvedValueOnce([]);
-
-    await listSkaterLeadersBySeason(20252026, 10_000);
-
-    expect(queryMock).toHaveBeenCalledWith(expect.any(String), [20252026, 2, 100]);
   });
 
   it("filters and paginates skaters in PostgreSQL", async () => {

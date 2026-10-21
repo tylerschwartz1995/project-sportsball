@@ -77,9 +77,6 @@ wheels = [
 s3 = [
     { name = "mypy-boto3-s3" },
 ]
-ssm = [
-    { name = "mypy-boto3-ssm" },
-]
 
 [[package]]
 name = "botocore"
@@ -296,15 +293,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/5f/b4/d9af4054a80a46e27bfec10ead824ac1d39a974179b47db4ad9844bc5658/mypy_boto3_s3-1.43.66.tar.gz", hash = "sha256:b2f74763e373b3f3d64cfcd2f00cdb1c10c8a4cefe6d4cdbc1ed4a6ade085c07", size = 78866, upload-time = "2026-08-07T00:17:38.354Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/73/bc/8ed7dad2bc1506732cc503ccbbc0fd48786d85900bb2c6577a26a634843b/mypy_boto3_s3-1.43.66-py3-none-any.whl", hash = "sha256:f9385e190d423690dbc161260dac02439e3b6c9841e992ba6a92d15c1050b3af", size = 86296, upload-time = "2026-08-07T00:17:36.388Z" },
-]
-
-[[package]]
-name = "mypy-boto3-ssm"
-version = "1.43.53"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/24/a5/f43b2c755cf3ad6c61821f54802d13acf3831deb378d90e68f5ced332063/mypy_boto3_ssm-1.43.53.tar.gz", hash = "sha256:f20a2f1035a0d58b61647c6f5c883e058152acdccd8a97e7d1916476dc8e7c7b", size = 97766, upload-time = "2026-07-21T19:52:31.108Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/1c/97/b2cf5f41d412891e8122e5e6a1986c7ebcdff3c9d5ac90058e045c65a816/mypy_boto3_ssm-1.43.53-py3-none-any.whl", hash = "sha256:d90a5a46e2e5db78ae5354d6cf925be81567704d4d051337feef79b8cfd6d3de", size = 99501, upload-time = "2026-07-21T19:52:28.759Z" },
 ]
 
 [[package]]
@@ -611,7 +599,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
-    { name = "boto3-stubs", extra = ["s3", "ssm"] },
+    { name = "boto3-stubs", extra = ["s3"] },
     { name = "pyright" },
     { name = "pytest" },
     { name = "pytest-cov" },
@@ -633,7 +621,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "boto3-stubs", extras = ["s3", "ssm"], specifier = ">=1.42,<2" },
+    { name = "boto3-stubs", extras = ["s3"], specifier = ">=1.42,<2" },
     { name = "pyright", specifier = ">=1.1.400,<2" },
     { name = "pytest", specifier = ">=9,<10" },
     { name = "pytest-cov", specifier = ">=7,<8" },

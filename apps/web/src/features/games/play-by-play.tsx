@@ -19,7 +19,6 @@ export function GamePlayByPlayView({
   awayTeam: GameTeamSummary;
   homeTeam: GameTeamSummary;
   seasonId: number;
-  timelinePeriod: number | null;
 }) {
   if (data.events.length === 0) {
     return null;
@@ -40,7 +39,6 @@ export function GamePlayByPlayView({
         homeTeam={homeTeam}
         seasonId={seasonId}
       />
-
 
     </section>
   );

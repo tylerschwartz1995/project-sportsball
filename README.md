@@ -1,14 +1,15 @@
 # Sportsball
 
 > **Current visual system:** [Modern Stats Exploration](docs/design-system.md),
-> with a dark-default graphite theme, light-mode support, and readable statistical tables.
+> with a light-default reference theme, dark-mode support, and readable statistical tables.
 
 A personal NHL statistics website with all-time traditional season records from
 1917–18 onward and detailed game and advanced data across their supported eras.
 
 ## Project scope
 
-The app focuses on team stats, player stats, and completed games. Team and
+The app focuses on Games, Standings, Teams, and Players, in that navigation order.
+Games is the landing page. Team and
 player pages offer Basic Stats and Advanced Stats, with season and phase
 selection. Completed-game pages retain box scores, scoring, and game analytics.
 The daily ingestion and historical data foundation remain in place.
@@ -120,18 +121,6 @@ uv run --project pipeline --frozen sportsball \
 
 This paginates NHL Stats reports, retains audited source payloads, and preserves
 era-specific unavailable values as `NULL` rather than zero.
-
-Ingest every official NHL draft selection across an inclusive year range:
-
-```bash
-uv run --project pipeline --frozen sportsball \
-  ingest-draft-history 1963 2026
-```
-
-The range is replaced transactionally only after every draft board validates.
-Raw boards, traded-pick history, nullable NHL player links, and selections that
-never reached the league are retained. See
-[Complete NHL draft history](docs/draft-history.md).
 
 Ingest traditional team, skater, and goalie statistics for a completed game:
 
@@ -253,8 +242,10 @@ The [content audit and implementation decisions](docs/content-audit-implementati
 
 The selected personal-site setup is Neon PostgreSQL, Vercel Hobby, GitHub Actions
 for ingestion/backups, and private S3 files. Connection guards, two-user private
-access through managed Neon Auth email codes, disabled workflows and storage-only
-Terraform are prepared. Passkeys are deferred. The website is deployed at
+access through managed Neon Auth email codes, hosted workflows, and storage-only
+Terraform are implemented. Passkeys are deferred. The website is deployed at
 [Sportsball](https://sportsball-iota.vercel.app), using the restored Neon database.
-Scheduled ingestion and backups remain unactivated. See [hosted preparation](docs/hosted-preparation.md).
-The earlier [AWS server deployment](docs/aws-preparation.md) is retained but superseded.
+Daily ingestion has been active since September 30, 2026; scheduled monthly
+backups remain disabled. See [hosted preparation](docs/hosted-preparation.md).
+The earlier unapplied AWS server scaffolding has been removed;
+[active AWS storage](docs/aws-preparation.md) remains supported.

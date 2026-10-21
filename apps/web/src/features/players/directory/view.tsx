@@ -70,7 +70,6 @@ export function PlayersPageView({
               direction={direction}
             />
 
-
             <div id="player-results" className="scroll-mt-6">
               {category === "skaters" ? (
                 <>

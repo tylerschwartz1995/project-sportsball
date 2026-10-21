@@ -6,8 +6,6 @@ import { TeamGameRecord } from "@/features/teams/team-game-record";
 import { TeamLogo } from "@/features/teams/team-logo";
 import type { GameSummary } from "@/contracts/game";
 
-export type TeamScheduleFilter = "all" | "completed" | "upcoming";
-
 export function TeamFullSchedule({
   games,
   teamNhlId,

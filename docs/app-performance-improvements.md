@@ -1,5 +1,9 @@
 # App performance improvements
 
+> Historical record. This describes the app at the recorded audit/release date.
+> Retired routes, source paths, and test commands below are not current instructions.
+> Use [current app scope](app-simplification.md) and [web development](../apps/web/README.md).
+
 Implementation of the September 2026 latency audit. All ten primary findings
 and both lower-priority findings are addressed. No deployment, ingestion change,
 schema migration, or statistical-definition change is part of this work.

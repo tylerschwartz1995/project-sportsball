@@ -3,8 +3,8 @@ import "server-only";
 import { trackedCache } from "@/data/shared-cache";
 
 import { listScheduleSeasons, listSeasons } from "@/data/seasons";
-import { getTeamScheduleStrength } from "@/data/schedule-strength";
-import { getStandings, getStandingsPointsHistory } from "@/data/standings";
+
+import { getStandings } from "@/data/standings";
 import { getTeamGameLog } from "@/data/game-logs";
 import { listTeamScheduleSeasonIds } from "@/data/games";
 import {
@@ -37,22 +37,10 @@ export const getCachedStandings = trackedCache(
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["standings"] },
 );
 
-export const getCachedStandingsPointsHistory = trackedCache(
-  getStandingsPointsHistory,
-  ["page-standings-points-history-v1"],
-  { revalidate: ACTIVE_DATA_SECONDS, tags: ["standings"] },
-);
-
 export const listCachedTeamsBySeason = trackedCache(
   listTeamsBySeason,
   ["page-teams-by-season-v3"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams"] },
-);
-
-export const getCachedTeamScheduleStrength = trackedCache(
-  getTeamScheduleStrength,
-  ["page-team-schedule-strength-v1"],
-  { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams", "games"] },
 );
 
 export const listCachedTeamSeasonIds = trackedCache(

@@ -83,7 +83,7 @@ files are retained separately from normalized facts. Commands, storage, and
 provider limitations are documented in
 [MoneyPuck ingestion](moneypuck-season-ingestion.md).
 
-## Coverage shown on the website
+## Stored coverage and website boundaries
 
 | Data category | Implemented coverage boundary |
 | --- | --- |
@@ -98,6 +98,9 @@ provider limitations are documented in
 | MoneyPuck player game advanced statistics | 2008–09 onward; regular season |
 | MoneyPuck shot-level advanced statistics | 2007–08 onward |
 | MoneyPuck line and pairing statistics | 2008–09 onward; regular-season five-on-five, game and Polars-derived season grains |
+
+Draft research is no longer displayed. All-time player summaries still power
+career histories; other stored research tables await a database review.
 
 The interface must show the source and coverage range for each metric.
 Unavailable provider coverage must display as unavailable rather than zero.

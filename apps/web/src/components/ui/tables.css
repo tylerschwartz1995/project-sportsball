@@ -5,14 +5,6 @@
   font-size: 0.96rem;
 }
 
-.workspace-table-schedule th:first-child,
-.workspace-table-schedule td:first-child,
-.workspace-table-schedule th:last-child,
-.workspace-table-schedule td:last-child {
-  width: 1%;
-  white-space: nowrap;
-}
-
 .workspace-table-semantic {
   table-layout: fixed;
 }
@@ -34,49 +26,8 @@
   color: color-mix(in srgb, var(--foreground) 82%, var(--muted));
 }
 
-.workspace-col-date {
-  width: 13.5rem;
-}
-
-.workspace-col-season,
-.workspace-col-team {
-  width: 6rem;
-}
-
 .workspace-col-entity {
   width: 13.5rem;
-}
-
-.workspace-col-label {
-  width: 9rem;
-}
-
-.workspace-col-unit {
-  width: 18rem;
-}
-
-.workspace-col-unit-wide {
-  width: 26rem;
-}
-
-.workspace-col-season-unit {
-  width: 34rem;
-}
-
-.workspace-col-period {
-  width: 7rem;
-}
-
-.workspace-col-assists {
-  width: 14rem;
-}
-
-.workspace-col-event {
-  width: 11rem;
-}
-
-.workspace-col-score {
-  width: 7.5rem;
 }
 
 .workspace-col-rank,
@@ -84,17 +35,12 @@
   width: 3.5rem;
 }
 
-.workspace-col-differential,
 .workspace-col-time {
   width: 5rem;
 }
 
 .workspace-col-split {
   width: 6rem;
-}
-
-.workspace-col-position {
-  width: 5rem;
 }
 
 .workspace-col-number {
@@ -106,16 +52,8 @@
 }
 
 .workspace-semantic-number,
-.workspace-number-cell,
-.workspace-points-cell {
+.workspace-number-cell {
   width: 1%;
-  white-space: nowrap;
-}
-
-.workspace-position-cell {
-  width: 1%;
-  min-width: 5rem;
-  text-align: center;
   white-space: nowrap;
 }
 
@@ -123,37 +61,6 @@
 .workspace-table-dense tbody td {
   padding-top: 0.52rem;
   padding-bottom: 0.52rem;
-}
-
-.workspace-schedule-strength-table tbody td {
-  padding-right: 0.8rem;
-  padding-left: 0.8rem;
-}
-
-.workspace-draft-leaders-table th,
-.workspace-draft-leaders-table td {
-  padding-right: 0.75rem;
-  padding-left: 0.75rem;
-}
-
-.workspace-draft-leaders-table thead th {
-  white-space: nowrap;
-}
-
-.workspace-draft-leaders-overall-col {
-  width: 7rem;
-}
-
-.workspace-draft-leaders-team-col {
-  width: 5.5rem;
-}
-
-.workspace-draft-leaders-stat-col {
-  width: 5rem;
-}
-
-.workspace-draft-leaders-wins-col {
-  width: 8rem;
 }
 
 .workspace-table thead {
@@ -191,58 +98,6 @@
   white-space: normal;
 }
 
-.workspace-column-preset-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.7rem;
-}
-
-.workspace-column-preset-toolbar > div:first-child {
-  display: grid;
-  gap: 0.12rem;
-}
-
-.workspace-column-preset-toolbar strong {
-  color: var(--foreground);
-  font-size: 0.82rem;
-}
-
-.workspace-column-preset-toolbar span {
-  color: var(--muted);
-  font-size: var(--text-meta);
-}
-
-.workspace-column-preset-toolbar > div:last-child {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.28rem;
-  border: 1px solid var(--border);
-  border-radius: 0.6rem;
-  padding: 0.2rem;
-  background: var(--surface-raised);
-}
-
-.workspace-column-preset-toolbar button {
-  min-height: 2.15rem;
-  border: 0;
-  border-radius: 0.42rem;
-  padding: 0 0.65rem;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  font: inherit;
-  font-size: var(--text-meta);
-  font-weight: 700;
-}
-
-.workspace-column-preset-toolbar button[aria-pressed="true"] {
-  background: var(--accent);
-  color: var(--on-accent);
-}
-
 .workspace-table .workspace-sticky-entity {
   position: sticky;
   left: 0;
@@ -273,34 +128,9 @@
   background: var(--surface-subtle);
 }
 
-.workspace-player-history-total {
-  border-top: 2px solid color-mix(in srgb, var(--accent) 35%, transparent);
-  background: color-mix(in srgb, var(--accent) 7%, transparent);
-  color: var(--foreground);
-  font-weight: 700;
-}
-
-.workspace-player-history-total-highlight {
-  color: var(--accent);
-}
-
-.workspace-unit-games-table tbody td {
-  padding: 0.68rem 0.8rem;
-}
-
 .workspace-unit-games-table tbody td:not(:first-child):not(:nth-child(2)) {
   font-variant-numeric: tabular-nums;
   text-align: center;
-}
-
-.workspace-table-link {
-  color: var(--foreground);
-  font-weight: 620;
-  text-decoration: none;
-}
-
-.workspace-table-link:hover {
-  color: var(--accent);
 }
 
 .workspace-rank-cell {
@@ -312,70 +142,14 @@
   text-align: center;
 }
 
-.workspace-team-cell {
-  min-width: 13rem;
-  padding: 0.68rem 0.8rem;
-}
-
-.workspace-team-cell a {
-  color: var(--foreground);
-  font-weight: 620;
-  text-decoration: none;
-}
-
-.workspace-table-semantic .workspace-team-cell > a,
-.workspace-table-semantic .workspace-team-cell strong,
 .workspace-entity-name {
   white-space: nowrap;
 }
 
-.workspace-table-schedule tbody td {
-  padding: 0.58rem 0.75rem;
-  vertical-align: middle;
-}
-
-.workspace-table-schedule tbody td:nth-child(2) {
-  min-width: 18rem;
-}
-
-.workspace-table-schedule tbody td:nth-child(2) > span {
-  white-space: nowrap;
-}
-
-.workspace-season-panel {
-  padding: 1rem;
-}
-
-.workspace-season-panel > div:first-child {
-  padding-bottom: 0.8rem;
-}
-
-.workspace-season-panel dl {
-  margin-top: 0.8rem;
-}
-
-.workspace-season-panel dl > div {
-  padding: 0.8rem;
-}
-
-.workspace-season-panel dl dd {
-  margin-top: 0.45rem;
-}
-
-.workspace-season-panel dl p {
-  margin-top: 0.2rem;
-}
-
 .workspace-standings-table .workspace-rank-cell,
-.workspace-standings-table .workspace-team-cell,
-.workspace-standings-table .workspace-number-cell,
-.workspace-standings-table .workspace-points-cell {
+.workspace-standings-table .workspace-number-cell {
   padding-top: 0.42rem;
   padding-bottom: 0.42rem;
-}
-
-.workspace-standings-table .workspace-team-cell small {
-  margin-top: 0.08rem;
 }
 
 .workspace-clinch-indicator {
@@ -391,68 +165,6 @@
   font-weight: 750;
   line-height: 1;
   text-transform: uppercase;
-}
-
-.workspace-team-cell small {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.18rem;
-  color: var(--muted);
-  font-size: 0.88rem;
-}
-
-.workspace-schedule-site-cell strong,
-.workspace-schedule-site-cell small {
-  display: block;
-}
-
-.workspace-schedule-site-cell strong {
-  color: var(--foreground);
-  font-weight: 620;
-}
-
-.workspace-schedule-site-cell small {
-  margin-top: 0.15rem;
-  color: var(--muted);
-  font-size: 0.84rem;
-  line-height: 1.25;
-  white-space: nowrap;
-}
-
-.workspace-sticky-team-cell {
-  position: sticky;
-  left: 0;
-  z-index: 1;
-  background: var(--table-background);
-  box-shadow: none;
-}
-
-.workspace-table tbody tr:hover .workspace-sticky-team-cell {
-  background: var(--surface-raised);
-}
-
-.workspace-sticky-team-cell a {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 0 0.55rem;
-}
-
-.workspace-sticky-team-cell a > span:nth-child(2) {
-  grid-column: 2;
-}
-
-.workspace-sticky-team-cell small {
-  grid-column: 2;
-}
-
-.workspace-team-marker {
-  grid-row: 1 / span 2;
-  width: 0.42rem;
-  height: 2rem;
-  border-radius: 999px;
-  background: var(--accent);
 }
 
 @media (max-width: 520px) {
@@ -471,38 +183,14 @@
   }
 }
 
-.workspace-number-cell,
-.workspace-points-cell {
+.workspace-number-cell {
   padding: 0.68rem 0.75rem;
   font-family: var(--font-geist-mono);
   text-align: center;
-}
-
-.workspace-logo-cell {
-  width: 1%;
-  min-width: 7.5rem;
-  padding: 0.68rem 0.75rem;
-  text-align: center;
-  vertical-align: middle;
-}
-
-.workspace-logo-cell > span {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  color: var(--muted);
-  font-family: var(--font-geist-mono);
-  font-size: 0.88rem;
 }
 
 .workspace-number-cell {
   color: var(--foreground);
-}
-
-.workspace-points-cell {
-  color: var(--accent);
-  font-weight: 750;
 }
 
 .workspace-table-note {

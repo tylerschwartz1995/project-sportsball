@@ -1,5 +1,9 @@
 # Original visual direction decision (historical)
 
+> Historical record. This describes the app at the recorded audit/release date.
+> Retired routes, source paths, and test commands below are not current instructions.
+> Use [current app scope](app-simplification.md) and [web development](../apps/web/README.md).
+
 This records the original local MVP choice. The palette, sidebar, and typography
 below were superseded by [Modern Stats Exploration](design-system.md) in PR
 #142 and subsequent usability work. The comparison route remains removed; use

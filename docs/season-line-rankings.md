@@ -21,36 +21,13 @@ The `build-moneypuck-unit-seasons` command rebuilds any historical range from
 stored facts without another provider download. Rows record the
 `unit-season-v1` derivation version.
 
-Full-season queries read this materialized table. Rolling rankings are computed
-by the read-only query layer from `moneypuck_line_game_stats`; they do not
-replace the persisted full-season aggregates.
-
 ## Website behavior
 
-- `/lines` provides league-wide forward-line and pairing rankings in separate,
-  URL-backed views so visitors do not have to scroll through both datasets.
-- The season selector uses stored detailed seasons; unsupported pre-2008–09
-  selections show a coverage notice. Team scope
-  and full-season or latest 10-, 20-, and 40-team-game windows are URL-backed.
-  Rolling windows use each team's most recent games in the selected season,
-  not the unit's last appearances; rates are recomputed from summed facts.
-- Minimum five-on-five ice-time choices are 0, 50, 100, 200, and 300 minutes;
-  100 minutes is the default.
-- League tables show at most the top 100 qualifying combinations by xG%, with
-  25, 50, and 100-row views, pagination, a visible result range, and sticky
-  headings.
-- Team pages show units with at least 50 minutes together.
-- Every numeric column can be sorted immediately in the browser.
-- Rankings expose all columns in one sortable table, without column presets.
-  Sorting and pagination operate within the capped top-100 population, not
-  every stored unit.
-- Metric headings explain themselves on hover or keyboard focus, the team or
-  combination identity stays visible during horizontal scrolling, and each
-  table links directly to the Metric Guide.
-- Player and team names link to their detail pages. Combination links open
-  `/lines/{unit}` with season and team context. That drill-down explicitly
-  shows Full-Season Supporting Games, including when the ranking used a
-  rolling sample. Additional for/against columns are optional in the detail.
+Team profiles show regular-season 5-on-5 lines and defensive pairings. The
+query reads full-season aggregates for that team; controls choose unit type and
+minimum TOI. Game detail has a separate Lines tab using game-level facts.
+Numeric columns sort, names link to player profiles, and missing metrics stay
+unavailable. See [App scope](app-simplification.md) for current columns.
 
-The page credits MoneyPuck and presents unavailable pre-2008–09 coverage as
-unavailable rather than zero.
+Standalone league rankings and unit-detail pages have been retired; old URLs
+redirect into the app. Historical line storage and aggregate builds remain.

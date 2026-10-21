@@ -45,12 +45,11 @@ ingestion-run status are retained in the shared audit tables.
 
 ## Website presentation
 
-The standings page presents Overall, Conference, and Division table groupings,
-plus a Points Progression view with its own division and highlighted-team
-controls. GP, W, L, OT, and PTS form the essential table; regulation wins, goals,
-and differential are available through expanded columns. Snapshot date, source,
-and clinch markers are explained once per page. Team names link to the
-supporting historical team profile.
+The page has League, Conference, and Division views with one selected group
+shown at a time. Columns are Rank, Team, GP, W, L, OTL, PTS, PTS%, RW, Home,
+and Away; points is the default sort. Home/Away records require completed-game
+coverage matching the official snapshot and are hidden on narrow screens.
+Team identities link to their season profiles. The progression chart is retired.
 
 ## Opening-season percentages
 

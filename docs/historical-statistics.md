@@ -33,53 +33,10 @@ Every row is unique by source identity, season, and game type. Regular season
 uses NHL game type 2 and playoffs use type 3. Fields unavailable in an earlier
 era remain `NULL`; they are never converted to zero.
 
-The `/history` record book reads these tables for a curated overview, career
-and single-season rankings, rolling three- and five-season peaks, record
-progression, scoring-environment context, decade leaders, and era-relative
-career scoring. It supports skater, goalie, and team rankings; regular season
-and playoffs; start/end season, minimum-games, position, team, and known birth
-country filters; and view-specific total and rate ranking metrics. Rankings are
-server-paginated in groups of 25 so every displayed rank and metric sort applies
-to the complete filtered result set rather than a client-side subset.
-
-The record-book charts expose a deliberately small set of comparable metrics.
-Career record progression can switch among points, goals, and assists. Skater
-league context can switch between goals and standings points per team game;
-goalie league context can switch between shot-weighted save percentage and
-time-on-ice-weighted goals-against average. The timelines use decade markers
-and preserve the exact season values in their tooltips and accessible tables.
-
-Goalie decade boards rank wins, weighted save percentage, and weighted
-goals-against average. Regular-season boards require 200 games within the
-decade; playoff boards require 25. Decades without a qualified goalie or the
-source fields required for a rate are omitted rather than displayed as zero.
-For rate metrics, only games from seasons containing the required source fields
-count toward qualification.
-
-Rate leaderboards use visible eligibility defaults to prevent short appearances
-from dominating the results. Regular-season career points per game defaults to
-500 games and single-season points per game to 40; career goalie save percentage
-defaults to 250 games and single-season save percentage to 25; career team
-points percentage defaults to 500 games and single-season points percentage to
-40. Playoff qualifications are lower and appropriate to the shorter schedule.
-Visitors can explicitly override every threshold.
-
-Team and birth-country filters apply to player views. “Played For” identifies
-seasons in which the player appeared for that team; the all-team NHL summary
-cannot separate the player's totals within a multi-team season.
-
-Historical player names link to `/players/{nhlPlayerId}`. Player profiles show
-the complete regular-season and playoff summary archive, including seasons
-before the detailed 2005–06 game-data boundary. Birth-country filtering is
-available only for players whose separately ingested NHL profile provides that
-field; leaving it at the default includes both known and unknown countries.
-
-Skater points per game uses total points divided by total games in the selected
-range. Goalie career save percentage uses total saves divided by total shots
-against for seasons where those fields exist. Team career points percentage
-uses total points divided by twice the games played. Team career totals currently
-follow the NHL source team identity. Combining relocations and renames into
-franchise lineages remains a documented future enhancement.
+Player profiles use these summaries for season histories and career totals.
+The `/history` research workspace, its ranking queries, and charts are retired.
+Player biography may be incomplete even where all-time season records exist.
+Stored research-derived tables remain pending the database review.
 
 The era-relative scoring index compares each skater's points with the number of
 points expected if that player had produced at the league-wide points-per-game
@@ -94,8 +51,8 @@ identical across eras.
 
 General detailed-season selectors require rows in `team_season_stats`, while
 the Games page uses seasons containing `games`. Team profiles also include
-that team's scheduled seasons, and player profiles use their available career
-seasons (including historical-only summaries).
+that team's scheduled seasons, and player profiles show their available career
+seasons (including historical-only summaries) without a season selector.
 This separation prevents all-time summary seasons from appearing in views that
 need box scores or advanced data and allows future schedule seasons to appear
 only where they are valid.
@@ -109,8 +66,8 @@ team retains a window only when every season qualifies. Missing metric values
 remain unavailable, and a gap in seasons invalidates the window.
 
 `historical_era_rates` stores the full season/phase population's points per game
-and covered goalie save rate. Web queries apply player/team/country filters only
-to the selected player population and aggregate against these stored denominators.
+and covered goalie save rate. The former research queries aggregated selected player populations against
+these stored denominators; those web consumers have been removed.
 The published index formulas and goalie coverage exclusions are unchanged.
 
 The historical importer updates these tables atomically with the source summary

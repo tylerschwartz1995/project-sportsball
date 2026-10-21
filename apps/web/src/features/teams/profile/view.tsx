@@ -12,7 +12,7 @@ import {
 import {
   ViewTabs
 } from "@/components/ui/view-tabs";
-import { TeamAdvancedAnalytics } from "@/features/analytics/advanced-analytics";
+import { TeamAdvancedAnalytics } from "@/features/analytics/team-advanced-analytics";
 import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
 import { SeasonPicker } from "@/features/league/season-picker";
 import {

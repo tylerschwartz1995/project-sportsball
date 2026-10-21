@@ -1,5 +1,9 @@
 # Application audit — September 5, 2026
 
+> Historical record. This describes the app at the recorded audit/release date.
+> Retired routes, source paths, and test commands below are not current instructions.
+> Use [current app scope](app-simplification.md) and [web development](../apps/web/README.md).
+
 This is a dated verification record, not a live health or dependency advisory
 report. Later content, filter, and usability records are listed in the
 [documentation index](README.md).

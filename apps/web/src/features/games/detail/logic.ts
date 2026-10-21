@@ -1,6 +1,3 @@
-import {
-  type GameAdvancedView
-} from "@/features/games/game-advanced-analytics";
 
 export type GameView = "scoring" | "box-score" | "game-flow" | "team-stats" | "lines" | "shot-map" | "advanced";
 
@@ -9,7 +6,6 @@ export type GamePageProps = {
   searchParams: Promise<{
     view?: string | string[];
     advancedView?: string | string[];
-    timelinePeriod?: string | string[];
   }>;
 };
 
@@ -64,14 +60,6 @@ export function normalizeGameView(
   if (availability.scoring) return "scoring";
   if (availability.boxScore) return "box-score";
   return "team-stats";
-}
-
-export function parseGameAdvancedView(value: string | undefined): GameAdvancedView {
-  return value === "shots" ||
-    value === "players" ||
-    value === "combinations"
-    ? value
-    : "teams";
 }
 
 export function firstValue(value: string | string[] | undefined): string | undefined {

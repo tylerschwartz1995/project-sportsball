@@ -46,7 +46,6 @@ main .workspace-table tbody tr:hover td { background: var(--surface-subtle); }
 main .workspace-table tbody td:first-child { color: var(--foreground); font-weight: 600; }
 main .workspace-table tbody td a { color: var(--foreground); text-decoration: none; }
 main .workspace-table tbody td a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
-main .workspace-table .workspace-points-cell { font-size: 16px; font-weight: 700; }
 .workspace-table th[aria-sort=ascending], .workspace-table th[aria-sort=descending] { color: var(--accent); box-shadow: none; }
 main .workspace-table thead .workspace-sortable-header :is(button,a) { min-height: 42px; padding: 10px 12px; font-size: 16px; }
 .workspace-sortable-header[aria-sort=none] .ux-column-heading > :is(button,a) > span[aria-hidden] { opacity: .25; }
@@ -72,10 +71,10 @@ main .team-crest img { transform: none; }
 .workspace-filter-actions > button { background: var(--accent); color: var(--on-accent); border: 1px solid var(--accent); min-height: 40px; padding: 8px 16px; border-radius: 5px; font-size: 15px; }
 .workspace-filter-actions > a { padding: 8px; min-height: 40px; font-size: 15px; }
 .workspace-analytics-filters[data-type], .workspace-analytics-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; padding: 16px; margin: 18px 0; width: 100%; max-width: none; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
-.workspace-analytics-filters > .workspace-filter-header { display: none; }
 .workspace-analytics-filters > .workspace-filter-actions { border: 0; padding: 0; margin: 0; }
 .workspace-analytics-filters label { display: grid; gap: 6px; }
-.workspace-panel, .surface-panel, .workspace-player-season-totals { border-color: var(--border); border-radius: 8px; box-shadow: none; background: var(--surface); }
+.workspace-panel,
+.surface-panel { border-color: var(--border); border-radius: 8px; box-shadow: none; background: var(--surface); }
 .workspace-panel-header { padding: 16px 20px; }
 .workspace-panel-header h3, .workspace-schedule-results-heading h2 { font-size: 18px; }
 .workspace-panel-header p { font-size: 15px; }
@@ -92,8 +91,6 @@ main .team-crest img { transform: none; }
 .workspace-schedule-week { background: var(--surface); }
 .workspace-schedule-week > a, .workspace-schedule-week > span { border-color: var(--border); min-height: 76px; }
 .workspace-schedule-week > a[aria-current=date] { background: var(--accent-soft); color: var(--accent); }
-.workspace-score-hero { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); padding: 24px; box-shadow: none; }
-.workspace-score-hero-meta { color: var(--muted); }
 .site-footer { max-width: 1360px; width: calc(100% - 80px); margin: 16px auto 0; padding: 24px 0; font-size: 14px; }
 @media (max-width: 900px) {
   body main { padding-inline: 24px; }
@@ -127,7 +124,6 @@ main .team-crest img { transform: none; }
   main :is(select,input[type=search],input[type=number],input[type=date]) { font-size: 16px; min-height: 44px; }
   .workspace-col-entity { width: 210px; }
   main .workspace-table tbody td { padding: 10px 12px; }
-  .workspace-score-hero { padding: 16px; }
   .site-footer { width: calc(100% - 32px); gap: 12px; }
 }
 /* Override legacy state selectors as well as the base tab styles. */
@@ -143,12 +139,9 @@ main .workspace-table th, main .workspace-table th :is(button,a), .workspace-sch
   .reference-stats-context, .workspace-context-navs { gap: 12px; }
   .workspace-schedule-toolbar { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; padding: 12px; }
   .workspace-schedule-toolbar > form, .workspace-schedule-toolbar > nav, .workspace-schedule-toolbar .workspace-schedule-calendar { grid-area: auto; grid-column: auto; grid-row: auto; width: auto; }
-  .workspace-schedule-toolbar .workspace-schedule-phase { grid-column: 1 / -1; grid-row: 3; }
   .workspace-schedule-toolbar > form:nth-of-type(2) { grid-column: 1 / -1; grid-row: 2; }
   .workspace-schedule-toolbar .workspace-schedule-calendar { grid-column: 2; grid-row: 1; }
   .workspace-schedule-toolbar :is(input,select) { width: 100%; padding-inline: 7px; font-size: 16px; }
-  .workspace-schedule-phase > span { font-size: 14px; color: var(--muted); }
-  .workspace-schedule-toolbar .workspace-schedule-phase a { min-height: 36px; }
 }
 
 /* One centered chevron and a reserved text gutter for every filter dropdown. */
@@ -207,9 +200,6 @@ main .workspace-table :is(tbody,tfoot) :is(.workspace-semantic-number,.workspace
 main .workspace-table :is(tbody,tfoot) .text-left,
 main .workspace-table th.text-left { text-align: left; }
 main .workspace-table thead th:not(.text-left) { text-align: center; }
-main .reference-career-table tbody td:nth-child(2),
-main .reference-career-table tfoot th { text-align: left; }
-main .reference-career-table tfoot td { text-align: center; }
 
 .reference-player-identity { display: flex; align-items: center; gap: 8px; }
 .reference-player-identity > span { flex-shrink: 0; }
@@ -222,7 +212,6 @@ main .workspace-table :is(thead,tbody,tfoot) { font-family: inherit; }
 main .workspace-table tbody td { padding-block: 11px; }
 main .workspace-table :is(.workspace-sticky-entity,.workspace-sticky-team-cell) { box-shadow: none; }
 main .workspace-table tbody tr:hover :is(.workspace-sticky-entity,.workspace-sticky-team-cell) { background: var(--surface-subtle); }
-.workspace-analytics-filters .workspace-filter-header { display: none; }
 @media (max-width: 767px) {
   main .responsive-table-scroll .workspace-table tr > .workspace-sticky-entity {
     width: 210px; min-width: 210px; max-width: 210px; box-shadow: none;
@@ -361,9 +350,6 @@ main .reference-player-career tfoot :is(th, td) { padding: 14px 16px; font-size:
 .reference-game-scoring .workspace-scoring-table :is(th,td):nth-child(5),
 .reference-game-scoring .workspace-scoring-table :is(th,td):nth-child(7) { text-align: left; }
 @media(max-width:600px) { .reference-game-result .workspace-game-score-name a { font-size: 16px; } }
-
-.workspace-game-flow-header { padding-bottom: 4px; }
-.workspace-game-flow-header h3 { margin-top: 0; }
 .workspace-game-flow-controls { padding-top: 4px; padding-bottom: 20px; }
 
 main .reference-game-scoring .workspace-scoring-table thead th { padding: 12px 16px; }
@@ -374,7 +360,6 @@ main .reference-game-scoring .workspace-scoring-table thead th { padding: 12px 1
 .reference-game-result .workspace-game-score-team .modern-game-support { justify-content: flex-start; margin: 4px 0 0; gap: 10px; }
 .reference-game-result .workspace-game-score-team .workspace-game-score-name { justify-content: flex-start; }
 .reference-game-result .workspace-game-score-team + .workspace-game-score-team { padding-top: 12px; border-top: 1px solid var(--border); }
-.reference-game-result .workspace-game-score-team .modern-game-support .workspace-team-record { margin: 0; }
 
 .reference-game-result + .workspace-scroll-nav { margin-top: 24px; }
 

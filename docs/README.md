@@ -1,6 +1,6 @@
 # Documentation index
 
-Reviewed against the repository on September 6, 2026. Current guides describe
+Reviewed against the repository on October 21, 2026. Current guides describe
 implemented behavior; dated audits preserve the evidence and limitations from
 those runs. Stored counts refer to the recorded local backfill, not data shipped
 with a clone or a guarantee of current source freshness.
@@ -49,15 +49,15 @@ the completeness audit for the intended detailed seasons.
 
 The daily coordinator does not refresh the separate historical-summary or
 draft archives. A completeness pass also does not establish current freshness,
-source licensing, or production readiness. Hosting, production writes, and
-predictive modelling remain deferred.
+source licensing, or production readiness. The private site is hosted and daily ingestion is active. Monthly backup
+scheduling and predictive modelling remain deferred.
 
 ## Website behavior and regression guides
 
-- [Team/player directories, profiles, comparisons, and search](team-player-pages.md)
+- [Team/player directories, profiles, and histories](team-player-pages.md)
 - [Game box scores, Game Flow, and shot maps](game-box-scores.md)
 - [Advanced leaderboards and analytics](advanced-analytics.md)
-- [Season and rolling line/pairing rankings](season-line-rankings.md)
+- [Team season line/pairing statistics](season-line-rankings.md)
 - [Filter behavior and regression coverage](filter-consistency.md)
 - [Desktop interaction regression checklist](desktop-ux-regression.md)
 - [Visual polish audit and fixes](visual-polish-audit-2026-09-06.md)
@@ -86,4 +86,15 @@ drifted; original audit evidence and ingestion definitions that still matched
 the code were retained. This was a documentation review, not a new data refresh,
 full historical audit, backup rehearsal, or browser usability study.
 
-- [AWS preparation](aws-preparation.md): selected hosting, local validation, secrets, deployment gates, and recovery limits.
+- [AWS storage boundary](aws-preparation.md): retained bootstrap/storage and removed server proposal.
+
+## Hosted operations
+
+- [Hosted setup and rollout history](hosted-preparation.md)
+- [Current hosted readiness and recovery evidence](hosted-readiness.md)
+- [Neon setup](neon-setup.md)
+
+Dated audit records are retained as historical evidence, including references to
+retired code and test commands. Follow current development guides for executable
+instructions. Repo cleanup does not delete database objects or stored data; that
+requires the separate dependency review described in the roadmap.

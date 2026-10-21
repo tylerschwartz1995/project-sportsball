@@ -7,10 +7,9 @@ import {
 import { getMoneyPuckGameAnalytics } from "@/data/performance-cache";
 import { getGameBoxScore, getGameSummary, getGameViewAvailability } from "@/data/performance-cache";
 import { getGamePlayByPlay } from "@/data/performance-cache";
-import { parseTimelinePeriod } from "@/lib/play-by-play-timeline";
 import { notFound } from "next/navigation";
 import "server-only";
-import { GamePageProps, firstValue, normalizeGameView, parseGameAdvancedView, parseGameView } from './logic';
+import { GamePageProps, firstValue, normalizeGameView, parseGameView } from './logic';
 async function loadGamePageData({
   params,
   searchParams,
@@ -47,9 +46,6 @@ async function loadGamePageData({
     boxScore = loadedBoxScore;
     game = loadedBoxScore;
   }
-  const advancedView = parseGameAdvancedView(
-    firstValue(pageParams.advancedView),
-  );
   const content = Promise.all([
     view === "team-stats" || view === "lines" || view === "shot-map" || view === "game-flow"
       ? getMoneyPuckGameAnalytics(nhlGameId, view === "game-flow" ? "scoring" : view === "lines" ? "combinations" : view === "shot-map" ? "shots" : "teams")
@@ -61,9 +57,6 @@ async function loadGamePageData({
       : Promise.resolve({ nhlGameId, events: [] }),
   ]);
   const hasBoxScore = availability.boxScore;
-  const timelinePeriod = parseTimelinePeriod(
-    firstValue(pageParams.timelinePeriod),
-  );
   const tabs = [
     availability.scoring
       ? {
@@ -95,8 +88,6 @@ async function loadGamePageData({
     completed,
     tabs,
     view,
-    advancedView,
-    timelinePeriod,
     hasBoxScore,
     boxScore,
     availability,

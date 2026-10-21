@@ -1,5 +1,9 @@
 # Local MVP release record
 
+> Historical record. This describes the app at the recorded audit/release date.
+> Retired routes, source paths, and test commands below are not current instructions.
+> Use [current app scope](app-simplification.md) and [web development](../apps/web/README.md).
+
 ## Document status
 
 This record preserves the original July 31, 2026 MVP sign-off and its evidence.

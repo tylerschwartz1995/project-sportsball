@@ -1,5 +1,9 @@
 # Neon, Vercel and GitHub Actions preparation
 
+> Current status: private hosting and daily ingestion are active; monthly backup
+> scheduling remains disabled. Dated rollout sections below preserve the state
+> at each rehearsal, including earlier disabled flags. See [daily operations](daily-ingestion.md).
+
 ## Selected setup and status
 
 This replaces the Lightsail/CodeBuild/EventBridge proposal. The approved Neon
@@ -27,7 +31,7 @@ storage/role policies. Keep the old AWS stack unapplied.
 | GitHub OIDC roles | Temporary credentials scoped separately to archive and backup uploads |
 
 Terraform `plan` previews changes; `apply` creates/changes resources and can
-start charges. Use `infra/hosted`, not `infra/aws/environment`. Never apply both
+start charges. Use `infra/hosted`; the unapplied AWS server environment has been removed. Never recreate both
 stacks to the same buckets. `infra/aws/bootstrap` remains reusable for the state
 bucket. The new backend key is `sportsball/hosted-storage.tfstate`; its lock and
 state permissions were reviewed before use. If buckets or the GitHub OIDC
@@ -175,7 +179,7 @@ all scheduled production writes remain disabled. The site serves
 the restored snapshot: earlier freshness warnings remain until a separately
 approved ingestion rehearsal. Private S3 storage and temporary AWS roles are now
 provisioned. The next operational stage is an approved manual ingestion and backup/restore rehearsal
-before any schedule activation. The older server stack remains unapplied.
+before any schedule activation. The older server stack was never applied and its scaffolding is now removed.
 
 ## Private AWS storage — 2026-09-10
 

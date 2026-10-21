@@ -1,5 +1,9 @@
 # Modern Stats Exploration
 
+> Historical record. This describes the app at the recorded audit/release date.
+> Retired routes, source paths, and test commands below are not current instructions.
+> Use [current app scope](app-simplification.md) and [web development](../apps/web/README.md).
+
 This implementation record documents the design and verification merged in
 [PR #142](https://github.com/tylerschwartz1995/project-sportsball/pull/142).
 It preserves that review snapshot. The [current design guide](design-system.md)

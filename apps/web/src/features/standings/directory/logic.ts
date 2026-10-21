@@ -5,8 +5,6 @@ import {
 
 export type StandingsView = "overall" | "conference" | "division";
 
-export type StandingsDisplay = "standings" | "progress";
-
 export type StandingsPageProps = {
   searchParams: Promise<{
     season?: string | string[];
@@ -40,10 +38,6 @@ export const standingsColumns: Array<{
 
 export function parseView(value: string | undefined): StandingsView {
   return value === "conference" || value === "division" ? value : "overall";
-}
-
-export function parseStandingsDisplay(value: string | undefined): StandingsDisplay {
-  return value === "progress" ? "progress" : "standings";
 }
 
 export function buildGroups(
@@ -149,10 +143,6 @@ export function formatSnapshotDate(value: string): string {
     dateStyle: "long",
     timeZone: "UTC",
   }).format(new Date(`${value}T00:00:00Z`));
-}
-
-export function formatDifferential(value: number): string {
-  return value > 0 ? `+${value}` : String(value);
 }
 
 export function capitalize(value: string): string {
