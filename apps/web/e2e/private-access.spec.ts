@@ -29,7 +29,7 @@ test("email code login and logout work through the actual SDK", async ({ page })
   await expect(page.getByRole("status")).toContainText("Unable to sign in");
   await page.getByLabel("Email Code").fill("123456");
   await page.getByRole("button", { name: "Sign In", exact: true }).click();
-  await expect(page).toHaveURL("http://localhost:3100/teams");
+  await expect(page).toHaveURL("http://localhost:3100/games");
   await page.getByRole("button", { name: "Sign Out", exact: true }).click();
   await expect(page).toHaveURL("http://localhost:3100/login");
   expect((await page.request.get("/api/seasons")).status()).toBe(401);

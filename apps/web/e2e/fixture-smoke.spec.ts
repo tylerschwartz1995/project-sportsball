@@ -8,9 +8,12 @@ for (const theme of ["dark", "light"]) {
     page.on("pageerror", error => errors.push(error.message));
     await page.addInitScript(value => localStorage.setItem("sportsball-theme", value), theme);
     await page.goto("/?season=20252026");
-    await expect(page.getByRole("heading", { name: "Team Stats", exact: true })).toBeVisible();
+    await expect(page).toHaveURL(/games\?season=20252026/);
+    await expect(page.getByRole("heading", { name: "2025–26 NHL Schedule", exact: true })).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
-    await expect(page.locator('.site-navigation a')).toHaveText(["Teams", "Players", "Games"]);
+    await expect(page.locator('.site-navigation a')).toHaveText(["Games", "Standings", "Teams", "Players"]);
+    await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Teams", exact: true }).click();
+    await expect(page.getByRole("heading", { name: "Team Stats", exact: true })).toBeVisible();
     await expect(page.getByRole("table")).toBeVisible();
     await page.getByRole("link", { name: "Advanced Stats", exact: true }).click();
     await expect(page).toHaveURL(/analytics.*type=teams/);
@@ -20,7 +23,8 @@ for (const theme of ["dark", "light"]) {
     await expect(page.getByText("Fixture Skater", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("Advanced Filters", { exact: true })).toHaveCount(0);
     await page.getByText("Fixture Skater", { exact: true }).first().click();
-    await expect(page.getByRole("link", { name: "Basic Stats", exact: true })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Fixture Skater", exact: true })).toBeVisible();
+    await expect(page.getByRole("columnheader", { name: /Season/ })).toBeVisible();
     await expect(page.getByRole("link", { name: "Recent Form", exact: true })).toHaveCount(0);
     await page.goto("/games/2025020001");
     await expect(page.getByText("Fixture Skater", { exact: true }).first()).toBeVisible();
