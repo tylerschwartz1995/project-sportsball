@@ -9,7 +9,8 @@ import { TeamLogo } from "@/features/teams/team-logo";
 import { finalLabel, hasFinalScore } from './logic';
 
 export function GameCard({ game }: { game: GameSummary }) {
-  const completed = hasFinalScore(game);
+  const completed = (game.state === "FINAL" || game.state === "OFF") && hasFinalScore(game);
+  const live = game.state === "LIVE" || game.state === "CRIT";
 
   return (
     <article className="workspace-game-card">
@@ -26,12 +27,12 @@ export function GameCard({ game }: { game: GameSummary }) {
         <span>
           <LocalGameTime value={game.startTimeUtc} /> start
         </span>
-        <Link
+        {completed || live ? <Link
           href={`/games/${game.nhlGameId}`}
-          aria-label={`${completed ? "View box score" : "Open game preview"}: ${game.awayTeam.name} at ${game.homeTeam.name}`}
+          aria-label={`${completed ? "View box score" : "View live game"}: ${game.awayTeam.name} at ${game.homeTeam.name}`}
         >
-          {completed ? "View box score" : "Game preview"} →
-        </Link>
+          {completed ? "View box score" : "View live game"} →
+        </Link> : null}
       </div>
     </article>
   );

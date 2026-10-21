@@ -16,11 +16,6 @@
   box-shadow: 0 10px 28px var(--shadow);
 }
 
-.workspace-analytics-filters > .workspace-filter-header {
-  margin: -0.85rem -0.85rem 0;
-}
-
-.workspace-analytics-filters > .workspace-filter-header,
 .workspace-analytics-filters > .workspace-filter-actions {
   grid-column: 1 / -1;
 }

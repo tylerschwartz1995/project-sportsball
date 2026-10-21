@@ -1,178 +1,44 @@
-# Advanced analytics presentation
+# Advanced analytics
 
-The MoneyPuck website layer exposes season-level team, skater, and goalie
-metrics plus game-level team, player, shot, line, and pairing records through
-server-only TypeScript queries.
+MoneyPuck data is read from PostgreSQL through server-only queries. Current
+presentation and metric order are documented in [App scope](app-simplification.md).
+The former chart builders, comparisons, and standalone research workspaces
+have been removed. Metric definitions remain in table help and the linked
+`/analytics/guide` reference page.
 
-## Routes
+## Season tables
 
-- `/analytics?season={seasonId}&type={teams|skaters|goalies}` displays
-  league-wide advanced leaderboards with situation and qualifying-ice-time
-  controls.
-- `/analytics/guide?season={seasonId}` provides the shared plain-language
-  reference for advanced metrics. Definitions have no season filter; the
-  optional season parameter preserves context for navigation back to analytics.
-- `/teams/{nhlTeamId}?season={seasonId}` displays team situation splits.
-- `/players/{nhlPlayerId}?season={seasonId}` displays player-team situation
-  splits for skaters or goalies.
-- `/games/{nhlGameId}` displays advanced team and player results, shot maps,
-  forward lines, and defensive pairings alongside the traditional box score.
-- `/lines?season={seasonId}&minimum={minutes}` ranks season-level forward lines
-  and defensive pairings.
+`/analytics` supplies the Advanced Stats tabs for Teams and Players, with phase,
+situation, and applicable workload controls. Teams show GP, xGF/60, xGA/60,
+xG%, CF%, FF%, HD xG%, and PDO. Skaters show GP, TOI, P/60, ixG/60, CF%,
+xGF/60, xGA/60, xG%, and HD xG%. Goalies show GP, TOI, GSAx/60, xGA/60,
+HD GSAx, MD GSAx, LD GSAx, and Rebounds/60.
 
-The React Server Components query PostgreSQL directly. No browser request or
-page render calls MoneyPuck, and the normalized source records remain separate
-from traditional NHL statistics.
+Player-team splits remain distinct. League player queries select at most 200
+qualifying rows by P/60 or GSAx/60; client sorting operates within that sample.
+Rates use unrounded seconds. Missing inputs or zero denominators display dashes.
+Danger-band GSAx values are totals; rebounds also reflect workload.
 
-## Advanced game package
+Player career tables combine basic history with regular-season advanced data:
+5-on-5 P/60, ixG/60, and on-ice xG% for skaters; all-situations GSAx/60 and
+xGA/60 for goalies. Team splits are summed before division. No regular-season
+advanced values are attached to playoff rows. Career-total metrics require
+complete contributing inputs rather than silently reporting partial careers.
 
-`getMoneyPuckGameAnalytics(nhlGameId)` is the server-only application boundary
-for the game page. It performs six parameterized reads in parallel
-and returns one serializable contract containing:
+## Game data
 
-- historical game and team identity;
-- team, skater, and goalie situation metrics;
-- chronologically ordered modeled shots with coordinates and expected-goal
-  context;
-- forward lines and defensive pairings with canonical player identities.
+[Game pages](game-box-scores.md) use selected portions of the game analytics
+package. Box-score skaters add ixG, on-ice FF%, and xG%; goalies add xGA and
+GSAx. Team Stats uses all situations. Shot Map shows two xG-weighted heatmaps,
+Game Flow has its own tab, and Lines shows compact unit results.
 
-An existing NHL game returns a package even when MoneyPuck does not cover that
-season or game; its advanced record arrays are empty. An unknown NHL game
-returns `null`. Player-game and line data are regular-season only, while team
-game and shot data also cover playoffs.
+An existing NHL game with no MoneyPuck coverage returns empty advanced arrays;
+an unknown game returns null. Team game metrics begin in 2008–09 and cover
+both phases; player-game and unit records are regular-season only. Shots begin
+in 2007–08. Season summaries begin in 2008–09. See
+[MoneyPuck ingestion](moneypuck-season-ingestion.md) for provenance and coverage.
 
-## Current presentation
-
-The league analytics route includes:
-
-- an interactive team results-versus-process scatterplot that compares
-  five-on-five expected-goal share with regular-season points percentage or
-  playoff win percentage;
-- selectable five-on-five xG, Corsi, and Fenwick process measures plus direct
-  two-team comparison across results and every available process metric;
-- quadrant filters for strong, outperforming, underperforming, and struggling
-  teams, with fixed axes and exact-value tooltips;
-- skater expected-versus-actual scoring rates with forward/defense filters and
-  a finishing distribution around expectation;
-- goalie expected-workload versus goals-saved-above-expected rates with
-  positive/negative performance filters and a GSAx distribution;
-- independent horizontal- and vertical-axis selectors covering scoring,
-  possession, shot quality, workload, and goalie results, with distributions
-  that follow the selected vertical metric;
-- direct two-player comparisons across every available plot metric, games, and
-  minutes for the current qualifying population;
-- team xG%, Corsi%, Fenwick%, expected goals, and actual goals;
-- skater game score, on-ice xG% and Corsi%, individual expected goals, goals,
-  and points;
-- goalie goals saved above expected, expected/actual goals against, and
-  expected/actual shots on goal;
-- all-situations, five-on-five, power-play, and penalty-kill filters;
-- explicit minimum-ice-time thresholds for skaters and goalies;
-- sortable tables with links to supporting team and player profiles;
-- a single all-columns table without column presets;
-- plain-language metric definitions on hover or keyboard focus, a visible link
-  to the Metric Guide, and a sticky identity column for wide tables.
-- URL-backed plot metrics, groups, axes, and direct team/player selections,
-  with a copy-link action that restores the exact analytical view.
-
-The league leaderboards and centralized guide use the shared Modern Stats
-Exploration hierarchy, semantic filters, table shells, and section navigation.
-Tables and Charts are separate choices; distributions and direct-comparison
-controls are optional. The team plot stays five-on-five independently of the
-leaderboard situation selector. See the [design system](design-system.md) for
-the current palette and interaction rules.
-
-Teams, Skaters, Goalies, Lines & Pairings, and the Metric Guide share one
-persistent section selector. The links use full document navigation so large
-server-rendered leaderboards cannot leave the active tab and displayed dataset
-out of sync.
-
-League skater and goalie tables retain player-team splits rather than silently
-combining traded-player rows. They show at most 200 qualifying rows for the
-selected view: skaters are selected by Game Score and goalies by GSAx. Alternate
-table sorts and plots operate within that capped player-team population.
-
-Team and skater views include:
-
-- expected-goal share (`xG%`);
-- Corsi share (`CF%`);
-- Fenwick share (`FF%`);
-- expected goals for and against;
-- player individual expected goals, goals, points, and game score.
-
-Goalie views include:
-
-- expected and actual goals against;
-- expected and actual shots on goal against;
-- goals saved above expected (`xGA - GA`).
-
-Game pages add:
-
-- interactive Game Flow in the scoring timeline, with a default five-minute
-  chance-quality pressure view, an optional cumulative expected-goal view,
-  goal context, and period-level expected-goal totals;
-- all-situations expected-goal cards and sortable team situation comparisons;
-- normalized regulation-scale attacking half-rink shot maps, with circle size
-  representing expected goal probability; every marker can be selected by
-  pointer or with roving arrow-key, Home, and End controls to reveal its
-  shooter, result, time, goalie, shot type, distance, score, and contextual
-  tags. Attempts without source coordinates are counted but disclosed as not
-  plotted. Period, result, and shooter filters are URL-backed, and per-team
-  attempt lists allow selection of overlapping events;
-- sortable all-situations skater and goalie advanced results;
-- sortable five-on-five forward-line and defensive-pairing tables.
-
-Completed playoff series open into a tabbed series dashboard. The overview
-combines official results with team analytics aggregated from the stored
-MoneyPuck team-game rows across only that matchup. All-situations and
-five-on-five expected-goal shares are calculated from summed expected goals
-for and against, while shot-attempt share is calculated from summed attempts
-rather than averaged game percentages.
-
-The Player Stats tab exposes complete official skater and goalie series totals.
-The Advanced Analytics tab derives individual shooting and goaltending results
-from MoneyPuck's playoff shot model, including individual expected goals,
-goals above expected, goals saved above expected, and expected save percentage.
-MoneyPuck player-game and line-combination files are regular-season only, so
-the series view does not present unavailable playoff on-ice or line metrics.
-
-The line-ranking page and team pages display Polars-derived season aggregates.
-Player combinations are canonicalized before grouping, totals are summed across
-games, and xG% and CF% are recomputed from those totals. The default league
-threshold is 100 five-on-five minutes, with selectable thresholds to prevent
-small samples from being presented as established top units.
-
-Rows retain MoneyPuck's published situations: all situations, 5-on-5, 5-on-4,
-4-on-5, and other. Player records remain split by team so traded-player context
-is not lost.
-
-The homepage includes top-five all-situations season Game Score and GSAx lists
-alongside official scoring leaders. Advanced lists preserve player-team splits;
-workload and supporting expected-goal metrics are visible. Sorting applies only
-to each displayed top-five sample.
-
-## Coverage and attribution
-
-Season-summary coverage begins in 2008–09. Shot maps begin in 2007–08. Team
-game metrics begin in 2008–09 and cover regular season and playoffs; player
-game and unit files are regular-season only. Pages show an explicit coverage
-message instead of treating unavailable records as zero.
-
-Every advanced section links to and credits MoneyPuck.com. Compact definitions
-beside the results link to the centralized metric guide, which explains how to
-interpret shot-quality, possession, individual, on-ice, and goalie metrics.
-Game Flow explicitly describes pressure as a backward-looking comparison of
-modeled chance quality rather than momentum, betting odds, or a prediction of
-the winner. Its plotted pressure trend uses a trailing 30-second time-weighted
-average for readability, while interactive details preserve the exact
-unsmoothed five-minute values. Both chart views use game-relative vertical
-scales. Its coverage follows the MoneyPuck shot archive beginning in 2007–08,
-and shootout attempts are excluded.
-
-## Future analytics presentation
-
-- cross-season advanced comparisons;
-- named saved comparison collections (shareable plot URLs already exist);
-- additional shot filters beyond the implemented period, result, and shooter;
-- score-state and venue line-combination splits (10/20/40-team-game rolling
-  rankings already exist).
+Shares are ratios of summed for/against counts. GSAx is MoneyPuck xGA minus
+MoneyPuck goals allowed. Provider totals are kept distinct from official NHL
+totals where definitions differ. Coverage notices and MoneyPuck attribution
+remain available; no unavailable statistic is filled with zero.

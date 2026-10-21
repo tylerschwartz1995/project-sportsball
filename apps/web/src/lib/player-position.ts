@@ -50,19 +50,3 @@ export function parsePlayerPositionFilter(
     ? value
     : "";
 }
-
-export function matchesPlayerPosition(
-  position: string | null | undefined,
-  filter: PlayerPositionFilter,
-): boolean {
-  if (!filter) {
-    return true;
-  }
-
-  const normalizedPosition = position?.trim().toUpperCase();
-  return filter === "F"
-    ? normalizedPosition === "C" ||
-        normalizedPosition === "L" ||
-        normalizedPosition === "R"
-    : normalizedPosition === filter;
-}

@@ -1,5 +1,9 @@
 # Content audit implementation
 
+> Historical record. This describes the app at the recorded audit/release date.
+> Retired routes, source paths, and test commands below are not current instructions.
+> Use [current app scope](app-simplification.md) and [web development](../apps/web/README.md).
+
 This records the implementation merged in PR #143 from the
 [full baseline audit](content-audit-2026-09-06.md). Later
 [usability refinements](usability-audit-implementation.md) open the team result

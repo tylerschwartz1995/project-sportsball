@@ -1,26 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import { useGetFormNavigation } from "@/components/ui/use-get-form-navigation";
 
 export function FilterForm({
   action,
   className,
   children,
+  autoApply = false,
   ...props
 }: {
   action?: string;
   className?: string;
   children: ReactNode;
+  autoApply?: boolean;
   "data-type"?: string;
 }) {
   const ref = useRef<HTMLFormElement>(null);
-  const initial = useRef("");
-  const [dirty, setDirty] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const { isPending, navigate } = useGetFormNavigation();
-  useEffect(() => {
-    if (ref.current) initial.current = formValues(ref.current);
-  }, []);
+  useEffect(() => () => clearTimeout(timer.current), []);
   return (
     <form
       {...props}
@@ -29,20 +28,26 @@ export function FilterForm({
       method="get"
       className={className}
       aria-busy={isPending || undefined}
-      onChange={(event) => setDirty(formValues(event.currentTarget) !== initial.current)}
+      onChange={(event) => {
+        if (!autoApply) return;
+        clearTimeout(timer.current);
+        const target = event.target;
+        const delay = target instanceof HTMLInputElement &&
+          ["text", "search", "number"].includes(target.type) ? 350 : 0;
+        timer.current = setTimeout(() => {
+          if (ref.current) navigate(ref.current);
+        }, delay);
+      }}
       onSubmit={(event) => {
         event.preventDefault();
+        clearTimeout(timer.current);
         navigate(event.currentTarget);
       }}
     >
       {children}
-      <p className="workspace-filter-status" role="status">
-        {isPending ? "Updating results…" : dirty ? "Changes not applied. Select Apply Filters to update results." : ""}
+      <p className="sr-only" role="status">
+        {isPending ? "Updating results…" : ""}
       </p>
     </form>
   );
-}
-
-function formValues(form: HTMLFormElement) {
-  return JSON.stringify(Array.from(new FormData(form)));
 }

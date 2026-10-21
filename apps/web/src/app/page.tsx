@@ -1,9 +1,10 @@
-import { loadHome } from '@/features/home/loader';
-import type { HomeProps } from '@/features/home/logic';
-import { HomeView } from '@/features/home/view';
-
-export const dynamic = "force-dynamic";
-
-export default async function Home(props: HomeProps) {
-  return <HomeView {...await loadHome(props)} />;
+import { redirect } from "next/navigation";
+export default async function Home({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const incoming = await searchParams;
+  const params = new URLSearchParams();
+  for (const key of ["season", "date"]) {
+    const value = incoming[key];
+    if (typeof value === "string") params.set(key, value);
+  }
+  redirect(`/games${params.size ? `?${params}` : ""}`);
 }

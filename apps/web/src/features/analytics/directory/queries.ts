@@ -7,6 +7,7 @@ export async function loadLeaderboard(
   situation: Situation,
   minimumIceTimeSeconds: number,
   gameType: number,
+  filters: { query?: string; position?: string } = {},
 ): Promise<LeaderboardRows> {
   if (type === "teams") {
     return listAdvancedTeamLeaders(seasonId, situation, gameType);
@@ -16,11 +17,15 @@ export async function loadLeaderboard(
       seasonId,
       situation,
       minimumIceTimeSeconds,
+      200,
+      filters,
     );
   }
   return listAdvancedSkaterLeaders(
     seasonId,
     situation,
     minimumIceTimeSeconds,
+    200,
+    filters,
   );
 }

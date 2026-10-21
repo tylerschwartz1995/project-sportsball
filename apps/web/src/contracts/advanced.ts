@@ -4,6 +4,9 @@ export type MoneyPuckTeamSituation = {
   situation: string;
   gamesPlayed: number;
   iceTimeSeconds: number;
+  highDangerExpectedGoalsFor?: number | null;
+  highDangerExpectedGoalsAgainst?: number | null;
+  highDangerExpectedGoalsPercentage?: number | null;
   expectedGoalsPercentage: number | null;
   corsiPercentage: number | null;
   fenwickPercentage: number | null;

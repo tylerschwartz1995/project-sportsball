@@ -34,6 +34,14 @@ INSERT INTO team_game_stats (game_id, team_id, is_home, score, shots_on_goal) VA
 INSERT INTO player_game_stats (game_id, player_id, team_id, position, goals, assists, points, plus_minus, penalty_minutes, hits, power_play_goals, shots_on_goal, blocked_shots, giveaways, takeaways, shifts, time_on_ice_seconds) VALUES
   (2, 1, (SELECT id FROM fixture_team_ids WHERE nhl_id = 59), 'C', 1, 2, 3, 2, 0, 1, 0, 4, 0, 1, 1, 20, 1200),
   (3, 1, (SELECT id FROM fixture_team_ids WHERE nhl_id = 59), 'C', 0, 1, 1, -1, 0, 1, 0, 2, 0, 1, 1, 20, 1200);
+INSERT INTO skater_season_stats
+  (season_id, game_type, player_id, games_played, teams_played_for, goals, assists,
+   points, plus_minus, penalty_minutes, hits, power_play_goals, shots_on_goal,
+   blocked_shots, giveaways, takeaways, shifts, time_on_ice_seconds, time_on_ice_games)
+VALUES
+  (20252026, 2, 1, 1, 1, 1, 2, 3, 2, 0, 1, 0, 4, 0, 1, 1, 20, 1200, 1),
+  (20252026, 3, 1, 1, 1, 0, 1, 1, -1, 0, 1, 0, 2, 0, 1, 1, 20, 1200, 1);
+
 INSERT INTO team_season_stats (season_id, game_type, team_id, games_played, wins, losses, regulation_wins, overtime_wins, shootout_wins, regulation_losses, overtime_losses, shootout_losses, standings_points, goals_for, goals_against, shots_for, shots_against)
 SELECT game.season_id, game.game_type, stats.team_id, 1,
   CASE WHEN stats.score > opponent.score THEN 1 ELSE 0 END,

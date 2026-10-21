@@ -2,14 +2,16 @@ import type { ReactNode } from "react";
 
 export function ChartFilterGroup({
   label,
+  hideLabel = false,
   children,
 }: {
   label: string;
+  hideLabel?: boolean;
   children: ReactNode;
 }) {
   return (
     <fieldset className="workspace-chart-filter-group">
-      <legend>{label}</legend>
+      <legend className={hideLabel ? "sr-only" : undefined}>{label}</legend>
       <div>{children}</div>
     </fieldset>
   );

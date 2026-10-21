@@ -1,97 +1,41 @@
-# Game box scores
+# Game pages
 
-Every result on `/games` links to `/games/{nhlGameId}`. The game page keeps one
-NHL game as its response grain and displays:
+The Games directory has season/date controls and week/calendar navigation.
+Upcoming matchups show teams and start time without a preview link. Live and
+completed games link to `/games/{nhlGameId}`.
 
-- the historical away and home team identities;
-- final scores, shots, game type, ending type, date, and start time;
-- one traditional stat row per participating skater;
-- goalie totals and even-strength and power-play save splits;
-- dressed backup goalies as `DNP` when they recorded no ice time;
-- an official NHL scoring summary and expandable period-by-period play
-  timeline;
-- an interactive MoneyPuck Game Flow view for supported games, with
-  five-minute chance-quality pressure, cumulative expected goals, goal
-  context, and expected-goal totals by period;
-- MoneyPuck team and player game analytics where covered;
-- normalized shot maps with expected-goal event context;
-- regular-season five-on-five forward lines and defensive pairings.
+The detail page has a compact two-row scoreboard followed by Scoring, Box Score,
+Game Flow, Team Stats, Shot Map, and Lines. See [App scope](app-simplification.md)
+for exact columns and formulas. Tabs and selectors retain shareable URL state.
 
-Team and player names link to their existing season and career pages.
-The desktop scoreboard uses flexible team tracks so long historical names,
-records, logos, and scores remain visible together within the bounded content
-canvas beneath the horizontal application header.
+- Scoring preserves event order with period, time, team, scorer, assists,
+  away–home score, and goal type. It is deliberately not sortable.
+- Box Score selects one team and either skaters or goalies, with traditional
+  totals and available player-game advanced statistics in one sortable table.
+- Game Flow offers five-minute xG pressure and cumulative chances. Pressure
+  resets at period boundaries; the displayed trend smooths the trailing 30
+  seconds, while interactive values retain the exact five-minute totals.
+- Team Stats compares all-situations metrics. Mixed-unit rows are not sortable.
+- Shot Map shows both teams' xG-weighted heatmaps on a shared intensity scale,
+  with puck goal markers and a dismissible details dialog. It has no shot filters.
+- Lines selects team, line type, and minimum TOI without repositioning the page.
 
-## Query model
+## Queries and coverage
 
-The page first loads game identity (or the requested box score) and view
-availability in parallel. It then loads data for the selected view: scoring
-reads play-by-play and advanced data together, Shot Quality reads advanced
-data, and Box Score avoids the timeline/advanced payload. Scheduled games show
-identity, time, and status without empty analytics warnings.
-`getGameBoxScore()` runs three independent parameterized queries:
+The loader retrieves identity and view availability, then only the selected
+view's required package. `getGameBoxScore` groups traditional team totals,
+skaters, and goalies under the canonical home and away teams. Advanced queries
+can select subsets of team, player, shot, and unit data. Box scores request
+player analytics to populate their advanced columns. Scoring uses normalized
+NHL play-by-play; the retired expandable event timeline is not rendered.
 
-```text
-game + team totals
-skater game stats
-goalie game stats
-```
+Game Flow uses stored shots and play-by-play. Its expected goals are descriptive
+chance quality, not win probability. Shot maps exclude unmodeled or unlocated
+attempts from their density field. Team game and shot coverage includes
+playoffs; MoneyPuck player-game and unit files are regular-season only. Team
+names use the identity for that season. Missing observations remain unavailable.
 
-The query layer then groups player rows beneath the game's canonical away and
-home team identifiers. This produces one serializable `GameBoxScore` contract
-while preserving source NHL totals; the game-summary query also derives each
-team's point-in-time season-phase record from stored results.
-
-`getMoneyPuckGameAnalytics()` runs six parameterized reads for the game
-context, team situations, skaters, goalies, shots, and units. It returns a
-separate serializable contract so provider-specific metrics remain distinct
-from the source-neutral NHL box score. Team game and shot records cover
-playoffs; player-game and unit records are regular-season only.
-
-`getGamePlayByPlay()` runs event and participant reads in parallel, keeps the
-provider's chronological sort order, and groups semantic player roles beneath
-each event. The Server Component derives the scoring summary from normalized
-goal events and renders every stored play inside its period section.
-
-For games with MoneyPuck modeled shots, the scoring view also derives a
-serializable Game Flow package from the already-loaded shot and play-by-play
-records. Game Pressure compares the teams' summed expected goals over the
-previous five minutes of play and resets at each period boundary. Cumulative
-Chances sums the same shot probabilities from puck drop. Neither measure is a
-win probability, and neither makes another upstream request while rendering.
-Both chart views use game-relative expected-goal scales so quieter games remain
-readable without clipping unusually chance-heavy games. The pressure line is
-displayed as a trailing 30-second smoothed trend to reduce event-by-event steps;
-hover details continue to report the exact five-minute values.
-The selected pressure or cumulative view is URL-backed and the chart exposes a
-copy-link action, so a shared game link restores the same explanation and plot.
-The chart marks goals, exposes exact values through
-pointer, touch, and keyboard interaction, and keeps period totals visible in a
-compact non-sortable table because chronological order is meaningful.
-
-All team names and abbreviations join through `team_seasons`, so a 2005–06 box
-score uses the identity active in 2005–06 rather than a later relocation or
-rebrand.
-
-Statistical box-score and advanced tables have column sorting; chronological
-scoring/timeline and period-summary tables preserve their meaningful order.
-Shot maps use regulation half-rink proportions and expose their markers through one keyboard
-tab stop plus arrow-key navigation, avoiding a separate tab stop for every
-attempt. URL-backed period, result, and shooter filters update map totals;
-per-team shot lists make overlapping attempts selectable. Maps do not require
-a charting library or a browser data request.
-
-## Endpoint
-
-```text
-GET /api/games/2025030416
-```
-
-The endpoint returns 400 for an invalid NHL game identifier, 404 for an
-unknown game, and a generic 503 when storage is unavailable. Successful
-responses use the same five-minute shared-cache and one-hour
-stale-while-revalidate policy as the schedule endpoint.
-
-The endpoint currently returns the traditional `GameBoxScore` contract. The
-advanced package is consumed directly by the Server Component and is not yet a
-public JSON endpoint.
+`GET /api/games/{id}` returns the traditional box-score contract: 400 for an
+invalid identifier, 404 for an unknown game, and generic 503 for database failure.
+Advanced packages are consumed directly by Server Components. No page calls NHL
+or MoneyPuck while rendering.

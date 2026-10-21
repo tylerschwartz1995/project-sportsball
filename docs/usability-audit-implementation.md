@@ -1,5 +1,9 @@
 # Usability audit implementation
 
+> Historical record. This describes the app at the recorded audit/release date.
+> Retired routes, source paths, and test commands below are not current instructions.
+> Use [current app scope](app-simplification.md) and [web development](../apps/web/README.md).
+
 This record documents PR #145, merged on `main`, addressing all ten findings
 from the navigation, first-use, and information-presentation walkthrough. Statistical definitions and source
 coverage remain unchanged.

@@ -51,6 +51,7 @@ type SkaterRow = {
   plus_minus: number;
   penalty_minutes: number;
   power_play_goals: number;
+  power_play_points: number | null;
   shots_on_goal: number;
   hits: number;
   blocked_shots: number;
@@ -77,6 +78,7 @@ type GoalieRow = {
   shots_against: number;
   saves: number;
   save_percentage: number | null;
+  shutouts: number | null;
   time_on_ice_seconds: number;
 };
 
@@ -158,6 +160,12 @@ const skaterSelect = `
     stats.plus_minus,
     stats.penalty_minutes,
     stats.power_play_goals,
+    (SELECT CASE WHEN COUNT(*) = COUNT(split.power_play_points)
+      THEN SUM(split.power_play_points)::integer ELSE NULL END
+      FROM official_skater_season_stats AS split
+      WHERE split.player_id = stats.player_id
+        AND split.season_id = stats.season_id
+        AND split.game_type = stats.game_type) AS power_play_points,
     stats.shots_on_goal,
     stats.hits,
     stats.blocked_shots,
@@ -207,6 +215,12 @@ const goalieSelect = `
     stats.shots_against,
     stats.saves,
     stats.save_percentage,
+    (SELECT CASE WHEN count(*) > 0 AND count(*) = count(split.shutouts)
+       THEN sum(split.shutouts)::integer ELSE NULL END
+     FROM official_goalie_season_stats AS split
+     WHERE split.player_id = stats.player_id
+       AND split.season_id = stats.season_id
+       AND split.game_type = stats.game_type) AS shutouts,
     stats.time_on_ice_seconds
   FROM goalie_season_stats AS stats
   JOIN players AS player
@@ -456,12 +470,14 @@ function skaterDirectoryOrder(sort: string, direction: "asc" | "desc"): string {
     plusMinus: ["stats.plus_minus", "stats.points"],
     penaltyMinutes: ["stats.penalty_minutes", "stats.points"],
     shotsOnGoal: ["stats.shots_on_goal", "stats.points"],
+    hits: ["stats.hits", "stats.points"],
+    powerPlayPoints: ["power_play_points", "stats.points"],
     teamsPlayedFor: ["stats.teams_played_for", "stats.points"],
     name: ["player.display_name"],
     points: ["stats.points", "stats.goals"],
   };
   const selected = columns[sort] ?? columns.points;
-  const clauses = selected.map((column) => `${column} ${order}`);
+  const clauses = selected.map((column) => `${column} ${order} NULLS LAST`);
   clauses.push(
     `player.display_name ${sort === "points" ? (order === "ASC" ? "DESC" : "ASC") : "ASC"}`,
   );
@@ -479,54 +495,16 @@ function goalieDirectoryOrder(sort: string, direction: "asc" | "desc"): string {
     overtimeLosses: ["stats.overtime_losses", "stats.games_played"],
     goalsAgainst: ["stats.goals_against", "stats.games_played"],
     saves: ["stats.saves", "stats.games_played"],
+    goalsAgainstAverage: ["(stats.goals_against * 3600.0 / NULLIF(stats.time_on_ice_seconds, 0))"],
+    shutouts: ["shutouts"],
     name: ["player.display_name"],
   };
   if (sort === "savePercentage" || !(sort in columns)) {
     return `stats.save_percentage ${order} NULLS ${order === "ASC" ? "FIRST" : "LAST"}, stats.games_played ${order}, player.display_name ${order === "ASC" ? "DESC" : "ASC"}, player.nhl_id ASC`;
   }
-  const clauses = columns[sort].map((column) => `${column} ${order}`);
+  const clauses = columns[sort].map((column) => `${column} ${order} NULLS LAST`);
   clauses.push("player.display_name ASC", "player.nhl_id ASC");
   return clauses.join(", ");
-}
-
-export async function listSkaterLeadersBySeason(
-  seasonId: number,
-  limit = 5,
-  gameType = 2,
-): Promise<SkaterSeasonSummary[]> {
-  const safeLimit = Math.max(1, Math.min(Math.trunc(limit), 100));
-  const rows = await query<SkaterRow>(
-    `
-      ${skaterSelect}
-      WHERE stats.season_id = $1
-        AND stats.game_type = $2
-      ORDER BY stats.points DESC, stats.goals DESC, player.display_name
-      LIMIT $3
-    `,
-    [seasonId, gameType, safeLimit],
-  );
-
-  return rows.map(mapSkater);
-}
-
-export async function listGoalieLeadersBySeason(
-  seasonId: number,
-  limit = 25,
-  gameType = 2,
-): Promise<GoalieSeasonSummary[]> {
-  const safeLimit = Math.max(1, Math.min(Math.trunc(limit), 100));
-  const rows = await query<GoalieRow>(
-    `
-      ${goalieSelect}
-      WHERE stats.season_id = $1
-        AND stats.game_type = $2
-      ORDER BY stats.wins DESC, stats.games_played DESC, player.display_name
-      LIMIT $3
-    `,
-    [seasonId, gameType, safeLimit],
-  );
-
-  return rows.map(mapGoalie);
 }
 
 export async function getPlayerDetail(
@@ -636,6 +614,7 @@ function mapSkater(row: SkaterRow): SkaterSeasonSummary {
     plusMinus: row.plus_minus,
     penaltyMinutes: row.penalty_minutes,
     powerPlayGoals: row.power_play_goals,
+    powerPlayPoints: row.power_play_points ?? null,
     shotsOnGoal: row.shots_on_goal,
     hits: row.hits,
     blockedShots: row.blocked_shots,
@@ -665,33 +644,7 @@ function mapGoalie(row: GoalieRow): GoalieSeasonSummary {
     shotsAgainst: row.shots_against,
     saves: row.saves,
     savePercentage: row.save_percentage,
+    shutouts: row.shutouts ?? null,
     timeOnIceSeconds: row.time_on_ice_seconds,
   };
-}
-
-/** Picker identities only; full statistics are loaded for the chosen players. */
-export async function listPlayerComparisonOptions(seasonId: number, gameType: number, category: "skaters" | "goalies") {
-  const table = category === "skaters" ? "skater_season_stats" : "goalie_season_stats";
-  const splits = category === "skaters" ? "official_skater_season_stats" : "official_goalie_season_stats";
-  const rows = await query<{ nhlPlayerId: number; name: string; position: string | null; teamAbbreviations: string[] }>(`
-    SELECT player.nhl_id::integer AS "nhlPlayerId", player.display_name AS name, player.position,
-      COALESCE(array_agg(DISTINCT COALESCE(identity.abbreviation, team.abbreviation)) FILTER (WHERE team.id IS NOT NULL), ARRAY[]::text[]) AS "teamAbbreviations"
-    FROM ${table} stats JOIN players player ON player.id = stats.player_id
-    LEFT JOIN ${splits} split ON split.player_id = stats.player_id AND split.season_id = stats.season_id AND split.game_type = stats.game_type
-    LEFT JOIN teams team ON team.id = split.team_id
-    LEFT JOIN team_seasons identity ON identity.team_id = team.id AND identity.season_id = stats.season_id
-    WHERE stats.season_id = $1 AND stats.game_type = $2
-    GROUP BY player.nhl_id, player.display_name, player.position
-    ORDER BY ${category === "skaters" ? "MAX(stats.points) DESC, MAX(stats.goals) DESC" : "MAX(stats.games_played) DESC, MAX(stats.wins) DESC"}, player.display_name, player.nhl_id
-  `, [seasonId, gameType]);
-  return rows;
-}
-
-export async function getPlayerComparisonRows(seasonId: number, gameType: number, category: "skaters" | "goalies", playerIds: number[]) {
-  const ids = [...new Set(playerIds)].sort((a, b) => a - b).slice(0, 4);
-  if (!ids.length) return [];
-  const where = " WHERE stats.season_id = $1 AND stats.game_type = $2 AND player.nhl_id = ANY($3::bigint[])";
-  return category === "skaters"
-    ? (await query<SkaterRow>(skaterSelect + where, [seasonId, gameType, ids])).map(mapSkater)
-    : (await query<GoalieRow>(goalieSelect + where, [seasonId, gameType, ids])).map(mapGoalie);
 }

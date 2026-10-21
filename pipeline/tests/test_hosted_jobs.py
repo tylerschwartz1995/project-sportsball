@@ -117,9 +117,9 @@ def test_hosted_backup_selects_single_copy_retention(monkeypatch: pytest.MonkeyP
     monkeypatch.setattr(hosted_jobs, "pipeline", lambda args, env: 0)
     called: list[bool] = []
 
-    def backup(env: dict[str, str], *, retain_one: bool) -> None:
+    def backup(env: dict[str, str]) -> None:
         assert env["BACKUP_BUCKET"] == "test"
-        called.append(retain_one)
+        called.append(True)
 
     monkeypatch.setattr(hosted_jobs, "backup", backup)
     assert hosted_jobs.run_job() == 0

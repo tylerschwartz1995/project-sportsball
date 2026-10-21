@@ -10,9 +10,14 @@ export function PagedLeaderboard(
   props: ComponentProps<typeof LeaderboardTable>,
 ) {
   const params = useSearchParams();
-  const sort =
-    params.get("tableSort") ??
-    (props.type === "goalies" ? "goalsSaved" : "gameScore");
+  const requestedSort = params.get("tableSort");
+  const skaterSortKeys = ["player", "games", "iceTime", "pointsPer60", "individualXGoalsPer60", "corsiPercentage", "onIceXGoalsForPer60", "onIceXGoalsAgainstPer60", "xgPercentage", "hdXgPercentage"];
+  const goalieSortKeys = ["goalie", "games", "iceTime", "goalsSavedPer60", "goalieXGoalsAgainstPer60", "highDangerGoalsSaved", "mediumDangerGoalsSaved", "lowDangerGoalsSaved", "reboundsPer60"];
+  const sort = props.type === "skaters"
+    ? requestedSort && skaterSortKeys.includes(requestedSort) ? requestedSort : "pointsPer60"
+    : props.type === "goalies"
+      ? requestedSort && goalieSortKeys.includes(requestedSort) ? requestedSort : "goalsSavedPer60"
+      : requestedSort ?? "xgPercentage";
   const direction = params.get("tableDirection") === "asc" ? "asc" : "desc";
   if (props.type === "teams") return <LeaderboardTable {...props} />;
   const sorted = sortAdvancedRows<(typeof props.rows)[number]>(
@@ -25,13 +30,13 @@ export function PagedLeaderboard(
     pages,
     Math.max(1, Math.floor(Number(params.get("tablePage")) || 1)),
   );
-  const update = (changes: Record<string, string>) => {
+  const update = (changes: Record<string, string>, sorting = false) => {
     const url = new URL(window.location.href);
     Object.entries(changes).forEach(([key, value]) =>
       url.searchParams.set(key, value),
     );
-    url.hash = "advanced-results";
-    prepareScrollNavigation(url.href, "results");
+    if (!sorting) url.hash = "advanced-results";
+    prepareScrollNavigation(url.href, sorting ? "preserve" : "results");
     window.history.pushState(null, "", url);
   };
   return (
@@ -41,7 +46,7 @@ export function PagedLeaderboard(
         sort,
         direction,
         onSortChange: (key, dir) =>
-          update({ tableSort: key, tableDirection: dir, tablePage: "1" }),
+          update({ tableSort: key, tableDirection: dir, tablePage: "1" }, true),
       }}
     >
       <div id="advanced-results" tabIndex={-1}>

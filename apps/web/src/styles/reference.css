@@ -1,0 +1,449 @@
+/* The shared interface: a quiet reference desk for teams, players, and games.
+   Feature styles retain chart geometry; this file owns the visible app chrome. */
+body { padding: 0; background: var(--background); color: var(--foreground); font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 1.5; }
+body main { max-width: 1440px; padding: 0 40px 32px; }
+main > section:first-of-type, main > section.py-10 { padding-top: 32px; }
+main :is(h1,h2,h3,h4,button,input,select), main .font-mono, .site-footer { font-family: inherit; }
+main h1, .workspace-page-header h1, .modern-profile-identity h1 { font-family: inherit; font-size: 32px; letter-spacing: -1px; line-height: 1.2; font-weight: 700; }
+main :is(h2,h3) { letter-spacing: -.4px; }
+main :is(a,button,input,select):focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.site-header { display: flex; align-items: center; gap: 40px; min-height: 76px; border-bottom: 1px solid var(--border); background: var(--surface); box-shadow: 0 0 0 100vmax var(--surface); clip-path: inset(0 -100vmax); }
+.site-topbar { min-height: 0; gap: 16px; flex-wrap: nowrap; }
+.site-brand { font-size: 22px; letter-spacing: -.9px; gap: 9px; }
+.site-brand svg { width: 24px; height: 24px; }
+.site-sport { padding-left: 14px; font-size: 13px; letter-spacing: 1px; border-color: var(--border); }
+.site-navigation { display: flex; gap: 6px; margin: 0; padding: 0; border: 0; overflow: visible; }
+.site-navigation a { padding: 10px 18px; min-height: 44px; border-radius: 6px; font-size: 16px; font-weight: 600; }
+.site-navigation a[aria-current=page] { color: var(--accent); background: var(--accent-soft); }
+.site-navigation a[aria-current=page]::after { content: none; }
+.site-utilities { display: flex; margin-left: auto; gap: 20px; }
+.site-search-link { font-size: 15px; text-decoration: none; color: var(--muted); gap: 14px; }
+.site-utilities .theme-toggle { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; min-width: 44px; min-height: 44px; padding: 0; gap: 0; border: 1px solid var(--border); border-radius: 50%; }
+.workspace-page-header { display: flex; align-items: center; justify-content: space-between; margin: 0 0 24px; padding: 0; gap: 24px; }
+.workspace-page-header .workspace-description { margin-top: 8px; font-size: 16px; line-height: 1.6; color: var(--muted); max-width: 760px; }
+.workspace-season-picker { flex: 0 0 auto; width: 155px; max-width: none; }
+.workspace-season-picker label { display: grid; gap: 5px; }
+.workspace-season-picker select { width: 100%; }
+main :is(select,input[type=search],input[type=number],input[type=date]) { background: var(--surface); border-color: var(--control-border); min-height: 40px; padding: 8px 11px; font-family: inherit; font-size: 16px; border-radius: 5px; }
+main[class] label:has(select,input) { font-family: inherit; color: var(--muted); font-size: 14px; font-weight: 600; }
+.workspace-scroll-nav { display: flex; flex-wrap: nowrap; gap: 24px; margin: 0 0 20px; padding: 0; border: 0; border-bottom: 1px solid var(--border); border-radius: 0; background: none; }
+.workspace-scroll-nav a { display: inline-flex; align-items: center; min-height: 46px; padding: 8px 0; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; color: var(--muted); font-size: 16px; font-weight: 600; white-space: nowrap; }
+.workspace-scroll-nav a[aria-current=page] { background: none; border-color: var(--accent); color: var(--accent); box-shadow: none; }
+.workspace-scroll-nav.is-secondary { gap: 8px; border: 0; padding: 0; margin-block: 16px; }
+.workspace-scroll-nav.is-secondary a { padding: 6px 14px; min-height: 36px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface); font-size: 15px; }
+.workspace-scroll-nav.is-secondary a[aria-current=page] { border-color: var(--accent); background: var(--accent-soft); }
+.workspace-phase-filter { display: flex; align-items: center; gap: 12px; margin: 16px 0; padding: 0; border: 0; background: none; }
+.workspace-phase-filter > .workspace-navigation-label { display: none; }
+.workspace-phase-filter > div { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--border); border-radius: 7px; background: var(--surface-raised); }
+.workspace-phase-filter a { min-height: 34px; padding: 6px 14px; border: 0; border-radius: 4px; background: transparent; color: var(--muted); font-size: 14px; font-weight: 600; }
+.workspace-phase-filter a[aria-current=page] { color: var(--foreground); background: var(--surface); box-shadow: 0 1px 3px var(--border); }
+.workspace-data-table-shell, .data-table-shell { border: 1px solid var(--border); border-radius: 8px; background: var(--surface); box-shadow: none; overflow: hidden; }
+.workspace-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); color: var(--foreground-soft); font-variant-numeric: tabular-nums; }
+main .workspace-table thead th, .workspace-table thead .workspace-sortable-header, .workspace-table thead .workspace-sticky-entity { background: var(--surface-raised); color: var(--muted); border-bottom: 1px solid var(--border); font-size: 16px; font-weight: 600; text-transform: none; letter-spacing: 0; }
+main .workspace-table tbody td { padding: 11px 16px; height: 46px; border: 0; border-bottom: 1px solid var(--border); font-size: 16px; font-weight: 400; background: var(--surface); }
+main .workspace-table tbody tr:last-child td { border-bottom: 0; }
+main .workspace-table tbody tr:hover td { background: var(--surface-subtle); }
+main .workspace-table tbody td:first-child { color: var(--foreground); font-weight: 600; }
+main .workspace-table tbody td a { color: var(--foreground); text-decoration: none; }
+main .workspace-table tbody td a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.workspace-table th[aria-sort=ascending], .workspace-table th[aria-sort=descending] { color: var(--accent); box-shadow: none; }
+main .workspace-table thead .workspace-sortable-header :is(button,a) { min-height: 42px; padding: 10px 12px; font-size: 16px; }
+.workspace-sortable-header[aria-sort=none] .ux-column-heading > :is(button,a) > span[aria-hidden] { opacity: .25; }
+.workspace-sortable-header:hover .ux-column-heading > :is(button,a) > span[aria-hidden], .workspace-sortable-header:focus-within .ux-column-heading > :is(button,a) > span[aria-hidden] { opacity: 1; }
+.workspace-col-entity { width: 260px; }
+.workspace-col-stat { width: 80px; }
+.workspace-col-number { width: 92px; }
+.workspace-col-percentage { width: 100px; }
+.reference-team-name { display: inline-flex; gap: 12px; align-items: center; }
+main .team-crest { border: 0; box-shadow: none; border-radius: 4px; }
+main .team-crest-tiny { width: 28px; height: 28px; }
+main .team-crest img { transform: none; }
+.workspace-table-note { padding: 0; margin-top: 16px; font-size: 14px; line-height: 1.6; color: var(--muted); }
+.workspace-table td .font-mono { font-family: inherit; }
+.reference-player-filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin: 18px 0; padding: 16px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.reference-player-filters .workspace-player-filter-group { padding: 0; margin: 0; border: 0; }
+.reference-player-filters .is-primary { flex: 1 1 480px; }
+.reference-player-filters .is-primary > div { display: grid; grid-template-columns: minmax(180px,2fr) minmax(120px,1fr) minmax(120px,1fr); gap: 12px; }
+.reference-player-filters label { display: grid; gap: 6px; }
+.reference-player-filters > .workspace-player-filter-group:not(.is-primary) { flex: 0 1 100px; }
+.reference-player-filters .workspace-directory-sort { display: none; }
+.reference-player-filters > .workspace-filter-actions { padding: 0; margin: 0; border: 0; align-self: flex-end; }
+.workspace-filter-actions > button { background: var(--accent); color: var(--on-accent); border: 1px solid var(--accent); min-height: 40px; padding: 8px 16px; border-radius: 5px; font-size: 15px; }
+.workspace-filter-actions > a { padding: 8px; min-height: 40px; font-size: 15px; }
+.workspace-analytics-filters[data-type], .workspace-analytics-filters { display: flex; flex-wrap: wrap; align-items: end; gap: 16px; padding: 16px; margin: 18px 0; width: 100%; max-width: none; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.workspace-analytics-filters > .workspace-filter-actions { border: 0; padding: 0; margin: 0; }
+.workspace-analytics-filters label { display: grid; gap: 6px; }
+.workspace-panel,
+.surface-panel { border-color: var(--border); border-radius: 8px; box-shadow: none; background: var(--surface); }
+.workspace-panel-header { padding: 16px 20px; }
+.workspace-panel-header h3, .workspace-schedule-results-heading h2 { font-size: 18px; }
+.workspace-panel-header p { font-size: 15px; }
+.modern-profile-identity { padding: 8px 0 24px; margin-bottom: 20px; }
+.workspace-game-grid { gap: 16px; }
+.workspace-game-card { padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: none; }
+.workspace-game-card:hover { border-color: var(--border-strong); }
+.workspace-game-card header { color: var(--muted); font-size: 13px; letter-spacing: .5px; }
+.workspace-game-card .workspace-game-team a { font-size: 16px; }
+.workspace-game-card footer { border-color: var(--border); font-size: 14px; }
+.workspace-game-card footer a { color: var(--accent); }
+.workspace-schedule-navigator { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; box-shadow: none; }
+.workspace-schedule-toolbar { background: var(--surface); padding: 16px; gap: 16px; }
+.workspace-schedule-week { background: var(--surface); }
+.workspace-schedule-week > a, .workspace-schedule-week > span { border-color: var(--border); min-height: 76px; }
+.workspace-schedule-week > a[aria-current=date] { background: var(--accent-soft); color: var(--accent); }
+.site-footer { max-width: 1360px; width: calc(100% - 80px); margin: 16px auto 0; padding: 24px 0; font-size: 14px; }
+@media (max-width: 900px) {
+  body main { padding-inline: 24px; }
+  .site-header { gap: 20px; }
+  .site-sport, .site-search-link { display: none; }
+  .site-navigation a { padding-inline: 14px; }
+  .reference-player-filters .is-primary { flex-basis: 100%; }
+  .site-footer { width: calc(100% - 48px); }
+}
+@media (max-width: 600px) {
+  body main { padding-inline: 16px; }
+  .site-header { flex-wrap: wrap; gap: 0; padding-top: 16px; }
+  .site-topbar { order: 0; }
+  .site-brand { font-size: 20px; }
+  .site-utilities { order: 1; }
+  .site-navigation { order: 2; flex-basis: 100%; margin-top: 12px; padding-bottom: 10px; gap: 8px; }
+  .site-navigation a { flex: 1; justify-content: center; }
+  main > section:first-of-type, main > section.py-10 { padding-top: 24px; }
+  .workspace-page-header { align-items: start; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  main h1, .workspace-page-header h1, .modern-profile-identity h1 { font-size: 28px; }
+  .workspace-page-header .workspace-description { font-size: 15px; }
+  .workspace-season-picker { width: 100%; }
+  .workspace-season-picker label { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .workspace-season-picker select { width: 160px; }
+  .workspace-scroll-nav { gap: 20px; }
+  .workspace-scroll-nav a { font-size: 15px; }
+  .reference-player-filters { padding: 12px; gap: 12px; }
+  .reference-player-filters .is-primary > div { grid-template-columns: 1fr 1fr; }
+  .reference-player-filters .is-primary label.is-wide { grid-column: 1 / -1; }
+  .reference-player-filters > .workspace-filter-actions { margin-left: auto; }
+  main :is(select,input[type=search],input[type=number],input[type=date]) { font-size: 16px; min-height: 44px; }
+  .workspace-col-entity { width: 210px; }
+  main .workspace-table tbody td { padding: 10px 12px; }
+  .site-footer { width: calc(100% - 32px); gap: 12px; }
+}
+/* Override legacy state selectors as well as the base tab styles. */
+.workspace-scroll-nav:not(.is-secondary) a[aria-current=page], .workspace-scroll-nav.is-secondary a[aria-current=page] { color: var(--accent); }
+.workspace-context-navs, .reference-stats-context { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; margin: 0 0 16px; }
+.workspace-context-navs > nav, .reference-stats-context > nav { margin: 0; }
+main .workspace-table th, main .workspace-table th :is(button,a), .workspace-schedule-week, .workspace-game-card header { font-family: inherit; }
+.reference-source { display: flex; flex-wrap: wrap; gap: 16px; justify-content: space-between; margin-top: 20px; color: var(--muted); font-size: 14px; }
+.reference-source a { color: var(--accent); }
+@media (max-width: 600px) {
+  .workspace-page-header .workspace-description { display: none; }
+  .workspace-page-header { gap: 12px; }
+  .reference-stats-context, .workspace-context-navs { gap: 12px; }
+  .workspace-schedule-toolbar { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px; padding: 12px; }
+  .workspace-schedule-toolbar > form, .workspace-schedule-toolbar > nav, .workspace-schedule-toolbar .workspace-schedule-calendar { grid-area: auto; grid-column: auto; grid-row: auto; width: auto; }
+  .workspace-schedule-toolbar > form:nth-of-type(2) { grid-column: 1 / -1; grid-row: 2; }
+  .workspace-schedule-toolbar .workspace-schedule-calendar { grid-column: 2; grid-row: 1; }
+  .workspace-schedule-toolbar :is(input,select) { width: 100%; padding-inline: 7px; font-size: 16px; }
+}
+
+/* One centered chevron and a reserved text gutter for every filter dropdown. */
+main[class] select:not([multiple]):not([size]),
+main[class] select[size="1"]:not([multiple]) {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 36px;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--foreground-soft) 50%),
+    linear-gradient(135deg, var(--foreground-soft) 50%, transparent 50%);
+  background-position: calc(100% - 18px) center, calc(100% - 13px) center;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+@media (forced-colors: active) {
+  main[class] select:not([multiple]):not([size]),
+  main[class] select[size="1"]:not([multiple]) {
+    appearance: auto;
+    -webkit-appearance: auto;
+    background-image: none;
+  }
+}
+
+/* Keep numeric headings centered over their values; arrows do not shift labels. */
+main .workspace-table { --table-cell-inline: 16px; }
+main .workspace-table :is(tbody,tfoot) :is(td,th),
+main .workspace-table thead th:not(.workspace-sortable-header) {
+  padding-inline: var(--table-cell-inline);
+}
+main .workspace-table thead .workspace-sortable-header { padding-inline: 0; }
+main .workspace-table thead .workspace-sortable-header :is(button,a) {
+  padding-inline: var(--table-cell-inline);
+}
+main .workspace-table .workspace-sortable-header:not(.text-left) :is(button,a) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  justify-content: center;
+  text-align: center;
+}
+main .workspace-table .workspace-sortable-header:not(.text-left) .workspace-sort-label {
+  grid-column: 2;
+  grid-row: 1;
+  text-align: center;
+}
+main .workspace-table .workspace-sortable-header:not(.text-left) span[aria-hidden] {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: end;
+}
+main .workspace-table :is(tbody,tfoot) :is(.workspace-semantic-number,.workspace-number-cell,.workspace-points-cell,.text-right) {
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+main .workspace-table :is(tbody,tfoot) .text-left,
+main .workspace-table th.text-left { text-align: left; }
+main .workspace-table thead th:not(.text-left) { text-align: center; }
+
+.reference-player-identity { display: flex; align-items: center; gap: 8px; }
+.reference-player-identity > span { flex-shrink: 0; }
+.reference-player-identity > div { min-width: 0; }
+main .workspace-table .reference-player-identity a { font-size: 16px; font-weight: 600; }
+.reference-player-position { margin-left: 8px; color: var(--muted); font-size: 14px; font-weight: 400; white-space: nowrap; }
+
+/* Basic and advanced tables use the same identity column and row treatment. */
+main .workspace-table :is(thead,tbody,tfoot) { font-family: inherit; }
+main .workspace-table tbody td { padding-block: 11px; }
+main .workspace-table :is(.workspace-sticky-entity,.workspace-sticky-team-cell) { box-shadow: none; }
+main .workspace-table tbody tr:hover :is(.workspace-sticky-entity,.workspace-sticky-team-cell) { background: var(--surface-subtle); }
+@media (max-width: 767px) {
+  main .responsive-table-scroll .workspace-table tr > .workspace-sticky-entity {
+    width: 210px; min-width: 210px; max-width: 210px; box-shadow: none;
+  }
+  main .responsive-table-scroll .workspace-table thead .workspace-sticky-entity { background: var(--surface-raised); z-index: 5; }
+}
+
+@media (max-width: 600px) {
+  .workspace-analytics-filters[data-type] { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 12px; }
+  .workspace-analytics-filters[data-type] label { min-width: 0; }
+  .workspace-analytics-filters[data-type] select { width: 100%; }
+  .workspace-analytics-filters[data-type] > .workspace-filter-actions { grid-column: 1 / -1; }
+}
+
+/* Basic player controls use the same compact widths as Advanced Stats. */
+.reference-player-filters .workspace-player-filter-group.is-primary {
+  flex: 0 1 auto;
+}
+.reference-player-filters .workspace-player-filter-group.is-primary > div {
+  grid-template-columns: repeat(3, minmax(0, 12rem));
+  gap: 16px;
+}
+.reference-player-filters :is(input,select) {
+  width: 100%;
+  min-width: 0;
+}
+@media (max-width: 600px) {
+  .reference-player-filters .workspace-player-filter-group.is-primary {
+    flex: 1 1 100%;
+  }
+  .reference-player-filters .workspace-player-filter-group.is-primary > div {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .reference-player-filters .workspace-player-filter-group.is-primary .is-wide {
+    grid-column: 1 / -1;
+  }
+}
+
+/* Highlight the actively sorted column rather than a fixed metric. */
+main [data-sort-key] .workspace-table tbody td.workspace-semantic-number {
+  color: var(--foreground-soft);
+  font-weight: 400;
+}
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(1):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(1),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(2):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(2),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(3):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(3),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(4):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(4),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(5):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(5),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(6):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(6),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(7):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(7),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(8):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(8),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(9):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(9),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(10):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(10),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(11):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(11),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(12):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(12),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(13):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(13),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(14):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(14),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(15):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(15),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(16):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(16),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(17):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(17),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(18):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(18),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(19):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(19),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(20):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(20),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(21):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(21),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(22):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(22),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(23):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(23),
+main [data-sort-key] .workspace-table:has(> thead > tr > th:nth-child(24):is([aria-sort="ascending"],[aria-sort="descending"])) > tbody > tr > td:nth-child(24) {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Keep entity names on one line without covering adjacent statistics. */
+.reference-player-identity > div {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+.reference-player-identity a {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.reference-player-position { flex-shrink: 0; }
+.workspace-table .workspace-entity-name:not(td):not(th) {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.reference-player-profile-heading { display: flex; min-width: 0; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; }
+.modern-player-identity .reference-player-profile-position { font-family: inherit; font-size: 20px; line-height: 1.2; font-weight: 500; letter-spacing: 0; color: var(--muted); white-space: nowrap; }
+
+.reference-player-bio { display: flex; align-items: center; gap: 12px; margin-top: 14px; max-width: 100%; overflow-x: auto; white-space: nowrap; font-size: 14px; line-height: 1.6; color: var(--foreground-soft); padding-bottom: 4px; }
+.reference-player-bio > span { flex-shrink: 0; }
+.reference-player-bio > span + span { border-left: 1px solid var(--border); padding-left: 12px; }
+.reference-bio-label { color: var(--muted); margin-right: 4px; }
+
+.reference-player-career { min-width: 1180px; table-layout: auto; }
+.reference-player-career.is-goalie { min-width: 1000px; }
+main .reference-player-career :is(th,td) { white-space: nowrap; }
+main .reference-player-career td.reference-career-advanced,
+main .reference-player-career.is-skater thead th:nth-last-child(3),
+main .reference-player-career.is-goalie thead th:nth-last-child(2) { border-left: 1px solid var(--border); }
+
+main .reference-player-career tfoot :is(th, td) { padding: 14px 16px; font-size: 16px; font-weight: 600; background: var(--surface-raised); border-top: 2px solid var(--border); white-space: nowrap; }
+
+.workspace-schedule-toolbar > .workspace-schedule-calendar-action { padding: 0; border: 0; background: transparent; align-self: end; }
+@media (max-width: 600px) {
+  .workspace-schedule-toolbar > .workspace-schedule-calendar-action { grid-column: 1 / -1; }
+}
+
+/* Compact game result with two consistently aligned team rows. */
+.reference-game-result { background: var(--surface); box-shadow: none; border-radius: 8px; }
+.reference-game-result .workspace-game-hero-meta { padding: 12px 20px; font-family: inherit; letter-spacing: 0; text-transform: none; font-size: 14px; }
+.reference-game-result .workspace-game-hero-score { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 16px 20px; }
+.reference-game-result .workspace-game-score-team,
+.reference-game-result .workspace-game-score-team[data-align="right"] { display: flex; flex-direction: row; text-align: left; justify-content: space-between; gap: 16px; }
+.reference-game-result .workspace-game-score-team .workspace-game-score-identity { flex-direction: row; gap: 14px; }
+.reference-game-result .workspace-game-score-name { width: auto; max-width: none; }
+.reference-game-result .workspace-game-score-name a { font-size: 20px; line-height: 1.3; }
+.reference-game-result .workspace-game-score-team > strong { font-size: 36px; line-height: 1; min-width: 48px; text-align: center; }
+.reference-game-result .team-crest { width: 42px; height: 42px; }
+.reference-game-result .workspace-game-score-team small { font-family: inherit; font-size: 12px; color: var(--muted); font-weight: 400; }
+.reference-game-result .modern-game-support { margin-top: 3px; font-size: 14px; }
+.reference-game-scoring { margin-top: 24px; padding-top: 0; border: 0; }
+.reference-game-scoring .workspace-scoring-table { min-width: 1050px; }
+.reference-game-scoring .workspace-scoring-table :is(th,td):nth-child(-n+3),
+.reference-game-scoring .workspace-scoring-table :is(th,td):nth-child(6) { text-align: center; }
+.reference-game-scoring .workspace-scoring-table :is(th,td):nth-child(4),
+.reference-game-scoring .workspace-scoring-table :is(th,td):nth-child(5),
+.reference-game-scoring .workspace-scoring-table :is(th,td):nth-child(7) { text-align: left; }
+@media(max-width:600px) { .reference-game-result .workspace-game-score-name a { font-size: 16px; } }
+.workspace-game-flow-controls { padding-top: 4px; padding-bottom: 20px; }
+
+main .reference-game-scoring .workspace-scoring-table thead th { padding: 12px 16px; }
+
+.workspace-game-flow.reference-game-flow-panel { margin-top: 16px; }
+.reference-game-flow-panel .workspace-game-flow-controls { padding-top: 16px; }
+
+.reference-game-result .workspace-game-score-team .modern-game-support { justify-content: flex-start; margin: 4px 0 0; gap: 10px; }
+.reference-game-result .workspace-game-score-team .workspace-game-score-name { justify-content: flex-start; }
+.reference-game-result .workspace-game-score-team + .workspace-game-score-team { padding-top: 12px; border-top: 1px solid var(--border); }
+
+.reference-game-result + .workspace-scroll-nav { margin-top: 24px; }
+
+/* Game team comparison: mirrored values around a compact metric column. */
+.reference-team-comparison th,
+.reference-team-comparison td {
+  padding: 12px 16px;
+  text-align: center;
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+}
+.reference-team-comparison thead { background: var(--surface-subtle); }
+.reference-team-comparison tbody tr { border-top: 1px solid var(--border); }
+.reference-team-comparison tbody th { font-weight: 500; color: var(--muted); }
+.reference-team-comparison td { color: var(--foreground-soft); }
+.reference-team-comparison td[data-leading="true"] { color: var(--accent); font-weight: 600; }
+.reference-team-comparison .reference-comparison-quality { border-top-width: 2px; }
+.reference-team-comparison .reference-comparison-quality > * { padding-top: 20px; }
+@media (max-width: 480px) {
+  .reference-team-comparison th,
+  .reference-team-comparison td { padding-left: 6px; padding-right: 6px; }
+}
+
+/* Keep the full-width shot panel compact without distorting rink coordinates. */
+.reference-shot-rink { height: clamp(260px, 36vw, 420px); }
+
+.reference-shot-popup {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(520px, calc(100vw - 32px));
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-raised);
+  color: var(--foreground);
+  padding: 0;
+}
+.reference-shot-popup::backdrop { background: color-mix(in srgb, var(--background) 65%, transparent); }
+
+.reference-game-lines { width: 100%; min-width: 0; table-layout: fixed; }
+.reference-game-lines th, .reference-game-lines td { padding-left: 6px; padding-right: 6px; }
+.reference-game-lines th:first-child, .reference-game-lines td:first-child { padding-left: 16px; }
+
+@media (max-width: 767px) {
+  .workspace-standings-table :is(th, td):nth-child(n + 10),
+  .workspace-standings-table col:nth-child(5) { display: none; }
+  main .workspace-standings-table { min-width: 780px; }
+}
+
+/* Keep the full team comparison visible without oversized column defaults. */
+main .reference-team-basic-table { width: 100%; min-width: 0; table-layout: fixed; }
+main .reference-team-basic-table .workspace-col-entity { width: 22%; }
+main .reference-team-basic-table .workspace-col-stat { width: 6%; }
+main .reference-team-basic-table tbody td,
+main .reference-team-basic-table thead th { font-size: 13px; white-space: nowrap; }
+main .reference-team-basic-table tbody td { padding: 10px 4px; text-align: center; }
+main .reference-team-basic-table tbody td:first-child { padding-left: 12px; text-align: left; }
+main .reference-team-basic-table thead .workspace-sortable-header :is(button,a) {
+  padding: 10px 3px; font-size: 13px; gap: 3px; min-width: 0;
+}
+main .reference-team-basic-table .reference-team-name { display: flex; gap: 7px; min-width: 0; }
+main .reference-team-basic-table .reference-team-name > span:last-child {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+main .reference-team-basic-table .team-crest { width: 22px; height: 22px; }
+@media (max-width: 1100px) {
+  main .reference-team-basic-table tbody td,
+  main .reference-team-basic-table thead th,
+  main .reference-team-basic-table thead .workspace-sortable-header :is(button,a) { font-size: 11px; }
+  main .reference-team-basic-table thead .workspace-sortable-header :is(button,a) { gap: 1px; padding-inline: 1px; }
+}
+
+/* Match the two Teams stats tabs without changing other tables. */
+main .reference-team-advanced-table tbody td,
+main .reference-team-advanced-table thead th,
+main .reference-team-advanced-table thead .workspace-sortable-header :is(button,a) {
+  font-size: 13px;
+}
+@media (max-width: 1100px) {
+  main .reference-team-advanced-table tbody td,
+  main .reference-team-advanced-table thead th,
+  main .reference-team-advanced-table thead .workspace-sortable-header :is(button,a) {
+    font-size: 11px;
+  }
+}

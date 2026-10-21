@@ -1,6 +1,4 @@
 "use client";
-import { TableScroll } from "@/components/ui/table-scroll";
-
 
 import { Fragment, useMemo } from "react";
 import {
@@ -21,7 +19,6 @@ import {
   ChartFilterButton,
   ChartFilterGroup,
 } from "@/components/charts/chart-controls";
-import { TeamLogo } from "@/features/teams/team-logo";
 import { useUrlChoice } from "@/components/ui/use-shareable-state";
 import type {
   GameFlow,
@@ -89,31 +86,11 @@ export function GameFlowChart({ flow }: { flow: GameFlow }) {
     .slice(1)
     .map((period) => (period.period - 1) * 1_200)
     .filter((time) => time < flow.gameEndSeconds);
-  const totalAwayExpectedGoals = flow.periods.reduce(
-    (total, period) => total + period.awayExpectedGoals,
-    0,
-  );
-  const totalHomeExpectedGoals = flow.periods.reduce(
-    (total, period) => total + period.homeExpectedGoals,
-    0,
-  );
-
   return (
-    <section className="workspace-game-flow" aria-labelledby="game-flow-title">
-      <header className="workspace-game-flow-header">
-        <div>
-          <p>MoneyPuck chance quality</p>
-          <h3 id="game-flow-title">Game Flow</h3>
-          <p>
-            {view === "pressure"
-              ? "Follow which team created the more dangerous chances during each five-minute stretch."
-              : "Follow each team’s total chance quality as it accumulated from puck drop to the final horn."}
-          </p>
-        </div>
-      </header>
-
+    <section className="mt-6" aria-label="Game Flow">
+      <div className="workspace-game-flow reference-game-flow-panel">
       <div className="workspace-game-flow-controls">
-        <ChartFilterGroup label="View">
+        <ChartFilterGroup label="View" hideLabel>
           <ChartFilterButton
             active={view === "pressure"}
             label="Game Pressure"
@@ -337,33 +314,14 @@ export function GameFlowChart({ flow }: { flow: GameFlow }) {
         </ResponsiveContainer>
       </div>
 
-      <div className="workspace-game-flow-key" aria-label="Chart legend">
-        {view === "cumulative" ? (
-          <>
-            <span><i data-series="primary" />{flow.awayTeam.name}</span>
-            <span><i data-series="secondary" />{flow.homeTeam.name}</span>
-          </>
-        ) : null}
-        <span><i data-series="goal" />Goal</span>
+      {view === "cumulative" ? (
+        <div className="workspace-game-flow-key" aria-label="Chart legend">
+          <span><i data-series="primary" />{flow.awayTeam.name}</span>
+          <span><i data-series="secondary" />{flow.homeTeam.name}</span>
+        </div>
+      ) : null}
+
       </div>
-
-      <PeriodChanceTable
-        flow={flow}
-        totalAwayExpectedGoals={totalAwayExpectedGoals}
-        totalHomeExpectedGoals={totalHomeExpectedGoals}
-      />
-
-      <p className="workspace-game-flow-source">
-        Expected goals estimate how likely each unblocked shot was to score.
-        Game Pressure compares those chances over the previous five minutes of
-        play and does not predict the winner.
-        {flow.endedInShootout
-          ? " Shootout attempts are not included."
-          : ""} Data: {" "}
-        <a href="https://moneypuck.com/" target="_blank" rel="noreferrer">
-          MoneyPuck.com ↗
-        </a>
-      </p>
     </section>
   );
 }
@@ -389,51 +347,6 @@ function PuckGoalMarker({
       <ellipse cy="0" rx="6.25" ry="4" />
       <path d="M -3.3 -0.6 Q 0 -2.3 3.3 -0.6" />
     </g>
-  );
-}
-
-function PeriodChanceTable({
-  flow,
-  totalAwayExpectedGoals,
-  totalHomeExpectedGoals,
-}: {
-  flow: GameFlow;
-  totalAwayExpectedGoals: number;
-  totalHomeExpectedGoals: number;
-}) {
-  return (
-    <TableScroll className="workspace-game-flow-periods">
-      <table>
-        <caption>Chance quality by period</caption>
-        <thead>
-          <tr>
-            <th scope="col">Period</th>
-            <th scope="col">
-              <span><TeamLogo {...flow.awayTeam} size="tiny" decorative />{flow.awayTeam.abbreviation}</span>
-            </th>
-            <th scope="col">
-              <span><TeamLogo {...flow.homeTeam} size="tiny" decorative />{flow.homeTeam.abbreviation}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {flow.periods.map((period) => (
-            <tr key={period.period}>
-              <th scope="row">{periodLabel(period.period, period.periodType)}</th>
-              <td>{period.awayExpectedGoals.toFixed(2)} xG</td>
-              <td>{period.homeExpectedGoals.toFixed(2)} xG</td>
-            </tr>
-          ))}
-        </tbody>
-        <tfoot>
-          <tr>
-            <th scope="row">Game</th>
-            <td>{totalAwayExpectedGoals.toFixed(2)} xG</td>
-            <td>{totalHomeExpectedGoals.toFixed(2)} xG</td>
-          </tr>
-        </tfoot>
-      </table>
-    </TableScroll>
   );
 }
 

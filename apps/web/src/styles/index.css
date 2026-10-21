@@ -3,7 +3,6 @@
 @import "./tokens.css";
 @import "./foundations.css";
 @import "../features/players/styles.css";
-@import "../features/drafts/styles.css";
 @import "./navigation-and-charts.css";
 @import "../features/games/styles.css";
 @import "../features/analytics/styles.css";
@@ -15,6 +14,7 @@
 @import "./feature-shared.css";
 @import "./presentation.css";
 @import "./mobile.css";
+@import "./reference.css";
 
 .login-page { max-width: 30rem; margin: 4rem auto; padding: 1.5rem; }
 .login-page h1 { font-size: var(--text-page); margin-bottom: 1rem; }

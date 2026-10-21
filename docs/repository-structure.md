@@ -2,62 +2,27 @@
 
 Sportsball keeps the web application, Python data work, migrations, and tests in
 one repository so changes can be reviewed and validated together. The NHL
-application remains the reference implementation. Production deployment, new
-sources, a second sport, and prediction targets remain separate product decisions.
+application remains the reference implementation. New deployments, sources, a second sport, and prediction targets remain
+separate product decisions. The private app is already hosted.
 
 ## Web organization
 
-```text
-apps/web/
-  src/
-    app/                  Routes, layouts, API handlers
-    components/
-      ui/                 Shared controls, tables, panels, and URL interaction
-      shell/              Navigation, theme, and telemetry
-      charts/             Shared chart controls
-    features/
-      drafts/             Board, outcomes, team/class views, filters, pure logic
-      players/            Player presentation and charts
-      teams/              Team presentation and schedule context
-      games/              Scores, timelines, Game Flow, and shot maps
-      history/            Historical record presentation
-      playoffs/           Brackets and series presentation
-      standings/          Standings plots
-      league/             Season/phase controls and league presentation
-      analytics/          Advanced workspaces
-      lines/              Combination tables
-      charts/             Lazy loaders that compose specific feature charts
-    data/                 Server-only PostgreSQL queries and caching
-    contracts/            Serializable data shapes and identifier validation
-    lib/                  Pure reusable calculations and URL parsing
-    styles/               Theme tokens, global foundations, stylesheet entry
-  eslint/                 Dependency-direction rule and its regression tests
-  e2e/                    Fixture smoke checks and full-archive browser checks
-```
+`apps/web/src/app` contains routes and API handlers. Active feature directories
+are analytics, charts, games, league, players, standings, and teams.
+`components/ui` holds shared controls/tables; `components/shell` owns navigation,
+theme, and telemetry. `data` contains server-only queries and caches; `contracts`
+contains serializable shapes; `lib` contains pure calculations and URL helpers.
 
-Routes assemble features and load data. Shared components receive data through
-props and do not import features or storage. Contracts have no UI dependencies;
-queries never import routes or components. Direct PostgreSQL access belongs in
-`data/`. ESLint checks static imports, re-exports, literal dynamic imports, and
-`require` calls, resolving both `@/` and relative paths. The `server-only`
-imports also protect query modules from client bundles.
+Routes delegate to feature loaders and views. Shared components do not import
+features or storage; contracts have no UI dependencies. ESLint enforces these
+directions. PostgreSQL access stays in `data`, protected by `server-only`.
+The remaining lazy chart loader imports Game Flow only.
 
-The data-bearing routes now delegate to feature-local loaders and views. Player
-and team directories, profiles and game logs; games; standings; playoffs; lines;
-history; analytics; comparisons; and the home page follow this boundary. Larger
-tables and history sections have their own modules. The playoff bracket separates
-its dialog, games, player tables, overview, and formatting. Pure draft sorting,
-view parsing, and descriptive insight formatting are in `features/drafts/logic.ts`.
-The feature-specific lazy chart loader lives in `features/charts/`, because it
-knows which hockey charts to load; neutral chart controls live in `components/`.
-
-`styles/tokens.css` is the authoritative dark/light token definition. The root
-layout imports `styles/index.css`; it imports shared and feature styles in a
-stable order. `styles/presentation.css` holds cross-cutting typography and sizing
-rules, not a second theme palette. Some existing selectors intentionally appear
-in multiple files for responsive or presentation rules. Preserve this cascade
-order when changing them. Color tests inspect the actual active tokens and all
-component locations; browser tests check the rendered result in both themes.
+`styles/index.css` imports theme tokens, foundations, shared and feature styles,
+and the current `reference.css` treatment in a deliberate cascade. Tests cover
+shared behavior and deterministic fixtures. Retired full-archive browser suites
+have been removed; `e2e/fixture-smoke.spec.ts` and `private-access.spec.ts` are the
+maintained desktop/mobile browser checks.
 
 ## Python organization
 
@@ -102,11 +67,11 @@ import unrelated ingestion jobs.
 `analytics/schedule.py` owns pre-game opponent results, independent expected-goal
 coverage, prior-season fallbacks, and rest. The definitions are versioned as
 `historical-v1` and `schedule-context-v1`. Their derived tables link to audited
-builds. The web reads them through `data/history/` and `data/schedule-strength.ts`;
-it never invokes Python during a request. Source joins, arbitrary interactive
+builds. Their retired web consumers have been removed. These persisted calculations
+and pipeline builds remain pending the separate database dependency review.
+The web never invokes Python during a request. Source joins, arbitrary interactive
 filters, career sums, ordering, pagination, and ratios over stored denominators
-remain SQL responsibilities. Browser-specific travel/display calculations stay
-in the web layer.
+remain SQL responsibilities. Display calculations stay in the web layer.
 
 Run `make analytics-build` after upgrading an existing database or completing
 standalone game/schedule/MoneyPuck backfills. Historical summary ingestion rebuilds
@@ -193,7 +158,7 @@ The dedicated smoke configuration starts and stops a production server on port
 3100 and runs Chromium at desktop/mobile sizes in both themes. CI uses a fresh
 PostgreSQL service, applies migrations, seeds fixtures, builds descriptive analytics with Python, and runs these queries
 and browser checks in the required Web application job. The opt-in full-archive
-integration suite and browser suite remain separate local checks.
+query integration suite remains a separate local check.
 
 ## Future consumers
 

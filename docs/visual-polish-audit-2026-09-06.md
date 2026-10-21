@@ -1,5 +1,9 @@
 # Visual polish audit — September 6, 2026
 
+> Historical record. This describes the app at the recorded audit/release date.
+> Retired routes, source paths, and test commands below are not current instructions.
+> Use [current app scope](app-simplification.md) and [web development](../apps/web/README.md).
+
 This pass fixes the confirmed small and medium presentation defects found in
 local browser inspection. It preserves the Modern Stats Exploration design,
 statistical definitions, data coverage, and existing page structure. The PR is

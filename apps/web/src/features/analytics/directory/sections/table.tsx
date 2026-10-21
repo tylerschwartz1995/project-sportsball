@@ -27,7 +27,7 @@ export function LeaderboardTable({
   if (rows.length === 0) {
     return (
       <p className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--surface-subtle)] p-6 text-sm text-[var(--muted)]">
-        No records meet the selected situation and ice-time threshold.
+        No players or teams match the selected filters.
       </p>
     );
   }
@@ -71,11 +71,7 @@ export function LeaderboardFrame({
   const controls = useContext(LeaderboardState);
   count = controls?.total ?? count;
   return (
-    <section className="mt-8">
-      <div className="mb-4 flex items-center justify-between gap-3 text-sm text-[var(--muted)]">
-        <p>{description}</p>
-        <p>{count === 200 ? `Top 200 by ${description === "Goalie results" ? "GSAx" : "Game Score"}; sorting applies to this sample` : `${count} qualifying rows`}</p>
-      </div>
+    <section aria-label={description}>
       <SortableTable
         defaultSortKey={controls?.sort ?? defaultSortKey}
         defaultDirection={controls?.direction}
@@ -85,6 +81,9 @@ export function LeaderboardFrame({
           <TableScroll className="workspace-table-scroll">{children}</TableScroll>
         </DataTableShell>
       </SortableTable>
+      {count === 200 ? (
+        <p className="workspace-table-note">Top 200 by {description === "Goalie results" ? "GSAx" : "Game Score"}; sorting applies to this sample.</p>
+      ) : null}
     </section>
   );
 }

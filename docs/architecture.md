@@ -12,14 +12,11 @@
 
 ### Web application
 
-A server-rendered Next.js TypeScript application provides a league overview
-dashboard, dedicated standings, schedules, traditional and advanced game pages,
-official scoring summaries and play-by-play timelines, a team directory,
-player profiles, league-wide advanced leaderboards, team and player game logs
-with recent-form summaries, historical navigation, and sortable statistical
-comparisons. Server Components call the internal query functions directly
-instead of making an HTTP round trip to the same application. Neon database and Vercel website
-hosting are selected; see [hosted preparation](hosted-preparation.md). Provisioning and activation remain deferred.
+A server-rendered Next.js TypeScript application provides Games, Standings,
+Teams, and Players. Games is the landing page. Basic/advanced season tables,
+career histories, game box scores, scoring, Game Flow, team comparisons, shot
+heatmaps, and line tables use stored data. See [App scope](app-simplification.md).
+The private website is deployed on Vercel with Neon PostgreSQL.
 
 ### Application API
 
@@ -31,8 +28,8 @@ page or route calls an upstream NHL or MoneyPuck source during a user request,
 keeping the site responsive and preventing public traffic from multiplying
 provider requests. `POST /api/web-vitals` is a separate telemetry endpoint: it
 validates bounded browser metrics and emits logs without writing statistics.
-Find a Player, historical records, draft classes, and comparison workspaces
-share the same server-only boundary.
+Retired research query modules have been removed. Stored historical summaries
+remain in use for player careers; other retained datasets need a separate review.
 
 ### Database
 
@@ -263,7 +260,7 @@ under `pipeline/tests/fixtures`.
 
 - `pipeline` owns source acquisition, normalization, and persisted aggregate
   builds. The web query layer also derives bounded descriptive views such as
-  rolling unit rankings, series totals, and historical rankings; UI libraries
+  team unit rankings and career totals; UI libraries
   calculate chart windows and presentation metrics from those typed results.
 - Polars is the default dataframe engine throughout `pipeline`.
 - `database` defines storage independently of any one data source.

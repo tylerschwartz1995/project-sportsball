@@ -23,15 +23,17 @@ export default function ExplorationLink({
 export function ReturnLink({
   fallback,
   children,
+  returnLabel,
 }: {
   fallback: string;
+  returnLabel?: string;
   children: React.ReactNode;
 }) {
   const search = useSearchParams();
   const back = safeReturnPath(search.get("returnTo"));
   return (
     <Link className="workspace-return-link" navigation="restore" href={back ?? fallback}>
-      {back ? "← Back to Results" : children}
+      {back ? returnLabel ?? "← Back to Results" : children}
     </Link>
   );
 }

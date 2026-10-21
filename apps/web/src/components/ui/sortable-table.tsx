@@ -1,5 +1,4 @@
 "use client";
-import { useClientReady } from "@/components/ui/use-client-ready";
 
 import {
   createContext,
@@ -43,8 +42,6 @@ export function SortableTable({
   defaultDirection = "desc",
   urlBacked = false,
   scrollTarget,
-  secondaryColumns,
-  initialExpanded = false,
   onSortChange,
 }: {
   children: ReactNode;
@@ -53,13 +50,12 @@ export function SortableTable({
   defaultDirection?: SortDirection;
   urlBacked?: boolean;
   scrollTarget?: string;
+  /** Legacy caller compatibility; all columns are always visible. */
   secondaryColumns?: number[];
   initialExpanded?: boolean;
   onSortChange?: (key: string, direction: SortDirection) => void;
 }) {
-  const ready = useClientReady();
   const tableId = `content-table-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
-  const [showAllColumns, setShowAllColumns] = useState(initialExpanded);
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [sortState, setSortState] = useState<SortState>({
@@ -154,26 +150,6 @@ export function SortableTable({
   return (
     <SortableTableContext.Provider value={contextValue}>
       <div id={tableId} data-scroll-generated-id className={className} data-sort-key={activeKey}>
-        {secondaryColumns?.length ? (
-          <div className="workspace-column-preset-toolbar">
-            <button
-              type="button"
-              disabled={!ready}
-              aria-label="Show all columns"
-              aria-pressed={showAllColumns}
-              onClick={() => setShowAllColumns(!showAllColumns)}
-            >
-              {showAllColumns ? "Columns: All" : "Columns: Essential"}
-            </button>
-          </div>
-        ) : null}
-        {secondaryColumns?.length && !showAllColumns ? (
-          <style>{`
-          ${secondaryColumns.flatMap((index) => [`#${tableId} table > thead > tr > :nth-child(${index})`, `#${tableId} table > tbody > tr > :nth-child(${index})`]).join(",")} { display: none; }
-          #${tableId} table > colgroup, #${tableId} table > thead > tr[data-column-groups] { display: none; }
-          #${tableId} table:not(.workspace-standings-table) { min-width: var(--table-essential-min-width, 0); width: var(--table-essential-width, 100%); table-layout: auto; }
-        `}</style>
-        ) : null}
         {children}
       </div>
     </SortableTableContext.Provider>

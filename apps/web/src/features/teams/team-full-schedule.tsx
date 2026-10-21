@@ -4,79 +4,27 @@ import Link from "@/components/ui/exploration-link";
 import { LocalGameTime } from "@/features/games/local-game-time";
 import { TeamGameRecord } from "@/features/teams/team-game-record";
 import { TeamLogo } from "@/features/teams/team-logo";
-import { SectionHeader } from "@/components/ui/ui-primitives";
 import type { GameSummary } from "@/contracts/game";
-
-export type TeamScheduleFilter = "all" | "completed" | "upcoming";
 
 export function TeamFullSchedule({
   games,
   teamNhlId,
   seasonId,
-  seasonLabel,
   phase,
-  phaseLabel,
-  filter,
 }: {
   games: GameSummary[];
   teamNhlId: number;
   seasonId: number;
-  seasonLabel: string;
   phase: "regular" | "playoffs";
-  phaseLabel: string;
-  filter: TeamScheduleFilter;
 }) {
-  const completedCount = games.filter(isCompletedGame).length;
-  const upcomingCount = games.length - completedCount;
-  const visibleGames = games.filter((game) => {
-    if (filter === "completed") return isCompletedGame(game);
-    if (filter === "upcoming") return !isCompletedGame(game);
-    return true;
-  });
-  const monthGroups = groupGamesByMonth(visibleGames);
+  const monthGroups = groupGamesByMonth(games);
   const firstUpcomingId = games.find((game) => !isCompletedGame(game))?.nhlGameId;
-  const schedulePath = `/teams/${teamNhlId}`;
 
   return (
     <section
       id="schedule"
       className="workspace-width-data mt-8 scroll-mt-6"
     >
-      <SectionHeader
-        eyebrow="Schedule"
-        title="Full Schedule"
-        description={`${seasonLabel} ${phaseLabel.toLowerCase()} schedule. Completed results and remaining games appear together in chronological order.`}
-        action={
-          <p className="text-sm text-[var(--muted)] tabular-nums">
-            {games.length} games · {completedCount} completed{upcomingCount > 0 ? ` · ${upcomingCount} upcoming` : ""}
-          </p>
-        }
-      />
-
-      <nav
-        className="mt-5 inline-flex rounded-xl border border-[var(--border)] bg-[var(--surface)] p-1"
-        aria-label="Filter team schedule"
-      >
-        <ScheduleFilterLink
-          active={filter === "all"}
-          count={games.length}
-          href={scheduleFilterHref(schedulePath, seasonId, phase, "all")}
-          label="All"
-        />
-        <ScheduleFilterLink
-          active={filter === "completed"}
-          count={completedCount}
-          href={scheduleFilterHref(schedulePath, seasonId, phase, "completed")}
-          label="Completed"
-        />
-        <ScheduleFilterLink
-          active={filter === "upcoming"}
-          count={upcomingCount}
-          href={scheduleFilterHref(schedulePath, seasonId, phase, "upcoming")}
-          label="Upcoming"
-        />
-      </nav>
-
       {monthGroups.length > 0 ? (
         <TableScroll className="data-table-shell workspace-table-scroll mt-6 overflow-hidden">
           <table className="workspace-table workspace-table-dense w-full min-w-[960px] table-fixed">
@@ -91,9 +39,9 @@ export function TeamFullSchedule({
               <tr>
                 <th className="px-5 py-3 text-left">Date</th>
                 <th className="px-5 py-3 text-left">Opponent</th>
-                <th className="px-5 py-3 text-left">Venue</th>
-                <th className="px-5 py-3 text-left">Result</th>
-                <th className="px-5 py-3 text-right">Score / Start</th>
+                <th className="px-5 py-3 text-center">Venue</th>
+                <th className="px-5 py-3 text-center">Result</th>
+                <th className="px-5 py-3 text-center">Score / Start</th>
               </tr>
             </thead>
             <tbody>
@@ -101,7 +49,6 @@ export function TeamFullSchedule({
                 <MonthScheduleRows
                   key={group.key}
                   group={group}
-                  filter={filter}
                   firstUpcomingId={firstUpcomingId}
                   teamNhlId={teamNhlId}
                   seasonId={seasonId}
@@ -112,7 +59,7 @@ export function TeamFullSchedule({
         </TableScroll>
       ) : (
         <div className="workspace-empty-state mt-6">
-          No {filter === "all" ? "" : `${filter} `}games are stored for this selection.
+          No games are stored for this selection.
         </div>
       )}
 
@@ -133,13 +80,11 @@ export function TeamFullSchedule({
 
 function MonthScheduleRows({
   group,
-  filter,
   firstUpcomingId,
   teamNhlId,
   seasonId,
 }: {
   group: ReturnType<typeof groupGamesByMonth>[number];
-  filter: TeamScheduleFilter;
   firstUpcomingId: number | undefined;
   teamNhlId: number;
   seasonId: number;
@@ -157,7 +102,7 @@ function MonthScheduleRows({
       </tr>
       {group.games.map((game) => {
         const upcomingBoundary =
-          filter === "all" && game.nhlGameId === firstUpcomingId;
+          game.nhlGameId === firstUpcomingId;
         return (
           <ScheduleGameRows
             key={game.nhlGameId}
@@ -169,32 +114,6 @@ function MonthScheduleRows({
         );
       })}
     </>
-  );
-}
-
-function ScheduleFilterLink({
-  active,
-  count,
-  href,
-  label,
-}: {
-  active: boolean;
-  count: number;
-  href: string;
-  label: string;
-}) {
-  return (
-    <Link
-      href={href}
-      aria-current={active ? "page" : undefined}
-      className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
-        active
-          ? "bg-[var(--accent)] text-[var(--on-accent)]"
-          : "text-[var(--muted)] hover:bg-[var(--surface-raised)] hover:text-[var(--foreground)]"
-      }`}
-    >
-      {label} <span className="font-mono text-xs tabular-nums">({count})</span>
-    </Link>
   );
 }
 
@@ -228,12 +147,12 @@ function ScheduleGameRows({
         </tr>
       ) : null}
       <tr className={showUpcomingBoundary ? "bg-[var(--accent-soft)]/30" : undefined}>
-        <td className="whitespace-nowrap px-5 tabular-nums">
+        <td className="whitespace-nowrap px-5 text-left tabular-nums">
           <Link href={`/games/${game.nhlGameId}`} className="font-medium text-[var(--foreground)]">
             {formatGameDate(game.gameDate)}
           </Link>
         </td>
-        <td className="px-5">
+        <td className="px-5 text-left">
           <span className="inline-flex items-center gap-2 whitespace-nowrap">
             <TeamLogo {...opponent} size="tiny" decorative />
             <Link
@@ -245,11 +164,11 @@ function ScheduleGameRows({
             <TeamGameRecord record={opponent.record} />
           </span>
         </td>
-        <td className="px-5 text-[var(--muted)]">{isHome ? "Home" : "Away"}</td>
-        <td className="px-5">
+        <td className="px-5 text-center text-[var(--muted)]">{isHome ? "Home" : "Away"}</td>
+        <td className="px-5 text-center">
           <span className={resultClassName(result)}>{result}</span>
         </td>
-        <td className="whitespace-nowrap px-5 text-right font-semibold text-[var(--foreground)] tabular-nums">
+        <td className="whitespace-nowrap px-5 text-center font-semibold text-[var(--foreground)] tabular-nums">
           {completed ? (
             `${team.score}–${opponent.score}`
           ) : (
@@ -259,21 +178,6 @@ function ScheduleGameRows({
       </tr>
     </>
   );
-}
-
-function scheduleFilterHref(
-  path: string,
-  seasonId: number,
-  phase: "regular" | "playoffs",
-  filter: TeamScheduleFilter,
-) {
-  const params = new URLSearchParams({
-    season: String(seasonId),
-    phase,
-    view: "schedule",
-  });
-  if (filter !== "all") params.set("scheduleState", filter);
-  return `${path}?${params.toString()}#schedule`;
 }
 
 function isCompletedGame(game: GameSummary) {

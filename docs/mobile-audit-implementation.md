@@ -1,5 +1,9 @@
 # Mobile audit implementation — September 10, 2026
 
+> Historical record. This describes the app at the recorded audit/release date.
+> Retired routes, source paths, and test commands below are not current instructions.
+> Use [current app scope](app-simplification.md) and [web development](../apps/web/README.md).
+
 The mobile review found fourteen layout and interaction problems. This change
 addresses them through shared table behavior and targeted page layouts, while
 retaining the dark/light visual system, sorting, URL filters, and data coverage.

@@ -9,8 +9,6 @@ const nextConfig: NextConfig = {
       { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
     ] }];
   },
-  // Vercel packages functions through its adapter; standalone is for Docker.
-  output: process.env.VERCEL === "1" ? undefined : "standalone",
 };
 
 export default nextConfig;

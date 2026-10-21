@@ -75,6 +75,8 @@ describe("getStandings", () => {
         divisionRank: 1,
         wildcardRank: 0,
         clinchIndicator: "x",
+        homeRecord: null,
+        awayRecord: null,
       },
     ]);
   });

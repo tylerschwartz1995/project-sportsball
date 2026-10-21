@@ -2,7 +2,6 @@ import { withReadContext } from "@/data/read-context";
 import { parseSeasonId } from "@/contracts/season";
 import {
   getCachedStandings,
-  getCachedStandingsPointsHistory,
   listCachedSeasons,
 } from "@/data/page-cache";
 import {
@@ -10,12 +9,11 @@ import {
   parseSortDirection
 } from "@/lib/directory";
 import "server-only";
-import { StandingsPageProps, buildGroups, parseStandingsDisplay, parseView, standingsColumns } from './logic';
+import { StandingsPageProps, buildGroups, parseView, standingsColumns } from './logic';
 async function loadStandingsPageData({
   searchParams,
 }: StandingsPageProps) {
   const params = await searchParams;
-  const chartDivision = firstQueryValue(params.chartDivision);
   const seasons = await listCachedSeasons();
   const parsedSeason = parseSeasonId(firstQueryValue(params.season));
   const requestedSort = firstQueryValue(params.sort);
@@ -23,36 +21,28 @@ async function loadStandingsPageData({
     (column) => column.key === requestedSort,
   )
     ? requestedSort!
-    : "rank";
+    : "points";
   const direction = parseSortDirection(
     firstQueryValue(params.dir),
     activeSort === "rank" || activeSort === "team" ? "asc" : "desc",
   );
   const view = parseView(firstQueryValue(params.view));
-  const display = parseStandingsDisplay(firstQueryValue(params.display));
   const selectedSeason =
     seasons.find((season) => season.id === parsedSeason) ?? seasons[0];
-  const [standings, pointsHistory] = selectedSeason
-    ? await Promise.all([
-      getCachedStandings(selectedSeason.id),
-      display === "progress"
-        ? getCachedStandingsPointsHistory(selectedSeason.id)
-        : Promise.resolve([]),
-    ])
-    : [[], []];
+  const standings = selectedSeason ? await getCachedStandings(selectedSeason.id) : [];
   const leader = standings[0];
   const groups = buildGroups(standings, view);
+  const requestedGroup = firstQueryValue(params.group);
+  const selectedGroup = groups.find(group => group.label === requestedGroup) ?? groups[0];
   return {
     selectedSeason,
     seasons,
     leader,
-    display,
-    chartDivision,
     view,
     activeSort,
     direction,
     groups,
-    pointsHistory,
+    selectedGroup,
     standings,
   } as const;
 }

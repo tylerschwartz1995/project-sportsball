@@ -7,7 +7,7 @@ vi.mock("@/data/database", () => ({
 }));
 
 import {
-  getMoneyPuckPlayerSeason,
+  getMoneyPuckPlayerSeasons,
   getMoneyPuckTeamSeason,
 } from "@/data/advanced";
 
@@ -63,6 +63,7 @@ describe("MoneyPuck application queries", () => {
       .mockResolvedValueOnce([
         {
           nhl_team_id: 22,
+          nhl_player_id: 8478402,
           abbreviation: "EDM",
           team_name: "Edmonton Oilers",
           situation: "all",
@@ -80,7 +81,7 @@ describe("MoneyPuck application queries", () => {
       ])
       .mockResolvedValueOnce([]);
 
-    const result = await getMoneyPuckPlayerSeason(8478402, 20252026);
+    const [result] = await getMoneyPuckPlayerSeasons([8478402], 20252026);
 
     expect(result).toMatchObject({
       nhlPlayerId: 8478402,

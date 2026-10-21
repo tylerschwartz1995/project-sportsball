@@ -56,24 +56,9 @@ async function loadPlayersPageData({ searchParams }: PlayersPageProps) {
       ? parsePlayerPositionFilter(firstQueryValue(params.position))
       : "";
   const filters = {
-    minGames: firstQueryValue(params.minGames) ?? "0",
-    minGoals:
-      category === "skaters" ? (firstQueryValue(params.minGoals) ?? "0") : "0",
-    minAssists:
-      category === "skaters"
-        ? (firstQueryValue(params.minAssists) ?? "0")
-        : "0",
-    minPoints:
-      category === "skaters" ? (firstQueryValue(params.minPoints) ?? "0") : "0",
-    minWins:
-      category === "goalies" ? (firstQueryValue(params.minWins) ?? "0") : "0",
-    minSavePercentage:
-      category === "goalies"
-        ? (firstQueryValue(params.minSavePercentage) ?? "0")
-        : "0",
-    country: firstQueryValue(params.country) ?? "",
-    region: firstQueryValue(params.region) ?? "",
-    city: firstQueryValue(params.city) ?? "",
+    minGames: "0",
+    minGoals: "0", minAssists: "0", minPoints: "0", minWins: "0", minSavePercentage: "0",
+    country: "", region: "", city: "",
   };
   const minGames = parseMinimum(filters.minGames);
   const minGoals = parseMinimum(filters.minGoals);

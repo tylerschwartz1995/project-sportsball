@@ -1,16 +1,9 @@
 # Schedules and results
 
-The games page at `/games` exposes the ingested NHL schedule through a
-seven-day date rail. Visitors can see which days contain games, select visible
-off-days without losing their place, move by one day or one week, use the native
-date field, or open a full month calendar with daily game counts. The team
-control is populated from clubs appearing in that phase's schedule, including
-future seasons that do not have season statistics yet. Season,
-regular-season/playoff phase, and team controls share the
-same schedule navigator and remain encoded in the URL so a view can be linked
-or bookmarked. Switching phase keeps the nearest valid date when the current
-date falls outside that phase. When future dates exist, the next upcoming date
-is selected first; otherwise the latest completed date is selected.
+The Games landing page uses season/date controls and a seven-day rail, with
+previous/next week navigation and an optional full-month calendar. It shows all
+teams and game types on the selected date. Old team/phase parameters no longer
+restrict the directory. URL state preserves the selected season and date.
 
 Each result shows:
 
@@ -25,7 +18,7 @@ Each result shows:
   explicit. UTC remains the stored system value.
 
 Completed results link to `/games/{nhlGameId}`, which shows the traditional
-box score, NHL scoring summary and full period timeline, plus MoneyPuck
+box score, NHL scoring summary and Game Flow, plus MoneyPuck
 advanced team/player results, shot maps, forward lines, and defensive pairings
 wherever the provider publishes coverage.
 
@@ -40,9 +33,7 @@ ingested.
 The Schedule view on each team profile follows the season and regular-season or
 playoff phase selected in the profile header. It displays every stored team game
 for that selection in chronological, month-grouped tables, combining completed
-results with remaining games. URL-backed All, Completed, and Upcoming filters
-show their sample sizes, and the unfiltered view marks the boundary before the
-next game. Completed rows show the team result and score; remaining rows show
+results with remaining games. Completed rows show the team result and score; remaining rows show
 their state and local start time. Schedule-only future seasons remain available
 in the team profile picker even before team season statistics have been loaded.
 
@@ -84,8 +75,9 @@ stored season only when there are no eligible current-season results. Expected
 missing values are not zero, and a covered zero denominator has no share.
 
 Rest follows all regular-season schedule rows ordered by start time and NHL ID.
-The web still filters completed/future games at request time and computes travel
-for that displayed sequence. Team names remain season-aware database joins.
+The retired schedule-strength UI and travel calculations have been removed.
+The stored context and builder remain pending the database review. Team names
+remain season-aware database joins.
 Daily updates refresh the stored context after imports. After standalone source
 backfills or migration 0026, run `make analytics-build`. Source observations are
 preserved; failed materializations keep the last completed output and a failed

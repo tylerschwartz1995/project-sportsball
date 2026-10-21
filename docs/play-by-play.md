@@ -74,19 +74,9 @@ parallel, preserve the NHL chronological sort order, attach historical team
 identity, and group each participant beneath the event with their semantic
 role.
 
-The page presents:
-
-- an always-visible scoring summary with period, time, team, scorer, assists,
-  strength, shot type, and running score;
-- a compact section for every period that loads that period's complete event
-  list through URL-backed navigation, keeping closed periods out of the
-  initial document while preserving shareable state;
-- readable event descriptions for goals, penalties, shots, blocks, hits,
-  faceoffs, possession changes, stoppages, and period boundaries;
-- links from canonical players and teams to their supporting profiles;
-- unresolved historical player references as visible NHL source identifiers
-  rather than invented identities.
-
-Goals and penalties receive stronger visual emphasis within the full timeline.
-Historical nulls remain visible as unavailable details; the presentation does
-not infer coordinates, clocks, or players that are absent from the source.
+The Scoring tab presents period, time, team, scorer, assists, running away–home
+score, and goal type in chronological order. Names link to supporting profiles.
+The former expandable period timeline has been removed. Full events remain
+stored and support scoring, Game Flow goal context, and faceoff calculations.
+Missing coordinates, clocks, and participants are never invented. See
+[game pages](game-box-scores.md) for current presentation.

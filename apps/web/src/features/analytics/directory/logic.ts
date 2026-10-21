@@ -3,7 +3,6 @@ import type {
   AdvancedSkaterLeaderboardRow,
   AdvancedTeamLeaderboardRow,
 } from "@/contracts/advanced-leaderboard";
-import { firstQueryValue } from "@/lib/directory";
 
 export const LEADERBOARD_TYPES = ["teams", "skaters", "goalies"] as const;
 
@@ -21,6 +20,8 @@ export type AnalyticsPageProps = {
     type?: string | string[];
     situation?: string | string[];
     minimum?: string | string[];
+    q?: string | string[];
+    position?: string | string[];
     phase?: string | string[];
     display?: string | string[];
     plotMetric?: string | string[];
@@ -34,18 +35,10 @@ export type AnalyticsPageProps = {
   }>;
 };
 
-export function pickQueryParams(
-  params: Record<string, string | string[] | undefined>,
-  names: string[],
-): Record<string, string | undefined> {
-  return Object.fromEntries(names.map((name) => [name, firstQueryValue(params[name])]));
-}
-
 export type LeaderboardRows =
   | AdvancedTeamLeaderboardRow[]
   | AdvancedSkaterLeaderboardRow[]
   | AdvancedGoalieLeaderboardRow[];
-
 
 export function parseLeaderboardType(value: string | undefined): LeaderboardType {
   return LEADERBOARD_TYPES.includes(value as LeaderboardType)

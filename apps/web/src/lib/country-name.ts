@@ -50,8 +50,3 @@ export function countryName(country: string): string {
     return country;
   }
 }
-
-export function countryNameWithCode(country: string): string {
-  const name = countryName(country);
-  return name === country ? country : `${name} (${country.toUpperCase()})`;
-}

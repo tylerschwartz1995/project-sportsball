@@ -1,6 +1,5 @@
-import Link from "@/components/ui/exploration-link";
+import { PlayerTableIdentity } from "@/features/players/player-table-identity";
 import type { TeamIdentity } from "@/contracts/team";
-import { TeamLogo } from "@/features/teams/team-logo";
 export function EntityCell({
   href,
   name,
@@ -19,22 +18,7 @@ export function EntityCell({
       className="workspace-sticky-entity px-4 py-3 text-left"
       data-column-group={metricGroup}
     >
-      <div className="flex items-center gap-2">
-        {team ? (
-          <TeamLogo {...team} size="tiny" decorative />
-        ) : null}
-        <div>
-          <Link
-            href={href}
-            className="workspace-entity-name font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
-          >
-            {name}
-          </Link>
-          <span className="mt-0.5 block max-w-48 truncate text-xs text-[var(--muted)]">
-            {detail}
-          </span>
-        </div>
-      </div>
+      <PlayerTableIdentity href={href} name={name} position={detail} teams={team ? [team] : undefined} />
     </td>
   );
 }
@@ -50,7 +34,7 @@ export function ValueCell({
 }) {
   return (
     <td
-      className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${highlight ? "font-semibold text-[var(--accent-secondary)]" : "text-[var(--foreground-soft)]"
+      className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${highlight ? "font-semibold text-[var(--accent)]" : "text-[var(--foreground-soft)]"
         }`}
       data-column-group={metricGroup}
     >

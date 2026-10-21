@@ -35,7 +35,7 @@ export function WorkspacePanel({
   width = "wide",
 }: {
   id?: string;
-  title: string;
+  title?: string;
   description?: string;
   action?: ReactNode;
   children: ReactNode;
@@ -47,13 +47,13 @@ export function WorkspacePanel({
 
   return (
     <section id={id} className={`workspace-panel ${widthClass} ${className}`}>
-      <div className="workspace-panel-header">
+      {title || description || action ? <div className="workspace-panel-header">
         <div>
-          <h3>{title}</h3>
+          {title ? <h3>{title}</h3> : null}
           {description ? <p>{description}</p> : null}
         </div>
         {action}
-      </div>
+      </div> : null}
       {children}
     </section>
   );

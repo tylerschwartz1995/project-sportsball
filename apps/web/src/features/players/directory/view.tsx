@@ -1,28 +1,24 @@
-import { MobileFilterPanel } from "@/components/ui/mobile-filter-panel";
+import { StatsTabs } from "@/components/ui/stats-tabs";
 import { TableScroll } from "@/components/ui/table-scroll";
 import { NavigationComplete } from "@/components/shell/navigation-metrics";
 import { SiteHeader } from "@/components/shell/site-header";
-import { MobileDataView } from "@/components/ui/mobile-data-view";
 import { Pagination } from "@/components/ui/pagination";
 import { SortableHeader } from "@/components/ui/sortable-header";
 import { SortableTable } from "@/components/ui/sortable-table";
 import {
   WorkspacePageHeader,
 } from "@/components/ui/workspace-primitives";
-import {
-  seasonPhaseLabel
-} from "@/contracts/season-phase";
 import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
 import { SeasonPicker } from "@/features/league/season-picker";
 import { PlayerDirectoryFilters } from "@/features/players/player-directory-filters";
-import { TeamLogoStack } from "@/features/teams/team-logo";
+import { PlayerTableIdentity } from "@/features/players/player-table-identity";
 import { playerDirectoryClearHref } from "@/lib/player-directory-url";
 import {
   formatPlayerPosition
 } from "@/lib/player-position";
 import type { loadPlayersPage } from './loader';
 import { formatSavePercentage, formatSigned, goalieTableColumns, skaterTableColumns } from './logic';
-import { DirectoryEmptyState, NumericCell, PlayerLink, PlayerSectionHeader } from './sections';
+import { DirectoryEmptyState, NumericCell } from './sections';
 export function PlayersPageView({
   selectedSeason,
   phase,
@@ -33,13 +29,10 @@ export function PlayersPageView({
   position,
   sort,
   direction,
-  locations,
   filters,
   skaterPage,
   goaliePage,
-  minGames,
 }: Awaited<ReturnType<typeof loadPlayersPage>>) {
-  const appliedFilters = Number(Boolean(query)) + Number(Boolean(position)) + Object.values(filters).filter(value => value !== "" && value !== "0").length;
   return (
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="players" />
@@ -47,8 +40,8 @@ export function PlayersPageView({
       <section className="py-10">
         <WorkspacePageHeader
           eyebrow="Player statistics"
-          title={`${selectedSeason?.label ?? "No Season"} Players`}
-          description={`Official ${seasonPhaseLabel(phase).toLowerCase()} statistics, combined across teams.`}
+          title="Player Stats"
+          description=""
           action={
             <SeasonPicker
               seasons={seasons}
@@ -60,12 +53,12 @@ export function PlayersPageView({
 
         {selectedSeason ? (
           <>
+            <div className="reference-stats-context"><StatsTabs subject="players" seasonId={selectedSeason.id} phase={phase} type={category} />
             <SeasonPhaseFilter
               active={phase}
               path="/players"
               params={{ ...contextParams, season: selectedSeason.id }}
-            />
-            <MobileFilterPanel label={`Filters & Sort · ${category === "goalies" ? "Goalies" : "Skaters"}${appliedFilters ? ` · ${appliedFilters} Applied` : ""}`}>
+            /></div>
             <PlayerDirectoryFilters
               key={JSON.stringify([selectedSeason.id, contextParams])}
               seasonId={selectedSeason.id}
@@ -75,30 +68,15 @@ export function PlayersPageView({
               position={position}
               sort={sort}
               direction={direction}
-              locations={locations}
-              filters={filters}
             />
 
-            </MobileFilterPanel>
-
-            <MobileDataView>
+            <div id="player-results" className="scroll-mt-6">
               {category === "skaters" ? (
                 <>
-                  <PlayerSectionHeader
-                    id="player-results"
-                    title="Skaters"
-                    count={skaterPage.totalItems}
-                    description="Combined totals across all teams played for."
-                  />
+
                   {skaterPage.items.length > 0 ? (
                     <><div className="workspace-data-table-shell min-w-0">
                         <SortableTable
-                          secondaryColumns={[6, 7, 9]}
-                          initialExpanded={[
-                            "plusMinus",
-                            "penaltyMinutes",
-                            "teamsPlayedFor",
-                          ].includes(sort)}
                           defaultSortKey={sort}
                           defaultDirection={direction}
                         >
@@ -106,13 +84,13 @@ export function PlayersPageView({
                             <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
                               <colgroup>
                                 <col className="workspace-col-entity" />
-                                <col className="workspace-col-stat" span={7} />
-                                <col className="workspace-col-number" />
+                                <col className="workspace-col-stat" span={skaterTableColumns.length} />
                               </colgroup>
                               <thead>
                                 <tr className="workspace-data-table-header-row">
                                   <SortableHeader
                                     label="Player"
+                                    sticky
                                     sortKey="name"
                                     align="left"
                                     defaultDirection="asc"
@@ -122,6 +100,7 @@ export function PlayersPageView({
                                       key={column.key}
                                       label={column.label}
                                       sortKey={column.key}
+                                      defaultDirection={column.key === "goalsAgainstAverage" ? "asc" : "desc"}
                                     />
                                   ))}
                                 </tr>
@@ -132,44 +111,23 @@ export function PlayersPageView({
                                     key={player.nhlPlayerId}
                                     className="workspace-data-table-row"
                                   >
-                                    <td className="workspace-entity-name px-4 py-3">
-                                      <div className="flex items-center gap-2">
-                                        <TeamLogoStack
-                                          teams={player.teams}
-                                          size="tiny"
-                                        />
-                                        <div>
-                                          <PlayerLink
-                                            playerId={player.nhlPlayerId}
-                                            seasonId={selectedSeason.id}
-                                            name={player.name}
-                                            phase={phase}
-                                          />
-                                          <span className="ml-2 text-xs text-[var(--muted)]">
-                                            {formatPlayerPosition(
-                                              player.position,
-                                            )}
-                                          </span>
-                                        </div>
-                                      </div>
+                                    <td className="workspace-sticky-entity workspace-entity-name px-4 py-3">
+                                      <PlayerTableIdentity
+                                        href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}&phase=${phase}`}
+                                        name={player.name}
+                                        position={formatPlayerPosition(player.position)}
+                                        teams={player.teams}
+                                      />
                                     </td>
-                                    <NumericCell
-                                      value={player.points}
-                                      highlight
-                                    />
                                     <NumericCell value={player.gamesPlayed} />
                                     <NumericCell value={player.goals} />
                                     <NumericCell value={player.assists} />
-                                    <NumericCell
-                                      value={formatSigned(player.plusMinus)}
-                                    />
-                                    <NumericCell
-                                      value={player.penaltyMinutes}
-                                    />
+                                    <NumericCell value={player.points} highlight />
+                                    <NumericCell value={formatSigned(player.plusMinus)} />
                                     <NumericCell value={player.shotsOnGoal} />
-                                    <NumericCell
-                                      value={player.teamsPlayedFor}
-                                    />
+                                    <NumericCell value={player.powerPlayPoints ?? "—"} />
+                                    <NumericCell value={player.penaltyMinutes} />
+                                    <NumericCell value={player.hits} />
                                   </tr>
                                 ))}
                               </tbody>
@@ -209,27 +167,10 @@ export function PlayersPageView({
                 </>
               ) : (
                 <>
-                  <PlayerSectionHeader
-                    id="player-results"
-                    title="Goalies"
-                    count={goaliePage.totalItems}
-                    description={
-                      minGames === 0
-                        ? "Unqualified save-percentage ranking · No minimum games. Totals combine all teams."
-                        : "Combined totals across all teams played for."
-                    }
-                  />
+
                   {goaliePage.items.length > 0 ? (
                     <><div className="workspace-data-table-shell min-w-0">
                         <SortableTable
-                          secondaryColumns={[4, 6, 7, 8, 9]}
-                          initialExpanded={[
-                            "gamesStarted",
-                            "losses",
-                            "overtimeLosses",
-                            "goalsAgainst",
-                            "saves",
-                          ].includes(sort)}
                           defaultSortKey={sort}
                           defaultDirection={direction}
                         >
@@ -237,13 +178,13 @@ export function PlayersPageView({
                             <table className="modern-table-readable workspace-table workspace-table-dense workspace-table-semantic min-w-[880px]">
                               <colgroup>
                                 <col className="workspace-col-entity" />
-                                <col className="workspace-col-percentage" />
-                                <col className="workspace-col-stat" span={7} />
+                                <col className="workspace-col-stat" span={goalieTableColumns.length} />
                               </colgroup>
                               <thead>
                                 <tr className="workspace-data-table-header-row">
                                   <SortableHeader
                                     label="Goalie"
+                                    sticky
                                     sortKey="name"
                                     align="left"
                                     defaultDirection="asc"
@@ -253,6 +194,7 @@ export function PlayersPageView({
                                       key={column.key}
                                       label={column.label}
                                       sortKey={column.key}
+                                      defaultDirection={column.key === "goalsAgainstAverage" ? "asc" : "desc"}
                                     />
                                   ))}
                                 </tr>
@@ -263,35 +205,23 @@ export function PlayersPageView({
                                     key={player.nhlPlayerId}
                                     className="workspace-data-table-row"
                                   >
-                                    <td className="workspace-entity-name px-4 py-3">
-                                      <div className="flex items-center gap-2">
-                                        <TeamLogoStack
-                                          teams={player.teams}
-                                          size="tiny"
-                                        />
-                                        <PlayerLink
-                                          playerId={player.nhlPlayerId}
-                                          seasonId={selectedSeason.id}
-                                          name={player.name}
-                                          phase={phase}
-                                        />
-                                      </div>
+                                    <td className="workspace-sticky-entity workspace-entity-name px-4 py-3">
+                                      <PlayerTableIdentity
+                                        href={`/players/${player.nhlPlayerId}?season=${selectedSeason.id}&phase=${phase}`}
+                                        name={player.name}
+                                        position={"G"}
+                                        teams={player.teams}
+                                      />
                                     </td>
-                                    <NumericCell
-                                      value={formatSavePercentage(
-                                        player.savePercentage,
-                                      )}
-                                      highlight
-                                    />
                                     <NumericCell value={player.gamesPlayed} />
-                                    <NumericCell value={player.gamesStarted} />
                                     <NumericCell value={player.wins} />
                                     <NumericCell value={player.losses} />
                                     <NumericCell
                                       value={player.overtimeLosses}
                                     />
-                                    <NumericCell value={player.goalsAgainst} />
-                                    <NumericCell value={player.saves} />
+                                    <NumericCell value={formatSavePercentage(player.savePercentage)} />
+                                    <NumericCell value={player.timeOnIceSeconds > 0 ? (player.goalsAgainst * 3600 / player.timeOnIceSeconds).toFixed(2) : "—"} />
+                                    <NumericCell value={player.shutouts ?? "—"} />
                                   </tr>
                                 ))}
                               </tbody>
@@ -329,7 +259,7 @@ export function PlayersPageView({
                   )}
                 </>
               )}
-            </MobileDataView>
+            </div>
           </>
         ) : (
           <div className="mt-10 rounded-2xl border border-[color-mix(in_srgb,var(--warning)_42%,var(--border))] bg-[var(--warning-soft)] p-6 text-[var(--warning)]">

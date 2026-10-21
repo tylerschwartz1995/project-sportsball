@@ -32,20 +32,6 @@ export type GameTeamRecord = {
   overtimeLosses: number;
 };
 
-export type LeagueTrendGame = {
-  nhlGameId: number;
-  gameDate: string;
-  startTimeUtc: string;
-  lastPeriodType: string | null;
-  awayTeam: LeagueTrendTeam;
-  homeTeam: LeagueTrendTeam;
-};
-
-export type LeagueTrendTeam = {
-  abbreviation: string;
-  score: number;
-};
-
 export type GameSkaterStats = {
   nhlPlayerId: number;
   name: string;

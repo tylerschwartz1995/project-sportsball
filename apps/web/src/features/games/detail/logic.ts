@@ -1,15 +1,11 @@
-import {
-  type GameAdvancedView
-} from "@/features/games/game-advanced-analytics";
 
-export type GameView = "scoring" | "box-score" | "advanced";
+export type GameView = "scoring" | "box-score" | "game-flow" | "team-stats" | "lines" | "shot-map" | "advanced";
 
 export type GamePageProps = {
   params: Promise<{ id: string }>;
   searchParams: Promise<{
     view?: string | string[];
     advancedView?: string | string[];
-    timelinePeriod?: string | string[];
   }>;
 };
 
@@ -43,7 +39,7 @@ export function finalLabel(lastPeriodType: string | null): string {
 }
 
 export function parseGameView(value: string | undefined): GameView {
-  return value === "scoring" || value === "box-score" || value === "advanced"
+  return value === "team-stats" || value === "lines" || value === "shot-map" || value === "scoring" || value === "box-score" || value === "game-flow" || value === "advanced"
     ? value
     : "scoring";
 }
@@ -56,20 +52,14 @@ export function normalizeGameView(
     advanced: boolean;
   },
 ): GameView {
+  if ((view === "team-stats" || view === "lines" || view === "shot-map") && availability.advanced) return view;
+  if (view === "game-flow" && (availability.scoring || availability.advanced)) return view;
   if (view === "scoring" && availability.scoring) return view;
   if (view === "box-score" && availability.boxScore) return view;
-  if (view === "advanced" && availability.advanced) return view;
+  if (view === "advanced" && availability.advanced) return "team-stats";
   if (availability.scoring) return "scoring";
   if (availability.boxScore) return "box-score";
-  return "advanced";
-}
-
-export function parseGameAdvancedView(value: string | undefined): GameAdvancedView {
-  return value === "shots" ||
-    value === "players" ||
-    value === "combinations"
-    ? value
-    : "teams";
+  return "team-stats";
 }
 
 export function firstValue(value: string | string[] | undefined): string | undefined {

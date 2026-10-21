@@ -1,9 +1,11 @@
-import { loadPlayoffsPage } from '@/features/playoffs/directory/loader';
-import type { PlayoffsPageProps } from '@/features/playoffs/directory/logic';
-import { PlayoffsPageView } from '@/features/playoffs/directory/view';
-
-export const dynamic = "force-dynamic";
-
-export default async function PlayoffsPage(props: PlayoffsPageProps) {
-  return <PlayoffsPageView {...await loadPlayoffsPage(props)} />;
+import { redirect } from "next/navigation";
+export default async function RetiredPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const incoming = await searchParams;
+  const params = new URLSearchParams();
+  for (const key of ["season", "phase"]) {
+    const value = incoming[key];
+    if (typeof value === "string") params.set(key, value);
+  }
+  params.set("phase", "playoffs");
+  redirect(`/teams${params.size ? `?${params}` : ""}`);
 }

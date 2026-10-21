@@ -64,16 +64,3 @@ export function paginate<T>(
     lastItem: start + pageItems.length,
   };
 }
-
-export function matchesSearch(
-  query: string,
-  ...values: Array<string | null | undefined>
-): boolean {
-  if (!query) {
-    return true;
-  }
-  const normalizedQuery = query.toLocaleLowerCase();
-  return values.some((value) =>
-    value?.toLocaleLowerCase().includes(normalizedQuery),
-  );
-}

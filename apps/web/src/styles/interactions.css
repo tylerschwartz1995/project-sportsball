@@ -6,59 +6,10 @@ html[data-theme="light"] textarea {
 
 /* Secondary content is available without competing with the primary answer. */
 
-.workspace-disclosure-toggle {
-  min-height: 40px;
-  padding: 0.5rem 0;
-  color: var(--foreground-soft);
-  text-align: left;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.workspace-disclosure-toggle:hover { color: var(--accent); }
-
-.workspace-disclosure-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
-.workspace-presentation-tabs {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem;
-  margin-top: 1rem;
-  padding: 0.25rem;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  background: var(--surface);
-}
-
-.workspace-presentation-tabs > button {
-  min-height: 40px;
-  padding: 0.5rem 0.875rem;
-  border-radius: 0.5rem;
-  color: var(--muted);
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.workspace-presentation-tabs > button[aria-pressed="true"] {
-  background: var(--accent);
-  color: var(--on-accent);
-}
-
-.workspace-presentation-tabs > button:hover { color: var(--foreground); }
-
-.workspace-presentation-tabs > button[aria-pressed="true"]:hover { color: var(--on-accent); }
-
-.workspace-presentation-tabs > button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
-
 /* Let team names set their own width when optional standings columns are hidden. */
 
 .workspace-standings-table {
   table-layout: auto;
-}
-
-.workspace-standings-table .workspace-team-cell {
-  white-space: nowrap;
 }
 
 .workspace-standings-table .workspace-rank-cell {

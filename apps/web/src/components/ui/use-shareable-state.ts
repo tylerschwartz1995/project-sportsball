@@ -34,16 +34,3 @@ export function useUrlChoice<T extends string>(
 
   return [value, setValue];
 }
-
-export function useUrlBoolean(
-  parameter: string,
-  fallback: boolean,
-): [boolean, (value: boolean) => void] {
-  const choices = ["true", "false"] as const;
-  const [value, setValue] = useUrlChoice(
-    parameter,
-    choices,
-    String(fallback) as (typeof choices)[number],
-  );
-  return [value === "true", (next) => setValue(String(next) as (typeof choices)[number])];
-}

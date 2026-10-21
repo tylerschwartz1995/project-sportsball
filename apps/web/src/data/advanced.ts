@@ -20,6 +20,8 @@ type TeamSituationRow = {
   situation: string;
   games_played: number;
   ice_time_seconds: number;
+  high_danger_x_goals_for: number | null;
+  high_danger_x_goals_against: number | null;
   x_goals_percentage: number | null;
   corsi_percentage: number | null;
   fenwick_percentage: number | null;
@@ -89,6 +91,8 @@ export async function getMoneyPuckTeamSeason(
         stats.situation,
         stats.games_played,
         stats.ice_time_seconds,
+        (stats.metrics->>'highDangerxGoalsFor')::double precision AS high_danger_x_goals_for,
+        (stats.metrics->>'highDangerxGoalsAgainst')::double precision AS high_danger_x_goals_against,
         stats.x_goals_percentage,
         stats.corsi_percentage,
         stats.fenwick_percentage,
@@ -135,6 +139,8 @@ export async function getMoneyPuckTeamSeason(
           ELSE SUM(stats.fenwick_percentage * stats.ice_time_seconds) /
             SUM(stats.ice_time_seconds)
         END AS fenwick_percentage,
+        CASE WHEN COUNT(*) = COUNT(stats.high_danger_x_goals_for) THEN SUM(stats.high_danger_x_goals_for) END AS high_danger_x_goals_for,
+        CASE WHEN COUNT(*) = COUNT(stats.high_danger_x_goals_against) THEN SUM(stats.high_danger_x_goals_against) END AS high_danger_x_goals_against,
         SUM(stats.x_goals_for) AS x_goals_for,
         SUM(stats.x_goals_against) AS x_goals_against,
         SUM(stats.goals_for) AS goals_for,
@@ -177,10 +183,6 @@ export async function getMoneyPuckTeamSeason(
     team: mapTeam(firstRow),
     situations: rows.map(mapTeamSituation),
   };
-}
-
-export async function getMoneyPuckPlayerSeason(nhlPlayerId: number, seasonId: number): Promise<MoneyPuckPlayerSeason> {
-  return (await getMoneyPuckPlayerSeasons([nhlPlayerId], seasonId))[0];
 }
 
 export async function getMoneyPuckPlayerSeasons(
@@ -276,6 +278,10 @@ function mapTeamSituation(row: TeamSituationRow): MoneyPuckTeamSituation {
     situation: row.situation,
     gamesPlayed: row.games_played,
     iceTimeSeconds: row.ice_time_seconds,
+    highDangerExpectedGoalsFor: row.high_danger_x_goals_for ?? null,
+    highDangerExpectedGoalsAgainst: row.high_danger_x_goals_against ?? null,
+    highDangerExpectedGoalsPercentage: row.high_danger_x_goals_for != null && row.high_danger_x_goals_against != null && row.high_danger_x_goals_for + row.high_danger_x_goals_against > 0
+      ? row.high_danger_x_goals_for / (row.high_danger_x_goals_for + row.high_danger_x_goals_against) : null,
     expectedGoalsPercentage: row.x_goals_percentage,
     corsiPercentage: row.corsi_percentage,
     fenwickPercentage: row.fenwick_percentage,
