@@ -26,6 +26,7 @@ export function StandingsTable({
   return (
     <WorkspacePanel
       title={view === "overall" ? undefined : label}
+      className="standings-panel"
       width="standard"
     >
       <SortableTable secondaryColumns={[10, 11]}

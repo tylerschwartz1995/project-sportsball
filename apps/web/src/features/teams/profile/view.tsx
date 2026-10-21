@@ -42,7 +42,7 @@ export function TeamPageView({
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="teams" />
 
-      <section className="py-8 sm:py-10">
+      <section className="team-profile-page py-8 sm:py-10">
         <div className="modern-profile-identity modern-team-identity relative">
           <div className="relative grid gap-5 lg:grid-cols-[minmax(0,1fr)_12rem] lg:items-end">
             <div className="modern-team-name flex items-center gap-4">

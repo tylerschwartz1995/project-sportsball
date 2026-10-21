@@ -127,7 +127,7 @@ export function TeamLogoStack({
     .join(", ");
 
   return (
-    <span className="inline-flex items-center -space-x-1" title={label}>
+    <span className="team-logo-stack inline-flex items-center -space-x-1" title={label}>
       {visibleTeams.map((team, index) => (
         <TeamLogo
           key={`${team.nhlTeamId ?? team.abbreviation}-${index}`}

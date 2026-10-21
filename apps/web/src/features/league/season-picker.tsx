@@ -42,7 +42,7 @@ export function SeasonPicker({
         ),
       )}
       <label>
-        Season
+        <span className="season-picker-label">Season</span>
         <select
           key={selectedSeasonId}
           name="season"

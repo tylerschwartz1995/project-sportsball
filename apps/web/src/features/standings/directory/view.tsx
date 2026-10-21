@@ -13,7 +13,7 @@ export function StandingsPageView({
   return <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
     <SiteHeader active="standings" />
     <section className="py-8 sm:py-10">
-      <div className="mb-6 flex flex-wrap items-start justify-between gap-4"><h1 className="text-3xl font-semibold">Standings</h1>
+      <div className="workspace-page-header"><h1 className="text-3xl font-semibold">Standings</h1>
         <SeasonPicker seasons={seasons} selectedSeasonId={selectedSeason?.id} params={{ view, group: view === "overall" ? undefined : selectedGroup?.label }} />
       </div>
       {selectedSeason && leader ? <>
@@ -23,7 +23,7 @@ export function StandingsPageView({
           { id: "division", label: "Division", href: `/standings?season=${selectedSeason.id}&view=division` },
         ]} />
         {view !== "overall" && selectedGroup ? (
-          <FilterForm action="/standings" autoApply className="workspace-season-picker mt-6 mb-6">
+          <FilterForm action="/standings" autoApply className="workspace-season-picker standings-group-filter">
             <input type="hidden" name="season" value={selectedSeason.id} />
             <input type="hidden" name="view" value={view} />
             <input type="hidden" name="sort" value={activeSort} />
@@ -37,7 +37,7 @@ export function StandingsPageView({
             <noscript><button type="submit">Apply</button></noscript>
           </FilterForm>
         ) : null}
-        <div className="mt-6">
+        <div className="standings-results">
           {selectedGroup ? <StandingsTable key={selectedGroup.label} label={selectedGroup.label}
             standings={sortStandings(selectedGroup.standings, activeSort, direction, view)}
             defaultSortKey={activeSort} defaultDirection={direction}
