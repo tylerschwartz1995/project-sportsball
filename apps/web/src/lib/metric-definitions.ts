@@ -46,6 +46,9 @@ const METRIC_DEFINITIONS: Record<string, string> = {
   GSAx: "Goals saved above expected: expected goals against minus actual goals allowed. Positive is better.",
   "GSAx/60": "Goals saved above expected per 60 minutes of ice time. Positive is better; small workloads can produce extreme rates.",
   "Expected SOG": "Expected shots on goal based on the shots and chance quality faced.",
+  "S%": "Shooting percentage: goals divided by shots on goal, excluding shootouts.",
+  SF: "Shots on goal for.",
+  Hits: "Recorded hits in the selected season and phase.",
   SOG: "Shots on goal.",
   SA: "Shots on goal allowed.",
 };

@@ -13,6 +13,7 @@ export type StandingsPageProps = {
     sort?: string | string[];
     dir?: string | string[];
     view?: string | string[];
+    group?: string | string[];
     display?: string | string[];
     chartDivision?: string | string[];
   }>;
@@ -26,15 +27,15 @@ export const standingsColumns: Array<{
 }> = [
     { key: "rank", label: "Rank", align: "center", defaultDirection: "asc" },
     { key: "team", label: "Team", align: "left", defaultDirection: "asc" },
-    { key: "points", label: "PTS" },
     { key: "games", label: "GP" },
     { key: "wins", label: "W" },
     { key: "losses", label: "L" },
-    { key: "overtimeLosses", label: "OT" },
+    { key: "overtimeLosses", label: "OTL" },
+    { key: "points", label: "PTS" },
+    { key: "pointPercentage", label: "PTS%" },
     { key: "regulationWins", label: "RW" },
-    { key: "goalsFor", label: "GF" },
-    { key: "goalsAgainst", label: "GA" },
-    { key: "goalDifferential", label: "DIFF" },
+    { key: "home", label: "Home" },
+    { key: "away", label: "Away" },
   ];
 
 export function parseView(value: string | undefined): StandingsView {
@@ -108,6 +109,26 @@ export function sortStandings(
       case "goalDifferential":
         comparison = right.goalDifferential - left.goalDifferential;
         break;
+      case "pointPercentage":
+        if (left.pointPercentage == null) return right.pointPercentage == null ? 0 : 1;
+        if (right.pointPercentage == null) return -1;
+        comparison = right.pointPercentage - left.pointPercentage;
+        break;
+      case "home":
+      case "away": {
+        const recordKey = sort === "home" ? "homeRecord" : "awayRecord";
+        const percentage = (entry: StandingsEntry) => {
+          const record = entry[recordKey];
+          if (!record) return null;
+          const games = record.wins + record.losses + record.overtimeLosses;
+          return games ? (2 * record.wins + record.overtimeLosses) / (2 * games) : null;
+        };
+        const a = percentage(left), b = percentage(right);
+        if (a == null) return b == null ? 0 : 1;
+        if (b == null) return -1;
+        comparison = b - a;
+        break;
+      }
       case "points":
         comparison = right.points - left.points;
         break;
@@ -117,7 +138,7 @@ export function sortStandings(
           (rankForView(left, view) ?? 999);
     }
     if (comparison === 0) {
-      comparison = right.teamName.localeCompare(left.teamName);
+      return (rankForView(left, view) ?? 999) - (rankForView(right, view) ?? 999) || left.teamName.localeCompare(right.teamName);
     }
     return applySortDirection(comparison, direction);
   });

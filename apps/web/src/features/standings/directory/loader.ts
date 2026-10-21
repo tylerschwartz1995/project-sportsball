@@ -21,7 +21,7 @@ async function loadStandingsPageData({
     (column) => column.key === requestedSort,
   )
     ? requestedSort!
-    : "rank";
+    : "points";
   const direction = parseSortDirection(
     firstQueryValue(params.dir),
     activeSort === "rank" || activeSort === "team" ? "asc" : "desc",
@@ -32,6 +32,8 @@ async function loadStandingsPageData({
   const standings = selectedSeason ? await getCachedStandings(selectedSeason.id) : [];
   const leader = standings[0];
   const groups = buildGroups(standings, view);
+  const requestedGroup = firstQueryValue(params.group);
+  const selectedGroup = groups.find(group => group.label === requestedGroup) ?? groups[0];
   return {
     selectedSeason,
     seasons,
@@ -40,6 +42,7 @@ async function loadStandingsPageData({
     activeSort,
     direction,
     groups,
+    selectedGroup,
     standings,
   } as const;
 }

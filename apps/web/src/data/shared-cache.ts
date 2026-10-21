@@ -21,11 +21,13 @@ export function sharedRead<Args extends unknown[], Value>(
   seconds = 300,
   tags: string[] = [],
 ): (...args: Args) => Promise<Value> {
+  // Coalesce concurrent cache fills without retaining values or changing freshness.
+  const pending = new Map<string, Promise<Value>>();
   const cached = unstable_cache(async (...args: Args) => ({
     value: await loader(...args),
     generatedBy: invocations.getStore(),
   }), [name, "envelope-v3"], { revalidate: seconds, tags: ["ingestion", ...tags] });
-  return async (...args) => {
+  async function read(...args: Args): Promise<Value> {
     const startedAt = Date.now();
     const id = randomUUID();
     const result = await invocations.run(id, () => cached(...args));
@@ -36,5 +38,13 @@ export function sharedRead<Args extends unknown[], Value>(
       }));
     }
     return result.value;
+  }
+  return (...args) => {
+    const key = JSON.stringify(args);
+    const existing = pending.get(key);
+    if (existing) return existing;
+    const request = read(...args).finally(() => { pending.delete(key); });
+    pending.set(key, request);
+    return request;
   };
 }

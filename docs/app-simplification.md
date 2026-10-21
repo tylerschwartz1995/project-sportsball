@@ -3,7 +3,7 @@
 ## Simplified app scope — October 19, 2026
 
 The active interface is now Teams, Players, and Games. Teams and Players each
-provide Basic Stats and Advanced Stats. Home opens Team Stats directly. Team
+provide Basic Stats and Advanced Stats. Home opens Games directly. Team
 stats use a sortable results table with season and phase selection; player
 stats retain name, type, and position filters. Advanced tables
 retain situation and minimum-workload controls, coverage notes, and metric help.
@@ -86,5 +86,40 @@ purple/orange/yellow palette work in both themes. Small puck icons mark goals
 and open a dismissible details dialog without resizing the chart. Header
 totals include modeled attempts, shots on goal, goals, and xG.
 
-Primary navigation now includes Standings, Teams, Players, and Games. Standings
+Primary navigation is ordered Games, Standings, Teams, and Players. Games is the default landing page. Standings
 uses official regular-season snapshots, sortable tables, and clickable teams.
+
+Standings focuses on Rank, Team, GP, W, L, OTL, PTS, PTS%, RW, Home, and Away,
+with points as the default sort. Home/Away records use W–L–OTL and sort by
+venue points percentage; they are hidden on narrow screens. Records are derived
+from completed local regular-season games through the official snapshot date
+and shown only when the combined game count and W–L–OTL match the snapshot.
+Missing or mismatched coverage displays a dash.
+
+The Teams basic table shows GP, GF, GA, DIFF, SF, SA, S%, SV%, PP%, PK%, FO%, PIM, and Hits,
+ordered alphabetically by team name by default. Goals and shots are season totals. The advanced table shows GP, xGF/60, xGA/60, xG%,
+CF%, FF%, HD xG%, and PDO, ordered by xG%. PDO is 100 times the sum of shooting
+and save fractions, using MoneyPuck goals and shots from the selected situation
+and phase. Playoff PDO uses summed counts, with missing or zero-denominator
+inputs displayed as unavailable.
+
+Conference and Division standings show one group at a time, chosen with a
+selector above the table. The selection is stored in the URL and retained when
+changing seasons if that group exists; otherwise the first available group is used.
+
+Team S% uses summed skater goals and shots (excluding shootouts); SV% uses summed
+goalie saves and shots faced (excluding empty-net goals). FO% uses recorded
+faceoff wins divided by recorded draws, rather than averaging player percentages.
+Hits and PIM sum box scores; PIM includes skaters and goalies but excludes bench
+penalties, as noted in its tooltip. These additional metrics require game coverage
+matching season GP, otherwise they display a dash. Matching game counts do not
+guarantee every play-by-play event or individual player row is present.
+
+Upcoming games in the Games directory show matchup and start-time information
+without a preview link. Live and completed games retain links to game details.
+
+Main navigation and Basic/Advanced stats links preload their inactive destinations
+in production. Shared reads coalesce simultaneous requests with identical arguments;
+entries are removed on completion or failure, preserving existing cache freshness
+and invalidation. Development-mode first-visit compilation remains separate from
+production navigation performance.

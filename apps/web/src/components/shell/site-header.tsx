@@ -22,10 +22,10 @@ type SiteHeaderProps = {
 };
 
 const links = [
+  { id: "games", href: "/games", label: "Games" },
   { id: "standings", href: "/standings", label: "Standings" },
   { id: "teams", href: "/teams", label: "Teams" },
   { id: "players", href: "/players", label: "Players" },
-  { id: "games", href: "/games", label: "Games" },
 ] as const;
 
 export function SiteHeader(props: SiteHeaderProps) {
@@ -77,6 +77,7 @@ function HeaderContent({ active, searchQuery = "" }: SiteHeaderProps & {
           <Link
             key={link.id}
             href={destination(link.href)}
+            prefetch={active !== link.id}
             aria-current={active === link.id ? "page" : undefined}
           >
             {link.label}

@@ -19,6 +19,7 @@ export type AdvancedTeamLeaderboardRow = {
   fenwickPercentage: number | null;
   expectedGoalsFor: number | null;
   expectedGoalsAgainst: number | null;
+  pdo?: number | null;
   goalsFor: number | null;
   goalsAgainst: number | null;
 };

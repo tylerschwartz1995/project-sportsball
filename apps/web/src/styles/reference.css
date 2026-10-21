@@ -419,3 +419,46 @@ main .reference-game-scoring .workspace-scoring-table thead th { padding: 12px 1
 .reference-game-lines { width: 100%; min-width: 0; table-layout: fixed; }
 .reference-game-lines th, .reference-game-lines td { padding-left: 6px; padding-right: 6px; }
 .reference-game-lines th:first-child, .reference-game-lines td:first-child { padding-left: 16px; }
+
+@media (max-width: 767px) {
+  .workspace-standings-table :is(th, td):nth-child(n + 10),
+  .workspace-standings-table col:nth-child(5) { display: none; }
+  main .workspace-standings-table { min-width: 780px; }
+}
+
+/* Keep the full team comparison visible without oversized column defaults. */
+main .reference-team-basic-table { width: 100%; min-width: 0; table-layout: fixed; }
+main .reference-team-basic-table .workspace-col-entity { width: 22%; }
+main .reference-team-basic-table .workspace-col-stat { width: 6%; }
+main .reference-team-basic-table tbody td,
+main .reference-team-basic-table thead th { font-size: 13px; white-space: nowrap; }
+main .reference-team-basic-table tbody td { padding: 10px 4px; text-align: center; }
+main .reference-team-basic-table tbody td:first-child { padding-left: 12px; text-align: left; }
+main .reference-team-basic-table thead .workspace-sortable-header :is(button,a) {
+  padding: 10px 3px; font-size: 13px; gap: 3px; min-width: 0;
+}
+main .reference-team-basic-table .reference-team-name { display: flex; gap: 7px; min-width: 0; }
+main .reference-team-basic-table .reference-team-name > span:last-child {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+main .reference-team-basic-table .team-crest { width: 22px; height: 22px; }
+@media (max-width: 1100px) {
+  main .reference-team-basic-table tbody td,
+  main .reference-team-basic-table thead th,
+  main .reference-team-basic-table thead .workspace-sortable-header :is(button,a) { font-size: 11px; }
+  main .reference-team-basic-table thead .workspace-sortable-header :is(button,a) { gap: 1px; padding-inline: 1px; }
+}
+
+/* Match the two Teams stats tabs without changing other tables. */
+main .reference-team-advanced-table tbody td,
+main .reference-team-advanced-table thead th,
+main .reference-team-advanced-table thead .workspace-sortable-header :is(button,a) {
+  font-size: 13px;
+}
+@media (max-width: 1100px) {
+  main .reference-team-advanced-table tbody td,
+  main .reference-team-advanced-table thead th,
+  main .reference-team-advanced-table thead .workspace-sortable-header :is(button,a) {
+    font-size: 11px;
+  }
+}

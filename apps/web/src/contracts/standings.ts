@@ -1,3 +1,5 @@
+export type StandingsRecord = { wins: number; losses: number; overtimeLosses: number };
+
 export type StandingsEntry = {
   snapshotDate: string;
   seasonId: number;
@@ -22,6 +24,8 @@ export type StandingsEntry = {
   conferenceRank: number | null;
   divisionRank: number | null;
   wildcardRank: number | null;
+  homeRecord?: StandingsRecord | null;
+  awayRecord?: StandingsRecord | null;
   clinchIndicator: string | null;
 };
 

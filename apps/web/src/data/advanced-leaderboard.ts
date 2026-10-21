@@ -26,6 +26,7 @@ type TeamRow = {
   fenwick_percentage: number | null;
   x_goals_for: number | null;
   x_goals_against: number | null;
+  pdo: number | null;
   goals_for: number | null;
   goals_against: number | null;
 };
@@ -113,7 +114,9 @@ export async function listAdvancedTeamLeaders(
         stats.x_goals_for,
         stats.x_goals_against,
         stats.goals_for,
-        stats.goals_against
+        stats.goals_against,
+        100 * (stats.goals_for / NULLIF((stats.metrics->>'shotsOnGoalFor')::double precision, 0)
+          + 1 - stats.goals_against / NULLIF((stats.metrics->>'shotsOnGoalAgainst')::double precision, 0)) AS pdo
       FROM moneypuck_team_season_stats AS stats
       ${seasonIdentityJoin}
       WHERE stats.season_id = $1
@@ -147,7 +150,12 @@ export async function listAdvancedTeamLeaders(
         SUM(stats.x_goals_for) AS x_goals_for,
         SUM(stats.x_goals_against) AS x_goals_against,
         SUM(stats.goals_for) AS goals_for,
-        SUM(stats.goals_against) AS goals_against
+        SUM(stats.goals_against) AS goals_against,
+        CASE WHEN COUNT(*) = COUNT(stats.shots_on_goal_for)
+          AND COUNT(*) = COUNT(stats.shots_on_goal_against)
+          AND COUNT(*) = COUNT(stats.goals_for) AND COUNT(*) = COUNT(stats.goals_against)
+        THEN 100 * (SUM(stats.goals_for) / NULLIF(SUM(stats.shots_on_goal_for), 0)
+          + 1 - SUM(stats.goals_against) / NULLIF(SUM(stats.shots_on_goal_against), 0)) END AS pdo
       FROM moneypuck_team_game_stats AS stats
       JOIN games AS game
         ON game.id = stats.game_id
@@ -189,6 +197,7 @@ export async function listAdvancedTeamLeaders(
     fenwickPercentage: row.fenwick_percentage,
     expectedGoalsFor: row.x_goals_for,
     expectedGoalsAgainst: row.x_goals_against,
+    pdo: row.pdo ?? null,
     goalsFor: row.goals_for,
     goalsAgainst: row.goals_against,
   }));

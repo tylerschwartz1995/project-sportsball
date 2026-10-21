@@ -1,13 +1,12 @@
 import { TableScroll } from "@/components/ui/table-scroll";
-import Link from "@/components/ui/exploration-link";
 import { SortableHeader } from "@/components/ui/sortable-header";
 import { SortableTable } from "@/components/ui/sortable-table";
 import {
   WorkspacePanel
 } from "@/components/ui/workspace-primitives";
-import type { StandingsEntry } from "@/contracts/standings";
-import { TeamLogo } from "@/features/teams/team-logo";
-import { StandingsView, formatDifferential, rankForView, standingsColumns } from './logic';
+import type { StandingsEntry, StandingsRecord } from "@/contracts/standings";
+import { TeamTableLink } from "@/features/teams/team-table-link";
+import { StandingsView, rankForView, standingsColumns } from './logic';
 
 export function StandingsTable({
   label,
@@ -26,10 +25,10 @@ export function StandingsTable({
 }) {
   return (
     <WorkspacePanel
-      title={label}
+      title={view === "overall" ? undefined : label}
       width="standard"
     >
-      <SortableTable secondaryColumns={[8, 9, 10, 11]}
+      <SortableTable secondaryColumns={[10, 11]}
         defaultSortKey={defaultSortKey}
         defaultDirection={defaultDirection}
       >
@@ -39,8 +38,8 @@ export function StandingsTable({
               <col className="workspace-col-rank" />
               <col className="workspace-col-entity" />
               <col className="workspace-col-number" />
-              <col className="workspace-col-stat" span={7} />
-              <col className="workspace-col-differential" />
+              <col className="workspace-col-stat" span={6} />
+              <col span={2} />
             </colgroup>
             <thead>
               <tr>
@@ -51,6 +50,7 @@ export function StandingsTable({
                     sortKey={column.key}
                     align={column.align}
                     defaultDirection={column.defaultDirection}
+                    description={column.key === "home" || column.key === "away" ? "W–L–OTL; sorted by points percentage for this venue." : undefined}
                   />
                 ))}
               </tr>
@@ -61,43 +61,34 @@ export function StandingsTable({
                   <td className="workspace-rank-cell">
                     {rankForView(team, view)}
                   </td>
-                  <td className="workspace-team-cell">
-                    <div className="flex items-center gap-2">
-                      <TeamLogo
-                        nhlTeamId={team.nhlTeamId}
-                        abbreviation={team.teamAbbreviation}
-                        name={team.teamName}
-                        size="tiny"
-                        decorative
+                  <td className="workspace-sticky-entity px-4 py-3">
+                    <div className="flex items-center gap-2 whitespace-nowrap">
+                      <TeamTableLink
+                        team={{
+                          id: team.teamId,
+                          nhlTeamId: team.nhlTeamId,
+                          franchiseId: null,
+                          abbreviation: team.teamAbbreviation,
+                          name: team.teamName,
+                        }}
+                        href={`/teams/${team.nhlTeamId}?season=${seasonId}`}
                       />
-                      <div>
-                        <Link href={`/teams/${team.nhlTeamId}?season=${seasonId}`}>
-                          {team.teamName}
-                        </Link>
-                        <small>
-                          <span>
-                            {team.teamAbbreviation}
-                          </span>
-                          {team.clinchIndicator ? (
-                            <span className="workspace-clinch-indicator">
-                              {team.clinchIndicator}
-                            </span>
-                          ) : null}
-                        </small>
-                      </div>
+                      {team.clinchIndicator ? (
+                        <span className="workspace-clinch-indicator">
+                          {team.clinchIndicator}
+                        </span>
+                      ) : null}
                     </div>
                   </td>
-                  <td className="workspace-semantic-number">{team.points}</td>
                   <NumericCell value={team.gamesPlayed} />
                   <NumericCell value={team.wins} />
                   <NumericCell value={team.losses} />
                   <NumericCell value={team.overtimeLosses} />
+                  <NumericCell value={team.points} />
+                  <NumericCell value={team.pointPercentage == null ? "—" : `${(team.pointPercentage * 100).toFixed(1)}%`} />
                   <NumericCell value={team.regulationWins} />
-                  <NumericCell value={team.goalsFor} />
-                  <NumericCell value={team.goalsAgainst} />
-                  <NumericCell
-                    value={formatDifferential(team.goalDifferential)}
-                  />
+                  <RecordCell record={team.homeRecord} />
+                  <RecordCell record={team.awayRecord} />
                 </tr>
               ))}
             </tbody>
@@ -111,4 +102,11 @@ export function StandingsTable({
 
 export function NumericCell({ value }: { value: number | string }) {
   return <td className="workspace-number-cell">{value}</td>;
+}
+
+function RecordCell({ record }: { record?: StandingsRecord | null }) {
+  const games = record ? record.wins + record.losses + record.overtimeLosses : 0;
+  return <td className="workspace-number-cell whitespace-nowrap" data-sort-value={record && games ? (record.wins * 2 + record.overtimeLosses) / (games * 2) : ""}>
+    {record ? `${record.wins}–${record.losses}–${record.overtimeLosses}` : "—"}
+  </td>;
 }

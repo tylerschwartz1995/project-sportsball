@@ -32,6 +32,11 @@ type TeamStatsRow = {
   goals_against: number;
   shots_for: number;
   shots_against: number;
+  shooting_percentage: number | null;
+  save_percentage: number | null;
+  faceoff_win_percentage: number | null;
+  penalty_minutes: number | null;
+  hits: number | null;
   power_play_percentage: number | null;
   penalty_kill_percentage: number | null;
 };
@@ -95,7 +100,12 @@ const teamStatsSelect = `
     stats.shots_for,
     stats.shots_against,
     special_teams.power_play_percentage,
-    special_teams.penalty_kill_percentage
+    special_teams.penalty_kill_percentage,
+    CASE WHEN skaters.games = stats.games_played THEN skaters.goals / NULLIF(skaters.shots, 0)::double precision END AS shooting_percentage,
+    CASE WHEN goalies.games = stats.games_played THEN goalies.saves / NULLIF(goalies.shots, 0)::double precision END AS save_percentage,
+    CASE WHEN faceoffs.games = stats.games_played THEN faceoffs.wins / NULLIF(faceoffs.total, 0)::double precision END AS faceoff_win_percentage,
+    CASE WHEN skaters.games = stats.games_played AND goalies.games = stats.games_played THEN (skaters.pim + goalies.pim)::integer END AS penalty_minutes,
+    CASE WHEN skaters.games = stats.games_played THEN skaters.hits::integer END AS hits
   FROM team_season_stats AS stats
   JOIN teams AS team
     ON team.id = stats.team_id
@@ -106,6 +116,34 @@ const teamStatsSelect = `
   LEFT JOIN team_seasons AS team_season
     ON team_season.team_id = team.id
    AND team_season.season_id = stats.season_id
+  LEFT JOIN LATERAL (
+    SELECT COUNT(DISTINCT game.id)::integer AS games,
+      SUM(player.goals) AS goals, SUM(player.shots_on_goal) AS shots,
+      SUM(player.penalty_minutes) AS pim, SUM(player.hits) AS hits
+    FROM games AS game
+    JOIN player_game_stats AS player ON player.game_id = game.id AND player.team_id = stats.team_id
+    WHERE game.season_id = stats.season_id AND game.game_type = stats.game_type
+      AND game.state IN ('FINAL', 'OFF')
+  ) AS skaters ON true
+  LEFT JOIN LATERAL (
+    SELECT COUNT(DISTINCT game.id)::integer AS games,
+      SUM(goalie.saves) AS saves, SUM(goalie.shots_against) AS shots,
+      SUM(goalie.penalty_minutes) AS pim
+    FROM games AS game
+    JOIN goalie_game_stats AS goalie ON goalie.game_id = game.id AND goalie.team_id = stats.team_id
+    WHERE game.season_id = stats.season_id AND game.game_type = stats.game_type
+      AND game.state IN ('FINAL', 'OFF')
+  ) AS goalies ON true
+  LEFT JOIN LATERAL (
+    SELECT COUNT(DISTINCT game.id)::integer AS games, COUNT(*) AS total,
+      COUNT(*) FILTER (WHERE event.event_owner_team_id = stats.team_id) AS wins
+    FROM games AS game
+    JOIN game_events AS event ON event.game_id = game.id AND event.type_desc_key = 'faceoff'
+      AND event.event_owner_team_id IN (game.home_team_id, game.away_team_id)
+    WHERE game.season_id = stats.season_id AND game.game_type = stats.game_type
+      AND stats.team_id IN (game.home_team_id, game.away_team_id)
+      AND game.state IN ('FINAL', 'OFF')
+  ) AS faceoffs ON true
 `;
 
 export async function listTeamsBySeason(
@@ -324,6 +362,11 @@ function mapTeamStats(row: TeamStatsRow): TeamSeasonStats {
     goalsAgainst: row.goals_against,
     shotsFor: row.shots_for,
     shotsAgainst: row.shots_against,
+    shootingPercentage: row.shooting_percentage ?? null,
+    savePercentage: row.save_percentage ?? null,
+    faceoffWinPercentage: row.faceoff_win_percentage ?? null,
+    penaltyMinutes: row.penalty_minutes ?? null,
+    hits: row.hits ?? null,
     powerPlayPercentage: row.power_play_percentage ?? null,
     penaltyKillPercentage: row.penalty_kill_percentage ?? null,
   };

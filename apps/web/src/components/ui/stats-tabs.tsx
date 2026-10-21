@@ -10,7 +10,7 @@ export function StatsTabs({ subject, advanced = false, seasonId, phase = "regula
   const advancedParams = new URLSearchParams(params);
   advancedParams.set("type", subject === "teams" ? "teams" : type);
   return <ViewTabs active={advanced ? "advanced" : "basic"} ariaLabel={`${subject === "teams" ? "Team" : "Player"} statistics`} tabs={[
-    { id: "basic", label: "Basic Stats", href: `/${subject}?${params}` },
-    { id: "advanced", label: "Advanced Stats", href: `/analytics?${advancedParams}` },
+    { id: "basic", label: "Basic Stats", prefetch: advanced, href: `/${subject}?${params}` },
+    { id: "advanced", label: "Advanced Stats", prefetch: !advanced, href: `/analytics?${advancedParams}` },
   ]} />;
 }

@@ -25,3 +25,29 @@ it("separates parameterized reads and identifies fills and hits in the calling r
   expect(logs[0]).toMatchObject({ status: "fill", route: "players/profile" });
   expect(logs[1]).toMatchObject({ status: "hit", route: "players/comparison" });
 });
+
+
+it("shares one pending request and releases it after completion", async () => {
+  let resolve!: (value: number) => void;
+  const loader = vi.fn(() => new Promise<number>(done => { resolve = done; }));
+  const read = sharedRead("concurrent", loader);
+  const first = read();
+  const second = read();
+  expect(second).toBe(first);
+  resolve(42);
+  expect(await first).toBe(42);
+  const later = read();
+  expect(later).not.toBe(first);
+  expect(await later).toBe(42);
+});
+
+it("releases a failed pending request", async () => {
+  const loader = vi.fn(async () => { throw new Error("read failed"); });
+  const read = sharedRead("failure", loader);
+  const first = read();
+  expect(read()).toBe(first);
+  await expect(first).rejects.toThrow("read failed");
+  const later = read();
+  expect(later).not.toBe(first);
+  await expect(later).rejects.toThrow("read failed");
+});

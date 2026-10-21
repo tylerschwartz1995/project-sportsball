@@ -42,9 +42,9 @@ describe("page cache policy", () => {
       { revalidate: 3_600, tags: ["ingestion", "seasons"] },
     );
     for (const key of [
-      "page-standings-v1",
+      "page-standings-v2",
       "page-standings-points-history-v1",
-      "page-teams-by-season-v2",
+      "page-teams-by-season-v3",
       "page-team-schedule-strength-v1",
       "page-team-season-ids-v1",
       "page-team-schedule-season-ids-v1",

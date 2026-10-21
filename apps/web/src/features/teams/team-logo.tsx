@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import { teamAbbreviations } from "@/lib/team-abbreviations";
 
 const historicalLogoPaths: Record<string, string> = {
@@ -52,6 +55,8 @@ export function TeamLogo({
   const resolvedAbbreviation = abbreviation ??
     (nhlTeamId ? teamAbbreviations[nhlTeamId] : undefined) ?? "NHL";
   const src = teamLogoUrl(resolvedAbbreviation);
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const imageFailed = failedSrc === src;
   const className = size === "profile"
     ? "relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--crest-surface)] p-2 shadow-[inset_0_1px_0_rgb(255_255_255/0.9),0_8px_24px_rgb(2_8_23/0.22)]"
     : size === "compact"
@@ -61,24 +66,24 @@ export function TeamLogo({
 
   return (
     <span className={`team-crest team-crest-${size} ${className}`}>
-      <span
-        aria-hidden="true"
+      {imageFailed ? <span
+        aria-hidden={decorative}
         className={`font-mono font-semibold text-[var(--crest-foreground)] ${size === "profile" ? "text-sm" : "text-[0.45rem]"}`}
       >
         {resolvedAbbreviation}
-      </span>
+      </span> : null}
       {/* The NHL asset host serves SVG crests directly; this avoids proxying
-          protected branding through the app's image optimizer. The
-          abbreviation beneath the image remains visible if the asset fails. */}
+          protected branding through the app's image optimizer. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}
+        onError={() => setFailedSrc(src)}
         loading={size === "profile" || prominent ? "eager" : "lazy"}
         decoding="async"
         width={size === "profile" ? 80 : size === "compact" ? 36 : 24}
         height={size === "profile" ? 80 : size === "compact" ? 36 : 24}
         alt={decorative ? "" : `${name ?? resolvedAbbreviation} logo`}
-        className={`absolute inset-0 h-full w-full object-contain ${imageScale}`}
+        className={`absolute inset-0 h-full w-full object-contain ${imageScale}${imageFailed ? " hidden" : ""}`}
       />
     </span>
   );

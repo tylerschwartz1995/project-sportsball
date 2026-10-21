@@ -14,7 +14,7 @@ export function TeamsPageView({ selectedSeason, seasons, sortedTeams, phase }: A
         <div className="reference-stats-context"><StatsTabs subject="teams" seasonId={selectedSeason.id} phase={phase} />
         <SeasonPhaseFilter active={phase} path="/teams" params={{ season: selectedSeason.id }} /></div>
         {sortedTeams.length ? <TeamStatsTable rows={sortedTeams} seasonId={selectedSeason.id} phase={phase} /> : <p className="workspace-empty-state">No team stats are available for this season and phase.</p>}
-        <p className="workspace-table-note">Source: NHL game results. Regular-season losses exclude overtime and shootout losses.</p>
+        <p className="workspace-table-note">Source: NHL game results.</p>
       </> : <p className="workspace-empty-state">No team stats are available.</p>}
     </section><NavigationComplete />
   </main>;

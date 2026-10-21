@@ -2,6 +2,7 @@ import "server-only";
 
 import type {
   StandingsEntry,
+  StandingsRecord,
   StandingsPointsHistoryPoint,
 } from "@/contracts/standings";
 import { query } from "@/data/database";
@@ -31,6 +32,8 @@ type StandingsRow = {
   division_rank: number | null;
   wildcard_rank: number | null;
   clinch_indicator: string | null;
+  home_record: StandingsRecord | null;
+  away_record: StandingsRecord | null;
 };
 
 type PointsHistoryRow = {
@@ -75,7 +78,13 @@ export async function getStandings(seasonId: number): Promise<StandingsEntry[]> 
         standings.conference_rank,
         standings.division_rank,
         standings.wildcard_rank,
-        standings.clinch_indicator
+        standings.clinch_indicator,
+        CASE WHEN records.games = standings.games_played
+          AND records.wins = standings.wins AND records.losses = standings.losses
+          AND records.ot_losses = standings.overtime_losses THEN records.home_record END AS home_record,
+        CASE WHEN records.games = standings.games_played
+          AND records.wins = standings.wins AND records.losses = standings.losses
+          AND records.ot_losses = standings.overtime_losses THEN records.away_record END AS away_record
       FROM official_standings_snapshots AS standings
       JOIN latest_snapshot
         ON latest_snapshot.snapshot_date = standings.snapshot_date
@@ -84,6 +93,34 @@ export async function getStandings(seasonId: number): Promise<StandingsEntry[]> 
       LEFT JOIN team_seasons AS team_season
         ON team_season.team_id = team.id
        AND team_season.season_id = standings.season_id
+      LEFT JOIN LATERAL (
+        SELECT COUNT(*)::integer AS games,
+          COUNT(*) FILTER (WHERE won)::integer AS wins,
+          COUNT(*) FILTER (WHERE lost AND NOT overtime)::integer AS losses,
+          COUNT(*) FILTER (WHERE lost AND overtime)::integer AS ot_losses,
+          json_build_object(
+            'wins', COUNT(*) FILTER (WHERE is_home AND won),
+            'losses', COUNT(*) FILTER (WHERE is_home AND lost AND NOT overtime),
+            'overtimeLosses', COUNT(*) FILTER (WHERE is_home AND lost AND overtime)
+          ) AS home_record,
+          json_build_object(
+            'wins', COUNT(*) FILTER (WHERE NOT is_home AND won),
+            'losses', COUNT(*) FILTER (WHERE NOT is_home AND lost AND NOT overtime),
+            'overtimeLosses', COUNT(*) FILTER (WHERE NOT is_home AND lost AND overtime)
+          ) AS away_record
+        FROM (
+          SELECT game.home_team_id = team.id AS is_home,
+            stats.score > opponent.score AS won,
+            stats.score < opponent.score AS lost,
+            COALESCE(game.last_period_type IN ('OT', 'SO'), false) AS overtime
+          FROM games AS game
+          JOIN team_game_stats AS stats ON stats.game_id = game.id AND stats.team_id = team.id
+          JOIN team_game_stats AS opponent ON opponent.game_id = game.id AND opponent.team_id <> stats.team_id
+          WHERE game.season_id = standings.season_id AND game.game_type = 2
+            AND game.state IN ('FINAL', 'OFF') AND game.game_date <= standings.snapshot_date
+            AND stats.score IS NOT NULL AND opponent.score IS NOT NULL
+        ) AS results
+      ) AS records ON true
       WHERE standings.season_id = $1
         AND standings.game_type = 2
       ORDER BY standings.league_rank, team_name
@@ -116,6 +153,8 @@ export async function getStandings(seasonId: number): Promise<StandingsEntry[]> 
     divisionRank: row.division_rank,
     wildcardRank: row.wildcard_rank,
     clinchIndicator: row.clinch_indicator,
+    homeRecord: row.home_record ?? null,
+    awayRecord: row.away_record ?? null,
   }));
 }
 

@@ -18,7 +18,7 @@ async function loadTeamsPageData({ searchParams }: TeamsPageProps) {
   const phase = parseSeasonPhase(firstQueryValue(params.phase));
   const teams = selectedSeason ? await listCachedTeamsBySeason(selectedSeason.id, gameTypeForPhase(phase)) : [];
   const sortedTeams = [...teams].sort((left, right) =>
-    (phase === "regular" ? right.stats.standingsPoints - left.stats.standingsPoints : right.stats.wins - left.stats.wins) || left.team.name.localeCompare(right.team.name),
+    left.team.name.localeCompare(right.team.name),
   );
 
   return {

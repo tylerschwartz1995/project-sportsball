@@ -23,6 +23,11 @@ export type TeamSeasonStats = {
   goalsAgainst: number;
   shotsFor: number;
   shotsAgainst: number;
+  shootingPercentage?: number | null;
+  savePercentage?: number | null;
+  faceoffWinPercentage?: number | null;
+  penaltyMinutes?: number | null;
+  hits?: number | null;
   powerPlayPercentage?: number | null;
   penaltyKillPercentage?: number | null;
 };
