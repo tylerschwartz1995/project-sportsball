@@ -1,25 +1,24 @@
 import "server-only";
-import { createAuthServer, extractNeonAuthCookies, NEON_AUTH_SESSION_COOKIE_NAME } from "@neondatabase/auth/server";
+import { NEON_AUTH_SESSION_COOKIE_NAME } from "@neondatabase/auth/server";
 import { NextRequest, NextResponse } from "next/server";
+import { requestAuth } from "./neon";
+export { requestAuth } from "./neon";
+import { passkeyAuth, passkeysEnabled } from "./passkeys";
 import { allowedUser, authConfiguration } from "./access";
 
-export function requestAuth(request: NextRequest, response: NextResponse) {
-  const config = authConfiguration();
-  const auth = createAuthServer({
-    baseUrl: config.baseUrl,
-    cookieSecret: config.secret,
-    context: () => ({
-      getCookies: () => extractNeonAuthCookies(request.headers),
-      getHeader: (name) => request.headers.get(name),
-      getOrigin: () => config.origin,
-      getFramework: () => "nextjs",
-      setCookie: (name, value, options) => { response.cookies.set(name, value, options); },
-    }),
-  });
-  return { auth, config };
-}
-
 export async function checkSession(request: NextRequest, response: NextResponse): Promise<"allowed" | "denied" | "unavailable"> {
+  if (passkeysEnabled()) {
+    if (!request.cookies.get("__Secure-sportsball.session_token")?.value) return "denied";
+    try {
+      const result = await passkeyAuth().api.getSession({ headers: request.headers, asResponse: true });
+      if (!result.ok) return result.status === 401 ? "denied" : "unavailable";
+      const data = await result.json();
+      const expiresAt = data?.session ? new Date(data.session.expiresAt).getTime() : NaN;
+      if (!Number.isFinite(expiresAt) || expiresAt <= Date.now() || !allowedUser(data?.user, authConfiguration().emails)) return "denied";
+      for (const cookie of result.headers.getSetCookie()) response.headers.append("Set-Cookie", cookie);
+      return "allowed";
+    } catch { return "unavailable"; }
+  }
   const { auth, config } = requestAuth(request, response);
   if (!request.cookies.get(NEON_AUTH_SESSION_COOKIE_NAME)?.value) return "denied";
   try {

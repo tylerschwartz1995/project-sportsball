@@ -23,3 +23,6 @@
 .login-form button[type="submit"] { background: var(--accent); color: var(--on-accent); }
 .login-form :disabled { opacity: 0.6; cursor: wait; }
 .login-form p { color: var(--muted); }
+
+.login-form .login-primary { background: var(--accent); color: var(--on-accent); }
+.passkey-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }

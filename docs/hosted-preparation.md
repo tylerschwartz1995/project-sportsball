@@ -55,8 +55,8 @@ rates and unrelated account usage are excluded.
 
 ## Website credentials and connections
 
-Managed Neon Auth with email codes is the selected login method; passkeys are
-deferred. The app now integrates Neon's server SDK and independently requires a
+Managed Neon Auth with email codes remains the active hosted login method.
+The opt-in passkey replacement is documented below and is not yet activated. The app now integrates Neon's server SDK and independently requires a
 verified email from the two-address allowlist. Hosted login is now active on
 the production website. Neon console passkeys authenticate the developer console,
 not this app.
@@ -464,3 +464,9 @@ Sources: [Neon pricing](https://neon.com/pricing),
 [Neon role compatibility](https://neon.com/docs/reference/compatibility),
 [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions),
 [Vercel Hobby](https://vercel.com/docs/plans/hobby).
+
+## Passkey Login Preparation
+
+An opt-in passkey flow is implemented separately from the current hosted login.
+See [Passkey login](passkey-login.md) for rollout, database isolation, recovery,
+and real-device testing. Production activation requires explicit approval.

@@ -10,16 +10,22 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:browser:smoke": "playwright test --config playwright.smoke.config.ts",
-    "test:database:fixture": "SPORTSBALL_RUN_WEB_FIXTURE_TESTS=1 vitest run src/data/database.fixture.test.ts"
+    "test:database:fixture": "SPORTSBALL_RUN_WEB_FIXTURE_TESTS=1 vitest run src/data/database.fixture.test.ts",
+    "test:browser:passkeys": "playwright test --config playwright.passkeys.config.ts"
   },
   "dependencies": {
+    "@better-auth/core": "1.6.23",
+    "@better-auth/passkey": "1.6.23",
+    "@better-auth/utils": "0.4.2",
     "@neondatabase/auth": "0.5.0-beta",
+    "better-auth": "1.6.23",
     "next": "16.3.4",
     "pg": "^8.22.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-is": "^19.2.4",
-    "recharts": "^3.10.1"
+    "recharts": "^3.10.1",
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

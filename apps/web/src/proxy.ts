@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authConfiguration, privateAccessRequired } from "./auth/access";
+import { passkeysEnabled, publicPasskeyPaths } from "./auth/passkeys";
 import { checkSession, privateResponse } from "./auth/server";
 
 export async function proxy(request: NextRequest) {
@@ -36,12 +37,20 @@ async function authorize(request: NextRequest, next: () => NextResponse) {
   try { authConfiguration(); } catch {
     return privateResponse(new NextResponse("Sign-in is not configured.", { status: 503 }));
   }
-  if (path === "/login" || ["/api/auth/send-code", "/api/auth/verify-code", "/api/auth/sign-out"].includes(path)) {
+  if ((path.startsWith("/api/passkey/") && passkeysEnabled() && publicPasskeyPaths.has(path.slice("/api/passkey".length))) || ["/api/auth/send-code", "/api/auth/verify-code", "/api/auth/sign-out"].includes(path)) {
     return privateResponse(next());
   }
   const response = next();
   const result = await checkSession(request, response);
-  if (result === "allowed") return privateResponse(response);
+  if (result === "allowed") {
+    if (path === "/login") {
+      const redirect = NextResponse.redirect(new URL("/", request.url));
+      for (const cookie of response.headers.getSetCookie()) redirect.headers.append("Set-Cookie", cookie);
+      return privateResponse(redirect);
+    }
+    return privateResponse(response);
+  }
+  if (path === "/login" && result === "denied") return privateResponse(response);
   if (result === "unavailable") return privateResponse(new NextResponse("Sign-in is temporarily unavailable.", { status: 503 }));
   const denied = path.startsWith("/api/") || request.method !== "GET"
     ? new NextResponse("Sign in to Sportsball.", { status: 401 })

@@ -1,12 +1,13 @@
 "use client";
+import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-export function SignOut() {
+export function SignOut({ passkeys = false }: { passkeys?: boolean }) {
   const pathname = usePathname();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
   if (pathname === "/login") return null;
-  return <span><button type="button" disabled={busy} onClick={async () => {
+  return <span>{passkeys && <Link href="/account/security" className="mr-4">Sign-In Settings</Link>}<button type="button" disabled={busy} onClick={async () => {
     setBusy(true); setError(false);
     try {
       const result = await fetch("/api/auth/sign-out", { method: "POST" });

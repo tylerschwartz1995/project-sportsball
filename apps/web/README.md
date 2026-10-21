@@ -45,3 +45,10 @@ their old general Playwright config have been removed.
 [Web query layer](../../docs/web-query-layer.md) documents current JSON endpoints,
 caching, telemetry, and access boundaries. [Design rules](../../docs/design-system.md)
 and the [regression checklist](../../docs/desktop-ux-regression.md) cover visual review.
+
+## Passkey login
+
+The new login flow is opt-in and disabled by default. See
+[Passkey rollout and testing](../../docs/passkey-login.md) before activation.
+Use `npm run test:browser:passkeys` with the same isolated fixture database
+settings as the smoke suite to exercise a virtual authenticator and sessions.
