@@ -71,9 +71,11 @@ test("enroll, use a passkey, reopen browser, revoke, recover, and remove", async
     } finally { await other.close(); }
     await page.setViewportSize({ width: 375, height: 812 });
     await page.screenshot({ path: "/tmp/sportsball-passkey-settings-mobile.png" });
-    while (await page.getByRole("button", { name: "Remove", exact: true }).count()) {
-      await page.getByRole("button", { name: "Remove", exact: true }).first().click();
+    const removeButtons = page.getByRole("button", { name: "Remove", exact: true });
+    for (let remaining = await removeButtons.count(); remaining > 0; remaining--) {
+      await removeButtons.first().click();
       await expect(page.getByRole("status")).toContainText("Passkey removed");
+      await expect(removeButtons).toHaveCount(remaining - 1);
     }
   } finally { await reopened.close(); }
 });
