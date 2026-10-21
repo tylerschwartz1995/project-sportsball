@@ -31,6 +31,8 @@ for (const theme of ["dark", "light"]) {
       expect((await page.getByRole("table").boundingBox())!.y).toBeLessThan(480);
       expect((await page.getByRole("combobox", { name: "Season", exact: true }).boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
+    await page.getByRole("button", { name: "GP", exact: true }).click();
+    await expect(page.getByRole("tooltip")).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.getByText("Fixture Skater", { exact: true }).first().click();
     await expect(page.getByRole("heading", { name: "Fixture Skater", exact: true })).toBeVisible();

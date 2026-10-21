@@ -132,6 +132,7 @@ export function SortableHeader({
           <Link
             href={href}
             navigation="preserve"
+            onClick={() => setTooltipAnchor(null)}
             {...tooltipEvents}
             aria-describedby={effectiveDescription ? helpId : undefined}
             className={controlClassName}
@@ -141,7 +142,10 @@ export function SortableHeader({
         ) : (
           <button
             type="button"
-            onClick={(event) => sort(event, sortKey, defaultDirection)}
+            onClick={(event) => {
+              setTooltipAnchor(null);
+              sort(event, sortKey, defaultDirection);
+            }}
             {...tooltipEvents}
             aria-describedby={effectiveDescription ? helpId : undefined}
             className={controlClassName}
