@@ -3,11 +3,7 @@ import { SiteHeader } from "@/components/shell/site-header";
 import {
   WorkspacePageHeader,
 } from "@/components/ui/workspace-primitives";
-import {
-  seasonPhaseLabel
-} from "@/contracts/season-phase";
 import { StatsTabs } from "@/components/ui/stats-tabs";
-import { ViewTabs } from "@/components/ui/view-tabs";
 import { SeasonPhaseFilter } from "@/features/league/season-phase-filter";
 import { SeasonPicker } from "@/features/league/season-picker";
 import { PagedLeaderboard as LeaderboardTable } from "./paged-leaderboard";
@@ -21,6 +17,8 @@ export function AnalyticsPageView({
   seasons,
   minimumMinutes,
   chartParams,
+  query,
+  position,
   hasCoverage,
   situation,
 }: Awaited<ReturnType<typeof loadAnalyticsPage>>) {
@@ -32,19 +30,15 @@ export function AnalyticsPageView({
         <WorkspacePageHeader
           eyebrow=""
           title={type === "teams" ? "Team Stats" : "Player Stats"}
-          description={
-            type === "teams"
-              ? `${seasonPhaseLabel(phase)} shot quality and possession.`
-              : type === "goalies"
-                ? "Regular-season goaltending, split by team."
-                : "Regular-season shot creation and on-ice results, split by team."
-          }
+          description=""
           action={
             <SeasonPicker
               seasons={seasons}
               selectedSeasonId={selectedSeason?.id}
               params={{
                 type,
+                q: query || undefined,
+                position: position || undefined,
                 situation,
                 minimum: type === "teams" ? undefined : minimumMinutes,
                 phase,
@@ -58,10 +52,7 @@ export function AnalyticsPageView({
           <>
             <div className="workspace-context-navs">
               <StatsTabs subject={type === "teams" ? "teams" : "players"} advanced seasonId={selectedSeason.id} phase={phase} type={type === "goalies" ? "goalies" : "skaters"} />
-              {type !== "teams" ? <ViewTabs active={type} ariaLabel="Player type" secondary tabs={[
-                { id: "skaters", label: "Skaters", href: `/analytics?season=${selectedSeason.id}&type=skaters` },
-                { id: "goalies", label: "Goalies", href: `/analytics?season=${selectedSeason.id}&type=goalies` },
-              ]} /> : null}
+
 
               {type === "teams" ? (
                 <SeasonPhaseFilter
@@ -79,7 +70,7 @@ export function AnalyticsPageView({
 
             {hasCoverage ? (
               <>
-                <AnalyticsFilters seasonId={selectedSeason.id} type={type} situation={situation} minimumMinutes={minimumMinutes} phase={phase} chartParams={{}} />
+                <AnalyticsFilters seasonId={selectedSeason.id} type={type} situation={situation} minimumMinutes={minimumMinutes} phase={phase} query={query} position={position} chartParams={{}} />
                 <LeaderboardTable type={type} rows={rows} seasonId={selectedSeason.id} phase={phase} />
                 <AnalyticsGuide seasonId={selectedSeason.id} />
               </>

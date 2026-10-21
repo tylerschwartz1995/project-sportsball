@@ -25,17 +25,17 @@ export function SectionTitle({
   title,
   detail,
 }: {
-  eyebrow: string;
+  eyebrow?: string;
   title: string;
   detail?: string;
 }) {
   return (
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div>
-        <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
+        {eyebrow ? <p className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--accent)]">
           {eyebrow}
-        </p>
-        <h3 className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{title}</h3>
+        </p> : null}
+        <h3 className={`${eyebrow ? "mt-2 " : ""}text-2xl font-semibold text-[var(--foreground)]`}>{title}</h3>
       </div>
       {detail ? <p className="text-sm text-[var(--muted)]">{detail}</p> : null}
     </div>
@@ -66,8 +66,9 @@ export function SkaterPanel({
         <Metric label="A" value={stats.assists} />
         <Metric label="PPG" value={stats.powerPlayGoals} />
         <Metric label="Shots" value={stats.shotsOnGoal} />
+        <Metric label="+/-" value={formatSigned(stats.plusMinus)} />
+        <Metric label="PIM" value={stats.penaltyMinutes} />
       </dl>
-      <details className="mt-3"><summary>More Season Stats</summary><dl className="workspace-player-season-totals-grid"><Metric label="+/-" value={formatSigned(stats.plusMinus)} /><Metric label="PIM" value={stats.penaltyMinutes} /></dl></details>
     </article>
   );
 }
@@ -93,8 +94,11 @@ export function GoaliePanel({
       <dl className="workspace-player-season-totals-grid">
         <Metric label="GP" value={stats.gamesPlayed} />
         <Metric label="W" value={stats.wins} />
+        <Metric label="L" value={stats.losses} />
+        <Metric label="OTL" value={stats.overtimeLosses} />
+        <Metric label="GA" value={stats.goalsAgainst} />
+        <Metric label="Saves" value={stats.saves} />
       </dl>
-      <details className="mt-3"><summary>More Season Stats</summary><dl className="workspace-player-season-totals-grid"><Metric label="GS" value={stats.gamesStarted} /><Metric label="L" value={stats.losses} /><Metric label="OTL" value={stats.overtimeLosses} /><Metric label="GA" value={stats.goalsAgainst} /><Metric label="Saves" value={stats.saves} /></dl></details>
     </article>
   );
 }

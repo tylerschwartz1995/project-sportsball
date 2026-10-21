@@ -1,3 +1,5 @@
+import { listMoneyPuckSeasonUnits } from "@/data/performance-cache";
+import { getMoneyPuckPlayerSeasons } from "@/data/performance-cache";
 import { withReadContext } from "@/data/read-context";
 import { parseNhlId } from "@/contracts/entity";
 import { parseSeasonId } from "@/contracts/season";
@@ -18,7 +20,7 @@ import {
 } from "@/data/page-cache";
 import { notFound } from "next/navigation";
 import "server-only";
-import { TeamPageProps, firstValue, parseTeamScheduleFilter, parseTeamView, teamViewTabs } from './logic';
+import { TeamPageProps, firstValue, parseTeamView, teamViewTabs } from './logic';
 async function loadTeamPageData({
   params,
   searchParams,
@@ -47,9 +49,6 @@ async function loadTeamPageData({
   );
   const requestedSeason = firstValue(pageParams.season);
   const phase = parseSeasonPhase(firstValue(pageParams.phase));
-  const scheduleFilter = parseTeamScheduleFilter(
-    firstValue(pageParams.scheduleState),
-  );
   const gameType = gameTypeForPhase(phase);
   const parsedSeason = parseSeasonId(requestedSeason);
   const selectedSeason =
@@ -64,6 +63,8 @@ async function loadTeamPageData({
     advanced,
     scheduleGames,
     scheduleTeam,
+    forwardLines,
+    defensivePairings,
   ] = await Promise.all([
     view === "skaters" || view === "goalies"
       ? getCachedTeamSeasonDetail(nhlTeamId, selectedSeason.id, gameType)
@@ -77,6 +78,10 @@ async function loadTeamPageData({
     view === "schedule"
       ? getCachedTeamIdentityForSeason(nhlTeamId, selectedSeason.id)
       : Promise.resolve(null),
+    view === "lines" && gameType === 2
+      ? listMoneyPuckSeasonUnits(selectedSeason.id, "line", { teamNhlId: nhlTeamId, minimumIceTimeSeconds: 0, limit: 500 }) : Promise.resolve([]),
+    view === "lines" && gameType === 2
+      ? listMoneyPuckSeasonUnits(selectedSeason.id, "pairing", { teamNhlId: nhlTeamId, minimumIceTimeSeconds: 0, limit: 500 }) : Promise.resolve([]),
   ]);
   const profileDetail =
     detail ??
@@ -93,6 +98,25 @@ async function loadTeamPageData({
   if (!profileDetail) {
     notFound();
   }
+  const rosterAdvanced = gameType === 2 && (view === "skaters" || view === "goalies")
+    ? await getMoneyPuckPlayerSeasons(
+        (view === "skaters" ? profileDetail.skaters : profileDetail.goalies).map(player => player.nhlPlayerId),
+        selectedSeason.id,
+      )
+    : [];
+  const skaterAdvanced = Object.fromEntries(rosterAdvanced.map(player => [player.nhlPlayerId,
+    player.skaterSituations.find(row => row.team.nhlTeamId === nhlTeamId && row.situation === "5on5") ?? null,
+  ]));
+  const goalieAdvanced = Object.fromEntries(rosterAdvanced.map(player => {
+    const row = player.goalieSituations.find(row => row.team.nhlTeamId === nhlTeamId && row.situation === "all");
+    const goalsSaved = row && row.expectedGoalsAgainst !== null && row.goalsAgainst !== null
+      ? row.expectedGoalsAgainst - row.goalsAgainst : null;
+    return [player.nhlPlayerId, {
+      goalsSaved,
+      goalsSavedPer60: goalsSaved !== null && row && row.iceTimeSeconds > 0
+        ? goalsSaved * 3600 / row.iceTimeSeconds : null,
+    }];
+  }));
   const viewTabs = teamViewTabs({
     nhlTeamId: profileDetail.team.nhlTeamId,
     seasonId: selectedSeason.id,
@@ -106,11 +130,14 @@ async function loadTeamPageData({
     profileDetail,
     availableSeasons,
     view,
-    scheduleFilter,
     viewTabs,
     overviewStats,
     gameType,
     scheduleGames,
+    forwardLines,
+    defensivePairings,
+    skaterAdvanced,
+    goalieAdvanced,
     advanced,
   } as const;
 }

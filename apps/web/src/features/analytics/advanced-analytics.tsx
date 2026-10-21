@@ -1,4 +1,5 @@
 "use client";
+import { perSixty } from "@/lib/per-sixty";
 import { TableScroll } from "@/components/ui/table-scroll";
 
 
@@ -29,11 +30,7 @@ export function TeamAdvancedAnalytics({
   }
 
   return (
-    <AdvancedSection
-      title="Team Advanced Analytics"
-      description="Possession and expected-goal results by game situation."
-      width="compact"
-    >
+    <section className="workspace-width-compact mt-8" aria-label="Team advanced stats">
       <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
         <SortableTable>
         <TableScroll className="overflow-x-auto">
@@ -41,22 +38,23 @@ export function TeamAdvancedAnalytics({
             <colgroup>
               <col className="workspace-col-entity" />
               <col className="workspace-col-percentage" span={3} />
-              <col className="workspace-col-percentage" span={4} />
+              <col className="workspace-col-percentage" span={5} />
             </colgroup>
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                 <MetricHeader label="Situation" align="left" />
-                <MetricHeader label="xG%" />
                 <MetricHeader label="CF%" />
                 <MetricHeader label="FF%" />
-                <MetricHeader label="xGF" />
-                <MetricHeader label="xGA" />
-                <MetricHeader label="GF" />
-                <MetricHeader label="GA" />
+                <MetricHeader label="xGF/60" />
+                <MetricHeader label="xGA/60" />
+                <MetricHeader label="xG%" />
+                <MetricHeader label="HD xGF/60" />
+                <MetricHeader label="HD xGA/60" />
+                <MetricHeader label="HD xG%" />
               </tr>
             </thead>
             <tbody>
-              {data.situations.map((row) => (
+              {data.situations.filter((row) => ["5on5", "5on4", "4on5"].includes(row.situation)).map((row) => (
                 <TeamAdvancedRow key={row.situation} row={row} />
               ))}
             </tbody>
@@ -64,8 +62,7 @@ export function TeamAdvancedAnalytics({
         </TableScroll>
         </SortableTable>
       </div>
-      <MetricDefinitions seasonId={data.seasonId} />
-    </AdvancedSection>
+    </section>
   );
 }
 
@@ -269,6 +266,7 @@ function GoalieAdvancedTable({
                   <TeamCell team={row.team} />
 
                   <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} />
+
                   <ValueCell value={formatDecimal(row.goalsAgainst)} />
                   <ValueCell
                     value={formatSignedDecimal(
@@ -298,16 +296,14 @@ function TeamAdvancedRow({ row }: { row: MoneyPuckTeamSituation }) {
   return (
     <tr className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0">
       <TextCell value={situationLabel(row.situation)} />
-      <ValueCell
-        value={formatPercentage(row.expectedGoalsPercentage)}
-        highlight
-      />
       <ValueCell value={formatPercentage(row.corsiPercentage)} />
       <ValueCell value={formatPercentage(row.fenwickPercentage)} />
-      <ValueCell value={formatDecimal(row.expectedGoalsFor)} />
-      <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} />
-      <ValueCell value={formatDecimal(row.goalsFor)} />
-      <ValueCell value={formatDecimal(row.goalsAgainst)} />
+      <ValueCell value={formatDecimal(perSixty(row.expectedGoalsFor, row.iceTimeSeconds))} />
+      <ValueCell value={formatDecimal(perSixty(row.expectedGoalsAgainst, row.iceTimeSeconds))} />
+      <ValueCell value={formatPercentage(row.expectedGoalsPercentage)} highlight />
+      <ValueCell value={formatDecimal(perSixty(row.highDangerExpectedGoalsFor, row.iceTimeSeconds))} />
+      <ValueCell value={formatDecimal(perSixty(row.highDangerExpectedGoalsAgainst, row.iceTimeSeconds))} />
+      <ValueCell value={formatPercentage(row.highDangerExpectedGoalsPercentage ?? null)} />
     </tr>
   );
 }
@@ -364,7 +360,7 @@ function AdvancedUnavailable({
 
 function MetricHeader({
   label,
-  align = "center",
+  align = "right",
 }: {
   label: string;
   align?: "left" | "center" | "right";
@@ -404,7 +400,7 @@ function ValueCell({
   return (
     <td
       className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${
-        highlight ? "font-semibold text-[var(--accent-secondary)]" : "text-[var(--foreground-soft)]"
+        highlight ? "font-semibold text-[var(--accent)]" : "text-[var(--foreground-soft)]"
       }`}
     >
       {value}

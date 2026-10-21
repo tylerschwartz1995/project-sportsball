@@ -23,6 +23,8 @@ export type TeamSeasonStats = {
   goalsAgainst: number;
   shotsFor: number;
   shotsAgainst: number;
+  powerPlayPercentage?: number | null;
+  penaltyKillPercentage?: number | null;
 };
 
 export type TeamSeasonSummary = {
@@ -40,6 +42,8 @@ export type TeamSkaterSplit = {
   points: number | null;
   plusMinus: number | null;
   penaltyMinutes: number | null;
+  powerPlayPoints?: number | null;
+  shots?: number | null;
 };
 
 export type TeamGoalieSplit = {

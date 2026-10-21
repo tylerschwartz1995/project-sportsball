@@ -30,7 +30,7 @@ export function PlayoffGoalieLeaders({
               <colgroup>
                 <col className="workspace-col-entity" />
                 <col className="workspace-col-team" />
-                <col className="workspace-col-stat" span={7} />
+                <col className="workspace-col-stat" span={6} />
                 <col className="workspace-col-percentage" />
               </colgroup>
               <thead>
@@ -48,7 +48,6 @@ export function PlayoffGoalieLeaders({
                     defaultDirection="asc"
                   />
                   <SortableHeader label="GP" sortKey="games" />
-                  <SortableHeader label="GS" sortKey="gamesStarted" />
                   <SortableHeader label="W" sortKey="wins" />
                   <SortableHeader label="L" sortKey="losses" />
                   <SortableHeader label="OTL" sortKey="overtimeLosses" />
@@ -81,7 +80,6 @@ export function PlayoffGoalieLeaders({
                       </span>
                     </td>
                     <NumberCell value={goalie.gamesPlayed} />
-                    <NumberCell value={goalie.gamesStarted} />
                     <NumberCell value={goalie.wins} />
                     <NumberCell value={goalie.losses} />
                     <NumberCell value={goalie.overtimeLosses} />

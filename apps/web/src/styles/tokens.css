@@ -1,97 +1,36 @@
-/* Authoritative Modern Stats Exploration tokens, including both themes. */
+/* Shared palette: light by default, with an explicit dark preference. */
 :root {
-  --background: #111416;
-  --foreground: #edf1f3;
-  --foreground-soft: #c9d0d5;
-  --surface: #191d20;
-  --surface-raised: #202629;
-  --surface-subtle: #1d2226;
-  --border: #30373b;
-  --border-strong: #4b575e;
-  --muted: #a0adb5;
-  --accent: #9ae6bd;
-  --accent-secondary: #a8bfff;
-  --positive: #9ae6bd;
-  --negative: #ffa7a7;
-  --warning: #edcf8a;
-  --on-accent: #10251a;
+  --heat-puck: #17202c;
+  --heat-puck-outline: #ffffff;
+  --heat-puck-highlight: #8999ac;
+  --heat-ice: #f5f7fa;
+  --heat-ice-border: #b5c1d0;
+  --heat-low: #683a9e;
+  --heat-mid: #bd397b;
+  --heat-high: #f18440;
+  --heat-peak: #fff09a;
+  --background: #f7f8fa;
+  --foreground: #172338;
+  --foreground-soft: #38465c;
+  --surface: #ffffff;
+  --surface-raised: #f1f4f8;
+  --surface-subtle: #f8fafd;
+  --border: #e3e8ef;
+  --border-strong: #c7d0dd;
+  --muted: #637086;
+  --accent: #245dcc;
+  --accent-secondary: #6474ca;
+  --positive: #16805a;
+  --negative: #bb4054;
+  --warning: #855d0a;
+  --on-accent: #ffffff;
   --accent-soft: color-mix(in srgb, var(--accent) 10%, transparent);
-  --accent-secondary-soft: color-mix(
-    in srgb,
-    var(--accent-secondary) 10%,
-    transparent
-  );
+  --accent-secondary-soft: color-mix( in srgb, var(--accent-secondary) 10%, transparent );
   --positive-soft: color-mix(in srgb, var(--positive) 10%, transparent);
   --negative-soft: color-mix(in srgb, var(--negative) 10%, transparent);
   --warning-soft: color-mix(in srgb, var(--warning) 10%, transparent);
-  --control-border: #63717a;
-  --radius-panel: 0.625rem;
-  --canvas-grid: rgb(255 255 255 / 0.018);
-  --canvas-cyan-glow: rgb(8 145 178 / 17%);
-  --canvas-violet-glow: rgb(109 40 217 / 12%);
-  --sidebar-background: var(--background);
-  --table-background: var(--surface);
-  --shadow: transparent;
-  --chart-grid: #30373b;
-  --chart-axis: #63717a;
-  --chart-label: #a0adb5;
-  --chart-reference: #83949e;
-  --chart-primary: var(--accent);
-  --chart-secondary: var(--accent-secondary);
-  --chart-series-1: #9ae6bd;
-  --chart-series-2: #edcf8a;
-  --chart-series-3: #c9b5f3;
-  --chart-series-4: #81d5db;
-  --chart-series-5: #ffa7a7;
-  --chart-series-6: #a8bfff;
-  --chart-series-7: #eaba95;
-  --chart-series-8: #e5a9d2;
-  --chart-goal: var(--positive);
-  --chart-puck: #020617;
-  --chart-puck-highlight: #64748b;
-  --rink-line-blue: #2563eb;
-  --rink-line-red: #ef4444;
-  --rink-crease: #38bdf8;
-  --workspace-canvas-max: 80rem;
-  --control-height: 44px;
-  --control-radius: 0.5rem;
-  --control-font-size: 0.875rem;
-  --text-meta: 0.8125rem;
-  --text-control: 1rem;
-  --text-body: 1rem;
-  --text-section: 1.25rem;
-  --text-page: 2rem;
-  --chart-underperforming: #edcf8a;
-  --chart-quadrant-opacity: 0.08;
-  --chart-track: #63717a;
-  --heat-level-1: #243044;
-  --heat-level-2: #334663;
-  --heat-level-3: #455e85;
-  --heat-level-4: #7896c3;
-  --heat-level-5: #a8bfff;
-  --heat-text-1: #edf1f3;
-  --heat-text-2: #edf1f3;
-  --heat-text-3: #edf1f3;
-  --heat-text-4: #182127;
-  --heat-text-5: #182127
-}
-html[data-theme="light"] {
-  --background: #e6ecef;
-  --foreground: #182127;
-  --foreground-soft: #3e4c55;
-  --surface: #ffffff;
-  --surface-raised: #dce5ea;
-  --surface-subtle: #edf2f5;
-  --border: #b8c7d0;
-  --border-strong: #788e9c;
-  --muted: #4f626e;
-  --accent: #14734b;
-  --accent-secondary: #375dc0;
-  --positive: #14734b;
-  --negative: #b53e4b;
-  --warning: #855d0a;
-  --on-accent: #ffffff;
-  --control-border: #657d8c;
+  --control-border: #c7d0dd;
+  --radius-panel: 0.5rem;
   --canvas-grid: rgb(15 23 42 / 0.025);
   --canvas-cyan-glow: rgb(8 145 178 / 9%);
   --canvas-violet-glow: rgb(109 40 217 / 7%);
@@ -118,6 +57,15 @@ html[data-theme="light"] {
   --rink-line-blue: #1d4ed8;
   --rink-line-red: #b91c1c;
   --rink-crease: #0369a1;
+  --workspace-canvas-max: 80rem;
+  --control-height: 40px;
+  --control-radius: 0.375rem;
+  --control-font-size: 1rem;
+  --text-meta: 0.875rem;
+  --text-control: 1rem;
+  --text-body: 1rem;
+  --text-section: 1.25rem;
+  --text-page: 2.25rem;
   --chart-underperforming: #855d0a;
   --chart-quadrant-opacity: 0.09;
   --chart-track: #7e919c;
@@ -130,7 +78,47 @@ html[data-theme="light"] {
   --heat-text-2: #182127;
   --heat-text-3: #182127;
   --heat-text-4: #ffffff;
-  --heat-text-5: #ffffff
+  --heat-text-5: #ffffff;
+  --crest-surface: rgb(248 250 252 / 0.95);
+  --crest-foreground: rgb(30 41 59);
 }
-
-:root { --crest-surface: rgb(248 250 252 / 0.95); --crest-foreground: rgb(30 41 59); }
+html[data-theme="dark"] {
+  --background: #111722;
+  --foreground: #e9edf5;
+  --foreground-soft: #c5cede;
+  --surface: #182130;
+  --surface-raised: #202c3d;
+  --surface-subtle: #1c2838;
+  --border: #2c394c;
+  --border-strong: #475872;
+  --control-border: #475872;
+  --muted: #a0aec3;
+  --accent: #91b7ff;
+  --accent-secondary: #b1b8ff;
+  --positive: #7cd7b2;
+  --negative: #ff9cac;
+  --warning: #edcf8a;
+  --on-accent: #102440;
+  --chart-grid: #2c394c;
+  --chart-axis: #778ba9;
+  --chart-label: #a0aec3;
+  --chart-reference: #94a5be;
+  --chart-series-1: #91b7ff;
+  --chart-series-2: #edcf8a;
+  --chart-series-3: #c9b5f3;
+  --chart-series-4: #81d5db;
+  --chart-series-5: #ffa7a7;
+  --chart-series-6: #7cd7b2;
+  --chart-series-7: #eaba95;
+  --chart-series-8: #e5a9d2;
+  --heat-level-1: #243044;
+  --heat-level-2: #334663;
+  --heat-level-3: #455e85;
+  --heat-level-4: #7896c3;
+  --heat-level-5: #a8bfff;
+  --heat-text-1: #edf1f3;
+  --heat-text-2: #edf1f3;
+  --heat-text-3: #edf1f3;
+  --heat-text-4: #182127;
+  --heat-text-5: #182127;
+}

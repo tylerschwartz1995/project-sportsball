@@ -27,21 +27,21 @@ export function FilterHeader({
 export function FilterActions({
   clearHref,
   applyLabel = "Apply Filters",
+  autoApply = false,
   clearLabel = "Clear Filters",
   canClear = true,
   children,
 }: {
   clearHref: string;
   applyLabel?: string;
+  autoApply?: boolean;
   clearLabel?: string;
   canClear?: boolean;
   children?: ReactNode;
 }) {
   return (
     <div className="workspace-filter-actions">
-      <button type="submit">
-        {applyLabel}
-      </button>
+      {!autoApply ? <button type="submit">{applyLabel}</button> : null}
       {canClear ? (
         <Link preserveDisplay href={clearHref}>{clearLabel}</Link>
       ) : null}

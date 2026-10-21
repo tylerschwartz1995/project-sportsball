@@ -12,7 +12,7 @@ import { listMoneyPuckSeasonUnits as listMoneyPuckSeasonUnitsRead, getMoneyPuckS
 import { getPlayoffSeriesInsights as getPlayoffSeriesInsightsRead, getPlayoffScoringLeaders as getPlayoffScoringLeadersRead, getPlayoffSeriesPlayerStats as getPlayoffSeriesPlayerStatsRead } from "./playoffs";
 export const getPlayerDetail = sharedRead("getPlayerDetail-v1", getPlayerDetailRead, 300, ["statistics"]);
 export const listPlayersBySeason = sharedRead("listPlayersBySeason-v1", listPlayersBySeasonRead, 300, ["statistics"]);
-export const getPlayerCareer = sharedRead("getPlayerCareer-v1", getPlayerCareerRead, 300, ["statistics"]);
+export const getPlayerCareer = sharedRead("getPlayerCareer-v3", getPlayerCareerRead, 300, ["statistics"]);
 export const getPlayerGameLog = sharedRead("getPlayerGameLog-v1", getPlayerGameLogRead, 300, ["statistics"]);
 export const listPlayerGameSeasonIds = sharedRead("listPlayerGameSeasonIds-v1", listPlayerGameSeasonIdsRead, 300, ["statistics"]);
 export const getGameSummary = sharedRead("getGameSummary-v1", getGameSummaryRead, 300, ["statistics"]);
@@ -24,13 +24,13 @@ export const listGameDates = sharedRead("listGameDates-v1", listGameDatesRead, 3
 export const listScheduleTeams = sharedRead("listScheduleTeams-v1", listScheduleTeamsRead, 300, ["statistics"]);
 export const getGamesForSeasonByType = sharedRead("getGamesForSeasonByType-v1", getGamesForSeasonByTypeRead, 300, ["statistics"]);
 export const getMoneyPuckPlayerSeason = sharedRead("getMoneyPuckPlayerSeason-v1", getMoneyPuckPlayerSeasonRead, 300, ["statistics"]);
-export const getMoneyPuckTeamSeason = sharedRead("getMoneyPuckTeamSeason-v1", getMoneyPuckTeamSeasonRead, 300, ["statistics"]);
+export const getMoneyPuckTeamSeason = sharedRead("getMoneyPuckTeamSeason-v2", getMoneyPuckTeamSeasonRead, 300, ["statistics"]);
 export const getMoneyPuckGameAnalytics = sharedRead("getMoneyPuckGameAnalytics-v1", getMoneyPuckGameAnalyticsRead, 300, ["statistics"]);
 export const getGamePlayByPlay = sharedRead("getGamePlayByPlay-v1", getGamePlayByPlayRead, 300, ["statistics"]);
-export const listAdvancedSkaterLeaders = sharedRead("listAdvancedSkaterLeaders-v1", listAdvancedSkaterLeadersRead, 300, ["statistics"]);
-export const listAdvancedGoalieLeaders = sharedRead("listAdvancedGoalieLeaders-v1", listAdvancedGoalieLeadersRead, 300, ["statistics"]);
-export const listAdvancedTeamLeaders = sharedRead("listAdvancedTeamLeaders-v1", listAdvancedTeamLeadersRead, 300, ["statistics"]);
-export const listMoneyPuckSeasonUnits = sharedRead("listMoneyPuckSeasonUnits-v1", listMoneyPuckSeasonUnitsRead, 300, ["statistics"]);
+export const listAdvancedSkaterLeaders = sharedRead("listAdvancedSkaterLeaders-v2", listAdvancedSkaterLeadersRead, 300, ["statistics"]);
+export const listAdvancedGoalieLeaders = sharedRead("listAdvancedGoalieLeaders-v2", listAdvancedGoalieLeadersRead, 300, ["statistics"]);
+export const listAdvancedTeamLeaders = sharedRead("listAdvancedTeamLeaders-v2", listAdvancedTeamLeadersRead, 300, ["statistics"]);
+export const listMoneyPuckSeasonUnits = sharedRead("listMoneyPuckSeasonUnits-v2", listMoneyPuckSeasonUnitsRead, 300, ["statistics"]);
 export const getMoneyPuckSeasonUnitLeaders = sharedRead("getMoneyPuckSeasonUnitLeaders-v1", getMoneyPuckSeasonUnitLeadersRead, 300, ["statistics"]);
 export const getMoneyPuckUnitDetail = sharedRead("getMoneyPuckUnitDetail-v1", getMoneyPuckUnitDetailRead, 300, ["statistics"]);
 export const getPlayoffSeriesInsights = sharedRead("getPlayoffSeriesInsights-v1", getPlayoffSeriesInsightsRead, 300, ["statistics"]);

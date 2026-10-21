@@ -1,16 +1,14 @@
 import { withReadContext } from "@/data/read-context";
 import { parseNhlId } from "@/contracts/entity";
-import { parseSeasonId } from "@/contracts/season";
 import {
   parseSeasonPhase
 } from "@/contracts/season-phase";
-import { getMoneyPuckPlayerSeason } from "@/data/performance-cache";
-import { listCachedSeasons } from "@/data/page-cache";
+import { getPlayerCareerAdvanced } from "@/data/player-career";
 import { getPlayerCareer } from "@/data/performance-cache";
 import { getPlayerDetail } from "@/data/performance-cache";
 import { notFound } from "next/navigation";
 import "server-only";
-import { PlayerPageProps, firstValue, parsePlayerView } from './logic';
+import { PlayerPageProps, firstValue } from './logic';
 async function loadPlayerPageData({
   params,
   searchParams,
@@ -20,16 +18,10 @@ async function loadPlayerPageData({
   if (nhlPlayerId === null) {
     notFound();
   }
-  const view = parsePlayerView(firstValue(pageParams.view));
-  const chartParams = {
-    chartWindow: firstValue(pageParams.chartWindow),
-    chartVenue: firstValue(pageParams.chartVenue),
-    chartMetric: firstValue(pageParams.chartMetric),
-  };
-  const [detail, seasons, careerArchive] = await Promise.all([
+  const [detail, careerArchive, careerAdvanced] = await Promise.all([
     getPlayerDetail(nhlPlayerId),
-    listCachedSeasons(),
     getPlayerCareer(nhlPlayerId),
+    getPlayerCareerAdvanced(nhlPlayerId),
   ]);
   if (!detail) {
     notFound();
@@ -37,7 +29,7 @@ async function loadPlayerPageData({
   const careerKeys = new Set(
     careerArchive.map((row) => `${row.kind}-${row.seasonId}-${row.gameType}`),
   );
-  const career = [
+  const combinedCareer = [
     ...careerArchive,
     ...detail.skaterSeasons
       .filter(
@@ -74,56 +66,29 @@ async function loadPlayerPageData({
         shotsAgainst: row.shotsAgainst,
       })),
   ].sort((left, right) => right.seasonId - left.seasonId);
-  const careerSeasonIds = new Set([
-    ...career.map((row) => row.seasonId),
-    ...detail.skaterSeasons.map((row) => row.seasonId),
-    ...detail.goalieSeasons.map((row) => row.seasonId),
-  ]);
-  const careerSeasons = [...careerSeasonIds]
-    .sort((a, b) => b - a)
-    .map((id) => ({
-      id,
-      startYear: Math.floor(id / 10000),
-      endYear: id % 10000,
-      label: `${Math.floor(id / 10000)}–${String(id % 10000).slice(-2)}`,
-    }));
-  const requestedSeason = parseSeasonId(firstValue(pageParams.season));
-  const phase = parseSeasonPhase(firstValue(pageParams.phase));
-  const selectedSeason =
-    careerSeasons.find((season) => season.id === requestedSeason) ??
-    careerSeasons[0];
-  const selectedSkaterRows = detail.skaterSeasons.filter(
-    (row) => row.seasonId === selectedSeason?.id,
-  );
-  const selectedGoalieRows = detail.goalieSeasons.filter(
-    (row) => row.seasonId === selectedSeason?.id,
-  );
-  const regularSkater = selectedSkaterRows.find((row) => row.gameType === 2);
-  const playoffSkater = selectedSkaterRows.find((row) => row.gameType === 3);
-  const regularGoalie = selectedGoalieRows.find((row) => row.gameType === 2);
-  const playoffGoalie = selectedGoalieRows.find((row) => row.gameType === 3);
-  const selectedTeams =
-    (phase === "playoffs" ? playoffSkater?.teams : regularSkater?.teams) ??
-    (phase === "playoffs" ? playoffGoalie?.teams : regularGoalie?.teams) ??
-    [];
-  const profile = detail.profile;
-  const advanced = selectedSeason && view === "advanced" && phase === "regular" ? await getMoneyPuckPlayerSeason(nhlPlayerId, selectedSeason.id) : null;
+  const career = combinedCareer.map(row => {
+    const basic = row.kind === "skater"
+      ? detail.skaterSeasons.find(s => s.seasonId === row.seasonId && s.gameType === row.gameType)
+      : detail.goalieSeasons.find(s => s.seasonId === row.seasonId && s.gameType === row.gameType);
+    const extra = basic?.kind === "skater" ? {
+      plusMinus: basic.plusMinus, shots: basic.shotsOnGoal, powerPlayPoints: basic.powerPlayPoints,
+      penaltyMinutes: basic.penaltyMinutes, hits: basic.hits,
+    } : basic?.kind === "goalie" ? {
+      goalsAgainst: basic.goalsAgainst, timeOnIceSeconds: basic.timeOnIceSeconds,
+      losses: basic.losses, overtimeLosses: basic.overtimeLosses, shutouts: basic.shutouts,
+      savePercentage: basic.savePercentage,
+      goalsAgainstAverage: basic.timeOnIceSeconds > 0 ? basic.goalsAgainst * 3600 / basic.timeOnIceSeconds : null,
+    } : {};
+    const advanced = row.gameType === 2 ? careerAdvanced.find(s => s.seasonId === row.seasonId && s.kind === row.kind) : undefined;
+    return { ...extra, ...row, hits: basic?.kind === "skater" ? basic.hits : null, ...advanced };
+  });
+  const latestSkater = [...detail.skaterSeasons].sort((a, b) => b.seasonId - a.seasonId || a.gameType - b.gameType)[0];
+  const latestGoalie = [...detail.goalieSeasons].sort((a, b) => b.seasonId - a.seasonId || a.gameType - b.gameType)[0];
   return {
-    selectedSeason,
-    phase,
-    selectedTeams,
-    profile,
-    view,
-    careerSeasons,
-    chartParams,
-    regularSkater,
-    playoffSkater,
-    regularGoalie,
-    playoffGoalie,
+    phase: parseSeasonPhase(firstValue(pageParams.phase)),
+    selectedTeams: latestSkater?.teams ?? latestGoalie?.teams ?? [],
+    profile: detail.profile,
     career,
-    nhlPlayerId,
-    seasons,
-    advanced,
   } as const;
 }
 

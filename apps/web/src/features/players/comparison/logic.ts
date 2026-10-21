@@ -35,7 +35,6 @@ export const SKATER_METRICS: PlayerComparisonMetric[] = [
 
 export const GOALIE_METRICS: PlayerComparisonMetric[] = [
   { key: "gamesPlayed", label: "Games Played", shortLabel: "GP", unit: "integer" },
-  { key: "gamesStarted", label: "Games Started", shortLabel: "GS", unit: "integer" },
   { key: "wins", label: "Wins", shortLabel: "W", unit: "integer" },
   { key: "losses", label: "Losses", shortLabel: "L", unit: "integer" },
   { key: "overtimeLosses", label: "Overtime Losses", shortLabel: "OTL", unit: "integer" },

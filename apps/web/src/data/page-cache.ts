@@ -45,7 +45,7 @@ export const getCachedStandingsPointsHistory = trackedCache(
 
 export const listCachedTeamsBySeason = trackedCache(
   listTeamsBySeason,
-  ["page-teams-by-season-v1"],
+  ["page-teams-by-season-v2"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams"] },
 );
 
@@ -69,13 +69,13 @@ export const listCachedTeamScheduleSeasonIds = trackedCache(
 
 export const getCachedTeamSeasonProfile = trackedCache(
   getTeamSeasonProfile,
-  ["page-team-season-profile-v1"],
+  ["page-team-season-profile-v2"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams", "games"] },
 );
 
 export const getCachedTeamSeasonDetail = trackedCache(
   getTeamSeasonDetail,
-  ["page-team-season-detail-v1"],
+  ["page-team-season-detail-v4"],
   { revalidate: ACTIVE_DATA_SECONDS, tags: ["teams", "players", "games"] },
 );
 

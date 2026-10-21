@@ -9,10 +9,10 @@ import type { loadTeamsPage } from './loader';
 export function TeamsPageView({ selectedSeason, seasons, sortedTeams, phase }: Awaited<ReturnType<typeof loadTeamsPage>>) {
   return <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
     <SiteHeader active="teams" /><section className="py-8 sm:py-10">
-      <WorkspacePageHeader eyebrow="" title="Team Stats" description="Season results. Select a team for its stats, players, and games." action={<SeasonPicker seasons={seasons} selectedSeasonId={selectedSeason?.id} params={{ phase }} />} />
+      <WorkspacePageHeader eyebrow="" title="Team Stats" description="" action={<SeasonPicker seasons={seasons} selectedSeasonId={selectedSeason?.id} params={{ phase }} />} />
       {selectedSeason ? <>
-        <StatsTabs subject="teams" seasonId={selectedSeason.id} phase={phase} />
-        <SeasonPhaseFilter active={phase} path="/teams" params={{ season: selectedSeason.id }} />
+        <div className="reference-stats-context"><StatsTabs subject="teams" seasonId={selectedSeason.id} phase={phase} />
+        <SeasonPhaseFilter active={phase} path="/teams" params={{ season: selectedSeason.id }} /></div>
         {sortedTeams.length ? <TeamStatsTable rows={sortedTeams} seasonId={selectedSeason.id} phase={phase} /> : <p className="workspace-empty-state">No team stats are available for this season and phase.</p>}
         <p className="workspace-table-note">Source: NHL game results. Regular-season losses exclude overtime and shootout losses.</p>
       </> : <p className="workspace-empty-state">No team stats are available.</p>}

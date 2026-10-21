@@ -32,6 +32,8 @@ type TeamStatsRow = {
   goals_against: number;
   shots_for: number;
   shots_against: number;
+  power_play_percentage: number | null;
+  penalty_kill_percentage: number | null;
 };
 
 type TeamSkaterRow = {
@@ -44,6 +46,8 @@ type TeamSkaterRow = {
   points: number | null;
   plus_minus: number | null;
   penalty_minutes: number | null;
+  power_play_points: number | null;
+  shots: number | null;
 };
 
 type TeamGoalieRow = {
@@ -89,10 +93,16 @@ const teamStatsSelect = `
     stats.goals_for,
     stats.goals_against,
     stats.shots_for,
-    stats.shots_against
+    stats.shots_against,
+    special_teams.power_play_percentage,
+    special_teams.penalty_kill_percentage
   FROM team_season_stats AS stats
   JOIN teams AS team
     ON team.id = stats.team_id
+  LEFT JOIN historical_team_season_stats AS special_teams
+    ON special_teams.nhl_team_id = team.nhl_id
+   AND special_teams.season_id = stats.season_id
+   AND special_teams.game_type = stats.game_type
   LEFT JOIN team_seasons AS team_season
     ON team_season.team_id = team.id
    AND team_season.season_id = stats.season_id
@@ -195,7 +205,9 @@ export async function getTeamSeasonDetail(
           split.assists,
           split.points,
           split.plus_minus,
-          split.penalty_minutes
+          split.penalty_minutes,
+          split.power_play_points,
+          split.shots
         FROM official_skater_season_stats AS split
         JOIN players AS player
           ON player.id = split.player_id
@@ -312,6 +324,8 @@ function mapTeamStats(row: TeamStatsRow): TeamSeasonStats {
     goalsAgainst: row.goals_against,
     shotsFor: row.shots_for,
     shotsAgainst: row.shots_against,
+    powerPlayPercentage: row.power_play_percentage ?? null,
+    penaltyKillPercentage: row.penalty_kill_percentage ?? null,
   };
 }
 
@@ -326,6 +340,8 @@ function mapTeamSkater(row: TeamSkaterRow): TeamSkaterSplit {
     points: row.points,
     plusMinus: row.plus_minus,
     penaltyMinutes: row.penalty_minutes,
+    powerPlayPoints: row.power_play_points ?? null,
+    shots: row.shots ?? null,
   };
 }
 

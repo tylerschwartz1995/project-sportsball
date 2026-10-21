@@ -56,7 +56,7 @@ async function loadPlayersPageData({ searchParams }: PlayersPageProps) {
       ? parsePlayerPositionFilter(firstQueryValue(params.position))
       : "";
   const filters = {
-    minGames: firstQueryValue(params.minGames) ?? "0",
+    minGames: "0",
     minGoals: "0", minAssists: "0", minPoints: "0", minWins: "0", minSavePercentage: "0",
     country: "", region: "", city: "",
   };

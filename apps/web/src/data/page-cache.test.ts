@@ -44,12 +44,12 @@ describe("page cache policy", () => {
     for (const key of [
       "page-standings-v1",
       "page-standings-points-history-v1",
-      "page-teams-by-season-v1",
+      "page-teams-by-season-v2",
       "page-team-schedule-strength-v1",
       "page-team-season-ids-v1",
       "page-team-schedule-season-ids-v1",
-      "page-team-season-profile-v1",
-      "page-team-season-detail-v1",
+      "page-team-season-profile-v2",
+      "page-team-season-detail-v4",
       "page-team-identity-v1",
       "page-team-game-log-v1",
     ]) {

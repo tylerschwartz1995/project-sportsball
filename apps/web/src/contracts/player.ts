@@ -37,6 +37,7 @@ export type SkaterSeasonSummary = {
   plusMinus: number;
   penaltyMinutes: number;
   powerPlayGoals: number;
+  powerPlayPoints?: number | null;
   shotsOnGoal: number;
   hits: number;
   blockedShots: number;
@@ -64,6 +65,7 @@ export type GoalieSeasonSummary = {
   shotsAgainst: number;
   saves: number;
   savePercentage: number | null;
+  shutouts?: number | null;
   timeOnIceSeconds: number;
 };
 

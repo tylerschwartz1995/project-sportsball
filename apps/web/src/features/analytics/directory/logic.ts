@@ -21,6 +21,8 @@ export type AnalyticsPageProps = {
     type?: string | string[];
     situation?: string | string[];
     minimum?: string | string[];
+    q?: string | string[];
+    position?: string | string[];
     phase?: string | string[];
     display?: string | string[];
     plotMetric?: string | string[];

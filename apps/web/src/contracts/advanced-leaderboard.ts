@@ -11,6 +11,9 @@ export type AdvancedTeamLeaderboardRow = {
   situation: string;
   gamesPlayed: number;
   iceTimeSeconds: number;
+  highDangerExpectedGoalsFor?: number | null;
+  highDangerExpectedGoalsAgainst?: number | null;
+  highDangerExpectedGoalsPercentage?: number | null;
   expectedGoalsPercentage: number | null;
   corsiPercentage: number | null;
   fenwickPercentage: number | null;
@@ -33,6 +36,11 @@ export type AdvancedSkaterLeaderboardRow = {
   individualExpectedGoals: number | null;
   individualGoals: number | null;
   individualPoints: number | null;
+  pointsPer60?: number | null;
+  individualExpectedGoalsPer60?: number | null;
+  onIceExpectedGoalsForPer60?: number | null;
+  onIceExpectedGoalsAgainstPer60?: number | null;
+  onIceHighDangerExpectedGoalsPercentage?: number | null;
 };
 
 export type AdvancedGoalieLeaderboardRow = {
@@ -41,6 +49,11 @@ export type AdvancedGoalieLeaderboardRow = {
   situation: string;
   gamesPlayed: number;
   iceTimeSeconds: number;
+  expectedGoalsAgainstPer60?: number | null;
+  highDangerGoalsSavedAboveExpected?: number | null;
+  mediumDangerGoalsSavedAboveExpected?: number | null;
+  lowDangerGoalsSavedAboveExpected?: number | null;
+  reboundsPer60?: number | null;
   expectedGoalsAgainst: number | null;
   goalsAgainst: number | null;
   goalsSavedAboveExpected: number | null;

@@ -1,4 +1,3 @@
-import { IntentLink as Link } from "@/components/ui/intent-link";
 import type { Metadata } from "next";
 import { Manrope, Geist_Mono } from "next/font/google";
 import Script from "next/script";
@@ -26,12 +25,12 @@ const themeBootstrap = `
     var stored = localStorage.getItem("sportsball-theme");
     var theme = stored === "light" || stored === "dark"
       ? stored
-      : "dark";
+      : "light";
     document.documentElement.dataset.theme = theme;
     document.documentElement.style.colorScheme = theme;
   } catch (_) {
-    document.documentElement.dataset.theme = "dark";
-    document.documentElement.style.colorScheme = "dark";
+    document.documentElement.dataset.theme = "light";
+    document.documentElement.style.colorScheme = "light";
   }
 })();
 `;
@@ -74,12 +73,11 @@ export default async function RootLayout({
         <div id="main-content" tabIndex={-1}>
           {children}
         </div>
-        <footer className="site-footer">
-          <Link href="/" className="site-footer-brand">Sportsball</Link>
-          <p>NHL statistics · MoneyPuck advanced data</p>
-          {privateAccessRequired() && <SignOut />}
-          <Link href="/analytics/guide">Metrics Guide →</Link>
-        </footer>
+        {privateAccessRequired() && (
+          <div className="px-4 py-4 text-right text-sm text-[var(--muted)] sm:px-8">
+            <SignOut />
+          </div>
+        )}
       </body>
     </html>
   );

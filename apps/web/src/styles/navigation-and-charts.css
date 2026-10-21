@@ -149,16 +149,7 @@
   color: var(--foreground);
 }
 
-.workspace-scroll-nav:not(.is-secondary) a[aria-current="page"]::after {
-  position: absolute;
-  right: 0.55rem;
-  bottom: -1px;
-  left: 0.55rem;
-  height: 2px;
-  border-radius: 999px 999px 0 0;
-  background: var(--accent);
-  content: "";
-}
+
 
 .workspace-scroll-nav.is-secondary .workspace-navigation-label {
   padding-left: 0.45rem;

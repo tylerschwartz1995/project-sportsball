@@ -436,7 +436,6 @@ main :is(.workspace-player-picker-search, .workspace-player-plot-controls, .work
 .workspace-game-flow-source, .workspace-game-flow-key { font-size: 0.875rem; line-height: 1.5; }
 .workspace-game-flow-periods :is(td, th, caption) { font-size: 0.9375rem; }
 .workspace-xg-comparison-share span { font-size: 0.9375rem; }
-main.modern-analytics .workspace-table-dense tbody td { padding-block: 0.4375rem; }
 main .modern-draft-board tbody td { padding-block: 0.5rem; }
 .workspace-player-picker-selected > li.is-empty p { font-size: 0.875rem; }
 .workspace-player-history-total :is(th, td) { font-size: 1rem; }

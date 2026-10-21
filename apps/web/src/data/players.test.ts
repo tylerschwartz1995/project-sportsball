@@ -246,7 +246,7 @@ describe("listPlayersBySeason", () => {
     expect(queryMock.mock.calls[0]?.[0]).toContain("= ANY(");
     expect(queryMock.mock.calls[1]?.[1]).toEqual([20252026, 2]);
     expect(queryMock.mock.calls[2]?.[0]).toContain(
-      "ORDER BY stats.points DESC, stats.goals DESC",
+      "ORDER BY stats.points DESC NULLS LAST, stats.goals DESC NULLS LAST",
     );
     expect(queryMock.mock.calls[2]?.[0]).toContain("LIMIT $12");
     expect(queryMock.mock.calls[2]?.[1]).toEqual([

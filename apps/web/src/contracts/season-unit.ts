@@ -23,6 +23,8 @@ export type MoneyPuckSeasonUnitStats = {
   goalsAgainst: number | null;
   shotsOnGoalFor: number | null;
   shotsOnGoalAgainst: number | null;
+  shotAttemptsFor?: number | null;
+  shotAttemptsAgainst?: number | null;
   highDangerExpectedGoalsFor: number | null;
   highDangerExpectedGoalsAgainst: number | null;
 };

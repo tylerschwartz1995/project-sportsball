@@ -9,7 +9,6 @@ import { useState } from "react";
 
 import {
   FilterActions,
-  FilterHeader,
 } from "@/components/ui/filter-primitives";
 import { playerDirectoryClearHref } from "@/lib/player-directory-url";
 import type { PlayerPositionFilter } from "@/lib/player-position";
@@ -22,9 +21,6 @@ type PlayerDirectoryFiltersProps = {
   position: PlayerPositionFilter;
   sort: string;
   direction: "asc" | "desc";
-  filters: {
-    minGames: string;
-  };
 };
 
 export function PlayerDirectoryFilters({
@@ -35,7 +31,6 @@ export function PlayerDirectoryFilters({
   position,
   sort,
   direction,
-  filters,
 }: PlayerDirectoryFiltersProps) {
   const [draftCategory, setDraftCategory] = useState(category);
   const sortOptions =
@@ -48,21 +43,12 @@ export function PlayerDirectoryFilters({
   const activeFilterCount = [
     query,
     category === "skaters" ? position : "",
-    filters.minGames !== "0" ? filters.minGames : "",
   ].filter(Boolean).length;
 
   return (
-    <FilterForm action="/players" className="workspace-player-filters">
+    <FilterForm autoApply action="/players" className="workspace-player-filters reference-player-filters">
       <input type="hidden" name="season" value={seasonId} />
       <input type="hidden" name="phase" value={phase} />
-
-      {activeFilterCount > 0 ? (
-        <FilterHeader
-          title="Active Filters"
-          description="Choose filters, then Apply Filters."
-          activeCount={activeFilterCount}
-        />
-      ) : null}
 
       <fieldset
         className={`workspace-player-filter-group is-primary${draftCategory === "skaters" ? " has-position" : ""}`}
@@ -75,7 +61,7 @@ export function PlayerDirectoryFilters({
               type="search"
               name="q"
               defaultValue={query}
-              placeholder="e.g. Connor McDavid"
+              placeholder="Search by name…"
             />
           </label>
           <label>
@@ -107,7 +93,6 @@ export function PlayerDirectoryFilters({
         </div>
       </fieldset>
 
-      <div className="workspace-player-filter-group max-w-40"><NumberFilter label="Minimum Games" name="minGames" value={filters.minGames} /></div>
 
       <fieldset className="workspace-player-filter-group workspace-directory-sort md:hidden">
         <legend>Sort Results</legend>
@@ -131,7 +116,7 @@ export function PlayerDirectoryFilters({
           </label>
         </div>
       </fieldset>
-      <FilterActions
+      <FilterActions autoApply
         clearHref={playerDirectoryClearHref({
           seasonId,
           phase,
@@ -143,22 +128,5 @@ export function PlayerDirectoryFilters({
       />
 
     </FilterForm>
-  );
-}
-
-function NumberFilter({
-  label,
-  name,
-  value,
-}: {
-  label: string;
-  name: string;
-  value: string;
-}) {
-  return (
-    <label>
-      {label}
-      <input type="number" name={name} min="0" defaultValue={value} />
-    </label>
   );
 }

@@ -20,9 +20,10 @@ async function loadGamePageData({
   if (nhlGameId === null) {
     notFound();
   }
-  const requestedView = parseGameView(firstValue(pageParams.view));
+  const parsedView = parseGameView(firstValue(pageParams.view));
+  const requestedView = parsedView === "advanced" ? (firstValue(pageParams.advancedView) === "shots" ? "shot-map" : firstValue(pageParams.advancedView) === "combinations" ? "lines" : firstValue(pageParams.advancedView) === "players" ? "box-score" : "team-stats") : parsedView;
   const [initialGame, availability] = await Promise.all([
-    requestedView === "box-score"
+    (requestedView === "box-score" || requestedView === "team-stats")
       ? getGameBoxScore(nhlGameId)
       : getGameSummary(nhlGameId),
     getGameViewAvailability(nhlGameId),
@@ -32,7 +33,7 @@ async function loadGamePageData({
   }
   let game: GameSummary = initialGame;
   let boxScore: GameBoxScore | null =
-    requestedView === "box-score" ? (initialGame as GameBoxScore) : null;
+    (requestedView === "box-score" || requestedView === "team-stats") ? (initialGame as GameBoxScore) : null;
   const completed =
     game.awayTeam.score !== null && game.homeTeam.score !== null;
   const view = normalizeGameView(requestedView, {
@@ -50,10 +51,12 @@ async function loadGamePageData({
     firstValue(pageParams.advancedView),
   );
   const content = Promise.all([
-    view === "advanced" || view === "scoring"
-      ? getMoneyPuckGameAnalytics(nhlGameId, view === "scoring" ? "scoring" : advancedView)
-      : Promise.resolve(null),
-    view === "scoring"
+    view === "team-stats" || view === "lines" || view === "shot-map" || view === "game-flow"
+      ? getMoneyPuckGameAnalytics(nhlGameId, view === "game-flow" ? "scoring" : view === "lines" ? "combinations" : view === "shot-map" ? "shots" : "teams")
+      : view === "box-score"
+        ? getMoneyPuckGameAnalytics(nhlGameId, "players")
+        : Promise.resolve(null),
+    (view === "scoring" || view === "game-flow" || view === "team-stats")
       ? getGamePlayByPlay(nhlGameId)
       : Promise.resolve({ nhlGameId, events: [] }),
   ]);
@@ -65,7 +68,7 @@ async function loadGamePageData({
     availability.scoring
       ? {
         id: "scoring" as const,
-        label: "Scoring & Timeline",
+        label: "Scoring",
         href: `/games/${game.nhlGameId}?view=scoring`,
       }
       : null,
@@ -77,13 +80,15 @@ async function loadGamePageData({
         prefetch: true,
       }
       : null,
+    availability.scoring || availability.advanced
+      ? { id: "game-flow" as const, label: "Game Flow", href: `/games/${game.nhlGameId}?view=game-flow` } : null,
+    ...(availability.advanced ? [
+      { id: "team-stats" as const, label: "Team Stats", href: `/games/${game.nhlGameId}?view=team-stats` },
+    ] : []),
     availability.advanced
-      ? {
-        id: "advanced" as const,
-        label: "Shot Quality",
-        href: `/games/${game.nhlGameId}?view=advanced&advancedView=teams`,
-      }
-      : null,
+      ? { id: "shot-map" as const, label: "Shot Map", href: `/games/${game.nhlGameId}?view=shot-map` } : null,
+    availability.advanced
+      ? { id: "lines" as const, label: "Lines", href: `/games/${game.nhlGameId}?view=lines` } : null,
   ].filter((tab): tab is NonNullable<typeof tab> => tab !== null);
   return {
     game,

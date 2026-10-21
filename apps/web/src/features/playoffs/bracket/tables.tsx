@@ -90,7 +90,6 @@ export function SeriesGoalieTable({
             <tr>
               <SortableHeader label="Goalie" sortKey="player" align="left" />
               <SortableHeader label="GP" sortKey="games" description="Games played" />
-              <SortableHeader label="GS" sortKey="starts" description="Games started" />
               <SortableHeader label="W" sortKey="wins" description="Wins" />
               <SortableHeader label="L" sortKey="losses" description="Losses" />
               <SortableHeader label="GA" sortKey="goalsAgainst" description="Goals against" />
@@ -105,7 +104,6 @@ export function SeriesGoalieTable({
               <tr key={player.nhlPlayerId}>
                 <SeriesPlayerCell player={player} seasonId={seasonId} />
                 <SeriesNumberCell value={player.gamesPlayed} />
-                <SeriesNumberCell value={player.gamesStarted} />
                 <SeriesNumberCell value={player.wins} highlight />
                 <SeriesNumberCell value={player.losses} />
                 <SeriesNumberCell value={player.goalsAgainst} />

@@ -1,3 +1,4 @@
+import { perSixty } from "@/lib/per-sixty";
 import "server-only";
 
 import type {
@@ -18,6 +19,8 @@ type TeamRow = {
   situation: string;
   games_played: number;
   ice_time_seconds: number;
+  high_danger_x_goals_for: number | null;
+  high_danger_x_goals_against: number | null;
   x_goals_percentage: number | null;
   corsi_percentage: number | null;
   fenwick_percentage: number | null;
@@ -49,9 +52,17 @@ type SkaterRow = PlayerRow & {
   individual_x_goals: number | null;
   individual_goals: number | null;
   individual_points: number | null;
+  on_ice_x_goals_for: number | null;
+  on_ice_x_goals_against: number | null;
+  hd_for: number | null;
+  hd_against: number | null;
 };
 
 type GoalieRow = PlayerRow & {
+  hd_saved: number | null;
+  md_saved: number | null;
+  ld_saved: number | null;
+  rebounds: number | null;
   expected_goals_against: number | null;
   goals_against: number | null;
   goals_saved_above_expected: number | null;
@@ -94,6 +105,8 @@ export async function listAdvancedTeamLeaders(
         stats.situation,
         stats.games_played,
         stats.ice_time_seconds,
+        (stats.metrics->>'highDangerxGoalsFor')::double precision AS high_danger_x_goals_for,
+        (stats.metrics->>'highDangerxGoalsAgainst')::double precision AS high_danger_x_goals_against,
         stats.x_goals_percentage,
         stats.corsi_percentage,
         stats.fenwick_percentage,
@@ -129,6 +142,8 @@ export async function listAdvancedTeamLeaders(
           ELSE SUM(stats.fenwick_percentage * stats.ice_time_seconds) /
             SUM(stats.ice_time_seconds)
         END AS fenwick_percentage,
+        CASE WHEN COUNT(*) = COUNT(stats.high_danger_x_goals_for) THEN SUM(stats.high_danger_x_goals_for) END AS high_danger_x_goals_for,
+        CASE WHEN COUNT(*) = COUNT(stats.high_danger_x_goals_against) THEN SUM(stats.high_danger_x_goals_against) END AS high_danger_x_goals_against,
         SUM(stats.x_goals_for) AS x_goals_for,
         SUM(stats.x_goals_against) AS x_goals_against,
         SUM(stats.goals_for) AS goals_for,
@@ -165,6 +180,10 @@ export async function listAdvancedTeamLeaders(
     situation: row.situation,
     gamesPlayed: row.games_played,
     iceTimeSeconds: row.ice_time_seconds,
+    highDangerExpectedGoalsFor: row.high_danger_x_goals_for ?? null,
+    highDangerExpectedGoalsAgainst: row.high_danger_x_goals_against ?? null,
+    highDangerExpectedGoalsPercentage: row.high_danger_x_goals_for != null && row.high_danger_x_goals_against != null && row.high_danger_x_goals_for + row.high_danger_x_goals_against > 0
+      ? row.high_danger_x_goals_for / (row.high_danger_x_goals_for + row.high_danger_x_goals_against) : null,
     expectedGoalsPercentage: row.x_goals_percentage,
     corsiPercentage: row.corsi_percentage,
     fenwickPercentage: row.fenwick_percentage,
@@ -180,6 +199,7 @@ export async function listAdvancedSkaterLeaders(
   situation: string,
   minimumIceTimeSeconds: number,
   limit = 200,
+  filters: { query?: string; position?: string } = {},
 ): Promise<AdvancedSkaterLeaderboardRow[]> {
   const rows = await query<SkaterRow>(
     `
@@ -195,7 +215,11 @@ export async function listAdvancedSkaterLeaders(
         stats.on_ice_fenwick_percentage,
         stats.individual_x_goals,
         stats.individual_goals,
-        stats.individual_points
+        stats.individual_points,
+        stats.on_ice_x_goals_for,
+        stats.on_ice_x_goals_against,
+        (stats.metrics->>'OnIce_F_highDangerxGoals')::double precision AS hd_for,
+        (stats.metrics->>'OnIce_A_highDangerxGoals')::double precision AS hd_against
       FROM moneypuck_skater_season_stats AS stats
       JOIN players AS player
         ON player.id = stats.player_id
@@ -203,10 +227,15 @@ export async function listAdvancedSkaterLeaders(
       WHERE stats.season_id = $1
         AND stats.situation = $2
         AND stats.ice_time_seconds >= $3
-      ORDER BY stats.game_score DESC NULLS LAST, player_name, team_name
+        AND ($5 = '' OR strpos(lower(player.display_name), lower($5)) > 0)
+        AND ($6 = '' OR ($6 = 'F' AND COALESCE(stats.position, player.position) IN ('C', 'L', 'R', 'LW', 'RW', 'F'))
+          OR COALESCE(stats.position, player.position) = $6
+          OR ($6 = 'L' AND COALESCE(stats.position, player.position) = 'LW')
+          OR ($6 = 'R' AND COALESCE(stats.position, player.position) = 'RW'))
+      ORDER BY stats.individual_points * 3600.0 / NULLIF(stats.ice_time_seconds, 0) DESC NULLS LAST, player_name, team_name
       LIMIT $4
     `,
-    [seasonId, situation, minimumIceTimeSeconds, Math.min(200, Math.max(1, limit))],
+    [seasonId, situation, minimumIceTimeSeconds, Math.min(200, Math.max(1, limit)), filters.query ?? "", filters.position ?? ""],
   );
 
   return rows.map((row) => ({
@@ -222,6 +251,12 @@ export async function listAdvancedSkaterLeaders(
     individualExpectedGoals: row.individual_x_goals,
     individualGoals: row.individual_goals,
     individualPoints: row.individual_points,
+    pointsPer60: perSixty(row.individual_points, row.ice_time_seconds),
+    individualExpectedGoalsPer60: perSixty(row.individual_x_goals, row.ice_time_seconds),
+    onIceExpectedGoalsForPer60: perSixty(row.on_ice_x_goals_for, row.ice_time_seconds),
+    onIceExpectedGoalsAgainstPer60: perSixty(row.on_ice_x_goals_against, row.ice_time_seconds),
+    onIceHighDangerExpectedGoalsPercentage: row.hd_for != null && row.hd_against != null && row.hd_for + row.hd_against > 0
+      ? row.hd_for / (row.hd_for + row.hd_against) : null,
   }));
 }
 
@@ -230,6 +265,7 @@ export async function listAdvancedGoalieLeaders(
   situation: string,
   minimumIceTimeSeconds: number,
   limit = 200,
+  filters: { query?: string; position?: string } = {},
 ): Promise<AdvancedGoalieLeaderboardRow[]> {
   const rows = await query<GoalieRow>(
     `
@@ -249,6 +285,10 @@ export async function listAdvancedGoalieLeaders(
           THEN NULL
           ELSE stats.expected_goals_against - stats.goals_against
         END AS goals_saved_above_expected,
+        (stats.metrics->>'highDangerxGoals')::double precision - (stats.metrics->>'highDangerGoals')::double precision AS hd_saved,
+        (stats.metrics->>'mediumDangerxGoals')::double precision - (stats.metrics->>'mediumDangerGoals')::double precision AS md_saved,
+        (stats.metrics->>'lowDangerxGoals')::double precision - (stats.metrics->>'lowDangerGoals')::double precision AS ld_saved,
+        (stats.metrics->>'rebounds')::double precision AS rebounds,
         stats.expected_shots_on_goal_against,
         stats.shots_on_goal_against
       FROM moneypuck_goalie_season_stats AS stats
@@ -258,11 +298,12 @@ export async function listAdvancedGoalieLeaders(
       WHERE stats.season_id = $1
         AND stats.situation = $2
         AND stats.ice_time_seconds >= $3
-      ORDER BY goals_saved_above_expected DESC NULLS LAST,
+        AND ($5 = '' OR strpos(lower(player.display_name), lower($5)) > 0)
+      ORDER BY (stats.expected_goals_against - stats.goals_against) * 3600.0 / NULLIF(stats.ice_time_seconds, 0) DESC NULLS LAST,
                player_name, team_name
       LIMIT $4
     `,
-    [seasonId, situation, minimumIceTimeSeconds, Math.min(200, Math.max(1, limit))],
+    [seasonId, situation, minimumIceTimeSeconds, Math.min(200, Math.max(1, limit)), filters.query ?? ""],
   );
 
   return rows.map((row) => ({
@@ -274,6 +315,11 @@ export async function listAdvancedGoalieLeaders(
     expectedGoalsAgainst: row.expected_goals_against,
     goalsAgainst: row.goals_against,
     goalsSavedAboveExpected: row.goals_saved_above_expected,
+    expectedGoalsAgainstPer60: perSixty(row.expected_goals_against, row.ice_time_seconds),
+    highDangerGoalsSavedAboveExpected: row.hd_saved,
+    mediumDangerGoalsSavedAboveExpected: row.md_saved,
+    lowDangerGoalsSavedAboveExpected: row.ld_saved,
+    reboundsPer60: perSixty(row.rebounds, row.ice_time_seconds),
     expectedShotsOnGoalAgainst: row.expected_shots_on_goal_against,
     shotsOnGoalAgainst: row.shots_on_goal_against,
   }));

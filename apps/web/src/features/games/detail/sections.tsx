@@ -1,10 +1,10 @@
+import type { MoneyPuckSkaterGameSituation, MoneyPuckGoalieGameSituation } from "@/contracts/advanced-game";
 import { TableScroll } from "@/components/ui/table-scroll";
 import Link from "@/components/ui/exploration-link";
 import { SortableHeader } from "@/components/ui/sortable-header";
 import { SortableTable } from "@/components/ui/sortable-table";
 import {
   DataTableShell,
-  SectionHeader,
 } from "@/components/ui/ui-primitives";
 import {
   type GameBoxScoreTeam,
@@ -63,67 +63,30 @@ export function ScoreTeam({
   );
 }
 
-export function TeamBoxScore({
-  team,
-  seasonId,
-}: {
-  team: GameBoxScoreTeam;
-  seasonId: number;
-}) {
-  return (
-    <section>
-      <SectionHeader
-        eyebrow={`${team.abbreviation} box score`}
-        title={team.name}
-        action={
-          <div className="flex items-center gap-3">
-            <TeamLogo
-              nhlTeamId={team.nhlTeamId}
-              abbreviation={team.abbreviation}
-              name={team.name}
-              size="compact"
-              decorative
-              prominent
-            />
-          </div>
-        }
-      />
-
-      <h3 className="mt-7 text-lg font-semibold text-[var(--foreground)]">Skaters</h3>
-      <SkaterTable
-        players={team.skaters}
-        seasonId={seasonId}
-        team={team}
-      />
-
-      <h3 className="mt-8 text-lg font-semibold text-[var(--foreground)]">Goalies</h3>
-      <GoalieTable
-        players={team.goalies}
-        seasonId={seasonId}
-        team={team}
-      />
-    </section>
-  );
-}
-
 export function SkaterTable({
   players,
+  advanced = [],
   seasonId,
   team,
 }: {
   players: GameSkaterStats[];
+  advanced?: MoneyPuckSkaterGameSituation[];
   seasonId: number;
   team: GameBoxScoreTeam;
 }) {
+  const byPlayer = new Map(advanced
+    .filter(row => row.situation === "all" && row.team.nhlTeamId === team.nhlTeamId)
+    .map(row => [row.player.nhlPlayerId, row]));
   return (
     <DataTableShell>
       <SortableTable secondaryColumns={[5, 7, 8, 9]} defaultSortKey="points">
         <TableScroll className="workspace-table-scroll">
-          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[940px]">
+          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1200px]">
             <colgroup>
               <col className="workspace-col-entity" />
               <col className="workspace-col-stat" span={8} />
               <col className="workspace-col-time" />
+              <col className="workspace-col-stat" span={3} />
             </colgroup>
             <caption className="sr-only">{team.name} skater box score</caption>
             <thead>
@@ -138,10 +101,15 @@ export function SkaterTable({
                 <SortableHeader label="BLK" sortKey="blocks" />
                 <SortableHeader label="PIM" sortKey="penaltyMinutes" />
                 <SortableHeader label="TOI" sortKey="timeOnIce" />
+                <SortableHeader label="ixG" sortKey="individualExpectedGoals" description="Individual expected goals in this game, all situations." />
+                <SortableHeader label="FF%" sortKey="fenwickPercentage" description="Share of unblocked shot attempts for the player's team while on the ice, all situations." />
+                <SortableHeader label="xG%" sortKey="expectedGoalsPercentage" description="Share of expected goals for the player's team while on the ice, all situations." />
               </tr>
             </thead>
             <tbody>
-              {players.map((player) => (
+              {players.map((player) => {
+                const metrics = byPlayer.get(player.nhlPlayerId);
+                return (
                 <tr
                   key={player.nhlPlayerId}
                   className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
@@ -171,8 +139,12 @@ export function SkaterTable({
                   <NumericCell value={player.blockedShots} />
                   <NumericCell value={player.penaltyMinutes} />
                   <NumericCell value={formatTimeOnIce(player.timeOnIceSeconds)} />
+                  <NumericCell value={formatAdvanced(metrics?.individualExpectedGoals)} />
+                  <NumericCell value={formatAdvanced(metrics?.onIceFenwickPercentage, true)} />
+                  <NumericCell value={formatAdvanced(metrics?.onIceExpectedGoalsPercentage, true)} />
                 </tr>
-              ))}
+              );
+              })}
             </tbody>
           </table>
         </TableScroll>
@@ -183,24 +155,30 @@ export function SkaterTable({
 
 export function GoalieTable({
   players,
+  advanced = [],
   seasonId,
   team,
 }: {
   players: GameGoalieStats[];
+  advanced?: MoneyPuckGoalieGameSituation[];
   seasonId: number;
   team: GameBoxScoreTeam;
 }) {
+  const byPlayer = new Map(advanced
+    .filter(row => row.situation === "all" && row.team.nhlTeamId === team.nhlTeamId)
+    .map(row => [row.player.nhlPlayerId, row]));
   return (
     <DataTableShell>
       <SortableTable secondaryColumns={[7, 8]} defaultSortKey="shotsAgainst">
         <TableScroll className="workspace-table-scroll">
-          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[900px]">
+          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1100px]">
             <colgroup>
               <col className="workspace-col-entity" />
               <col className="workspace-col-stat" span={4} />
               <col className="workspace-col-percentage" />
               <col className="workspace-col-split" span={2} />
               <col className="workspace-col-time" />
+              <col className="workspace-col-stat" span={2} />
             </colgroup>
             <caption className="sr-only">{team.name} goalie box score</caption>
             <thead>
@@ -214,10 +192,14 @@ export function GoalieTable({
                 <SortableHeader label="EV SV/GA" sortKey="evenStrength" />
                 <SortableHeader label="PP SV/GA" sortKey="powerPlay" />
                 <SortableHeader label="TOI" sortKey="timeOnIce" />
+                <SortableHeader label="xGA" sortKey="expectedGoalsAgainst" description="Expected goals against this goalie in this game, all situations." />
+                <SortableHeader label="GSAx" sortKey="goalsSavedAboveExpected" description="Expected goals against minus goals allowed, all situations. Positive values mean goals saved above expected." />
               </tr>
             </thead>
             <tbody>
-              {players.map((player) => (
+              {players.map((player) => {
+                const metrics = byPlayer.get(player.nhlPlayerId);
+                return (
                 <tr
                   key={player.nhlPlayerId}
                   className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
@@ -256,8 +238,14 @@ export function GoalieTable({
                         : "DNP"
                     }
                   />
+                  <NumericCell value={formatAdvanced(metrics?.expectedGoalsAgainst)} />
+                  <NumericCell value={formatAdvanced(
+                    metrics?.expectedGoalsAgainst != null && metrics.goalsAgainst != null
+                      ? metrics.expectedGoalsAgainst - metrics.goalsAgainst : null
+                  )} />
                 </tr>
-              ))}
+              );
+              })}
             </tbody>
           </table>
         </TableScroll>
@@ -281,4 +269,9 @@ export function NumericCell({
       {value}
     </td>
   );
+}
+
+function formatAdvanced(value: number | null | undefined, percentage = false): string {
+  if (value == null) return "—";
+  return percentage ? `${(value * 100).toFixed(1)}%` : value.toFixed(2);
 }

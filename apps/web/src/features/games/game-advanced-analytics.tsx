@@ -282,7 +282,7 @@ function PlayerGameAnalytics({
                   <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                     <MetricHeader label="Player" align="left" />
                     <MetricHeader label="Team" align="left" />
-                    <MetricHeader label="Pos" />
+                    <MetricHeader label="Pos" align="center" />
                     <MetricHeader label="TOI" />
                     <MetricHeader label="Game score" />
                     <MetricHeader label="ixG" />
@@ -453,7 +453,7 @@ function UnitAnalytics({
   );
 }
 
-function UnitTable({
+export function UnitTable({
   title,
   rows,
   seasonId,
@@ -464,31 +464,24 @@ function UnitTable({
 }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
-      <SortableTable secondaryColumns={[5, 6, 7, 8, 9, 10, 11, 12]} defaultSortKey="TOI">
+      <SortableTable defaultSortKey="TOI">
         <TableScroll className="overflow-x-auto">
-          <table className="workspace-table workspace-table-dense workspace-table-semantic min-w-[1320px]">
+          <table className="workspace-table workspace-table-dense workspace-table-semantic reference-game-lines">
             <colgroup>
-              <col className="workspace-col-team" />
-              <col className="workspace-col-unit-wide" />
-              <col className="workspace-col-time" />
-              <col className="workspace-col-percentage" span={3} />
-              <col className="workspace-col-number" span={6} />
+              <col style={{ width: "40%" }} />
+              <col span={7} style={{ width: "8.57%" }} />
             </colgroup>
             <caption className="sr-only">{title}</caption>
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
-                <MetricHeader label="Team" align="left" />
                 <MetricHeader label={title} align="left" />
                 <MetricHeader label="TOI" />
-                <MetricHeader label="xG%" />
-                <MetricHeader label="CF%" />
-                <MetricHeader label="FF%" />
-                <MetricHeader label="xGF" />
-                <MetricHeader label="xGA" />
-                <MetricHeader label="SOG" />
-                <MetricHeader label="SA" />
                 <MetricHeader label="GF" />
                 <MetricHeader label="GA" />
+                <MetricHeader label="xGF" />
+                <MetricHeader label="xGA" />
+                <MetricHeader label="xG%" />
+                <MetricHeader label="FF%" />
               </tr>
             </thead>
             <tbody>
@@ -497,9 +490,8 @@ function UnitTable({
                   key={`${row.team.nhlTeamId}-${row.unitType}-${row.sourceLineId}`}
                   className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                 >
-                  <TeamCell team={row.team} />
                   <td className="px-4 py-3 text-left">
-                    <div className="modern-unit-names">
+                    <div className="truncate" title={row.players.map(player => player.name).join(" / ")}>
                       {row.players.map((player, index) => (
                         <span key={player.nhlPlayerId}>
                           {index > 0 ? <span className="text-[var(--muted)]"> / </span> : null}
@@ -507,25 +499,19 @@ function UnitTable({
                             href={`/players/${player.nhlPlayerId}?season=${seasonId}`}
                             className="font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
                           >
-                            {player.name}
+                            {player.name.replace(/^(\S+)\s+/, (_, first: string) => first[0] + ". ")}
                           </Link>
                         </span>
                       ))}
                     </div>
                   </td>
                   <ValueCell value={formatTimeOnIce(row.iceTimeSeconds)} />
-                  <ValueCell
-                    value={formatPercentage(row.expectedGoalsPercentage)}
-                    highlight
-                  />
-                  <ValueCell value={formatPercentage(row.corsiPercentage)} />
-                  <ValueCell value={formatPercentage(row.fenwickPercentage)} />
-                  <ValueCell value={formatDecimal(row.expectedGoalsFor)} />
-                  <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} />
-                  <ValueCell value={formatDecimal(row.shotsOnGoalFor, 0)} />
-                  <ValueCell value={formatDecimal(row.shotsOnGoalAgainst, 0)} />
                   <ValueCell value={formatDecimal(row.goalsFor, 0)} />
                   <ValueCell value={formatDecimal(row.goalsAgainst, 0)} />
+                  <ValueCell value={formatDecimal(row.expectedGoalsFor)} />
+                  <ValueCell value={formatDecimal(row.expectedGoalsAgainst)} />
+                  <ValueCell value={formatPercentage(row.expectedGoalsPercentage)} />
+                  <ValueCell value={formatPercentage(row.fenwickPercentage)} />
                 </tr>
               ))}
             </tbody>
@@ -650,7 +636,7 @@ function ExpectedGoalsTeam({
 
 function MetricHeader({
   label,
-  align = "center",
+  align = "right",
 }: {
   label: string;
   align?: "left" | "center" | "right";
@@ -704,7 +690,7 @@ function ValueCell({
   return (
     <td
       className={`workspace-semantic-number px-4 py-3 text-center tabular-nums ${
-        highlight ? "font-semibold text-[var(--accent-secondary)]" : "text-[var(--foreground-soft)]"
+        highlight ? "font-semibold text-[var(--accent)]" : "text-[var(--foreground-soft)]"
       }`}
     >
       {value}

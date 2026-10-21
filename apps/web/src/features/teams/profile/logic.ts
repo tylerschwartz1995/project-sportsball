@@ -6,7 +6,7 @@ import {
 } from "@/features/teams/team-full-schedule";
 
 export type TeamView =
-  | "overview"
+  | "lines"
   | "schedule"
   | "skaters"
   | "goalies"
@@ -37,10 +37,10 @@ export function teamViewTabs({
   phase: "regular" | "playoffs";
 }): ViewTab<TeamView>[] {
   const tabs: Array<{ id: TeamView; label: string }> = [
-    { id: "overview", label: "Basic Stats" },
     { id: "schedule", label: "Games" },
     { id: "skaters", label: "Skaters" },
     { id: "goalies", label: "Goalies" },
+    { id: "lines", label: "Lines" },
     { id: "advanced", label: "Advanced Stats" },
   ];
 
@@ -49,13 +49,13 @@ export function teamViewTabs({
 
 export function parseTeamView(value: string | undefined): TeamView {
   const views: TeamView[] = [
-    "overview",
+    "lines",
     "schedule",
     "skaters",
     "goalies",
     "advanced",
   ];
-  return views.includes(value as TeamView) ? (value as TeamView) : "overview";
+  return views.includes(value as TeamView) ? (value as TeamView) : "schedule";
 }
 
 export function parseTeamScheduleFilter(value: string | undefined): TeamScheduleFilter {

@@ -1,12 +1,11 @@
 "use client";
 
-import { useId, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from "react";
 
 import type {
   MoneyPuckGameTeam,
   MoneyPuckShot,
 } from "@/contracts/advanced-game";
-import { useUrlChoice } from "@/components/ui/use-shareable-state";
 import { TeamLogo } from "@/features/teams/team-logo";
 import { formatMoneyPuckPeriodClock } from "@/lib/moneypuck-shot";
 import {
@@ -25,110 +24,15 @@ export function ShotMaps({
   awayTeam: MoneyPuckGameTeam;
   homeTeam: MoneyPuckGameTeam;
 }) {
-  const [period, setPeriod] = useUrlChoice(
-    "shotPeriod",
-    ["all", ...new Set(shots.map((shot) => String(shot.period)))],
-    "all",
-  );
-  const [result, setResult] = useUrlChoice(
-    "shotResult",
-    ["all", "goal", "saved", "missed"],
-    "all",
-  );
-  const shooters = [
-    ...new Set(
-      shots
-        .map((shot) => shot.shooter?.name)
-        .filter((name): name is string => Boolean(name)),
-    ),
-  ].sort();
-  const [shooter, setShooter] = useUrlChoice(
-    "shotShooter",
-    ["all", ...shooters],
-    "all",
-  );
-  const filtered = shots.filter(
-    (shot) =>
-      (period === "all" || String(shot.period) === period) &&
-      (shooter === "all" || shot.shooter?.name === shooter) &&
-      (result === "all" ||
-        (result === "goal"
-          ? shot.isGoal
-          : result === "saved"
-            ? shot.wasOnGoal && !shot.isGoal
-            : !shot.wasOnGoal && !shot.isGoal)),
-  );
+  const awayShots = shots.filter(shot => shot.shootingTeam.nhlTeamId === awayTeam.nhlTeamId);
+  const homeShots = shots.filter(shot => shot.shootingTeam.nhlTeamId === homeTeam.nhlTeamId);
+  const awayHeat = buildHeat(awayShots);
+  const homeHeat = buildHeat(homeShots);
+  const peak = Math.max(0, ...awayHeat.map(cell => cell.value), ...homeHeat.map(cell => cell.value));
   return (
-    <section>
-      <div className="ux-shot-filters">
-        <label>
-          Period
-          <select
-            value={period}
-            onChange={(event) => setPeriod(event.target.value)}
-          >
-            <option value="all">All Periods</option>
-            {[...new Set(shots.map((shot) => shot.period))]
-              .sort((a, b) => a - b)
-              .map((value) => (
-                <option key={value} value={value}>
-                  Period {value}
-                </option>
-              ))}
-          </select>
-        </label>
-        <label>
-          Shot Result
-          <select
-            value={result}
-            onChange={(event) =>
-              setResult(
-                event.target.value as "all" | "goal" | "saved" | "missed",
-              )
-            }
-          >
-            <option value="all">All Results</option>
-            <option value="goal">Goals</option>
-            <option value="saved">Saved</option>
-            <option value="missed">Missed</option>
-          </select>
-        </label>
-        <label>
-          Shooter
-          <select
-            value={shooter}
-            onChange={(event) => setShooter(event.target.value)}
-          >
-            <option value="all">All Shooters</option>
-            {shooters.map((name) => (
-              <option key={name}>{name}</option>
-            ))}
-          </select>
-        </label>
-      </div>
-      <p className="ux-chart-reading">
-        {filtered.length} of {shots.length} attempts shown. Map totals reflect
-        these filters. Use the shot list below each rink to select overlapping
-        attempts.
-      </p>
-      <div className="grid gap-5 lg:grid-cols-2">
-        <TeamShotMap
-          key={`away-${period}-${result}-${shooter}`}
-          team={awayTeam}
-          shots={filtered.filter(
-            (shot) => shot.shootingTeam.nhlTeamId === awayTeam.nhlTeamId,
-          )}
-          accent="cyan"
-        />
-        <TeamShotMap
-          key={`home-${period}-${result}-${shooter}`}
-          team={homeTeam}
-          shots={filtered.filter(
-            (shot) => shot.shootingTeam.nhlTeamId === homeTeam.nhlTeamId,
-          )}
-          accent="violet"
-        />
-      </div>
+    <section className="grid grid-cols-1 gap-5 lg:grid-cols-2" aria-label="Team expected-goal heatmaps">
+      <TeamShotMap key={awayTeam.nhlTeamId} team={awayTeam} shots={awayShots} heat={awayHeat} peak={peak} />
+      <TeamShotMap key={homeTeam.nhlTeamId} team={homeTeam} shots={homeShots} heat={homeHeat} peak={peak} />
     </section>
   );
 }
@@ -136,18 +40,23 @@ export function ShotMaps({
 function TeamShotMap({
   team,
   shots,
-  accent,
+  heat,
+  peak,
 }: {
   team: MoneyPuckGameTeam;
   shots: MoneyPuckShot[];
-  accent: "cyan" | "violet";
+  heat: ReturnType<typeof buildHeat>;
+  peak: number;
 }) {
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedShotId, setSelectedShotId] = useState<string | null>(null);
   const markerRefs = useRef(new Map<string, SVGGElement>());
   const instructionsId = useId();
+  const clipId = useId();
+  const smoothingId = useId();
   const plottedShots = shots.filter(
     (shot) =>
-      shot.adjustedXCoordinate !== null && shot.adjustedYCoordinate !== null,
+      shot.isGoal && shot.adjustedXCoordinate !== null && shot.adjustedYCoordinate !== null,
   );
   const renderedShots = [
     ...plottedShots.filter((shot) => !shot.isGoal),
@@ -157,9 +66,9 @@ function TeamShotMap({
     plottedShots.map((shot, index) => [shotKey(shot), index]),
   );
   const goals = shots.filter((shot) => shot.isGoal).length;
+  const shotsOnGoal = shots.filter((shot) => shot.wasOnGoal || shot.isGoal).length;
   const expectedGoals = sumExpectedGoals(shots);
-  const color =
-    accent === "cyan" ? "var(--chart-primary)" : "var(--chart-secondary)";
+
   const selectedShot =
     shots.find((shot) => shotKey(shot) === selectedShotId) ?? null;
   const activeShotId =
@@ -191,23 +100,21 @@ function TeamShotMap({
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
       setSelectedShotId(shotKey(plottedShots[index]));
+      setDetailsOpen(true);
     }
   }
 
   return (
     <figure className="modern-shot-map surface-panel flex h-full flex-col overflow-hidden">
-      <figcaption className="border-b border-[var(--border)] px-5 py-4">
+      <figcaption className="border-b border-[var(--border)] px-5 py-3">
         <div className="flex min-w-0 items-center gap-3">
           <TeamLogo {...team} size="compact" decorative />
           <div className="min-w-0">
-            <p className="font-mono text-xs uppercase tracking-[0.14em] text-[var(--muted)]">
-              {team.abbreviation} attempts
-            </p>
             <p className="mt-1 whitespace-nowrap font-semibold text-[var(--foreground)]">
               {team.name}
             </p>
-            <p className="mt-2 whitespace-nowrap text-sm tabular-nums text-[var(--muted)]">
-              {shots.length} attempts · {goals} goals ·{" "}
+            <p className="mt-2 text-sm tabular-nums text-[var(--muted)]">
+              {shots.length} attempts · {shotsOnGoal} SOG · {goals} goals ·{" "}
               {expectedGoals.toFixed(2)} xG
             </p>
           </div>
@@ -215,23 +122,25 @@ function TeamShotMap({
       </figcaption>
 
       <div className="flex flex-1 flex-col p-4">
-        <div className="modern-shot-orientation" aria-hidden="true">
-          <span>CENTRE</span>
-          <span>ATTACKING →</span>
-        </div>
         <svg
           viewBox="0 0 320 275"
           role="group"
-          aria-label={`${team.name} offensive-zone shot map`}
+          aria-label={`${team.name} expected-goal heatmap`}
           aria-describedby={instructionsId}
-          className="h-auto w-full"
+          className="reference-shot-rink w-full"
         >
           <path
             d="M10 10 H226 A84 84 0 0 1 310 94 V181 A84 84 0 0 1 226 265 H10 Z"
-            fill="var(--surface-raised)"
-            stroke="var(--border-strong)"
+            fill="var(--heat-ice)"
+            stroke="var(--heat-ice-border)"
             strokeWidth="2"
           />
+          <defs><clipPath id={clipId}><path d="M10 10 H226 A84 84 0 0 1 310 94 V181 A84 84 0 0 1 226 265 H10 Z" /></clipPath><filter id={smoothingId} x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation="1.2" /></filter></defs>
+          <g clipPath={`url(#${clipId})`} aria-hidden="true" pointerEvents="none"><g filter={`url(#${smoothingId})`}>
+            {heat.map(cell => cell.value > 0 && peak > 0 ? <rect key={cell.x + ":" + cell.y}
+              x={cell.x} y={cell.y} width={4.15} height={4.15}
+              fill={heatColor(cell.value / peak)} opacity={Math.min(0.96, cell.value / peak * 12)} /> : null)}
+          </g></g>
           <line
             x1={mapShotX(25)}
             y1={SHOT_RINK.top}
@@ -297,7 +206,7 @@ function TeamShotMap({
           {renderedShots.map((shot) => {
             const x = mapShotX(shot.adjustedXCoordinate!);
             const y = mapShotY(shot.adjustedYCoordinate!);
-            const radius = shotRadius(shot.expectedGoal);
+            const radius = 3;
             const key = shotKey(shot);
             const navigationIndex = navigationIndexByKey.get(key)!;
             const isSelected = key === selectedShotId;
@@ -310,7 +219,7 @@ function TeamShotMap({
                 aria-pressed={isSelected}
                 aria-describedby={instructionsId}
                 className="workspace-shot-marker cursor-pointer"
-                onClick={() => setSelectedShotId(key)}
+                onClick={() => { setSelectedShotId(key); setDetailsOpen(true); }}
                 onFocus={() => setSelectedShotId(key)}
                 onKeyDown={(event) =>
                   handleMarkerKeyDown(event, navigationIndex)
@@ -335,7 +244,7 @@ function TeamShotMap({
                     cx={x}
                     cy={y}
                     r={
-                      shot.isGoal ? goalOuterRadius(radius) + 2.5 : radius + 3.5
+                      radius + 2.5
                     }
                     fill="none"
                     stroke="var(--foreground)"
@@ -343,20 +252,8 @@ function TeamShotMap({
                     opacity="0.95"
                   />
                 ) : null}
-                {shot.isGoal ? (
-                  <GoalMarker x={x} y={y} shotRadius={radius} />
-                ) : (
-                  <circle
-                    cx={x}
-                    cy={y}
-                    r={radius}
-                    fill={shot.wasOnGoal ? color : "transparent"}
-                    fillOpacity={shot.wasOnGoal ? 0.3 : 0}
-                    stroke={color}
-                    strokeWidth="1.25"
-                    strokeDasharray={!shot.wasOnGoal ? "2 2" : undefined}
-                  />
-                )}
+                <PuckMarker x={x} y={y} />
+
               </g>
             );
           })}
@@ -366,43 +263,53 @@ function TeamShotMap({
           id={instructionsId}
           className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[var(--muted)]"
         >
-          <LegendDot color={color} label="Missed" dashed />
-          <LegendDot color={color} label="Saved" fillOpacity={0.3} />
-          <LegendGoalMarker label="Goal" />
-          <span>
-            Marker size reflects expected-goal probability. Green puck halos
-            identify goals. Tab into the map, then use arrow keys, Home, or End
-            to inspect shots.
+          <span className="inline-flex items-center gap-2">Less xG
+            <span className="inline-block h-2 w-24 rounded" style={{ background: "linear-gradient(to right, var(--heat-low), var(--heat-mid), var(--heat-high), var(--heat-peak))" }} />
+            More xG
           </span>
-          {plottedShots.length < shots.length ? (
-            <span>
-              {plottedShots.length} of {shots.length} attempts have coordinates
-              and appear on the rink.
-            </span>
-          ) : null}
+          <span className="inline-flex items-center gap-2"><svg aria-hidden="true" viewBox="-7 -7 14 14" className="h-4 w-4"><PuckMarker x={0} y={0} /></svg>Goal</span>
+
         </div>
 
-        <label className="ux-chart-subject">
-          Select an Attempt
-          <select
-            value={selectedShotId ?? ""}
-            onChange={(event) => setSelectedShotId(event.target.value || null)}
-          >
-            <option value="">Choose an attempt</option>
-            {shots.map((shot) => (
-              <option key={shotKey(shot)} value={shotKey(shot)}>
-                P{shot.period} ·{" "}
-                {formatMoneyPuckPeriodClock(shot.gameTimeSeconds, shot.period)}{" "}
-                · {shot.shooter?.name ?? "Unknown shooter"} ·{" "}
-                {shot.isGoal ? "Goal" : shot.wasOnGoal ? "Saved" : "Missed"}
-              </option>
-            ))}
-          </select>
-        </label>
-        <ShotDetails shot={selectedShot} team={team} />
+        {detailsOpen && selectedShot ? <ShotPopup shot={selectedShot} team={team} onClose={() => setDetailsOpen(false)} /> : null}
       </div>
     </figure>
   );
+}
+
+function PuckMarker({ x, y }: { x: number; y: number }) {
+  return <g aria-hidden="true">
+    <ellipse cx={x} cy={y + 1} rx={4.5} ry={3.2} fill="var(--heat-puck)" stroke="var(--heat-puck-outline)" strokeWidth="0.9" />
+    <ellipse cx={x} cy={y - 0.6} rx={4.5} ry={2.5} fill="var(--heat-puck)" stroke="var(--heat-puck-outline)" strokeWidth="0.9" />
+    <path d={`M${x - 2.5} ${y - 1} Q${x} ${y - 2.4} ${x + 2.5} ${y - 1}`} fill="none" stroke="var(--heat-puck-highlight)" strokeWidth="0.65" />
+  </g>;
+}
+
+function ShotPopup({ shot, team, onClose }: {
+  shot: MoneyPuckShot;
+  team: MoneyPuckGameTeam;
+  onClose: () => void;
+}) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    dialog?.showModal();
+    return () => { if (dialog?.open) dialog.close(); };
+  }, []);
+  return <dialog ref={dialogRef} aria-labelledby={titleId}
+    className="reference-shot-popup"
+    onCancel={event => { event.preventDefault(); onClose(); }}
+    onClick={event => { if (event.target === event.currentTarget) {
+      const rect = event.currentTarget.getBoundingClientRect();
+      if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) onClose();
+    } }}>
+    <header className="flex items-center justify-between gap-4 border-b border-[var(--border)] px-4 py-3">
+      <h2 id={titleId} className="font-semibold">Shot Details</h2>
+      <button type="button" onClick={onClose} aria-label="Close shot details" className="px-3 py-2">✕</button>
+    </header>
+    <div className="p-4"><ShotDetails shot={shot} team={team} /></div>
+  </dialog>;
 }
 
 function ShotDetails({
@@ -412,14 +319,7 @@ function ShotDetails({
   shot: MoneyPuckShot | null;
   team: MoneyPuckGameTeam;
 }) {
-  if (!shot) {
-    return (
-      <p className="mt-4 rounded-xl border border-dashed border-[var(--border)] bg-[var(--surface-subtle)] px-4 py-3 text-sm text-[var(--muted)]">
-        Select any shot marker to see the shooter, result, game situation, and
-        shot-quality details.
-      </p>
-    );
-  }
+  if (!shot) return null;
 
   const score =
     shot.awayTeamGoals === null || shot.homeTeamGoals === null
@@ -436,7 +336,7 @@ function ShotDetails({
   return (
     <div
       aria-live="polite"
-      className="mt-4 rounded-xl border border-[var(--border)] bg-[var(--surface-subtle)] p-4"
+      className="reference-shot-details"
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -506,98 +406,30 @@ function ShotDetail({ label, value }: { label: string; value: string }) {
   );
 }
 
-function LegendDot({
-  color,
-  label,
-  fillOpacity = 0,
-  dashed = false,
-}: {
-  color: string;
-  label: string;
-  fillOpacity?: number;
-  dashed?: boolean;
-}) {
-  return (
-    <span className="inline-flex items-center gap-2">
-      <span
-        aria-hidden="true"
-        className="h-2.5 w-2.5 rounded-full border"
-        style={{
-          borderColor: color,
-          borderStyle: dashed ? "dashed" : "solid",
-          backgroundColor:
-            fillOpacity === 0
-              ? "transparent"
-              : `color-mix(in srgb, ${color} ${fillOpacity * 100}%, transparent)`,
-        }}
-      />
-      {label}
-    </span>
-  );
+function heatColor(intensity: number): string {
+  const stops = ["var(--heat-low)", "var(--heat-mid)", "var(--heat-high)", "var(--heat-peak)"];
+  const scaled = Math.max(0, Math.min(1, intensity)) * 3;
+  const index = Math.min(2, Math.floor(scaled));
+  return `color-mix(in srgb, ${stops[index]} ${(1 - (scaled - index)) * 100}%, ${stops[index + 1]})`;
 }
 
-function GoalMarker({
-  x,
-  y,
-  shotRadius,
-}: {
-  x: number;
-  y: number;
-  shotRadius: number;
-}) {
-  const outerRadius = goalOuterRadius(shotRadius);
-  const puckRadius = Math.max(shotRadius, 4.25);
-  return (
-    <>
-      <circle
-        cx={x}
-        cy={y}
-        r={outerRadius}
-        fill="color-mix(in srgb, var(--chart-goal) 24%, transparent)"
-        stroke="var(--chart-goal)"
-        strokeWidth="2.25"
-      />
-      <ellipse
-        cx={x}
-        cy={y}
-        rx={puckRadius}
-        ry={puckRadius * 0.72}
-        fill="var(--chart-puck)"
-        stroke="var(--chart-puck-highlight)"
-        strokeWidth="1.25"
-      />
-      <path
-        d={`M${x - puckRadius * 0.65} ${y - puckRadius * 0.28} Q${x} ${y - puckRadius * 0.65} ${x + puckRadius * 0.65} ${y - puckRadius * 0.28}`}
-        fill="none"
-        stroke="var(--chart-puck-highlight)"
-        strokeWidth="0.9"
-        opacity="0.8"
-      />
-    </>
-  );
-}
-
-function goalOuterRadius(shotRadius: number): number {
-  return Math.max(shotRadius + 3.5, 8);
-}
-
-function LegendGoalMarker({ label }: { label: string }) {
-  return (
-    <span className="inline-flex items-center gap-2">
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 16 16"
-        className="h-3.5 w-3.5 overflow-visible"
-      >
-        <GoalMarker x={8} y={8} shotRadius={3.5} />
-      </svg>
-      {label}
-    </span>
-  );
-}
-
-function shotRadius(expectedGoal: number | null): number {
-  return 2.75 + Math.sqrt(Math.max(0, expectedGoal ?? 0)) * 9;
+// Five-foot Gaussian smoothing on a fixed grid; both teams share the same peak.
+function buildHeat(shots: MoneyPuckShot[]) {
+  const modeled = shots.filter(shot => shot.adjustedXCoordinate != null &&
+    shot.adjustedYCoordinate != null && shot.expectedGoal != null);
+  const cells: { x: number; y: number; value: number }[] = [];
+  for (let y = 10; y < 265; y += 4) {
+    for (let x = 10; x < 310; x += 4) {
+      let value = 0;
+      for (const shot of modeled) {
+        const distanceSquared = (x + 2 - mapShotX(shot.adjustedXCoordinate!)) ** 2 +
+          (y + 2 - mapShotY(shot.adjustedYCoordinate!)) ** 2;
+        if (distanceSquared <= 45 ** 2) value += shot.expectedGoal! * Math.exp(-distanceSquared / (2 * 15 ** 2));
+      }
+      cells.push({ x, y, value });
+    }
+  }
+  return cells;
 }
 
 function sumExpectedGoals(shots: MoneyPuckShot[]): number {

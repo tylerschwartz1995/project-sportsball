@@ -160,7 +160,7 @@
   border-bottom: 1px solid var(--border);
   background: var(--surface-raised);
   color: var(--muted);
-  font-family: var(--font-geist-mono);
+  font-family: inherit;
   font-size: 0.88rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -248,7 +248,7 @@
   left: 0;
   z-index: 2;
   background: var(--table-background);
-  box-shadow: 1px 0 0 var(--border);
+  box-shadow: none;
 }
 
 .workspace-table thead .workspace-sticky-entity {
@@ -425,7 +425,7 @@
   left: 0;
   z-index: 1;
   background: var(--table-background);
-  box-shadow: 1px 0 0 var(--border);
+  box-shadow: none;
 }
 
 .workspace-table tbody tr:hover .workspace-sticky-team-cell {

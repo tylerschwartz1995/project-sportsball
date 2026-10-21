@@ -65,11 +65,21 @@ The league analytics route includes:
   that follow the selected vertical metric;
 - direct two-player comparisons across every available plot metric, games, and
   minutes for the current qualifying population;
-- team xG%, Corsi%, Fenwick%, expected goals, and actual goals;
-- skater game score, on-ice xG% and Corsi%, individual expected goals, goals,
-  and points;
-- goalie goals saved above expected, expected/actual goals against, and
-  expected/actual shots on goal;
+- team xG%, Corsi%, Fenwick%, expected goals per 60 minutes, and high-danger expected goals
+  for/against per 60 minutes in the selected situation (total × 3,600 ÷ ice-time
+  seconds), plus high-danger expected-goal share. Zero or missing ice time
+  displays as an em dash. HD xG% is HD xGF divided
+  by HD xGF + HD xGA; missing inputs or a zero denominator display as an em
+  dash. Regular-season values come from stored MoneyPuck season metrics;
+  playoff totals aggregate the selected phase’s game records and remain
+  missing when any contributing high-danger value is missing;
+- skater GP, TOI, P/60, ixG/60, CF%, on-ice xGF/60 and xGA/60, xG%,
+  and on-ice high-danger xG%. Rates use ice time in the selected situation;
+  missing inputs and zero denominators display as an em dash. The skater
+  leaderboard applies player-name and position filters before selecting up to
+  200 rows by P/60 for client-side sorting;
+- goalie GSAx/60, xGA/60, high-, medium-, and low-danger GSAx totals,
+  and rebounds per 60 minutes;
 - all-situations, five-on-five, power-play, and penalty-kill filters;
 - explicit minimum-ice-time thresholds for skaters and goalies;
 - sortable tables with links to supporting team and player profiles;
@@ -93,7 +103,7 @@ out of sync.
 
 League skater and goalie tables retain player-team splits rather than silently
 combining traded-player rows. They show at most 200 qualifying rows for the
-selected view: skaters are selected by Game Score and goalies by GSAx. Alternate
+selected view: skaters are selected by P/60 and goalies by GSAx/60. Alternate
 table sorts and plots operate within that capped player-team population.
 
 Team and skater views include:
@@ -180,3 +190,27 @@ and shootout attempts are excluded.
 - additional shot filters beyond the implemented period, result, and shooter;
 - score-state and venue line-combination splits (10/20/40-team-game rolling
   rankings already exist).
+
+### Simplified goalie leaderboard
+
+The goalie directory shows Goalie, GP, TOI, GSAx/60, xGA/60, HD GSAx,
+MD GSAx, LD GSAx, and Rebounds/60. It defaults to GSAx/60 descending,
+all situations, and no minimum ice time. Selection before the 200-row cap
+also uses GSAx/60. Danger-band GSAx values are season totals calculated
+from the corresponding MoneyPuck expected goals minus actual goals allowed.
+Rates use unrounded ice time in seconds: value × 3600 / seconds. Missing
+inputs and rates with zero ice time display as unavailable, not zero.
+Rebounds reflect workload as well as rebound control.
+
+Player profile career tables combine historical NHL season summaries with
+current normalized season fields. Advanced values are loaded in one grouped
+career query: skaters use 5-on-5 points and individual expected goals per 60
+plus on-ice xGF / (xGF + xGA); goalies use all-situations GSAx/60 and xGA/60.
+Team splits are summed before division, null inputs remain unavailable, and
+no regular-season advanced values are attached to playoff rows.
+
+The player career table keeps a fixed Career Total footer for the selected
+phase. Counting stats require complete season coverage. Rates are recomputed
+from summed raw numerators and denominators, including 5-on-5 seconds for
+skater rates and all-situations seconds for goalie rates. Missing inputs in
+any season produce an unavailable total rather than a partial career value.

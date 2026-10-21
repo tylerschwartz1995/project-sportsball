@@ -77,7 +77,7 @@
   .responsive-table-scroll .workspace-standings-table :is(th, td):nth-child(2) {
     position: sticky; left: 0; z-index: 2;
     width: 8rem; min-width: 8rem; max-width: 8rem;
-    white-space: normal; background: var(--surface); box-shadow: 1px 0 var(--border);
+    white-space: normal; background: var(--surface); box-shadow: none;
   }
   .workspace-standings-table .workspace-team-cell a { white-space: normal; }
   .responsive-table-scroll .workspace-standings-table :is(th, td):nth-child(3) { min-width: 3.5rem; }
@@ -90,7 +90,7 @@
   .workspace-history-table-shell .responsive-table-scroll .workspace-history-table tr > :nth-child(2) {
     position: sticky; left: 0; z-index: 2;
     width: 8.5rem; min-width: 8.5rem; max-width: 8.5rem;
-    white-space: normal; background: var(--surface); box-shadow: 1px 0 var(--border);
+    white-space: normal; background: var(--surface); box-shadow: none;
   }
   .workspace-history-table-shell .workspace-history-entity { min-width: 0; gap: .3rem; }
   .workspace-history-table-shell .workspace-history-entity :is(a, strong, span) { white-space: normal; overflow: visible; text-overflow: clip; }
@@ -108,7 +108,7 @@
   .responsive-table-scroll .workspace-unit-table[data-show-team="false"] th:first-child {
     position: sticky; left: 0; z-index: 2;
     min-width: 9rem; width: 9rem; max-width: 9rem;
-    white-space: normal; background: var(--surface); box-shadow: 1px 0 var(--border);
+    white-space: normal; background: var(--surface); box-shadow: none;
   }
   .workspace-unit-table .workspace-unit-identity a { white-space: normal; }
 
@@ -117,7 +117,7 @@
   .responsive-table-scroll .modern-draft-board tr > :nth-child(2) {
     position: sticky; left: 0; z-index: 2;
     width: 8rem; min-width: 8rem; max-width: 8rem;
-    white-space: normal; background: var(--surface); box-shadow: 1px 0 var(--border);
+    white-space: normal; background: var(--surface); box-shadow: none;
   }
   .modern-draft-board .workspace-team-cell :is(a, small, strong) { white-space: normal; }
 
@@ -205,7 +205,7 @@
   .workspace-mobile-goal-time { display: block; color: var(--muted); font-size: .75rem; white-space: nowrap; }
   .responsive-table-scroll .workspace-scoring-table tr > :first-child {
     position: sticky; left: 0; z-index: 2; width: 8.5rem; min-width: 8.5rem; max-width: 8.5rem;
-    white-space: normal; background: var(--surface); box-shadow: 1px 0 var(--border);
+    white-space: normal; background: var(--surface); box-shadow: none;
   }
   .workspace-scoring-table .workspace-entity-name { white-space: normal; }
   .workspace-scoring-table tr > :nth-child(2) { font-size: .875rem; }
@@ -214,7 +214,7 @@
   .responsive-table-scroll .workspace-table tr > .workspace-sticky-entity {
     position: sticky; left: 0; z-index: 2;
     width: 8.5rem; min-width: 8.5rem; max-width: 8.5rem;
-    white-space: normal; background: var(--surface); box-shadow: 1px 0 var(--border);
+    white-space: normal; background: var(--surface); box-shadow: none;
   }
   .workspace-unit-table[data-show-team="true"] tr > .workspace-sticky-entity:first-child { position: static; width: 3.5rem; min-width: 3.5rem; max-width: 3.5rem; }
 }

@@ -86,7 +86,7 @@ export function SortableHeader({
   }`;
   const content = (
     <>
-      {label}
+      <span className="workspace-sort-label">{label}</span>
       <span
         aria-hidden="true"
         className={`shrink-0 ${
@@ -131,6 +131,7 @@ export function SortableHeader({
         {href ? (
           <Link
             href={href}
+            navigation="preserve"
             {...tooltipEvents}
             aria-describedby={effectiveDescription ? helpId : undefined}
             className={controlClassName}

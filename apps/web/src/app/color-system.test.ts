@@ -27,8 +27,8 @@ describe("color system", () => {
   });
 
   it("keeps categorical chart colors distinguishable from their surfaces", () => {
-    const darkTokens = tokenBlock(":root");
-    const lightTokens = tokenBlock('html[data-theme="light"]');
+    const darkTokens = tokenBlock('html[data-theme="dark"]');
+    const lightTokens = tokenBlock(":root");
 
     for (const tokens of [darkTokens, lightTokens]) {
       const surface = token(tokens, "--surface");

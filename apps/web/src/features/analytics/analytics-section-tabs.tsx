@@ -25,7 +25,7 @@ export function AnalyticsSectionTabs({
     {
       id: "skaters",
       label: "Player Stats",
-      href: `/analytics?season=${seasonId}&type=skaters&situation=5on5&minimum=300`,
+      href: `/analytics?season=${seasonId}&type=skaters&situation=5on5`,
     },
     {
       id: "guide",

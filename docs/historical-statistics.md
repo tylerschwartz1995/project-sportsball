@@ -25,6 +25,10 @@ Normalized tables are:
 - `historical_goalie_season_stats`;
 - `historical_team_season_stats`.
 
+The basic team stats tables also read PP% and PK% from the team summary
+rows, matched by NHL team ID, season, and game type. Stored fractions display
+as percentages; missing values display as an em dash.
+
 Every row is unique by source identity, season, and game type. Regular season
 uses NHL game type 2 and playoffs use type 3. Fields unavailable in an earlier
 era remain `NULL`; they are never converted to zero.

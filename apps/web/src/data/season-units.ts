@@ -36,6 +36,8 @@ type SeasonUnitRow = {
   goals_against: number | null;
   shots_on_goal_for: number | null;
   shots_on_goal_against: number | null;
+  shot_attempts_for: number | null;
+  shot_attempts_against: number | null;
   high_danger_x_goals_for: number | null;
   high_danger_x_goals_against: number | null;
 };
@@ -152,6 +154,8 @@ export async function listMoneyPuckSeasonUnits(
         stats.x_goals_against,
         stats.goals_for,
         stats.goals_against,
+        stats.shot_attempts_for,
+        stats.shot_attempts_against,
         stats.shots_on_goal_for,
         stats.shots_on_goal_against,
         stats.high_danger_x_goals_for,
@@ -253,6 +257,8 @@ async function listRollingMoneyPuckSeasonUnits(
           SUM(x_goals_against)::float AS x_goals_against,
           SUM(goals_for)::float AS goals_for,
           SUM(goals_against)::float AS goals_against,
+          SUM(shot_attempts_for)::float AS shot_attempts_for,
+          SUM(shot_attempts_against)::float AS shot_attempts_against,
           SUM(shots_on_goal_for)::float AS shots_on_goal_for,
           SUM(shots_on_goal_against)::float AS shots_on_goal_against,
           SUM(high_danger_x_goals_for)::float AS high_danger_x_goals_for,
@@ -285,6 +291,8 @@ async function listRollingMoneyPuckSeasonUnits(
         aggregate.x_goals_against,
         aggregate.goals_for,
         aggregate.goals_against,
+        aggregate.shot_attempts_for,
+        aggregate.shot_attempts_against,
         aggregate.shots_on_goal_for,
         aggregate.shots_on_goal_against,
         aggregate.high_danger_x_goals_for,
@@ -460,6 +468,8 @@ function mapSeasonUnit(row: SeasonUnitRow): MoneyPuckSeasonUnitStats {
     goalsAgainst: row.goals_against,
     shotsOnGoalFor: row.shots_on_goal_for,
     shotsOnGoalAgainst: row.shots_on_goal_against,
+    shotAttemptsFor: row.shot_attempts_for ?? null,
+    shotAttemptsAgainst: row.shot_attempts_against ?? null,
     highDangerExpectedGoalsFor: row.high_danger_x_goals_for,
     highDangerExpectedGoalsAgainst: row.high_danger_x_goals_against,
   };
