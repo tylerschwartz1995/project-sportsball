@@ -25,7 +25,7 @@ export function TeamLinesTable({ title, rows, seasonId }: {
     {rows.length ? <div className="workspace-data-table-shell">
       <SortableTable defaultSortKey="iceTime">
         <TableScroll>
-          <table className="workspace-table workspace-table-semantic min-w-[1660px]">
+          <table className="workspace-table workspace-table-semantic mobile-unit-table min-w-[1660px]">
             <colgroup><col style={{ width: "400px" }} /><col span={14} /></colgroup>
             <thead><tr>
               <SortableHeader label="Players" sticky sortKey="players" align="left" defaultDirection="asc" />

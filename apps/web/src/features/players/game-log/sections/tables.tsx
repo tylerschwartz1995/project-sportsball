@@ -34,7 +34,7 @@ export function SkaterGameTable({
     >
       <SortableTable secondaryColumns={[2, 10, 12, 13, 15, 16, 17]} initialExpanded={["type", "plusMinus", "hits", "blockedShots", "gameScore", "individualXGoals", "onIceXGoalsPercentage"].includes(sort)} defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
         <TableScroll className="workspace-table-scroll-viewport">
-          <table className="workspace-table-dense workspace-sticky-table-header w-full min-w-[1380px] text-sm">
+          <table className="workspace-table workspace-table-dense workspace-sticky-table-header w-full min-w-[1380px] text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                 <LogHeaders goalie={false} />
@@ -110,7 +110,7 @@ export function GoalieGameTable({
     >
       <SortableTable secondaryColumns={[2, 7, 11, 14, 15]} initialExpanded={["type", "starter", "saves", "expectedGoalsAgainst", "goalsSavedAboveExpected"].includes(sort)} defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
         <TableScroll className="workspace-table-scroll-viewport">
-          <table className="workspace-table-dense workspace-sticky-table-header w-full min-w-[1220px] text-sm">
+          <table className="workspace-table workspace-table-dense workspace-sticky-table-header w-full min-w-[1220px] text-sm">
             <thead>
               <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                 <LogHeaders goalie />

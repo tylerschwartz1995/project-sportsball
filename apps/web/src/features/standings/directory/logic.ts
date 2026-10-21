@@ -23,7 +23,7 @@ export const standingsColumns: Array<{
   align?: "left" | "center" | "right";
   defaultDirection?: "asc" | "desc";
 }> = [
-    { key: "rank", label: "Rank", align: "center", defaultDirection: "asc" },
+    { key: "rank", label: "#", align: "center", defaultDirection: "asc" },
     { key: "team", label: "Team", align: "left", defaultDirection: "asc" },
     { key: "games", label: "GP" },
     { key: "wins", label: "W" },

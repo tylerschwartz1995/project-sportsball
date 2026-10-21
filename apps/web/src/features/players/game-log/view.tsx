@@ -28,7 +28,7 @@ export function PlayerGamesPageView({
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="players" />
 
-      <section className="py-10">
+      <section className="game-log-page py-10">
         <Link
           href={`/players/${log.profile.nhlPlayerId}?season=${selectedSeason.id}&phase=${phase}`}
           className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
@@ -36,7 +36,7 @@ export function PlayerGamesPageView({
           ← {log.profile.name}
         </Link>
 
-        <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="game-log-header mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="font-mono text-sm uppercase tracking-[0.18em] text-[var(--accent)]">
               {formatPlayerPosition(log.profile.position, "Player")} ·{" "}

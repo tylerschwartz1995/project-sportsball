@@ -214,13 +214,11 @@ export function PlayersPageView({
                                       />
                                     </td>
                                     <NumericCell value={player.gamesPlayed} />
-                                    <NumericCell value={player.wins} />
-                                    <NumericCell value={player.losses} />
-                                    <NumericCell
-                                      value={player.overtimeLosses}
-                                    />
                                     <NumericCell value={formatSavePercentage(player.savePercentage)} />
                                     <NumericCell value={player.timeOnIceSeconds > 0 ? (player.goalsAgainst * 3600 / player.timeOnIceSeconds).toFixed(2) : "—"} />
+                                    <NumericCell value={player.wins} />
+                                    <NumericCell value={player.losses} />
+                                    <NumericCell value={player.overtimeLosses} />
                                     <NumericCell value={player.shutouts ?? "—"} />
                                   </tr>
                                 ))}

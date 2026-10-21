@@ -318,9 +318,9 @@ function DateLink({
   seasonId: number;
 }) {
   return disabled ? (
-    <span aria-disabled="true">{label}</span>
+    <span aria-disabled="true" aria-label={label}><span className="week-link-full">{label}</span><span className="week-link-short">{label.replace(" Week", "")}</span></span>
   ) : (
-    <Link href={gamesHref({ seasonId, date })}>{label}</Link>
+    <Link aria-label={label} href={gamesHref({ seasonId, date })}><span className="week-link-full">{label}</span><span className="week-link-short">{label.replace(" Week", "")}</span></Link>
   );
 }
 

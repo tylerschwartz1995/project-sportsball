@@ -148,8 +148,9 @@ function ScheduleGameRows({
       ) : null}
       <tr className={showUpcomingBoundary ? "bg-[var(--accent-soft)]/30" : undefined}>
         <td className="whitespace-nowrap px-5 text-left tabular-nums">
-          <Link href={`/games/${game.nhlGameId}`} className="font-medium text-[var(--foreground)]">
-            {formatGameDate(game.gameDate)}
+          <Link href={`/games/${game.nhlGameId}`} aria-label={formatGameDate(game.gameDate)} className="font-medium text-[var(--foreground)]">
+            <span className="schedule-date-full">{formatGameDate(game.gameDate)}</span>
+            <span className="schedule-date-short">{formatGameDate(game.gameDate).split(", ").at(-1)}</span>
           </Link>
         </td>
         <td className="px-5 text-left">
@@ -157,9 +158,11 @@ function ScheduleGameRows({
             <TeamLogo {...opponent} size="tiny" decorative />
             <Link
               href={`/teams/${opponent.nhlTeamId}?season=${seasonId}&phase=${game.gameType === 3 ? "playoffs" : "regular"}`}
+              aria-label={`${isHome ? "Home vs" : "Away at"} ${opponent.name}`}
               className="font-medium text-[var(--foreground)]"
             >
-              {opponent.name}
+              <span className="schedule-opponent-full">{opponent.name}</span>
+              <span className="schedule-opponent-short">{isHome ? "vs" : "@"} {opponent.abbreviation}</span>
             </Link>
             <TeamGameRecord record={opponent.record} />
           </span>

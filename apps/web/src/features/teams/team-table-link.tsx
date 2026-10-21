@@ -4,9 +4,10 @@ import { TeamLogo } from "@/features/teams/team-logo";
 
 export function TeamTableLink({ team, href }: { team: TeamIdentity; href: string }) {
   return (
-    <Link className="reference-team-name" href={href}>
+    <Link className="reference-team-name" href={href} aria-label={team.name}>
       <TeamLogo {...team} size="tiny" decorative />
-      <span>{team.name}</span>
+      <span className="team-name-full">{team.name}</span>
+      <span className="team-name-short" aria-hidden="true">{team.abbreviation}</span>
     </Link>
   );
 }
