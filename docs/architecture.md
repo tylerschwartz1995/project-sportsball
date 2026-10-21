@@ -302,8 +302,10 @@ An authenticated cache-expiry endpoint invalidates shared website reads after
 core publication. See [Daily ingestion](daily-ingestion.md) for implementation
 boundaries, cooldowns, capacity checks, and the activation runbook.
 
-## Passkey Login Preparation
+## Passkey Login
 
-An opt-in passkey flow is implemented separately from the current hosted login.
-See [Passkey login](passkey-login.md) for rollout, database isolation, recovery,
-and real-device testing. Production activation requires explicit approval.
+Production passkey login was activated with Tyler’s approval on October 21, 2026.
+Better Auth manages persistent sessions and passkeys in a dedicated database;
+Neon Auth verifies email codes for enrollment and recovery. The same two-account
+allowlist remains enforced. See [Passkey login](passkey-login.md) for activation,
+rollback, database isolation, and remaining real-device checks.

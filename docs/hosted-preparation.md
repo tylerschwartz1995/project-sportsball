@@ -55,11 +55,10 @@ rates and unrelated account usage are excluded.
 
 ## Website credentials and connections
 
-Managed Neon Auth with email codes remains the active hosted login method.
-The opt-in passkey replacement is documented below and is not yet activated. The app now integrates Neon's server SDK and independently requires a
-verified email from the two-address allowlist. Hosted login is now active on
-the production website. Neon console passkeys authenticate the developer console,
-not this app.
+Passkeys and persistent app sessions are active in production as of October 21,
+2026. Neon Auth email codes remain available for enrollment and recovery. The app
+requires a verified email from the existing two-address allowlist. Neon console
+passkeys authenticate the developer console, not this app.
 
 Set Vercel's Root Directory to `apps/web`; use the Next.js preset. Configure only
 Production (configured under Tyler’s deployment approval):
@@ -86,12 +85,14 @@ The login page, bundled static assets and favicon are public. Statistics pages,
 APIs and RSC requests require a verified, approved account. Protected responses
 are private/no-store. Only the exact ingestion revalidation POST bypasses session
 login; that handler still checks its own bearer token. Anonymous requests are
-rejected without contacting Neon. Authenticated requests revalidate sessions
-with Neon (bypassing its signed session cache), so revocation is prompt, at the
-cost of an additional Auth request per protected request. This can add cold-start
+rejected without contacting Neon. Authenticated requests revalidate app sessions
+in the dedicated authentication database, so revocation is prompt, at the cost
+of a database read per protected request. This can add cold-start
 latency and compute; no background session polling is used.
 
-Only send-code, verify-code and sign-out POST endpoints are exposed. They require
+The legacy email interface exposes only send-code, verify-code and sign-out POST
+endpoints. The passkey interface exposes only the session and credential actions
+listed in `apps/web/src/auth/passkeys.ts`. POST requests require
 the configured same-site Origin; arbitrary Neon admin/account APIs are not proxied.
 The app requests email delivery only for allowed addresses, but returns a generic
 success for other addresses. Neon's upstream signup policy still applies: an
@@ -465,8 +466,10 @@ Sources: [Neon pricing](https://neon.com/pricing),
 [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions),
 [Vercel Hobby](https://vercel.com/docs/plans/hobby).
 
-## Passkey Login Preparation
+## Passkey Login
 
-An opt-in passkey flow is implemented separately from the current hosted login.
-See [Passkey login](passkey-login.md) for rollout, database isolation, recovery,
-and real-device testing. Production activation requires explicit approval.
+Production passkey login was activated with Tyler’s approval on October 21, 2026.
+Better Auth manages persistent sessions and passkeys in a dedicated database;
+Neon Auth verifies email codes for enrollment and recovery. The same two-account
+allowlist remains enforced. See [Passkey login](passkey-login.md) for activation,
+rollback, database isolation, and remaining real-device checks.
