@@ -1,0 +1,123 @@
+/* Phone layouts come last so desktop presentation cannot override them. */
+.mobile-column-picker, .mobile-view-picker, .mobile-filter-toggle { display: none; }
+@media (max-width: 767px) {
+  main { min-width: 0; }
+  main > section { padding-top: 1.25rem; padding-bottom: 1.5rem; }
+  .site-header { gap: 0; min-width: 0; padding-top: .5rem; }
+  .site-navigation { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); width: 100%; gap: 2px; margin-top: .5rem; padding-bottom: .5rem; }
+  .site-navigation a { min-width: 0; padding: .6rem .15rem; font-size: .875rem; }
+  .site-brand { font-size: 1rem; }
+  .site-topbar { min-width: 0; }
+  main .workspace-scroll-nav { flex-wrap: wrap; overflow: visible; gap: 0; }
+  main .workspace-scroll-nav a { min-width: 0; padding: .6rem .4rem; font-size: .875rem; }
+  main .workspace-scroll-nav[data-mobile-select=true] { display: none; }
+  .mobile-view-picker, .mobile-column-picker { display: flex; align-items: center; justify-content: space-between; gap: .75rem; color: var(--muted); font-size: .875rem; }
+  .mobile-view-picker { margin: 1.25rem 0; }
+  .mobile-column-picker { padding: .5rem .65rem; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .mobile-view-picker select, .mobile-column-picker select { min-width: 0; max-width: 75%; min-height: 44px; font-size: 16px; background: var(--surface-raised); color: var(--foreground); border: 1px solid var(--control-border); border-radius: var(--control-radius); padding: .4rem 1.8rem .4rem .6rem; }
+  .mobile-filter-toggle { display: block; width: 100%; text-align: left; min-height: 44px; color: var(--accent); font-weight: 600; }
+  form[data-mobile-collapsed=true] > :not(.mobile-filter-toggle) { display: none !important; }
+  main :is(.reference-player-filters,.workspace-analytics-filters) { margin: .75rem 0; padding: .4rem .75rem; gap: .5rem; }
+  main .workspace-analytics-filters { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .workspace-analytics-filters > .mobile-filter-toggle { grid-column: 1 / -1; }
+  main :is(input,select) { max-width: 100%; min-width: 0; font-size: 16px; }
+  .responsive-table-scroll { max-height: none; overflow: auto; }
+  .responsive-table-scroll:has([data-mobile-columns]) { overflow: visible; }
+  .responsive-table-scroll:has([data-mobile-columns])::before { display: none; }
+  main .responsive-table-scroll table[data-mobile-columns] { display: block; width: 100%; min-width: 0; max-width: 100%; table-layout: auto; font-size: .875rem; }
+  table[data-mobile-columns] :is(thead,tbody,tfoot) { display: block; position: static; }
+  table[data-mobile-columns] colgroup { display: none; }
+  main table[data-mobile-columns] tr { display: grid; grid-template-columns: repeat(var(--mobile-column-count,3),minmax(0,1fr)); border-bottom: 1px solid var(--border); }
+  main table[data-mobile-columns] tr > :is(th,td) { position: static; width: auto; min-width: 0; max-width: none; padding: .35rem .5rem; font-size: .875rem; text-align: center; white-space: nowrap; border: 0; box-shadow: none; }
+  main table[data-mobile-columns] tr > [data-mobile-visible=false] { display: none; }
+  main table[data-mobile-columns] tr > [data-mobile-entity=true] { grid-column: 1 / -1; text-align: left; padding-top: .5rem; font-weight: 600; }
+  main table[data-mobile-columns] tr > [data-mobile-entity=true] :is(div,span) { min-width: 0; max-width: 100%; }
+  main table[data-mobile-columns] tr > [data-mobile-entity=true] a { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  main table[data-mobile-columns] .reference-player-identity a { font-size: .875rem; }
+  main table[data-mobile-columns] :is(th,td) > :is(a,button), main table[data-mobile-columns] td a { min-height: 32px; }
+  main table[data-mobile-columns] th :is(a,button) { min-height: 44px; font-size: .875rem; padding: .35rem; }
+  main table[data-mobile-columns] tfoot tr { background: var(--surface-raised); }
+  main table[data-mobile-columns] tfoot :is(th,td) { font-size: .875rem; }
+  .reference-player-position { font-size: .75rem; }
+  .reference-player-bio { flex-wrap: wrap; white-space: normal; overflow: visible; gap: .4rem .75rem; }
+  .reference-player-bio > span { flex-shrink: 1; min-width: 0; }
+  .reference-player-bio > span + span { border: 0; padding: 0; }
+  .modern-player-identity { margin-top: 0; }
+  .reference-player-profile-heading { flex-wrap: nowrap; gap: .5rem; }
+  main .reference-player-profile-heading h1 { font-size: clamp(1.1rem,5vw,1.6rem); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .modern-player-identity .reference-player-profile-position { font-size: 1rem; }
+  .modern-profile-identity { min-width: 0; }
+  .workspace-game-hero { margin-top: 1rem; }
+  .workspace-game-hero-meta { flex-wrap: wrap; gap: .5rem; padding: .75rem; }
+  .workspace-game-score-name { min-width: 0; }
+  .workspace-game-score-name a { font-size: .9375rem; }
+  .workspace-game-hero-score { padding: .75rem; }
+  .workspace-game-score-team { padding: .5rem 0; }
+  .workspace-schedule-toolbar { grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: .5rem; padding: .75rem; }
+  .workspace-schedule-toolbar > form:first-child { grid-column: 1; grid-row: 1; }
+  main .workspace-schedule-toolbar > form.workspace-schedule-calendar { grid-column: 2; grid-row: 1; }
+  .workspace-schedule-toolbar > .workspace-schedule-calendar-action { grid-column: 1 / -1; }
+  .workspace-schedule-toolbar input[type=date] { width: 100%; }
+  .workspace-game-flow-chart { height: 300px; min-height: 0; }
+  .workspace-game-flow-pressure-axis { width: 40px; right: 0; font-size: .7rem; }
+  .workspace-game-flow-controls { gap: .75rem; padding: .75rem; }
+  .workspace-game-flow-controls p { font-size: .75rem; }
+  .workspace-game-flow-controls button { font-size: .8125rem; padding: .5rem; min-height: 44px; }
+  main.login-page { margin: 1.5rem auto; }
+  .login-form input { width: 100%; min-width: 0; font-size: 16px; }
+  .passkey-row { flex-wrap: wrap; }
+
+  .responsive-table-scroll:has(.workspace-scoring-table,.mobile-schedule-table)::before { display: none; }
+  .responsive-table-scroll:has(.workspace-scoring-table,.mobile-schedule-table) { overflow: visible; }
+  main .responsive-table-scroll :is(.workspace-scoring-table,.mobile-schedule-table) { display: block; width: 100%; min-width: 0; }
+  :is(.workspace-scoring-table,.mobile-schedule-table) :is(tbody,tfoot) { display: block; }
+  :is(.workspace-scoring-table,.mobile-schedule-table) thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  :is(.workspace-scoring-table,.mobile-schedule-table) colgroup { display: none; }
+  main :is(.workspace-scoring-table,.mobile-schedule-table) tr { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); padding: .65rem; gap: .25rem; border-bottom: 1px solid var(--border); }
+  main :is(.workspace-scoring-table,.mobile-schedule-table) tr > :is(td,th) { position: static; width: auto; min-width: 0; max-width: none; padding: .15rem; border: 0; font-size: .875rem; white-space: normal; text-align: left; box-shadow: none; }
+  main .workspace-scoring-table td:nth-child(1)::before { content: "Period "; }
+  main .workspace-scoring-table td:nth-child(-n+3) { color: var(--muted); font-size: .75rem; align-content: center; }
+  main .workspace-scoring-table td:nth-child(3) { text-align: right; }
+  main .workspace-scoring-table td:nth-child(4) { grid-column: 1 / 3; grid-row: 2; align-content: center; }
+  main .workspace-scoring-table td:nth-child(6) { grid-column: 3; grid-row: 2; text-align: right; align-content: center; font-size: 1rem; }
+  main .workspace-scoring-table td:nth-child(5) { grid-column: 1 / -1; grid-row: 3; font-size: .8125rem; }
+  main .workspace-scoring-table td:nth-child(5)::before { content: "Assists: "; color: var(--muted); }
+  main .workspace-scoring-table td:nth-child(5) > span { display: inline-flex; flex-direction: row; flex-wrap: wrap; gap: .25rem .75rem; }
+  main .workspace-scoring-table td:nth-child(7) { grid-column: 1 / -1; color: var(--muted); font-size: .75rem; }
+  main .workspace-scoring-table td a { min-height: 32px; white-space: nowrap; }
+  main .mobile-schedule-table tr > [colspan] { grid-column: 1 / -1; }
+  main .mobile-schedule-table td:nth-child(1):not([colspan]) { grid-column: 1 / 3; grid-row: 1; }
+  main .mobile-schedule-table td:nth-child(2) { grid-column: 1 / -1; grid-row: 2; }
+  main .mobile-schedule-table td:nth-child(2) > span { max-width: 100%; flex-wrap: wrap; }
+  main .mobile-schedule-table td:nth-child(3) { grid-column: 3; grid-row: 1; text-align: right; align-content: center; }
+  main .mobile-schedule-table td:nth-child(4) { grid-column: 1; grid-row: 3; align-content: center; }
+  main .mobile-schedule-table td:nth-child(5) { grid-column: 2 / -1; grid-row: 3; text-align: right; align-content: center; }
+  main .mobile-schedule-table td a { min-height: 32px; }
+
+  main table[data-mobile-columns] tbody td[data-mobile-visible=true]:not([data-mobile-entity=true])::before,
+  main table[data-mobile-columns] tfoot td[data-mobile-visible=true]:not([data-mobile-entity=true])::before { content: attr(data-mobile-label); display: block; font-size: .7rem; line-height: 1.4; font-weight: 500; color: var(--muted); }
+
+  main .responsive-table-scroll table[data-mobile-columns] thead .workspace-sortable-header :is(button,a) { font-size: .875rem; }
+
+  /* Neutralize legacy sticky/essential-column widths inside the phone grid. */
+  main .responsive-table-scroll table[data-mobile-columns] tr > :is(th,td) { position: static !important; width: auto !important; min-width: 0 !important; max-width: none !important; height: auto; }
+  main .responsive-table-scroll table[data-mobile-columns] tr > [data-mobile-visible=true] { display: block !important; }
+  main .responsive-table-scroll table[data-mobile-columns] tr > [data-mobile-visible=false] { display: none !important; }
+
+  main .responsive-table-scroll :is(.workspace-scoring-table,.mobile-schedule-table) thead { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  main .responsive-table-scroll :is(.workspace-scoring-table,.mobile-schedule-table) tr > :is(td,th) { padding: .15rem; position: static !important; width: auto !important; min-width: 0 !important; max-width: none !important; height: auto; }
+
+  .mobile-detail-filters { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .75rem; }
+  .mobile-detail-filters label { min-width: 0; font-size: .8125rem; }
+  .mobile-detail-filters label:first-child:nth-last-child(3) { grid-column: 1 / -1; }
+  .mobile-detail-filters select { width: 100%; padding-inline: .5rem; }
+
+  .workspace-game-flow-pressure-axis { width: 48px; right: 3px; }
+  .workspace-game-flow-pressure-axis small { left: .5rem; font-size: .65rem; }
+  .workspace-game-flow-pressure-axis > span { font-size: .7rem; }
+
+  .workspace-system-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; }
+  .workspace-system-actions a { min-height: 44px; display: inline-flex; align-items: center; }
+  .workspace-empty-state { display: flex; flex-direction: column; gap: .65rem; }
+  .workspace-empty-state a { min-height: 44px; display: inline-flex; align-items: center; }
+}

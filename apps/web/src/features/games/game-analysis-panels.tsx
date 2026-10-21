@@ -20,7 +20,7 @@ export function GameAnalysisPanel({ data, view, boxScore = null, events = [] }: 
     const rows = (type === "forwards" ? data.forwardLines : data.defensivePairings)
       .filter(row => row.team.nhlTeamId === team.nhlTeamId && row.iceTimeSeconds >= Number(minimum));
     return <section className="mt-6 min-h-[100dvh]">
-      <div className="mb-5 flex flex-wrap gap-4">
+      <div className="mobile-detail-filters mb-5 flex flex-wrap gap-4">
         <label className="flex flex-col gap-2">Team<select value={side} onChange={e => setSide(e.target.value as typeof side)}><option value="away">{data.game.awayTeam.name}</option><option value="home">{data.game.homeTeam.name}</option></select></label>
         <label className="flex flex-col gap-2">Line Type<select value={type} onChange={e => setType(e.target.value as typeof type)}><option value="forwards">Forward Lines</option><option value="defense">Defense Pairings</option></select></label>
         <label className="flex flex-col gap-2">Minimum TOI<select value={minimum} onChange={e => setMinimum(e.target.value as typeof minimum)}>{["0", "60", "180", "300", "600"].map(n => <option key={n} value={n}>{n === "0" ? "No minimum" : `${Number(n) / 60} ${n === "60" ? "minute" : "minutes"}`}</option>)}</select></label>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo } from "react";
+import { Fragment, useMemo, useState } from "react";
 import {
   Area,
   CartesianGrid,
@@ -37,6 +37,7 @@ type ChartPoint = GameFlowPoint & {
 };
 
 export function GameFlowChart({ flow }: { flow: GameFlow }) {
+  const [compact, setCompact] = useState(false);
   const [view, setView] = useUrlChoice<GameFlowView>("flowChart", ["pressure", "cumulative"], "pressure");
   const points = useMemo<ChartPoint[]>(
     () => {
@@ -104,7 +105,7 @@ export function GameFlowChart({ flow }: { flow: GameFlow }) {
         </ChartFilterGroup>
         <p>
           {view === "pressure"
-            ? "Farther from centre means a stronger edge. Game-relative scale; hover for exact values."
+            ? "Farther from centre means a stronger edge. Game-relative scale; tap or hover for exact values."
             : "A steeper rise means better chances. Scale adapts to this game."}
         </p>
       </div>
@@ -127,12 +128,12 @@ export function GameFlowChart({ flow }: { flow: GameFlow }) {
             </span>
           </div>
         ) : null}
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" onResize={width => setCompact(width < 500)}>
           <ComposedChart
             data={points}
             margin={{
               top: 12,
-              right: view === "pressure" ? 78 : 20,
+              right: view === "pressure" ? (compact ? 48 : 78) : 20,
               bottom: 8,
               left: 4,
             }}
@@ -166,8 +167,8 @@ export function GameFlowChart({ flow }: { flow: GameFlow }) {
               tickLine={false}
               axisLine={false}
               allowDataOverflow
-              width={68}
-              label={{
+              width={compact ? 36 : 68}
+              label={compact ? undefined : {
                 value: "Expected goals",
                 angle: -90,
                 position: "insideLeft",

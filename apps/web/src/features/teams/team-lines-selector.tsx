@@ -17,7 +17,7 @@ export function TeamLinesSelector({ forwards, defense, seasonId }: {
   const [minimum, setMinimum] = useUrlChoice("lineMinimum", minimumOptions, "0");
   const rows = (type === "forwards" ? forwards : defense).filter(row => row.iceTimeSeconds >= Number(minimum) * 60);
   return <div>
-    <div className="mb-5 flex flex-wrap gap-4">
+    <div className="mobile-detail-filters mb-5 flex flex-wrap gap-4">
     <label className="flex w-full max-w-xs flex-col gap-2 font-medium">
       Line Type
       <select value={type} onChange={event => setType(event.target.value as typeof type)}>

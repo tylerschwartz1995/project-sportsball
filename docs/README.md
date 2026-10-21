@@ -59,6 +59,7 @@ scheduling and predictive modelling remain deferred.
 - [Advanced leaderboards and analytics](advanced-analytics.md)
 - [Team season line/pairing statistics](season-line-rankings.md)
 - [Filter behavior and regression coverage](filter-consistency.md)
+- [Mobile layouts and view-by-view audit](mobile-layouts-2026-10-21.md)
 - [Desktop interaction regression checklist](desktop-ux-regression.md)
 - [Visual polish audit and fixes](visual-polish-audit-2026-09-06.md)
 - [Scroll and navigation audit](scroll-navigation-audit-2026-09-06.md): refresh, filters, pagination, tabs, schedule navigation, and return-position rules.

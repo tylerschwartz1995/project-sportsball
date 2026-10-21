@@ -19,7 +19,7 @@ export function BoxScoreSelector({ awayTeam, homeTeam, seasonId, skaterSituation
   const [type, setType] = useUrlChoice("boxType", playerTypes, "skaters");
   const team = side === "away" ? awayTeam : homeTeam;
   return <section className="mt-6 min-w-0" aria-label="Game box score">
-    <div className="mb-5 flex flex-wrap gap-4">
+    <div className="mobile-detail-filters mb-5 flex flex-wrap gap-4">
       <label className="flex w-full max-w-xs flex-col gap-2 font-medium">
         Team
         <select value={side} onChange={event => setSide(event.target.value as typeof side)}>
