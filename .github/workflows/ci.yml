@@ -135,6 +135,9 @@ jobs:
       - name: Browser smoke tests
         run: npm run test:browser:smoke --prefix apps/web
 
+      - name: Passkey browser tests
+        run: npm run test:browser:passkeys --prefix apps/web
+
   hosted-preparation:
     name: Hosted preparation
     runs-on: ubuntu-latest

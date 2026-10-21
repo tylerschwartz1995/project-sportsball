@@ -7,6 +7,7 @@ import { ScrollNavigation } from "@/components/shell/scroll-navigation";
 import { WebVitals } from "@/components/shell/web-vitals";
 import "@/styles/index.css";
 import { privateAccessRequired } from "@/auth/access";
+import { passkeysEnabled } from "@/auth/passkeys";
 import { SignOut } from "@/auth/sign-out";
 
 const interfaceFont = Manrope({
@@ -75,7 +76,7 @@ export default async function RootLayout({
         </div>
         {privateAccessRequired() && (
           <div className="px-4 py-4 text-right text-sm text-[var(--muted)] sm:px-8">
-            <SignOut />
+            <SignOut passkeys={passkeysEnabled()} />
           </div>
         )}
       </body>

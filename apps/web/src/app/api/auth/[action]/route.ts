@@ -1,3 +1,4 @@
+import { passkeyAuth, passkeysEnabled } from "@/auth/passkeys";
 import { NextRequest, NextResponse } from "next/server";
 import { allowedUser, privateAccessRequired } from "@/auth/access";
 import { privateResponse, requestAuth } from "@/auth/server";
@@ -12,6 +13,10 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
     if (request.headers.get("origin") !== config.origin) return fail(403, "Request not allowed.");
     const { action } = await context.params;
     if (action === "sign-out") {
+      if (passkeysEnabled()) {
+        const result = await passkeyAuth().api.signOut({ headers: request.headers, asResponse: true });
+        return privateResponse(new NextResponse(result.body, { status: result.status, headers: result.headers }));
+      }
       const result = await auth.signOut();
       if (result.error) return fail(503, "Sign-out failed. Please retry.");
       return response;
@@ -31,6 +36,12 @@ export async function POST(request: NextRequest, context: { params: Promise<{ ac
       return response;
     }
     if (typeof body.otp !== "string" || !/^\d{6}$/.test(body.otp)) return fail(400, "Enter the six-digit code.");
+    if (passkeysEnabled()) {
+      const result = await passkeyAuth().handler(new Request(new URL("/api/passkey/email-code", config.origin), {
+        method: "POST", headers: request.headers, body: JSON.stringify({ email, otp: body.otp }),
+      }));
+      return privateResponse(new NextResponse(result.body, { status: result.status, headers: result.headers }));
+    }
     const result = await auth.signIn.emailOtp({ email, otp: body.otp });
     if (result.error || (!allowedUser(result.data?.user, config.emails) || result.data?.user.email.toLowerCase() !== email)) return fail(401, "Unable to sign in with that code.");
     return response;

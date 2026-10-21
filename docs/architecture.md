@@ -301,3 +301,9 @@ Releases apply migrations; daily workflows only verify schema compatibility.
 An authenticated cache-expiry endpoint invalidates shared website reads after
 core publication. See [Daily ingestion](daily-ingestion.md) for implementation
 boundaries, cooldowns, capacity checks, and the activation runbook.
+
+## Passkey Login Preparation
+
+An opt-in passkey flow is implemented separately from the current hosted login.
+See [Passkey login](passkey-login.md) for rollout, database isolation, recovery,
+and real-device testing. Production activation requires explicit approval.
