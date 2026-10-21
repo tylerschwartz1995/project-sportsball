@@ -122,7 +122,7 @@ export function SkaterTable({
                       >
                         {player.name}
                       </Link>
-                      <span className="ml-2 text-xs text-[var(--muted)]">
+                      <span className="box-player-meta ml-2 text-xs text-[var(--muted)]">
                         {player.sweaterNumber === null
                           ? ""
                           : `#${player.sweaterNumber} · `}
@@ -212,7 +212,7 @@ export function GoalieTable({
                       >
                         {player.name}
                       </Link>
-                      <span className="ml-2 text-xs text-[var(--muted)]">
+                      <span className="box-player-meta ml-2 text-xs text-[var(--muted)]">
                         {player.starter ? "Starter" : "Backup"}
                       </span>
                     </div>

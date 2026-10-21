@@ -30,7 +30,7 @@ export function TeamGamesPageView({
     <main className="mx-auto min-h-screen w-full max-w-7xl px-4 py-6 sm:px-8 lg:px-10">
       <SiteHeader active="teams" />
 
-      <section className="py-10">
+      <section className="game-log-page py-10">
         <Link
           href={`/teams/${log.team.nhlTeamId}?season=${selectedSeason.id}&phase=${phase}`}
           className="text-sm font-medium text-[var(--accent)] transition hover:text-[var(--foreground)]"
@@ -38,7 +38,7 @@ export function TeamGamesPageView({
           ← {log.team.name}
         </Link>
 
-        <div className="mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+        <div className="game-log-header mt-6 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex items-center gap-4">
             <TeamLogo {...log.team} size="compact" decorative />
             <div>
@@ -114,7 +114,7 @@ export function TeamGamesPageView({
           <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
             <SortableTable secondaryColumns={[2, 10, 11]} initialExpanded={["type", "xGoalsFor", "xGoalsAgainst"].includes(sort)} defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
               <TableScroll className="workspace-table-scroll-viewport">
-                <table className="workspace-table-dense workspace-sticky-table-header w-full min-w-[1040px] text-sm">
+                <table className="workspace-table workspace-table-dense workspace-sticky-table-header w-full min-w-[1040px] text-sm">
                   <thead>
                     <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                       <SortableHeader

@@ -64,25 +64,25 @@ function ScoringSummary({
       ) : (
         <div className="data-table-shell">
             <TableScroll className="workspace-table-scroll">
-              <table className="workspace-scoring-table workspace-table workspace-table-dense workspace-table-semantic min-w-[1150px]">
+              <table role="table" className="workspace-scoring-table workspace-table workspace-table-dense workspace-table-semantic min-w-[1150px]">
                 <colgroup>
                   <col style={{ width: "7%" }} /><col style={{ width: "8%" }} />
                   <col style={{ width: "10%" }} /><col style={{ width: "20%" }} />
                   <col style={{ width: "27%" }} /><col style={{ width: "12%" }} />
                   <col style={{ width: "16%" }} />
                 </colgroup>
-                <thead>
+                <thead role="rowgroup">
                   <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
-                    <th scope="col">Period</th>
-                    <th scope="col">Time</th>
-                    <th scope="col">Team</th>
-                    <th scope="col">Scorer</th>
-                    <th scope="col">Assists</th>
-                    <th scope="col" title={`${awayTeam.abbreviation}–${homeTeam.abbreviation}, away score first.`}>Score</th>
-                    <th scope="col" title="PP: power play; SH: short-handed; EN: empty net.">Type</th>
+                    <th role="columnheader" scope="col">Period</th>
+                    <th role="columnheader" scope="col">Time</th>
+                    <th role="columnheader" scope="col">Team</th>
+                    <th role="columnheader" scope="col">Scorer</th>
+                    <th role="columnheader" scope="col">Assists</th>
+                    <th role="columnheader" scope="col" title={`${awayTeam.abbreviation}–${homeTeam.abbreviation}, away score first.`}>Score</th>
+                    <th role="columnheader" scope="col" title="PP: power play; SH: short-handed; EN: empty net.">Type</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody role="rowgroup">
                   {[...goals].sort((a, b) => a.periodNumber - b.periodNumber || (a.timeInPeriodSeconds ?? 0) - (b.timeInPeriodSeconds ?? 0)).map((goal) => {
                     const scorer = playerForRole(goal, "scorer");
                     const assists = [
@@ -96,23 +96,24 @@ function ScoringSummary({
                       (goal.timeInPeriodSeconds ?? 0);
 
                     return (
-                      <tr
+                      <tr role="row"
                         key={goal.sourceEventId}
                         className="border-b border-[var(--border)] text-[var(--foreground-soft)] last:border-0 hover:bg-[var(--surface-subtle)]"
                       >
-                        <td
+                        <td role="cell"
                           className="px-4 py-3"
+                          data-period-type={goal.periodType}
                           data-sort-value={goal.periodNumber}
                         >
                           {goal.periodType === "REG" ? goal.periodNumber : goal.periodType}
                         </td>
-                        <td
+                        <td role="cell"
                           className="px-4 py-3 tabular-nums"
                           data-sort-value={gameTime}
                         >
                           {goal.timeInPeriod}
                         </td>
-                        <td className="px-4 py-3">
+                        <td role="cell" className="px-4 py-3">
                           {goal.ownerTeam ? (
                             <span className="inline-flex items-center gap-2">
                               <TeamLogo {...goal.ownerTeam} size="tiny" decorative />
@@ -127,12 +128,12 @@ function ScoringSummary({
                             "—"
                           )}
                         </td>
-                        <td className="px-4 py-3">
+                        <td role="cell" className="px-4 py-3">
                           <span className="workspace-entity-name">
                             <PlayerLink player={scorer} seasonId={seasonId} />
                           </span>
                         </td>
-                        <td className="px-4 py-3 leading-6">
+                        <td role="cell" className="px-4 py-3 leading-6">
                           {assists.length > 0 ? (
                             <span className="flex flex-col gap-1">
                               {assists.map((player) => (
@@ -147,7 +148,7 @@ function ScoringSummary({
                             <span className="text-[var(--muted)]">Unassisted</span>
                           )}
                         </td>
-                        <td
+                        <td role="cell"
                           className="whitespace-nowrap px-4 py-3 text-center font-semibold tabular-nums text-[var(--foreground)]"
                           data-sort-value={
                             (goal.awayScore ?? 0) + (goal.homeScore ?? 0)
@@ -155,7 +156,7 @@ function ScoringSummary({
                         >
                           {goal.awayScore ?? "—"}–{goal.homeScore ?? "—"}
                         </td>
-                        <td className="px-4 py-3">
+                        <td role="cell" className="px-4 py-3">
                           {goalTypeLabel(goal, awayTeam, homeTeam)}
                         </td>
                       </tr>

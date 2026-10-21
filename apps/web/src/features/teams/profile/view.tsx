@@ -224,15 +224,11 @@ export function TeamPageView({
                           defaultDirection="asc"
                         />
                         <SortableHeader label="GP" sortKey="games" />
+                        <SortableHeader label="SV%" sortKey="savePercentage" />
+                        <SortableHeader label="GAA" sortKey="goalsAgainstAverage" defaultDirection="asc" />
                         <SortableHeader label="W" sortKey="wins" />
                         <SortableHeader label="L" sortKey="losses" />
                         <SortableHeader label="OTL" sortKey="overtimeLosses" />
-                        <SortableHeader
-                          label="GAA"
-                          sortKey="goalsAgainstAverage"
-                          defaultDirection="asc"
-                        />
-                        <SortableHeader label="SV%" sortKey="savePercentage" />
                         <SortableHeader label="SO" sortKey="shutouts" />
                         <SortableHeader label="GSAx/60" sortKey="goalsSavedPer60" nowrap />
                       </tr>
@@ -254,16 +250,11 @@ export function TeamPageView({
                             </div>
                           </td>
                           <NumericCell value={player.gamesPlayed} />
+                          <NumericCell value={formatSavePercentage(player.savePercentage)} highlight />
+                          <NumericCell value={formatDecimal(player.goalsAgainstAverage, 2)} />
                           <NumericCell value={player.wins} />
                           <NumericCell value={player.losses} />
                           <NumericCell value={player.overtimeLosses} />
-                          <NumericCell
-                            value={formatDecimal(player.goalsAgainstAverage, 2)}
-                          />
-                          <NumericCell
-                            value={formatSavePercentage(player.savePercentage)}
-                            highlight
-                          />
                           <NumericCell value={player.shutouts} />
                           <NumericCell value={formatSignedDecimal(goalieAdvanced[player.nhlPlayerId]?.goalsSavedPer60 ?? null)} />
                         </tr>

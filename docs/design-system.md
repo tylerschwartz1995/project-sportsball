@@ -15,7 +15,10 @@ provide layouts and chart geometry. Preserve the cascade when consolidating CSS.
 Use familiar sans-serif typography, tabular numbers, and quiet table separators.
 Statistics tables generally use 16px text. Team directory basic/advanced tables
 share compact 13px type (11px at narrower desktop widths) so their columns fit.
-Do not apply that density globally. Player names never wrap. Identity columns
+Do not apply that density globally on desktop. Phone tables use 13px text,
+compact rows, sticky identities, and contained horizontal scrolling. Keep tabs
+and filters visible instead of adding column-group selectors. Team names may
+use abbreviations on phones, with full accessible link names. Player names never wrap. Identity columns
 align left; numeric headers and cells share alignment. Highlight the active sort.
 
 Prefer useful tables over decorative summary cards or redundant headings.

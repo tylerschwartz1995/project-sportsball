@@ -8,7 +8,7 @@ export function SkaterRecentForm({ games }: { games: SkaterGameLogEntry[] }) {
   return (
     <RecentFormSection gameCount={games.length}>
       <div
-        className="grid grid-cols-5 gap-2 sm:grid-cols-10"
+        className="recent-game-strip grid grid-cols-5 gap-2 sm:grid-cols-10"
         aria-label="Points in recent games"
       >
         {games.map((game) => (
@@ -36,7 +36,7 @@ export function GoalieRecentForm({ games }: { games: GoalieGameLogEntry[] }) {
   return (
     <RecentFormSection gameCount={games.length}>
       <div
-        className="grid grid-cols-5 gap-2 sm:grid-cols-10"
+        className="recent-game-strip grid grid-cols-5 gap-2 sm:grid-cols-10"
         aria-label="Save percentage in recent games"
       >
         {games.map((game) => (

@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { ContextLink as Link } from "@/components/ui/context-link";
 import {
   useEffect,
@@ -33,7 +32,6 @@ export function ViewTabs<T extends string>({
   width?: WorkspaceWidth;
   label?: string;
 }) {
-  const router = useRouter();
   const navigationRef = useRef<HTMLElement>(null);
   const widthClass =
     width === "wide" ? "" : ` workspace-width-${width}`;
@@ -47,25 +45,8 @@ export function ViewTabs<T extends string>({
   }, []);
 
   return (
-    <>
-    {tabs.length > 3 && (
-      <label className="mobile-view-picker">
-        {ariaLabel}
-        <select value={active} onChange={event => {
-          const tab = tabs.find(item => item.id === event.target.value);
-          if (!tab) return;
-          // ContextLink resolves return paths and chart choices for both controls.
-          const link = Array.from(navigationRef.current?.querySelectorAll<HTMLAnchorElement>("a[data-tab-id]") ?? [])
-            .find(item => item.dataset.tabId === tab.id);
-          router.push(link?.getAttribute("href") ?? tab.href, { scroll: false });
-        }}>
-          {tabs.map(tab => <option key={tab.id} value={tab.id}>{tab.label}</option>)}
-        </select>
-      </label>
-    )}
     <nav
       ref={navigationRef}
-      data-mobile-select={tabs.length > 3}
       aria-label={ariaLabel}
       className={`workspace-scroll-nav${secondary ? " is-secondary" : ""}${widthClass}`}
     >
@@ -73,7 +54,6 @@ export function ViewTabs<T extends string>({
         <ViewTabLink key={tab.id} tab={tab} active={active === tab.id} />
       ))}
     </nav>
-    </>
   );
 }
 
@@ -90,7 +70,6 @@ function ViewTabLink<T extends string>({
   return (
     <Link
       href={tab.href}
-      data-tab-id={tab.id}
       aria-current={active ? "page" : undefined}
       data-preserved-search-parameters={
         tab.preservedSearchParameters?.join(" ")

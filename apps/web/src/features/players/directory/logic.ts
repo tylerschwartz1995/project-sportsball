@@ -41,11 +41,11 @@ export const skaterTableColumns = [
 
 export const goalieTableColumns = [
   { key: "games", label: "GP" },
+  { key: "savePercentage", label: "SV%" },
+  { key: "goalsAgainstAverage", label: "GAA" },
   { key: "wins", label: "W" },
   { key: "losses", label: "L" },
   { key: "overtimeLosses", label: "OTL" },
-  { key: "savePercentage", label: "SV%" },
-  { key: "goalsAgainstAverage", label: "GAA" },
   { key: "shutouts", label: "SO" },
 ];
 
