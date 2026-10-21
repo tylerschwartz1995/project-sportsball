@@ -22,6 +22,7 @@ type SiteHeaderProps = {
 };
 
 const links = [
+  { id: "standings", href: "/standings", label: "Standings" },
   { id: "teams", href: "/teams", label: "Teams" },
   { id: "players", href: "/players", label: "Players" },
   { id: "games", href: "/games", label: "Games" },

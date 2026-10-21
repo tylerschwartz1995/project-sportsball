@@ -1,10 +1,9 @@
-import { redirect } from "next/navigation";
-export default async function RetiredPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
-  const incoming = await searchParams;
-  const params = new URLSearchParams();
-  for (const key of ["season", "phase"]) {
-    const value = incoming[key];
-    if (typeof value === "string") params.set(key, value);
-  }
-  redirect(`/teams${params.size ? `?${params}` : ""}`);
+import { loadStandingsPage } from "@/features/standings/directory/loader";
+import type { StandingsPageProps } from "@/features/standings/directory/logic";
+import { StandingsPageView } from "@/features/standings/directory/view";
+
+export const dynamic = "force-dynamic";
+
+export default async function StandingsPage(props: StandingsPageProps) {
+  return <StandingsPageView {...await loadStandingsPage(props)} />;
 }

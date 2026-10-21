@@ -22,8 +22,8 @@ Player profiles retain basic stats, advanced stats, and season history. Rolling
 profile charts, schedule difficulty, standalone line rankings, chart builders,
 comparisons, drafts, historical research, and the playoff workspace are retired
 from the active interface. Old destination links redirect into the core app.
-The separate standings route redirects to Team Stats. League standings grouping
-and progression charts are no longer offered.
+Standings is a dedicated navigation destination with League, Conference, and
+Division grouping and a season selector. Points progression charts remain retired.
 
 Stored data, migrations, ingestion, operational jobs, and statistical definitions
 are unchanged. Some retired feature modules and historical regression scripts
@@ -85,3 +85,6 @@ Missing coordinates or xG do not contribute. Off-white ice and a sequential
 purple/orange/yellow palette work in both themes. Small puck icons mark goals
 and open a dismissible details dialog without resizing the chart. Header
 totals include modeled attempts, shots on goal, goals, and xG.
+
+Primary navigation now includes Standings, Teams, Players, and Games. Standings
+uses official regular-season snapshots, sortable tables, and clickable teams.

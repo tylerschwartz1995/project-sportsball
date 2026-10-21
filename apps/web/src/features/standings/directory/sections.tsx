@@ -87,7 +87,7 @@ export function StandingsTable({
                       </div>
                     </div>
                   </td>
-                  <td className="workspace-points-cell">{team.points}</td>
+                  <td className="workspace-semantic-number">{team.points}</td>
                   <NumericCell value={team.gamesPlayed} />
                   <NumericCell value={team.wins} />
                   <NumericCell value={team.losses} />
