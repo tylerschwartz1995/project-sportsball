@@ -64,6 +64,10 @@ export function TableScroll({
             cell.dataset.mobileEntity = String(isEntity);
             cell.dataset.mobileVisible = String(isEntity || Array.from({ length: span }, (_, offset) => index + offset).some(i => visible.has(i)));
             cell.dataset.mobileLabel = nextColumns[index]?.label ?? "";
+            // A career-total label can span identity + team: leave the team slot
+            // empty rather than shifting totals under the wrong metric heading.
+            const slot = active.findIndex(column => column.index >= index && column.index < index + span);
+            cell.style.gridColumn = !isEntity && slot >= 0 ? String(slot + 1) : "";
             cell.setAttribute("role", section === table.tHead ? "columnheader" : cell.tagName === "TH" ? "rowheader" : "cell");
             index += span;
           }
