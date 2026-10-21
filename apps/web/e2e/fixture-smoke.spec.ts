@@ -17,11 +17,23 @@ for (const theme of ["dark", "light"]) {
     await expect(page.getByRole("table")).toBeVisible();
     await page.getByRole("link", { name: "Advanced Stats", exact: true }).click();
     await expect(page).toHaveURL(/analytics.*type=teams/);
+    const mobileFilters = page.getByRole("button", { name: "Search & Filters", exact: true });
+    if (await mobileFilters.isVisible()) {
+      await mobileFilters.click();
+      await expect(page.getByRole("button", { name: "Hide Filters", exact: true })).toHaveAttribute("aria-expanded", "true");
+    }
     await expect(page.getByRole("combobox", { name: "Game Situation", exact: true })).toBeVisible();
     await expect(page.getByRole("link", { name: "Charts", exact: true })).toHaveCount(0);
     await page.goto("/players?season=20252026");
     await expect(page.getByText("Fixture Skater", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("Advanced Filters", { exact: true })).toHaveCount(0);
+    const mobileColumns = page.getByRole("combobox", { name: "Table columns", exact: true });
+    if (await mobileColumns.isVisible()) {
+      await mobileColumns.selectOption("1");
+      await expect(page.getByText("Fixture Skater", { exact: true }).first()).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      await mobileColumns.selectOption("0");
+    }
     await page.getByText("Fixture Skater", { exact: true }).first().click();
     await expect(page.getByRole("heading", { name: "Fixture Skater", exact: true })).toBeVisible();
     await expect(page.getByRole("columnheader", { name: /Season/ })).toBeVisible();

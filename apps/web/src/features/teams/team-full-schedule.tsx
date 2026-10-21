@@ -27,7 +27,7 @@ export function TeamFullSchedule({
     >
       {monthGroups.length > 0 ? (
         <TableScroll className="data-table-shell workspace-table-scroll mt-6 overflow-hidden">
-          <table className="workspace-table workspace-table-dense w-full min-w-[960px] table-fixed">
+          <table className="mobile-schedule-table workspace-table workspace-table-dense w-full min-w-[960px] table-fixed">
             <colgroup>
               <col className="w-[16%]" />
               <col className="w-[34%]" />
