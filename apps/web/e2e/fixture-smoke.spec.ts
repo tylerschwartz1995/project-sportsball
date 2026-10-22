@@ -22,6 +22,12 @@ for (const theme of ["dark", "light"]) {
         expect(bounds.x).toBeGreaterThanOrEqual(season.x + season.width + 6);
         expect(bounds.x + bounds.width).toBeLessThanOrEqual(width - 12);
         expect(bounds.height).toBeGreaterThanOrEqual(44);
+        expect(Math.abs(bounds.y - season.y)).toBeLessThan(1);
+        const controlStyles = await page.locator('.workspace-schedule-toolbar select, .workspace-schedule-calendar-action button').evaluateAll(elements => elements.map(element => {
+          const style = getComputedStyle(element);
+          return [style.fontSize, style.fontWeight, style.color, style.borderRadius];
+        }));
+        expect(controlStyles[0]).toEqual(controlStyles[1]);
         await expect(page.getByLabel("Jump to Date", { exact: true })).toBeHidden();
         expect(await calendar.evaluate(button => button.scrollWidth <= button.clientWidth)).toBe(true);
       }
@@ -59,6 +65,22 @@ for (const theme of ["dark", "light"]) {
     await expect(page.getByRole("heading", { name: "Fixture Skater", exact: true })).toBeVisible();
     await expect(page.getByRole("columnheader", { name: /Season/ })).toBeVisible();
     await expect(page.getByRole("link", { name: "Recent Form", exact: true })).toHaveCount(0);
+    const careerAlignment = await page.locator('.reference-player-career').evaluate(table => {
+      const body = [...table.querySelector('tbody tr')!.children];
+      const footer = [...table.querySelector('tfoot tr')!.children];
+      return footer.length === body.length && footer.every((cell, index) => {
+        const a = cell.getBoundingClientRect(), b = body[index].getBoundingClientRect();
+        return Math.abs(a.x - b.x) < 1 && Math.abs(a.width - b.width) < 1;
+      });
+    });
+    expect(careerAlignment).toBe(true);
+    await page.goto("/games/2025020001?view=box-score");
+    if ((page.viewportSize()?.width ?? 1280) <= 767) {
+      const filters = page.locator('.mobile-detail-filters');
+      expect(await filters.locator('label').first().evaluate(element => getComputedStyle(element).fontSize)).toBe('12px');
+      expect(await filters.locator('select').first().evaluate(element => getComputedStyle(element).fontSize)).toBe('14px');
+      expect((await filters.locator('select').first().boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    }
     await page.goto("/games/2025020001");
     await expect(page.getByText("Fixture Skater", { exact: true }).first()).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

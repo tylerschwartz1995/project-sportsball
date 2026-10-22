@@ -77,7 +77,8 @@ export function PlayerCareer({ rows, phase }: { rows: CareerSeason[]; phase: str
           {columns.map(column => { const value = valueFor(row, column); return <td key={column.key} className={`text-center tabular-nums ${column.advanced ? "reference-career-advanced" : ""}`} data-sort-value={value ?? ""}>{format(value, column)}</td>; })}
         </tr>)}</tbody>
         <tfoot><tr>
-          <th scope="row" colSpan={2} className="text-left" title="Totals for the selected phase. A dash means complete career data is unavailable.">Career Total</th>
+          <th scope="row" className="text-left reference-career-total-label" title="Totals for the selected phase. A dash means complete career data is unavailable.">Career Total</th>
+          <td aria-label="All teams" />
           {columns.map(column => <td key={column.key} className={`text-center tabular-nums ${column.advanced ? "reference-career-advanced" : ""}`}>{format(careerTotal(filtered, column.key), column)}</td>)}
         </tr></tfoot>
       </table></TableScroll>
