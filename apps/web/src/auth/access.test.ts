@@ -60,8 +60,8 @@ describe("Neon private access", () => {
     expect((await proxy(request("/api/seasons"))).status).toBe(503);
   });
   it("exempts only login, build assets and the bearer-guarded machine POST", async () => {
-    for (const path of ["/login", "/_next/static/test.js", "/favicon.ico", "/apple-icon.png"]) expect((await proxy(request(path, false))).headers.get("x-middleware-next")).toBe("1");
-    expect((await proxy(request("/apple-icon.png/private", false))).status).toBe(307);
+    for (const path of ["/login", "/_next/static/test.js", "/favicon.ico", "/apple-icon.png", "/manifest.webmanifest", "/app-icon-192.png", "/app-icon-512.png"]) expect((await proxy(request(path, false))).headers.get("x-middleware-next")).toBe("1");
+    for (const path of ["/apple-icon.png/private", "/manifest.webmanifest/private", "/app-icon-192.png/private"]) expect((await proxy(request(path, false))).status).toBe(307);
     expect((await proxy(new NextRequest(origin + "/api/ingestion/revalidate", { method: "POST" }))).headers.get("x-middleware-next")).toBe("1");
     expect((await proxy(request("/api/ingestion/revalidate", false))).status).toBe(401);
   });
