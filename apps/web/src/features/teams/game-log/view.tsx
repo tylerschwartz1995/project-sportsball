@@ -114,7 +114,7 @@ export function TeamGamesPageView({
           <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--table-background)]">
             <SortableTable secondaryColumns={[2, 10, 11]} initialExpanded={["type", "xGoalsFor", "xGoalsAgainst"].includes(sort)} defaultSortKey={sort} defaultDirection={direction} urlBacked scrollTarget="game-log-results">
               <TableScroll className="workspace-table-scroll-viewport">
-                <table className="workspace-table workspace-table-dense workspace-sticky-table-header w-full min-w-[1040px] text-sm">
+                <table className="mobile-team-log workspace-table workspace-table-dense workspace-sticky-table-header w-full min-w-[1040px] text-sm">
                   <thead>
                     <tr className="border-b border-[var(--border)] bg-[var(--surface-subtle)] text-xs uppercase tracking-[0.12em] text-[var(--muted)]">
                       <SortableHeader

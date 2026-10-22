@@ -84,9 +84,11 @@ export function GameIdentityCells({
       >
         <Link
           href={`/games/${game.nhlGameId}`}
+          aria-label={formatDate(game.gameDate)}
           className="font-medium text-[var(--foreground)] transition hover:text-[var(--accent)]"
         >
-          {formatDate(game.gameDate)}
+          <span className="game-log-date-full">{formatDate(game.gameDate)}</span>
+          <span className="game-log-date-short">{formatDate(game.gameDate).replace(/, \d{4}$/, "")}</span>
         </Link>
       </td>
       <td className="px-3 py-3">{game.gameType === 3 ? "Playoffs" : "Regular"}</td>
@@ -109,7 +111,7 @@ export function GameIdentityCells({
             href={`/teams/${game.opponent.nhlTeamId}?season=${seasonId}`}
             className="transition hover:text-[var(--accent)]"
           >
-            {game.opponent.abbreviation}
+            <span className="game-log-venue">{game.isHome ? "vs " : "@ "}</span>{game.opponent.abbreviation}
           </Link>
         </div>
       </td>

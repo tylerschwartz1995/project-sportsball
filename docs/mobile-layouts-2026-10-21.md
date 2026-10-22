@@ -77,3 +77,39 @@ The fixture browser smoke test checks visible filters, normal compact row
 height, absence of the Columns selector, navigation, and page containment in
 both themes. Recheck sticky identity cells, sorting, career totals, and the
 767px breakpoint whenever table schemas or shared styles change.
+
+## Follow-up spacing and sizing pass
+
+A second inspection found accumulated margins around headers and filters, clipped
+player names, hidden game tabs, and game-log metadata consuming the phone width.
+The follow-up keeps the compact tables and makes these adjustments below 768px:
+
+- Page titles and season selectors align on one row. The season label remains
+  accessible without consuming a separate visible line. Team and game-log
+  headers place the selector alongside the identity, wrapping long names.
+- Filters keep 44px controls with consistent label spacing; empty action areas
+  no longer add a blank row. Basic goalie search and player type share a row.
+- All six game views appear in a full-width, two-row selector. Other navigation
+  strips remain horizontal. Game chart height is reduced to 230px, and small
+  scoring-event details use 12px text.
+- Player names wrap within the sticky identity cell instead of being clipped.
+  Logo stacks leave a clear gap before the name.
+- Standings group selection sits on one compact row; the table does not repeat
+  the group heading on phones.
+- Game logs use shorter dates, put `vs`/`@` with the opponent, and omit the
+  redundant phase and venue columns on phones. Player team abbreviations remain
+  available, including for traded players. Full dates remain accessible. Desktop
+  retains the original columns.
+
+This follow-up was inspected in Chrome at 320, 390, and 430 CSS pixels, plus a
+wider layout, in dark and light themes. The pass covered games, all six game
+views, skater/goalie box scores, charts, standings groupings, team basic/advanced
+stats, team profile tabs, player basic/advanced stats, skater/goalie profiles,
+game logs, search, metric guide, and login. Local account settings remain
+unavailable because passkeys are disabled locally. The existing physical-device
+and authentication limitations still apply.
+
+Browser smoke coverage now also guards the first-screen table position, season
+control touch height, and visibility of every game-view option without horizontal
+scrolling. No statistic calculations, database queries, or authentication settings
+changed.

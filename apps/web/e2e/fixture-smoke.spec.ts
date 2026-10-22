@@ -27,7 +27,12 @@ for (const theme of ["dark", "light"]) {
     const firstRow = page.locator("tbody tr").first();
     if ((page.viewportSize()?.width ?? 1280) <= 767) {
       expect(await firstRow.evaluate(row => row.getBoundingClientRect().height)).toBeLessThan(60);
+      // Keep useful results on the first screen, with accessible touch controls.
+      expect((await page.getByRole("table").boundingBox())!.y).toBeLessThan(480);
+      expect((await page.getByRole("combobox", { name: "Season", exact: true }).boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
+    await page.getByRole("button", { name: "GP", exact: true }).click();
+    await expect(page.getByRole("tooltip")).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     await page.getByText("Fixture Skater", { exact: true }).first().click();
     await expect(page.getByRole("heading", { name: "Fixture Skater", exact: true })).toBeVisible();
@@ -36,6 +41,16 @@ for (const theme of ["dark", "light"]) {
     await page.goto("/games/2025020001");
     await expect(page.getByText("Fixture Skater", { exact: true }).first()).toBeVisible();
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+    if ((page.viewportSize()?.width ?? 1280) <= 767) {
+      const views = page.getByRole("navigation", { name: "Game views", exact: true });
+      expect(await views.evaluate(nav => nav.scrollWidth <= nav.clientWidth)).toBe(true);
+      for (const link of await views.getByRole("link").all()) {
+        const bounds = (await link.boundingBox())!;
+        expect(bounds.x).toBeGreaterThanOrEqual(0);
+        expect(bounds.x + bounds.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+        expect(bounds.height).toBeGreaterThanOrEqual(44);
+      }
+    }
     await page.goto("/drafts?season=20252026");
     await expect(page).toHaveURL(/teams\?season=20252026/);
     expect(errors).toEqual([]);
