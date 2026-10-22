@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Fixed dark brand palette from styles/tokens.css; iOS supplies the corner mask. -->
+  <rect width="512" height="512" fill="#111722" />
+  <path d="M5 20V13M14 20V5M23 20V9" transform="translate(60 81) scale(14)"
+    fill="none" stroke="#91b7ff" stroke-width="4" stroke-linecap="round" />
+</svg>
