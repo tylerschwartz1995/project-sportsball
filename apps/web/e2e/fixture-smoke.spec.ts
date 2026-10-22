@@ -12,6 +12,26 @@ for (const theme of ["dark", "light"]) {
     await expect(page.getByRole("heading", { name: "2025–26 NHL Schedule", exact: true })).toBeVisible();
     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
     await expect(page.locator('.site-navigation a')).toHaveText(["Games", "Standings", "Teams", "Players"]);
+    if ((page.viewportSize()?.width ?? 1280) <= 767) {
+      const originalViewport = page.viewportSize()!;
+      for (const width of [320, 390, 430]) {
+        await page.setViewportSize({ width, height: originalViewport.height });
+        const season = (await page.getByRole("combobox", { name: "Season", exact: true }).boundingBox())!;
+        const calendar = page.getByRole("button", { name: "Calendar View", exact: true });
+        const bounds = (await calendar.boundingBox())!;
+        expect(bounds.x).toBeGreaterThanOrEqual(season.x + season.width + 6);
+        expect(bounds.x + bounds.width).toBeLessThanOrEqual(width - 12);
+        expect(bounds.height).toBeGreaterThanOrEqual(44);
+        await expect(page.getByLabel("Jump to Date", { exact: true })).toBeHidden();
+        expect(await calendar.evaluate(button => button.scrollWidth <= button.clientWidth)).toBe(true);
+      }
+      await page.getByRole("button", { name: "Calendar View", exact: true }).click();
+      await expect(page.locator("#schedule-month-calendar")).toBeVisible();
+      await page.locator("#schedule-month-calendar a").first().click();
+      await expect(page.locator("#schedule-month-calendar")).toHaveCount(0);
+      await expect(page.getByRole("button", { name: "Calendar View", exact: true })).toHaveAttribute("aria-expanded", "false");
+      await page.setViewportSize(originalViewport);
+    }
     await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Teams", exact: true }).click();
     await expect(page.getByRole("heading", { name: "Team Stats", exact: true })).toBeVisible();
     await expect(page.getByRole("table")).toBeVisible();
@@ -27,6 +47,7 @@ for (const theme of ["dark", "light"]) {
     const firstRow = page.locator("tbody tr").first();
     if ((page.viewportSize()?.width ?? 1280) <= 767) {
       expect(await firstRow.evaluate(row => row.getBoundingClientRect().height)).toBeLessThan(60);
+      expect(await firstRow.locator("a").first().evaluate(link => getComputedStyle(link).fontSize)).toBe("13px");
       // Keep useful results on the first screen, with accessible touch controls.
       expect((await page.getByRole("table").boundingBox())!.y).toBeLessThan(480);
       expect((await page.getByRole("combobox", { name: "Season", exact: true }).boundingBox())!.height).toBeGreaterThanOrEqual(44);

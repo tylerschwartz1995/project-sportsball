@@ -29,8 +29,9 @@ At widths up to 767 CSS pixels:
   arrangement retaining period, time, scorer, assists, team, score, and type.
 - Team schedules fit date, abbreviated opponent with home/away indicator,
   result, and score/start on one row. Desktop retains full names and records.
-- Schedule date controls share a row. Below 360px, the month calendar replaces
-  the direct date input; previous/next week links remain available.
+- Schedule controls share a row: season and a dated calendar button. On phones,
+  the month calendar replaces the native date input; previous/next week links
+  remain available.
 - Biographies wrap; game logs use compact recent-result strips. Heatmaps stack
   vertically and preserve rink proportions. Game Flow retains its narrow axes.
 
@@ -113,3 +114,35 @@ Browser smoke coverage now also guards the first-screen table position, season
 control touch height, and visibility of every game-view option without horizontal
 scrolling. No statistic calculations, database queries, or authentication settings
 changed.
+
+
+## Calendar and typography follow-up
+
+A physical iPhone screenshot exposed overlapping native date and calendar
+controls. Phones now use one dated calendar button beside the season selector,
+with separate grid columns and a 44px target. Choosing a date closes the month
+calendar. Desktop retains its native date input. Month and week navigation have
+44px targets.
+
+The sizing audit found 16px desktop link text leaking into 13px table cells.
+Mobile table links now inherit the cell size, including player names and team
+schedule links. Supporting labels, chart captions, and metadata previously set
+to 10–11px are now 12px. Numeric rows remain 13px, navigation is 13–14px,
+form inputs remain 16px, and headings retain their larger hierarchy.
+
+Team schedules now fit all four visible columns at 320px: dates and opponents
+use compact labels, times can wrap, and upcoming result cells show a dash
+(with the full status accessible). All four team-profile tabs fit without
+horizontal scrolling. Upcoming game cards put start time beside status and omit
+the duplicate footer on phones.
+
+Inspected the primary directories, standings groupings, team-profile tabs,
+player/goalie directories and careers, game logs, all six game views, search,
+metric guide, and login. Targeted calendar and schedule checks used 320, 390,
+and 430 CSS pixels and both themes. Desktop is checked separately. Inspection
+uses Chrome responsive tooling, not physical Safari; the supplied iPhone image
+is the evidence for the original overlap. Account/passkey screens retain the
+previously documented local-access limitation.
+
+Browser regression coverage checks calendar containment and separation at three
+phone widths, open/select/close behavior, and inherited player-link font size.

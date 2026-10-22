@@ -169,7 +169,10 @@ function ScheduleGameRows({
         </td>
         <td className="px-5 text-center text-[var(--muted)]">{isHome ? "Home" : "Away"}</td>
         <td className="px-5 text-center">
-          <span className={resultClassName(result)}>{result}</span>
+          <span className={resultClassName(result)}>
+            <span className="schedule-result-full">{result}</span>
+            <span className="schedule-result-short" aria-hidden="true">{result === "Scheduled" ? "—" : result === "Postponed" ? "PPD" : result}</span>
+          </span>
         </td>
         <td className="whitespace-nowrap px-5 text-center font-semibold text-[var(--foreground)] tabular-nums">
           {completed ? (
