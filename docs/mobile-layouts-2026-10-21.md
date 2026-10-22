@@ -167,3 +167,12 @@ Inspected locally in Chrome at 320, 390, and 430 CSS pixels, in light and dark
 themes, with desktop checks. Calendar open/select/close behavior was exercised.
 These are responsive browser checks; physical iPhone Safari verification remains
 with the user.
+
+## Game-card typography
+
+Completed-game screenshots exposed a desktop-sized start time and heavy
+monospaced records inside otherwise compact cards. Phone game cards now use
+14px/600 team names, 22px scores, and 12px status, records, shots, time, and
+footer links. Records use the surrounding font at normal weight; times inherit
+the footer typography. Desktop sizing is unchanged. Verified completed and
+scheduled cards in responsive Chrome, including both themes and narrow widths.
