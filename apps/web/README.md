@@ -15,6 +15,22 @@ SPORTSBALL_WEB_DATABASE_URL=postgresql://sportsball:sportsball@localhost:5432/sp
 Next loads `apps/web/.env.local`, not the root Python/Compose `.env`.
 Never expose database credentials with a `NEXT_PUBLIC_` variable.
 
+## iPhone Home Screen icon
+
+`src/app/apple-icon.png` is an opaque 180×180 PNG of the blue Sportsball bars
+on the dark brand background. Next.js adds the Apple touch icon metadata.
+The exact icon route is public so iOS can retrieve it without a session.
+The editable source is `assets/app-icon.svg`; iOS supplies the rounded corners.
+Regenerate from the repository root after editing the source:
+
+```bash
+node -e "require('./apps/web/node_modules/sharp')('apps/web/assets/app-icon.svg').resize(180,180).flatten({background:'#111722'}).png().toFile('apps/web/src/app/apple-icon.png')"
+```
+
+After deployment, existing iPhone Home Screen installations may retain their
+cached icon. Re-add Sportsball from Safari's Share → Add to Home Screen menu
+if the old icon remains.
+
 ## Validation
 
 ```bash
