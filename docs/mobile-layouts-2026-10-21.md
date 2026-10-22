@@ -146,3 +146,24 @@ previously documented local-access limitation.
 
 Browser regression coverage checks calendar containment and separation at three
 phone widths, open/select/close behavior, and inherited player-link font size.
+
+
+## Physical screenshot control and totals corrections
+
+Follow-up iPhone screenshots identified uneven schedule control alignment,
+oversized game-detail filters, and a career footer with a different column
+structure. On phones, schedule labels now share 12px typography and aligned
+baselines. The season and date controls use centered 14px values, matching
+weight, color, corners, and 44px heights. The schedule heading gap is reduced.
+Game-detail filters use 12px labels and 14px selected values with 44px targets;
+text-entry fields retain their existing sizes.
+
+Career totals now have separate Season and Team cells, matching the header and
+body. The total label wraps on phones and sticks within only the Season column
+when swiping. Statistic calculations are unchanged. Regression coverage compares
+footer/body column bounds and schedule control styles, and checks filter sizes.
+
+Inspected locally in Chrome at 320, 390, and 430 CSS pixels, in light and dark
+themes, with desktop checks. Calendar open/select/close behavior was exercised.
+These are responsive browser checks; physical iPhone Safari verification remains
+with the user.

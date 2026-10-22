@@ -67,10 +67,13 @@
   .workspace-schedule-toolbar > form:first-child { grid-column: 1; grid-row: 1; }
   main .workspace-schedule-toolbar > form.workspace-schedule-calendar { display: none; }
   .workspace-schedule-toolbar > .workspace-schedule-calendar-action { grid-column: 2; grid-row: 1; display: grid; grid-template-columns: minmax(0,1fr); gap: 4px; min-width: 0; }
-  .workspace-schedule-calendar-action button { width: 100%; height: 44px; padding: 8px; font-size: 14px; gap: 6px; justify-content: flex-start; }
+  .workspace-schedule-calendar-action button { width: 100%; height: 44px; padding: 8px; font-size: 14px; gap: 6px; justify-content: center; align-items: center; }
   .workspace-schedule-calendar-action button svg { width: 20px; height: 20px; }
   .workspace-schedule-toolbar input[type=date] { width: 100%; padding-inline: 5px; }
-  .workspace-schedule-toolbar label { font-size: 12px; line-height: 1.35; gap: 4px; }
+  main[class] .workspace-schedule-toolbar label { display: grid; font-size: 12px; line-height: 1.35; gap: 4px; }
+  main[class] .workspace-schedule-toolbar :is(select,button[aria-controls="schedule-month-calendar"]) { margin: 0; height: 44px; min-height: 44px; font-size: 14px; line-height: 20px; font-weight: 400; color: var(--foreground); background-color: var(--surface); border: 1px solid var(--control-border); border-radius: 5px; }
+  main[class] .workspace-schedule-toolbar select:not([multiple]):not([size]) { text-align: center; text-align-last: center; padding-inline: 24px; background-position: calc(100% - 15px) center, calc(100% - 10px) center; }
+  main .workspace-schedule-calendar-action .schedule-mobile-date-text { color: inherit; }
   .workspace-schedule-week-actions { padding: 4px 8px; gap: 4px; font-size: 12px; }
   .workspace-schedule-week-actions a { min-height: 36px; display: inline-flex; align-items: center; }
   .workspace-calendar-mobile-key { display: none; }
@@ -257,8 +260,9 @@
   .schedule-mobile-date-label { display: block; font-size: 12px; line-height: 1.35; color: var(--muted); font-weight: 600; }
   .schedule-mobile-date-text { display: inline; }
   .schedule-calendar-desktop-text { display: none; }
-  .workspace-schedule-calendar-action button[aria-expanded=true] { border-color: var(--accent); background: var(--accent-soft); }
-  .workspace-schedule-navigator { margin-top: 12px; }
+  main[class] .workspace-schedule-calendar-action button[aria-expanded=true] { border-color: var(--accent); background: var(--accent-soft); }
+  .workspace-schedule-navigator { margin-top: 8px; }
+  main .workspace-page-header:has(+ .workspace-schedule-navigator) { min-height: 0; margin-bottom: 12px; }
   .workspace-schedule-week-actions a { min-height: 44px; }
   .workspace-schedule-month-heading button { min-width: 44px; min-height: 44px; }
   main .team-profile-page > .workspace-scroll-nav { display: grid; grid-template-columns: 1fr 1fr 1fr 1.6fr; width: 100%; gap: 0; overflow: visible; }
@@ -295,6 +299,8 @@
   main .workspace-filter-actions:empty { display: none; }
   main :is(.reference-player-filters,.workspace-analytics-filters,.mobile-detail-filters) label { display: grid; gap: 4px; font-size: 12px; line-height: 1.35; }
   main :is(.reference-player-filters,.workspace-analytics-filters,.mobile-detail-filters) :is(input,select) { min-height: 44px; padding-block: 8px; }
+  main[class] .mobile-detail-filters label { font-size: 12px; line-height: 1.35; }
+  main[class] .mobile-detail-filters select { margin-top: 0; font-size: 14px; line-height: 20px; font-weight: 400; }
   main .reference-player-filters .workspace-player-filter-group.is-primary { flex: 1 1 100%; }
   main .reference-player-filters .workspace-player-filter-group.is-primary > div { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
   main .reference-player-filters .is-primary:not(.has-position) label.is-wide { grid-column: auto; }
@@ -332,6 +338,7 @@
   .reference-player-bio { line-height: 1.5; gap: 4px 12px; }
   [aria-label="Player season history"] { margin-top: 12px; }
   main .responsive-table-scroll .reference-player-career :is(th,td) { height: 42px; }
+  main .responsive-table-scroll .reference-player-career .reference-career-total-label:first-child { white-space: normal; width: 70px; max-width: 70px; line-height: 1.35; }
 
   /* Every game view is available without discovering a hidden horizontal tab. */
   main .workspace-scroll-nav[aria-label="Game views"] { display: grid; width: 100%; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 0; overflow: visible; margin: 16px 0 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
