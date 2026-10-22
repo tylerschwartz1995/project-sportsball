@@ -249,3 +249,18 @@ Daily ingestion has been active since September 30, 2026; scheduled monthly
 backups remain disabled. See [hosted preparation](docs/hosted-preparation.md).
 The earlier unapplied AWS server scaffolding has been removed;
 [active AWS storage](docs/aws-preparation.md) remains supported.
+
+
+## iPhone Home Screen installation
+
+Open [Sportsball](https://sportsball-iota.vercel.app) in Safari, choose Share →
+Add to Home Screen, enable **Open as Web App** when offered, and tap Add.
+Launch from that Home Screen icon. The app requests standalone mode so its own
+navigation is shown without a browser address bar or toolbar. Existing shortcuts
+may need to be removed and re-added after this configuration is deployed.
+
+The manifest covers all app routes, including login, and starts at Games.
+Installation does not bypass sign-in or provide offline access. Browser tabs and
+external sites still show browser controls. Physical iPhone verification should
+include launching from the icon, signing in, navigating between pages, closing
+and reopening the app, and confirming the status bar does not cover content.

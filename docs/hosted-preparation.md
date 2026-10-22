@@ -81,7 +81,8 @@ when `SPORTSBALL_PRIVATE_ACCESS` is false. Missing configuration fails closed wi
 normal local development remains open. HTTP auth endpoints are allowed only on
 localhost outside Vercel for the isolated test provider.
 
-The login page, bundled static assets and favicon are public. Statistics pages,
+The login page, bundled static assets, favicon, Apple touch icon, and exact
+manifest/install-icon paths are public. Statistics pages,
 APIs and RSC requests require a verified, approved account. Protected responses
 are private/no-store. Only the exact ingestion revalidation POST bypasses session
 login; that handler still checks its own bearer token. Anonymous requests are

@@ -37,6 +37,14 @@ const themeBootstrap = `
 `;
 
 export const metadata: Metadata = {
+  applicationName: "Sportsball",
+  appleWebApp: {
+    capable: true,
+    title: "Sportsball",
+    statusBarStyle: "default",
+  },
+  // Next emits the standard mobile-web-app-capable tag; retain older iOS support.
+  other: { "apple-mobile-web-app-capable": "yes" },
   title: {
     default: "Sportsball",
     template: "%s | Sportsball",

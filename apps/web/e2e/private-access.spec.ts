@@ -64,3 +64,22 @@ test("security headers authorize app scripts and block injected scripts", async 
   expect(second.headers()["content-security-policy"]).not.toContain(nonce);
   expect(second.headers()["content-security-policy"]).not.toContain("attacker");
 });
+
+
+test("Home Screen metadata and install assets are available before sign-in", async ({ page }) => {
+  await page.goto("/login");
+  await expect(page.locator('meta[name="apple-mobile-web-app-capable"]')).toHaveAttribute("content", "yes");
+  await expect(page.locator('meta[name="apple-mobile-web-app-title"]')).toHaveAttribute("content", "Sportsball");
+  const manifestPath = await page.locator('link[rel="manifest"]').getAttribute("href");
+  expect(manifestPath).toBe("/manifest.webmanifest");
+  const response = await page.request.get(manifestPath!);
+  expect(response.ok()).toBe(true);
+  const manifest = await response.json();
+  expect(manifest).toMatchObject({ display: "standalone", start_url: "/games", scope: "/", id: "/" });
+  for (const icon of manifest.icons) {
+    const image = await page.request.get(icon.src);
+    expect(image.ok()).toBe(true);
+    expect(image.headers()["content-type"]).toContain("image/png");
+  }
+  expect((await page.request.get("/api/seasons")).status()).toBe(401);
+});

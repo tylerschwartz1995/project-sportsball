@@ -32,8 +32,8 @@ async function authorize(request: NextRequest, next: () => NextResponse) {
   if (!privateAccessRequired()) return next();
   const path = request.nextUrl.pathname;
   if (path === "/api/ingestion/revalidate" && request.method === "POST") return privateResponse(next());
-  // Only public login assets: never exempt _next/data, image optimization or arbitrary APIs.
-  if (path.startsWith("/_next/static/") || path === "/favicon.ico" || path === "/apple-icon.png") return next();
+  // Only public login/install assets: never exempt _next/data, image optimization or arbitrary APIs.
+  if (path.startsWith("/_next/static/") || ["/favicon.ico", "/apple-icon.png", "/manifest.webmanifest", "/app-icon-192.png", "/app-icon-512.png"].includes(path)) return next();
   try { authConfiguration(); } catch {
     return privateResponse(new NextResponse("Sign-in is not configured.", { status: 503 }));
   }
