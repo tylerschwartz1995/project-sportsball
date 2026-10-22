@@ -113,14 +113,18 @@ export function GamePicker({
           </label>
         </form>
         <div className="workspace-schedule-calendar-action">
+        <span className="schedule-mobile-date-label" aria-hidden="true">Date</span>
         <button
           type="button"
+          aria-label={isCalendarOpen ? "Hide Calendar" : "Calendar View"}
+          aria-describedby="schedule-selected-date"
           aria-expanded={isCalendarOpen}
           aria-controls="schedule-month-calendar"
           onClick={() => setIsCalendarOpen((current) => !current)}
         >
           <CalendarIcon />
-          {isCalendarOpen ? "Hide Calendar" : "Calendar View"}
+          <span className="schedule-calendar-desktop-text">{isCalendarOpen ? "Hide Calendar" : "Calendar View"}</span>
+          <span id="schedule-selected-date" className="schedule-mobile-date-text">{formatScheduleMonthDay(selectedDate)}, {selectedDate.slice(0, 4)}</span>
         </button>
         </div>
       </div>
@@ -196,6 +200,7 @@ export function GamePicker({
               return inRange ? (
                 <Link
                   key={date}
+                  onClick={() => setIsCalendarOpen(false)}
                   href={gamesHref({
                     seasonId: selectedSeasonId,
                     date,

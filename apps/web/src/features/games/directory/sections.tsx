@@ -13,11 +13,12 @@ export function GameCard({ game }: { game: GameSummary }) {
   const live = game.state === "LIVE" || game.state === "CRIT";
 
   return (
-    <article className="workspace-game-card">
+    <article className="workspace-game-card" data-upcoming={!completed && !live || undefined}>
       <div className="workspace-game-card-header">
         <strong data-complete={completed}>
           {completed ? finalLabel(game.lastPeriodType) : formatGameState(game.state)}
         </strong>
+        {!completed && !live ? <span className="game-card-mobile-time"><LocalGameTime value={game.startTimeUtc} /></span> : null}
       </div>
       <div className="workspace-game-card-teams">
         <TeamLine team={game.awayTeam} seasonId={game.seasonId} side="away" />
